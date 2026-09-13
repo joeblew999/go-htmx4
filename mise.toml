@@ -1,0 +1,68 @@
+# mise.toml — go-htmx4
+#
+#   mise install        # install pinned tools
+#   mise run run        # start the server on http://localhost:8080
+#   mise run dev        # rebuild + restart on file changes
+#   mise tasks          # list everything
+
+[tools]
+go = "1.27.1"
+watchexec = "latest"   # used by `mise run dev`
+tinygo = "0.42.0"      # workers-go TinyGo builds need >= 0.42.0 (net/http on wasm); supports Go <= 1.27
+# wasm-opt, required by `tinygo build -target wasm`. The aqua registry lags (121),
+# so pull the upstream release directly.
+"github:WebAssembly/binaryen" = "version_132"
+
+[env]
+# Respect an ADDR already set in the shell, e.g. `ADDR=:3000 mise run run`.
+ADDR = "{{ get_env(name='ADDR', default=':8080') }}"
+
+[tasks.run]
+description = "Run the server (override address with ADDR=:3000)"
+dir = "{{config_root}}"
+run = "go run . -addr $ADDR"
+
+[tasks.dev]
+description = "Run the server and restart on .go / template / static changes"
+dir = "{{config_root}}"
+run = "watchexec --restart --exts go,html,js,css --ignore bin -- go run . -addr $ADDR"
+
+[tasks.build]
+description = "Build the binary into bin/"
+dir = "{{config_root}}"
+run = "go build -o bin/go-htmx4 ."
+
+[tasks.fmt]
+description = "Format Go code"
+dir = "{{config_root}}"
+run = "gofmt -w ."
+
+[tasks.vet]
+description = "Run go vet"
+dir = "{{config_root}}"
+run = "go vet ./..."
+
+[tasks.test]
+description = "Run tests"
+dir = "{{config_root}}"
+run = "go test ./..."
+
+[tasks.check]
+description = "fmt check + vet + test"
+dir = "{{config_root}}"
+run = '''
+test -z "$(gofmt -l .)" || { gofmt -l .; echo "gofmt: files need formatting"; exit 1; }
+go vet ./...
+go test ./...
+'''
+
+[tasks."htmx:update"]
+description = "Vendor a specific htmx version: mise run htmx:update 4.0.0"
+dir = "{{config_root}}"
+usage = 'arg "<version>" help="htmx.org version, e.g. 4.0.0"'
+run = 'curl -sfL -o static/htmx.min.js "https://cdn.jsdelivr.net/npm/htmx.org@${usage_version}/dist/htmx.min.js" && echo "✓ htmx ${usage_version} → static/htmx.min.js"'
+
+[tasks.clean]
+description = "Remove build output"
+dir = "{{config_root}}"
+run = "rm -rf bin"

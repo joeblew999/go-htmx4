@@ -1,15 +1,51 @@
 # go-htmx4
 
-A minimal starter for building server-rendered web apps with [Go](https://go.dev) and [htmx 4](https://htmx.org).
+A minimal starter for building server-rendered web apps with [Go](https://go.dev) and [htmx 4](https://four.htmx.org).
 
 - Standard library only — no external Go dependencies
 - Uses Go 1.22+ `net/http` routing patterns (`GET /{$}`, `POST /count`)
 - Templates and static assets are embedded with `go:embed`, so the result is a single self-contained binary
 - htmx 4.0.0 is vendored into `static/`, so there's no CDN dependency at runtime
 
+## Stack
+
+### In use
+
+| Layer | Technology | Version | Notes |
+| --- | --- | --- | --- |
+| Language / server | [Go](https://go.dev) `net/http`, `html/template`, `embed` | 1.27.1 | Standard library only |
+| Interactivity | [htmx](https://four.htmx.org) | 4.0.0 | Vendored in `static/` |
+| Toolchain & tasks | [mise](https://mise.jdx.dev) | — | Pins every tool below; `mise tasks` lists tasks |
+| Dev reload | [watchexec](https://github.com/watchexec/watchexec) | latest | Used by `mise run dev` |
+| Wasm compiler | [TinyGo](https://tinygo.org) | 0.42.0 | Small wasm builds (supports Go ≤ 1.27) |
+| Wasm optimiser | [binaryen](https://github.com/WebAssembly/binaryen) `wasm-opt` | 132 | Required by TinyGo wasm targets |
+
+### Planned
+
+See [`.plans/`](.plans/) for details.
+
+| Layer | Technology | Plan |
+| --- | --- | --- |
+| Templates | [gsx](https://github.com/gsxhq/gsx): JSX-style, type-checked Go templates | [adopt-gsxui](.plans/2026-09-13_1109_adopt-gsxui.md) |
+| UI components | [gsxui](https://github.com/gsxhq/gsxui): shadcn/ui for gsx, built with Tailwind v4 + Vite | [adopt-gsxui](.plans/2026-09-13_1109_adopt-gsxui.md) |
+| Hosting | [Cloudflare Workers](https://workers.cloudflare.com) via [workers-go](https://github.com/syumai/workers-go) (TinyGo wasm) | [adopt-workers-go](.plans/2026-09-13_1111_adopt-workers-go.md) |
+| State | [Cloudflare D1](https://developers.cloudflare.com/d1/) | [adopt-workers-go](.plans/2026-09-13_1111_adopt-workers-go.md) |
+
 ## Requirements
 
-- Go 1.26 or newer
+- Go 1.27 or newer, or [mise](https://mise.jdx.dev), which installs the pinned toolchain for you
+
+## Quick start with mise
+
+```sh
+git clone https://github.com/joeblew999/go-htmx4.git
+cd go-htmx4
+mise install        # Go, TinyGo, binaryen, watchexec, as pinned in mise.toml
+mise run dev        # run and auto-restart on changes
+```
+
+Other tasks: `mise run run`, `build`, `check`, `fmt`, `htmx:update <version>` — see `mise tasks`.
+Set `ADDR=:3000` to change the listen address.
 
 ## Quick start
 
