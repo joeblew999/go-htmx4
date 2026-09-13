@@ -1,0 +1,10 @@
+class_merger = "github.com/joeblew999/go-htmx4/demos/gsxui/ui/merge.Merge"
+# gsx's htmx preset predates htmx 4: add hx-action, which also carries a URL.
+url_presets = ["htmx"]
+
+[url_attrs]
+names = ["hx-action"]
+
+# npm-free: no Vite front door (gsx CLI guide: gsx dev --no-web).
+[dev]
+no_web = true

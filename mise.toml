@@ -12,6 +12,16 @@ tinygo = "0.42.0"      # workers-go TinyGo builds need >= 0.42.0 (net/http on wa
 # wasm-opt, required by `tinygo build -target wasm`. The aqua registry lags (121),
 # so pull the upstream release directly.
 "github:WebAssembly/binaryen" = "version_132"
+# gsx / gsxui toolchain (see .plans/2026-09-13_1109_adopt-gsxui.md). No Node anywhere.
+# Tailwind standalone CLI — the npm-free path in https://ui.gsxhq.dev/docs/npm-free.
+"github:tailwindlabs/tailwindcss" = "v4.3.3"
+# gsxui has no tags yet: pin the commit (README: go install .../cmd/gsxui).
+"go:github.com/gsxhq/gsxui/cmd/gsxui" = "c7fd6a8"
+# gsx on PATH for the VS Code language server; builds use `go tool gsx` (gsx Status guide).
+"go:github.com/gsxhq/gsx/cmd/gsx" = "v0.1.0"
+
+[task_config]
+includes = ["tasks/gsxui.toml"]
 
 [env]
 # Respect an ADDR already set in the shell, e.g. `ADDR=:3000 mise run run`.
@@ -25,7 +35,7 @@ run = "go run . -addr $ADDR"
 [tasks.dev]
 description = "Run the server and restart on .go / template / static changes"
 dir = "{{config_root}}"
-run = "watchexec --restart --exts go,html,js,css --ignore bin -- go run . -addr $ADDR"
+run = "watchexec --restart --exts go,html,js,css --ignore bin --ignore demos --ignore .upstream -- go run . -addr $ADDR"
 
 [tasks.build]
 description = "Build the binary into bin/"
@@ -51,7 +61,8 @@ run = "go test ./..."
 description = "fmt check + vet + test"
 dir = "{{config_root}}"
 run = '''
-test -z "$(gofmt -l .)" || { gofmt -l .; echo "gofmt: files need formatting"; exit 1; }
+files=$(ls *.go)   # root module only; demos/ and .upstream/ have their own tasks
+test -z "$(gofmt -l $files)" || { gofmt -l $files; echo "gofmt: files need formatting"; exit 1; }
 go vet ./...
 go test ./...
 '''

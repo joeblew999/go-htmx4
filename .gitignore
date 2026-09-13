@@ -9,3 +9,6 @@
 .idea/
 .vscode/
 .DS_Store
+
+# Upstream checkouts driven by mise tasks (tasks/*.toml)
+/.upstream/

@@ -1,0 +1,202 @@
+# tasks/gsxui.toml — gsx + gsxui tasks (plan: .plans/2026-09-13_1109_adopt-gsxui.md)
+#
+# No Node anywhere. Tools come from mise.toml: go, tailwindcss (standalone), gsxui, gsx.
+#
+# upstream:gsxui:*  run gsxui's own demo (showcase site, component examples, theme editor)
+#                   through its unbundled Go harness, jstest/harness. The steps mirror
+#                   jstest/global-setup.ts, minus npx:
+#
+#   mise run upstream:gsxui:serve    # fetch + generate + deps + css, then serve
+#                                    # → http://127.0.0.1:7799/
+
+# ── upstream:gsxui:fetch ─────────────────────────────────────────────────────
+["upstream:gsxui:fetch"]
+description = "Check out gsxhq/gsxui at the pinned commit into .upstream/gsxui"
+dir = "{{config_root}}"
+run = '''
+#!/usr/bin/env bash
+set -euo pipefail
+rev=c7fd6a82e7ce8b7fb03940fcb3de8da06b833340
+dir=.upstream/gsxui
+if [ ! -d "$dir/.git" ]; then
+  mkdir -p "$dir"
+  git -C "$dir" init -q
+  git -C "$dir" remote add origin https://github.com/gsxhq/gsxui.git
+fi
+if [ "$(git -C "$dir" rev-parse -q --verify HEAD 2>/dev/null)" != "$rev" ]; then
+  git -C "$dir" fetch -q --depth 1 origin "$rev"
+  git -C "$dir" checkout -q --detach FETCH_HEAD
+fi
+echo "✓ gsxui @ $(git -C "$dir" log -1 --format='%h %cs %s')"
+'''
+
+# ── upstream:gsxui:generate ──────────────────────────────────────────────────
+["upstream:gsxui:generate"]
+description = "go tool gsx generate in the gsxui checkout"
+depends = ["upstream:gsxui:fetch"]
+dir = "{{config_root}}/.upstream/gsxui"
+run = "go tool gsx generate"
+
+# ── upstream:gsxui:test ──────────────────────────────────────────────────────
+["upstream:gsxui:test"]
+description = "gsxui's Node-free test target (make test = generate + go vet + go test)"
+depends = ["upstream:gsxui:generate"]
+dir = "{{config_root}}/.upstream/gsxui"
+run = "go vet ./... && go test ./..."
+
+# ── upstream:gsxui:deps ──────────────────────────────────────────────────────
+# The harness import map (jstest/harness/shell.go) and web/site.css resolve a few
+# packages from node_modules/. Fetch those exact tarballs from the npm registry with
+# curl, check them against package-lock.json's integrity hashes, and unpack them.
+# No npm or node is involved.
+["upstream:gsxui:deps"]
+description = "Fetch the lock-pinned packages the harness needs into node_modules (curl, no npm)"
+depends = ["upstream:gsxui:fetch"]
+dir = "{{config_root}}/.upstream/gsxui"
+run = '''
+#!/usr/bin/env bash
+set -euo pipefail
+packages=(
+  htmx.org css-tree mdn-data source-map-js jsonc-parser          # JS: harness import map
+  tw-animate-css @fontsource-variable/geist @fontsource-variable/geist-mono   # CSS: web/site.css
+)
+for p in "${packages[@]}"; do
+  entry=$(jq -ce --arg k "node_modules/$p" '.packages[$k]' package-lock.json) \
+    || { echo "✗ $p not in package-lock.json"; exit 1; }
+  version=$(jq -r .version <<<"$entry")
+  url=$(jq -r .resolved <<<"$entry")
+  integrity=$(jq -r .integrity <<<"$entry")
+  dest="node_modules/$p"
+  if [ -f "$dest/package.json" ] && [ "$(jq -r .version "$dest/package.json")" = "$version" ]; then
+    echo "· $p@$version (cached)"; continue
+  fi
+  tgz=$(mktemp)
+  curl -sfL -o "$tgz" "$url"
+  algo=${integrity%%-*}; want=${integrity#*-}
+  got=$(openssl dgst -"$algo" -binary "$tgz" | base64)
+  [ "$got" = "$want" ] || { echo "✗ $p@$version integrity mismatch"; rm -f "$tgz"; exit 1; }
+  rm -rf "$dest" && mkdir -p "$dest"
+  tar -xzf "$tgz" -C "$dest" --strip-components 1
+  rm -f "$tgz"
+  echo "✓ $p@$version"
+done
+'''
+
+# ── upstream:gsxui:css ───────────────────────────────────────────────────────
+# global-setup.ts: compile jstest/full.css + jstest/foundation.css, then symlink the
+# font files the compiled CSS references (Tailwind keeps the url()s relative to their
+# source stylesheet).
+["upstream:gsxui:css"]
+description = "Compile the harness stylesheets with the standalone Tailwind CLI + link fonts"
+depends = ["upstream:gsxui:deps", "upstream:gsxui:generate"]
+dir = "{{config_root}}/.upstream/gsxui"
+run = '''
+#!/usr/bin/env bash
+set -euo pipefail
+tmp=jstest/.tmp
+mkdir -p "$tmp/files"
+go run ./jstest/harness -manifest "$tmp/examples.json"
+tailwindcss -i jstest/full.css -o "$tmp/site.css"
+tailwindcss -i jstest/foundation.css -o "$tmp/foundation.css"
+
+missing=()
+# @fontsource: url(./files/<name>) → node_modules/@fontsource-variable/*/files/<name>
+for name in $(grep -oE 'url\(\./files/[^)"'"'"']+\)' "$tmp/site.css" | sed -E 's#url\(\./files/##; s#\)$##' | sort -u); do
+  src=$(ls node_modules/@fontsource-variable/*/files/"$name" 2>/dev/null | head -1 || true)
+  [ -n "$src" ] && ln -sf "$PWD/$src" "$tmp/files/$name" || missing+=("$name")
+done
+# gsxui's own fonts: url("./<name>.woff2") → assets/fonts/<name>.woff2
+for name in $(grep -oE "url\([\"']?\./[^/)\"']+\.woff2[\"']?\)" "$tmp/site.css" | sed -E "s#url\([\"']?\./##; s#[\"']?\)\$##" | sort -u); do
+  [ -f "assets/fonts/$name" ] && ln -sf "$PWD/assets/fonts/$name" "$tmp/$name" || missing+=("$name")
+done
+[ -z "${missing[*]:-}" ] || { echo "✗ unresolved font files: ${missing[*]}"; exit 1; }
+echo "✓ $tmp/site.css $(wc -c <"$tmp/site.css" | tr -d ' ')B, foundation.css $(wc -c <"$tmp/foundation.css" | tr -d ' ')B, fonts linked"
+'''
+
+# ── upstream:gsxui:serve ─────────────────────────────────────────────────────
+["upstream:gsxui:serve"]
+description = "Serve gsxui's full demo via its Go harness → http://127.0.0.1:7799/"
+depends = ["upstream:gsxui:css"]
+dir = "{{config_root}}/.upstream/gsxui"
+run = "go run ./jstest/harness -root ."
+
+# ═════════════════════════════════════════════════════════════════════════════
+# demo:gsxui:*  our own demo in demos/gsxui, built with the npm-free gsxui flow
+#               (https://ui.gsxhq.dev/docs/npm-free) and the gsx CLI.
+#
+#   mise run demo:gsxui:dev      # css watch + gsx dev --no-web → printed URL
+#   mise run demo:gsxui:run      # build, then run on http://localhost:7777
+#   mise run demo:gsxui:test     # generate + vet + test
+# ═════════════════════════════════════════════════════════════════════════════
+
+["demo:gsxui:vendor"]
+description = "Vendor htmx 4.0.0 + hx-live.js from the npm registry tarball (integrity-checked, no npm)"
+dir = "{{config_root}}/demos/gsxui"
+run = '''
+#!/usr/bin/env bash
+set -euo pipefail
+version=4.0.0
+if [ -f static/.htmx-version ] && [ "$(cat static/.htmx-version)" = "$version" ]; then
+  echo "· htmx $version (cached)"; exit 0
+fi
+meta=$(curl -sfL "https://registry.npmjs.org/htmx.org/$version")
+url=$(jq -r .dist.tarball <<<"$meta"); integrity=$(jq -r .dist.integrity <<<"$meta")
+tgz=$(mktemp); curl -sfL -o "$tgz" "$url"
+algo=${integrity%%-*}; want=${integrity#*-}
+[ "$(openssl dgst -"$algo" -binary "$tgz" | base64)" = "$want" ] || { echo "✗ integrity mismatch"; exit 1; }
+tmp=$(mktemp -d); tar -xzf "$tgz" -C "$tmp" --strip-components 1
+mkdir -p static
+cp "$tmp/dist/htmx.min.js" static/htmx.min.js
+cp "$tmp/dist/ext/hx-live.js" static/hx-live.js
+echo "$version" > static/.htmx-version
+rm -rf "$tgz" "$tmp"
+echo "✓ htmx $version: static/htmx.min.js, static/hx-live.js"
+'''
+
+["demo:gsxui:generate"]
+description = "go tool gsx generate (demos/gsxui)"
+dir = "{{config_root}}/demos/gsxui"
+run = "go tool gsx generate"
+
+["demo:gsxui:css"]
+description = "Build dist/gsxui.css with the standalone Tailwind CLI"
+dir = "{{config_root}}/demos/gsxui"
+run = "tailwindcss -i web/gsxui/index.css -o dist/gsxui.css --minify"
+
+["demo:gsxui:test"]
+description = "gsx fmt check + generate + go vet + go test (demos/gsxui)"
+depends = ["demo:gsxui:vendor", "demo:gsxui:generate", "demo:gsxui:css"]
+dir = "{{config_root}}/demos/gsxui"
+run = '''
+#!/usr/bin/env bash
+set -euo pipefail
+go tool gsx fmt -l views || { echo "✗ gsx fmt: run 'go tool gsx fmt -w views'"; exit 1; }
+test -z "$(gofmt -l main.go main_test.go views/*.go)" || { gofmt -l main.go main_test.go views/*.go; exit 1; }
+go vet ./...
+go test ./...
+'''
+
+["demo:gsxui:build"]
+description = "css + generate + go build → demos/gsxui/bin/gsxui-demo"
+depends = ["demo:gsxui:vendor", "demo:gsxui:generate", "demo:gsxui:css"]
+dir = "{{config_root}}/demos/gsxui"
+run = "go build -o bin/gsxui-demo ."
+
+["demo:gsxui:run"]
+description = "Build and run the demo → http://localhost:7777 (GO_PORT overrides)"
+depends = ["demo:gsxui:build"]
+dir = "{{config_root}}/demos/gsxui"
+run = "./bin/gsxui-demo"
+
+["demo:gsxui:dev"]
+description = "Tailwind --watch + go tool gsx dev --no-web (regenerate, rebuild, restart on save)"
+depends = ["demo:gsxui:vendor", "demo:gsxui:css"]
+dir = "{{config_root}}/demos/gsxui"
+run = '''
+#!/usr/bin/env bash
+set -euo pipefail
+tailwindcss -i web/gsxui/index.css -o dist/gsxui.css --watch=always &
+css=$!
+trap 'kill $css 2>/dev/null' EXIT
+go tool gsx dev --no-web
+'''

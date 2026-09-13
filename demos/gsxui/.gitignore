@@ -1,0 +1,6 @@
+# gsx generated code (gsx Getting started: do not edit or commit)
+*.x.go
+# Tailwind output (mise run demo:gsxui:css)
+/dist/*
+!/dist/.gitkeep
+/bin/

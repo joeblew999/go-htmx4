@@ -19,6 +19,12 @@ A minimal starter for building server-rendered web apps with [Go](https://go.dev
 | Dev reload | [watchexec](https://github.com/watchexec/watchexec) | latest | Used by `mise run dev` |
 | Wasm compiler | [TinyGo](https://tinygo.org) | 0.42.0 | Small wasm builds (supports Go ≤ 1.27) |
 | Wasm optimiser | [binaryen](https://github.com/WebAssembly/binaryen) `wasm-opt` | 132 | Required by TinyGo wasm targets |
+| Templates (demo) | [gsx](https://gsxhq.github.io): JSX-style, type-checked Go templates | v0.1.0 | `go tool gsx` in `demos/gsxui` |
+| UI components (demo) | [gsxui](https://ui.gsxhq.dev): shadcn/ui for gsx, npm-free mode | `c7fd6a8` | Vendored with `gsxui add` |
+| Client state (demo) | [hx-live](https://four.htmx.org/extensions/hx-live/) | 4.0.0 | htmx 4 extension |
+| CSS (demo) | [Tailwind CSS standalone CLI](https://tailwindcss.com/docs/installation/tailwind-cli) | 4.3.3 | Single binary, no npm |
+
+No Node anywhere.
 
 ### Planned
 
@@ -26,8 +32,6 @@ See [`.plans/`](.plans/) for details.
 
 | Layer | Technology | Plan |
 | --- | --- | --- |
-| Templates | [gsx](https://github.com/gsxhq/gsx): JSX-style, type-checked Go templates | [adopt-gsxui](.plans/2026-09-13_1109_adopt-gsxui.md) |
-| UI components | [gsxui](https://github.com/gsxhq/gsxui): shadcn/ui for gsx, built with Tailwind v4 + Vite | [adopt-gsxui](.plans/2026-09-13_1109_adopt-gsxui.md) |
 | Hosting | [Cloudflare Workers](https://workers.cloudflare.com) via [workers-go](https://github.com/syumai/workers-go) (TinyGo wasm) | [adopt-workers-go](.plans/2026-09-13_1111_adopt-workers-go.md) |
 | State | [Cloudflare D1](https://developers.cloudflare.com/d1/) | [adopt-workers-go](.plans/2026-09-13_1111_adopt-workers-go.md) |
 
@@ -46,6 +50,15 @@ mise run dev        # run and auto-restart on changes
 
 Other tasks: `mise run run`, `build`, `check`, `fmt`, `htmx:update <version>` — see `mise tasks`.
 Set `ADDR=:3000` to change the listen address.
+
+## Demos
+
+| Demo | Run | URL |
+| --- | --- | --- |
+| **Our gsxui demo** ([`demos/gsxui`](demos/gsxui)): gsx + gsxui + htmx 4 + hx-live. Form with an OOB toast, dialog and tabs loaded via `hx-get`, boosted nav with `outerMorph`, hx-live counter and filter. | `mise run demo:gsxui:run`<br>`mise run demo:gsxui:dev` (live rebuild)<br>`mise run demo:gsxui:test` | http://localhost:7777 |
+| **gsxui's own demo** (showcase site, all component examples, theme editor), served by its Go harness from a gitignored checkout in `.upstream/gsxui` | `mise run upstream:gsxui:serve` | http://127.0.0.1:7799 |
+
+Both use the npm-free tooling: `go tool gsx`, `gsxui`, and the standalone `tailwindcss` binary.
 
 ## Quick start
 
