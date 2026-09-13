@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>go-htmx4</title>
+  <script src="/static/htmx.min.js"></script>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 40rem; margin: 3rem auto; padding: 0 1rem; line-height: 1.5; }
+    button { font: inherit; padding: .4rem .9rem; cursor: pointer; }
+    section { margin-block: 2rem; }
+  </style>
+</head>
+<body>
+  <h1>Go + htmx 4</h1>
+
+  <section>
+    <h2>Counter</h2>
+    <p>Clicked <strong id="count">{{template "count" .Count}}</strong> times.</p>
+    <button hx-post="/count" hx-target="#count">Click me</button>
+  </section>
+
+  <section>
+    <h2>Server time</h2>
+    <p id="time" hx-get="/time" hx-trigger="load, every 1s">loading…</p>
+  </section>
+</body>
+</html>
+
+{{define "count"}}{{.}}{{end}}
+{{define "time"}}{{.}}{{end}}
