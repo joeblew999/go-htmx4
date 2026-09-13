@@ -90,6 +90,9 @@ func (s *server) routes() http.Handler {
 		}
 		s.render(w, r, "greet", views.Greeting(name, cmp.Or(r.FormValue("flavour"), "gsx"), r.FormValue("shout") == "on"))
 	})
+	mux.HandleFunc("DELETE /greet", func(w http.ResponseWriter, r *http.Request) {
+		s.render(w, r, "greet:clear", views.GreetingCleared())
+	})
 	mux.HandleFunc("GET /fragments/server-info", func(w http.ResponseWriter, r *http.Request) {
 		s.render(w, r, "server-info", views.ServerInfoView(views.ServerInfo{
 			GoVersion: runtime.Version(),

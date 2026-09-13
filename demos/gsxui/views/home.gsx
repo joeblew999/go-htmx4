@@ -50,8 +50,17 @@ component GreetCard(flavours []string) {
 						<ui.FieldLabel for="shout">Shout it</ui.FieldLabel>
 					</ui.Field>
 				</ui.FieldGroup>
-				<div>
+				<div class="flex gap-2">
 					<ui.Button type="submit">Say hello</ui.Button>
+					<ui.Button
+						variant="ghost"
+						type="button"
+						hx-action="/greet"
+						hx-method="delete"
+						hx-target="#greeting"
+					>
+						Clear
+					</ui.Button>
 				</div>
 			</form>
 			<div id="greeting"></div>
@@ -122,7 +131,7 @@ component LiveCard(components []string) {
 	<ui.Card>
 		<ui.CardHeader>
 			<ui.CardTitle>Client state with hx-live</ui.CardTitle>
-			<ui.CardDescription>No server round-trip: a counter and a live filter.</ui.CardDescription>
+			<ui.CardDescription>No server round-trip: a counter, a dropdown, a toggle and a live filter.</ui.CardDescription>
 		</ui.CardHeader>
 		<ui.CardContent class="flex flex-col gap-4">
 			<div data-count="0" class="flex items-center gap-3">
@@ -131,6 +140,27 @@ component LiveCard(components []string) {
 					Count:
 					<ui.Badge variant="secondary" :text=js`data.count`>0</ui.Badge>
 				</span>
+			</div>
+			<div class="flex flex-wrap items-start gap-3">
+				<div data-open="false" class="relative" hx-on="click from:outside -> data.open = false">
+					<ui.Button variant="outline" hx-on:click=js`data.open = !data.open`>Menu</ui.Button>
+					<div
+						hidden
+						:hidden=js`!data.open`
+						class="absolute z-10 mt-2 flex w-40 flex-col gap-1 rounded-md border bg-popover p-2 text-sm shadow-md"
+					>
+						<span>Typed state bag:</span>
+						<code>data.open</code>
+					</div>
+				</div>
+				<ui.Button
+					variant="outline"
+					aria-pressed="false"
+					hx-on:click=js`aria.pressed = !aria.pressed`
+					:class=js`{ 'font-bold underline': aria.pressed }`
+				>
+					Bold
+				</ui.Button>
 			</div>
 			<div class="flex flex-col gap-2">
 				<ui.Input placeholder="Filter gsxui components…" aria-label="Filter components"/>

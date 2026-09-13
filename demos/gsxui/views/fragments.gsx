@@ -23,6 +23,16 @@ component Greeting(name string, flavour string, shout bool) {
 	</div>
 }
 
+// GreetingCleared answers DELETE /greet (sent via hx-action + hx-method). The main
+// content must not be empty: htmx 4 leaves the target untouched when a response has
+// only out-of-band content.
+component GreetingCleared() {
+	<p class="text-sm text-muted-foreground">Cleared.</p>
+	<div hx-swap-oob="beforeend:#gsxui-toaster">
+		<ui.Toast toastType="info" title="Cleared" description="Sent with hx-action and hx-method delete."/>
+	</div>
+}
+
 component GreetingError(message string) {
 	<ui.FieldError>{ message }</ui.FieldError>
 }

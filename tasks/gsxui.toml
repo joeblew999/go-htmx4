@@ -39,10 +39,13 @@ run = "go tool gsx generate"
 
 # ── upstream:gsxui:test ──────────────────────────────────────────────────────
 ["upstream:gsxui:test"]
-description = "gsxui's Node-free test target (make test = generate + go vet + go test)"
-depends = ["upstream:gsxui:generate"]
+description = "gsxui's make test (generate + go vet + go test), Node-free"
+depends = ["upstream:gsxui:generate", "upstream:gsxui:deps"]
 dir = "{{config_root}}/.upstream/gsxui"
-run = "go vet ./... && go test ./..."
+# internal/stylegen expects node_modules/.bin/tailwindcss; upstream:gsxui:deps links the
+# standalone binary there. TestE2E* in internal/cli run `gsx init --yes`, whose Vite
+# scaffold runs `npm install`, so they can't pass without Node and are skipped.
+run = "go vet ./... && go test -skip '^TestE2E' ./..."
 
 # ── upstream:gsxui:deps ──────────────────────────────────────────────────────
 # The harness import map (jstest/harness/shell.go) and web/site.css resolve a few
@@ -80,6 +83,11 @@ for p in "${packages[@]}"; do
   rm -f "$tgz"
   echo "✓ $p@$version"
 done
+# Tests in internal/stylegen run node_modules/.bin/tailwindcss; the standalone CLI takes
+# the same flags (gsxui npm-free guide).
+mkdir -p node_modules/.bin
+ln -sf "$(command -v tailwindcss)" node_modules/.bin/tailwindcss
+echo "✓ node_modules/.bin/tailwindcss → $(readlink node_modules/.bin/tailwindcss)"
 '''
 
 # ── upstream:gsxui:css ───────────────────────────────────────────────────────
