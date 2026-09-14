@@ -1,6 +1,6 @@
 # go-htmx4 as a real repo: one app, a GitHub template, importable kit packages
 
-**Status:** Phases 1–6 done; Phase 7 next · **Created:** 2026-09-14 10:37
+**Status:** Phases 1–7 done; Phase 8 (release) next · **Created:** 2026-09-14 10:37
 
 ## Goal
 
@@ -172,10 +172,10 @@ theme toggle across all pages.
 
 ### Phase 7: deploy + cut over (⚠ needs OK)
 
-- [ ] Deploy the app as the new `go-htmx4` Worker with a new `go-htmx4` D1, D1 migrations, the Room DO migration and the rate limit
+- [x] Deploy the app as the new `go-htmx4` Worker with a new `go-htmx4` D1, D1 migrations, the Room DO migration and the rate limit
       binding.
-- [ ] Remote smoke, `mise run e2e` against the live URL, 1,000-socket load against live, and `mise run tail` during it.
-- [ ] ⚠ After it's verified, delete the old `go-htmx4-workers-demo` Worker + its D1 and the `go-htmx4-gsxui-demo` Worker
+- [x] Remote smoke, `mise run e2e` against the live URL, 1,000-socket load against live, and `mise run tail` during it.
+- [x] ⚠ After it's verified, delete the old `go-htmx4-workers-demo` Worker + its D1 and the `go-htmx4-gsxui-demo` Worker
       (REST, via fnox); confirm both URLs 404.
 
 ### Phase 8: release (⚠ needs OK)
@@ -323,7 +323,7 @@ theme toggle across all pages.
 ### Follow-ups after Phase 5 (2026-09-14 12:55)
 
 - [x] Phase 6 (e2e in repo + CI, rename task, README, LICENSE) next. — done
-- [ ] The rate-limit upload metadata shape is unverified until the Phase 7 deploy.
+- [x] The rate-limit upload metadata shape is unverified until the Phase 7 deploy. — verified: accepted and enforcing.
 - [ ] Ten identical "Slow down" toasts stack when someone hammers the button; acceptable, could be deduplicated later.
 - [ ] Coordination: session go-htmx4-87 (full i18n plan) shares this working tree; it waits for this commit before
       touching main.go/views/platform files, and will later change `worker/room.mjs` (locale-tagged sockets).
@@ -351,6 +351,30 @@ theme toggle across all pages.
 
 ### Follow-ups after Phase 6 (2026-09-14 13:25)
 
-- [ ] Phase 7: deploy the new `go-htmx4` Worker + D1 (first real check of the rate-limit binding metadata), live smoke,
+- [x] Phase 7: deploy the new `go-htmx4` Worker + D1 (first real check of the rate-limit binding metadata), live smoke,
       e2e and 1,000-socket load against it, then delete `go-htmx4-workers-demo` (+ its D1) and `go-htmx4-gsxui-demo`.
 - [ ] CI with e2e runs on the next push; check its result once (not in the dev loop).
+
+### 2026-09-14 13:40: Phase 7 (deploy + cutover, your OK)
+
+- Deployed from a clean `git worktree` of HEAD (58e3a5b), because another session is editing the shared checkout.
+  `mise run deploy`: test → token check → D1 `go-htmx4` created + 0001 applied → 22 assets in 3 buckets → script with
+  DO migration v1 **and the `ratelimit` binding** (`type/name/namespace_id/simple{limit,period}` accepted) →
+  https://go-htmx4.gedw99.workers.dev.
+- `smoke-remote` 19/19. **e2e against production 5/5** after one fix: the write-limit test clicked 80 times, but over a
+  real network each write takes ~250 ms and htmx won't start a request from a button with one in flight, so only 8 writes
+  went out. It now bursts writes with parallel `fetch`, keeps writing until the limiter answers 429, clicks through htmx at
+  once (retrying across window boundaries: Cloudflare's limiter is per location, eventually consistent, fixed windows)
+  and compares the D1 version via GET. Live: 61× 200, 10× 429, click 429, "Slow down" toast, version unchanged.
+- **Load against production:** 1,000/1,000 connected (5.2 s), presence 1000 → 500, push to 1000/1000, 50-write burst →
+  11 broadcasts, late joiner cached, **socket 1,001 refused**. Latency is from the start of the POSTs over this network
+  (burst POSTs took 4.4 s end to end).
+- **Tail on production:** requests show once the tail has been connected ~2 s; requests in the first second after
+  connecting are not delivered (Cloudflare attaches the tail asynchronously). Documented on `cftail.Client.Ready`.
+- **Deleted (your OK):** Workers `go-htmx4-workers-demo` (force: DO namespace) and `go-htmx4-gsxui-demo`, D1
+  `go-htmx4-workers-demo`. Remaining in the account: Worker + D1 `go-htmx4` only; old URLs 404, new one 200.
+
+### Follow-ups after Phase 7 (2026-09-14 13:40)
+
+- [ ] Phase 8: tag `v0.1.0`, mark the repo as a GitHub template + description, `go get …/kit/cfdeploy@v0.1.0` check.
+- [ ] Old demo board data (D1 `go-htmx4-workers-demo`) is gone with the database, as decided; the new board starts empty.

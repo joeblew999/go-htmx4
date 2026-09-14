@@ -7,31 +7,51 @@ import (
 	"github.com/chromedp/chromedp"
 )
 
-// TestWriteLimit hammers the board past the per-client write limit: 429s arrive as "Slow down" toasts and the
-// board stops changing. It uses up the client's write budget, so it runs last (file name order).
+// TestWriteLimit uses up this client's write budget with parallel writes, then clicks Increment through htmx
+// once the limiter answers 429: the click must get 429, show a "Slow down" toast and leave the board alone.
+// Parallel fetches, not clicks: htmx won't start a request from a button while its previous one is in flight,
+// so clicks can't outrun a real network. It uses up the budget, so it runs last (file name order).
 func TestWriteLimit(t *testing.T) {
 	b := newTab(t, "browser")
 	b.allow4xx = true
-	b.run(chromedp.Navigate(base+"/board?topic="+topic("e2e-limit")), chromedp.WaitVisible("#board", chromedp.ByQuery))
+	top := topic("e2e-limit")
+	b.run(chromedp.Navigate(base+"/board?topic="+top), chromedp.WaitVisible("#board", chromedp.ByQuery))
 	var r struct {
-		Codes  map[string]int
-		Toasts int
-		Value  int
+		Burst       map[string]int
+		ClickStatus int
+		Attempts    int
+		Toasts      int
+		Before      string // board version in D1 before the click
+		After       string
 	}
 	raw := b.str(`(async () => {
-		const codes = {};
-		document.addEventListener("htmx:after:request", (e) => { const c = e.detail.ctx?.response?.status; codes[c] = (codes[c] ?? 0) + 1; });
-		const btn = document.querySelector('button[aria-label="Increment"]');
-		for (let i = 0; i < 80; i++) { btn.click(); await new Promise(r => setTimeout(r, 40)); }
-		await new Promise(r => setTimeout(r, 1500));
+		const url = "/board/add?topic=` + top + `";
+		const post = () => fetch(url, {method: "POST", headers: {"Content-Type": "application/x-www-form-urlencoded"}, body: "delta=1"}).then(res => res.status);
+		const version = async () => (await (await fetch("/board?topic=` + top + `")).text()).match(/data-version="(\d+)"/)[1];
+		const burst = {};
+		const tally = (s) => { burst[s] = (burst[s] ?? 0) + 1; return s; };
+		(await Promise.all(Array.from({length: 70}, post))).forEach(tally);
+		// Cloudflare's limiter is per location and eventually consistent, with fixed windows: write until it
+		// answers 429, then click at once; retry if a window boundary gets in between.
+		let clickStatus = 0, before = "", after = "", attempts = 0;
+		while (clickStatus !== 429 && attempts++ < 5) {
+			for (let i = 0; i < 200 && tally(await post()) !== 429; i++) {}
+			before = await version();
+			const done = new Promise(res => document.addEventListener("htmx:after:request", (e) => res(e.detail.ctx?.response?.status), {once: true}));
+			document.querySelector('button[aria-label="Increment"]').click();
+			clickStatus = await done;
+			after = await version();
+		}
+		await new Promise(r => setTimeout(r, 800));
 		const toasts = [...document.querySelectorAll("#gsxui-toaster [data-gsxui-slot-toast]")].filter(t => t.textContent.includes("Slow down")).length;
-		return JSON.stringify({codes, toasts, value: Number(document.querySelector("#board output").textContent)});
+		return JSON.stringify({burst, clickStatus, attempts, toasts, before, after});
 	})()`)
 	if err := json.Unmarshal([]byte(raw), &r); err != nil {
 		t.Fatalf("%v: %s", err, raw)
 	}
-	check(t, "some writes pass, the rest get 429", r.Codes["200"] > 0 && r.Codes["429"] > 0, raw)
-	check(t, `every 429 shows a "Slow down" toast`, r.Toasts == r.Codes["429"], raw)
-	check(t, "the board only counts accepted writes", r.Value == r.Codes["200"], raw)
+	check(t, "a burst gets some writes through and the rest 429", r.Burst["200"] > 0 && r.Burst["429"] > 0, raw)
+	check(t, "the htmx click over the limit gets 429", r.ClickStatus == 429, raw)
+	check(t, `and shows a "Slow down" toast`, r.Toasts >= 1, raw)
+	check(t, "and leaves the board unchanged (D1 version)", r.After == r.Before, raw)
 	b.noProblems()
 }

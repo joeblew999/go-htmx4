@@ -68,7 +68,7 @@ type Client struct {
 	Token     string
 	AccountID string
 	BaseURL   string // default https://api.cloudflare.com/client/v4
-	Ready     func() // called once the tail WebSocket is connected; events from before that are not delivered
+	Ready     func() // called once the tail WebSocket is connected; Cloudflare starts streaming a second or two later
 }
 
 func (c *Client) api() *cfapi.Client {
