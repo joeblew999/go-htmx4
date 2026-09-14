@@ -7,12 +7,13 @@ url_presets = ["htmx"]
 [url_attrs]
 names = ["hx-action", "hx-ws:connect"]
 
-# gsx dev drives the Workers loop (gsx Configuration guide, [dev]): a .gsx/.go save regenerates, rebuilds the
-# TinyGo worker + gsxui CSS, restarts workerd and probes /healthz. workerd listens on the fixed port in
-# workerd/config.capnp, so upstream points there instead of gsx's GO_PORT. mise run dev
+# gsx dev (gsx Configuration guide, [dev]): a .gsx/.go save regenerates, rebuilds, restarts the backend and probes
+# /healthz. Two loops share this config; the backend port comes from APP_DEV_PORT (gsx then leaves ports to us):
+#   mise run dev          build/run below: TinyGo worker + gsxui CSS → workerd on :8913 (Durable Objects, D1 shim, pushes)
+#   mise run dev:native   -build/-run flags: go build → the native server on :9913 (seconds per save, no live push)
 [dev]
 no_web = true
 build = ["mise", "run", "build"]
 run = ["sh", "-c", "mkdir -p .workerd-state && exec workerd serve workerd/config.capnp"]
-upstream = "http://127.0.0.1:8913"
+upstream = "http://127.0.0.1:${APP_DEV_PORT}"
 health = "/healthz"

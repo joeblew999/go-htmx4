@@ -22,7 +22,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
 	"io/fs"
 	"maps"
 	"mime"
@@ -36,10 +35,12 @@ import (
 	"regexp"
 	"slices"
 	"strings"
+
+	"github.com/joeblew999/go-htmx4/kit/internal/cfapi"
 )
 
 // DefaultBaseURL is the Cloudflare API.
-const DefaultBaseURL = "https://api.cloudflare.com/client/v4"
+const DefaultBaseURL = cfapi.DefaultBaseURL
 
 // BuildFiles are what workers-assets-gen + tinygo write to the build directory.
 var BuildFiles = []string{"worker.mjs", "wasm_exec.js", "runtime.mjs", "app.wasm"}
@@ -237,7 +238,7 @@ func (c *Client) Deploy(ctx context.Context, cfg Config) (string, error) {
 	}
 
 	if err := c.do(ctx, "POST", c.accountPath("/workers/scripts/"+cfg.Name+"/subdomain"), "",
-		jsonBody(map[string]bool{"enabled": true, "previews_enabled": false}), nil); err != nil {
+		cfapi.JSON(map[string]bool{"enabled": true, "previews_enabled": false}), nil); err != nil {
 		return "", fmt.Errorf("cfdeploy: enable workers.dev: %w", err)
 	}
 	var sub struct {
@@ -255,60 +256,14 @@ func (c *Client) logf(format string, args ...any) {
 	}
 }
 
-func (c *Client) accountPath(p string) string { return "/accounts/" + c.AccountID + p }
-
-type apiError struct {
-	Code    int    `json:"code"`
-	Message string `json:"message"`
+func (c *Client) api() *cfapi.Client {
+	return &cfapi.Client{Token: c.Token, AccountID: c.AccountID, BaseURL: c.BaseURL, HTTP: c.HTTP}
 }
 
-// do calls the Cloudflare API and decodes the envelope's result into out. bearer overrides the API
-// token (asset uploads authenticate with the upload-session JWT).
-func (c *Client) do(ctx context.Context, method, apiPath, bearer string, body *requestBody, out any) error {
-	var r io.Reader
-	if body != nil {
-		r = bytes.NewReader(body.data)
-	}
-	base := c.BaseURL
-	if base == "" {
-		base = DefaultBaseURL
-	}
-	req, err := http.NewRequestWithContext(ctx, method, base+apiPath, r)
-	if err != nil {
-		return err
-	}
-	if bearer == "" {
-		bearer = c.Token
-	}
-	req.Header.Set("Authorization", "Bearer "+bearer)
-	if body != nil {
-		req.Header.Set("Content-Type", body.contentType)
-	}
-	hc := c.HTTP
-	if hc == nil {
-		hc = http.DefaultClient
-	}
-	resp, err := hc.Do(req)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-	var env struct {
-		Success bool            `json:"success"`
-		Errors  []apiError      `json:"errors"`
-		Result  json.RawMessage `json:"result"`
-	}
-	raw, _ := io.ReadAll(resp.Body)
-	if err := json.Unmarshal(raw, &env); err != nil {
-		return fmt.Errorf("%s %s: HTTP %d, non-JSON response", method, apiPath, resp.StatusCode)
-	}
-	if !env.Success {
-		return fmt.Errorf("%s %s: HTTP %d: %v", method, apiPath, resp.StatusCode, env.Errors)
-	}
-	if out != nil && len(env.Result) > 0 && string(env.Result) != "null" {
-		return json.Unmarshal(env.Result, out)
-	}
-	return nil
+func (c *Client) accountPath(p string) string { return c.api().AccountPath(p) }
+
+func (c *Client) do(ctx context.Context, method, apiPath, bearer string, body *cfapi.Body, out any) error {
+	return c.api().Do(ctx, method, apiPath, bearer, body, out)
 }
 
 // script reports whether the Worker exists and its most recent Durable Object migration tag.
@@ -354,7 +309,7 @@ func (c *Client) resolveD1(ctx context.Context, ref string, create bool) (string
 	var created struct {
 		UUID string `json:"uuid"`
 	}
-	if err := c.do(ctx, "POST", c.accountPath("/d1/database"), "", jsonBody(map[string]string{"name": ref}), &created); err != nil {
+	if err := c.do(ctx, "POST", c.accountPath("/d1/database"), "", cfapi.JSON(map[string]string{"name": ref}), &created); err != nil {
 		return "", err
 	}
 	c.logf("✓ d1 %s created (%s)", ref, created.UUID)
@@ -408,7 +363,7 @@ func (c *Client) d1Query(ctx context.Context, id, sql string, params ...any) ([]
 	var results []struct {
 		Results []map[string]any `json:"results"`
 	}
-	if err := c.do(ctx, "POST", c.accountPath("/d1/database/"+id+"/query"), "", jsonBody(req), &results); err != nil {
+	if err := c.do(ctx, "POST", c.accountPath("/d1/database/"+id+"/query"), "", cfapi.JSON(req), &results); err != nil {
 		return nil, err
 	}
 	if len(results) == 0 {
@@ -424,7 +379,7 @@ func (c *Client) uploadAssets(ctx context.Context, name string, plan *Plan) (str
 		Buckets [][]string `json:"buckets"`
 	}
 	if err := c.do(ctx, "POST", c.accountPath("/workers/scripts/"+name+"/assets-upload-session"), "",
-		jsonBody(map[string]any{"manifest": plan.Assets}), &session); err != nil {
+		cfapi.JSON(map[string]any{"manifest": plan.Assets}), &session); err != nil {
 		return "", err
 	}
 	if session.JWT == "" {
@@ -520,20 +475,7 @@ func (c *Client) putScript(ctx context.Context, cfg Config, modules []Module, d1
 	return c.do(ctx, "PUT", c.accountPath("/workers/scripts/"+cfg.Name), "", body, nil)
 }
 
-type requestBody struct {
-	contentType string
-	data        []byte
-}
-
-func jsonBody(v any) *requestBody {
-	b, err := json.Marshal(v)
-	if err != nil {
-		panic(err)
-	}
-	return &requestBody{contentType: "application/json", data: b}
-}
-
-func multipartBody(fill func(*multipart.Writer) error) (*requestBody, error) {
+func multipartBody(fill func(*multipart.Writer) error) (*cfapi.Body, error) {
 	var buf bytes.Buffer
 	mw := multipart.NewWriter(&buf)
 	if err := fill(mw); err != nil {
@@ -542,7 +484,7 @@ func multipartBody(fill func(*multipart.Writer) error) (*requestBody, error) {
 	if err := mw.Close(); err != nil {
 		return nil, err
 	}
-	return &requestBody{contentType: mw.FormDataContentType(), data: buf.Bytes()}, nil
+	return &cfapi.Body{ContentType: mw.FormDataContentType(), Data: buf.Bytes()}, nil
 }
 
 func writePart(mw *multipart.Writer, field, filename, contentType string, data []byte) error {

@@ -14,6 +14,9 @@ import (
 // platformNote is shown in the server-info fragment: nothing survives between requests.
 const platformNote = "Cloudflare Workers: every request starts a fresh Go runtime, so uptime, requests and stats start over."
 
+// livePush: Workers have the Room Durable Object, so the board page connects over hx-ws.
+var livePush = true
+
 // getenv reads a Worker text binding (Cloudflare vars; locally a workerd text binding).
 func getenv(name string) string { return cloudflare.Getenv(name) }
 

@@ -12,6 +12,10 @@ import (
 // platformNote is shown in the server-info fragment; the native server keeps its state.
 const platformNote = ""
 
+// livePush is false under `go run .`: no Durable Objects, so the board page doesn't open a WebSocket. A var so
+// tests can render the Workers page too.
+var livePush = false
+
 // getenv reads a process environment variable (`go run .`).
 func getenv(name string) string { return os.Getenv(name) }
 

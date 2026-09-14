@@ -26,13 +26,15 @@ mise run check      # TinyGo build + workerd smoke + go test
 
 | Task | What |
 | --- | --- |
-| `mise run dev` | `gsx dev` drives the TinyGo build and workerd, restarting on every `.gsx`/`.go` save → http://localhost:8913 |
+| `mise run dev` | `gsx dev` drives the TinyGo build and workerd, restarting on every `.gsx`/`.go` save (~25 s; the real runtime: Durable Objects, D1 shim, pushes) → http://localhost:8913 |
 | `mise run serve` | Build once, serve on workerd (static files first, D1 shim, Room DO) → http://localhost:8913 |
+| `mise run dev:native` | `gsx dev` on the native server + Tailwind `--watch`: a save is served in ~1 s (memory store, no live push) → http://localhost:9913 |
 | `mise run run` | `go run .` (standard Go, memory store, no live push) → http://localhost:9913 |
 | `mise run test` / `check` | TinyGo build, workerd smoke (curls every route + a 2-socket push), gsx fmt, gofmt, vet, go test |
 | `mise run load` | 1,000 WebSockets on one topic + a 50-write burst (local, or `LOAD_BASE=https://…`) |
 | `mise run deploy` | Test, then deploy to `https://$APP_NAME.<subdomain>.workers.dev` (credentials via fnox) |
 | `mise run smoke-remote` | Curl every route of the deployed Worker |
+| `mise run tail` | Live logs of the deployed Worker (requests, console output, exceptions), no wrangler |
 
 `mise tasks` lists everything. CI runs the same `mise run check` on every push and pull request
 ([`ci/check.sh`](ci/check.sh), shell steps only, no JavaScript actions).
@@ -119,6 +121,7 @@ Importable from other repos with `go get github.com/joeblew999/go-htmx4/kit/…`
 | --- | --- |
 | [`kit/cfdeploy`](kit/cfdeploy) | Deploy a workers-go Worker with the REST API: Static Assets Direct Upload, script upload, plain-text/D1/Durable Object bindings, D1 create + migrations, Durable Object migrations, workers.dev. No wrangler. |
 | [`kit/wsload`](kit/wsload) | End-to-end live-board check over real WebSockets: delivery latency, coalescing, presence, heartbeat, cached fragment. |
+| [`kit/cftail`](kit/cftail) | Stream a deployed Worker's live logs: start a tail with the REST API, read its WebSocket, delete it on exit. No wrangler. |
 | [`kit/live`](kit/live) | Go side of per-topic live updates: `Publish` to a Room Durable Object (js/wasm), the shared topic rule and version header. |
 | [`kit/httpx`](kit/httpx) | TinyGo-safe HTTP helpers: `Allow` (method check for plain-path routes), `Render` (buffered gsx, Content-Length), `GetOnly`. |
 

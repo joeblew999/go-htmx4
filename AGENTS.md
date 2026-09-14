@@ -37,7 +37,10 @@
   It must pass before pushing; CI (`.github/workflows/check.yml` → `ci/check.sh`) runs the same on every push and PR.
 - CI is strict no-Node: shell `run:` steps only. Don't add `actions/checkout`, `jdx/mise-action` or any JavaScript action;
   new tools go in `mise.toml` so `ci/check.sh` picks them up.
-- The app: `mise run {dev,serve,run,test,smoke,load,deploy,smoke-remote}` (tasks in `tasks/app.toml`).
+- The app: `mise run {dev,dev:native,serve,run,test,smoke,load,deploy,smoke-remote,tail}` (tasks in `tasks/app.toml`).
+- Dev loops: `dev:native` (~1 s per save, `go run`-style server, no Durable Objects: use for UI work) and `dev` (~25 s,
+  TinyGo on workerd: use for anything touching the board, D1, the Room or TinyGo behaviour). Both are `gsx dev`; the
+  backend port comes from `APP_DEV_PORT`. Stopping `gsx dev` can leave workerd running: stop it by PID.
 - List all tasks: `mise tasks`
 
 # UI (gsx + gsxui + htmx 4)
@@ -116,8 +119,8 @@
 - repo root - the app (`main.go` + `board.go` handlers, `views/` pages + fragments (`.gsx`, package `views`), `ui/` vendored by gsxui,
   `store_{sql,mem}.go`, `platform_{js,other}.go`, `worker/index.mjs` entry + `worker/room.mjs` Durable Object, `migrations/`, `static/` (vendored htmx + hx-ws),
   `web/gsxui/` (behaviours + CSS entry), `workerd/` (config.capnp + local-only shims), `cmd/deploy` + `cmd/wsload` (flag parsing over kit/)).
-- `kit/` - importable packages: `cfdeploy` (Cloudflare deploy), `wsload` (WebSocket checks), `live` (Room publish, topic
-  rule), `httpx` (TinyGo-safe HTTP helpers).
+- `kit/` - importable packages: `cfdeploy` (Cloudflare deploy), `cftail` (live logs), `wsload` (WebSocket checks), `live`
+  (Room publish, topic rule), `httpx` (TinyGo-safe HTTP helpers); `kit/internal/cfapi` is their shared API client.
 - `tasks/` - mise task files included from `mise.toml`.
 - `.plans/` - timestamped plans (see above).
 
@@ -127,9 +130,9 @@
   does. Keep exported APIs documented (`// Package …`, examples) and stable; errors are returned, not `log.Fatal`.
 - `kit/httpx` and `kit/live` are compiled into the Worker: TinyGo-safe only (no reflection-heavy code, no regexp in hot
   paths). `kit/cfdeploy` and `kit/wsload` are local tooling (standard Go).
-- Tests never call Cloudflare: `kit/cfdeploy` uses an `httptest` fake of the API, `kit/wsload` a fake Room. Extend the fakes
+- Tests never call Cloudflare: `kit/cfdeploy` and `kit/cftail` use `httptest` fakes of the API, `kit/wsload` a fake Room. Extend the fakes
   when you add an API call.
-- `cmd/deploy` and `cmd/wsload` stay flag parsing only; logic goes in `kit/`.
+- `cmd/deploy`, `cmd/tail` and `cmd/wsload` stay flag parsing only; logic goes in `kit/`.
 - The topic rule and version header live in `kit/live`; `TestWorkerJSMatchesKitLive` checks `worker/index.mjs` and
   `worker/room.mjs` use the same.
 

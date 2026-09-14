@@ -57,7 +57,7 @@ func (s *server) boardRoutes(mux *http.ServeMux) {
 			storeError(w, err)
 			return
 		}
-		s.render(w, r, "board", views.BoardPage(topic, b))
+		s.render(w, r, "board", views.BoardPage(topic, b, livePush))
 	})
 	mux.HandleFunc("/board/add", func(w http.ResponseWriter, r *http.Request) {
 		topic, ok := topicOf(w, r)

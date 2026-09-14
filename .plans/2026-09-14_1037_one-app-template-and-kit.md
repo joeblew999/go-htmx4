@@ -1,6 +1,6 @@
 # go-htmx4 as a real repo: one app, a GitHub template, importable kit packages
 
-**Status:** Phases 1–3 done; Phase 4 next · **Created:** 2026-09-14 10:37
+**Status:** Phases 1–4 done; Phase 5 next · **Created:** 2026-09-14 10:37
 
 ## Goal
 
@@ -127,13 +127,13 @@ theme toggle across all pages.
 
 ### Phase 4: dev loops + tail
 
-- [ ] `dev` = `gsx dev` → TinyGo + workerd (already proven, ~25 s per save).
-- [ ] `dev:native` = Tailwind `--watch` + `gsx dev` on `go run .` (seconds per save; mem store, no live push; the board
+- [x] `dev` = `gsx dev` → TinyGo + workerd (already proven, ~25 s per save).
+- [x] `dev:native` = Tailwind `--watch` + `gsx dev` on `go run .` (seconds per save; mem store, no live push; the board
       page says so with a gsxui `Badge`).
-- [ ] One `gsx.toml` `[dev]` `upstream` from `APP_DEV_PORT` (the pattern proven in the gsxui demo).
-- [ ] `kit/cftail` + `cmd/tail` + `mise run tail` (settle unknown 3). Pretty-print request line, status, `console.*`
+- [x] One `gsx.toml` `[dev]` `upstream` from `APP_DEV_PORT` (the pattern proven in the gsxui demo).
+- [x] `kit/cftail` + `cmd/tail` + `mise run tail` (settle unknown 3). Pretty-print request line, status, `console.*`
       and exceptions. Credentials via fnox.
-- [ ] Measure both loops' save → served times. **Commit.**
+- [x] Measure both loops' save → served times. **Commit.**
 
 ### Phase 5: board abuse protection
 
@@ -239,10 +239,10 @@ theme toggle across all pages.
 
 ### Follow-ups after Phase 2 (2026-09-14 11:50)
 
-- [ ] **Live presence bug** on `go-htmx4-workers-demo` (1005 close echo): fixed in `worker/room.mjs`, not deployed. Either
+- [x] **Live presence bug** on `go-htmx4-workers-demo` (1005 close echo): fixed in `worker/room.mjs`, not deployed. — hotfix deployed 2026-09-14 11:55 (your OK), see Phase 4 Either
       hotfix-deploy the old Worker (⚠ OK) or leave it to the Phase 7 cutover.
 - [x] Phase 3 (`kit/` packages) waits for go. — done
-- [ ] Six orphaned headless Chrome processes from 2026-09-13 (not from this session's work) still running; left alone.
+- [x] Six orphaned headless Chrome processes from 2026-09-13 — stopped (your OK). (not from this session's work) still running; left alone.
 - [ ] Report upstream to gsx: generate/fmt/dev/`gsxui add` walk into nested Go modules with the outer `gsx.toml`.
 - [ ] `demo:gsxui` Worker `go-htmx4-gsxui-demo` is still live with the old demo; deleted in Phase 7 (⚠ OK).
 
@@ -268,7 +268,32 @@ theme toggle across all pages.
 
 ### Follow-ups after Phase 3 (2026-09-14 12:10)
 
-- [ ] Phase 4 (dev loops + `kit/cftail`) waits for go.
-- [ ] Live presence bug on `go-htmx4-workers-demo` still undeployed (see Phase 2 follow-ups; ⚠ OK).
+- [x] Phase 4 (dev loops + `kit/cftail`) waits for go. — done
+- [x] Live presence bug on `go-htmx4-workers-demo` still undeployed — hotfix deployed.
 - [ ] `kit/cfdeploy` doesn't yet know rate-limit bindings (Phase 5).
-- [ ] Nothing deployed since Phase 1; the fake API tests are the only check of the refactored deploy path until Phase 7.
+- [x] Nothing deployed since Phase 1 — the hotfix deploy went through `kit/cfdeploy` on the real account.
+
+### 2026-09-14 12:20: hotfix + Phase 4 (dev loops, live logs)
+
+- **Hotfix (your OK):** the merged app deployed to the existing `go-htmx4-workers-demo` Worker through the refactored
+  `kit/cfdeploy` (D1 found, DO migration v1 already applied, 6 assets in 3 buckets, script uploaded). Live checks:
+  `smoke-remote` 19/19; bare `close()` now closes cleanly in 91 ms and presence drops; boost ↔ board browser check 13/13
+  against the live URL.
+- **`kit/cftail` + `cmd/tail` + `mise run tail`:** start (POST …/tails) → WebSocket with subprotocol `trace-v1` →
+  JSON events → DELETE on exit. Shared API envelope moved to `kit/internal/cfapi` (cfdeploy uses it too). Unit tests on
+  a fake API + fake tail socket (subprotocol, Ctrl-C deletes the tail, stream end deletes it, Format). **Live:** tailing
+  `go-htmx4-workers-demo` showed all 9 test requests plus the Worker → Room `POST https://room/publish` subrequests with
+  status and outcome. The first attempt missed requests sent before the socket connected, so `Client.Ready` now fires on
+  connect and the CLI prints "tailing" only then.
+- **Dev loops**, one `gsx.toml` (`upstream = http://127.0.0.1:${APP_DEV_PORT}`):
+  - `mise run dev:native` (`-build 'go build -o bin/app .' -run bin/app`, Tailwind `--watch` into `dist/site`):
+    `.gsx` save → served in **1.1 s** (revert 0.8 s); a new Tailwind class lands in the CSS within the same second.
+  - `mise run dev` (TinyGo + workerd): save → served in **29.7 s** (revert 23.7 s).
+  - Under `go run .` the board page no longer opens a WebSocket that can't work (no Durable Objects): it renders a gsxui
+    `Badge` "No live push (go run .)" and the poster's response updates the board. Tested both ways (`livePush`).
+- Checks: `mise run test` green (27 ✓), kit tests incl. race detector.
+
+### Follow-ups after Phase 4 (2026-09-14 12:20)
+
+- [ ] Phase 5 (rate limit, note retention, socket cap) next.
+- [ ] workers-go prints a "non-JS mode" warning on every native restart; harmless, upstream's message.

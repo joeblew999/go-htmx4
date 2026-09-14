@@ -4,12 +4,14 @@
 # only for local-only code: `go run .`, go test/vet, cmd/deploy, cmd/wsload. Tools come from mise.toml.
 #
 #   mise run dev            # gsx dev: save → regenerate → TinyGo + assets → workerd restart → http://localhost:8913
+#   mise run dev:native     # gsx dev: save → regenerate → go build → native restart (no DOs) → http://localhost:9913
 #   mise run serve          # TinyGo build + workerd (static files first)                  → http://localhost:8913
 #   mise run run            # go run . (non-js fallback)                                  → http://localhost:9913
 #   mise run test           # TinyGo build (size-gated) + workerd smoke + gsx fmt/gofmt + vet + go test
 #   mise run load           # 1,000 WebSockets on one topic + 50-write burst (local, or LOAD_BASE=…)
 #   mise run deploy         # test + token check, then Direct Upload → https://$APP_NAME.<subdomain>.workers.dev
 #   mise run smoke-remote   # curl every route of the deployed Worker
+#   mise run tail           # live logs of the deployed Worker
 
 # Vendor htmx 4.0.0 + the hx-ws and hx-live extensions from the npm registry tarball (integrity-checked,
 # no npm).
@@ -80,11 +82,31 @@ limit=10000000  # Workers Paid (account checked 2026-09-13): 10 MB compressed; f
 echo "✓ build/app.wasm raw=${raw}B gzip=${gz}B (limit ${limit}B)"
 '''
 
-# The gsx CLI's dev loop on Workers: gsx.toml [dev] builds the TinyGo worker + gsxui CSS and runs workerd.
+# The gsx CLI's dev loops (gsx.toml [dev]). dev: TinyGo worker + workerd, the real runtime (Durable Objects, D1
+# shim, live pushes), ~25 s per save. dev:native: go build + the native server, seconds per save, memory store and
+# no pushes; Tailwind --watch rebuilds the CSS straight into dist/site.
 ["dev"]
-description = "go tool gsx dev: save .gsx/.go → regenerate → TinyGo + CSS → workerd restart → http://localhost:8913"
-dir = "{{config_root}}"
+description = "gsx dev → TinyGo + CSS → workerd restart on every .gsx/.go save → http://localhost:8913"
+env = { APP_DEV_PORT = "8913" }
 run = "go tool gsx dev --no-web"
+
+["dev:native"]
+description = "gsx dev → go build → native server restart on every save (seconds; no Durable Objects) → http://localhost:9913"
+depends = ["generate", "assets"]
+env = { APP_DEV_PORT = "9913", PORT = "9913", APP_ENV = "go run . (dev:native)" }
+run = '''
+#!/usr/bin/env bash
+set -euo pipefail
+tailwindcss -i web/gsxui/index.css -o dist/site/assets/gsxui.css --watch=always 2>/dev/null &
+css=$!
+trap 'kill $css 2>/dev/null' EXIT
+go tool gsx dev --no-web -build 'go build -o bin/app .' -run 'bin/app'
+'''
+
+# Live logs of the deployed Worker (kit/cftail): requests, console output, exceptions. Ctrl-C deletes the tail.
+["tail"]
+description = "Stream the deployed Worker's live logs (requests, console, exceptions) → Ctrl-C to stop"
+run = "fnox exec -- go run ./cmd/tail -name \"$APP_NAME\""
 
 ["run"]
 description = "go run . (non-js fallback, dist/site served by Go) → http://localhost:9913"

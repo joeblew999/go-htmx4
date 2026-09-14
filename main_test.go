@@ -125,6 +125,8 @@ func TestHeadOrder(t *testing.T) {
 }
 
 func TestBoard(t *testing.T) {
+	livePush = true // render the Workers page; the native one is checked at the end
+	defer func() { livePush = false }()
 	h := newServer().routes()
 	do := func(method, target, body string) *httptest.ResponseRecorder {
 		t.Helper()
@@ -168,6 +170,13 @@ func TestBoard(t *testing.T) {
 	if got := len(regexp.MustCompile(`data-gsxui-slot-item[\s>]`).FindAllString(do("GET", "/board?topic=t-note", "").Body.String(), -1)); got != maxNotes {
 		t.Errorf("notes shown = %d, want %d", got, maxNotes)
 	}
+
+	livePush = false
+	native := do("GET", "/board?topic=t-page", "").Body.String()
+	if strings.Contains(native, "hx-ws:connect") || !strings.Contains(native, "No live push") {
+		t.Errorf("native board page must not connect hx-ws and must say there is no live push")
+	}
+	livePush = true
 
 	expect(do("POST", "/board/add?topic=t-add", "delta=5"), http.StatusBadRequest)
 	expect(do("POST", "/board/note?topic=t-note", "body=+"), http.StatusBadRequest)
