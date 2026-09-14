@@ -72,7 +72,9 @@
     delete `board` rows or reset versions; to clear a topic, delete notes, zero `value` and bump `version`.
   - D1 has no interactive transactions (`db.Begin` fails): use single statements with `RETURNING`.
   - JS is allowed only for the Worker entry (`index.mjs`), Durable Object classes (`room.mjs`) and local-only workerd shims
-    (`workerd/`). Keep them logic-free; board logic stays in Go.
+    (`workerd/`). Keep them logic-free; board logic stays in Go. The one exception is presence: only the Room knows its
+    sockets, so it renders `<span id="presence" hx-swap-oob="true">N online</span>` itself (coalesced like board pushes;
+    count sockets with `readyState < CLOSING`, or a lone visitor is never counted).
   - Board markup is gsx (`board.gsx`: `BoardPage`, `BoardFragment`). `BoardFragment` is the wire format the Room and the
     page's version guard rely on: `TestBoardFragmentWireFormat` must keep passing. Never edit or commit `*.x.go`
     (`mise run demo:workers:generate`).

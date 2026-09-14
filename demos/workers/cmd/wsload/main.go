@@ -29,14 +29,19 @@ import (
 	"golang.org/x/net/websocket"
 )
 
-var versionRe = regexp.MustCompile(`data-version="(\d+)"`)
+var (
+	versionRe  = regexp.MustCompile(`data-version="(\d+)"`)
+	presenceRe = regexp.MustCompile(`id="presence"[^>]*>(\d+) online<`)
+)
 
 type socket struct {
-	conn   *websocket.Conn
-	mu     sync.Mutex
-	pong   bool
-	hits   []hit     // every board version received, in order
-	closed time.Time // when the server side went away
+	conn     *websocket.Conn
+	mu       sync.Mutex
+	pong     bool
+	presence int64     // latest "N online" pushed by the Room (-1 until the first)
+	presMsgs int       // presence messages received
+	hits     []hit     // every board version received, in order
+	closed   time.Time // when the server side went away
 }
 
 type hit struct {
@@ -83,7 +88,7 @@ func main() {
 				log.Printf("dial %d: %v", i, err)
 				return
 			}
-			s := &socket{conn: conn}
+			s := &socket{conn: conn, presence: -1}
 			sockets[i] = s
 			dialed.Add(1)
 			go s.read()
@@ -98,6 +103,16 @@ func main() {
 	// 2. Heartbeat on one socket: the Room answers "ping" with "pong" without waking.
 	websocket.Message.Send(sockets[0].conn, "ping")
 	time.Sleep(300 * time.Millisecond) // let the ping answer and any cached fragment arrive
+
+	// Presence: the Room's coalesced "N online" must reach every socket we opened.
+	presenceOK := waitUntil(5*time.Second, func() bool {
+		return sockets[0].latestPresence() == int64(*n) && sockets[*n-1].latestPresence() == int64(*n)
+	})
+	sockets[0].mu.Lock()
+	presMsgs := sockets[0].presMsgs
+	sockets[0].mu.Unlock()
+	fmt.Printf("presence after connect: socket 0 sees %d online, last socket sees %d (want %d); socket 0 got %d presence updates in %v\n",
+		sockets[0].latestPresence(), sockets[*n-1].latestPresence(), *n, presMsgs, time.Since(start).Round(time.Millisecond))
 
 	// 3. Changes through the Go Worker; the newest version returned is what every socket must see.
 	before := sockets[0].count()
@@ -169,6 +184,16 @@ func main() {
 			fmt.Println(line)
 		}
 	}
+	// Presence drop: close the second half; the first socket must see the count fall.
+	if *n >= 2 {
+		keep := *n - *n/2
+		for _, s := range sockets[keep:] {
+			s.conn.Close()
+		}
+		dropOK := waitUntil(5*time.Second, func() bool { return sockets[0].latestPresence() == int64(keep) })
+		fmt.Printf("presence after closing %d: socket 0 sees %d online (want %d)\n", *n/2, sockets[0].latestPresence(), keep)
+		presenceOK = presenceOK && dropOK
+	}
 	for _, s := range sockets {
 		s.conn.Close()
 	}
@@ -177,7 +202,7 @@ func main() {
 	late := false
 	cfg, _ := websocket.NewConfig(wsURL.String(), u.String())
 	if conn, err := websocket.DialConfig(cfg); err == nil {
-		s := &socket{conn: conn}
+		s := &socket{conn: conn, presence: -1}
 		go s.read()
 		joined := time.Now()
 		for time.Since(joined) < 2*time.Second && !late {
@@ -187,7 +212,7 @@ func main() {
 		fmt.Printf("late joiner got cached version ≥ %d: %v\n", want, late)
 		conn.Close()
 	}
-	if len(lat) != *n || !sockets[0].gotPong() || !late {
+	if len(lat) != *n || !sockets[0].gotPong() || !late || !presenceOK {
 		os.Exit(1)
 	}
 }
@@ -220,6 +245,9 @@ func (s *socket) read() {
 		s.mu.Lock()
 		if msg == "pong" {
 			s.pong = true
+		} else if m := presenceRe.FindStringSubmatch(msg); m != nil {
+			s.presence, _ = strconv.ParseInt(m[1], 10, 64)
+			s.presMsgs++
 		} else if m := versionRe.FindStringSubmatch(msg); m != nil && strings.Contains(msg, `id="board"`) {
 			v, _ := strconv.ParseInt(m[1], 10, 64)
 			s.hits = append(s.hits, hit{v, now})
@@ -237,6 +265,23 @@ func (s *socket) firstAtLeast(version int64) (time.Time, bool) {
 		}
 	}
 	return time.Time{}, false
+}
+
+func (s *socket) latestPresence() int64 {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return s.presence
+}
+
+func waitUntil(d time.Duration, ok func() bool) bool {
+	end := time.Now().Add(d)
+	for !ok() {
+		if time.Now().After(end) {
+			return false
+		}
+		time.Sleep(20 * time.Millisecond)
+	}
+	return true
 }
 
 func (s *socket) count() int {

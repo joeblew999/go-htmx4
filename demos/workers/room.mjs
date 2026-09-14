@@ -6,6 +6,10 @@
 // Designed for ~1,000 sockets per topic (plan: .plans/2026-09-14_0754_workers-realtime-d1-do.md):
 // sockets are receive-only, pings are auto-answered without waking the object, and broadcasts are
 // coalesced to at most one per FLUSH_MS, keeping only the newest version.
+//
+// Presence ("N online") is the one thing the Room knows that D1 doesn't: its open sockets. Connects
+// and closes push a #presence fragment, coalesced the same way, so 1,000 tabs joining cost at most
+// 1000 / FLUSH_MS presence broadcasts per second, not one per join.
 
 import { DurableObject } from "cloudflare:workers";
 
@@ -27,6 +31,7 @@ export class Room extends DurableObject {
     this.ctx.acceptWebSocket(server);
     const last = await this.ctx.storage.get("last");
     if (last) server.send(last.html);
+    await this.presenceChanged();
     return new Response(null, { status: 101, webSocket: client });
   }
 
@@ -48,15 +53,53 @@ export class Room extends DurableObject {
     }
     // Within FLUSH_MS of the last broadcast: keep only the newest version and flush on the alarm.
     await storage.put("pending", msg);
-    if ((await storage.getAlarm()) === null) await storage.setAlarm((last?.at ?? 0) + FLUSH_MS);
+    await this.scheduleFlush((last?.at ?? 0) + FLUSH_MS);
     return Response.json({ version, queued: true });
   }
 
   async alarm() {
-    const msg = await this.ctx.storage.get("pending");
-    if (!msg) return;
-    await this.ctx.storage.delete("pending");
-    await this.broadcast({ ...msg, at: Date.now() });
+    const storage = this.ctx.storage;
+    const [msg, presence] = await Promise.all([storage.get("pending"), storage.get("presencePending")]);
+    if (msg) {
+      await storage.delete("pending");
+      await this.broadcast({ ...msg, at: Date.now() });
+    }
+    if (presence) {
+      await storage.delete("presencePending");
+      await this.broadcastPresence();
+    }
+  }
+
+  // presenceChanged pushes the open-socket count now, or on the alarm if one went out within FLUSH_MS.
+  async presenceChanged() {
+    const storage = this.ctx.storage;
+    const [lastAt, pending] = await Promise.all([storage.get("presenceAt"), storage.get("presencePending")]);
+    if (!pending && Date.now() - (lastAt ?? 0) >= FLUSH_MS) {
+      await this.broadcastPresence();
+      return;
+    }
+    await storage.put("presencePending", true);
+    await this.scheduleFlush((lastAt ?? 0) + FLUSH_MS);
+  }
+
+  async broadcastPresence() {
+    // Count the socket being accepted too (not OPEN yet while its connect runs); skip closing ones.
+    const open = this.ctx.getWebSockets().filter((ws) => ws.readyState < WebSocket.CLOSING);
+    await this.ctx.storage.put("presenceAt", Date.now());
+    const html = `<span id="presence" hx-swap-oob="true">${open.length} online</span>`;
+    for (const ws of open) {
+      try {
+        ws.send(html);
+      } catch {
+        // Closing in the meantime; its close event triggers another update.
+      }
+    }
+  }
+
+  // scheduleFlush sets the alarm to fire by `at` (keeps an earlier one).
+  async scheduleFlush(at) {
+    const current = await this.ctx.storage.getAlarm();
+    if (current === null || at < current) await this.ctx.storage.setAlarm(at);
   }
 
   async broadcast(msg) {
@@ -78,5 +121,10 @@ export class Room extends DurableObject {
 
   async webSocketClose(ws, code, reason) {
     ws.close(code, reason);
+    await this.presenceChanged();
+  }
+
+  async webSocketError() {
+    await this.presenceChanged();
   }
 }

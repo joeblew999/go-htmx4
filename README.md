@@ -99,6 +99,8 @@ browser ─ hx-post /board/add|note ─────▶ index.mjs ─▶ Go Worke
 - **Designed for 1,000 tabs per topic:** receive-only sockets, `setWebSocketAutoResponse` ping/pong, coalesced broadcasts,
   reconnects spread over 1–3 s (a deploy drops every socket at once). Measured live: 1,000/1,000 delivered, p50 386 ms
   from the click on a phone hotspot.
+- **Presence:** the Room pushes "N online" on connects and closes, through the same coalescing (one update for a
+  1,000-socket join in the local test).
 - **Markup is gsx** (`board.gsx`), rendered by TinyGo; the pushed fragment is pinned byte-for-byte by a test.
 - **JS only where Go can't go:** `index.mjs` (workers-go has no WebSocket support) and `room.mjs` (workers-go can only call
   Durable Objects). Locally, `workerd/local-d1.mjs` gives Go a D1-shaped `DB` over Durable Object SQLite, so the same

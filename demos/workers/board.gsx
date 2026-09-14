@@ -30,6 +30,7 @@ component BoardPage(topic string, b Board) {
 		<body>
 			<main>
 				<h1>Shared board</h1>
+				<p class="meta"><span id="presence">connecting…</span></p>
 				<p class="meta">
 					Every tab on topic <code>{ topic }</code> sees changes live: Go writes to D1, then the topic's Durable Object
 					pushes the fragment to all tabs over hx-ws. <a href="/">← demo</a>

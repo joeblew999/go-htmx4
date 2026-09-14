@@ -162,17 +162,29 @@ hand-escaped strings in `board.go` / `board.html` can become gsx components.
       — new `demo:workers:generate` (build/run depend on it), `gsx fmt -l` in test; from no generated code: TinyGo
       **1,203,138 B raw / 445,677 B gzip** (+65 KB), smoke 13/13, `go test` ok; two-tab browser check on local workerd
       9/9 (+1 push 71 ms, escaped note, form reset via `js` literal, version guard, no console errors).
+- [x] Deploy (OK'd 2026-09-14): `mise run demo:workers:deploy` (local test green; migration v1 already applied, assets
+      unchanged, script uploaded). Live `demo:workers:smoke-remote` 14/14 (2-socket push, pong, cache); two-tab browser
+      check on https://go-htmx4-workers-demo.gedw99.workers.dev/board 9/9 (+1 push 231 ms, escaped note, form reset,
+      version guard, no console errors).
 - [ ] Optional: gsxui components (card, button, input) for the board UI, with Tailwind via the standalone CLI.
 
-### Phase 7 (proposed 2026-09-14, not started): presence per topic
+### Phase 7 (done locally 2026-09-14, not deployed): presence per topic
 
 The Room already knows its sockets, so it can push "N online" without a D1 write.
 
-- [ ] Room: on connect and on `webSocketClose`/`webSocketError`, queue a `<span id="presence" hx-swap-oob="true">N
+- [x] Room: on connect and on `webSocketClose`/`webSocketError`, queue a `<span id="presence" hx-swap-oob="true">N
       online</span>` broadcast through the same ≤ 5/s coalescing (latest count wins); count = `ctx.getWebSockets().length`.
-- [ ] Page: a `#presence` element inside the `hx-ws:connect` container; no version guard needed (latest count wins).
-- [ ] Cost check at design size: 1,000 sockets joining = at most 5 presence broadcasts/s, not 1,000 × 1,000 sends.
-      Measure with `wsload` (connect storm → count converges to 1,000; disconnect → 0).
+      — `presenceChanged` / `broadcastPresence` / shared `scheduleFlush` alarm. **Bug found by `wsload -n 1`:** filtering
+      on `readyState === OPEN` skipped the socket being accepted (not OPEN yet while its connect runs), so a lone visitor
+      stayed on "connecting…"; now counts `readyState < CLOSING`.
+- [x] Page: a `#presence` element inside the `hx-ws:connect` container; no version guard needed (latest count wins).
+      — in `BoardPage`'s header (OOB swaps target by id); the guard ignores it (no `data-version`).
+- [x] Cost check at design size: 1,000 sockets joining = at most 5 presence broadcasts/s, not 1,000 × 1,000 sends.
+      Measure with `wsload` (connect storm → count converges to 1,000; disconnect → 0). — local workerd: n=1 → 1;
+      n=2 → 2 then 1; n=1000 → every socket sees 1000, **socket 0 received 1 presence update for the whole 1,000-socket
+      join**, closing 500 → 500. `wsload` fails on wrong counts, so `demo:workers:smoke` (and CI) cover it. Browser check
+      11/11: both tabs "2 online", tab A "1 online" after tab B leaves, no console errors.
+- [ ] ⚠ Deploy presence (needs OK), then remote smoke + live 1,000-socket presence run + browser check.
 - [ ] A second topic *type* (e.g. a shared list or poll) reusing Room + version guard, if still wanted after presence.
 
 ## Risks
