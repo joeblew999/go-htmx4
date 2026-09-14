@@ -104,6 +104,9 @@ browser ─ hx-post /board/add|note ─────▶ worker/index.mjs ─▶ G
 - **Designed for 1,000 tabs per topic:** receive-only sockets, `setWebSocketAutoResponse` ping/pong, coalesced broadcasts,
   reconnects spread over 1–3 s (a deploy drops every socket at once). Measured live: 1,000/1,000 delivered, p50 386 ms
   from the click on a phone hotspot.
+- **Abuse limits:** writes are rate limited per client IP (Workers Rate Limiting binding `WRITES`, 60 per 10 s per
+  location; over it: 429 + a toast), each topic keeps its newest 50 notes, and a Room accepts at most 1,000 sockets
+  (the 1,001st gets 503). Topics are 1–32 of `a-z 0-9 -`.
 - **Presence:** the Room pushes "N online" on connects and closes, through the same coalescing (one update for a
   1,000-socket join in the local test).
   It counts foreground tabs: hx-ws closes a hidden tab's socket (`pauseOnBackground`) and reconnects when it's shown.
@@ -119,9 +122,10 @@ Importable from other repos with `go get github.com/joeblew999/go-htmx4/kit/…`
 
 | Package | What |
 | --- | --- |
-| [`kit/cfdeploy`](kit/cfdeploy) | Deploy a workers-go Worker with the REST API: Static Assets Direct Upload, script upload, plain-text/D1/Durable Object bindings, D1 create + migrations, Durable Object migrations, workers.dev. No wrangler. |
+| [`kit/cfdeploy`](kit/cfdeploy) | Deploy a workers-go Worker with the REST API: Static Assets Direct Upload, script upload, plain-text/D1/Durable Object/rate limiting bindings, D1 create + migrations, Durable Object migrations, workers.dev. No wrangler. |
 | [`kit/wsload`](kit/wsload) | End-to-end live-board check over real WebSockets: delivery latency, coalescing, presence, heartbeat, cached fragment. |
 | [`kit/cftail`](kit/cftail) | Stream a deployed Worker's live logs: start a tail with the REST API, read its WebSocket, delete it on exit. No wrangler. |
+| [`kit/ratelimit`](kit/ratelimit) | Call a Workers Rate Limiting binding from Go (TinyGo), plus the per-client key (`CF-Connecting-IP`). |
 | [`kit/live`](kit/live) | Go side of per-topic live updates: `Publish` to a Room Durable Object (js/wasm), the shared topic rule and version header. |
 | [`kit/httpx`](kit/httpx) | TinyGo-safe HTTP helpers: `Allow` (method check for plain-path routes), `Render` (buffered gsx, Content-Length), `GetOnly`. |
 

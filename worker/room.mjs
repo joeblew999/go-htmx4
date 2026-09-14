@@ -14,6 +14,9 @@
 import { DurableObject } from "cloudflare:workers";
 
 const FLUSH_MS = 200;
+// Design ceiling per topic: a Room handles ~1,000 requests/s, and every socket reconnects after a deploy.
+// Socket 1,001 gets 503 (hx-ws retries with backoff).
+const MAX_SOCKETS = 1000;
 
 export class Room extends DurableObject {
   constructor(ctx, env) {
@@ -26,6 +29,9 @@ export class Room extends DurableObject {
     if (new URL(request.url).pathname === "/publish") return this.publish(request);
     if (request.headers.get("Upgrade") !== "websocket") {
       return new Response("expected a WebSocket upgrade", { status: 426 });
+    }
+    if (this.ctx.getWebSockets().length >= MAX_SOCKETS) {
+      return new Response("room full", { status: 503, headers: { "Retry-After": "10" } });
     }
     const [client, server] = Object.values(new WebSocketPair());
     this.ctx.acceptWebSocket(server);

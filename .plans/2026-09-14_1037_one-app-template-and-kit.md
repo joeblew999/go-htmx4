@@ -1,6 +1,6 @@
 # go-htmx4 as a real repo: one app, a GitHub template, importable kit packages
 
-**Status:** Phases 1–4 done; Phase 5 next · **Created:** 2026-09-14 10:37
+**Status:** Phases 1–5 done; Phase 6 next · **Created:** 2026-09-14 10:37
 
 ## Goal
 
@@ -137,16 +137,16 @@ theme toggle across all pages.
 
 ### Phase 5: board abuse protection
 
-- [ ] Topic names: already `^[a-z0-9-]{1,32}$` in Go and `index.mjs`; pin both with the kit/live test.
-- [ ] **Per-IP write limit** (`/board/add`, `/board/note`), keyed on `CF-Connecting-IP`, via the Workers Rate Limiting
+- [x] Topic names: already `^[a-z0-9-]{1,32}$` in Go and `index.mjs`; pin both with the kit/live test.
+- [x] **Per-IP write limit** (`/board/add`, `/board/note`), keyed on `CF-Connecting-IP`, via the Workers Rate Limiting
       binding (settle unknown 2). Starting point: 20 writes / 10 s. Over the limit → 429 plus a gsxui toast. Local workerd
       has no rate limit binding, so a no-op locally and a unit test for the 429 path.
-- [ ] **Note retention:** keep the newest 50 notes per topic in D1 (the page shows 5). A single `DELETE … WHERE topic = ?
+- [x] **Note retention:** keep the newest 50 notes per topic in D1 (the page shows 5). A single `DELETE … WHERE topic = ?
       AND id < (SELECT id … ORDER BY id DESC LIMIT 1 OFFSET 49)` after each insert (no transactions in D1). Mirror it in
       the mem store and the local D1 shim.
-- [ ] **Room socket cap:** refuse the 1,001st socket on a topic with 503. That is the designed ceiling (Room's ~1,000
+- [x] **Room socket cap:** refuse the 1,001st socket on a topic with 503. That is the designed ceiling (Room's ~1,000
       requests/s soft limit).
-- [ ] `mise run load` still green (1,000 sockets). **Commit.**
+- [x] `mise run load` still green (1,000 sockets). **Commit.**
 
 ### Phase 6: make it a proper template
 
@@ -295,5 +295,35 @@ theme toggle across all pages.
 
 ### Follow-ups after Phase 4 (2026-09-14 12:20)
 
-- [ ] Phase 5 (rate limit, note retention, socket cap) next.
+- [x] Phase 5 (rate limit, note retention, socket cap) next. — done
 - [ ] workers-go prints a "non-JS mode" warning on every native restart; harmless, upstream's message.
+
+### 2026-09-14 12:55: Phase 5 (board abuse protection)
+
+- **Unknown 2 settled: rate limiting stays in Go.** workers-go's `cloudflare.GetBinding` returns any binding as a
+  `js.Value`; new `kit/ratelimit` calls `limit({key})` and awaits the promise (TinyGo), keyed on `CF-Connecting-IP`,
+  fail-open with `ErrNoBinding` when unconfigured (and under standard Go). Board writes check it before touching D1:
+  over the limit → 429, `Retry-After: 10`, out-of-band gsxui "Slow down" toast, nothing written. Chosen limit **60 writes
+  / 10 s per client per location**: comfortably above human use, below the 50-write burst the load test sends plus its
+  other writes. `kit/cfdeploy` gained `RateLimits` (`type: "ratelimit"`, `namespace_id`, `simple {limit, period}` —
+  wrangler's field names; Cloudflare's API page doesn't show the upload shape, so the Phase 7 deploy is its first real
+  check) and `cmd/deploy -ratelimit WRITES=1001:60/10`. Local workerd has no such binding: `workerd/local-entry.mjs`
+  provides an in-memory fixed window with the same settings, so the smoke really exercises the 429 path.
+- **Note retention:** one `DELETE … WHERE topic = ? AND id < (… OFFSET 49)` after each insert keeps 50 per topic (no-op
+  below 50); the memory store mirrors it. No schema change (0001's `note_topic_id` index covers it), so no 0002
+  migration. [-] `0002_note_retention.sql`: not needed.
+- **Room cap:** `MAX_SOCKETS = 1000`; socket 1,001 gets 503 + `Retry-After` (hx-ws retries).
+- Checks: Go tests (retention 57 → 50 kept, newest shown; forced limit → 429 + toast + Retry-After + board unchanged);
+  `mise run test` 29 ✓ incl. smoke "write limit → 429" and "429 carries a toast" on real workerd; `mise run load` green
+  plus "room refuses socket 1,001". Browser (Chrome, local workerd): 70 increments 40 ms apart → 60× 200, 10× 429, 10
+  "Slow down" toasts, board stopped at 60, no exceptions. (A first try clicking every 15 ms sent only 60 requests: htmx
+  doesn't start a new request from the same element while one is in flight.) htmx 4 swaps error responses by default
+  (`noSwap` is only 204/304), so OOB content on 4xx works.
+
+### Follow-ups after Phase 5 (2026-09-14 12:55)
+
+- [ ] Phase 6 (e2e in repo + CI, rename task, README, LICENSE) next.
+- [ ] The rate-limit upload metadata shape is unverified until the Phase 7 deploy.
+- [ ] Ten identical "Slow down" toasts stack when someone hammers the button; acceptable, could be deduplicated later.
+- [ ] Coordination: session go-htmx4-87 (full i18n plan) shares this working tree; it waits for this commit before
+      touching main.go/views/platform files, and will later change `worker/room.mjs` (locale-tagged sockets).

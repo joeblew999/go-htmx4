@@ -23,6 +23,25 @@ type list []string
 func (l *list) String() string     { return strings.Join(*l, ",") }
 func (l *list) Set(s string) error { *l = append(*l, s); return nil }
 
+// rateLimits parses NAME=NAMESPACE_ID:LIMIT/PERIOD, e.g. WRITES=1001:60/10.
+type rateLimits map[string]cfdeploy.RateLimit
+
+func (r rateLimits) String() string { return fmt.Sprint(map[string]cfdeploy.RateLimit(r)) }
+func (r rateLimits) Set(s string) error {
+	var rl cfdeploy.RateLimit
+	name, spec, ok := strings.Cut(s, "=")
+	ns, window, ok2 := strings.Cut(spec, ":")
+	if !ok || !ok2 || name == "" {
+		return fmt.Errorf("want NAME=NAMESPACE_ID:LIMIT/PERIOD, got %q", s)
+	}
+	if _, err := fmt.Sscanf(window, "%d/%d", &rl.Limit, &rl.Period); err != nil {
+		return fmt.Errorf("want NAME=NAMESPACE_ID:LIMIT/PERIOD, got %q", s)
+	}
+	rl.NamespaceID = ns
+	r[name] = rl
+	return nil
+}
+
 type vars map[string]string
 
 func (v vars) String() string { return fmt.Sprint(map[string]string(v)) }
@@ -37,7 +56,7 @@ func (v vars) Set(s string) error {
 
 func main() {
 	log.SetFlags(0)
-	cfg := cfdeploy.Config{Vars: vars{}, D1: vars{}, DurableObjects: vars{}}
+	cfg := cfdeploy.Config{Vars: vars{}, D1: vars{}, DurableObjects: vars{}, RateLimits: rateLimits{}}
 	flag.StringVar(&cfg.Name, "name", "", "Worker script name (required)")
 	flag.StringVar(&cfg.BuildDir, "build", "build", "directory with worker.mjs, wasm_exec.js, runtime.mjs, app.wasm")
 	flag.StringVar(&cfg.AssetsDir, "assets", "", `static assets directory ("" for none)`)
@@ -50,6 +69,7 @@ func main() {
 	flag.Var(vars(cfg.Vars), "var", "plain_text binding KEY=VALUE (repeatable)")
 	flag.Var(vars(cfg.D1), "d1", "D1 binding NAME=DATABASE_NAME or NAME=DATABASE_ID (repeatable)")
 	flag.Var(vars(cfg.DurableObjects), "do", "Durable Object binding NAME=CLASS (repeatable)")
+	flag.Var(rateLimits(cfg.RateLimits), "ratelimit", "rate limiting binding NAME=NAMESPACE_ID:LIMIT/PERIOD, e.g. WRITES=1001:60/10 (repeatable)")
 	flag.Var((*list)(&cfg.Modules), "module", "extra ES module next to -main, e.g. worker/room.mjs (repeatable)")
 	flag.Var((*list)(&cfg.NewSQLiteClasses), "new-sqlite-class", "Durable Object class created by -migration-tag (repeatable)")
 	dryRun := flag.Bool("dry-run", false, "print what would be uploaded; make no API calls")
@@ -59,8 +79,8 @@ func main() {
 	if err != nil {
 		log.Fatalf("deploy: %v (run mise run build)", err)
 	}
-	log.Printf("worker %q: %d modules (main %s), %d assets from %q, vars %v, d1 %v, do %v, migration %q %v",
-		cfg.Name, len(plan.Modules), plan.Modules[0].Name, len(plan.Assets), cfg.AssetsDir, cfg.Vars, cfg.D1, cfg.DurableObjects, cfg.MigrationTag, cfg.NewSQLiteClasses)
+	log.Printf("worker %q: %d modules (main %s), %d assets from %q, vars %v, d1 %v, do %v, ratelimit %v, migration %q %v",
+		cfg.Name, len(plan.Modules), plan.Modules[0].Name, len(plan.Assets), cfg.AssetsDir, cfg.Vars, cfg.D1, cfg.DurableObjects, cfg.RateLimits, cfg.MigrationTag, cfg.NewSQLiteClasses)
 	if *dryRun {
 		for _, m := range plan.Modules {
 			log.Printf("  module %-22s ← %s", m.Name, m.Path)

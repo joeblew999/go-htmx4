@@ -31,11 +31,18 @@ func (s sqlStore) Add(topic string, delta int64) (Board, error) {
 	return s.withNotes(b)
 }
 
-// AddNote inserts, then bumps the version. The notes are read after the bump, so the fragment
-// for version N includes every note committed before it.
+// pruneSQL keeps a topic's newest keepNotes notes: it deletes everything older than the keepNotes-th newest
+// (a no-op while there are fewer). One statement, since D1 has no interactive transactions.
+const pruneSQL = `DELETE FROM note WHERE topic = ? AND id < (SELECT id FROM note WHERE topic = ? ORDER BY id DESC LIMIT 1 OFFSET ?)`
+
+// AddNote inserts, prunes old notes, then bumps the version. The notes are read after the bump, so the
+// fragment for version N includes every note committed before it.
 func (s sqlStore) AddNote(topic, body string) (Board, error) {
 	b := Board{Topic: topic}
 	if _, err := s.db.Exec(`INSERT INTO note (topic, body) VALUES (?, ?)`, topic, body); err != nil {
+		return b, err
+	}
+	if _, err := s.db.Exec(pruneSQL, topic, topic, keepNotes-1); err != nil {
 		return b, err
 	}
 	if err := s.db.QueryRow(bumpSQL, topic, 0).Scan(&b.Value, &b.Version); err != nil {

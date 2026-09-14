@@ -226,6 +226,7 @@ func config(dir string) cfdeploy.Config {
 		D1Create:          true,
 		MigrationsDir:     filepath.Join(dir, "migrations"),
 		DurableObjects:    map[string]string{"ROOM": "Room"},
+		RateLimits:        map[string]cfdeploy.RateLimit{"WRITES": {NamespaceID: "1001", Limit: 60, Period: 10}},
 		MigrationTag:      "v1",
 		NewSQLiteClasses:  []string{"Room"},
 	}
@@ -280,6 +281,7 @@ func TestDeploy(t *testing.T) {
 		`{"name":"APP_ENV","text":"cloudflare","type":"plain_text"}`,
 		`{"id":"` + f.dbs["app"] + `","name":"DB","type":"d1"}`,
 		`{"class_name":"Room","name":"ROOM","type":"durable_object_namespace"}`,
+		`{"name":"WRITES","namespace_id":"1001","simple":{"limit":60,"period":10},"type":"ratelimit"}`,
 		`"migrations":{"new_sqlite_classes":["Room"],"new_tag":"v1"}`,
 		`"assets":{"jwt":"completion-jwt"}`,
 	} {
@@ -353,6 +355,11 @@ func TestNewPlan(t *testing.T) {
 	cfg.Modules = append(cfg.Modules, filepath.Join(dir, "worker/missing.mjs"))
 	if _, err := cfdeploy.NewPlan(cfg); err == nil || !strings.Contains(err.Error(), "missing.mjs") {
 		t.Errorf("missing module: err = %v", err)
+	}
+	cfg = config(dir)
+	cfg.RateLimits = map[string]cfdeploy.RateLimit{"WRITES": {NamespaceID: "1001", Limit: 60, Period: 30}}
+	if _, err := cfdeploy.NewPlan(cfg); err == nil || !strings.Contains(err.Error(), "period 10 or 60") {
+		t.Errorf("rate limit period 30: err = %v", err)
 	}
 	if _, err := cfdeploy.NewPlan(cfdeploy.Config{CompatibilityDate: "x"}); err == nil {
 		t.Errorf("no name: want an error")

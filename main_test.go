@@ -1,3 +1,5 @@
+//go:build !js
+
 package main
 
 import (
@@ -177,6 +179,29 @@ func TestBoard(t *testing.T) {
 		t.Errorf("native board page must not connect hx-ws and must say there is no live push")
 	}
 	livePush = true
+
+	// Retention: the store keeps the newest keepNotes per topic; the page shows maxNotes.
+	for i := range keepNotes + 7 {
+		do("POST", "/board/note?topic=t-keep", "body=k"+strconv.Itoa(i))
+	}
+	if got := mem.kept("t-keep"); got != keepNotes {
+		t.Errorf("notes kept = %d, want %d", got, keepNotes)
+	}
+	expect(do("GET", "/board?topic=t-keep", ""), http.StatusOK, "k"+strconv.Itoa(keepNotes+6))
+
+	// Over the write limit: 429, Retry-After and an OOB toast, and nothing is written.
+	allowWrite = func(*http.Request) bool { return false }
+	before := do("GET", "/board?topic=t-add", "").Body.String()
+	limited := do("POST", "/board/add?topic=t-add", "delta=1")
+	expect(limited, http.StatusTooManyRequests, `hx-swap-oob="beforeend:#gsxui-toaster"`, "Slow down")
+	if limited.Header().Get("Retry-After") != "10" {
+		t.Errorf("Retry-After = %q, want 10", limited.Header().Get("Retry-After"))
+	}
+	expect(do("POST", "/board/note?topic=t-add", "body=spam"), http.StatusTooManyRequests)
+	if after := do("GET", "/board?topic=t-add", "").Body.String(); after != before {
+		t.Errorf("a rate-limited write changed the board")
+	}
+	allowWrite = func(*http.Request) bool { return true }
 
 	expect(do("POST", "/board/add?topic=t-add", "delta=5"), http.StatusBadRequest)
 	expect(do("POST", "/board/note?topic=t-note", "body=+"), http.StatusBadRequest)

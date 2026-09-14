@@ -64,9 +64,19 @@ type Config struct {
 	D1Create      bool              // create D1 databases in D1 that don't exist yet
 	MigrationsDir string            // apply these *.sql files (in name order) to every D1 database
 
+	RateLimits map[string]RateLimit // binding → Workers Rate Limiting settings
+
 	DurableObjects   map[string]string // binding → class name
 	MigrationTag     string            // Durable Object migration tag to reach (sent only if not yet applied)
 	NewSQLiteClasses []string          // classes created by MigrationTag
+}
+
+// RateLimit is a Workers Rate Limiting binding: a simple fixed window of Limit requests per Period seconds
+// per key (https://developers.cloudflare.com/workers/runtime-apis/bindings/rate-limit/).
+type RateLimit struct {
+	NamespaceID string // a positive integer, unique within the account
+	Limit       int
+	Period      int // 10 or 60
 }
 
 // Module is one part of the script upload; Name is what imports resolve against.
@@ -100,6 +110,11 @@ func NewPlan(cfg Config) (*Plan, error) {
 	}
 	if cfg.CompatibilityDate == "" {
 		return nil, errors.New("cfdeploy: CompatibilityDate is required")
+	}
+	for name, rl := range cfg.RateLimits {
+		if rl.NamespaceID == "" || rl.Limit < 1 || (rl.Period != 10 && rl.Period != 60) {
+			return nil, fmt.Errorf("cfdeploy: rate limit %s: want a namespace id, limit ≥ 1 and period 10 or 60, got %+v", name, rl)
+		}
 	}
 	buildDir := cfg.BuildDir
 	if buildDir == "" {
@@ -429,15 +444,20 @@ func (c *Client) uploadAssets(ctx context.Context, name string, plan *Plan) (str
 
 // putScript runs step 3: the multipart script upload with its metadata part.
 func (c *Client) putScript(ctx context.Context, cfg Config, modules []Module, d1IDs map[string]string, doMigration map[string]any, assetsJWT string) error {
-	bindings := []map[string]string{}
+	bindings := []map[string]any{}
 	for _, k := range slices.Sorted(maps.Keys(cfg.Vars)) {
-		bindings = append(bindings, map[string]string{"type": "plain_text", "name": k, "text": cfg.Vars[k]})
+		bindings = append(bindings, map[string]any{"type": "plain_text", "name": k, "text": cfg.Vars[k]})
 	}
 	for _, k := range slices.Sorted(maps.Keys(d1IDs)) {
-		bindings = append(bindings, map[string]string{"type": "d1", "name": k, "id": d1IDs[k]})
+		bindings = append(bindings, map[string]any{"type": "d1", "name": k, "id": d1IDs[k]})
 	}
 	for _, k := range slices.Sorted(maps.Keys(cfg.DurableObjects)) {
-		bindings = append(bindings, map[string]string{"type": "durable_object_namespace", "name": k, "class_name": cfg.DurableObjects[k]})
+		bindings = append(bindings, map[string]any{"type": "durable_object_namespace", "name": k, "class_name": cfg.DurableObjects[k]})
+	}
+	for _, k := range slices.Sorted(maps.Keys(cfg.RateLimits)) {
+		rl := cfg.RateLimits[k]
+		bindings = append(bindings, map[string]any{"type": "ratelimit", "name": k, "namespace_id": rl.NamespaceID,
+			"simple": map[string]int{"limit": rl.Limit, "period": rl.Period}})
 	}
 	meta := map[string]any{
 		"main_module":        modules[0].Name,

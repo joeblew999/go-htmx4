@@ -105,6 +105,11 @@
   - Board markup is gsx (`views/board.gsx`: `BoardPage`, `BoardFragment`). `BoardFragment` is the wire format the Room and the
     page's version guard rely on: `TestBoardFragmentWireFormat` must keep passing. Never edit or commit `*.x.go`
     (`mise run generate`).
+  - **Abuse limits** (keep them in sync): the `WRITES` rate limit is 60 writes / 10 s per client IP in both the deploy
+    (`-ratelimit WRITES=1001:60/10`, `tasks/app.toml`) and the local stand-in (`workerd/local-entry.mjs`); every board
+    write handler calls `s.limited` before writing. Notes are pruned to `keepNotes` (50) per topic in the same request.
+    `worker/room.mjs` `MAX_SOCKETS` (1,000) refuses further sockets with 503; `mise run load` checks it. The smoke's
+    429 check runs last because it uses up the local write budget.
   - Schema changes: add `migrations/NNNN_name.sql` (SQLite, idempotent). `cmd/deploy -migrations` applies it
     to D1 once (tracked in `_migrations`); `workerd/local-d1.mjs` must import it for local runs.
   - Durable Object classes change through `-migration-tag`/`-new-sqlite-class` in the deploy task; bump the tag for a new class.
@@ -120,7 +125,7 @@
   `store_{sql,mem}.go`, `platform_{js,other}.go`, `worker/index.mjs` entry + `worker/room.mjs` Durable Object, `migrations/`, `static/` (vendored htmx + hx-ws),
   `web/gsxui/` (behaviours + CSS entry), `workerd/` (config.capnp + local-only shims), `cmd/deploy` + `cmd/wsload` (flag parsing over kit/)).
 - `kit/` - importable packages: `cfdeploy` (Cloudflare deploy), `cftail` (live logs), `wsload` (WebSocket checks), `live`
-  (Room publish, topic rule), `httpx` (TinyGo-safe HTTP helpers); `kit/internal/cfapi` is their shared API client.
+  (Room publish, topic rule), `ratelimit` (rate limiting binding), `httpx` (TinyGo-safe HTTP helpers); `kit/internal/cfapi` is their shared API client.
 - `tasks/` - mise task files included from `mise.toml`.
 - `.plans/` - timestamped plans (see above).
 
@@ -128,7 +133,7 @@
 
 - Other repos import `kit/*`: it must never import the app (`views`, `ui`, `cmd`, package main). `mise run test` fails if it
   does. Keep exported APIs documented (`// Package …`, examples) and stable; errors are returned, not `log.Fatal`.
-- `kit/httpx` and `kit/live` are compiled into the Worker: TinyGo-safe only (no reflection-heavy code, no regexp in hot
+- `kit/httpx`, `kit/live` and `kit/ratelimit` are compiled into the Worker: TinyGo-safe only (no reflection-heavy code, no regexp in hot
   paths). `kit/cfdeploy` and `kit/wsload` are local tooling (standard Go).
 - Tests never call Cloudflare: `kit/cfdeploy` and `kit/cftail` use `httptest` fakes of the API, `kit/wsload` a fake Room. Extend the fakes
   when you add an API call.

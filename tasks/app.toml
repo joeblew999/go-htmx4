@@ -175,6 +175,10 @@ if go run ./cmd/wsload -n 2 -topic smoke >build/wsload-smoke.log 2>&1; then
 else
   echo "✗ wsload:"; cat build/wsload-smoke.log; fail=1
 fi
+# Last: over the write limit (60 per 10 s per client, workerd/local-entry.mjs) the board answers 429 + a toast.
+codes=$(for _ in $(seq 1 70); do curl -s -o /dev/null -w '%{http_code}\n' -X POST -d delta=1 "$base/board/add?topic=smoke-limit"; done | sort | uniq -c | tr '\n' ' ')
+check "write limit → 429"         "$codes" ' 429'
+check "429 carries a toast"       "$(curl -s -X POST -d delta=1 "$base/board/add?topic=smoke-limit")" 'Slow down'
 if grep -qiE 'panic|uncaught' build/workerd-smoke.log; then echo "✗ errors in workerd log:"; cat build/workerd-smoke.log; fail=1; fi
 exit $fail
 '''
@@ -203,6 +207,9 @@ fi
 echo "→ $base"
 go run ./cmd/wsload -base "$base" -n 1000 -topic load
 go run ./cmd/wsload -base "$base" -n 1000 -writes 50 -topic load-burst
+# The Room refuses socket 1,001 (worker/room.mjs MAX_SOCKETS).
+full=$(go run ./cmd/wsload -base "$base" -n 1001 -topic load-full 2>&1 || true)
+if grep -q "connected 1000/1001" <<<"$full"; then echo "✓ room refuses socket 1,001"; else echo "$full" | tail -5; echo "✗ room cap"; exit 1; fi
 '''
 
 ["test"]
@@ -254,6 +261,7 @@ fnox exec -- go run ./cmd/deploy -name "$APP_NAME" -allow-existing \
   -var "APP_ENV=cloudflare (workers.dev)" \
   -d1 DB="$APP_NAME" -d1-create -migrations migrations \
   -do ROOM=Room -migration-tag v1 -new-sqlite-class Room \
+  -ratelimit WRITES=1001:60/10 \
   | tee .deploy-url   # outside build/: workers-assets-gen wipes build/ on every build
 '''
 

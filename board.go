@@ -11,6 +11,7 @@ package main
 import (
 	"bytes"
 	"context"
+	"errors"
 	"log"
 	"net/http"
 	"strconv"
@@ -19,14 +20,27 @@ import (
 
 	"github.com/joeblew999/go-htmx4/kit/httpx"
 	"github.com/joeblew999/go-htmx4/kit/live"
+	"github.com/joeblew999/go-htmx4/kit/ratelimit"
 	"github.com/joeblew999/go-htmx4/views"
 )
 
 const (
 	defaultTopic = "lobby"
-	maxNotes     = 5
+	maxNotes     = 5  // shown on the board
+	keepNotes    = 50 // kept per topic; older notes are deleted as new ones arrive
 	maxNoteRunes = 280
 )
+
+// allowWrite reports whether this client may change a board now: the WRITES rate limiting binding, keyed on
+// the client IP (60 writes per 10 s per Cloudflare location, see tasks/app.toml deploy). A var so tests can
+// refuse. A missing binding fails open.
+var allowWrite = func(r *http.Request) bool {
+	ok, err := ratelimit.Allow("WRITES", ratelimit.ClientKey(r))
+	if err != nil && !errors.Is(err, ratelimit.ErrNoBinding) {
+		log.Printf("rate limit: %v", err)
+	}
+	return ok
+}
 
 // Board and Note are the view types: the store returns exactly what views renders.
 type (
@@ -69,6 +83,9 @@ func (s *server) boardRoutes(mux *http.ServeMux) {
 			http.Error(w, "delta must be 1 or -1", http.StatusBadRequest)
 			return
 		}
+		if s.limited(w, r) {
+			return
+		}
 		change(w, topic, func(st store) (Board, error) { return st.Add(topic, delta) })
 	})
 	mux.HandleFunc("/board/note", func(w http.ResponseWriter, r *http.Request) {
@@ -81,8 +98,22 @@ func (s *server) boardRoutes(mux *http.ServeMux) {
 			http.Error(w, "note must be 1–280 characters", http.StatusBadRequest)
 			return
 		}
+		if s.limited(w, r) {
+			return
+		}
 		change(w, topic, func(st store) (Board, error) { return st.AddNote(topic, body) })
 	})
+}
+
+// limited replies 429 with an out-of-band gsxui toast when the client is over the write limit.
+func (s *server) limited(w http.ResponseWriter, r *http.Request) bool {
+	if allowWrite(r) {
+		return false
+	}
+	w.Header().Set("Retry-After", "10")
+	w.WriteHeader(http.StatusTooManyRequests)
+	s.render(w, r, "board:limited", views.RateLimited())
+	return true
 }
 
 // change applies a write, publishes the new fragment to the topic's Room, and returns the

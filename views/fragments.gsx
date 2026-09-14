@@ -31,6 +31,18 @@ component GreetingCleared() {
 	</div>
 }
 
+// RateLimited answers a board write over the per-connection limit (429). The posts use hx-swap="none", so
+// the out-of-band toast is the whole response.
+component RateLimited() {
+	<div hx-swap-oob="beforeend:#gsxui-toaster">
+		<ui.Toast
+			toastType="error"
+			title="Slow down"
+			description="Too many changes from your connection. Try again in a few seconds."
+		/>
+	</div>
+}
+
 component GreetingError(message string) {
 	<ui.FieldError>{ message }</ui.FieldError>
 }
