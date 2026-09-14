@@ -97,14 +97,13 @@ type ZoneOption struct {
 // ZoneOptions lists every selectable time zone labelled in the request's locale at instant at, e.g.
 // "Europe/Berlin · Mitteleuropäische Zeit (GMT+2)".
 func ZoneOptions(ctx context.Context, at time.Time) []ZoneOption {
-	loc := Loc(ctx)
+	namer := Loc(ctx).ZoneNamer()
 	ids := cldr.Data.TimeZoneIDs()
 	out := make([]ZoneOption, 0, len(ids))
 	for _, id := range ids {
 		label := strings.ReplaceAll(id, "_", " ")
-		if generic, err := loc.TimeZoneName(id, i18n.ZoneLongGeneric, at); err == nil {
-			offset, _ := loc.TimeZoneName(id, i18n.ZoneShortOffset, at)
-			label += " · " + generic + " (" + offset + ")"
+		if names, err := namer.Names(id, at, i18n.ZoneLongGeneric, i18n.ZoneShortOffset); err == nil {
+			label += " · " + names[0] + " (" + names[1] + ")"
 		}
 		out = append(out, ZoneOption{ID: id, Label: label})
 	}

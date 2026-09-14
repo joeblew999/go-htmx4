@@ -34,28 +34,53 @@ func (d *Data) TimeZoneIDs() []string {
 
 // TimeZoneName returns a time zone's name at t in the locale, in one of Intl's timeZoneName styles: the text
 // Intl.DateTimeFormat shows for it (formatToParts' timeZoneName part), e.g. "Mitteleuropäische Sommerzeit"
-// for Europe/Berlin, ZoneLong, in July. Errors are those of [Locale.DateTimeFormat].
+// for Europe/Berlin, ZoneLong, in July. The error wraps [ErrTimeZone] for an unknown zone. To name many
+// zones, use one [Locale.ZoneNamer].
 func (l *Locale) TimeZoneName(id string, style ZoneName, t time.Time) (string, error) {
-	if style == ZoneNameNone {
-		style = ZoneShort
-	}
-	f, err := l.DateTimeFormat(DateTimeOptions{TimeZone: id, TimeZoneName: style})
+	names, err := l.ZoneNamer().Names(id, t, style)
 	if err != nil {
 		return "", err
 	}
-	switch style {
-	case ZoneLong:
-		return f.zf.format(tzSpecificLong, f.zone, t), nil
-	case ZoneShortOffset:
-		return f.zf.localizedGMT(f.zone.state(t).offset, true), nil
-	case ZoneLongOffset:
-		return f.zf.localizedGMT(f.zone.state(t).offset, false), nil
-	case ZoneShortGeneric:
-		return f.zf.format(tzGenericShort, f.zone, t), nil
-	case ZoneLongGeneric:
-		return f.zf.format(tzGenericLong, f.zone, t), nil
+	return names[0], nil
+}
+
+// ZoneNamer names time zones in one locale (its numbering system included), like [Locale.TimeZoneName], but
+// builds the locale's zone formatter once and resolves each zone once for all requested styles: a zone
+// picker's ~420 labels cost a fraction of separate TimeZoneName calls.
+type ZoneNamer struct {
+	f *DateTimeFormat
+}
+
+// ZoneNamer returns a namer for the locale.
+func (l *Locale) ZoneNamer() *ZoneNamer {
+	return &ZoneNamer{f: l.MustDateTimeFormat(DateTimeOptions{TimeZoneName: ZoneShort, TimeZone: "UTC"})}
+}
+
+// Names returns the zone's name at t in each style (ZoneNameNone means ZoneShort).
+func (n *ZoneNamer) Names(id string, t time.Time, styles ...ZoneName) ([]string, error) {
+	z, err := n.f.loc.set.resolveZone(id, nil)
+	if err != nil {
+		return nil, err
 	}
-	return f.zf.format(tzSpecificShort, f.zone, t), nil
+	zf := n.f.zf
+	out := make([]string, len(styles))
+	for i, style := range styles {
+		switch style {
+		case ZoneLong:
+			out[i] = zf.format(tzSpecificLong, z, t)
+		case ZoneShortOffset:
+			out[i] = zf.localizedGMT(z.state(t).offset, true)
+		case ZoneLongOffset:
+			out[i] = zf.localizedGMT(z.state(t).offset, false)
+		case ZoneShortGeneric:
+			out[i] = zf.format(tzGenericShort, z, t)
+		case ZoneLongGeneric:
+			out[i] = zf.format(tzGenericLong, z, t)
+		default:
+			out[i] = zf.format(tzSpecificShort, z, t)
+		}
+	}
+	return out, nil
 }
 
 // IntlJSON returns the options as a JSON object for JavaScript's Intl.DateTimeFormat, without timeZone,
