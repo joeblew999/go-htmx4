@@ -64,6 +64,7 @@ component LocaleCard(facts LocaleFacts) {
 				<ui.Badge variant="outline">{ M(ctx).FormatsNative(facts.NativeSystem) }</ui.Badge>
 			} }
 			<ui.Badge variant="outline" translate="no">{ facts.Currency }</ui.Badge>
+			<ui.Badge variant="outline">{ M(ctx).FormatsTimeZone(TimeZone(ctx)) }</ui.Badge>
 		</ui.CardContent>
 	</ui.Card>
 }

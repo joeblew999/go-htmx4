@@ -4,6 +4,7 @@ import (
 	"context"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/joeblew999/go-htmx4/kit/i18n"
 	"github.com/joeblew999/go-htmx4/kit/i18n/cldr"
@@ -104,7 +105,81 @@ func NumberSections(ctx context.Context) []FormatSection {
 			})
 		}
 	}
-	return []FormatSection{numbers, money, units(loc, m), relativeTimes(loc, m), lists(loc, m), durations(loc, m), plurals, week(loc, m)}
+	return []FormatSection{numbers, money, dates(ctx, m), zones(ctx, m), ranges(ctx, m), units(loc, m), relativeTimes(loc, m), lists(loc, m), durations(loc, m), plurals, week(loc, m)}
+}
+
+// sampleInstant is the instant the date sections format (a fixed one, so the page is stable for crawlers).
+var sampleInstant = time.Date(2026, 7, 4, 15, 30, 45, 123e6, time.UTC)
+
+// jsOptions shows date options as the JavaScript object literal they stand for, e.g. {dateStyle: "full"}.
+func jsOptions(o i18n.DateTimeOptions, zone string) string {
+	s := strings.TrimSuffix(strings.TrimPrefix(o.IntlJSON(), "{"), "}")
+	var parts []string
+	if s != "" {
+		for _, kv := range strings.Split(s, ",") {
+			k, v, _ := strings.Cut(kv, ":")
+			parts = append(parts, strings.Trim(k, `"`)+": "+v)
+		}
+	}
+	if zone != "" {
+		parts = append(parts, `timeZone: "`+zone+`"`)
+	}
+	return "{" + strings.Join(parts, ", ") + "}"
+}
+
+func dates(ctx context.Context, m locales.Messages) FormatSection {
+	sec := FormatSection{Title: m.FormatsDatesTitle(), Description: m.FormatsDatesDescription()}
+	label := isoInstant(sampleInstant)
+	add := func(o i18n.DateTimeOptions) {
+		sec.Rows = append(sec.Rows, FormatRow{label, jsOptions(viewerOptions(ctx, o), TimeZone(ctx)), FormatDateTime(ctx, sampleInstant, o)})
+	}
+	add(i18n.DateTimeOptions{DateStyle: i18n.FullStyle})
+	add(i18n.DateTimeOptions{DateStyle: i18n.LongStyle, TimeStyle: i18n.ShortStyle})
+	add(i18n.DateTimeOptions{DateStyle: i18n.MediumStyle, TimeStyle: i18n.MediumStyle})
+	add(i18n.DateTimeOptions{DateStyle: i18n.ShortStyle, TimeStyle: i18n.FullStyle})
+	add(i18n.DateTimeOptions{Weekday: i18n.FieldLong, Month: i18n.FieldLong, Day: i18n.FieldNumeric})
+	add(i18n.DateTimeOptions{Year: i18n.FieldNumeric, Month: i18n.FieldShort})
+	add(i18n.DateTimeOptions{Hour: i18n.FieldNumeric, Minute: i18n.FieldTwoDigit, Hour12: i18n.B(true)})
+	add(i18n.DateTimeOptions{Hour: i18n.FieldNumeric, Minute: i18n.FieldTwoDigit, HourCycle: i18n.H23})
+	add(i18n.DateTimeOptions{Hour: i18n.FieldNumeric, DayPeriod: i18n.FieldLong})
+	add(i18n.DateTimeOptions{Era: i18n.FieldLong, Year: i18n.FieldNumeric})
+	add(i18n.DateTimeOptions{Minute: i18n.FieldTwoDigit, Second: i18n.FieldTwoDigit, FractionalSecondDigits: 3})
+	if native := Loc(ctx).Data.Numbers.NativeSystem; native != "" {
+		o := i18n.DateTimeOptions{DateStyle: i18n.MediumStyle, NumberingSystem: native}
+		sec.Rows = append(sec.Rows, FormatRow{label, strings.TrimSuffix(jsOptions(viewerOptions(ctx, o), TimeZone(ctx)), "}") + `, numberingSystem: "` + native + `"}`, FormatDateTime(ctx, sampleInstant, o)})
+	}
+	return sec
+}
+
+func zones(ctx context.Context, m locales.Messages) FormatSection {
+	sec := FormatSection{Title: m.FormatsZonesTitle(), Description: m.FormatsZonesDescription()}
+	add := func(zone string, name i18n.ZoneName) {
+		o := i18n.DateTimeOptions{Hour: i18n.FieldNumeric, Minute: i18n.FieldTwoDigit, TimeZoneName: name, TimeZone: zone}
+		sec.Rows = append(sec.Rows, FormatRow{zone, jsOptions(viewerOptions(ctx, o), ""), FormatDateTime(ctx, sampleInstant, o)})
+	}
+	add(TimeZone(ctx), i18n.ZoneLong)
+	add("Asia/Tokyo", i18n.ZoneShort)
+	add("America/New_York", i18n.ZoneLongGeneric)
+	add("America/Los_Angeles", i18n.ZoneShortGeneric)
+	add("Asia/Kolkata", i18n.ZoneShortOffset)
+	add("Australia/Lord_Howe", i18n.ZoneLongOffset)
+	add("Europe/London", i18n.ZoneLong)
+	add("Pacific/Chatham", i18n.ZoneLong)
+	return sec
+}
+
+func ranges(ctx context.Context, m locales.Messages) FormatSection {
+	sec := FormatSection{Title: m.FormatsRangesTitle(), Description: m.FormatsRangesDescription()}
+	add := func(end time.Time, o i18n.DateTimeOptions) {
+		label := isoInstant(sampleInstant) + " – " + isoInstant(end)
+		sec.Rows = append(sec.Rows, FormatRow{label, jsOptions(viewerOptions(ctx, o), TimeZone(ctx)), FormatDateRange(ctx, sampleInstant, end, o)})
+	}
+	add(sampleInstant.Add(90*time.Minute), i18n.DateTimeOptions{Hour: i18n.FieldNumeric, Minute: i18n.FieldTwoDigit})
+	add(sampleInstant.Add(90*time.Minute), i18n.DateTimeOptions{DateStyle: i18n.LongStyle, TimeStyle: i18n.ShortStyle})
+	add(sampleInstant.AddDate(0, 0, 5), i18n.DateTimeOptions{DateStyle: i18n.MediumStyle})
+	add(sampleInstant.AddDate(0, 1, 16), i18n.DateTimeOptions{Month: i18n.FieldLong, Day: i18n.FieldNumeric})
+	add(sampleInstant.AddDate(0, 6, 11), i18n.DateTimeOptions{Year: i18n.FieldNumeric, Month: i18n.FieldShort, Day: i18n.FieldNumeric})
+	return sec
 }
 
 func units(loc *i18n.Locale, m locales.Messages) FormatSection {

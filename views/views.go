@@ -36,8 +36,8 @@ type ServerInfo struct {
 	GoVersion string
 	Uptime    time.Duration
 	Requests  int64
-	Now       time.Time // TODO(i18n Phase 3): DateTimeFormat in the viewer's time zone
-	Note      string    // platform caveat, e.g. per-request state on Workers
+	Now       time.Time
+	Note      string // platform caveat, e.g. per-request state on Workers
 }
 
 // navVariant highlights the current page's header button (as gsxui's site layout does).

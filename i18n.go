@@ -23,6 +23,29 @@ import (
 // localeCookie remembers the locale of the last full page a browser viewed.
 const localeCookie = "locale"
 
+// Date and time preferences (plan decision 5): the viewer's explicit choice (these cookies, set by POST
+// /preferences) > Cloudflare's guess from the connection (request.cf.timezone) > UTC.
+const (
+	timeZoneCookie  = "tz" // an Intl time zone id
+	hourCycleCookie = "hc" // "h12" or "h23"
+)
+
+// preferences resolves the viewer's time zone and hour cycle for i18n.Request.
+func preferences(r *http.Request) (tz string, chosen bool, hc i18n.HourCycle) {
+	if c, err := r.Cookie(hourCycleCookie); err == nil && (c.Value == "h12" || c.Value == "h23") {
+		hc, _ = i18n.ParseHourCycle(c.Value)
+	}
+	if c, err := r.Cookie(timeZoneCookie); err == nil {
+		if id, ok := cldr.Data.TimeZone(c.Value); ok {
+			return id, true, hc
+		}
+	}
+	if id, ok := cldr.Data.TimeZone(connectionTimeZone(r)); ok {
+		return id, false, hc
+	}
+	return "UTC", false, hc
+}
+
 // withLocale resolves the request's locale from its URL prefix, strips the prefix, and puts
 // i18n.Request in the context for handlers and views.
 func withLocale(next http.Handler) http.Handler {
@@ -82,10 +105,60 @@ func withLocale(next http.Handler) http.Handler {
 		if !locales.Complete(ld.ID) {
 			w.Header().Set("X-Robots-Tag", "noindex")
 		}
-		r2 := r.Clone(i18n.WithRequest(r.Context(), i18n.Request{Locale: loc, Path: pathWithQuery(path, r.URL.RawQuery)}))
+		tz, chosen, hc := preferences(r)
+		r2 := r.Clone(i18n.WithRequest(r.Context(), i18n.Request{
+			Locale: loc, Path: pathWithQuery(path, r.URL.RawQuery), TimeZone: tz, TimeZoneChosen: chosen, HourCycle: hc,
+		}))
 		r2.URL.Path, r2.URL.RawPath = path, ""
 		next.ServeHTTP(w, r2)
 	})
+}
+
+// savePreferences answers POST /preferences: it stores the time zone and hour cycle cookies (an empty value
+// clears one, back to automatic) and redirects to the page the form was on, which re-renders with them.
+func savePreferences(w http.ResponseWriter, r *http.Request) {
+	secure := r.TLS != nil || r.Header.Get("X-Forwarded-Proto") == "https"
+	set := func(name, value string) {
+		c := &http.Cookie{Name: name, Value: value, Path: "/", MaxAge: 365 * 24 * 3600, SameSite: http.SameSiteLaxMode, Secure: secure}
+		if value == "" {
+			c.MaxAge = -1
+		}
+		http.SetCookie(w, c)
+	}
+	tz := r.FormValue("tz")
+	if tz != "" {
+		id, ok := cldr.Data.TimeZone(tz)
+		if !ok {
+			http.Error(w, "unknown time zone", http.StatusBadRequest)
+			return
+		}
+		tz = id
+	}
+	hc := r.FormValue("hc")
+	if hc != "" && hc != "h12" && hc != "h23" {
+		http.Error(w, "unknown hour cycle", http.StatusBadRequest)
+		return
+	}
+	set(timeZoneCookie, tz)
+	set(hourCycleCookie, hc)
+	http.Redirect(w, r, safeReturn(r.FormValue("return")), http.StatusSeeOther)
+}
+
+// safeReturn keeps a same-site redirect target: the path and query of an absolute or root-relative URL,
+// else the default locale's home page (never another host).
+func safeReturn(u string) string {
+	if i := strings.Index(u, "://"); i >= 0 {
+		u = u[i+3:]
+		if j := strings.IndexByte(u, '/'); j >= 0 {
+			u = u[j:]
+		} else {
+			u = "/"
+		}
+	}
+	if u == "" || u[0] != '/' || strings.HasPrefix(u, "//") || strings.ContainsAny(u, "\\\r\n") {
+		return "/"
+	}
+	return u
 }
 
 // localeByPrefix finds a shipped locale by URL segment or cookie value, case-insensitively.

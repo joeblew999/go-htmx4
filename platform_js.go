@@ -10,6 +10,7 @@ import (
 	"github.com/joeblew999/go-htmx4/kit/live"
 	"github.com/syumai/workers-go/cloudflare"
 	_ "github.com/syumai/workers-go/cloudflare/d1" // registers the "d1" database/sql driver
+	"github.com/syumai/workers-go/cloudflare/fetch"
 )
 
 // platformNote is shown in the server-info fragment: nothing survives between requests.
@@ -20,6 +21,16 @@ var livePush = true
 
 // getenv reads a Worker text binding (Cloudflare vars; locally a workerd text binding).
 func getenv(name string) string { return cloudflare.Getenv(name) }
+
+// connectionTimeZone is Cloudflare's guess of the viewer's IANA time zone from their IP (request.cf.timezone);
+// "" when the runtime has no cf object (local workerd).
+func connectionTimeZone(r *http.Request) string {
+	p, err := fetch.NewIncomingProperties(r.Context())
+	if err != nil || p.Timezone == "<undefined>" {
+		return ""
+	}
+	return p.Timezone
+}
 
 // staticFiles: on Workers, dist/site is served by Static Assets before the Worker runs, so a
 // request that reaches Go here is a real 404.

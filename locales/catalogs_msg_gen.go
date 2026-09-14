@@ -320,6 +320,22 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.dates_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Intl.DateTimeFormat: CLDR styles, skeletons, day periods, eras and hour cycles, all for the instant in the first column, in your time zone.",
+					},
+				},
+			},
+			{
+				Key: "formats.dates_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Dates and times",
+					},
+				},
+			},
+			{
 				Key: "formats.direction",
 				Parts: []i18n.MsgPart{
 					{
@@ -441,6 +457,22 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.ranges_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Intl.DateTimeFormat formatRange: CLDR interval formats show the shared fields once and repeat only those that differ.",
+					},
+				},
+			},
+			{
+				Key: "formats.ranges_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Date ranges",
+					},
+				},
+			},
+			{
 				Key: "formats.relative_description",
 				Parts: []i18n.MsgPart{
 					{
@@ -461,6 +493,17 @@ var catalogs = []*i18n.Catalog{
 				Parts: []i18n.MsgPart{
 					{
 						Text: "Result",
+					},
+				},
+			},
+			{
+				Key: "formats.time_zone",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "time zone ",
+					},
+					{
+						Kind: i18n.MsgKind(1),
 					},
 				},
 			},
@@ -501,6 +544,22 @@ var catalogs = []*i18n.Catalog{
 				Parts: []i18n.MsgPart{
 					{
 						Text: "Week",
+					},
+				},
+			},
+			{
+				Key: "formats.zones_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "The same instant in other time zones, with CLDR zone names: specific, generic, location and offset.",
+					},
+				},
+			},
+			{
+				Key: "formats.zones_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Time zones",
 					},
 				},
 			},
@@ -931,6 +990,14 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "nav.preferences",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Time zone and clock",
+					},
+				},
+			},
+			{
 				Key: "nav.toggle_theme",
 				Parts: []i18n.MsgPart{
 					{
@@ -946,6 +1013,82 @@ var catalogs = []*i18n.Catalog{
 					},
 					{
 						Text: " · go-htmx4",
+					},
+				},
+			},
+			{
+				Key: "preferences.description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Dates and times on every page use these settings. Automatic uses your connection's time zone, and your browser corrects it when it differs.",
+					},
+				},
+			},
+			{
+				Key: "preferences.hour_cycle",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Clock",
+					},
+				},
+			},
+			{
+				Key: "preferences.hour_cycle_auto",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Language default (",
+					},
+					{
+						Kind: i18n.MsgKind(1),
+					},
+					{
+						Text: ")",
+					},
+				},
+			},
+			{
+				Key: "preferences.loading",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Loading…",
+					},
+				},
+			},
+			{
+				Key: "preferences.save",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Save",
+					},
+				},
+			},
+			{
+				Key: "preferences.time_zone",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Time zone",
+					},
+				},
+			},
+			{
+				Key: "preferences.time_zone_auto",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Automatic (",
+					},
+					{
+						Kind: i18n.MsgKind(1),
+					},
+					{
+						Text: ")",
+					},
+				},
+			},
+			{
+				Key: "preferences.title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Time zone and clock",
 					},
 				},
 			},
@@ -1314,6 +1457,22 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.dates_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Intl.DateTimeFormat: CLDR styles, skeletons, day periods, eras and hour cycles, all for the instant in the first column, in your time zone.",
+					},
+				},
+			},
+			{
+				Key: "formats.dates_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Dates and times",
+					},
+				},
+			},
+			{
 				Key: "formats.direction",
 				Parts: []i18n.MsgPart{
 					{
@@ -1435,6 +1594,22 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.ranges_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Intl.DateTimeFormat formatRange: CLDR interval formats show the shared fields once and repeat only those that differ.",
+					},
+				},
+			},
+			{
+				Key: "formats.ranges_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Date ranges",
+					},
+				},
+			},
+			{
 				Key: "formats.relative_description",
 				Parts: []i18n.MsgPart{
 					{
@@ -1455,6 +1630,17 @@ var catalogs = []*i18n.Catalog{
 				Parts: []i18n.MsgPart{
 					{
 						Text: "Result",
+					},
+				},
+			},
+			{
+				Key: "formats.time_zone",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "time zone ",
+					},
+					{
+						Kind: i18n.MsgKind(1),
 					},
 				},
 			},
@@ -1495,6 +1681,22 @@ var catalogs = []*i18n.Catalog{
 				Parts: []i18n.MsgPart{
 					{
 						Text: "Week",
+					},
+				},
+			},
+			{
+				Key: "formats.zones_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "The same instant in other time zones, with CLDR zone names: specific, generic, location and offset.",
+					},
+				},
+			},
+			{
+				Key: "formats.zones_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Time zones",
 					},
 				},
 			},
@@ -1925,6 +2127,14 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "nav.preferences",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Time zone and clock",
+					},
+				},
+			},
+			{
 				Key: "nav.toggle_theme",
 				Parts: []i18n.MsgPart{
 					{
@@ -1940,6 +2150,82 @@ var catalogs = []*i18n.Catalog{
 					},
 					{
 						Text: " · go-htmx4",
+					},
+				},
+			},
+			{
+				Key: "preferences.description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Dates and times on every page use these settings. Automatic uses your connection's time zone, and your browser corrects it when it differs.",
+					},
+				},
+			},
+			{
+				Key: "preferences.hour_cycle",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Clock",
+					},
+				},
+			},
+			{
+				Key: "preferences.hour_cycle_auto",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Language default (",
+					},
+					{
+						Kind: i18n.MsgKind(1),
+					},
+					{
+						Text: ")",
+					},
+				},
+			},
+			{
+				Key: "preferences.loading",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Loading…",
+					},
+				},
+			},
+			{
+				Key: "preferences.save",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Save",
+					},
+				},
+			},
+			{
+				Key: "preferences.time_zone",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Time zone",
+					},
+				},
+			},
+			{
+				Key: "preferences.time_zone_auto",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Automatic (",
+					},
+					{
+						Kind: i18n.MsgKind(1),
+					},
+					{
+						Text: ")",
+					},
+				},
+			},
+			{
+				Key: "preferences.title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Time zone and clock",
 					},
 				},
 			},
@@ -2308,6 +2594,22 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.dates_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Intl.DateTimeFormat: CLDR-Stile, Skeletons, Tagesabschnitte, Epochen und Stundenzyklen, alle für den Zeitpunkt in der ersten Spalte, in der eingestellten Zeitzone.",
+					},
+				},
+			},
+			{
+				Key: "formats.dates_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Datum und Uhrzeit",
+					},
+				},
+			},
+			{
 				Key: "formats.direction",
 				Parts: []i18n.MsgPart{
 					{
@@ -2429,6 +2731,22 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.ranges_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Intl.DateTimeFormat formatRange: CLDR-Intervallformate wiederholen nur die Felder, die sich unterscheiden.",
+					},
+				},
+			},
+			{
+				Key: "formats.ranges_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Zeiträume",
+					},
+				},
+			},
+			{
 				Key: "formats.relative_description",
 				Parts: []i18n.MsgPart{
 					{
@@ -2449,6 +2767,17 @@ var catalogs = []*i18n.Catalog{
 				Parts: []i18n.MsgPart{
 					{
 						Text: "Ergebnis",
+					},
+				},
+			},
+			{
+				Key: "formats.time_zone",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Zeitzone ",
+					},
+					{
+						Kind: i18n.MsgKind(1),
 					},
 				},
 			},
@@ -2489,6 +2818,22 @@ var catalogs = []*i18n.Catalog{
 				Parts: []i18n.MsgPart{
 					{
 						Text: "Woche",
+					},
+				},
+			},
+			{
+				Key: "formats.zones_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Derselbe Zeitpunkt in anderen Zeitzonen, mit CLDR-Zonennamen: spezifisch, generisch, nach Ort und als Offset.",
+					},
+				},
+			},
+			{
+				Key: "formats.zones_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Zeitzonen",
 					},
 				},
 			},
@@ -2919,6 +3264,14 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "nav.preferences",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Zeitzone und Uhrzeitformat",
+					},
+				},
+			},
+			{
 				Key: "nav.toggle_theme",
 				Parts: []i18n.MsgPart{
 					{
@@ -2934,6 +3287,82 @@ var catalogs = []*i18n.Catalog{
 					},
 					{
 						Text: " · go-htmx4",
+					},
+				},
+			},
+			{
+				Key: "preferences.description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Datums- und Zeitangaben auf allen Seiten verwenden diese Einstellungen. „Automatisch“ verwendet die Zeitzone der Verbindung, und der Browser korrigiert sie, wenn sie abweicht.",
+					},
+				},
+			},
+			{
+				Key: "preferences.hour_cycle",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Uhrzeitformat",
+					},
+				},
+			},
+			{
+				Key: "preferences.hour_cycle_auto",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Standard der Sprache (",
+					},
+					{
+						Kind: i18n.MsgKind(1),
+					},
+					{
+						Text: ")",
+					},
+				},
+			},
+			{
+				Key: "preferences.loading",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Wird geladen…",
+					},
+				},
+			},
+			{
+				Key: "preferences.save",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Speichern",
+					},
+				},
+			},
+			{
+				Key: "preferences.time_zone",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Zeitzone",
+					},
+				},
+			},
+			{
+				Key: "preferences.time_zone_auto",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Automatisch (",
+					},
+					{
+						Kind: i18n.MsgKind(1),
+					},
+					{
+						Text: ")",
+					},
+				},
+			},
+			{
+				Key: "preferences.title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Zeitzone und Uhrzeitformat",
 					},
 				},
 			},
@@ -3302,6 +3731,22 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.dates_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Intl.DateTimeFormat\u00a0: styles, squelettes, périodes du jour, ères et cycles horaires CLDR, le tout pour la date et l’heure de la première colonne, dans votre fuseau horaire.",
+					},
+				},
+			},
+			{
+				Key: "formats.dates_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Dates et heures",
+					},
+				},
+			},
+			{
 				Key: "formats.direction",
 				Parts: []i18n.MsgPart{
 					{
@@ -3423,6 +3868,22 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.ranges_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Intl.DateTimeFormat formatRange\u00a0: les formats d’intervalle CLDR ne répètent que les champs qui diffèrent.",
+					},
+				},
+			},
+			{
+				Key: "formats.ranges_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Plages de dates",
+					},
+				},
+			},
+			{
 				Key: "formats.relative_description",
 				Parts: []i18n.MsgPart{
 					{
@@ -3443,6 +3904,17 @@ var catalogs = []*i18n.Catalog{
 				Parts: []i18n.MsgPart{
 					{
 						Text: "Résultat",
+					},
+				},
+			},
+			{
+				Key: "formats.time_zone",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "fuseau horaire ",
+					},
+					{
+						Kind: i18n.MsgKind(1),
 					},
 				},
 			},
@@ -3483,6 +3955,22 @@ var catalogs = []*i18n.Catalog{
 				Parts: []i18n.MsgPart{
 					{
 						Text: "Semaine",
+					},
+				},
+			},
+			{
+				Key: "formats.zones_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Le même instant dans d’autres fuseaux horaires, avec les noms de fuseaux CLDR\u00a0: spécifique, générique, par lieu et décalage.",
+					},
+				},
+			},
+			{
+				Key: "formats.zones_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Fuseaux horaires",
 					},
 				},
 			},
@@ -3913,6 +4401,14 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "nav.preferences",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Fuseau horaire et format de l’heure",
+					},
+				},
+			},
+			{
 				Key: "nav.toggle_theme",
 				Parts: []i18n.MsgPart{
 					{
@@ -3928,6 +4424,82 @@ var catalogs = []*i18n.Catalog{
 					},
 					{
 						Text: " · go-htmx4",
+					},
+				},
+			},
+			{
+				Key: "preferences.description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Les dates et heures de toutes les pages utilisent ces réglages. «\u00a0Automatique\u00a0» utilise le fuseau horaire de votre connexion, et votre navigateur le corrige s’il est différent.",
+					},
+				},
+			},
+			{
+				Key: "preferences.hour_cycle",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Format de l’heure",
+					},
+				},
+			},
+			{
+				Key: "preferences.hour_cycle_auto",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Selon la langue (",
+					},
+					{
+						Kind: i18n.MsgKind(1),
+					},
+					{
+						Text: ")",
+					},
+				},
+			},
+			{
+				Key: "preferences.loading",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Chargement…",
+					},
+				},
+			},
+			{
+				Key: "preferences.save",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Enregistrer",
+					},
+				},
+			},
+			{
+				Key: "preferences.time_zone",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Fuseau horaire",
+					},
+				},
+			},
+			{
+				Key: "preferences.time_zone_auto",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Automatique (",
+					},
+					{
+						Kind: i18n.MsgKind(1),
+					},
+					{
+						Text: ")",
+					},
+				},
+			},
+			{
+				Key: "preferences.title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Fuseau horaire et format de l’heure",
 					},
 				},
 			},
@@ -4296,6 +4868,22 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.dates_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Intl.DateTimeFormat: estilos, esqueletos, periodos del día, eras y ciclos horarios de CLDR, todo para el instante de la primera columna, en tu zona horaria.",
+					},
+				},
+			},
+			{
+				Key: "formats.dates_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Fechas y horas",
+					},
+				},
+			},
+			{
 				Key: "formats.direction",
 				Parts: []i18n.MsgPart{
 					{
@@ -4417,6 +5005,22 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.ranges_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Intl.DateTimeFormat formatRange: los formatos de intervalo de CLDR solo repiten los campos que cambian.",
+					},
+				},
+			},
+			{
+				Key: "formats.ranges_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Rangos de fechas",
+					},
+				},
+			},
+			{
 				Key: "formats.relative_description",
 				Parts: []i18n.MsgPart{
 					{
@@ -4437,6 +5041,17 @@ var catalogs = []*i18n.Catalog{
 				Parts: []i18n.MsgPart{
 					{
 						Text: "Resultado",
+					},
+				},
+			},
+			{
+				Key: "formats.time_zone",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "zona horaria ",
+					},
+					{
+						Kind: i18n.MsgKind(1),
 					},
 				},
 			},
@@ -4477,6 +5092,22 @@ var catalogs = []*i18n.Catalog{
 				Parts: []i18n.MsgPart{
 					{
 						Text: "Semana",
+					},
+				},
+			},
+			{
+				Key: "formats.zones_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "El mismo instante en otras zonas horarias, con nombres de zona de CLDR: específico, genérico, por ubicación y desfase.",
+					},
+				},
+			},
+			{
+				Key: "formats.zones_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Zonas horarias",
 					},
 				},
 			},
@@ -4907,6 +5538,14 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "nav.preferences",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Zona horaria y formato de hora",
+					},
+				},
+			},
+			{
 				Key: "nav.toggle_theme",
 				Parts: []i18n.MsgPart{
 					{
@@ -4922,6 +5561,82 @@ var catalogs = []*i18n.Catalog{
 					},
 					{
 						Text: " · go-htmx4",
+					},
+				},
+			},
+			{
+				Key: "preferences.description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Las fechas y horas de todas las páginas usan estos ajustes. «Automática» usa la zona horaria de tu conexión, y tu navegador la corrige si no coincide.",
+					},
+				},
+			},
+			{
+				Key: "preferences.hour_cycle",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Formato de hora",
+					},
+				},
+			},
+			{
+				Key: "preferences.hour_cycle_auto",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Según el idioma (",
+					},
+					{
+						Kind: i18n.MsgKind(1),
+					},
+					{
+						Text: ")",
+					},
+				},
+			},
+			{
+				Key: "preferences.loading",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Cargando…",
+					},
+				},
+			},
+			{
+				Key: "preferences.save",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Guardar",
+					},
+				},
+			},
+			{
+				Key: "preferences.time_zone",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Zona horaria",
+					},
+				},
+			},
+			{
+				Key: "preferences.time_zone_auto",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Automática (",
+					},
+					{
+						Kind: i18n.MsgKind(1),
+					},
+					{
+						Text: ")",
+					},
+				},
+			},
+			{
+				Key: "preferences.title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Zona horaria y formato de hora",
 					},
 				},
 			},
@@ -5290,6 +6005,22 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.dates_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Intl.DateTimeFormat: estilos, esqueletos, períodos do dia, eras e ciclos de hora do CLDR, tudo para o instante da primeira coluna, no seu fuso horário.",
+					},
+				},
+			},
+			{
+				Key: "formats.dates_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Datas e horas",
+					},
+				},
+			},
+			{
 				Key: "formats.direction",
 				Parts: []i18n.MsgPart{
 					{
@@ -5411,6 +6142,22 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.ranges_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Intl.DateTimeFormat formatRange: os formatos de intervalo do CLDR só repetem os campos que mudam.",
+					},
+				},
+			},
+			{
+				Key: "formats.ranges_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Intervalos de datas",
+					},
+				},
+			},
+			{
 				Key: "formats.relative_description",
 				Parts: []i18n.MsgPart{
 					{
@@ -5431,6 +6178,17 @@ var catalogs = []*i18n.Catalog{
 				Parts: []i18n.MsgPart{
 					{
 						Text: "Resultado",
+					},
+				},
+			},
+			{
+				Key: "formats.time_zone",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "fuso horário ",
+					},
+					{
+						Kind: i18n.MsgKind(1),
 					},
 				},
 			},
@@ -5471,6 +6229,22 @@ var catalogs = []*i18n.Catalog{
 				Parts: []i18n.MsgPart{
 					{
 						Text: "Semana",
+					},
+				},
+			},
+			{
+				Key: "formats.zones_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "O mesmo instante em outros fusos horários, com nomes de fuso do CLDR: específico, genérico, por localização e deslocamento.",
+					},
+				},
+			},
+			{
+				Key: "formats.zones_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Fusos horários",
 					},
 				},
 			},
@@ -5901,6 +6675,14 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "nav.preferences",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Fuso horário e formato de hora",
+					},
+				},
+			},
+			{
 				Key: "nav.toggle_theme",
 				Parts: []i18n.MsgPart{
 					{
@@ -5916,6 +6698,82 @@ var catalogs = []*i18n.Catalog{
 					},
 					{
 						Text: " · go-htmx4",
+					},
+				},
+			},
+			{
+				Key: "preferences.description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Datas e horas em todas as páginas usam estas configurações. \"Automático\" usa o fuso horário da sua conexão, e o seu navegador o corrige quando for diferente.",
+					},
+				},
+			},
+			{
+				Key: "preferences.hour_cycle",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Formato de hora",
+					},
+				},
+			},
+			{
+				Key: "preferences.hour_cycle_auto",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Padrão do idioma (",
+					},
+					{
+						Kind: i18n.MsgKind(1),
+					},
+					{
+						Text: ")",
+					},
+				},
+			},
+			{
+				Key: "preferences.loading",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Carregando…",
+					},
+				},
+			},
+			{
+				Key: "preferences.save",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Salvar",
+					},
+				},
+			},
+			{
+				Key: "preferences.time_zone",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Fuso horário",
+					},
+				},
+			},
+			{
+				Key: "preferences.time_zone_auto",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Automático (",
+					},
+					{
+						Kind: i18n.MsgKind(1),
+					},
+					{
+						Text: ")",
+					},
+				},
+			},
+			{
+				Key: "preferences.title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Fuso horário e formato de hora",
 					},
 				},
 			},
@@ -6284,6 +7142,22 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.dates_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Intl.DateTimeFormat: estilos, esqueletos, períodos do dia, eras e ciclos horários do CLDR, tudo para o instante da primeira coluna, no seu fuso horário.",
+					},
+				},
+			},
+			{
+				Key: "formats.dates_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Datas e horas",
+					},
+				},
+			},
+			{
 				Key: "formats.direction",
 				Parts: []i18n.MsgPart{
 					{
@@ -6405,6 +7279,22 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.ranges_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Intl.DateTimeFormat formatRange: os formatos de intervalo do CLDR só repetem os campos que mudam.",
+					},
+				},
+			},
+			{
+				Key: "formats.ranges_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Intervalos de datas",
+					},
+				},
+			},
+			{
 				Key: "formats.relative_description",
 				Parts: []i18n.MsgPart{
 					{
@@ -6425,6 +7315,17 @@ var catalogs = []*i18n.Catalog{
 				Parts: []i18n.MsgPart{
 					{
 						Text: "Resultado",
+					},
+				},
+			},
+			{
+				Key: "formats.time_zone",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "fuso horário ",
+					},
+					{
+						Kind: i18n.MsgKind(1),
 					},
 				},
 			},
@@ -6465,6 +7366,22 @@ var catalogs = []*i18n.Catalog{
 				Parts: []i18n.MsgPart{
 					{
 						Text: "Semana",
+					},
+				},
+			},
+			{
+				Key: "formats.zones_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "O mesmo instante noutros fusos horários, com nomes de fuso do CLDR: específico, genérico, por localização e desvio.",
+					},
+				},
+			},
+			{
+				Key: "formats.zones_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Fusos horários",
 					},
 				},
 			},
@@ -6895,6 +7812,14 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "nav.preferences",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Fuso horário e formato da hora",
+					},
+				},
+			},
+			{
 				Key: "nav.toggle_theme",
 				Parts: []i18n.MsgPart{
 					{
@@ -6910,6 +7835,82 @@ var catalogs = []*i18n.Catalog{
 					},
 					{
 						Text: " · go-htmx4",
+					},
+				},
+			},
+			{
+				Key: "preferences.description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "As datas e horas em todas as páginas usam estas definições. \"Automático\" usa o fuso horário da sua ligação e o seu navegador corrige-o quando é diferente.",
+					},
+				},
+			},
+			{
+				Key: "preferences.hour_cycle",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Formato da hora",
+					},
+				},
+			},
+			{
+				Key: "preferences.hour_cycle_auto",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Predefinição do idioma (",
+					},
+					{
+						Kind: i18n.MsgKind(1),
+					},
+					{
+						Text: ")",
+					},
+				},
+			},
+			{
+				Key: "preferences.loading",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "A carregar…",
+					},
+				},
+			},
+			{
+				Key: "preferences.save",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Guardar",
+					},
+				},
+			},
+			{
+				Key: "preferences.time_zone",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Fuso horário",
+					},
+				},
+			},
+			{
+				Key: "preferences.time_zone_auto",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Automático (",
+					},
+					{
+						Kind: i18n.MsgKind(1),
+					},
+					{
+						Text: ")",
+					},
+				},
+			},
+			{
+				Key: "preferences.title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Fuso horário e formato da hora",
 					},
 				},
 			},
@@ -7275,6 +8276,22 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.dates_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Intl.DateTimeFormat: أنماط CLDR، والهياكل (skeletons)، وفترات اليوم، والعصور، ودورات الساعة، وكلها للحظة المعروضة في العمود الأول، بحسب منطقتك الزمنية.",
+					},
+				},
+			},
+			{
+				Key: "formats.dates_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "التواريخ والأوقات",
+					},
+				},
+			},
+			{
 				Key: "formats.direction",
 				Parts: []i18n.MsgPart{
 					{
@@ -7396,6 +8413,22 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.ranges_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "formatRange في Intl.DateTimeFormat: تعرض صيغ الفترات الزمنية في CLDR الحقول المشتركة مرة واحدة، ولا تكرر إلا الحقول المختلفة.",
+					},
+				},
+			},
+			{
+				Key: "formats.ranges_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "نطاقات التواريخ",
+					},
+				},
+			},
+			{
 				Key: "formats.relative_description",
 				Parts: []i18n.MsgPart{
 					{
@@ -7416,6 +8449,17 @@ var catalogs = []*i18n.Catalog{
 				Parts: []i18n.MsgPart{
 					{
 						Text: "النتيجة",
+					},
+				},
+			},
+			{
+				Key: "formats.time_zone",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "المنطقة الزمنية ",
+					},
+					{
+						Kind: i18n.MsgKind(1),
 					},
 				},
 			},
@@ -7456,6 +8500,22 @@ var catalogs = []*i18n.Catalog{
 				Parts: []i18n.MsgPart{
 					{
 						Text: "الأسبوع",
+					},
+				},
+			},
+			{
+				Key: "formats.zones_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "اللحظة نفسها في مناطق زمنية أخرى، مع أسماء المناطق من CLDR: المحددة، والعامة، وحسب الموقع، وفرق التوقيت.",
+					},
+				},
+			},
+			{
+				Key: "formats.zones_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "المناطق الزمنية",
 					},
 				},
 			},
@@ -7886,6 +8946,14 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "nav.preferences",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "المنطقة الزمنية والساعة",
+					},
+				},
+			},
+			{
 				Key: "nav.toggle_theme",
 				Parts: []i18n.MsgPart{
 					{
@@ -7901,6 +8969,82 @@ var catalogs = []*i18n.Catalog{
 					},
 					{
 						Text: " · go-htmx4",
+					},
+				},
+			},
+			{
+				Key: "preferences.description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "تُطبَّق هذه الإعدادات على التواريخ والأوقات في كل الصفحات. يستخدم الخيار «تلقائي» المنطقة الزمنية لاتصالك، ويصحّحها متصفحك إذا اختلفت.",
+					},
+				},
+			},
+			{
+				Key: "preferences.hour_cycle",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "نظام الساعة",
+					},
+				},
+			},
+			{
+				Key: "preferences.hour_cycle_auto",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "الافتراضي للغة (",
+					},
+					{
+						Kind: i18n.MsgKind(1),
+					},
+					{
+						Text: ")",
+					},
+				},
+			},
+			{
+				Key: "preferences.loading",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "جارٍ التحميل…",
+					},
+				},
+			},
+			{
+				Key: "preferences.save",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "حفظ",
+					},
+				},
+			},
+			{
+				Key: "preferences.time_zone",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "المنطقة الزمنية",
+					},
+				},
+			},
+			{
+				Key: "preferences.time_zone_auto",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "تلقائي (",
+					},
+					{
+						Kind: i18n.MsgKind(1),
+					},
+					{
+						Text: ")",
+					},
+				},
+			},
+			{
+				Key: "preferences.title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "المنطقة الزمنية والساعة",
 					},
 				},
 			},
@@ -8269,6 +9413,22 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.dates_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Intl.DateTimeFormat: סגנונות מ-CLDR, שלדים (skeletons), חלקי היום, תקופות ומחזורי שעון, כולם עבור הרגע שבעמודה הראשונה, לפי אזור הזמן שלך.",
+					},
+				},
+			},
+			{
+				Key: "formats.dates_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "תאריכים ושעות",
+					},
+				},
+			},
+			{
 				Key: "formats.direction",
 				Parts: []i18n.MsgPart{
 					{
@@ -8390,6 +9550,22 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.ranges_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Intl.DateTimeFormat formatRange: תבניות טווח מ-CLDR מציגות את השדות המשותפים פעם אחת, ורק השדות השונים חוזרים.",
+					},
+				},
+			},
+			{
+				Key: "formats.ranges_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "טווחי תאריכים",
+					},
+				},
+			},
+			{
 				Key: "formats.relative_description",
 				Parts: []i18n.MsgPart{
 					{
@@ -8410,6 +9586,17 @@ var catalogs = []*i18n.Catalog{
 				Parts: []i18n.MsgPart{
 					{
 						Text: "תוצאה",
+					},
+				},
+			},
+			{
+				Key: "formats.time_zone",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "אזור זמן ",
+					},
+					{
+						Kind: i18n.MsgKind(1),
 					},
 				},
 			},
@@ -8450,6 +9637,22 @@ var catalogs = []*i18n.Catalog{
 				Parts: []i18n.MsgPart{
 					{
 						Text: "שבוע",
+					},
+				},
+			},
+			{
+				Key: "formats.zones_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "אותו רגע באזורי זמן אחרים, עם שמות האזורים מ-CLDR: ספציפי, כללי, לפי מיקום והפרש שעות.",
+					},
+				},
+			},
+			{
+				Key: "formats.zones_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "אזורי זמן",
 					},
 				},
 			},
@@ -8880,6 +10083,14 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "nav.preferences",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "אזור זמן ושעון",
+					},
+				},
+			},
+			{
 				Key: "nav.toggle_theme",
 				Parts: []i18n.MsgPart{
 					{
@@ -8895,6 +10106,82 @@ var catalogs = []*i18n.Catalog{
 					},
 					{
 						Text: " · go-htmx4",
+					},
+				},
+			},
+			{
+				Key: "preferences.description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "תאריכים ושעות בכל הדפים מוצגים לפי ההגדרות האלה. האפשרות \"אוטומטי\" משתמשת באזור הזמן של החיבור שלך, והדפדפן מתקן אותו אם הוא שונה.",
+					},
+				},
+			},
+			{
+				Key: "preferences.hour_cycle",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "שעון",
+					},
+				},
+			},
+			{
+				Key: "preferences.hour_cycle_auto",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "ברירת המחדל של השפה (",
+					},
+					{
+						Kind: i18n.MsgKind(1),
+					},
+					{
+						Text: ")",
+					},
+				},
+			},
+			{
+				Key: "preferences.loading",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "בטעינה…",
+					},
+				},
+			},
+			{
+				Key: "preferences.save",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "שמירה",
+					},
+				},
+			},
+			{
+				Key: "preferences.time_zone",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "אזור זמן",
+					},
+				},
+			},
+			{
+				Key: "preferences.time_zone_auto",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "אוטומטי (",
+					},
+					{
+						Kind: i18n.MsgKind(1),
+					},
+					{
+						Text: ")",
+					},
+				},
+			},
+			{
+				Key: "preferences.title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "אזור זמן ושעון",
 					},
 				},
 			},
@@ -9263,6 +10550,22 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.dates_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Intl.DateTimeFormat：CLDR のスタイル、スケルトン、時間帯表現、紀元、時間周期（12/24 時間制）。いずれも最初の列の時点を、お使いのタイムゾーンで表示します。",
+					},
+				},
+			},
+			{
+				Key: "formats.dates_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "日付と時刻",
+					},
+				},
+			},
+			{
 				Key: "formats.direction",
 				Parts: []i18n.MsgPart{
 					{
@@ -9384,6 +10687,22 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.ranges_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Intl.DateTimeFormat の formatRange：CLDR の範囲書式では、共通のフィールドは一度だけ表示され、異なるフィールドだけが繰り返されます。",
+					},
+				},
+			},
+			{
+				Key: "formats.ranges_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "日付範囲",
+					},
+				},
+			},
+			{
 				Key: "formats.relative_description",
 				Parts: []i18n.MsgPart{
 					{
@@ -9404,6 +10723,17 @@ var catalogs = []*i18n.Catalog{
 				Parts: []i18n.MsgPart{
 					{
 						Text: "結果",
+					},
+				},
+			},
+			{
+				Key: "formats.time_zone",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "タイムゾーン ",
+					},
+					{
+						Kind: i18n.MsgKind(1),
 					},
 				},
 			},
@@ -9444,6 +10774,22 @@ var catalogs = []*i18n.Catalog{
 				Parts: []i18n.MsgPart{
 					{
 						Text: "週",
+					},
+				},
+			},
+			{
+				Key: "formats.zones_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "同じ時点を他のタイムゾーンで、CLDR のタイムゾーン名（固有、一般、地域、オフセット）とともに表示します。",
+					},
+				},
+			},
+			{
+				Key: "formats.zones_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "タイムゾーン",
 					},
 				},
 			},
@@ -9871,6 +11217,14 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "nav.preferences",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "タイムゾーンと時刻表示",
+					},
+				},
+			},
+			{
 				Key: "nav.toggle_theme",
 				Parts: []i18n.MsgPart{
 					{
@@ -9886,6 +11240,82 @@ var catalogs = []*i18n.Catalog{
 					},
 					{
 						Text: " · go-htmx4",
+					},
+				},
+			},
+			{
+				Key: "preferences.description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "すべてのページの日付と時刻にこの設定が使われます。「自動」では接続元のタイムゾーンを使い、異なる場合はブラウザーが修正します。",
+					},
+				},
+			},
+			{
+				Key: "preferences.hour_cycle",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "時刻表示",
+					},
+				},
+			},
+			{
+				Key: "preferences.hour_cycle_auto",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "言語の既定（",
+					},
+					{
+						Kind: i18n.MsgKind(1),
+					},
+					{
+						Text: "）",
+					},
+				},
+			},
+			{
+				Key: "preferences.loading",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "読み込み中…",
+					},
+				},
+			},
+			{
+				Key: "preferences.save",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "保存",
+					},
+				},
+			},
+			{
+				Key: "preferences.time_zone",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "タイムゾーン",
+					},
+				},
+			},
+			{
+				Key: "preferences.time_zone_auto",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "自動（",
+					},
+					{
+						Kind: i18n.MsgKind(1),
+					},
+					{
+						Text: "）",
+					},
+				},
+			},
+			{
+				Key: "preferences.title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "タイムゾーンと時刻表示",
 					},
 				},
 			},
@@ -10254,6 +11684,22 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.dates_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Intl.DateTimeFormat：CLDR 样式、骨架、时段、纪元和小时制，全部针对第一列中的时刻，并按你的时区显示。",
+					},
+				},
+			},
+			{
+				Key: "formats.dates_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "日期和时间",
+					},
+				},
+			},
+			{
 				Key: "formats.direction",
 				Parts: []i18n.MsgPart{
 					{
@@ -10375,6 +11821,22 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.ranges_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Intl.DateTimeFormat formatRange：CLDR 区间格式只显示一次相同的字段，仅重复不同的字段。",
+					},
+				},
+			},
+			{
+				Key: "formats.ranges_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "日期范围",
+					},
+				},
+			},
+			{
 				Key: "formats.relative_description",
 				Parts: []i18n.MsgPart{
 					{
@@ -10395,6 +11857,17 @@ var catalogs = []*i18n.Catalog{
 				Parts: []i18n.MsgPart{
 					{
 						Text: "结果",
+					},
+				},
+			},
+			{
+				Key: "formats.time_zone",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "时区 ",
+					},
+					{
+						Kind: i18n.MsgKind(1),
 					},
 				},
 			},
@@ -10435,6 +11908,22 @@ var catalogs = []*i18n.Catalog{
 				Parts: []i18n.MsgPart{
 					{
 						Text: "周",
+					},
+				},
+			},
+			{
+				Key: "formats.zones_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "同一时刻在其他时区中的显示，附带 CLDR 时区名称：特定、通用、地点和偏移量。",
+					},
+				},
+			},
+			{
+				Key: "formats.zones_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "时区",
 					},
 				},
 			},
@@ -10865,6 +12354,14 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "nav.preferences",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "时区和时钟",
+					},
+				},
+			},
+			{
 				Key: "nav.toggle_theme",
 				Parts: []i18n.MsgPart{
 					{
@@ -10880,6 +12377,82 @@ var catalogs = []*i18n.Catalog{
 					},
 					{
 						Text: " · go-htmx4",
+					},
+				},
+			},
+			{
+				Key: "preferences.description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "所有页面上的日期和时间都使用这些设置。“自动”使用你的网络连接所在的时区，如有不同，浏览器会加以更正。",
+					},
+				},
+			},
+			{
+				Key: "preferences.hour_cycle",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "小时制",
+					},
+				},
+			},
+			{
+				Key: "preferences.hour_cycle_auto",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "语言默认（",
+					},
+					{
+						Kind: i18n.MsgKind(1),
+					},
+					{
+						Text: "）",
+					},
+				},
+			},
+			{
+				Key: "preferences.loading",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "正在加载…",
+					},
+				},
+			},
+			{
+				Key: "preferences.save",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "保存",
+					},
+				},
+			},
+			{
+				Key: "preferences.time_zone",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "时区",
+					},
+				},
+			},
+			{
+				Key: "preferences.time_zone_auto",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "自动（",
+					},
+					{
+						Kind: i18n.MsgKind(1),
+					},
+					{
+						Text: "）",
+					},
+				},
+			},
+			{
+				Key: "preferences.title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "时区和时钟",
 					},
 				},
 			},
@@ -11248,6 +12821,22 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.dates_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Intl.DateTimeFormat：CLDR 樣式、骨架、時段、紀元與小時制，全部針對第一欄中的時間點，並依你的時區顯示。",
+					},
+				},
+			},
+			{
+				Key: "formats.dates_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "日期與時間",
+					},
+				},
+			},
+			{
 				Key: "formats.direction",
 				Parts: []i18n.MsgPart{
 					{
@@ -11369,6 +12958,22 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.ranges_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Intl.DateTimeFormat formatRange：CLDR 區間格式只會顯示一次相同的欄位，僅重複不同的欄位。",
+					},
+				},
+			},
+			{
+				Key: "formats.ranges_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "日期範圍",
+					},
+				},
+			},
+			{
 				Key: "formats.relative_description",
 				Parts: []i18n.MsgPart{
 					{
@@ -11389,6 +12994,17 @@ var catalogs = []*i18n.Catalog{
 				Parts: []i18n.MsgPart{
 					{
 						Text: "結果",
+					},
+				},
+			},
+			{
+				Key: "formats.time_zone",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "時區 ",
+					},
+					{
+						Kind: i18n.MsgKind(1),
 					},
 				},
 			},
@@ -11429,6 +13045,22 @@ var catalogs = []*i18n.Catalog{
 				Parts: []i18n.MsgPart{
 					{
 						Text: "週",
+					},
+				},
+			},
+			{
+				Key: "formats.zones_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "同一時間點在其他時區中的顯示，附帶 CLDR 時區名稱：特定、通用、地點與時差。",
+					},
+				},
+			},
+			{
+				Key: "formats.zones_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "時區",
 					},
 				},
 			},
@@ -11859,6 +13491,14 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "nav.preferences",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "時區與時鐘",
+					},
+				},
+			},
+			{
 				Key: "nav.toggle_theme",
 				Parts: []i18n.MsgPart{
 					{
@@ -11874,6 +13514,82 @@ var catalogs = []*i18n.Catalog{
 					},
 					{
 						Text: " · go-htmx4",
+					},
+				},
+			},
+			{
+				Key: "preferences.description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "所有頁面上的日期與時間都會套用這些設定。「自動」會使用你的網路連線所在的時區，若不一致，瀏覽器會加以修正。",
+					},
+				},
+			},
+			{
+				Key: "preferences.hour_cycle",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "小時制",
+					},
+				},
+			},
+			{
+				Key: "preferences.hour_cycle_auto",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "語言預設（",
+					},
+					{
+						Kind: i18n.MsgKind(1),
+					},
+					{
+						Text: "）",
+					},
+				},
+			},
+			{
+				Key: "preferences.loading",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "載入中…",
+					},
+				},
+			},
+			{
+				Key: "preferences.save",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "儲存",
+					},
+				},
+			},
+			{
+				Key: "preferences.time_zone",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "時區",
+					},
+				},
+			},
+			{
+				Key: "preferences.time_zone_auto",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "自動（",
+					},
+					{
+						Kind: i18n.MsgKind(1),
+					},
+					{
+						Text: "）",
+					},
+				},
+			},
+			{
+				Key: "preferences.title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "時區與時鐘",
 					},
 				},
 			},
@@ -12242,6 +13958,22 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.dates_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Intl.DateTimeFormat: CLDR स्टाइल, स्केलेटन, दिन के हिस्से, युग और घंटा चक्र, ये सभी पहले कॉलम में दिए गए पल के लिए, आपके टाइम ज़ोन में।",
+					},
+				},
+			},
+			{
+				Key: "formats.dates_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "तारीख़ और समय",
+					},
+				},
+			},
+			{
 				Key: "formats.direction",
 				Parts: []i18n.MsgPart{
 					{
@@ -12363,6 +14095,22 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.ranges_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Intl.DateTimeFormat formatRange: CLDR इंटरवल फ़ॉर्मैट साझा फ़ील्ड सिर्फ़ एक बार दिखाते हैं और केवल अलग फ़ील्ड दोहराते हैं।",
+					},
+				},
+			},
+			{
+				Key: "formats.ranges_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "तारीख़ रेंज",
+					},
+				},
+			},
+			{
 				Key: "formats.relative_description",
 				Parts: []i18n.MsgPart{
 					{
@@ -12383,6 +14131,17 @@ var catalogs = []*i18n.Catalog{
 				Parts: []i18n.MsgPart{
 					{
 						Text: "परिणाम",
+					},
+				},
+			},
+			{
+				Key: "formats.time_zone",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "टाइम ज़ोन ",
+					},
+					{
+						Kind: i18n.MsgKind(1),
 					},
 				},
 			},
@@ -12423,6 +14182,22 @@ var catalogs = []*i18n.Catalog{
 				Parts: []i18n.MsgPart{
 					{
 						Text: "सप्ताह",
+					},
+				},
+			},
+			{
+				Key: "formats.zones_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "वही पल दूसरे टाइम ज़ोन में, CLDR ज़ोन नामों के साथ: विशिष्ट, सामान्य, स्थान-आधारित और ऑफ़सेट।",
+					},
+				},
+			},
+			{
+				Key: "formats.zones_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "टाइम ज़ोन",
 					},
 				},
 			},
@@ -12850,6 +14625,14 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "nav.preferences",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "टाइम ज़ोन और घड़ी",
+					},
+				},
+			},
+			{
 				Key: "nav.toggle_theme",
 				Parts: []i18n.MsgPart{
 					{
@@ -12865,6 +14648,82 @@ var catalogs = []*i18n.Catalog{
 					},
 					{
 						Text: " · go-htmx4",
+					},
+				},
+			},
+			{
+				Key: "preferences.description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "हर पेज पर तारीख़ और समय इन्हीं सेटिंग्स के अनुसार दिखते हैं। \"अपने-आप\" विकल्प आपके कनेक्शन का टाइम ज़ोन इस्तेमाल करता है, और अलग होने पर आपका ब्राउज़र उसे ठीक कर देता है।",
+					},
+				},
+			},
+			{
+				Key: "preferences.hour_cycle",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "घड़ी",
+					},
+				},
+			},
+			{
+				Key: "preferences.hour_cycle_auto",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "भाषा का डिफ़ॉल्ट (",
+					},
+					{
+						Kind: i18n.MsgKind(1),
+					},
+					{
+						Text: ")",
+					},
+				},
+			},
+			{
+				Key: "preferences.loading",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "लोड हो रहा है…",
+					},
+				},
+			},
+			{
+				Key: "preferences.save",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "सेव करें",
+					},
+				},
+			},
+			{
+				Key: "preferences.time_zone",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "टाइम ज़ोन",
+					},
+				},
+			},
+			{
+				Key: "preferences.time_zone_auto",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "अपने-आप (",
+					},
+					{
+						Kind: i18n.MsgKind(1),
+					},
+					{
+						Text: ")",
+					},
+				},
+			},
+			{
+				Key: "preferences.title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "टाइम ज़ोन और घड़ी",
 					},
 				},
 			},
@@ -13276,6 +15135,22 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.dates_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Intl.DateTimeFormat: стили, скелеты, периоды суток, эры и циклы часов из CLDR — всё для момента из первого столбца в вашем часовом поясе.",
+					},
+				},
+			},
+			{
+				Key: "formats.dates_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Даты и время",
+					},
+				},
+			},
+			{
 				Key: "formats.direction",
 				Parts: []i18n.MsgPart{
 					{
@@ -13397,6 +15272,22 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.ranges_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Intl.DateTimeFormat formatRange: форматы интервалов CLDR показывают общие поля один раз и повторяют только различающиеся.",
+					},
+				},
+			},
+			{
+				Key: "formats.ranges_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Диапазоны дат",
+					},
+				},
+			},
+			{
 				Key: "formats.relative_description",
 				Parts: []i18n.MsgPart{
 					{
@@ -13417,6 +15308,17 @@ var catalogs = []*i18n.Catalog{
 				Parts: []i18n.MsgPart{
 					{
 						Text: "Результат",
+					},
+				},
+			},
+			{
+				Key: "formats.time_zone",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "часовой пояс ",
+					},
+					{
+						Kind: i18n.MsgKind(1),
 					},
 				},
 			},
@@ -13457,6 +15359,22 @@ var catalogs = []*i18n.Catalog{
 				Parts: []i18n.MsgPart{
 					{
 						Text: "Неделя",
+					},
+				},
+			},
+			{
+				Key: "formats.zones_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Тот же момент в других часовых поясах с названиями поясов из CLDR: конкретными, общими, по местоположению и в виде смещения.",
+					},
+				},
+			},
+			{
+				Key: "formats.zones_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Часовые пояса",
 					},
 				},
 			},
@@ -13884,6 +15802,14 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "nav.preferences",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Часовой пояс и формат времени",
+					},
+				},
+			},
+			{
 				Key: "nav.toggle_theme",
 				Parts: []i18n.MsgPart{
 					{
@@ -13899,6 +15825,82 @@ var catalogs = []*i18n.Catalog{
 					},
 					{
 						Text: " · go-htmx4",
+					},
+				},
+			},
+			{
+				Key: "preferences.description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Эти настройки применяются к датам и времени на всех страницах. Вариант «Автоматически» использует часовой пояс вашего подключения, а браузер исправляет его, если он отличается.",
+					},
+				},
+			},
+			{
+				Key: "preferences.hour_cycle",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Формат времени",
+					},
+				},
+			},
+			{
+				Key: "preferences.hour_cycle_auto",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "По умолчанию для языка (",
+					},
+					{
+						Kind: i18n.MsgKind(1),
+					},
+					{
+						Text: ")",
+					},
+				},
+			},
+			{
+				Key: "preferences.loading",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Загрузка…",
+					},
+				},
+			},
+			{
+				Key: "preferences.save",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Сохранить",
+					},
+				},
+			},
+			{
+				Key: "preferences.time_zone",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Часовой пояс",
+					},
+				},
+			},
+			{
+				Key: "preferences.time_zone_auto",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Автоматически (",
+					},
+					{
+						Kind: i18n.MsgKind(1),
+					},
+					{
+						Text: ")",
+					},
+				},
+			},
+			{
+				Key: "preferences.title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Часовой пояс и формат времени",
 					},
 				},
 			},
@@ -14491,6 +16493,34 @@ var pseudoCatalog = &i18n.Catalog{
 			},
 		},
 		{
+			Key: "formats.dates_description",
+			Parts: []i18n.MsgPart{
+				{
+					Text: "⟦",
+				},
+				{
+					Text: "Îñţļ.ĐáţéŢíɱéƑóŕɱáţ: ÇĻĐŔ šţýļéš, šķéļéţóñš, ðáý þéŕíóðš, éŕáš áñð ĥóúŕ çýçļéš, áļļ ƒóŕ ţĥé íñšţáñţ íñ ţĥé ƒíŕšţ çóļúɱñ, íñ ýóúŕ ţíɱé žóñé.············································",
+				},
+				{
+					Text: "⟧",
+				},
+			},
+		},
+		{
+			Key: "formats.dates_title",
+			Parts: []i18n.MsgPart{
+				{
+					Text: "⟦",
+				},
+				{
+					Text: "Đáţéš áñð ţíɱéš·····",
+				},
+				{
+					Text: "⟧",
+				},
+			},
+		},
+		{
 			Key: "formats.direction",
 			Parts: []i18n.MsgPart{
 				{
@@ -14696,6 +16726,34 @@ var pseudoCatalog = &i18n.Catalog{
 			},
 		},
 		{
+			Key: "formats.ranges_description",
+			Parts: []i18n.MsgPart{
+				{
+					Text: "⟦",
+				},
+				{
+					Text: "Îñţļ.ĐáţéŢíɱéƑóŕɱáţ ƒóŕɱáţŔáñĝé: ÇĻĐŔ íñţéŕṽáļ ƒóŕɱáţš šĥóŵ ţĥé šĥáŕéð ƒíéļðš óñçé áñð ŕéþéáţ óñļý ţĥóšé ţĥáţ ðíƒƒéŕ.·······································",
+				},
+				{
+					Text: "⟧",
+				},
+			},
+		},
+		{
+			Key: "formats.ranges_title",
+			Parts: []i18n.MsgPart{
+				{
+					Text: "⟦",
+				},
+				{
+					Text: "Đáţé ŕáñĝéš····",
+				},
+				{
+					Text: "⟧",
+				},
+			},
+		},
+		{
 			Key: "formats.relative_description",
 			Parts: []i18n.MsgPart{
 				{
@@ -14731,6 +16789,23 @@ var pseudoCatalog = &i18n.Catalog{
 				},
 				{
 					Text: "Ŕéšúļţ··",
+				},
+				{
+					Text: "⟧",
+				},
+			},
+		},
+		{
+			Key: "formats.time_zone",
+			Parts: []i18n.MsgPart{
+				{
+					Text: "⟦",
+				},
+				{
+					Text: "ţíɱé žóñé ···",
+				},
+				{
+					Kind: i18n.MsgKind(1),
 				},
 				{
 					Text: "⟧",
@@ -14801,6 +16876,34 @@ var pseudoCatalog = &i18n.Catalog{
 				},
 				{
 					Text: "Ŵééķ·",
+				},
+				{
+					Text: "⟧",
+				},
+			},
+		},
+		{
+			Key: "formats.zones_description",
+			Parts: []i18n.MsgPart{
+				{
+					Text: "⟦",
+				},
+				{
+					Text: "Ţĥé šáɱé íñšţáñţ íñ óţĥéŕ ţíɱé žóñéš, ŵíţĥ ÇĻĐŔ žóñé ñáɱéš: šþéçíƒíç, ĝéñéŕíç, ļóçáţíóñ áñð óƒƒšéţ.·······························",
+				},
+				{
+					Text: "⟧",
+				},
+			},
+		},
+		{
+			Key: "formats.zones_title",
+			Parts: []i18n.MsgPart{
+				{
+					Text: "⟦",
+				},
+				{
+					Text: "Ţíɱé žóñéš···",
 				},
 				{
 					Text: "⟧",
@@ -15540,6 +17643,20 @@ var pseudoCatalog = &i18n.Catalog{
 			},
 		},
 		{
+			Key: "nav.preferences",
+			Parts: []i18n.MsgPart{
+				{
+					Text: "⟦",
+				},
+				{
+					Text: "Ţíɱé žóñé áñð çļóçķ······",
+				},
+				{
+					Text: "⟧",
+				},
+			},
+		},
+		{
 			Key: "nav.toggle_theme",
 			Parts: []i18n.MsgPart{
 				{
@@ -15564,6 +17681,130 @@ var pseudoCatalog = &i18n.Catalog{
 				},
 				{
 					Text: " · ĝó-ĥţɱẋ4··",
+				},
+				{
+					Text: "⟧",
+				},
+			},
+		},
+		{
+			Key: "preferences.description",
+			Parts: []i18n.MsgPart{
+				{
+					Text: "⟦",
+				},
+				{
+					Text: "Đáţéš áñð ţíɱéš óñ éṽéŕý þáĝé úšé ţĥéšé šéţţíñĝš. Åúţóɱáţíç úšéš ýóúŕ çóññéçţíóñ'š ţíɱé žóñé, áñð ýóúŕ ƀŕóŵšéŕ çóŕŕéçţš íţ ŵĥéñ íţ ðíƒƒéŕš.·············································",
+				},
+				{
+					Text: "⟧",
+				},
+			},
+		},
+		{
+			Key: "preferences.hour_cycle",
+			Parts: []i18n.MsgPart{
+				{
+					Text: "⟦",
+				},
+				{
+					Text: "Çļóçķ··",
+				},
+				{
+					Text: "⟧",
+				},
+			},
+		},
+		{
+			Key: "preferences.hour_cycle_auto",
+			Parts: []i18n.MsgPart{
+				{
+					Text: "⟦",
+				},
+				{
+					Text: "Ļáñĝúáĝé ðéƒáúļţ (······",
+				},
+				{
+					Kind: i18n.MsgKind(1),
+				},
+				{
+					Text: ")",
+				},
+				{
+					Text: "⟧",
+				},
+			},
+		},
+		{
+			Key: "preferences.loading",
+			Parts: []i18n.MsgPart{
+				{
+					Text: "⟦",
+				},
+				{
+					Text: "Ļóáðíñĝ…··",
+				},
+				{
+					Text: "⟧",
+				},
+			},
+		},
+		{
+			Key: "preferences.save",
+			Parts: []i18n.MsgPart{
+				{
+					Text: "⟦",
+				},
+				{
+					Text: "Šáṽé·",
+				},
+				{
+					Text: "⟧",
+				},
+			},
+		},
+		{
+			Key: "preferences.time_zone",
+			Parts: []i18n.MsgPart{
+				{
+					Text: "⟦",
+				},
+				{
+					Text: "Ţíɱé žóñé···",
+				},
+				{
+					Text: "⟧",
+				},
+			},
+		},
+		{
+			Key: "preferences.time_zone_auto",
+			Parts: []i18n.MsgPart{
+				{
+					Text: "⟦",
+				},
+				{
+					Text: "Åúţóɱáţíç (···",
+				},
+				{
+					Kind: i18n.MsgKind(1),
+				},
+				{
+					Text: ")",
+				},
+				{
+					Text: "⟧",
+				},
+			},
+		},
+		{
+			Key: "preferences.title",
+			Parts: []i18n.MsgPart{
+				{
+					Text: "⟦",
+				},
+				{
+					Text: "Ţíɱé žóñé áñð çļóçķ······",
 				},
 				{
 					Text: "⟧",

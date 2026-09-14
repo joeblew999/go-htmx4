@@ -66,6 +66,7 @@ component Layout(title string, path string, children gsx.Node) {
 					>
 						<icon.Languages/>
 					</ui.Button>
+					<PreferencesDialog/>
 					<ThemeToggle/>
 				</nav>
 			</header>

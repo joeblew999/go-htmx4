@@ -253,8 +253,8 @@ func TestNoteRelativeTime(t *testing.T) {
 	post.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	h.ServeHTTP(httptest.NewRecorder(), post)
 	page := get(t, h, "/de/board?topic=reltime").Body.String()
-	if !regexp.MustCompile(`<time datetime="20\d\d-\d\d-\d\dT\d\d:\d\d:\d\dZ" data-relative-time>(jetzt|vor \d+ Sekunden?)</time>`).MatchString(page) {
-		t.Errorf("German board page lacks a German relative <time> for the note")
+	if !regexp.MustCompile(`<time datetime="20\d\d-\d\d-\d\dT\d\d:\d\d:\d\dZ" title="\d+\. [^"]+ 20\d\d, \d\d:\d\d UTC" data-relative-time>(jetzt|vor \d+ Sekunden?)</time>`).MatchString(page) {
+		t.Errorf("German board page lacks a German relative <time> with a UTC tooltip for the note")
 	}
 	if !strings.Contains(page, `src="/static/relative-time.js"`) {
 		t.Errorf("layout lacks static/relative-time.js")
@@ -314,7 +314,7 @@ func TestNoHardcodedText(t *testing.T) {
 		}
 		walk(doc, false)
 	}
-	for _, path := range []string{"/", "/about", "/formats", "/board?topic=pseudo", "/fragments/server-info", "/fragments/stats"} {
+	for _, path := range []string{"/", "/about", "/formats", "/board?topic=pseudo", "/fragments/server-info", "/fragments/stats", "/fragments/preferences"} {
 		check(path, get(t, h, path).Body.String())
 	}
 	for _, tc := range []struct{ method, path, body string }{
@@ -330,5 +330,91 @@ func TestNoHardcodedText(t *testing.T) {
 		h.ServeHTTP(rec, req)
 		// fragments are parsed inside a body so the HTML parser keeps their text
 		check(tc.method+" "+tc.path, "<body>"+rec.Body.String())
+	}
+}
+
+// TestTimeZonePreferences: dates render in the viewer's time zone and hour cycle. Precedence is the tz/hc
+// cookies, then the connection's zone (Cloudflare's cf.timezone; a header under go run .), then UTC.
+func TestTimeZonePreferences(t *testing.T) {
+	h := newServer().routes()
+	page := func(path, connection string, cookies ...*http.Cookie) string {
+		req := httptest.NewRequest("GET", path, nil)
+		if connection != "" {
+			req.Header.Set("X-Test-Connection-Time-Zone", connection)
+		}
+		for _, c := range cookies {
+			req.AddCookie(c)
+		}
+		rec := httptest.NewRecorder()
+		h.ServeHTTP(rec, req)
+		return rec.Body.String()
+	}
+	has := func(name, body string, wants ...string) {
+		t.Helper()
+		for _, w := range wants {
+			if !strings.Contains(body, w) {
+				t.Errorf("%s lacks %q", name, w)
+			}
+		}
+	}
+	lacks := func(name, body string, nots ...string) {
+		t.Helper()
+		for _, w := range nots {
+			if strings.Contains(body, w) {
+				t.Errorf("%s has %q", name, w)
+			}
+		}
+	}
+	// The sample instant is 2026-07-04T15:30:45.123Z.
+	has("UTC /formats", page("/formats", ""), "Saturday, July 4, 2026", `timeZone: &#34;UTC&#34;`, "3:30 PM Coordinated Universal Time", "time zone UTC")
+	has("de /formats", page("/de/formats", ""), "Samstag, 4. Juli 2026", "15:30 Koordinierte Weltzeit")
+	has("Tokyo connection", page("/formats", "Asia/Tokyo"), "Sunday, July 5, 2026", "time zone Asia/Tokyo")
+	info := page("/fragments/server-info", "Asia/Tokyo")
+	has("server-info, guessed zone", info, `data-local-time="{&#34;dateStyle&#34;:&#34;full&#34;,&#34;timeStyle&#34;:&#34;long&#34;}"`, `data-time-zone="Asia/Tokyo"`, "GMT+9")
+
+	la := &http.Cookie{Name: "tz", Value: "America/Los_Angeles"}
+	has("tz cookie beats the connection", page("/formats", "Asia/Tokyo", la), "Saturday, July 4, 2026", "8:30 AM", "time zone America/Los_Angeles")
+	chosen := page("/fragments/server-info", "Asia/Tokyo", la)
+	has("server-info, chosen zone", chosen, "PDT")
+	lacks("server-info, chosen zone", chosen, "data-local-time", "data-time-zone")
+	has("hc cookie", page("/formats", "", &http.Cookie{Name: "hc", Value: "h23"}), "15:30 Coordinated Universal Time", `hourCycle: &#34;h23&#34;`)
+	has("bad cookies fall back", page("/formats", "Mars/Olympus", &http.Cookie{Name: "tz", Value: "nope"}, &http.Cookie{Name: "hc", Value: "h99"}), "3:30 PM Coordinated Universal Time")
+
+	form := page("/de/fragments/preferences", "Asia/Tokyo", &http.Cookie{Name: "tz", Value: "europe/berlin"}, &http.Cookie{Name: "hc", Value: "h12"})
+	has("preferences form", form, `action="/de/preferences"`, `<option value="Europe/Berlin" selected`, "Mitteleuropäische Zeit", "Automatisch (Asia/Tokyo)", `<option value="h12" selected`)
+	if n := strings.Count(form, "<option value="); n < 400 {
+		t.Errorf("preferences form has %d options, want every zone", n)
+	}
+
+	post := func(body string) *httptest.ResponseRecorder {
+		req := httptest.NewRequest("POST", "/de/preferences", strings.NewReader(body))
+		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+		rec := httptest.NewRecorder()
+		h.ServeHTTP(rec, req)
+		return rec
+	}
+	rec := post("tz=asia%2Fkolkata&hc=h12&return=%2Fde%2Fformats")
+	cookies := map[string]*http.Cookie{}
+	for _, c := range rec.Result().Cookies() {
+		cookies[c.Name] = c
+	}
+	if rec.Code != http.StatusSeeOther || rec.Header().Get("Location") != "/de/formats" || cookies["tz"] == nil || cookies["tz"].Value != "Asia/Calcutta" || cookies["hc"] == nil || cookies["hc"].Value != "h12" {
+		t.Errorf("POST /preferences = %d → %q, cookies %v", rec.Code, rec.Header().Get("Location"), cookies)
+	}
+	rec = post("tz=&hc=&return=%2F")
+	for _, c := range rec.Result().Cookies() {
+		if c.MaxAge >= 0 {
+			t.Errorf("automatic: cookie %s not cleared (MaxAge %d)", c.Name, c.MaxAge)
+		}
+	}
+	for body, want := range map[string]int{"tz=Mars%2FOlympus": 400, "hc=h99": 400} {
+		if got := post(body).Code; got != want {
+			t.Errorf("POST /preferences %s = %d, want %d", body, got, want)
+		}
+	}
+	for ret, want := range map[string]string{"%2F%2Fevil.example%2Fx": "/", "https%3A%2F%2Fevil.example%2Fx%3Fa%3D1": "/x?a=1", "javascript%3Aalert(1)": "/", "": "/", "%2Fabout": "/about"} {
+		if got := post("return=" + ret).Header().Get("Location"); got != want {
+			t.Errorf("return=%s redirects to %q, want %q", ret, got, want)
+		}
 	}
 }

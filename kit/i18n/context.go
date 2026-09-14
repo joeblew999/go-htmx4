@@ -4,11 +4,20 @@ import "context"
 
 type ctxKey struct{}
 
-// Request is the request-scoped i18n state an app puts in the context: the resolved locale and the
-// request path without its locale prefix (so views can link the same page in another locale).
+// Request is the request-scoped i18n state an app puts in the context: the resolved locale, the request
+// path without its locale prefix (so views can link the same page in another locale), and the viewer's
+// date and time preferences.
 type Request struct {
 	Locale *Locale
 	Path   string // e.g. "/about?x=1", never locale-prefixed
+
+	// TimeZone is the viewer's time zone as [Data.TimeZone] resolves it ("Europe/Berlin", "UTC"); "" means UTC.
+	TimeZone string
+	// TimeZoneChosen is true when TimeZone is the viewer's explicit choice rather than a guess (e.g. from
+	// the connection), so browser code must not replace it with the browser's zone.
+	TimeZoneChosen bool
+	// HourCycle is the viewer's explicit 12/24-hour choice; HourCycleDefault keeps the locale's.
+	HourCycle HourCycle
 }
 
 // WithRequest returns ctx carrying r. Middleware calls it once per request; gsx components read it

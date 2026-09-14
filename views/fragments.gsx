@@ -2,8 +2,8 @@ package views
 
 import (
 	"strings"
-	"time"
 
+	"github.com/joeblew999/go-htmx4/kit/i18n"
 	"github.com/joeblew999/go-htmx4/ui"
 )
 
@@ -63,7 +63,7 @@ component ServerInfoView(info ServerInfo) {
 		<dd>{ Num(ctx, info.Requests) }</dd>
 		<dt class="font-medium text-foreground">{ M(ctx).ServerInfoRendered() }</dt>
 		<dd>
-			<time datetime={info.Now.UTC().Format(time.RFC3339)}>{ info.Now.Format(time.RFC1123) }</time>
+			<LocalTime t={info.Now} opts={i18n.DateTimeOptions{DateStyle: i18n.FullStyle, TimeStyle: i18n.LongStyle}}/>
 		</dd>
 		{ if info.Note != "" {
 			<dt class="font-medium text-foreground">{ M(ctx).ServerInfoNote() }</dt>

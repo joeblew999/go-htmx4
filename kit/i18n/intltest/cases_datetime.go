@@ -199,6 +199,11 @@ func DateTime() []Case {
 			{"tshort-h24", opts{"timeStyle": "short", "hourCycle": "h24"}},
 			{"dmedium-tmedium-h23", opts{"dateStyle": "medium", "timeStyle": "medium", "hourCycle": "h23"}},
 			{"dmedium-tmedium-h12", opts{"dateStyle": "medium", "timeStyle": "medium", "hourCycle": "h12"}},
+			// the app applies the viewer's clock preference to styles (views.LocalTime, /formats)
+			{"dfull-tlong-h12", opts{"dateStyle": "full", "timeStyle": "long", "hourCycle": "h12"}},
+			{"dfull-tlong-h23", opts{"dateStyle": "full", "timeStyle": "long", "hourCycle": "h23"}},
+			{"dlong-tshort-h12", opts{"dateStyle": "long", "timeStyle": "short", "hourCycle": "h12"}},
+			{"dshort-tfull-h23", opts{"dateStyle": "short", "timeStyle": "full", "hourCycle": "h23"}},
 		}
 		hcInstants := []string{"2026-05-10T00:05:00.000Z", "2026-05-10T12:30:00.000Z", "2026-05-10T18:45:00.000Z"}
 		for _, set := range hcSets {

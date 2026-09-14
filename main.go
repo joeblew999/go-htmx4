@@ -17,7 +17,6 @@ package main
 
 import (
 	"cmp"
-	"github.com/joeblew999/go-htmx4/locales"
 	"log"
 	"net/http"
 	"runtime"
@@ -28,6 +27,8 @@ import (
 
 	"github.com/gsxhq/gsx"
 	"github.com/joeblew999/go-htmx4/kit/httpx"
+	"github.com/joeblew999/go-htmx4/kit/i18n/cldr"
+	"github.com/joeblew999/go-htmx4/locales"
 	"github.com/joeblew999/go-htmx4/views"
 	"github.com/syumai/workers-go"
 )
@@ -122,6 +123,21 @@ func (s *server) routes() http.Handler {
 			Now:       time.Now(),
 			Note:      platformNote,
 		}))
+	})
+	mux.HandleFunc("/fragments/preferences", func(w http.ResponseWriter, r *http.Request) {
+		if !allow(w, r, http.MethodGet) {
+			return
+		}
+		connection := "UTC"
+		if id, ok := cldr.Data.TimeZone(connectionTimeZone(r)); ok {
+			connection = id
+		}
+		s.render(w, r, "preferences", views.PreferencesForm(safeReturn(cmp.Or(r.Header.Get("HX-Current-URL"), r.Referer())), connection))
+	})
+	mux.HandleFunc("/preferences", func(w http.ResponseWriter, r *http.Request) {
+		if allow(w, r, http.MethodPost) {
+			savePreferences(w, r)
+		}
 	})
 	mux.HandleFunc("/fragments/stats", func(w http.ResponseWriter, r *http.Request) {
 		if !allow(w, r, http.MethodGet) {

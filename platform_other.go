@@ -3,11 +3,11 @@
 package main
 
 import (
-	"github.com/joeblew999/go-htmx4/kit/live"
 	"net/http"
 	"os"
 
 	"github.com/joeblew999/go-htmx4/kit/httpx"
+	"github.com/joeblew999/go-htmx4/kit/live"
 )
 
 // platformNote is shown in the server-info fragment; the native server keeps its state.
@@ -19,6 +19,10 @@ var livePush = false
 
 // getenv reads a process environment variable (`go run .`).
 func getenv(name string) string { return os.Getenv(name) }
+
+// connectionTimeZone guesses the viewer's time zone from the connection: `go run .` has no Cloudflare cf
+// object, so a request header stands in for it (tests and local checks); "" = unknown.
+func connectionTimeZone(r *http.Request) string { return r.Header.Get("X-Test-Connection-Time-Zone") }
 
 // staticFiles serves the assembled static assets (dist/site: static/, gsxui behaviours, compiled
 // gsxui CSS + fonts) from disk, standing in for Workers Static Assets under `go run .`.

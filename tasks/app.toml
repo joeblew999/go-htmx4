@@ -178,6 +178,13 @@ check "localized hx-post"         "$(curl -s "$base/de/board?topic=smoke")" 'hx-
 check "UI catalog on TinyGo"      "$(curl -s "$base/de/")" 'Go + htmx 4 + gsxui auf Cloudflare Workers'
 check "ICU plural on TinyGo"      "$(curl -s -X POST -d body= "$base/ru/board/note?topic=smoke")" 'до 280 символов'
 check "translated page indexable" "$(curl -sI "$base/de/about" | grep -ci '^x-robots-tag' || true)" '0'
+# Dates (kit/i18n DateTimeFormat + time/tzdata on TinyGo): a style, a named zone, the viewer's zone cookie.
+check "DateTimeFormat on TinyGo"  "$(curl -s "$base/de/formats")" 'Samstag, 4. Juli 2026'
+check "named zone on TinyGo"      "$(curl -s "$base/formats")" '11:30 AM Eastern Time'
+check "tz cookie on TinyGo"       "$(curl -s -b tz=America/Los_Angeles "$base/fragments/server-info")" ' PDT</time>'
+pref=$(curl -s -o /dev/null -w '%{http_code} %{time_total}' "$base/de/fragments/preferences")
+check "preferences zone list"     "$pref" '200 '
+echo "· /de/fragments/preferences took ${pref#* }s"
 check "/en/ prefix → 301"         "$(curl -s -o /dev/null -w '%{http_code} %{redirect_url}' "$base/en/about")" '301'
 check "unknown locale → 404"      "$(curl -s -o /dev/null -w '%{http_code}' "$base/xx/")" '404'
 # Shared board: Go (TinyGo) → database/sql d1 driver → LocalD1 → publish → Room DO → hx-ws.

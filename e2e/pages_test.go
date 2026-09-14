@@ -42,11 +42,11 @@ func TestPages(t *testing.T) {
 
 	// Dialog body via hx-get; tabs load lazily.
 	b.clickText("button", "Show server info")
-	check(t, "dialog opens", b.waitJS(3*time.Second, `(() => { const d = document.querySelector("dialog[data-gsxui-slot-dialog-content]"); return d.open && d.dataset.state === "open"; })()`))
+	check(t, "dialog opens", b.waitJS(3*time.Second, `(() => { const d = document.getElementById("server-info").closest("dialog"); return d.open && d.dataset.state === "open"; })()`))
 	check(t, "dialog body from /fragments/server-info", b.waitJS(5*time.Second, `document.getElementById("server-info").textContent.includes("Uptime")`),
 		" ", strings.Join(strings.Fields(b.str(`document.getElementById("server-info").textContent`)), " "))
 	b.run(chromedp.KeyEvent("\x1b"))
-	check(t, "dialog closes on Escape", b.waitJS(3*time.Second, `!document.querySelector("dialog[data-gsxui-slot-dialog-content]").open`))
+	check(t, "dialog closes on Escape", b.waitJS(3*time.Second, `!document.getElementById("server-info").closest("dialog").open`))
 	b.clickText("[role=tab]", "Stats")
 	check(t, "Stats tab loads lazily", b.waitJS(5*time.Second, `!!document.querySelector("#tab-stats ul")`))
 

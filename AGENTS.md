@@ -183,6 +183,17 @@
 - A locale whose catalog isn't complete (`locales.Complete`) is served with `X-Robots-Tag: noindex`.
   `TestShippedLocalesComplete` keeps every shipped locale complete.
 - The language list is plain links in the footer, outside the boosted nav: a locale switch must be a full page load.
+- **Dates** are never formatted with `time.Format` for readers.
+  - Views render an instant with `<LocalTime t={…} opts={i18n.DateTimeOptions{…}}/>` (or `FormatDateTime` /
+    `FormatDateRange`). Both use the request's locale and the viewer's time zone and hour cycle.
+  - Preference precedence: `tz`/`hc` cookies (`POST /preferences`), then Cloudflare's `request.cf.timezone`
+    (`connectionTimeZone`), then UTC.
+  - Fragments pushed to every viewer (the board) can't use a viewer's zone: relative time, plus a UTC tooltip.
+  - `static/relative-time.js` is the one browser-`Intl` exception (plan decision 6). It re-formats
+    `<time data-relative-time>` and, when the zone wasn't chosen, `<time data-local-time>` in the browser's zone,
+    and only when the browser has full data for the page's `lang`.
+- Option combinations the app uses need workerd oracle cases (`kit/i18n/intltest`). V8 has quirks such as ja
+  `dateStyle: "full"` with `hourCycle: "h12"` giving "2026/5/10日曜日", and kit/i18n matches them byte for byte.
 
 # Code Style
 
