@@ -4,3 +4,5 @@
 /.deploy-url
 # Durable Object SQLite state for local workerd (Room cache, LocalD1 board data)
 /.workerd-state/
+# gsx generated code (gsx Getting started: do not edit or commit)
+*.x.go

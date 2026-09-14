@@ -1,6 +1,7 @@
 package main
 
 import (
+	"html"
 	"net/http"
 	"net/http/httptest"
 	"strconv"
@@ -130,4 +131,36 @@ func TestBoard(t *testing.T) {
 	expect(do("GET", "/board?topic=Bad!", ""), http.StatusBadRequest)
 	expect(do("GET", "/board/add", ""), http.StatusMethodNotAllowed)
 	expect(do("POST", "/board", ""), http.StatusMethodNotAllowed)
+}
+
+// legacyRenderBoard is the hand-written renderer the gsx BoardFragment replaced. The Room compares
+// versions and the page's guard parses data-version from these bytes, so the fragment must not change.
+func legacyRenderBoard(b Board) string {
+	var sb strings.Builder
+	version := strconv.FormatInt(b.Version, 10)
+	sb.WriteString(`<section id="board" hx-swap-oob="true" data-version="` + version + `">`)
+	sb.WriteString(`<p class="value"><output>` + strconv.FormatInt(b.Value, 10) + `</output></p>`)
+	sb.WriteString(`<ol class="notes">`)
+	for _, n := range b.Notes {
+		sb.WriteString(`<li><time>` + html.EscapeString(n.CreatedAt) + `</time> ` + html.EscapeString(n.Body) + `</li>`)
+	}
+	sb.WriteString(`</ol><p class="meta">topic <code>` + html.EscapeString(b.Topic) + `</code> · version ` + version + `</p></section>`)
+	return sb.String()
+}
+
+func TestBoardFragmentWireFormat(t *testing.T) {
+	boards := []Board{
+		{Topic: "lobby"},
+		{Topic: "t-1", Value: -3, Version: 42, Notes: []Note{{ID: 2, Body: "second", CreatedAt: "2026-09-14 01:02:03"}}},
+		{Topic: "esc", Value: 7, Version: 9, Notes: []Note{
+			{ID: 3, Body: `<img src=x onerror="alert(1)"> & 'quotes' "double"`, CreatedAt: "2026-09-14 <b>"},
+			{ID: 2, Body: "unicode ✓ — ünïcödé 日本", CreatedAt: "2026-09-14 00:00:00"},
+			{ID: 1, Body: "  spaced  body  ", CreatedAt: ""},
+		}},
+	}
+	for _, b := range boards {
+		if got, want := renderBoard(b), legacyRenderBoard(b); got != want {
+			t.Errorf("topic %s:\n got  %s\n want %s", b.Topic, got, want)
+		}
+	}
 }

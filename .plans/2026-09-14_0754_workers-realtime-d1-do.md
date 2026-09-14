@@ -147,16 +147,21 @@ case), and real broadcast latency p50/p95 with 1,000 sockets.
 - [x] README (Demos, "Realtime on Workers" section), AGENTS.md (JS allowed only for DO/entry; writes go through Go;
       resync-by-version rule; D1 deployed-only).
 
-### Phase 6 (proposed 2026-09-14, not started): render the board with gsx
+### Phase 6 (done 2026-09-14): render the board with gsx
 
 gsx + gsxui were verified under TinyGo on Workers (byte-identical output, `adopt-workers-go` plan Phase 5a/5d), so the
 hand-escaped strings in `board.go` / `board.html` can become gsx components.
 
-- [ ] Add gsx v0.1.0 to `demos/workers` (`go get -tool`), `gsx.toml` (htmx URL preset + `hx-action`), `views/board.gsx`:
-      `BoardPage(topic, board)`, `Board(board)` (the OOB `#board` fragment with `data-version`), notes list.
-- [ ] Keep the wire format identical: a test asserts the gsx fragment equals today's `renderBoard` output (or differs
-      only in whitespace), so the Room, the version guard and `wsload` need no change.
-- [ ] `demo:workers:build` runs `go tool gsx generate` first; size gate; `demo:workers:test` + `load` + browser check.
+- [x] Add gsx v0.1.0 to `demos/workers` (`go get -tool`), `gsx.toml` (htmx URL preset + `hx-action`), `views/board.gsx`:
+      `BoardPage(topic, board)`, `Board(board)` (the OOB `#board` fragment with `data-version`), notes list. — `board.gsx`
+      (package main): `BoardPage`, `BoardFragment`; `gsx.toml` adds `hx-ws:connect` to URL attrs; `board.html` removed
+- [x] Keep the wire format identical: a test asserts the gsx fragment equals today's `renderBoard` output (or differs
+      only in whitespace), so the Room, the version guard and `wsload` need no change. — `TestBoardFragmentWireFormat`:
+      **byte-identical** to the old renderer (escaping, Unicode, spacing, empty notes)
+- [x] `demo:workers:build` runs `go tool gsx generate` first; size gate; `demo:workers:test` + `load` + browser check.
+      — new `demo:workers:generate` (build/run depend on it), `gsx fmt -l` in test; from no generated code: TinyGo
+      **1,203,138 B raw / 445,677 B gzip** (+65 KB), smoke 13/13, `go test` ok; two-tab browser check on local workerd
+      9/9 (+1 push 71 ms, escaped note, form reset via `js` literal, version guard, no console errors).
 - [ ] Optional: gsxui components (card, button, input) for the board UI, with Tailwind via the standalone CLI.
 
 ### Phase 7 (proposed 2026-09-14, not started): presence per topic

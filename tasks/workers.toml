@@ -190,8 +190,14 @@ rm -rf "$tgz" "$tmp"
 echo "✓ htmx $version: public/htmx.min.js, public/hx-ws.js"
 '''
 
+# gsx components (board.gsx) → *.x.go, which are gitignored; every build/run/test path depends on this.
+["demo:workers:generate"]
+description = "go tool gsx generate (demos/workers)"
+dir = "{{config_root}}/demos/workers"
+run = "go tool gsx generate"
+
 ["demo:workers:build"]
-depends = ["demo:workers:vendor"]
+depends = ["demo:workers:vendor", "demo:workers:generate"]
 description = "TinyGo build of demos/workers → build/ (fails if app.wasm gzip > 10 MB, Workers Paid)"
 dir = "{{config_root}}/demos/workers"
 run = '''
@@ -209,6 +215,7 @@ echo "✓ build/app.wasm raw=${raw}B gzip=${gz}B (limit ${limit}B)"
 
 ["demo:workers:run"]
 description = "go run . (non-js fallback, public/ served by Go) → http://localhost:9913"
+depends = ["demo:workers:generate"]
 dir = "{{config_root}}/demos/workers"
 env = { PORT = "9913", DEMO_ENV = "go run . (local)" }
 run = "go run ."
@@ -288,12 +295,13 @@ go run ./cmd/wsload -base "$base" -n 1000 -writes 50 -topic load-burst
 '''
 
 ["demo:workers:test"]
-description = "TinyGo build + workerd smoke test + gofmt check + go vet + go test (demos/workers)"
+description = "TinyGo build + workerd smoke test + gsx fmt/gofmt check + go vet + go test (demos/workers)"
 depends = ["demo:workers:smoke"]
 dir = "{{config_root}}/demos/workers"
 run = '''
 #!/usr/bin/env bash
 set -euo pipefail
+go tool gsx fmt -l . || { echo "✗ gsx fmt: run 'go tool gsx fmt -w .'"; exit 1; }
 test -z "$(gofmt -l .)" || { gofmt -l .; echo "✗ gofmt: files need formatting"; exit 1; }
 go vet ./...
 go test ./...

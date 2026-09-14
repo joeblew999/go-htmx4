@@ -73,6 +73,9 @@
   - D1 has no interactive transactions (`db.Begin` fails): use single statements with `RETURNING`.
   - JS is allowed only for the Worker entry (`index.mjs`), Durable Object classes (`room.mjs`) and local-only workerd shims
     (`workerd/`). Keep them logic-free; board logic stays in Go.
+  - Board markup is gsx (`board.gsx`: `BoardPage`, `BoardFragment`). `BoardFragment` is the wire format the Room and the
+    page's version guard rely on: `TestBoardFragmentWireFormat` must keep passing. Never edit or commit `*.x.go`
+    (`mise run demo:workers:generate`).
   - Schema changes: add `demos/workers/migrations/NNNN_name.sql` (SQLite, idempotent). `cmd/deploy -migrations` applies it
     to D1 once (tracked in `_migrations`); `workerd/local-d1.mjs` must import it for local runs.
   - Durable Object classes change through `-migration-tag`/`-new-sqlite-class` in the deploy task; bump the tag for a new class.

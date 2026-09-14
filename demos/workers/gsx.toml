@@ -1,0 +1,6 @@
+# gsx config for demos/workers (gsx Configuration guide).
+# gsx's htmx preset predates htmx 4: add hx-action, and hx-ws:connect, which also carries a URL.
+url_presets = ["htmx"]
+
+[url_attrs]
+names = ["hx-action", "hx-ws:connect"]

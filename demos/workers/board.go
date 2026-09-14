@@ -6,16 +6,18 @@ package main
 // and the resulting fragment is published to the topic's Room Durable Object, which pushes it
 // to every browser connected to /live/{topic} over hx-ws. The poster gets the same fragment
 // in its HTTP response. Fragments are the whole #board element, so the newest one is always
-// complete state; board.html drops any swap older than what's on screen.
+// complete state; BoardPage drops any swap older than what's on screen. Markup lives in board.gsx.
 
 import (
-	_ "embed"
-	"html"
+	"bytes"
+	"context"
 	"log"
 	"net/http"
 	"strconv"
 	"strings"
 	"unicode/utf8"
+
+	"github.com/gsxhq/gsx"
 )
 
 const (
@@ -44,9 +46,6 @@ type store interface {
 	AddNote(topic, body string) (Board, error)
 }
 
-//go:embed board.html
-var boardHTML string
-
 func boardRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/board", func(w http.ResponseWriter, r *http.Request) {
 		topic, ok := topicOf(w, r)
@@ -63,10 +62,7 @@ func boardRoutes(mux *http.ServeMux) {
 			storeError(w, err)
 			return
 		}
-		writeHTML(w, strings.NewReplacer(
-			"{{topic}}", html.EscapeString(topic),
-			"{{board}}", renderBoard(b),
-		).Replace(boardHTML))
+		writeNode(w, BoardPage(topic, b))
 	})
 	mux.HandleFunc("/board/add", func(w http.ResponseWriter, r *http.Request) {
 		topic, ok := topicOf(w, r)
@@ -146,17 +142,25 @@ func storeError(w http.ResponseWriter, err error) {
 	http.Error(w, "store unavailable", http.StatusInternalServerError)
 }
 
-// renderBoard returns the #board element as an out-of-band swap, used for the initial page, the
-// poster's response and the hx-ws push alike. Every value is escaped.
+// renderBoard returns BoardFragment as a string: the poster's response and the Room publish carry
+// the same bytes.
 func renderBoard(b Board) string {
-	var sb strings.Builder
-	version := strconv.FormatInt(b.Version, 10)
-	sb.WriteString(`<section id="board" hx-swap-oob="true" data-version="` + version + `">`)
-	sb.WriteString(`<p class="value"><output>` + strconv.FormatInt(b.Value, 10) + `</output></p>`)
-	sb.WriteString(`<ol class="notes">`)
-	for _, n := range b.Notes {
-		sb.WriteString(`<li><time>` + html.EscapeString(n.CreatedAt) + `</time> ` + html.EscapeString(n.Body) + `</li>`)
+	var buf bytes.Buffer
+	if err := BoardFragment(b).Render(context.Background(), &buf); err != nil {
+		log.Printf("render board %s v%d: %v", b.Topic, b.Version, err)
 	}
-	sb.WriteString(`</ol><p class="meta">topic <code>` + html.EscapeString(b.Topic) + `</code> · version ` + version + `</p></section>`)
-	return sb.String()
+	return buf.String()
+}
+
+// writeNode renders n into a buffer, so a failed render is a clean 500 and the response has a
+// Content-Length (streamed responses broke htmx history restore under workerd in the gsxui demo).
+func writeNode(w http.ResponseWriter, n gsx.Node) {
+	var buf bytes.Buffer
+	if err := n.Render(context.Background(), &buf); err != nil {
+		log.Printf("render: %v", err)
+		http.Error(w, "render failed", http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Length", strconv.Itoa(buf.Len()))
+	writeHTML(w, buf.String())
 }
