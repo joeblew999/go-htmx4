@@ -6,14 +6,12 @@
 //	mise run demo:workers:serve   TinyGo → wasm on workerd  → http://localhost:8913
 //	mise run demo:workers:run     go run . (non-js fallback) → http://localhost:9913
 //
-// Files in public/ are served by Workers Static Assets before the Worker runs (locally:
-// workerd's disk service, fronted by workerd/assets-first.mjs). Only `go run .` serves
-// them from Go. Platform calls live in platform_js.go / platform_other.go.
+// Files in dist/site (public/, gsxui CSS, behaviours and fonts) are served by Workers Static Assets
+// before the Worker runs (locally: workerd's disk service, fronted by workerd/assets-first.mjs).
+// Only `go run .` serves them from Go. Platform calls live in platform_js.go / platform_other.go.
 package main
 
 import (
-	_ "embed"
-	"html"
 	"io"
 	"net/http"
 	"runtime"
@@ -25,8 +23,8 @@ import (
 )
 
 // No html/template: under TinyGo 0.42 it compiles but panics at execute time with
-// "unimplemented: (reflect.Type).NumOut()". Pages are gsx components (home.gsx, board.gsx) built from
-// gsxui; small fragments are escaped strings.
+// "unimplemented: (reflect.Type).NumOut()". Pages are gsx components (home.gsx, board.gsx, fragments.gsx)
+// built from gsxui.
 
 // count is package-level state. On Workers every request gets a fresh Go runtime, so it
 // is always 1 there; under `go run .` it keeps counting.
@@ -62,19 +60,14 @@ func routes() http.Handler {
 	mux.HandleFunc("/fragments/now", func(w http.ResponseWriter, r *http.Request) {
 		if allow(w, r, http.MethodGet) {
 			now := time.Now().UTC().Format(time.RFC3339)
-			writeHTML(w, `<time datetime="`+now+`">`+now+`</time> from <code>`+html.EscapeString(target())+`</code>`)
+			writeNode(w, NowFragment(now, target()))
 		}
 	})
 	mux.HandleFunc("/greet", func(w http.ResponseWriter, r *http.Request) {
 		if !allow(w, r, http.MethodPost) {
 			return
 		}
-		name := strings.TrimSpace(r.FormValue("name"))
-		if name == "" {
-			writeHTML(w, `<p class="text-destructive">Please enter a name.</p>`)
-			return
-		}
-		writeHTML(w, `<p>Hello, `+html.EscapeString(name)+`.</p>`)
+		writeNode(w, GreetFragment(strings.TrimSpace(r.FormValue("name"))))
 	})
 	mux.HandleFunc("/count", func(w http.ResponseWriter, r *http.Request) {
 		if allow(w, r, http.MethodPost) {

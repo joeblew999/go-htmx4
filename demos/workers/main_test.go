@@ -23,7 +23,7 @@ func TestRoutes(t *testing.T) {
 			`hx-get="/fragments/now"`, `hx-post="/greet"`, `hx-post="/count"`, `id="target"`,
 			`data-site-theme-toggle`, `localStorage.getItem("gsxui-theme")`, `data-gsxui-slot-card`,
 		}},
-		"now":          {method: "GET", path: "/fragments/now", want: []string{"<time datetime=", "gc "}},
+		"now":          {method: "GET", path: "/fragments/now", want: []string{"<time datetime=", "</time> from <code>gc "}},
 		"greet":        {method: "POST", path: "/greet", body: "name=Ada", want: []string{"Hello, Ada."}},
 		"greet escape": {method: "POST", path: "/greet", body: "name=<b>", want: []string{"Hello, &lt;b&gt;."}},
 		"greet empty":  {method: "POST", path: "/greet", body: "name=+", want: []string{"Please enter a name."}},

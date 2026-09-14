@@ -56,13 +56,12 @@ Plans, decisions and measurements live in [`.plans/`](.plans/).
 
 ### Upstream references
 
-Each tool's own demo, reproduced without Node. The checkouts live in gitignored `.upstream/`.
+Read-only checkouts in gitignored `.upstream/`, reproduced without Node.
 
-| Upstream demo | Run | URL |
+| Upstream | Run | URL |
 | --- | --- | --- |
-| **gsxui's own demo** (showcase site, all component examples, theme editor), served by its Go harness | `mise run upstream:gsxui:serve` | http://127.0.0.1:7799 |
-| **workers-go's template** (`worker-tinygo`) and `_examples/env` | `mise run upstream:workers-go:serve`<br>`mise run upstream:workers-go:env` | http://localhost:8911<br>http://localhost:8912 |
-| **workers-go's Durable Object example** and **Cloudflare's WebSocket Hibernation example**, on plain workerd | `mise run upstream:workers-go:do`<br>`mise run upstream:cf:ws-hibernation` | http://localhost:8914<br>ws://localhost:8915/ws |
+| **gsxui's own demo** (showcase site, all component examples, theme editor), served by its Go harness. The demos' UI patterns are copied from here. | `mise run upstream:gsxui:serve` | http://127.0.0.1:7799 |
+| **workers-go v0.35.0** source | `mise run upstream:workers-go:fetch` | |
 
 ## Cloudflare Workers without Node
 
@@ -94,14 +93,14 @@ browser ─ hx-post /board/add|note ─────▶ index.mjs ─▶ Go Worke
 ```
 
 - **D1 is the source of truth; the Room only fans out.** Its cached last fragment is sent to (re)connecting tabs.
-- **Every fragment is the whole `#board` with a `data-version`;** `board.html` cancels any `htmx:before:swap` older than
+- **Every fragment is the whole `#board` with a `data-version`;** the page cancels any `htmx:before:swap` older than
   what's on screen, so HTTP responses and pushes can arrive in any order.
 - **Designed for 1,000 tabs per topic:** receive-only sockets, `setWebSocketAutoResponse` ping/pong, coalesced broadcasts,
   reconnects spread over 1–3 s (a deploy drops every socket at once). Measured live: 1,000/1,000 delivered, p50 386 ms
   from the click on a phone hotspot.
 - **Presence:** the Room pushes "N online" on connects and closes, through the same coalescing (one update for a
   1,000-socket join in the local test).
-- **Markup is gsx** (`board.gsx`), rendered by TinyGo; the pushed fragment is pinned byte-for-byte by a test.
+- **Markup is gsx** (`board.gsx`), rendered by TinyGo; a test pins the pushed fragment's wire format (`id`, `hx-swap-oob`, `data-version`).
 - **JS only where Go can't go:** `index.mjs` (workers-go has no WebSocket support) and `room.mjs` (workers-go can only call
   Durable Objects). Locally, `workerd/local-d1.mjs` gives Go a D1-shaped `DB` over Durable Object SQLite, so the same
   `database/sql` code runs on workerd without miniflare.
@@ -113,8 +112,7 @@ browser ─ hx-post /board/add|note ─────▶ index.mjs ─▶ Go Worke
 ├── mise.toml            # pinned tools + `check`; includes tasks/*.toml
 ├── tasks/
 │   ├── gsxui.toml       # demo:gsxui:*, demo:gsxui:workers:*, upstream:gsxui:*
-│   ├── workers.toml     # demo:workers:*, upstream:workers-go:*, upstream:cf:*
-│   └── workerd/         # workerd configs for the upstream references
+│   └── workers.toml     # demo:workers:*, upstream:workers-go:fetch
 ├── demos/
 │   ├── gsxui/           # gsx + gsxui + htmx 4 (native server + Workers), own Go module
 │   └── workers/         # htmx 4 on Workers + shared board (D1, Durable Objects), own Go module

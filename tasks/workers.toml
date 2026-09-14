@@ -3,15 +3,11 @@
 # workers-go v0.35.0, TinyGo only, no Node (no npm, no wrangler). Tools come from mise.toml:
 # go, tinygo, binaryen (wasm-opt), workerd, fnox.
 #
-# upstream:workers-go:*  run workers-go's own worker-tinygo template and _examples/env.
-#                        The steps mirror the template's package.json scripts, minus npm/wrangler:
-#
-#   mise run upstream:workers-go:run      # go run . (non-js fallback) → http://localhost:9900
-#   mise run upstream:workers-go:serve    # TinyGo build + workerd      → http://localhost:8911
-#   mise run upstream:workers-go:env      # _examples/env on workerd    → http://localhost:8912
+# upstream:workers-go:fetch  read-only checkout of workers-go v0.35.0 (source reference).
 #
 # demo:workers:*  our own demo in demos/workers (htmx 4 + workers-go, TinyGo):
 #
+#   mise run demo:workers:dev     # gsx dev: save → regenerate → TinyGo + assets → workerd restart
 #   mise run demo:workers:serve   # TinyGo build + workerd (static files first) → http://localhost:8913
 #   mise run demo:workers:run     # go run . (non-js fallback)                  → http://localhost:9913
 #   mise run demo:workers:test    # TinyGo build (size-gated) + workerd smoke + gofmt + vet + test
@@ -20,10 +16,9 @@
 #   mise run demo:workers:load    # 1,000 WebSockets on one topic + 50-write burst (local, or LOAD_BASE=…)
 
 # ── upstream:workers-go:fetch ────────────────────────────────────────────────
-# Check out the v0.35.0 tag, then copy _templates/cloudflare/worker-tinygo to
-# .upstream/worker-tinygo. That copy is all `npm create cloudflare --template` does.
+# Check out the v0.35.0 tag into .upstream/workers-go, a read-only reference for its source.
 ["upstream:workers-go:fetch"]
-description = "Check out syumai/workers-go v0.35.0 into .upstream/workers-go and copy the worker-tinygo template"
+description = "Check out syumai/workers-go v0.35.0 into .upstream/workers-go (read-only source reference)"
 dir = "{{config_root}}"
 run = '''
 #!/usr/bin/env bash
@@ -42,122 +37,6 @@ if [ "$(git -C "$dir" rev-parse -q --verify HEAD 2>/dev/null)" != "$rev" ]; then
 fi
 [ "$(git -C "$dir" rev-parse HEAD)" = "$rev" ] || { echo "✗ $tag is not $rev"; exit 1; }
 echo "✓ workers-go $tag @ $(git -C "$dir" log -1 --format='%h %cs %s')"
-
-app=.upstream/worker-tinygo
-if [ ! -f "$app/main.go" ]; then
-  mkdir -p "$app"
-  cp -R "$dir/_templates/cloudflare/worker-tinygo/." "$app/"
-  echo "✓ template copied → $app"
-else
-  echo "· $app (exists)"
-fi
-'''
-
-# ── upstream:workers-go:init ─────────────────────────────────────────────────
-# Template README "Initialize a project": go mod init + go mod tidy, with the exact pin.
-["upstream:workers-go:init"]
-description = "go mod init + pin github.com/syumai/workers-go v0.35.0 in the template copy"
-depends = ["upstream:workers-go:fetch"]
-dir = "{{config_root}}/.upstream/worker-tinygo"
-run = '''
-#!/usr/bin/env bash
-set -euo pipefail
-[ -f go.mod ] || go mod init worker-tinygo
-go get github.com/syumai/workers-go@v0.35.0
-go mod tidy
-grep -q '^require github.com/syumai/workers-go v0.35.0$' go.mod \
-  || { echo "✗ go.mod does not pin workers-go v0.35.0"; cat go.mod; exit 1; }
-echo "✓ go.mod: github.com/syumai/workers-go v0.35.0"
-'''
-
-# ── upstream:workers-go:build ────────────────────────────────────────────────
-# The template's package.json "build" script, run directly (TinyGo, -mode=tinygo).
-["upstream:workers-go:build"]
-description = "workers-assets-gen -mode=tinygo + tinygo build → .upstream/worker-tinygo/build"
-depends = ["upstream:workers-go:init"]
-dir = "{{config_root}}/.upstream/worker-tinygo"
-run = '''
-#!/usr/bin/env bash
-set -euo pipefail
-go run github.com/syumai/workers-go/cmd/workers-assets-gen -mode=tinygo
-tinygo build -o ./build/app.wasm -target wasm -no-debug ./...
-raw=$(wc -c <build/app.wasm | tr -d ' ')
-gz=$(gzip -9 -c build/app.wasm | wc -c | tr -d ' ')
-echo "✓ build/app.wasm raw=${raw}B gzip=${gz}B; $(ls build | tr '\n' ' ')"
-'''
-
-# ── upstream:workers-go:run ──────────────────────────────────────────────────
-# Template README: `go run .` runs the dev server without Wrangler (non-js workers.Serve,
-# plain net/http on PORT, default 9900). Standard Go is fine here: local-only.
-["upstream:workers-go:run"]
-description = "go run . in the template copy (non-js fallback) → http://localhost:9900"
-depends = ["upstream:workers-go:init"]
-dir = "{{config_root}}/.upstream/worker-tinygo"
-run = "go run ."
-
-# ── upstream:workers-go:serve ────────────────────────────────────────────────
-# workerd resolves `embed` paths relative to the config file, so copy the tracked config
-# next to build/ and serve from there.
-["upstream:workers-go:serve"]
-description = "TinyGo build, then serve the template on workerd → http://localhost:8911"
-depends = ["upstream:workers-go:build"]
-dir = "{{config_root}}/.upstream/worker-tinygo"
-run = '''
-#!/usr/bin/env bash
-set -euo pipefail
-cp "{{config_root}}/tasks/workerd/worker-tinygo.capnp" config.capnp
-exec workerd serve config.capnp
-'''
-
-# ── upstream:workers-go:env ──────────────────────────────────────────────────
-# _examples/env reads cloudflare.Getenv("MY_ENV"). Its go.mod replaces workers-go with
-# ../../ (the v0.35.0 checkout). Its Makefile uses -mode=go; we build with TinyGo instead,
-# and map wrangler.toml's [vars] MY_ENV to a workerd text binding.
-["upstream:workers-go:env"]
-description = "TinyGo build of _examples/env, served on workerd → http://localhost:8912"
-depends = ["upstream:workers-go:fetch"]
-dir = "{{config_root}}/.upstream/workers-go/_examples/env"
-run = '''
-#!/usr/bin/env bash
-set -euo pipefail
-go run ../../cmd/workers-assets-gen -mode=tinygo
-tinygo build -o ./build/app.wasm -target wasm -no-debug ./...
-echo "✓ build/app.wasm gzip=$(gzip -9 -c build/app.wasm | wc -c | tr -d ' ')B"
-cp "{{config_root}}/tasks/workerd/env.capnp" build/config.capnp
-exec workerd serve build/config.capnp
-'''
-
-# ── upstream:workers-go:do ───────────────────────────────────────────────────
-# _examples/durable-object-counter: Go Worker (TinyGo) calls a JS `Counter` Durable Object through
-# workers-go's stub. Its Makefile uses -mode=go and wrangler; we build with TinyGo and run workerd
-# with a SQLite-backed DO on local disk (plan: .plans/done/2026-09-14_0754_workers-realtime-d1-do.md).
-# DO storage lives in build/do-storage, so a rebuild resets the count.
-["upstream:workers-go:do"]
-description = "TinyGo build of _examples/durable-object-counter, served on workerd with a SQLite DO → http://localhost:8914"
-depends = ["upstream:workers-go:fetch"]
-dir = "{{config_root}}/.upstream/workers-go/_examples/durable-object-counter"
-run = '''
-#!/usr/bin/env bash
-set -euo pipefail
-go run ../../cmd/workers-assets-gen -mode=tinygo
-tinygo build -o ./build/app.wasm -target wasm -no-debug ./...
-echo "✓ build/app.wasm gzip=$(gzip -9 -c build/app.wasm | wc -c | tr -d ' ')B"
-cp "{{config_root}}/tasks/workerd/do-counter.capnp" build/config.capnp
-mkdir -p build/do-storage
-cd build && exec workerd serve config.capnp
-'''
-
-# ── upstream:cf:ws-hibernation ───────────────────────────────────────────────
-# Cloudflare's WebSocket Hibernation example (Durable Objects → WebSockets docs), on workerd.
-["upstream:cf:ws-hibernation"]
-description = "Cloudflare's DO WebSocket Hibernation example on workerd → ws://localhost:8915/ws"
-dir = "{{config_root}}/tasks/workerd"
-run = '''
-#!/usr/bin/env bash
-set -euo pipefail
-storage="{{config_root}}/.upstream/ws-hibernation-storage"
-mkdir -p "$storage"
-exec workerd serve ws-hibernation.capnp --directory-path "do-storage=$storage"
 '''
 
 # ═════════════════════════════════════════════════════════════════════════════

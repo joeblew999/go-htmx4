@@ -2,7 +2,7 @@
 #
 #   mise install        # install pinned tools
 #   mise run check      # test both demos (native + TinyGo under workerd)
-#   mise tasks          # list everything (demo:gsxui:*, demo:workers:*, upstream:*)
+#   mise tasks          # list everything (demo:gsxui:*, demo:workers:*, upstream:*:fetch/serve)
 
 [tools]
 go = "1.27.1"
