@@ -1,5 +1,6 @@
 # tasks/search.toml — Google Search Console through its API (search plan: .plans/2026-09-14_0938_search-indexing-google-gemini.md).
 #
+#   mise run search:setup    # one-time: Google Cloud project + service account + key in fnox (gcloud, task-only)
 #   mise run search:sites    # properties the service account can use (check it was added in Search Console)
 #   mise run search:submit   # submit https://$APP_DOMAIN/sitemap.xml
 #   mise run search:status   # sitemap status + Google's index status for every sitemap URL
@@ -22,3 +23,43 @@ run = "fnox exec -- go run ./cmd/searchconsole submit"
 description = "Search Console: sitemap status and Google's index status for every URL in the sitemap"
 dir = "{{config_root}}"
 run = "fnox exec -- go run ./cmd/searchconsole status"
+
+# One-time setup, already done for this repo (2026-09-14). Only this task needs gcloud: its tools are installed when it
+# runs, not by `mise install`. gcloud's installer needs Python >= 3.10 (macOS ships 3.9), hence the Python pin and
+# CLOUDSDK_PYTHON. Idempotent: existing project, API, service account and fnox key are kept (no new keys).
+# Needs `gcloud auth login` first (a browser sign-in); afterwards add the printed service account email in Search Console
+# → Settings → Users and permissions (Full).
+["search:setup"]
+description = "One-time: Google Cloud project, Search Console API, service account, key into fnox (needs gcloud auth login)"
+dir = "{{config_root}}"
+tools = { "asdf:mise-plugins/mise-gcloud" = "584.0.0", python = "3.13.15" }
+env = { CLOUDSDK_PYTHON = "python3", SEARCH_PROJECT = "go-htmx4-search" }
+run = '''
+#!/usr/bin/env bash
+set -euo pipefail
+# gcloud's update checks and usage reporting stall every command for minutes on some machines.
+gcloud config set component_manager/disable_update_check true --quiet >/dev/null 2>&1
+gcloud config set core/disable_usage_reporting true --quiet >/dev/null 2>&1
+gcloud config set survey/disable_prompts true --quiet >/dev/null 2>&1
+account=$(gcloud auth list --filter=status:ACTIVE --format="value(account)" 2>/dev/null)
+[ -n "$account" ] || { echo "✗ run: gcloud auth login"; exit 1; }
+echo "· gcloud account $account"
+p=$SEARCH_PROJECT
+sa=search-console@$p.iam.gserviceaccount.com
+gcloud projects describe "$p" --quiet >/dev/null 2>&1 || gcloud projects create "$p" --name="$p" --quiet
+echo "✓ project $p"
+gcloud services enable searchconsole.googleapis.com --project "$p" --quiet
+echo "✓ Search Console API enabled"
+gcloud iam service-accounts describe "$sa" --project "$p" --quiet >/dev/null 2>&1 ||
+  gcloud iam service-accounts create search-console --project "$p" --display-name="Search Console" --quiet
+echo "✓ service account $sa"
+if fnox get GOOGLE_SEARCH_CONSOLE_KEY >/dev/null 2>&1; then
+  echo "✓ GOOGLE_SEARCH_CONSOLE_KEY already in fnox (no new key created)"
+else
+  key=$(mktemp); trap 'rm -f "$key"' EXIT
+  gcloud iam service-accounts keys create "$key" --iam-account "$sa" --project "$p" --quiet >/dev/null
+  fnox set -g GOOGLE_SEARCH_CONSOLE_KEY --from-file "$key" -p keychain -d "Search Console API key ($sa)" >/dev/null
+  echo "✓ key stored in fnox as GOOGLE_SEARCH_CONSOLE_KEY"
+fi
+echo "Next: Search Console → your property → Settings → Users and permissions → Add user $sa (Full), then mise run search:sites"
+'''
