@@ -12,6 +12,13 @@ import (
 // For Locale cases only the parts kit/i18n must reproduce exactly are returned (maximize, minimize);
 // see [EvalLocaleInfo] for the rest.
 func Eval(d *i18n.Data, c Case) (string, error) {
+	if c.Ctor != "" {
+		ev, ok := evaluators[c.Ctor]
+		if !ok {
+			return "", fmt.Errorf("no evaluator for Intl.%s", c.Ctor)
+		}
+		return ev(d, c)
+	}
 	tag, err := i18n.ParseTag(c.Locale)
 	if err != nil {
 		return "", err
@@ -59,6 +66,12 @@ func Eval(d *i18n.Data, c Case) (string, error) {
 	}
 	return "", fmt.Errorf("unknown api %q", c.API)
 }
+
+// evaluators run generic cases in Go, by constructor name (Register).
+var evaluators = map[string]func(*i18n.Data, Case) (string, error){}
+
+// Register sets the Go evaluator for generic cases of an Intl constructor.
+func Register(ctor string, ev func(*i18n.Data, Case) (string, error)) { evaluators[ctor] = ev }
 
 // LocaleExpected reduces an oracle Locale result to the fields Eval returns.
 func LocaleExpected(oracle string) string {

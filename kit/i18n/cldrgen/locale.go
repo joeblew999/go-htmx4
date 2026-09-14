@@ -37,8 +37,10 @@ func (g *gen) buildLocale(id string) (*i18n.LocaleData, int, error) {
 	if err := g.buildNumbers(ld); err != nil {
 		return nil, 0, err
 	}
-	if err := g.buildNames(ld); err != nil {
-		return nil, 0, err
+	for _, build := range []func(*i18n.LocaleData) error{g.buildNames, g.buildDateTime, g.buildRelative, g.buildLists, g.buildDuration} {
+		if err := build(ld); err != nil {
+			return nil, 0, err
+		}
 	}
 	return ld, samples, nil
 }

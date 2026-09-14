@@ -23,6 +23,17 @@ type Data struct {
 	// RootSymbols are CLDR root's explicit symbols for numbering systems that don't alias to the
 	// locale's latn symbols (arab, arabext), sorted by ID.
 	RootSymbols []SystemSymbols
+	TimeZones   TimeZoneData
+	Weeks       []RegionWeek // weekData, sorted by Region ("001" = world default)
+}
+
+// RegionWeek is a region's week data: first day (0 = Sunday … 6 = Saturday), minimal days in the first
+// week, and weekend days (Intl.Locale getWeekInfo).
+type RegionWeek struct {
+	Region   string
+	FirstDay int8
+	MinDays  int8
+	Weekend  []int8
 }
 
 // SystemSymbols are one numbering system's symbols.
@@ -72,6 +83,10 @@ type LocaleData struct {
 	LangNames   []Name // language display names (allowlisted at generate time), sorted by Code
 	RegionNames []Name
 	ScriptNames []Name
+	DateTime    DateTimeData
+	Relative    RelativeData
+	Lists       ListData
+	Duration    DurationData
 }
 
 // Name is a display name for a code, e.g. {"de", "Deutsch"}.

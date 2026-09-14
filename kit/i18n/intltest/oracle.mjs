@@ -2,7 +2,19 @@
 // {meta, results: {id: output}}. No logic beyond dispatching each case to the Intl API it names.
 import cases from "./cases.json";
 
+// "@date:<ISO>" arguments become Date objects; other JSON values pass through.
+function arg(a) {
+  return typeof a === "string" && a.startsWith("@date:") ? new Date(a.slice(6)) : a;
+}
+
 function run(c) {
+  if (c.ctor) {
+    // Generic: new Intl[ctor](locale, options)[method](...args)[field]
+    const obj = c.ctor === "Locale" ? new Intl.Locale(c.locale, c.options) : new Intl[c.ctor](c.locale, c.options);
+    let out = obj[c.method](...(c.args ?? []).map(arg));
+    if (c.field) out = out[c.field];
+    return typeof out === "string" ? out : JSON.stringify(out);
+  }
   switch (c.api) {
     case "NumberFormat":
       return new Intl.NumberFormat(c.locale, c.options).format(c.input);

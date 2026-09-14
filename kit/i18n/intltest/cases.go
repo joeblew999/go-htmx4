@@ -20,6 +20,13 @@ type Case struct {
 	Options map[string]any `json:"options,omitempty"`
 	Input   string         `json:"input,omitempty"`  // exact decimal string (Intl.NumberFormat v3 string input)
 	Input2  string         `json:"input2,omitempty"` // range end
+
+	// Generic cases (Ctor set): new Intl[Ctor](Locale, Options)[Method](...Args)[Field]. A string argument
+	// "@date:<RFC 3339>" is a Date. Evaluated in Go by the evaluator registered for Ctor (Register).
+	Ctor   string `json:"ctor,omitempty"`   // "DateTimeFormat", "RelativeTimeFormat", "ListFormat", "DurationFormat", "Locale"
+	Method string `json:"method,omitempty"` // "format", "formatRange", "resolvedOptions", "getWeekInfo", …
+	Args   []any  `json:"args,omitempty"`
+	Field  string `json:"field,omitempty"` // property of the result, e.g. "hourCycle"
 }
 
 // Locales are the locales the cases cover (the go-htmx4 app's shipped set).
@@ -138,9 +145,18 @@ func Locale() []Case {
 	return out
 }
 
+// generators are case sets registered by other files (RegisterCases), e.g. DateTimeFormat cases.
+var generators []func() []Case
+
+// RegisterCases adds a case set to All.
+func RegisterCases(gen func() []Case) { generators = append(generators, gen) }
+
 // All returns every case, sorted by ID.
 func All() []Case {
 	all := slices.Concat(Number(), Plural(), Locale())
+	for _, gen := range generators {
+		all = append(all, gen()...)
+	}
 	slices.SortFunc(all, func(a, b Case) int { return strings.Compare(a.ID, b.ID) })
 	return all
 }

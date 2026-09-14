@@ -167,6 +167,12 @@ func (g *gen) loadSupplemental() (*supplemental, error) {
 	if d.RootSymbols, err = g.rootSymbols(); err != nil {
 		return nil, err
 	}
+	if err := g.loadDateTimeSupplemental(d); err != nil {
+		return nil, err
+	}
+	if err := g.loadWeekData(d); err != nil {
+		return nil, err
+	}
 	return s, nil
 }
 
