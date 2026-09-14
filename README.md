@@ -110,6 +110,20 @@ browser ─ hx-post /board/add|note ─────▶ worker/index.mjs ─▶ G
   Durable Objects). Locally, `workerd/local-d1.mjs` gives Go a D1-shaped `DB` over Durable Object SQLite, so the same
   `database/sql` code runs on workerd without miniflare.
 
+## Reusable packages (`kit/`)
+
+Importable from other repos with `go get github.com/joeblew999/go-htmx4/kit/…`. They don't import the app (checked by
+`mise run test`) and are tested without Cloudflare (fake API, fake Room).
+
+| Package | What |
+| --- | --- |
+| [`kit/cfdeploy`](kit/cfdeploy) | Deploy a workers-go Worker with the REST API: Static Assets Direct Upload, script upload, plain-text/D1/Durable Object bindings, D1 create + migrations, Durable Object migrations, workers.dev. No wrangler. |
+| [`kit/wsload`](kit/wsload) | End-to-end live-board check over real WebSockets: delivery latency, coalescing, presence, heartbeat, cached fragment. |
+| [`kit/live`](kit/live) | Go side of per-topic live updates: `Publish` to a Room Durable Object (js/wasm), the shared topic rule and version header. |
+| [`kit/httpx`](kit/httpx) | TinyGo-safe HTTP helpers: `Allow` (method check for plain-path routes), `Render` (buffered gsx, Content-Length), `GetOnly`. |
+
+The Room and Worker entry are JavaScript (`worker/room.mjs`, `worker/index.mjs`) and come with the template, not `kit/`.
+
 ## Project layout
 
 ```
@@ -123,7 +137,8 @@ browser ─ hx-post /board/add|note ─────▶ worker/index.mjs ─▶ G
 ├── worker/              # index.mjs (Worker entry) + room.mjs (Room Durable Object): deployed
 ├── workerd/             # config.capnp + local-only shims (static files first, D1 over DO SQLite)
 ├── migrations/          # D1 schema
-├── cmd/deploy cmd/wsload  # Cloudflare deploy client, WebSocket load tester
+├── kit/                 # importable packages (see below)
+├── cmd/deploy cmd/wsload  # CLIs over kit/cfdeploy and kit/wsload
 ├── tasks/
 │   ├── app.toml         # dev, serve, run, test, smoke, load, deploy, smoke-remote, …
 │   └── upstream.toml    # upstream:gsxui:*, upstream:workers-go:fetch

@@ -184,7 +184,7 @@ go run ./cmd/wsload -base "$base" -n 1000 -writes 50 -topic load-burst
 '''
 
 ["test"]
-description = "TinyGo build + workerd smoke test + gsx fmt/gofmt check + go vet + go test"
+description = "TinyGo build + workerd smoke test + gsx fmt/gofmt check + go vet + kit/ import check + go test"
 depends = ["smoke"]
 dir = "{{config_root}}"
 run = '''
@@ -196,6 +196,9 @@ go tool gsx fmt -l . || { echo "✗ gsx fmt: run 'go tool gsx fmt -w .'"; exit 1
 unformatted=$(gofmt -l $(go list -json ./... | jq -r '.Dir as $d | (.GoFiles + (.TestGoFiles // []) + (.XTestGoFiles // []) + (.IgnoredGoFiles // []))[] | "\($d)/\(.)"'))
 test -z "$unformatted" || { echo "$unformatted"; echo "✗ gofmt: files need formatting"; exit 1; }
 go vet ./...
+# kit/ is importable by other repos: it must not depend on the app (views, ui, cmd, package main).
+app_deps=$(go list -deps ./kit/... | grep '^github.com/joeblew999/go-htmx4' | grep -v '^github.com/joeblew999/go-htmx4/kit/' || true)
+test -z "$app_deps" || { echo "$app_deps"; echo "✗ kit/ imports app packages"; exit 1; }
 go test ./...
 '''
 

@@ -16,20 +16,17 @@
 package main
 
 import (
-	"bytes"
 	"cmp"
-	"context"
 	"log"
 	"net/http"
 	"runtime"
-	"slices"
-	"strconv"
 	"strings"
 	"sync"
 	"sync/atomic"
 	"time"
 
 	"github.com/gsxhq/gsx"
+	"github.com/joeblew999/go-htmx4/kit/httpx"
 	"github.com/joeblew999/go-htmx4/views"
 	"github.com/syumai/workers-go"
 )
@@ -80,12 +77,12 @@ func (s *server) routes() http.Handler {
 		}
 		if allow(w, r, http.MethodGet) {
 			env := cmp.Or(getenv("APP_ENV"), "(APP_ENV not set)")
-			s.render(w, "home", views.HomePage(target(), env, flavours, components))
+			s.render(w, r, "home", views.HomePage(target(), env, flavours, components))
 		}
 	})
 	mux.HandleFunc("/about", func(w http.ResponseWriter, r *http.Request) {
 		if allow(w, r, http.MethodGet) {
-			s.render(w, "about", views.About(stack))
+			s.render(w, r, "about", views.About(stack))
 		}
 	})
 	mux.HandleFunc("/healthz", func(w http.ResponseWriter, r *http.Request) {
@@ -98,21 +95,21 @@ func (s *server) routes() http.Handler {
 			return
 		}
 		if r.Method == http.MethodDelete {
-			s.render(w, "greet:clear", views.GreetingCleared())
+			s.render(w, r, "greet:clear", views.GreetingCleared())
 			return
 		}
 		name := strings.TrimSpace(r.FormValue("name"))
 		if name == "" {
-			s.render(w, "greet:error", views.GreetingError("Please enter a name."))
+			s.render(w, r, "greet:error", views.GreetingError("Please enter a name."))
 			return
 		}
-		s.render(w, "greet", views.Greeting(name, cmp.Or(r.FormValue("flavour"), "gsx"), r.FormValue("shout") == "on"))
+		s.render(w, r, "greet", views.Greeting(name, cmp.Or(r.FormValue("flavour"), "gsx"), r.FormValue("shout") == "on"))
 	})
 	mux.HandleFunc("/fragments/server-info", func(w http.ResponseWriter, r *http.Request) {
 		if !allow(w, r, http.MethodGet) {
 			return
 		}
-		s.render(w, "server-info", views.ServerInfoView(views.ServerInfo{
+		s.render(w, r, "server-info", views.ServerInfoView(views.ServerInfo{
 			GoVersion: runtime.Compiler + " " + runtime.Version() + " " + runtime.GOOS + "/" + runtime.GOARCH,
 			Uptime:    time.Since(s.started).Round(time.Second).String(),
 			Requests:  s.requests.Load(),
@@ -130,44 +127,26 @@ func (s *server) routes() http.Handler {
 			snapshot[k] = v
 		}
 		s.mu.Unlock()
-		s.render(w, "stats", views.Stats(snapshot))
+		s.render(w, r, "stats", views.Stats(snapshot))
 	})
 	s.boardRoutes(mux)
 	return mux
 }
 
-// render counts the request, then writes n. It renders into a buffer, so a failed render is a clean
-// 500 and the response has a Content-Length: workers-go otherwise streams it chunked, which broke
-// htmx history restore (Back) under workerd.
-func (s *server) render(w http.ResponseWriter, name string, n gsx.Node) {
+// render counts the request, then writes n with httpx.Render (buffered, Content-Length: chunked
+// responses broke htmx history restore under workerd).
+func (s *server) render(w http.ResponseWriter, r *http.Request, name string, n gsx.Node) {
 	s.requests.Add(1)
 	s.mu.Lock()
 	s.stats[name]++
 	s.mu.Unlock()
-	var buf bytes.Buffer
-	if err := n.Render(context.Background(), &buf); err != nil {
+	if err := httpx.Render(w, r, n); err != nil {
 		log.Printf("render %s: %v", name, err)
-		http.Error(w, "render failed", http.StatusInternalServerError)
-		return
 	}
-	writeHTML(w, buf.Bytes())
 }
 
-func writeHTML(w http.ResponseWriter, b []byte) {
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	w.Header().Set("Content-Length", strconv.Itoa(len(b)))
-	w.Write(b)
-}
-
-// allow reports whether r uses one of methods (GET also allows HEAD), replying 405 otherwise.
-func allow(w http.ResponseWriter, r *http.Request, methods ...string) bool {
-	if slices.Contains(methods, r.Method) || (r.Method == http.MethodHead && slices.Contains(methods, http.MethodGet)) {
-		return true
-	}
-	w.Header().Set("Allow", strings.Join(methods, ", "))
-	http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
-	return false
-}
+// allow is httpx.Allow: plain-path routes check their method in the handler.
+var allow = httpx.Allow
 
 // target reports which compiler and platform served the request, e.g. "tinygo js/wasm"
 // on Workers or "gc darwin/arm64" under `go run .`.

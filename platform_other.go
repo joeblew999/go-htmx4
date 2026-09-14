@@ -5,6 +5,8 @@ package main
 import (
 	"net/http"
 	"os"
+
+	"github.com/joeblew999/go-htmx4/kit/httpx"
 )
 
 // platformNote is shown in the server-info fragment; the native server keeps its state.
@@ -15,14 +17,7 @@ func getenv(name string) string { return os.Getenv(name) }
 
 // staticFiles serves the assembled static assets (dist/site: static/, gsxui behaviours, compiled
 // gsxui CSS + fonts) from disk, standing in for Workers Static Assets under `go run .`.
-func staticFiles() http.Handler {
-	files := http.FileServer(http.Dir("dist/site"))
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if allow(w, r, http.MethodGet) {
-			files.ServeHTTP(w, r)
-		}
-	})
-}
+func staticFiles() http.Handler { return httpx.GetOnly(http.FileServer(http.Dir("dist/site"))) }
 
 var mem = newMemStore()
 

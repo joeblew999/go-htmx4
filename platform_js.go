@@ -4,12 +4,9 @@ package main
 
 import (
 	"database/sql"
-	"fmt"
-	"io"
 	"net/http"
-	"strconv"
-	"strings"
 
+	"github.com/joeblew999/go-htmx4/kit/live"
 	"github.com/syumai/workers-go/cloudflare"
 	_ "github.com/syumai/workers-go/cloudflare/d1" // registers the "d1" database/sql driver
 )
@@ -33,30 +30,8 @@ func newStore() (store, error) {
 	return sqlStore{db}, nil
 }
 
-// publish hands a board fragment to the topic's Room Durable Object (worker/room.mjs), which pushes it
-// to every connected browser.
+// publish hands a board fragment to the topic's Room Durable Object (worker/room.mjs, bound as ROOM),
+// which pushes it to every connected browser.
 func publish(topic string, version int64, fragment string) error {
-	ns, err := cloudflare.NewDurableObjectNamespace("ROOM")
-	if err != nil {
-		return err
-	}
-	room, err := ns.Get(ns.IdFromName(topic))
-	if err != nil {
-		return err
-	}
-	req, err := http.NewRequest(http.MethodPost, "https://room/publish", strings.NewReader(fragment))
-	if err != nil {
-		return err
-	}
-	req.Header.Set("X-Board-Version", strconv.FormatInt(version, 10))
-	res, err := room.Fetch(req)
-	if err != nil {
-		return err
-	}
-	defer res.Body.Close()
-	body, _ := io.ReadAll(res.Body)
-	if res.StatusCode != http.StatusOK {
-		return fmt.Errorf("room: HTTP %d: %s", res.StatusCode, body)
-	}
-	return nil
+	return live.Publish("ROOM", topic, version, fragment)
 }

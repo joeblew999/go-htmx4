@@ -17,6 +17,8 @@ import (
 	"strings"
 	"unicode/utf8"
 
+	"github.com/joeblew999/go-htmx4/kit/httpx"
+	"github.com/joeblew999/go-htmx4/kit/live"
 	"github.com/joeblew999/go-htmx4/views"
 )
 
@@ -55,7 +57,7 @@ func (s *server) boardRoutes(mux *http.ServeMux) {
 			storeError(w, err)
 			return
 		}
-		s.render(w, "board", views.BoardPage(topic, b))
+		s.render(w, r, "board", views.BoardPage(topic, b))
 	})
 	mux.HandleFunc("/board/add", func(w http.ResponseWriter, r *http.Request) {
 		topic, ok := topicOf(w, r)
@@ -101,33 +103,21 @@ func change(w http.ResponseWriter, topic string, write func(store) (Board, error
 	if err := publish(topic, b.Version, fragment); err != nil {
 		log.Printf("publish %s v%d: %v", topic, b.Version, err)
 	}
-	writeHTML(w, []byte(fragment))
+	httpx.WriteHTML(w, []byte(fragment))
 }
 
-// topicOf reads ?topic= (default "lobby"): 1–32 of [a-z0-9-], the same rule worker/index.mjs applies
-// to /live/{topic}.
+// topicOf reads ?topic= (default "lobby") and checks it with live.ValidTopic, the rule worker/index.mjs
+// applies to /live/{topic}.
 func topicOf(w http.ResponseWriter, r *http.Request) (string, bool) {
 	topic := r.URL.Query().Get("topic")
 	if topic == "" {
 		topic = defaultTopic
 	}
-	if !validTopic(topic) {
+	if !live.ValidTopic(topic) {
 		http.Error(w, "topic must be 1–32 of a-z, 0-9, -", http.StatusBadRequest)
 		return "", false
 	}
 	return topic, true
-}
-
-func validTopic(t string) bool {
-	if len(t) == 0 || len(t) > 32 {
-		return false
-	}
-	for _, c := range t {
-		if (c < 'a' || c > 'z') && (c < '0' || c > '9') && c != '-' {
-			return false
-		}
-	}
-	return true
 }
 
 func storeError(w http.ResponseWriter, err error) {

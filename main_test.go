@@ -5,10 +5,13 @@ import (
 	"html"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"regexp"
 	"strconv"
 	"strings"
 	"testing"
+
+	"github.com/joeblew999/go-htmx4/kit/live"
 )
 
 func TestRoutes(t *testing.T) {
@@ -203,5 +206,23 @@ func TestBoardFragmentWireFormat(t *testing.T) {
 	}
 	if strings.Count(got, `id="board"`) != 1 {
 		t.Errorf("want exactly one #board element")
+	}
+}
+
+// The Worker entry and the Room are JavaScript: they must use kit/live's topic rule and version header.
+func TestWorkerJSMatchesKitLive(t *testing.T) {
+	index, err := os.ReadFile("worker/index.mjs")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(string(index), "/"+live.TopicPattern+"/") {
+		t.Errorf("worker/index.mjs must validate topics with /%s/", live.TopicPattern)
+	}
+	room, err := os.ReadFile("worker/room.mjs")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(string(room), `"`+live.VersionHeader+`"`) {
+		t.Errorf("worker/room.mjs must read the %s header", live.VersionHeader)
 	}
 }

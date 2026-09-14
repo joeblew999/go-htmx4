@@ -115,9 +115,23 @@
 
 - repo root - the app (`main.go` + `board.go` handlers, `views/` pages + fragments (`.gsx`, package `views`), `ui/` vendored by gsxui,
   `store_{sql,mem}.go`, `platform_{js,other}.go`, `worker/index.mjs` entry + `worker/room.mjs` Durable Object, `migrations/`, `static/` (vendored htmx + hx-ws),
-  `web/gsxui/` (behaviours + CSS entry), `workerd/` (config.capnp + local-only shims), `cmd/deploy` (Direct Upload + D1 + DO), `cmd/wsload`).
+  `web/gsxui/` (behaviours + CSS entry), `workerd/` (config.capnp + local-only shims), `cmd/deploy` + `cmd/wsload` (flag parsing over kit/)).
+- `kit/` - importable packages: `cfdeploy` (Cloudflare deploy), `wsload` (WebSocket checks), `live` (Room publish, topic
+  rule), `httpx` (TinyGo-safe HTTP helpers).
 - `tasks/` - mise task files included from `mise.toml`.
 - `.plans/` - timestamped plans (see above).
+
+# kit/ (importable packages)
+
+- Other repos import `kit/*`: it must never import the app (`views`, `ui`, `cmd`, package main). `mise run test` fails if it
+  does. Keep exported APIs documented (`// Package …`, examples) and stable; errors are returned, not `log.Fatal`.
+- `kit/httpx` and `kit/live` are compiled into the Worker: TinyGo-safe only (no reflection-heavy code, no regexp in hot
+  paths). `kit/cfdeploy` and `kit/wsload` are local tooling (standard Go).
+- Tests never call Cloudflare: `kit/cfdeploy` uses an `httptest` fake of the API, `kit/wsload` a fake Room. Extend the fakes
+  when you add an API call.
+- `cmd/deploy` and `cmd/wsload` stay flag parsing only; logic goes in `kit/`.
+- The topic rule and version header live in `kit/live`; `TestWorkerJSMatchesKitLive` checks `worker/index.mjs` and
+  `worker/room.mjs` use the same.
 
 # Code Style
 

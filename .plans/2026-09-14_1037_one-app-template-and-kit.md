@@ -1,6 +1,6 @@
 # go-htmx4 as a real repo: one app, a GitHub template, importable kit packages
 
-**Status:** Phases 1–2 done; Phase 3 next · **Created:** 2026-09-14 10:37
+**Status:** Phases 1–3 done; Phase 4 next · **Created:** 2026-09-14 10:37
 
 ## Goal
 
@@ -118,12 +118,12 @@ theme toggle across all pages.
 
 ### Phase 3: `kit/` packages + CLIs
 
-- [ ] `kit/cfdeploy` from `cmd/deploy` (549 lines): a `Config` struct plus `Deploy(ctx, cfg)`; `cmd/deploy` becomes flag
+- [x] `kit/cfdeploy` from `cmd/deploy` (549 lines): a `Config` struct plus `Deploy(ctx, cfg)`; `cmd/deploy` becomes flag
       parsing only. Unit tests against an `httptest` fake of the Cloudflare endpoints (assets session, buckets, script
       upload multipart, D1 query, DO migration). No real API calls in tests.
-- [ ] `kit/wsload` from `cmd/wsload`; `kit/httpx` (Allow, WriteNode, file helpers); `kit/live` (Publish, ValidTopic
+- [x] `kit/wsload` from `cmd/wsload`; `kit/httpx` (Allow, WriteNode, file helpers); `kit/live` (Publish, ValidTopic
       shared with `index.mjs`'s regex, with a test that the two agree).
-- [ ] Package docs (`doc.go`), examples (`Example_…`), `go vet` clean, no `kit/` → app imports. **Commit.**
+- [x] Package docs (`doc.go`), examples (`Example_…`), `go vet` clean, no `kit/` → app imports. **Commit.**
 
 ### Phase 4: dev loops + tail
 
@@ -241,7 +241,34 @@ theme toggle across all pages.
 
 - [ ] **Live presence bug** on `go-htmx4-workers-demo` (1005 close echo): fixed in `worker/room.mjs`, not deployed. Either
       hotfix-deploy the old Worker (⚠ OK) or leave it to the Phase 7 cutover.
-- [ ] Phase 3 (`kit/` packages) waits for go.
+- [x] Phase 3 (`kit/` packages) waits for go. — done
 - [ ] Six orphaned headless Chrome processes from 2026-09-13 (not from this session's work) still running; left alone.
 - [ ] Report upstream to gsx: generate/fmt/dev/`gsxui add` walk into nested Go modules with the outer `gsx.toml`.
 - [ ] `demo:gsxui` Worker `go-htmx4-gsxui-demo` is still live with the old demo; deleted in Phase 7 (⚠ OK).
+
+### 2026-09-14 12:10: Phase 3 (kit/ packages)
+
+- `kit/cfdeploy`: `Config`, `NewPlan` (local: modules, asset manifest; the dry run), `Client{Token, AccountID, BaseURL,
+  HTTP, Logf}.Deploy(ctx, cfg) (url, error)`, `BuildManifest`, `AssetHash`. Same REST calls as before; errors returned
+  instead of `log.Fatal`; bindings sent in sorted order. Tests against an `httptest` fake of every endpoint used (scripts
+  list, D1 list/create/query, assets session + base64 bucket uploads with the session JWT, multipart script PUT,
+  subdomain): first deploy (D1 created, 0001 then 0002 applied, 3 assets uploaded in 2 buckets, dotfile skipped, module
+  names/content types, bindings, DO migration, completion JWT), redeploy refused without AllowExisting, redeploy with it
+  (no migrations re-applied, no DO migration resent, unchanged assets → session JWT), v1 → v2 refused, missing D1, bad
+  token, no credentials, plan for the Go-only layout, missing module, asset hash vs Cloudflare's formula.
+- `kit/wsload`: `Run(ctx, Options) (Result, error)` + `Result.OK()`; same checks and output lines. Tests against an
+  in-process fake Room (presence, pong, cached fragment): 6 sockets × 3 writes all green; missing presence reported
+  without failing the other checks; failed write returned as an error. Race detector clean.
+- `kit/live`: `TopicPattern`, `ValidTopic` (property-tested against the regexp), `VersionHeader`, `Publish` (js/wasm).
+  `kit/httpx`: `Allow`, `Render`, `WriteHTML`, `GetOnly` with tests and runnable examples.
+- `cmd/deploy`, `cmd/wsload` are flag parsing only. The app uses `httpx` and `live`. New root test
+  `TestWorkerJSMatchesKitLive`. `mise run test` fails if `kit/` imports app packages (verified by adding such an import).
+- Checks: `mise run test` green (27 ✓), deploy `-dry-run` unchanged, `mise run load` green through `kit/wsload`
+  (1,000/1,000, presence 1000 → 500, burst → 2 broadcasts, late joiner cached). TinyGo 680,043 B gzip.
+
+### Follow-ups after Phase 3 (2026-09-14 12:10)
+
+- [ ] Phase 4 (dev loops + `kit/cftail`) waits for go.
+- [ ] Live presence bug on `go-htmx4-workers-demo` still undeployed (see Phase 2 follow-ups; ⚠ OK).
+- [ ] `kit/cfdeploy` doesn't yet know rate-limit bindings (Phase 5).
+- [ ] Nothing deployed since Phase 1; the fake API tests are the only check of the refactored deploy path until Phase 7.
