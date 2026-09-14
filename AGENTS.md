@@ -29,7 +29,7 @@
   Run `mise install` first; use `mise run <task>` rather than ad-hoc commands.
 - When bumping Go, update `mise.toml`, `go.mod` (`go` + `toolchain` lines) and the README Stack table together.
 - The app is the Go module at the repo root (`github.com/joeblew999/go-htmx4`). Plan:
-  `.plans/2026-09-14_1037_one-app-template-and-kit.md`.
+  `.plans/done/2026-09-14_1037_one-app-template-and-kit.md` (released as v0.1.0).
 
 # Commands
 
@@ -129,7 +129,8 @@
   `store_{sql,mem}.go`, `platform_{js,other}.go`, `worker/index.mjs` entry + `worker/room.mjs` Durable Object, `migrations/`, `static/` (vendored htmx + hx-ws),
   `web/gsxui/` (behaviours + CSS entry), `workerd/` (config.capnp + local-only shims), `cmd/deploy` + `cmd/wsload` (flag parsing over kit/)).
 - `kit/` - importable packages: `cfdeploy` (Cloudflare deploy), `cftail` (live logs), `wsload` (WebSocket checks), `live`
-  (Room publish, topic rule), `ratelimit` (rate limiting binding), `httpx` (TinyGo-safe HTTP helpers); `kit/internal/cfapi` is their shared API client.
+  (Room publish, topic rule), `ratelimit` (rate limiting binding), `httpx` (TinyGo-safe HTTP helpers), `i18n` (locales + CLDR formatting;
+  `i18n/cldr` generated tables, `i18n/cldrgen` generator, `i18n/intltest` Intl conformance); `kit/internal/cfapi` is their shared API client.
 - `tasks/` - mise task files included from `mise.toml`.
 - `.plans/` - timestamped plans (see above).
 
@@ -144,6 +145,19 @@
 - `cmd/deploy`, `cmd/tail` and `cmd/wsload` stay flag parsing only; logic goes in `kit/`.
 - The topic rule and version header live in `kit/live`; `TestWorkerJSMatchesKitLive` checks `worker/index.mjs` and
   `worker/room.mjs` use the same.
+
+# kit/i18n (plan: `.plans/2026-09-14_1106_full-i18n.md`)
+
+- Formatting is CLDR-exact Go with Intl's option names and output, computed on the server. The client's `Intl` may only
+  enhance viewer-local text, and only with the page's `lang`.
+- `kit/i18n` (runtime) and `kit/i18n/cldr` (generated tables) compile into the Worker: sorted slices, no maps or init funcs.
+- Never hand-edit `kit/i18n/cldr/*_cldr.go`. The locale list is `I18N_LOCALES` in `mise.toml`; `mise run i18n:generate`
+  (`cmd/cldrgen`) rewrites the tables from pinned cldr-json (+ CLDR XML for root/number-system symbols).
+- Conformance is byte-for-byte against Intl. `mise run i18n:golden` (`cmd/intloracle`) records workerd's output for
+  `kit/i18n/intltest` cases in `kit/i18n/testdata/golden/workerd.json`, and `TestConformance` must stay green. Add cases
+  there before adding features. An accepted difference goes in `known` with a checkable reason.
+- `kit/i18n/cldrgen`, `kit/i18n/intltest` and their cmds are local tooling (standard Go). `intltest/oracle.mjs` is a local-only
+  workerd shim.
 
 # Code Style
 

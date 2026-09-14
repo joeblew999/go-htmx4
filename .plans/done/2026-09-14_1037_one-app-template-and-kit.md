@@ -1,6 +1,6 @@
 # go-htmx4 as a real repo: one app, a GitHub template, importable kit packages
 
-**Status:** Phases 1–7 done; Phase 8 (release) next · **Created:** 2026-09-14 10:37
+**Status:** done, released as v0.1.0 (2026-09-14) · **Created:** 2026-09-14 10:37
 
 ## Goal
 
@@ -180,10 +180,10 @@ theme toggle across all pages.
 
 ### Phase 8: release (⚠ needs OK)
 
-- [ ] ⚠ Tag `v0.1.0` and push the tag.
-- [ ] ⚠ `gh repo edit --template` and update the repo description.
-- [ ] Check a fresh `go get github.com/joeblew999/go-htmx4/kit/cfdeploy@v0.1.0` from a scratch module.
-- [ ] Move this plan to `.plans/done/`.
+- [x] ⚠ Tag `v0.1.0` and push the tag.
+- [x] ⚠ `gh repo edit --template` and update the repo description.
+- [x] Check a fresh `go get github.com/joeblew999/go-htmx4/kit/cfdeploy@v0.1.0` from a scratch module.
+- [x] Move this plan to `.plans/done/`.
 
 ## Findings
 
@@ -243,8 +243,8 @@ theme toggle across all pages.
       hotfix-deploy the old Worker (⚠ OK) or leave it to the Phase 7 cutover.
 - [x] Phase 3 (`kit/` packages) waits for go. — done
 - [x] Six orphaned headless Chrome processes from 2026-09-13 — stopped (your OK). (not from this session's work) still running; left alone.
-- [ ] Report upstream to gsx: generate/fmt/dev/`gsxui add` walk into nested Go modules with the outer `gsx.toml`.
-- [ ] `demo:gsxui` Worker `go-htmx4-gsxui-demo` is still live with the old demo; deleted in Phase 7 (⚠ OK).
+- [-] Report upstream to gsx: generate/fmt/dev/`gsxui add` walk into nested Go modules with the outer `gsx.toml`. — moved: not filed (outward-facing, ask first); rule recorded in AGENTS.md
+- [x] `demo:gsxui` Worker `go-htmx4-gsxui-demo` is still live with the old demo; deleted in Phase 7 (⚠ OK).
 
 ### 2026-09-14 12:10: Phase 3 (kit/ packages)
 
@@ -270,7 +270,7 @@ theme toggle across all pages.
 
 - [x] Phase 4 (dev loops + `kit/cftail`) waits for go. — done
 - [x] Live presence bug on `go-htmx4-workers-demo` still undeployed — hotfix deployed.
-- [ ] `kit/cfdeploy` doesn't yet know rate-limit bindings (Phase 5).
+- [x] `kit/cfdeploy` doesn't yet know rate-limit bindings (Phase 5). — done in Phase 5
 - [x] Nothing deployed since Phase 1 — the hotfix deploy went through `kit/cfdeploy` on the real account.
 
 ### 2026-09-14 12:20: hotfix + Phase 4 (dev loops, live logs)
@@ -296,7 +296,7 @@ theme toggle across all pages.
 ### Follow-ups after Phase 4 (2026-09-14 12:20)
 
 - [x] Phase 5 (rate limit, note retention, socket cap) next. — done
-- [ ] workers-go prints a "non-JS mode" warning on every native restart; harmless, upstream's message.
+- [-] workers-go prints a "non-JS mode" warning on every native restart; harmless, upstream's message. — not pursued
 
 ### 2026-09-14 12:55: Phase 5 (board abuse protection)
 
@@ -324,8 +324,8 @@ theme toggle across all pages.
 
 - [x] Phase 6 (e2e in repo + CI, rename task, README, LICENSE) next. — done
 - [x] The rate-limit upload metadata shape is unverified until the Phase 7 deploy. — verified: accepted and enforcing.
-- [ ] Ten identical "Slow down" toasts stack when someone hammers the button; acceptable, could be deduplicated later.
-- [ ] Coordination: session go-htmx4-87 (full i18n plan) shares this working tree; it waits for this commit before
+- [-] Ten identical "Slow down" toasts stack when someone hammers the button; acceptable, could be deduplicated later. — not pursued
+- [x] Coordination: session go-htmx4-87 (full i18n plan) shares this working tree; it waits for this commit before
       touching main.go/views/platform files, and will later change `worker/room.mjs` (locale-tagged sockets).
 
 ### 2026-09-14 13:25: Phase 6 (template)
@@ -353,7 +353,7 @@ theme toggle across all pages.
 
 - [x] Phase 7: deploy the new `go-htmx4` Worker + D1 (first real check of the rate-limit binding metadata), live smoke,
       e2e and 1,000-socket load against it, then delete `go-htmx4-workers-demo` (+ its D1) and `go-htmx4-gsxui-demo`.
-- [ ] CI with e2e runs on the next push; check its result once (not in the dev loop).
+- [x] CI with e2e runs on the next push; check its result once (not in the dev loop). — 58e3a5b failed (write-limit test, fixed in Phase 7), 4b1259a green with e2e
 
 ### 2026-09-14 13:40: Phase 7 (deploy + cutover, your OK)
 
@@ -376,5 +376,16 @@ theme toggle across all pages.
 
 ### Follow-ups after Phase 7 (2026-09-14 13:40)
 
-- [ ] Phase 8: tag `v0.1.0`, mark the repo as a GitHub template + description, `go get …/kit/cfdeploy@v0.1.0` check.
-- [ ] Old demo board data (D1 `go-htmx4-workers-demo`) is gone with the database, as decided; the new board starts empty.
+- [x] Phase 8: tag `v0.1.0`, mark the repo as a GitHub template + description, `go get …/kit/cfdeploy@v0.1.0` check.
+- [x] Old demo board data (D1 `go-htmx4-workers-demo`) is gone with the database, as decided; the new board starts empty.
+
+### 2026-09-14 13:55: Phase 8 (release, your OK)
+
+- **CI:** the Phase 6 run (58e3a5b) failed only on the e2e write-limit test (GitHub's runner was fast enough that all 80
+  clicks succeeded before the window filled — the same latency-dependence fixed in Phase 7). The Phase 7 run (4b1259a)
+  is **green with `mise run check` + `mise run e2e`** on GitHub's Ubuntu runner (Chrome from the image).
+- **Tag `v0.1.0`** (annotated) on 4b1259a, pushed.
+- **GitHub:** `isTemplate: true`, description "Go + htmx 4 + gsxui on Cloudflare Workers (TinyGo, D1, Durable Objects, live
+  board) — a template and importable kit, no Node", homepage https://go-htmx4.gedw99.workers.dev.
+- **Importable:** fresh module → `go get github.com/joeblew999/go-htmx4/kit/cfdeploy@v0.1.0` via proxy.golang.org →
+  builds and runs; its dependency graph from this repo is only `kit/cfdeploy`, `kit/internal/cfapi`, `kit/live`.
