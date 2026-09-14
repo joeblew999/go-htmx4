@@ -1,6 +1,6 @@
 # Get indexed by Google Search and Gemini
 
-**Status:** Phases 1–3 done; Phase 4 deploy by the i18n session (go-htmx4-87), Phase 5 needs your Google account · **Created:** 2026-09-14 09:38 · **Refreshed:** 2026-09-14 16:40
+**Status:** Phases 1–6 done (live on https://go-htmx4.ubuntusoftware.net, sitemap submitted by API); left: Google's live tests (UI), a week-later index check, docs · **Created:** 2026-09-14 09:38 · **Refreshed:** 2026-09-14 16:40
 
 Written this morning against the two demos. It was never committed, and those demos, their Workers and `page.html` are
 gone. The decisions below are kept; everything else is rewritten for the app as it is now: one Worker at
@@ -166,30 +166,41 @@ Cloudflare can block Google before a request ever reaches the Worker, so our tes
 
 ### Phase 4: deploy and verify (⚠ needs OK)
 
-- [ ] `mise run deploy`, then `smoke-remote`: `/robots.txt` is ours (no Cloudflare notice, no prepended `Disallow`), and
-      `/sitemap.xml` returns 200 once i18n Phase 8 has shipped.
-- [ ] **Real-Google check, no account needed:** `/`, `/board` and `/de/` through Google's
+- [x] `mise run deploy`, then `smoke-remote`: `/robots.txt` is ours (no Cloudflare notice, no prepended `Disallow`), and
+      `/sitemap.xml` returns 200 once i18n Phase 8 has shipped. — 7d6915f deployed by go-htmx4-87 (smoke-remote 26/26,
+      live e2e 11/11); again on the custom host with c117ad6 (26/26).
+- [ ] **Real-Google check (UI only, no API):** `/`, `/board` and `/de/` on `https://go-htmx4.ubuntusoftware.net` through Google's
       [Rich Results Test](https://search.google.com/test/rich-results), which fetches from Google's machines. The rendered HTML
       must be our page, not a Cloudflare challenge.
 
-### Phase 5: Search Console (you, in your Google account)
+### Phase 5: Search Console (by API, plus the UI for what has no API)
 
-- [ ] Add a URL-prefix property for `https://go-htmx4.gedw99.workers.dev/`. Verify with the **HTML file** method: you give
-      me `google<token>.html`, it goes in `web/root/`, then redeploy (⚠ OK).
-- [ ] Submit `sitemap.xml`. URL Inspection → *Test live URL* (real Googlebot; shows blocked fetches) → *Request indexing*.
-- [ ] A week later, note here the Pages report (indexed / excluded reasons) and **Crawl stats → Host status**, which is
-      where a Cloudflare block would show.
+- [-] URL-prefix property for workers.dev + HTML verification file — superseded: the app moved to the custom domain, which
+      your existing **Domain property `sc-domain:ubuntusoftware.net`** covers (no new verification).
+- [x] **Search Console API tooling** (go-htmx4-87, commits 7937f11, b727f75): `kit/searchconsole` (service-account JWT
+      auth, sitemaps submit/get, URL Inspection), `cmd/searchconsole`, `mise run search:sites|submit|status`
+      (`tasks/search.toml`). Service account `search-console@go-htmx4-search.iam.gserviceaccount.com` in GCP project
+      `go-htmx4-search` (no billing), key in fnox as `GOOGLE_SEARCH_CONSOLE_KEY`, added by you with Full access on
+      `sc-domain:ubuntusoftware.net`.
+- [x] Submit `https://go-htmx4.ubuntusoftware.net/sitemap.xml` — submitted and downloaded (~2026-09-14 17:10): 56 URLs,
+      0 errors, 0 warnings. URL Inspection by API: 46 "Discovered – currently not indexed", 10 "URL is unknown to Google",
+      no canonical conflicts.
+- [ ] *Test live URL* and *Request indexing* have no API: in the Search Console UI for `/`, `/board`, `/de/` (the live
+      test is the real-Googlebot fetch that would show a Cloudflare block).
+- [ ] A week later (~2026-09-21): `mise run search:status` for index coverage, plus **Crawl stats → Host status** in the UI
+      (no API), which is where a Cloudflare block would show. Note results here.
 
-### Phase 6: after a custom domain (optional; domains are parked)
+### Phase 6: custom domain (done with the [custom-domains plan](2026-09-14_0915_workers-custom-domains.md))
 
-- [ ] Point the static files at the custom hostname. 301 `*.workers.dev` → custom host in Go (keep `/healthz` exempt), or
-      disable workers.dev. Add a Domain property (DNS TXT, ⚠ OK), and run *Change of address* if workers.dev was indexed.
-- [ ] In that zone's **AI Crawl Control**:
-  - Search, Agent and Training **allowed**
-  - managed robots.txt **off**
-  - "Block AI bots" **off**
-
-  Its crawler table then shows Googlebot / Google-Agent requests and whether Cloudflare let them through.
+- [x] https://go-htmx4.ubuntusoftware.net attached (c117ad6). No static files to update: robots.txt, sitemap, canonical,
+      hreflang and og:url use the request origin. `*.workers.dev` 301s pages to it in Go (`host.go`; `/healthz`, `/live/*`
+      and form posts exempt). Domain property already existed. [-] *Change of address*: not needed (workers.dev was never
+      indexed: 0 indexed pages before the move).
+- [x] Zone security read (2026-09-14 18:25, `ubuntusoftware.net`): Bot Fight Mode off, block AI bots and crawler
+      protection off, `ai_training`/`ai_search`/`ai_user` "disabled" (no blocking rule), managed robots.txt off
+      (`policy_only`), security level low, Browser Integrity Check on (verified bots pass), no custom WAF or rate-limit
+      rules. Nothing blocks Googlebot as configured. [ ] Look at the zone's AI Crawl Control crawler table in the
+      dashboard after Google has crawled, to see Googlebot / Google-Agent requests let through.
 
 ### Phase 7: docs
 
