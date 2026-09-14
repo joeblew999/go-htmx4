@@ -1,7 +1,6 @@
 # Custom domain for the app: go-htmx4.ubuntusoftware.net
 
-**Status:** unparked 2026-09-14 17:50 ("you can use ubuntusoftware.net for the custom domain when you're ready"); Phase 1
-done, attach sequenced after the shared i18n + search deploy · **Created:** 2026-09-14 09:15
+**Status:** live on https://go-htmx4.ubuntusoftware.net (2026-09-14 18:30); Search Console left · **Created:** 2026-09-14 09:15
 
 ## Goal
 
@@ -64,7 +63,7 @@ dashboard clicks and no wrangler. Make that the one URL search engines index, so
 - [x] `APP_DOMAIN = "go-htmx4.ubuntusoftware.net"` in `mise.toml` `[env]` (`mise run rename` clears it: a renamed copy
       has no domain until its owner sets one). The `deploy` task passes `-domain "$APP_DOMAIN"` when it's set, and
       `.deploy-url` / smoke-remote use the custom host.
-- [ ] Deploy, wait for the certificate, then run `smoke-remote`, `LOAD_BASE` load (WebSockets over the custom host) and
+- [x] Deploy, wait for the certificate, then run `smoke-remote`, `LOAD_BASE` load (WebSockets over the custom host) and
       `E2E_BASE` e2e against `https://go-htmx4.ubuntusoftware.net`.
 
 ### Phase 3: one indexed host (with search plan Phase 6)
@@ -74,15 +73,39 @@ dashboard clicks and no wrangler. Make that the one URL search engines index, so
       redirect when `APP_DOMAIN` is empty (template default). — `host.go` `canonicalHost`, outermost handler; only
       `*.workers.dev` hosts redirect (never localhost, so `mise run run` with `APP_DOMAIN` in the env is unaffected);
       `TestCanonicalHost`. `APP_ENV` on Cloudflare is now plain `cloudflare` (it was `cloudflare (workers.dev)`).
-- [ ] Canonical, hreflang, sitemap and robots.txt then naturally carry the custom host (they use the request origin).
+- [x] Canonical, hreflang, sitemap and robots.txt then naturally carry the custom host (they use the request origin).
 - [ ] Search Console: confirm the existing `ubuntusoftware.net` Domain property covers the host (or add a URL-prefix
       property). Submit `https://go-htmx4.ubuntusoftware.net/sitemap.xml`.
 
 ### Phase 4: docs
 
-- [ ] README live URL → custom host; AGENTS.md: `APP_DOMAIN`, the redirect exemptions, "don't take hostnames that belong
+- [x] README live URL → custom host; AGENTS.md: `APP_DOMAIN`, the redirect exemptions, "don't take hostnames that belong
       to other Workers in the zone".
 
 ## Open questions
 
 - None blocking. If you'd rather use a different subdomain (e.g. `htmx.ubuntusoftware.net`), say so before Phase 2.
+
+## Findings (attach, 2026-09-14 18:30)
+
+- Deploy c117ad6 from a clean worktree: `✓ custom domain go-htmx4.ubuntusoftware.net attached`; Cloudflare issued the
+  certificate (`cert_id` set, `enabled`) within seconds.
+- **Live:** TLS valid; robots.txt `Sitemap:`, canonical, `og:url` and the sitemap `<loc>`s all on the custom host.
+  workers.dev: pages, robots.txt and query strings 301 to it; `/healthz` 200; POST `/greet` 200 (not redirected).
+- **Checks on the custom host:** `smoke-remote` 26/26; e2e 11/11 after one test fix; load: 1000/1000 connected and
+  delivered, presence 1000, late joiner cached. One check fell short: presence after closing 500 read 509 within its
+  5 s wait (1,000 sockets took 17.5 s to connect on this network), so it's timing, not a Room bug; re-check on a
+  faster link.
+- **This Mac's DNS cache** kept "no such host" from a lookup made before the record existed (zone negative TTL 1800 s).
+  Checks ran meanwhile with curl DNS-over-HTTPS and `GODEBUG=netdns=go`. You flushed it with
+  `sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder`.
+- **e2e write-limit test** hit its 2-minute timeout on the custom host: over a slower path, one-at-a-time writes stay
+  under 60 per 10 s, so the limiter never answered. It now sends parallel batches of 20 until one returns 429 (live: 67× 200,
+  13× 429, click 429, toast, board unchanged). In one earlier run a 70-write parallel burst from Chrome also got
+  32×503, 1×502 and 1×500; it didn't recur in two reruns or with 70 parallel curl writes on either host, and the tail
+  showed no Worker errors. Watch for it.
+- **Zone security (read-only, `ubuntusoftware.net`):** Bot Fight Mode off, block AI bots / crawler protection off,
+  Cloudflare-managed robots.txt off (`cf_robots_variant: policy_only`, only used when the origin has none — ours
+  does), security level low, Browser Integrity Check on (verified bots such as Googlebot pass), no custom WAF or
+  rate-limit rules. Nothing here blocks Googlebot; proof still has to come from Google (URL Inspection / Rich Results
+  Test).

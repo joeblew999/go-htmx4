@@ -30,12 +30,16 @@ func TestWriteLimit(t *testing.T) {
 		const version = async () => (await (await fetch("/board?topic=` + top + `")).text()).match(/data-version="(\d+)"/)[1];
 		const burst = {};
 		const tally = (s) => { burst[s] = (burst[s] ?? 0) + 1; return s; };
-		(await Promise.all(Array.from({length: 70}, post))).forEach(tally);
-		// Cloudflare's limiter is per location and eventually consistent, with fixed windows: write until it
-		// answers 429, then click at once; retry if a window boundary gets in between.
+		// Cloudflare's limiter is per location and eventually consistent, with fixed windows: send parallel batches
+		// (one at a time would stay under 60 per 10 s over a slow network) until one answers 429, then click at once;
+		// retry if a window boundary gets in between.
 		let clickStatus = 0, before = "", after = "", attempts = 0;
 		while (clickStatus !== 429 && attempts++ < 5) {
-			for (let i = 0; i < 200 && tally(await post()) !== 429; i++) {}
+			for (let batch = 0; batch < 10; batch++) {
+				const got = await Promise.all(Array.from({length: 20}, post));
+				got.forEach(tally);
+				if (got.includes(429)) break;
+			}
 			before = await version();
 			const done = new Promise(res => document.addEventListener("htmx:after:request", (e) => res(e.detail.ctx?.response?.status), {once: true}));
 			document.querySelector('button[aria-label="Increment"]').click();
