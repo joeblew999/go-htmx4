@@ -2668,6 +2668,1166 @@ var locZhHans = i18n.LocaleData{
 			Name: "繁体",
 		},
 	},
+	DateTime: i18n.DateTimeData{
+		Months:     [2][3][12]string{{{"1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月"}, {"一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月"}, {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"}}, {{"1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月"}, {"一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月"}, {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"}}},
+		Days:       [2][4][7]string{{{"周日", "周一", "周二", "周三", "周四", "周五", "周六"}, {"星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"}, {"日", "一", "二", "三", "四", "五", "六"}, {"周日", "周一", "周二", "周三", "周四", "周五", "周六"}}, {{"周日", "周一", "周二", "周三", "周四", "周五", "周六"}, {"星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"}, {"日", "一", "二", "三", "四", "五", "六"}, {"周日", "周一", "周二", "周三", "周四", "周五", "周六"}}},
+		Eras:       [3][2]string{{"公元前", "公元"}, {"公元前", "公元"}, {"公元前", "公元"}},
+		AmPm:       [3][2]string{{"上午", "下午"}, {"上午", "下午"}, {"上午", "下午"}},
+		DayPeriods: [3][10]string{{"午夜", "", "早上", "中午", "晚上", "凌晨", "上午", "下午", "", ""}, {"午夜", "", "清晨", "中午", "晚上", "凌晨", "上午", "下午", "", ""}, {"午夜", "", "早上", "中午", "晚上", "凌晨", "上午", "下午", "", ""}},
+		DayPeriodRules: i18n.DayPeriodRules{
+			Hours:    [24]int8{5, 5, 5, 5, 5, 2, 2, 2, 6, 6, 6, 6, 3, 7, 7, 7, 7, 7, 7, 4, 4, 4, 4, 4},
+			Midnight: true,
+		},
+		DateFormats:     [4]string{"y年M月d日EEEE", "y年M月d日", "y年M月d日", "y/M/d"},
+		TimeFormats:     [4]string{"zzzz HH:mm:ss", "z HH:mm:ss", "HH:mm:ss", "HH:mm"},
+		DateTimeFormats: [4]string{"{1} {0}", "{1} {0}", "{1} {0}", "{1} {0}"},
+		AtTimeFormats:   [4]string{"{1} {0}", "{1} {0}", "{1} {0}", "{1} {0}"},
+		Skeletons: []i18n.SkeletonPattern{
+			{
+				Skeleton:  "Bh",
+				Pattern:   "Bh时",
+				Specified: true,
+			},
+			{
+				Skeleton:  "Bhm",
+				Pattern:   "Bh:mm",
+				Specified: true,
+			},
+			{
+				Skeleton:  "Bhms",
+				Pattern:   "Bh:mm:ss",
+				Specified: true,
+			},
+			{
+				Skeleton: "D",
+				Pattern:  "D",
+			},
+			{
+				Skeleton:  "E",
+				Pattern:   "ccc",
+				Specified: true,
+			},
+			{
+				Skeleton:  "EBh",
+				Pattern:   "EBh时",
+				Specified: true,
+			},
+			{
+				Skeleton:  "EBhm",
+				Pattern:   "EBh:mm",
+				Specified: true,
+			},
+			{
+				Skeleton:  "EBhms",
+				Pattern:   "EBh:mm:ss",
+				Specified: true,
+			},
+			{
+				Skeleton:  "EHm",
+				Pattern:   "EHH:mm",
+				Specified: true,
+			},
+			{
+				Skeleton:  "EHms",
+				Pattern:   "EHH:mm:ss",
+				Specified: true,
+			},
+			{
+				Skeleton:  "Ed",
+				Pattern:   "d日E",
+				Specified: true,
+			},
+			{
+				Skeleton:  "Eah",
+				Pattern:   "Eah时",
+				Specified: true,
+			},
+			{
+				Skeleton:  "Eahm",
+				Pattern:   "Eah:mm",
+				Specified: true,
+			},
+			{
+				Skeleton:  "Eahms",
+				Pattern:   "Eah:mm:ss",
+				Specified: true,
+			},
+			{
+				Skeleton: "F",
+				Pattern:  "F",
+			},
+			{
+				Skeleton: "G",
+				Pattern:  "G",
+			},
+			{
+				Skeleton:  "Gy",
+				Pattern:   "Gy年",
+				Specified: true,
+			},
+			{
+				Skeleton:  "GyM",
+				Pattern:   "Gy年M月",
+				Specified: true,
+			},
+			{
+				Skeleton:  "GyMEd",
+				Pattern:   "Gy-MM-ddE",
+				Specified: true,
+			},
+			{
+				Skeleton:  "GyMMM",
+				Pattern:   "Gy年M月",
+				Specified: true,
+			},
+			{
+				Skeleton:  "GyMMMEd",
+				Pattern:   "Gy年M月d日E",
+				Specified: true,
+			},
+			{
+				Skeleton:  "GyMMMd",
+				Pattern:   "Gy年M月d日",
+				Specified: true,
+			},
+			{
+				Skeleton:  "GyMd",
+				Pattern:   "Gy-MM-dd",
+				Specified: true,
+			},
+			{
+				Skeleton:  "H",
+				Pattern:   "H时",
+				Specified: true,
+			},
+			{
+				Skeleton: "HHmmsszzzz",
+				Pattern:  "zzzz HH:mm:ss",
+				Std:      true,
+			},
+			{
+				Skeleton: "HHmmssz",
+				Pattern:  "z HH:mm:ss",
+				Std:      true,
+			},
+			{
+				Skeleton: "HHmmss",
+				Pattern:  "HH:mm:ss",
+				Std:      true,
+			},
+			{
+				Skeleton: "HHmm",
+				Pattern:  "HH:mm",
+				Std:      true,
+			},
+			{
+				Skeleton:  "Hmsv",
+				Pattern:   "vHH:mm:ss",
+				Specified: true,
+			},
+			{
+				Skeleton:  "Hmv",
+				Pattern:   "v HH:mm",
+				Specified: true,
+			},
+			{
+				Skeleton:  "Hv",
+				Pattern:   "vH时",
+				Specified: true,
+			},
+			{
+				Skeleton:  "Hm",
+				Pattern:   "HH:mm",
+				Specified: true,
+			},
+			{
+				Skeleton:  "Hms",
+				Pattern:   "HH:mm:ss",
+				Specified: true,
+			},
+			{
+				Skeleton:  "M",
+				Pattern:   "M月",
+				Specified: true,
+			},
+			{
+				Skeleton:  "MEd",
+				Pattern:   "M/dE",
+				Specified: true,
+			},
+			{
+				Skeleton:  "MMMEd",
+				Pattern:   "M月d日E",
+				Specified: true,
+			},
+			{
+				Skeleton:  "MMMMW",
+				Specified: true,
+			},
+			{
+				Skeleton:  "MMMMd",
+				Pattern:   "M月d日",
+				Specified: true,
+			},
+			{
+				Skeleton:  "MMMd",
+				Pattern:   "M月d日",
+				Specified: true,
+			},
+			{
+				Skeleton:  "MMdd",
+				Pattern:   "MM/dd",
+				Specified: true,
+			},
+			{
+				Skeleton:  "Md",
+				Pattern:   "M/d",
+				Specified: true,
+			},
+			{
+				Skeleton:  "MMM",
+				Pattern:   "LLL",
+				Specified: true,
+			},
+			{
+				Skeleton: "Q",
+				Pattern:  "Q",
+			},
+			{
+				Skeleton: "S",
+				Pattern:  "S",
+			},
+			{
+				Skeleton: "W",
+				Pattern:  "W",
+			},
+			{
+				Skeleton: "a",
+				Pattern:  "a",
+			},
+			{
+				Skeleton:  "ah",
+				Pattern:   "ah时",
+				Specified: true,
+			},
+			{
+				Skeleton:  "ahm",
+				Pattern:   "ah:mm",
+				Specified: true,
+			},
+			{
+				Skeleton:  "ahms",
+				Pattern:   "ah:mm:ss",
+				Specified: true,
+			},
+			{
+				Skeleton:  "ahmsv",
+				Pattern:   "vah:mm:ss",
+				Specified: true,
+			},
+			{
+				Skeleton:  "ahmv",
+				Pattern:   "vah:mm",
+				Specified: true,
+			},
+			{
+				Skeleton:  "ahv",
+				Pattern:   "vah时",
+				Specified: true,
+			},
+			{
+				Skeleton:  "d",
+				Pattern:   "d日",
+				Specified: true,
+			},
+			{
+				Skeleton: "m",
+				Pattern:  "m",
+			},
+			{
+				Skeleton:  "ms",
+				Pattern:   "mm:ss",
+				Specified: true,
+			},
+			{
+				Skeleton: "s",
+				Pattern:  "s",
+			},
+			{
+				Skeleton: "v",
+				Pattern:  "v",
+			},
+			{
+				Skeleton: "w",
+				Pattern:  "w",
+			},
+			{
+				Skeleton:  "y",
+				Pattern:   "y年",
+				Specified: true,
+			},
+			{
+				Skeleton:  "yMEEEEd",
+				Pattern:   "y年M月d日EEEE",
+				Specified: true,
+			},
+			{
+				Skeleton:  "yMd",
+				Pattern:   "y/M/d",
+				Specified: true,
+			},
+			{
+				Skeleton:  "yM",
+				Pattern:   "y/M",
+				Specified: true,
+			},
+			{
+				Skeleton:  "yMEd",
+				Pattern:   "y/M/dE",
+				Specified: true,
+			},
+			{
+				Skeleton:  "yMM",
+				Pattern:   "y年M月",
+				Specified: true,
+			},
+			{
+				Skeleton:  "yMMM",
+				Pattern:   "y年M月",
+				Specified: true,
+			},
+			{
+				Skeleton:  "yMMMEd",
+				Pattern:   "y年M月d日E",
+				Specified: true,
+			},
+			{
+				Skeleton:  "yMMMM",
+				Pattern:   "y年M月",
+				Specified: true,
+			},
+			{
+				Skeleton:  "yMMMd",
+				Pattern:   "y年M月d日",
+				Specified: true,
+			},
+			{
+				Skeleton:  "yQQQ",
+				Pattern:   "y年第Q季度",
+				Specified: true,
+			},
+			{
+				Skeleton:  "yQQQQ",
+				Pattern:   "y年第Q季度",
+				Specified: true,
+			},
+			{
+				Skeleton:  "yw",
+				Specified: true,
+			},
+		},
+		AppendItems:      [16]string{"{1} {0}", "{1} {0}", "{0} ({2}: {1})", "{0} ({2}: {1})", "{0} ({2}: {1})", "", "{0} {1}", "", "", "{0} ({2}: {1})", "", "{0} ({2}: {1})", "{0} ({2}: {1})", "{0} ({2}: {1})", "", "{1}{0}"},
+		FieldNames:       [16]string{"纪元", "年", "季度", "月", "周", "月中周", "星期", "年中日", "月中日", "日", "上午/下午", "小时", "分钟", "秒", "", "时区"},
+		IntervalFallback: "{0} – {1}",
+		Intervals: []i18n.IntervalFormats{
+			{
+				Skeleton:    "Bh",
+				PatternList: "\x1f\x1f\x1f\x1fBh时至Bh时\x1fBh时至h时",
+			},
+			{
+				Skeleton:    "Bhm",
+				PatternList: "\x1f\x1f\x1f\x1fBh:mm至Bh:mm\x1fBh:mm至h:mm\x1fBh:mm至h:mm",
+			},
+			{
+				Skeleton:    "Gy",
+				PatternList: "Gy年 – Gy年\x1fGy年–y年",
+			},
+			{
+				Skeleton:    "GyM",
+				PatternList: "GGGGGy-MM – GGGGGy-MM\x1fGGGGGy-MM – y-MM\x1fGGGGGy-MM – y-MM",
+			},
+			{
+				Skeleton:    "GyMEd",
+				PatternList: "GGGGGy-MM-ddE – GGGGGy-MM-ddE\x1fGGGGGy-MM-ddE – y-MM-ddE\x1fGGGGGy-MM-ddE – y-MM-ddE\x1fGGGGGy-MM-ddE – y-MM-ddE",
+			},
+			{
+				Skeleton:    "GyMMM",
+				PatternList: "Gy年MMM – Gy年MMM\x1fGy年MMM – y年MMM\x1fGy年MMM–MMM",
+			},
+			{
+				Skeleton:    "GyMMMEd",
+				PatternList: "Gy年MMMd日E – Gy年MMMd日E\x1fGy年MMMd日E – y年MMMd日E\x1fGy年MMMd日E – MMMd日E\x1fGy年MMMd日E – MMMd日E",
+			},
+			{
+				Skeleton:    "GyMMMd",
+				PatternList: "Gy年MMMd日 – Gy年MMMd日\x1fGy年MMMd日 – y年MMMd日\x1fGy年MMMd日 – MMMd日\x1fGy年MMMd–d日",
+			},
+			{
+				Skeleton:    "GyMd",
+				PatternList: "GGGGGy-MM-dd – GGGGGy-MM-dd\x1fGGGGGy-MM-dd – y-MM-dd\x1fGGGGGy-MM-dd – y-MM-dd\x1fGGGGGy-MM-dd – y-MM-dd",
+			},
+			{
+				Skeleton:    "H",
+				PatternList: "\x1f\x1f\x1f\x1f\x1fHH–HH",
+			},
+			{
+				Skeleton:    "Hm",
+				PatternList: "\x1f\x1f\x1f\x1f\x1fHH:mm–HH:mm\x1fHH:mm–HH:mm",
+			},
+			{
+				Skeleton:    "Hmv",
+				PatternList: "\x1f\x1f\x1f\x1f\x1fv HH:mm–HH:mm\x1fv HH:mm–HH:mm",
+			},
+			{
+				Skeleton:    "Hv",
+				PatternList: "\x1f\x1f\x1f\x1f\x1fv HH–HH",
+			},
+			{
+				Skeleton:    "M",
+				PatternList: "\x1f\x1fM–M月",
+			},
+			{
+				Skeleton:    "MEd",
+				PatternList: "\x1f\x1fM/dE至M/dE\x1fM/dE至M/dE",
+			},
+			{
+				Skeleton:    "MMM",
+				PatternList: "\x1f\x1fMMM – MMM",
+			},
+			{
+				Skeleton:    "MMMEd",
+				PatternList: "\x1f\x1fM月d日E至M月d日E\x1fM月d日E至d日E",
+			},
+			{
+				Skeleton:    "MMMd",
+				PatternList: "\x1f\x1fM月d日至M月d日\x1fM月d日至d日",
+			},
+			{
+				Skeleton:    "Md",
+				PatternList: "\x1f\x1fM/d – M/d\x1fM/d – M/d",
+			},
+			{
+				Skeleton:    "d",
+				PatternList: "\x1f\x1f\x1fd–d日",
+			},
+			{
+				Skeleton:    "h",
+				PatternList: "\x1f\x1f\x1f\x1fah时至ah时\x1fah时至h时",
+			},
+			{
+				Skeleton:    "hm",
+				PatternList: "\x1f\x1f\x1f\x1fah:mm至ah:mm\x1fah:mm至h:mm\x1fah:mm至h:mm",
+			},
+			{
+				Skeleton:    "hmv",
+				PatternList: "\x1f\x1f\x1f\x1fvah:mm至ah:mm\x1fvah:mm至h:mm\x1fvah:mm至h:mm",
+			},
+			{
+				Skeleton:    "hv",
+				PatternList: "\x1f\x1f\x1f\x1fvah时至ah时\x1fvah时至h时",
+			},
+			{
+				Skeleton:    "y",
+				PatternList: "\x1fy–y年",
+			},
+			{
+				Skeleton:    "yM",
+				PatternList: "\x1fy/M\u2009–\u2009y/M\x1fy/M\u2009–\u2009y/M",
+			},
+			{
+				Skeleton:    "yMEd",
+				PatternList: "\x1fy/M/dE – y/M/dE\x1fy/M/dE至y/M/dE\x1fy/M/dE至y/M/dE",
+			},
+			{
+				Skeleton:    "yMMM",
+				PatternList: "\x1fy年MMM\u2009–\u2009y年MMM\x1fy年MMM\u2009–\u2009MMM",
+			},
+			{
+				Skeleton:    "yMMMEd",
+				PatternList: "\x1fy年M月d日E至y年M月d日E\x1fy年M月d日E至M月d日E\x1fy年MMMd日E\u2009–\u2009MMMd日E",
+			},
+			{
+				Skeleton:    "yMMMM",
+				PatternList: "\x1fy年M月 – y年M月\x1fy年M月 – M月",
+			},
+			{
+				Skeleton:    "yMMMd",
+				PatternList: "\x1fy年MMMd日\u2009–\u2009y年MMMd日\x1fy年MMMd日\u2009–\u2009MMMd日\x1fy年MMMd日\u2009–\u2009d日",
+			},
+			{
+				Skeleton:    "yMd",
+				PatternList: "\x1fy/M/d – y/M/d\x1fy/M/d – y/M/d\x1fy/M/d – y/M/d",
+			},
+		},
+		Zone: i18n.ZoneStrings{
+			HourFormat:     "+HH:mm;-HH:mm",
+			GMTFormat:      "GMT{0}",
+			GMTZeroFormat:  "GMT",
+			RegionFormat:   "{0}时间",
+			FallbackFormat: "{1}（{0}）",
+			MetaZones: []i18n.ZoneNames{
+				{
+					ID:    "Acre",
+					Names: "阿克里时间\x1f阿克里标准时间\x1f阿克里夏令时间",
+				},
+				{
+					ID:    "Afghanistan",
+					Names: "\x1f阿富汗时间",
+				},
+				{
+					ID:    "Africa_Central",
+					Names: "\x1f中部非洲时间",
+				},
+				{
+					ID:    "Africa_Eastern",
+					Names: "\x1f东部非洲时间",
+				},
+				{
+					ID:    "Africa_Southern",
+					Names: "\x1f南非标准时间",
+				},
+				{
+					ID:    "Africa_Western",
+					Names: "\x1f西部非洲时间",
+				},
+				{
+					ID:    "Alaska",
+					Names: "阿拉斯加时间\x1f阿拉斯加标准时间\x1f阿拉斯加夏令时间",
+				},
+				{
+					ID:    "Almaty",
+					Names: "阿拉木图时间\x1f阿拉木图标准时间\x1f阿拉木图夏令时间",
+				},
+				{
+					ID:    "Amazon",
+					Names: "亚马逊时间\x1f亚马逊标准时间\x1f亚马逊夏令时间",
+				},
+				{
+					ID:    "America_Central",
+					Names: "北美中部时间\x1f北美中部标准时间\x1f北美中部夏令时间",
+				},
+				{
+					ID:    "America_Eastern",
+					Names: "北美东部时间\x1f北美东部标准时间\x1f北美东部夏令时间",
+				},
+				{
+					ID:    "America_Mountain",
+					Names: "北美山区时间\x1f北美山区标准时间\x1f北美山区夏令时间",
+				},
+				{
+					ID:    "America_Pacific",
+					Names: "北美太平洋时间\x1f北美太平洋标准时间\x1f北美太平洋夏令时间",
+				},
+				{
+					ID:    "Anadyr",
+					Names: "阿纳德尔时间\x1f阿纳德尔标准时间\x1f阿纳德尔夏令时间",
+				},
+				{
+					ID:    "Apia",
+					Names: "阿皮亚时间\x1f阿皮亚标准时间\x1f阿皮亚夏令时间",
+				},
+				{
+					ID:    "Aqtau",
+					Names: "阿克套时间\x1f阿克套标准时间\x1f阿克套夏令时间",
+				},
+				{
+					ID:    "Aqtobe",
+					Names: "阿克托别时间\x1f阿克托别标准时间\x1f阿克托别夏令时间",
+				},
+				{
+					ID:    "Arabian",
+					Names: "阿拉伯时间\x1f阿拉伯标准时间\x1f阿拉伯夏令时间",
+				},
+				{
+					ID:    "Argentina",
+					Names: "阿根廷时间\x1f阿根廷标准时间\x1f阿根廷夏令时间",
+				},
+				{
+					ID:    "Argentina_Western",
+					Names: "阿根廷西部时间\x1f阿根廷西部标准时间\x1f阿根廷西部夏令时间",
+				},
+				{
+					ID:    "Armenia",
+					Names: "亚美尼亚时间\x1f亚美尼亚标准时间\x1f亚美尼亚夏令时间",
+				},
+				{
+					ID:    "Atlantic",
+					Names: "大西洋时间\x1f大西洋标准时间\x1f大西洋夏令时间",
+				},
+				{
+					ID:    "Australia_Central",
+					Names: "澳大利亚中部时间\x1f澳大利亚中部标准时间\x1f澳大利亚中部夏令时间",
+				},
+				{
+					ID:    "Australia_CentralWestern",
+					Names: "澳大利亚中西部时间\x1f澳大利亚中西部标准时间\x1f澳大利亚中西部夏令时间",
+				},
+				{
+					ID:    "Australia_Eastern",
+					Names: "澳大利亚东部时间\x1f澳大利亚东部标准时间\x1f澳大利亚东部夏令时间",
+				},
+				{
+					ID:    "Australia_Western",
+					Names: "澳大利亚西部时间\x1f澳大利亚西部标准时间\x1f澳大利亚西部夏令时间",
+				},
+				{
+					ID:    "Azerbaijan",
+					Names: "阿塞拜疆时间\x1f阿塞拜疆标准时间\x1f阿塞拜疆夏令时间",
+				},
+				{
+					ID:    "Azores",
+					Names: "亚速尔群岛时间\x1f亚速尔群岛标准时间\x1f亚速尔群岛夏令时间",
+				},
+				{
+					ID:    "Bangladesh",
+					Names: "孟加拉时间\x1f孟加拉标准时间\x1f孟加拉夏令时间",
+				},
+				{
+					ID:    "Bhutan",
+					Names: "\x1f不丹时间",
+				},
+				{
+					ID:    "Bolivia",
+					Names: "\x1f玻利维亚标准时间",
+				},
+				{
+					ID:    "Brasilia",
+					Names: "巴西利亚时间\x1f巴西利亚标准时间\x1f巴西利亚夏令时间",
+				},
+				{
+					ID:    "Brunei",
+					Names: "\x1f文莱达鲁萨兰时间",
+				},
+				{
+					ID:    "Cape_Verde",
+					Names: "佛得角时间\x1f佛得角标准时间\x1f佛得角夏令时间",
+				},
+				{
+					ID:    "Casey",
+					Names: "\x1f凯西时间",
+				},
+				{
+					ID:    "Chamorro",
+					Names: "\x1f查莫罗时间",
+				},
+				{
+					ID:    "Chatham",
+					Names: "查塔姆时间\x1f查塔姆标准时间\x1f查塔姆夏令时间",
+				},
+				{
+					ID:    "Chile",
+					Names: "智利时间\x1f智利标准时间\x1f智利夏令时间",
+				},
+				{
+					ID:    "China",
+					Names: "中国时间\x1f中国标准时间\x1f中国夏令时间",
+				},
+				{
+					ID:    "Christmas",
+					Names: "\x1f圣诞岛时间",
+				},
+				{
+					ID:    "Cocos",
+					Names: "\x1f科科斯群岛时间",
+				},
+				{
+					ID:    "Colombia",
+					Names: "哥伦比亚时间\x1f哥伦比亚标准时间\x1f哥伦比亚夏令时间",
+				},
+				{
+					ID:    "Cook",
+					Names: "库克群岛时间\x1f库克群岛标准时间\x1f库克群岛仲夏时间",
+				},
+				{
+					ID:    "Cuba",
+					Names: "古巴时间\x1f古巴标准时间\x1f古巴夏令时间",
+				},
+				{
+					ID:    "Davis",
+					Names: "\x1f戴维斯时间",
+				},
+				{
+					ID:    "DumontDUrville",
+					Names: "\x1f迪蒙·迪维尔时间",
+				},
+				{
+					ID:    "East_Timor",
+					Names: "\x1f东帝汶时间",
+				},
+				{
+					ID:    "Easter",
+					Names: "复活节岛时间\x1f复活节岛标准时间\x1f复活节岛夏令时间",
+				},
+				{
+					ID:    "Ecuador",
+					Names: "\x1f厄瓜多尔标准时间",
+				},
+				{
+					ID:    "Europe_Central",
+					Names: "中欧时间\x1f中欧标准时间\x1f中欧夏令时间",
+				},
+				{
+					ID:    "Europe_Eastern",
+					Names: "东欧时间\x1f东欧标准时间\x1f东欧夏令时间",
+				},
+				{
+					ID:    "Europe_Further_Eastern",
+					Names: "\x1f欧洲极东时间",
+				},
+				{
+					ID:    "Europe_Western",
+					Names: "西欧时间\x1f西欧标准时间\x1f西欧夏令时间",
+				},
+				{
+					ID:    "Falkland",
+					Names: "福克兰群岛时间\x1f福克兰群岛标准时间\x1f福克兰群岛夏令时间",
+				},
+				{
+					ID:    "Fiji",
+					Names: "斐济时间\x1f斐济标准时间\x1f斐济夏令时间",
+				},
+				{
+					ID:    "French_Guiana",
+					Names: "\x1f法属圭亚那标准时间",
+				},
+				{
+					ID:    "French_Southern",
+					Names: "\x1f法属南方和南极领地时间",
+				},
+				{
+					ID:    "GMT",
+					Names: "\x1f格林尼治标准时间",
+				},
+				{
+					ID:    "Galapagos",
+					Names: "\x1f科隆群岛时间",
+				},
+				{
+					ID:    "Gambier",
+					Names: "\x1f甘比尔时间",
+				},
+				{
+					ID:    "Georgia",
+					Names: "格鲁吉亚时间\x1f格鲁吉亚标准时间\x1f格鲁吉亚夏令时间",
+				},
+				{
+					ID:    "Gilbert_Islands",
+					Names: "\x1f吉尔伯特群岛时间",
+				},
+				{
+					ID:    "Greenland_Eastern",
+					Names: "格陵兰岛东部时间\x1f格陵兰岛东部标准时间\x1f格陵兰岛东部夏令时间",
+				},
+				{
+					ID:    "Greenland_Western",
+					Names: "格陵兰岛西部时间\x1f格陵兰岛西部标准时间\x1f格陵兰岛西部夏令时间",
+				},
+				{
+					ID:    "Guam",
+					Names: "\x1f关岛时间",
+				},
+				{
+					ID:    "Gulf",
+					Names: "\x1f海湾标准时间",
+				},
+				{
+					ID:    "Guyana",
+					Names: "\x1f圭亚那时间",
+				},
+				{
+					ID:    "Hawaii",
+					Names: "\x1f夏威夷-阿留申标准时间",
+				},
+				{
+					ID:    "Hawaii_Aleutian",
+					Names: "夏威夷-阿留申时间\x1f夏威夷-阿留申标准时间\x1f夏威夷-阿留申夏令时间",
+				},
+				{
+					ID:    "Hong_Kong",
+					Names: "香港时间\x1f香港标准时间\x1f香港夏令时间",
+				},
+				{
+					ID:    "Hovd",
+					Names: "科布多时间\x1f科布多标准时间\x1f科布多夏令时间",
+				},
+				{
+					ID:    "India",
+					Names: "\x1f印度时间",
+				},
+				{
+					ID:    "Indian_Ocean",
+					Names: "\x1f印度洋时间",
+				},
+				{
+					ID:    "Indochina",
+					Names: "\x1f中南半岛时间",
+				},
+				{
+					ID:    "Indonesia_Central",
+					Names: "\x1f印度尼西亚中部时间",
+				},
+				{
+					ID:    "Indonesia_Eastern",
+					Names: "\x1f印度尼西亚东部时间",
+				},
+				{
+					ID:    "Indonesia_Western",
+					Names: "\x1f印度尼西亚西部时间",
+				},
+				{
+					ID:    "Iran",
+					Names: "伊朗时间\x1f伊朗标准时间\x1f伊朗夏令时间",
+				},
+				{
+					ID:    "Irkutsk",
+					Names: "伊尔库茨克时间\x1f伊尔库茨克标准时间\x1f伊尔库茨克夏令时间",
+				},
+				{
+					ID:    "Israel",
+					Names: "以色列时间\x1f以色列标准时间\x1f以色列夏令时间",
+				},
+				{
+					ID:    "Japan",
+					Names: "日本时间\x1f日本标准时间\x1f日本夏令时间",
+				},
+				{
+					ID:    "Kamchatka",
+					Names: "彼得罗巴甫洛夫斯克-堪察加时间\x1f彼得罗巴甫洛夫斯克-堪察加标准时间\x1f彼得罗巴甫洛夫斯克-堪察加夏令时间",
+				},
+				{
+					ID:    "Kazakhstan",
+					Names: "\x1f哈萨克斯坦时间",
+				},
+				{
+					ID:    "Kazakhstan_Eastern",
+					Names: "\x1f哈萨克斯坦东部时间",
+				},
+				{
+					ID:    "Kazakhstan_Western",
+					Names: "\x1f哈萨克斯坦西部时间",
+				},
+				{
+					ID:    "Korea",
+					Names: "韩国时间\x1f韩国标准时间\x1f韩国夏令时间",
+				},
+				{
+					ID:    "Kosrae",
+					Names: "\x1f科斯雷时间",
+				},
+				{
+					ID:    "Krasnoyarsk",
+					Names: "克拉斯诺亚尔斯克时间\x1f克拉斯诺亚尔斯克标准时间\x1f克拉斯诺亚尔斯克夏令时间",
+				},
+				{
+					ID:    "Kyrgystan",
+					Names: "\x1f吉尔吉斯斯坦时间",
+				},
+				{
+					ID:    "Lanka",
+					Names: "\x1f兰卡时间",
+				},
+				{
+					ID:    "Line_Islands",
+					Names: "\x1f莱恩群岛时间",
+				},
+				{
+					ID:    "Lord_Howe",
+					Names: "豪勋爵岛时间\x1f豪勋爵岛标准时间\x1f豪勋爵岛夏令时间",
+				},
+				{
+					ID:    "Macau",
+					Names: "澳门时间\x1f澳门标准时间\x1f澳门夏令时间",
+				},
+				{
+					ID:    "Magadan",
+					Names: "马加丹时间\x1f马加丹标准时间\x1f马加丹夏令时间",
+				},
+				{
+					ID:    "Malaysia",
+					Names: "\x1f马来西亚时间",
+				},
+				{
+					ID:    "Maldives",
+					Names: "\x1f马尔代夫时间",
+				},
+				{
+					ID:    "Marquesas",
+					Names: "\x1f马克萨斯群岛时间",
+				},
+				{
+					ID:    "Marshall_Islands",
+					Names: "\x1f马绍尔群岛时间",
+				},
+				{
+					ID:    "Mauritius",
+					Names: "毛里求斯时间\x1f毛里求斯标准时间\x1f毛里求斯夏令时间",
+				},
+				{
+					ID:    "Mawson",
+					Names: "\x1f莫森时间",
+				},
+				{
+					ID:    "Mexico_Pacific",
+					Names: "墨西哥太平洋时间\x1f墨西哥太平洋标准时间\x1f墨西哥太平洋夏令时间",
+				},
+				{
+					ID:    "Mongolia",
+					Names: "乌兰巴托时间\x1f乌兰巴托标准时间\x1f乌兰巴托夏令时间",
+				},
+				{
+					ID:    "Moscow",
+					Names: "莫斯科时间\x1f莫斯科标准时间\x1f莫斯科夏令时间",
+				},
+				{
+					ID:    "Myanmar",
+					Names: "\x1f缅甸时间",
+				},
+				{
+					ID:    "Nauru",
+					Names: "\x1f瑙鲁时间",
+				},
+				{
+					ID:    "Nepal",
+					Names: "\x1f尼泊尔时间",
+				},
+				{
+					ID:    "New_Caledonia",
+					Names: "新喀里多尼亚时间\x1f新喀里多尼亚标准时间\x1f新喀里多尼亚夏令时间",
+				},
+				{
+					ID:    "New_Zealand",
+					Names: "新西兰时间\x1f新西兰标准时间\x1f新西兰夏令时间",
+				},
+				{
+					ID:    "Newfoundland",
+					Names: "纽芬兰时间\x1f纽芬兰标准时间\x1f纽芬兰夏令时间",
+				},
+				{
+					ID:    "Niue",
+					Names: "\x1f纽埃时间",
+				},
+				{
+					ID:    "Norfolk",
+					Names: "诺福克岛时间\x1f诺福克岛标准时间\x1f诺福克岛夏令时间",
+				},
+				{
+					ID:    "Noronha",
+					Names: "费尔南多-迪诺罗尼亚岛时间\x1f费尔南多-迪诺罗尼亚岛标准时间\x1f费尔南多-迪诺罗尼亚岛夏令时间",
+				},
+				{
+					ID:    "North_Mariana",
+					Names: "\x1f北马里亚纳群岛时间",
+				},
+				{
+					ID:    "Novosibirsk",
+					Names: "新西伯利亚时间\x1f新西伯利亚标准时间\x1f新西伯利亚夏令时间",
+				},
+				{
+					ID:    "Omsk",
+					Names: "鄂木斯克时间\x1f鄂木斯克标准时间\x1f鄂木斯克夏令时间",
+				},
+				{
+					ID:    "Pakistan",
+					Names: "巴基斯坦时间\x1f巴基斯坦标准时间\x1f巴基斯坦夏令时间",
+				},
+				{
+					ID:    "Palau",
+					Names: "\x1f帕劳时间",
+				},
+				{
+					ID:    "Papua_New_Guinea",
+					Names: "\x1f巴布亚新几内亚时间",
+				},
+				{
+					ID:    "Paraguay",
+					Names: "巴拉圭时间\x1f巴拉圭标准时间\x1f巴拉圭夏令时间",
+				},
+				{
+					ID:    "Peru",
+					Names: "秘鲁时间\x1f秘鲁标准时间\x1f秘鲁夏令时间",
+				},
+				{
+					ID:    "Philippines",
+					Names: "菲律宾时间\x1f菲律宾标准时间\x1f菲律宾夏令时间",
+				},
+				{
+					ID:    "Phoenix_Islands",
+					Names: "\x1f菲尼克斯群岛时间",
+				},
+				{
+					ID:    "Pierre_Miquelon",
+					Names: "圣皮埃尔和密克隆群岛时间\x1f圣皮埃尔和密克隆群岛标准时间\x1f圣皮埃尔和密克隆群岛夏令时间",
+				},
+				{
+					ID:    "Pitcairn",
+					Names: "\x1f皮特凯恩时间",
+				},
+				{
+					ID:    "Ponape",
+					Names: "\x1f波纳佩时间",
+				},
+				{
+					ID:    "Pyongyang",
+					Names: "\x1f平壤时间",
+				},
+				{
+					ID:    "Qyzylorda",
+					Names: "克孜洛尔达时间\x1f克孜洛尔达标准时间\x1f克孜洛尔达夏令时间",
+				},
+				{
+					ID:    "Reunion",
+					Names: "\x1f留尼汪时间",
+				},
+				{
+					ID:    "Rothera",
+					Names: "\x1f罗瑟拉时间",
+				},
+				{
+					ID:    "Sakhalin",
+					Names: "库页岛时间\x1f库页岛标准时间\x1f库页岛夏令时间",
+				},
+				{
+					ID:    "Samara",
+					Names: "萨马拉时间\x1f萨马拉标准时间\x1f萨马拉夏令时间",
+				},
+				{
+					ID:    "Samoa",
+					Names: "萨摩亚时间\x1f萨摩亚标准时间\x1f萨摩亚夏令时间",
+				},
+				{
+					ID:    "Seychelles",
+					Names: "\x1f塞舌尔时间",
+				},
+				{
+					ID:    "Singapore",
+					Names: "\x1f新加坡标准时间",
+				},
+				{
+					ID:    "Solomon",
+					Names: "\x1f所罗门群岛时间",
+				},
+				{
+					ID:    "South_Georgia",
+					Names: "\x1f南乔治亚岛时间",
+				},
+				{
+					ID:    "Suriname",
+					Names: "\x1f苏里南时间",
+				},
+				{
+					ID:    "Syowa",
+					Names: "\x1f昭和时间",
+				},
+				{
+					ID:    "Tahiti",
+					Names: "\x1f塔希提岛时间",
+				},
+				{
+					ID:    "Taipei",
+					Names: "台北时间\x1f台北标准时间\x1f台北夏令时间",
+				},
+				{
+					ID:    "Tajikistan",
+					Names: "\x1f塔吉克斯坦时间",
+				},
+				{
+					ID:    "Tokelau",
+					Names: "\x1f托克劳时间",
+				},
+				{
+					ID:    "Tonga",
+					Names: "汤加时间\x1f汤加标准时间\x1f汤加夏令时间",
+				},
+				{
+					ID:    "Truk",
+					Names: "\x1f楚克时间",
+				},
+				{
+					ID:    "Turkey",
+					Names: "土耳其时间\x1f土耳其标准时间\x1f土耳其夏令时间",
+				},
+				{
+					ID:    "Turkmenistan",
+					Names: "土库曼斯坦时间\x1f土库曼斯坦标准时间\x1f土库曼斯坦夏令时间",
+				},
+				{
+					ID:    "Tuvalu",
+					Names: "\x1f图瓦卢时间",
+				},
+				{
+					ID:    "Uruguay",
+					Names: "乌拉圭时间\x1f乌拉圭标准时间\x1f乌拉圭夏令时间",
+				},
+				{
+					ID:    "Uzbekistan",
+					Names: "乌兹别克斯坦时间\x1f乌兹别克斯坦标准时间\x1f乌兹别克斯坦夏令时间",
+				},
+				{
+					ID:    "Vanuatu",
+					Names: "瓦努阿图时间\x1f瓦努阿图标准时间\x1f瓦努阿图夏令时间",
+				},
+				{
+					ID:    "Venezuela",
+					Names: "\x1f委内瑞拉时间",
+				},
+				{
+					ID:    "Vladivostok",
+					Names: "海参崴时间\x1f海参崴标准时间\x1f海参崴夏令时间",
+				},
+				{
+					ID:    "Volgograd",
+					Names: "伏尔加格勒时间\x1f伏尔加格勒标准时间\x1f伏尔加格勒夏令时间",
+				},
+				{
+					ID:    "Vostok",
+					Names: "\x1f沃斯托克时间",
+				},
+				{
+					ID:    "Wake",
+					Names: "\x1f威克岛时间",
+				},
+				{
+					ID:    "Wallis",
+					Names: "\x1f瓦利斯和富图纳时间",
+				},
+				{
+					ID:    "Yakutsk",
+					Names: "雅库茨克时间\x1f雅库茨克标准时间\x1f雅库茨克夏令时间",
+				},
+				{
+					ID:    "Yekaterinburg",
+					Names: "叶卡捷琳堡时间\x1f叶卡捷琳堡标准时间\x1f叶卡捷琳堡夏令时间",
+				},
+				{
+					ID:    "Yukon",
+					Names: "\x1f育空时间",
+				},
+			},
+			Zones: []i18n.ZoneNames{
+				{
+					ID:    "America/Ciudad_Juarez",
+					Names: "\x1f\x1f\x1f\x1f\x1f\x1f华雷斯城",
+				},
+				{
+					ID:    "America/Coyhaique",
+					Names: "\x1f\x1f\x1f\x1f\x1f\x1f科伊艾克",
+				},
+				{
+					ID:    "Etc/UTC",
+					Names: "\x1f协调世界时\x1f\x1f\x1fUTC",
+				},
+				{
+					ID:    "Europe/Dublin",
+					Names: "\x1f\x1f爱尔兰标准时间",
+				},
+				{
+					ID:    "Europe/London",
+					Names: "\x1f\x1f英国夏令时间",
+				},
+			},
+			RegionNames: "AD\x1e安道尔\x1fAE\x1e阿拉伯联合酋长国\x1fAF\x1e阿富汗\x1fAG\x1e安提瓜和巴布达\x1fAI\x1e安圭拉\x1fAL\x1e阿尔巴尼亚\x1fAM\x1e亚美尼亚\x1fAO\x1e安哥拉\x1fAQ\x1e南极洲\x1fAR\x1e阿根廷\x1fAS\x1e美属萨摩亚\x1fAT\x1e奥地利\x1fAU\x1e澳大利亚\x1fAW\x1e阿鲁巴\x1fAX\x1e奥兰群岛\x1fAZ\x1e阿塞拜疆\x1fBA\x1e波斯尼亚和黑塞哥维那\x1fBB\x1e巴巴多斯\x1fBD\x1e孟加拉国\x1fBE\x1e比利时\x1fBF\x1e布基纳法索\x1fBG\x1e保加利亚\x1fBH\x1e巴林\x1fBI\x1e布隆迪\x1fBJ\x1e贝宁\x1fBL\x1e圣巴泰勒米\x1fBM\x1e百慕大\x1fBN\x1e文莱\x1fBO\x1e玻利维亚\x1fBQ\x1e荷属加勒比区\x1fBR\x1e巴西\x1fBS\x1e巴哈马\x1fBT\x1e不丹\x1fBW\x1e博茨瓦纳\x1fBY\x1e白俄罗斯\x1fBZ\x1e伯利兹\x1fCA\x1e加拿大\x1fCC\x1e科科斯（基林）群岛\x1fCD\x1e刚果（金）\x1fCF\x1e中非共和国\x1fCG\x1e刚果（布）\x1fCH\x1e瑞士\x1fCI\x1e科特迪瓦\x1fCK\x1e库克群岛\x1fCL\x1e智利\x1fCM\x1e喀麦隆\x1fCN\x1e中国\x1fCO\x1e哥伦比亚\x1fCR\x1e哥斯达黎加\x1fCU\x1e古巴\x1fCV\x1e佛得角\x1fCW\x1e库拉索\x1fCX\x1e圣诞岛\x1fCY\x1e塞浦路斯\x1fCZ\x1e捷克\x1fDE\x1e德国\x1fDJ\x1e吉布提\x1fDK\x1e丹麦\x1fDM\x1e多米尼克\x1fDO\x1e多米尼加共和国\x1fDZ\x1e阿尔及利亚\x1fEC\x1e厄瓜多尔\x1fEE\x1e爱沙尼亚\x1fEG\x1e埃及\x1fEH\x1e西撒哈拉\x1fER\x1e厄立特里亚\x1fES\x1e西班牙\x1fET\x1e埃塞俄比亚\x1fFI\x1e芬兰\x1fFJ\x1e斐济\x1fFK\x1e福克兰群岛（马尔维纳斯群岛）\x1fFM\x1e密克罗尼西亚\x1fFO\x1e法罗群岛\x1fFR\x1e法国\x1fGA\x1e加蓬\x1fGB\x1e英国\x1fGD\x1e格林纳达\x1fGE\x1e格鲁吉亚\x1fGF\x1e法属圭亚那\x1fGG\x1e根西岛\x1fGH\x1e加纳\x1fGI\x1e直布罗陀\x1fGL\x1e格陵兰\x1fGM\x1e冈比亚\x1fGN\x1e几内亚\x1fGP\x1e瓜德罗普\x1fGQ\x1e赤道几内亚\x1fGR\x1e希腊\x1fGS\x1e南乔治亚和南桑威奇群岛\x1fGT\x1e危地马拉\x1fGU\x1e关岛\x1fGW\x1e几内亚比绍\x1fGY\x1e圭亚那\x1fHK\x1e香港\x1fHN\x1e洪都拉斯\x1fHR\x1e克罗地亚\x1fHT\x1e海地\x1fHU\x1e匈牙利\x1fID\x1e印度尼西亚\x1fIE\x1e爱尔兰\x1fIL\x1e以色列\x1fIM\x1e马恩岛\x1fIN\x1e印度\x1fIO\x1e英属印度洋领地\x1fIQ\x1e伊拉克\x1fIR\x1e伊朗\x1fIS\x1e冰岛\x1fIT\x1e意大利\x1fJE\x1e泽西岛\x1fJM\x1e牙买加\x1fJO\x1e约旦\x1fJP\x1e日本\x1fKE\x1e肯尼亚\x1fKG\x1e吉尔吉斯斯坦\x1fKH\x1e柬埔寨\x1fKI\x1e基里巴斯\x1fKM\x1e科摩罗\x1fKN\x1e圣基茨和尼维斯\x1fKP\x1e朝鲜\x1fKR\x1e韩国\x1fKW\x1e科威特\x1fKY\x1e开曼群岛\x1fKZ\x1e哈萨克斯坦\x1fLA\x1e老挝\x1fLB\x1e黎巴嫩\x1fLC\x1e圣卢西亚\x1fLI\x1e列支敦士登\x1fLK\x1e斯里兰卡\x1fLR\x1e利比里亚\x1fLS\x1e莱索托\x1fLT\x1e立陶宛\x1fLU\x1e卢森堡\x1fLV\x1e拉脱维亚\x1fLY\x1e利比亚\x1fMA\x1e摩洛哥\x1fMC\x1e摩纳哥\x1fMD\x1e摩尔多瓦\x1fME\x1e黑山\x1fMF\x1e法属圣马丁\x1fMG\x1e马达加斯加\x1fMH\x1e马绍尔群岛\x1fMK\x1e北马其顿\x1fML\x1e马里\x1fMM\x1e缅甸\x1fMN\x1e蒙古\x1fMO\x1e澳门\x1fMP\x1e北马里亚纳群岛\x1fMQ\x1e马提尼克\x1fMR\x1e毛里塔尼亚\x1fMS\x1e蒙特塞拉特\x1fMT\x1e马耳他\x1fMU\x1e毛里求斯\x1fMV\x1e马尔代夫\x1fMW\x1e马拉维\x1fMX\x1e墨西哥\x1fMY\x1e马来西亚\x1fMZ\x1e莫桑比克\x1fNA\x1e纳米比亚\x1fNC\x1e新喀里多尼亚\x1fNE\x1e尼日尔\x1fNF\x1e诺福克岛\x1fNG\x1e尼日利亚\x1fNI\x1e尼加拉瓜\x1fNL\x1e荷兰\x1fNO\x1e挪威\x1fNP\x1e尼泊尔\x1fNR\x1e瑙鲁\x1fNU\x1e纽埃\x1fNZ\x1e新西兰\x1fOM\x1e阿曼\x1fPA\x1e巴拿马\x1fPE\x1e秘鲁\x1fPF\x1e法属波利尼西亚\x1fPG\x1e巴布亚新几内亚\x1fPH\x1e菲律宾\x1fPK\x1e巴基斯坦\x1fPL\x1e波兰\x1fPM\x1e圣皮埃尔和密克隆群岛\x1fPN\x1e皮特凯恩群岛\x1fPR\x1e波多黎各\x1fPS\x1e巴勒斯坦\x1fPT\x1e葡萄牙\x1fPW\x1e帕劳\x1fPY\x1e巴拉圭\x1fQA\x1e卡塔尔\x1fRE\x1e留尼汪\x1fRO\x1e罗马尼亚\x1fRS\x1e塞尔维亚\x1fRU\x1e俄罗斯\x1fRW\x1e卢旺达\x1fSA\x1e沙特阿拉伯\x1fSB\x1e所罗门群岛\x1fSC\x1e塞舌尔\x1fSD\x1e苏丹\x1fSE\x1e瑞典\x1fSG\x1e新加坡\x1fSH\x1e圣赫勒拿\x1fSI\x1e斯洛文尼亚\x1fSJ\x1e斯瓦尔巴和扬马延\x1fSK\x1e斯洛伐克\x1fSL\x1e塞拉利昂\x1fSM\x1e圣马力诺\x1fSN\x1e塞内加尔\x1fSO\x1e索马里\x1fSR\x1e苏里南\x1fSS\x1e南苏丹\x1fST\x1e圣多美和普林西比\x1fSV\x1e萨尔瓦多\x1fSX\x1e荷属圣马丁\x1fSY\x1e叙利亚\x1fSZ\x1e斯威士兰\x1fTC\x1e特克斯和凯科斯群岛\x1fTD\x1e乍得\x1fTF\x1e法属南部领地\x1fTG\x1e多哥\x1fTH\x1e泰国\x1fTJ\x1e塔吉克斯坦\x1fTK\x1e托克劳\x1fTL\x1e东帝汶\x1fTM\x1e土库曼斯坦\x1fTN\x1e突尼斯\x1fTO\x1e汤加\x1fTR\x1e土耳其\x1fTT\x1e特立尼达和多巴哥\x1fTV\x1e图瓦卢\x1fTW\x1e台湾\x1fTZ\x1e坦桑尼亚\x1fUA\x1e乌克兰\x1fUG\x1e乌干达\x1fUM\x1e美国本土外小岛屿\x1fUS\x1e美国\x1fUY\x1e乌拉圭\x1fUZ\x1e乌兹别克斯坦\x1fVA\x1e梵蒂冈\x1fVC\x1e圣文森特和格林纳丁斯\x1fVE\x1e委内瑞拉\x1fVG\x1e英属维尔京群岛\x1fVI\x1e美属维尔京群岛\x1fVN\x1e越南\x1fVU\x1e瓦努阿图\x1fWF\x1e瓦利斯和富图纳\x1fWS\x1e萨摩亚\x1fYE\x1e也门\x1fYT\x1e马约特\x1fZA\x1e南非\x1fZM\x1e赞比亚\x1fZW\x1e津巴布韦",
+		},
+	},
 	Relative: i18n.RelativeData{
 		Units: [8][3]i18n.RelativeUnit{{
 			{

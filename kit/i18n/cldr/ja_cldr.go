@@ -2444,6 +2444,1191 @@ var locJa = i18n.LocaleData{
 			Name: "繁体字",
 		},
 	},
+	DateTime: i18n.DateTimeData{
+		Months:     [2][3][12]string{{{"1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月"}, {"1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月"}, {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"}}, {{"1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月"}, {"1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月"}, {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"}}},
+		Days:       [2][4][7]string{{{"日", "月", "火", "水", "木", "金", "土"}, {"日曜日", "月曜日", "火曜日", "水曜日", "木曜日", "金曜日", "土曜日"}, {"日", "月", "火", "水", "木", "金", "土"}, {"日", "月", "火", "水", "木", "金", "土"}}, {{"日", "月", "火", "水", "木", "金", "土"}, {"日曜日", "月曜日", "火曜日", "水曜日", "木曜日", "金曜日", "土曜日"}, {"日", "月", "火", "水", "木", "金", "土"}, {"日", "月", "火", "水", "木", "金", "土"}}},
+		Eras:       [3][2]string{{"紀元前", "西暦"}, {"紀元前", "西暦"}, {"BC", "AD"}},
+		AmPm:       [3][2]string{{"午前", "午後"}, {"午前", "午後"}, {"午前", "午後"}},
+		DayPeriods: [3][10]string{{"真夜中", "正午", "朝", "昼", "夕方", "夜", "", "", "", "夜中"}, {"真夜中", "正午", "朝", "昼", "夕方", "夜", "", "", "", "夜中"}, {"真夜中", "正午", "朝", "昼", "夕方", "夜", "", "", "", "夜中"}},
+		DayPeriodRules: i18n.DayPeriodRules{
+			Hours:    [24]int8{9, 9, 9, 9, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 5, 5, 5, 5, 9},
+			Midnight: true,
+			Noon:     true,
+		},
+		DateFormats:     [4]string{"y年M月d日EEEE", "y年M月d日", "y/MM/dd", "y/MM/dd"},
+		TimeFormats:     [4]string{"H時mm分ss秒 zzzz", "H:mm:ss z", "H:mm:ss", "H:mm"},
+		DateTimeFormats: [4]string{"{1} {0}", "{1} {0}", "{1} {0}", "{1} {0}"},
+		AtTimeFormats:   [4]string{"{1} {0}", "{1} {0}", "{1} {0}", "{1} {0}"},
+		Skeletons: []i18n.SkeletonPattern{
+			{
+				Skeleton:  "Bh",
+				Pattern:   "BK時",
+				Specified: true,
+			},
+			{
+				Skeleton:  "Bhm",
+				Pattern:   "BK:mm",
+				Specified: true,
+			},
+			{
+				Skeleton:  "Bhms",
+				Pattern:   "BK:mm:ss",
+				Specified: true,
+			},
+			{
+				Skeleton: "D",
+				Pattern:  "D",
+			},
+			{
+				Skeleton:  "E",
+				Pattern:   "ccc",
+				Specified: true,
+			},
+			{
+				Skeleton:  "EBh",
+				Pattern:   "BK時 (E)",
+				Specified: true,
+			},
+			{
+				Skeleton:  "EBhm",
+				Pattern:   "BK:mm (E)",
+				Specified: true,
+			},
+			{
+				Skeleton:  "EBhms",
+				Pattern:   "BK:mm:ss (E)",
+				Specified: true,
+			},
+			{
+				Skeleton:  "EEEEd",
+				Pattern:   "d日EEEE",
+				Specified: true,
+			},
+			{
+				Skeleton:  "EHm",
+				Pattern:   "H:mm (E)",
+				Specified: true,
+			},
+			{
+				Skeleton:  "EHms",
+				Pattern:   "H:mm:ss (E)",
+				Specified: true,
+			},
+			{
+				Skeleton:  "Ed",
+				Pattern:   "d日(E)",
+				Specified: true,
+			},
+			{
+				Skeleton:  "Eah",
+				Pattern:   "aK時 (E)",
+				Specified: true,
+			},
+			{
+				Skeleton:  "Eahm",
+				Pattern:   "aK:mm (E)",
+				Specified: true,
+			},
+			{
+				Skeleton:  "Eahms",
+				Pattern:   "aK:mm:ss (E)",
+				Specified: true,
+			},
+			{
+				Skeleton: "F",
+				Pattern:  "F",
+			},
+			{
+				Skeleton: "G",
+				Pattern:  "G",
+			},
+			{
+				Skeleton:  "Gy",
+				Pattern:   "Gy年",
+				Specified: true,
+			},
+			{
+				Skeleton:  "GyM",
+				Pattern:   "Gy/M",
+				Specified: true,
+			},
+			{
+				Skeleton:  "GyMEd",
+				Pattern:   "Gy/M/d(E)",
+				Specified: true,
+			},
+			{
+				Skeleton:  "GyMMM",
+				Pattern:   "Gy年M月",
+				Specified: true,
+			},
+			{
+				Skeleton:  "GyMMMEEEEd",
+				Pattern:   "Gy年M月d日EEEE",
+				Specified: true,
+			},
+			{
+				Skeleton:  "GyMMMEd",
+				Pattern:   "Gy年M月d日(E)",
+				Specified: true,
+			},
+			{
+				Skeleton:  "GyMMMd",
+				Pattern:   "Gy年M月d日",
+				Specified: true,
+			},
+			{
+				Skeleton:  "GyMd",
+				Pattern:   "Gy/M/d",
+				Specified: true,
+			},
+			{
+				Skeleton:  "H",
+				Pattern:   "H時",
+				Specified: true,
+			},
+			{
+				Skeleton: "Hmmsszzzz",
+				Pattern:  "H時mm分ss秒 zzzz",
+				Std:      true,
+			},
+			{
+				Skeleton: "Hmmssz",
+				Pattern:  "H:mm:ss z",
+				Std:      true,
+			},
+			{
+				Skeleton: "Hmmss",
+				Pattern:  "H:mm:ss",
+				Std:      true,
+			},
+			{
+				Skeleton: "Hmm",
+				Pattern:  "H:mm",
+				Std:      true,
+			},
+			{
+				Skeleton:  "Hm",
+				Pattern:   "H:mm",
+				Specified: true,
+			},
+			{
+				Skeleton:  "Hms",
+				Pattern:   "H:mm:ss",
+				Specified: true,
+			},
+			{
+				Skeleton:  "Hmsv",
+				Pattern:   "H:mm:ss v",
+				Specified: true,
+			},
+			{
+				Skeleton:  "Hmv",
+				Pattern:   "H:mm v",
+				Specified: true,
+			},
+			{
+				Skeleton:  "Hv",
+				Pattern:   "H時 v",
+				Specified: true,
+			},
+			{
+				Skeleton:  "M",
+				Pattern:   "M月",
+				Specified: true,
+			},
+			{
+				Skeleton:  "MEEEEd",
+				Pattern:   "M/dEEEE",
+				Specified: true,
+			},
+			{
+				Skeleton:  "MEd",
+				Pattern:   "M/d(E)",
+				Specified: true,
+			},
+			{
+				Skeleton:  "MMM",
+				Pattern:   "M月",
+				Specified: true,
+			},
+			{
+				Skeleton:  "MMMEEEEd",
+				Pattern:   "M月d日EEEE",
+				Specified: true,
+			},
+			{
+				Skeleton:  "MMMEd",
+				Pattern:   "M月d日(E)",
+				Specified: true,
+			},
+			{
+				Skeleton:  "MMMMW",
+				Specified: true,
+			},
+			{
+				Skeleton:  "MMMMd",
+				Pattern:   "M月d日",
+				Specified: true,
+			},
+			{
+				Skeleton:  "MMMd",
+				Pattern:   "M月d日",
+				Specified: true,
+			},
+			{
+				Skeleton:  "Md",
+				Pattern:   "M/d",
+				Specified: true,
+			},
+			{
+				Skeleton: "Q",
+				Pattern:  "Q",
+			},
+			{
+				Skeleton: "S",
+				Pattern:  "S",
+			},
+			{
+				Skeleton: "W",
+				Pattern:  "W",
+			},
+			{
+				Skeleton: "a",
+				Pattern:  "a",
+			},
+			{
+				Skeleton:  "ah",
+				Pattern:   "aK時",
+				Specified: true,
+			},
+			{
+				Skeleton:  "ahm",
+				Pattern:   "aK:mm",
+				Specified: true,
+			},
+			{
+				Skeleton:  "ahms",
+				Pattern:   "aK:mm:ss",
+				Specified: true,
+			},
+			{
+				Skeleton:  "ahmsv",
+				Pattern:   "aK:mm:ss v",
+				Specified: true,
+			},
+			{
+				Skeleton:  "ahmv",
+				Pattern:   "aK:mm v",
+				Specified: true,
+			},
+			{
+				Skeleton:  "ahv",
+				Pattern:   "aK時 v",
+				Specified: true,
+			},
+			{
+				Skeleton:  "d",
+				Pattern:   "d日",
+				Specified: true,
+			},
+			{
+				Skeleton: "m",
+				Pattern:  "m",
+			},
+			{
+				Skeleton:  "ms",
+				Pattern:   "mm:ss",
+				Specified: true,
+			},
+			{
+				Skeleton: "s",
+				Pattern:  "s",
+			},
+			{
+				Skeleton: "v",
+				Pattern:  "v",
+			},
+			{
+				Skeleton: "w",
+				Pattern:  "w",
+			},
+			{
+				Skeleton:  "y",
+				Pattern:   "y年",
+				Specified: true,
+			},
+			{
+				Skeleton:  "yMEEEEd",
+				Pattern:   "y/M/dEEEE",
+				Specified: true,
+			},
+			{
+				Skeleton:  "yMd",
+				Pattern:   "y/M/d",
+				Specified: true,
+			},
+			{
+				Skeleton:  "yM",
+				Pattern:   "y/M",
+				Specified: true,
+			},
+			{
+				Skeleton:  "yMEd",
+				Pattern:   "y/M/d(E)",
+				Specified: true,
+			},
+			{
+				Skeleton:  "yMM",
+				Pattern:   "y/MM",
+				Specified: true,
+			},
+			{
+				Skeleton:  "yMMM",
+				Pattern:   "y年M月",
+				Specified: true,
+			},
+			{
+				Skeleton:  "yMMMEEEEd",
+				Pattern:   "y年M月d日EEEE",
+				Specified: true,
+			},
+			{
+				Skeleton:  "yMMMEd",
+				Pattern:   "y年M月d日(E)",
+				Specified: true,
+			},
+			{
+				Skeleton:  "yMMMM",
+				Pattern:   "y年M月",
+				Specified: true,
+			},
+			{
+				Skeleton:  "yMMMd",
+				Pattern:   "y年M月d日",
+				Specified: true,
+			},
+			{
+				Skeleton:  "yQQQ",
+				Pattern:   "y/QQQ",
+				Specified: true,
+			},
+			{
+				Skeleton:  "yQQQQ",
+				Pattern:   "y年QQQQ",
+				Specified: true,
+			},
+			{
+				Skeleton:  "yw",
+				Specified: true,
+			},
+		},
+		AppendItems:      [16]string{"{1} {0}", "{1} {0}", "{0} ({2}: {1})", "{0} ({2}: {1})", "{0} ({2}: {1})", "", "{0} {1}", "", "", "{0} ({2}: {1})", "", "{0} ({2}: {1})", "{0} ({2}: {1})", "{0} ({2}: {1})", "", "{0} {1}"},
+		FieldNames:       [16]string{"時代", "年", "四半期", "月", "週", "月の週番号", "曜日", "年の通日", "月の曜日番号", "日", "午前/午後", "時", "分", "秒", "", "タイムゾーン"},
+		IntervalFallback: "{0}～{1}",
+		Intervals: []i18n.IntervalFormats{
+			{
+				Skeleton:    "Bh",
+				PatternList: "\x1f\x1f\x1f\x1fBK時～BK時\x1fBK時～K時",
+			},
+			{
+				Skeleton:    "Bhm",
+				PatternList: "\x1f\x1f\x1f\x1fBK:mm～BK:mm\x1fBK:mm～K:mm\x1fBK:mm～K:mm",
+			},
+			{
+				Skeleton:    "Gy",
+				PatternList: "Gy年～Gy年\x1fGy年～y年",
+			},
+			{
+				Skeleton:    "GyM",
+				PatternList: "Gy/MM～Gy/MM\x1fGy/MM～y/MM\x1fGy/MM～y/MM",
+			},
+			{
+				Skeleton:    "GyMEd",
+				PatternList: "Gy/MM/dd(E)～Gy/MM/dd(E)\x1fGy/MM/dd(E)～y/MM/dd(E)\x1fGy/MM/dd(E)～y/MM/dd(E)\x1fGy/MM/dd(E)～y/MM/dd(E)",
+			},
+			{
+				Skeleton:    "GyMMM",
+				PatternList: "Gy年M月～Gy年M月\x1fGy年M月～y年M月\x1fGy年M月～M月",
+			},
+			{
+				Skeleton:    "GyMMMEd",
+				PatternList: "Gy年M月d日(E)～Gy年M月d日(E)\x1fGy年M月d日(E)～y年M月d日(E)\x1fGy年M月d日(E)～M月d日(E)\x1fGy年M月d日(E)～d日(E)",
+			},
+			{
+				Skeleton:    "GyMMMd",
+				PatternList: "Gy年M月d日～Gy年M月d日\x1fGy年M月d日～y年M月d日\x1fGy年M月d日～M月d日\x1fGy年M月d日～d日",
+			},
+			{
+				Skeleton:    "GyMd",
+				PatternList: "Gy/MM/dd～Gy/MM/dd\x1fGy/MM/dd～y/MM/dd\x1fGy/MM/dd～y/MM/dd\x1fGy/MM/dd～y/MM/dd",
+			},
+			{
+				Skeleton:    "H",
+				PatternList: "\x1f\x1f\x1f\x1f\x1fH時～H時",
+			},
+			{
+				Skeleton:    "Hm",
+				PatternList: "\x1f\x1f\x1f\x1f\x1fH時mm分～H時mm分\x1fH時mm分～H時mm分",
+			},
+			{
+				Skeleton:    "Hmv",
+				PatternList: "\x1f\x1f\x1f\x1f\x1fH時mm分～H時mm分(v)\x1fH時mm分～H時mm分(v)",
+			},
+			{
+				Skeleton:    "Hv",
+				PatternList: "\x1f\x1f\x1f\x1f\x1fH時～H時(v)",
+			},
+			{
+				Skeleton:    "M",
+				PatternList: "\x1f\x1fM月～M月",
+			},
+			{
+				Skeleton:    "MEd",
+				PatternList: "\x1f\x1fMM/dd(E)～MM/dd(E)\x1fMM/dd(E)～MM/dd(E)",
+			},
+			{
+				Skeleton:    "MMM",
+				PatternList: "\x1f\x1fM月～M月",
+			},
+			{
+				Skeleton:    "MMMEd",
+				PatternList: "\x1f\x1fM月d日(E)～M月d日(E)\x1fM月d日(E)～d日(E)",
+			},
+			{
+				Skeleton:    "MMMM",
+				PatternList: "\x1f\x1fM月～M月",
+			},
+			{
+				Skeleton:    "MMMd",
+				PatternList: "\x1f\x1fM月d日～M月d日\x1fM月d日～d日",
+			},
+			{
+				Skeleton:    "Md",
+				PatternList: "\x1f\x1fMM/dd～MM/dd\x1fMM/dd～MM/dd",
+			},
+			{
+				Skeleton:    "d",
+				PatternList: "\x1f\x1f\x1fd日～d日",
+			},
+			{
+				Skeleton:    "h",
+				PatternList: "\x1f\x1f\x1f\x1faK時～aK時\x1faK時～K時",
+			},
+			{
+				Skeleton:    "hm",
+				PatternList: "\x1f\x1f\x1f\x1faK時mm分～aK時mm分\x1faK時mm分～K時mm分\x1faK時mm分～K時mm分",
+			},
+			{
+				Skeleton:    "hmv",
+				PatternList: "\x1f\x1f\x1f\x1faK時mm分～aK時mm分(v)\x1faK時mm分～K時mm分(v)\x1faK時mm分～K時mm分(v)",
+			},
+			{
+				Skeleton:    "hv",
+				PatternList: "\x1f\x1f\x1f\x1faK時～aK時(v)\x1faK時～K時(v)",
+			},
+			{
+				Skeleton:    "y",
+				PatternList: "\x1fy年～y年",
+			},
+			{
+				Skeleton:    "yM",
+				PatternList: "\x1fy/MM～y/MM\x1fy/MM～y/MM",
+			},
+			{
+				Skeleton:    "yMEd",
+				PatternList: "\x1fy/MM/dd(E)～y/MM/dd(E)\x1fy/MM/dd(E)～y/MM/dd(E)\x1fy/MM/dd(E)～y/MM/dd(E)",
+			},
+			{
+				Skeleton:    "yMMM",
+				PatternList: "\x1fy年M月～y年M月\x1fy年M月～M月",
+			},
+			{
+				Skeleton:    "yMMMEd",
+				PatternList: "\x1fy年M月d日(E)～y年M月d日(E)\x1fy年M月d日(E)～M月d日(E)\x1fy年M月d日(E)～d日(E)",
+			},
+			{
+				Skeleton:    "yMMMM",
+				PatternList: "\x1fy年M月～y年M月\x1fy年M月～M月",
+			},
+			{
+				Skeleton:    "yMMMd",
+				PatternList: "\x1fy年M月d日～y年M月d日\x1fy年M月d日～M月d日\x1fy年M月d日～d日",
+			},
+			{
+				Skeleton:    "yMd",
+				PatternList: "\x1fy/MM/dd～y/MM/dd\x1fy/MM/dd～y/MM/dd\x1fy/MM/dd～y/MM/dd",
+			},
+		},
+		Zone: i18n.ZoneStrings{
+			HourFormat:     "+HH:mm;-HH:mm",
+			GMTFormat:      "GMT{0}",
+			GMTZeroFormat:  "GMT",
+			RegionFormat:   "{0}時間",
+			FallbackFormat: "{1}（{0}）",
+			MetaZones: []i18n.ZoneNames{
+				{
+					ID:    "Acre",
+					Names: "アクレ時間\x1fアクレ標準時\x1fアクレ夏時間",
+				},
+				{
+					ID:    "Afghanistan",
+					Names: "\x1fアフガニスタン時間",
+				},
+				{
+					ID:    "Africa_Central",
+					Names: "\x1f中央アフリカ時間",
+				},
+				{
+					ID:    "Africa_Eastern",
+					Names: "\x1f東アフリカ時間",
+				},
+				{
+					ID:    "Africa_Southern",
+					Names: "\x1f南アフリカ標準時",
+				},
+				{
+					ID:    "Africa_Western",
+					Names: "\x1f西アフリカ時間",
+				},
+				{
+					ID:    "Alaska",
+					Names: "アラスカ時間\x1fアラスカ標準時\x1fアラスカ夏時間",
+				},
+				{
+					ID:    "Almaty",
+					Names: "アルトマイ時間\x1fアルトマイ標準時\x1fアルマトイ夏時間",
+				},
+				{
+					ID:    "Amazon",
+					Names: "アマゾン時間\x1fアマゾン標準時\x1fアマゾン夏時間",
+				},
+				{
+					ID:    "America_Central",
+					Names: "米国中部時間\x1f米国中部標準時\x1f米国中部夏時間",
+				},
+				{
+					ID:    "America_Eastern",
+					Names: "米国東部時間\x1f米国東部標準時\x1f米国東部夏時間",
+				},
+				{
+					ID:    "America_Mountain",
+					Names: "米国山岳部時間\x1f米国山岳標準時\x1f米国山岳夏時間",
+				},
+				{
+					ID:    "America_Pacific",
+					Names: "米国太平洋時間\x1f米国太平洋標準時\x1f米国太平洋夏時間",
+				},
+				{
+					ID:    "Anadyr",
+					Names: "アナディリ時間\x1fアナディリ標準時\x1fアナディリ夏時間",
+				},
+				{
+					ID:    "Apia",
+					Names: "サモア時間\x1fサモア標準時\x1fサモア夏時間",
+				},
+				{
+					ID:    "Aqtau",
+					Names: "アクタウ時間\x1fアクタウ標準時\x1fアクタウ夏時間",
+				},
+				{
+					ID:    "Aqtobe",
+					Names: "アクトベ時間\x1fアクトベ標準時\x1fアクトベ夏時間",
+				},
+				{
+					ID:    "Arabian",
+					Names: "アラビア時間\x1fアラビア標準時\x1fアラビア夏時間",
+				},
+				{
+					ID:    "Argentina",
+					Names: "アルゼンチン時間\x1fアルゼンチン標準時\x1fアルゼンチン夏時間",
+				},
+				{
+					ID:    "Argentina_Western",
+					Names: "西部アルゼンチン時間\x1f西部アルゼンチン標準時\x1f西部アルゼンチン夏時間",
+				},
+				{
+					ID:    "Armenia",
+					Names: "アルメニア時間\x1fアルメニア標準時\x1fアルメニア夏時間",
+				},
+				{
+					ID:    "Atlantic",
+					Names: "大西洋時間\x1f大西洋標準時\x1f大西洋夏時間",
+				},
+				{
+					ID:    "Australia_Central",
+					Names: "オーストラリア中部時間\x1fオーストラリア中部標準時\x1fオーストラリア中部夏時間",
+				},
+				{
+					ID:    "Australia_CentralWestern",
+					Names: "オーストラリア中西部時間\x1fオーストラリア中西部標準時\x1fオーストラリア中西部夏時間",
+				},
+				{
+					ID:    "Australia_Eastern",
+					Names: "オーストラリア東部時間\x1fオーストラリア東部標準時\x1fオーストラリア東部夏時間",
+				},
+				{
+					ID:    "Australia_Western",
+					Names: "オーストラリア西部時間\x1fオーストラリア西部標準時\x1fオーストラリア西部夏時間",
+				},
+				{
+					ID:    "Azerbaijan",
+					Names: "アゼルバイジャン時間\x1fアゼルバイジャン標準時\x1fアゼルバイジャン夏時間",
+				},
+				{
+					ID:    "Azores",
+					Names: "アゾレス時間\x1fアゾレス標準時\x1fアゾレス夏時間",
+				},
+				{
+					ID:    "Bangladesh",
+					Names: "バングラデシュ時間\x1fバングラデシュ標準時\x1fバングラデシュ夏時間",
+				},
+				{
+					ID:    "Bhutan",
+					Names: "\x1fブータン時間",
+				},
+				{
+					ID:    "Bolivia",
+					Names: "\x1fボリビア時間",
+				},
+				{
+					ID:    "Brasilia",
+					Names: "ブラジリア時間\x1fブラジリア標準時\x1fブラジリア夏時間",
+				},
+				{
+					ID:    "Brunei",
+					Names: "\x1fブルネイ時間",
+				},
+				{
+					ID:    "Cape_Verde",
+					Names: "カーボベルデ時間\x1fカーボベルデ標準時\x1fカーボベルデ夏時間",
+				},
+				{
+					ID:    "Casey",
+					Names: "\x1fケイシー基地時間",
+				},
+				{
+					ID:    "Chamorro",
+					Names: "\x1fチャモロ時間",
+				},
+				{
+					ID:    "Chatham",
+					Names: "チャタム時間\x1fチャタム標準時\x1fチャタム夏時間",
+				},
+				{
+					ID:    "Chile",
+					Names: "チリ時間\x1fチリ標準時\x1fチリ夏時間",
+				},
+				{
+					ID:    "China",
+					Names: "中国時間\x1f中国標準時\x1f中国夏時間",
+				},
+				{
+					ID:    "Christmas",
+					Names: "\x1fクリスマス島時間",
+				},
+				{
+					ID:    "Cocos",
+					Names: "\x1fココス諸島時間",
+				},
+				{
+					ID:    "Colombia",
+					Names: "コロンビア時間\x1fコロンビア標準時\x1fコロンビア夏時間",
+				},
+				{
+					ID:    "Cook",
+					Names: "クック諸島時間\x1fクック諸島標準時\x1fクック諸島夏時間",
+				},
+				{
+					ID:    "Cuba",
+					Names: "キューバ時間\x1fキューバ標準時\x1fキューバ夏時間",
+				},
+				{
+					ID:    "Davis",
+					Names: "\x1fデービス基地時間",
+				},
+				{
+					ID:    "DumontDUrville",
+					Names: "\x1fデュモン・デュルヴィル基地時間",
+				},
+				{
+					ID:    "East_Timor",
+					Names: "\x1f東ティモール時間",
+				},
+				{
+					ID:    "Easter",
+					Names: "イースター島時間\x1fイースター島標準時\x1fイースター島夏時間",
+				},
+				{
+					ID:    "Ecuador",
+					Names: "\x1fエクアドル時間",
+				},
+				{
+					ID:    "Europe_Central",
+					Names: "中央ヨーロッパ時間\x1f中央ヨーロッパ標準時\x1f中央ヨーロッパ夏時間",
+				},
+				{
+					ID:    "Europe_Eastern",
+					Names: "東ヨーロッパ時間\x1f東ヨーロッパ標準時\x1f東ヨーロッパ夏時間",
+				},
+				{
+					ID:    "Europe_Further_Eastern",
+					Names: "\x1f極東ヨーロッパ時間",
+				},
+				{
+					ID:    "Europe_Western",
+					Names: "西ヨーロッパ時間\x1f西ヨーロッパ標準時\x1f西ヨーロッパ夏時間",
+				},
+				{
+					ID:    "Falkland",
+					Names: "フォークランド諸島時間\x1fフォークランド諸島標準時\x1fフォークランド諸島夏時間",
+				},
+				{
+					ID:    "Fiji",
+					Names: "フィジー時間\x1fフィジー標準時\x1fフィジー夏時間",
+				},
+				{
+					ID:    "French_Guiana",
+					Names: "\x1f仏領ギアナ時間",
+				},
+				{
+					ID:    "French_Southern",
+					Names: "\x1f仏領南方南極時間",
+				},
+				{
+					ID:    "GMT",
+					Names: "\x1fグリニッジ標準時",
+				},
+				{
+					ID:    "Galapagos",
+					Names: "\x1fガラパゴス時間",
+				},
+				{
+					ID:    "Gambier",
+					Names: "\x1fガンビエ諸島時間",
+				},
+				{
+					ID:    "Georgia",
+					Names: "ジョージア時間\x1fジョージア標準時\x1fジョージア夏時間",
+				},
+				{
+					ID:    "Gilbert_Islands",
+					Names: "\x1fギルバート諸島時間",
+				},
+				{
+					ID:    "Greenland_Eastern",
+					Names: "グリーンランド東部時間\x1fグリーンランド東部標準時\x1fグリーンランド東部夏時間",
+				},
+				{
+					ID:    "Greenland_Western",
+					Names: "グリーンランド西部時間\x1fグリーンランド西部標準時\x1fグリーンランド西部夏時間",
+				},
+				{
+					ID:    "Guam",
+					Names: "\x1fグアム時間",
+				},
+				{
+					ID:    "Gulf",
+					Names: "\x1f湾岸標準時",
+				},
+				{
+					ID:    "Guyana",
+					Names: "\x1fガイアナ時間",
+				},
+				{
+					ID:    "Hawaii",
+					Names: "\x1fハワイ・アリューシャン標準時",
+				},
+				{
+					ID:    "Hawaii_Aleutian",
+					Names: "ハワイ・アリューシャン時間\x1fハワイ・アリューシャン標準時\x1fハワイ・アリューシャン夏時間",
+				},
+				{
+					ID:    "Hong_Kong",
+					Names: "香港時間\x1f香港標準時\x1f香港夏時間",
+				},
+				{
+					ID:    "Hovd",
+					Names: "ホブド時間\x1fホブド標準時\x1fホブド夏時間",
+				},
+				{
+					ID:    "India",
+					Names: "\x1fインド標準時",
+				},
+				{
+					ID:    "Indian_Ocean",
+					Names: "\x1fインド洋時間",
+				},
+				{
+					ID:    "Indochina",
+					Names: "\x1fインドシナ時間",
+				},
+				{
+					ID:    "Indonesia_Central",
+					Names: "\x1fインドネシア中部時間",
+				},
+				{
+					ID:    "Indonesia_Eastern",
+					Names: "\x1fインドネシア東部時間",
+				},
+				{
+					ID:    "Indonesia_Western",
+					Names: "\x1fインドネシア西部時間",
+				},
+				{
+					ID:    "Iran",
+					Names: "イラン時間\x1fイラン標準時\x1fイラン夏時間",
+				},
+				{
+					ID:    "Irkutsk",
+					Names: "イルクーツク時間\x1fイルクーツク標準時\x1fイルクーツク夏時間",
+				},
+				{
+					ID:    "Israel",
+					Names: "イスラエル時間\x1fイスラエル標準時\x1fイスラエル夏時間",
+				},
+				{
+					ID:    "Japan",
+					Names: "日本時間\x1f日本標準時\x1f日本夏時間\x1f\x1fJST\x1fJDT",
+				},
+				{
+					ID:    "Kamchatka",
+					Names: "ペトロパブロフスク・カムチャツキー時間\x1fペトロパブロフスク・カムチャツキー標準時\x1fペトロパブロフスク・カムチャツキー夏時間",
+				},
+				{
+					ID:    "Kazakhstan",
+					Names: "\x1fカザフスタン時間",
+				},
+				{
+					ID:    "Kazakhstan_Eastern",
+					Names: "\x1f東カザフスタン時間",
+				},
+				{
+					ID:    "Kazakhstan_Western",
+					Names: "\x1f西カザフスタン時間",
+				},
+				{
+					ID:    "Korea",
+					Names: "韓国時間\x1f韓国標準時\x1f韓国夏時間",
+				},
+				{
+					ID:    "Kosrae",
+					Names: "\x1fコスラエ時間",
+				},
+				{
+					ID:    "Krasnoyarsk",
+					Names: "クラスノヤルスク時間\x1fクラスノヤルスク標準時\x1fクラスノヤルスク夏時間",
+				},
+				{
+					ID:    "Kyrgystan",
+					Names: "\x1fキルギス時間",
+				},
+				{
+					ID:    "Lanka",
+					Names: "\x1fランカ時間",
+				},
+				{
+					ID:    "Line_Islands",
+					Names: "\x1fライン諸島時間",
+				},
+				{
+					ID:    "Lord_Howe",
+					Names: "ロードハウ時間\x1fロードハウ標準時\x1fロードハウ夏時間",
+				},
+				{
+					ID:    "Macau",
+					Names: "マカオ時間\x1fマカオ標準時\x1fマカオ夏時間",
+				},
+				{
+					ID:    "Magadan",
+					Names: "マガダン時間\x1fマガダン標準時\x1fマガダン夏時間",
+				},
+				{
+					ID:    "Malaysia",
+					Names: "\x1fマレーシア時間",
+				},
+				{
+					ID:    "Maldives",
+					Names: "\x1fモルディブ時間",
+				},
+				{
+					ID:    "Marquesas",
+					Names: "\x1fマルキーズ時間",
+				},
+				{
+					ID:    "Marshall_Islands",
+					Names: "\x1fマーシャル諸島時間",
+				},
+				{
+					ID:    "Mauritius",
+					Names: "モーリシャス時間\x1fモーリシャス標準時\x1fモーリシャス夏時間",
+				},
+				{
+					ID:    "Mawson",
+					Names: "\x1fモーソン基地時間",
+				},
+				{
+					ID:    "Mexico_Pacific",
+					Names: "メキシコ太平洋時間\x1fメキシコ太平洋標準時\x1fメキシコ太平洋夏時間",
+				},
+				{
+					ID:    "Mongolia",
+					Names: "ウランバートル時間\x1fウランバートル標準時\x1fウランバートル夏時間",
+				},
+				{
+					ID:    "Moscow",
+					Names: "モスクワ時間\x1fモスクワ標準時\x1fモスクワ夏時間",
+				},
+				{
+					ID:    "Myanmar",
+					Names: "\x1fミャンマー時間",
+				},
+				{
+					ID:    "Nauru",
+					Names: "\x1fナウル時間",
+				},
+				{
+					ID:    "Nepal",
+					Names: "\x1fネパール時間",
+				},
+				{
+					ID:    "New_Caledonia",
+					Names: "ニューカレドニア時間\x1fニューカレドニア標準時\x1fニューカレドニア夏時間",
+				},
+				{
+					ID:    "New_Zealand",
+					Names: "ニュージーランド時間\x1fニュージーランド標準時\x1fニュージーランド夏時間",
+				},
+				{
+					ID:    "Newfoundland",
+					Names: "ニューファンドランド時間\x1fニューファンドランド標準時\x1fニューファンドランド夏時間",
+				},
+				{
+					ID:    "Niue",
+					Names: "\x1fニウエ時間",
+				},
+				{
+					ID:    "Norfolk",
+					Names: "ノーフォーク島時間\x1fノーフォーク島標準時\x1fノーフォーク島夏時間",
+				},
+				{
+					ID:    "Noronha",
+					Names: "フェルナンド・デ・ノローニャ時間\x1fフェルナンド・デ・ノローニャ標準時\x1fフェルナンド・デ・ノローニャ夏時間",
+				},
+				{
+					ID:    "North_Mariana",
+					Names: "\x1f北マリアナ諸島時間",
+				},
+				{
+					ID:    "Novosibirsk",
+					Names: "ノヴォシビルスク時間\x1fノヴォシビルスク標準時\x1fノヴォシビルスク夏時間",
+				},
+				{
+					ID:    "Omsk",
+					Names: "オムスク時間\x1fオムスク標準時\x1fオムスク夏時間",
+				},
+				{
+					ID:    "Pakistan",
+					Names: "パキスタン時間\x1fパキスタン標準時\x1fパキスタン夏時間",
+				},
+				{
+					ID:    "Palau",
+					Names: "\x1fパラオ時間",
+				},
+				{
+					ID:    "Papua_New_Guinea",
+					Names: "\x1fパプアニューギニア時間",
+				},
+				{
+					ID:    "Paraguay",
+					Names: "パラグアイ時間\x1fパラグアイ標準時\x1fパラグアイ夏時間",
+				},
+				{
+					ID:    "Peru",
+					Names: "ペルー時間\x1fペルー標準時\x1fペルー夏時間",
+				},
+				{
+					ID:    "Philippines",
+					Names: "フィリピン時間\x1fフィリピン標準時\x1fフィリピン夏時間",
+				},
+				{
+					ID:    "Phoenix_Islands",
+					Names: "\x1fフェニックス諸島時間",
+				},
+				{
+					ID:    "Pierre_Miquelon",
+					Names: "サンピエール島・ミクロン島時間\x1fサンピエール島・ミクロン島標準時\x1fサンピエール島・ミクロン島夏時間",
+				},
+				{
+					ID:    "Pitcairn",
+					Names: "\x1fピトケアン時間",
+				},
+				{
+					ID:    "Ponape",
+					Names: "\x1fポンペイ時間",
+				},
+				{
+					ID:    "Pyongyang",
+					Names: "\x1f北朝鮮時間",
+				},
+				{
+					ID:    "Qyzylorda",
+					Names: "クズロルダ時間\x1fクズロルダ標準時\x1fクズロルダ夏時間",
+				},
+				{
+					ID:    "Reunion",
+					Names: "\x1fレユニオン時間",
+				},
+				{
+					ID:    "Rothera",
+					Names: "\x1fロゼラ基地時間",
+				},
+				{
+					ID:    "Sakhalin",
+					Names: "サハリン時間\x1fサハリン標準時\x1fサハリン夏時間",
+				},
+				{
+					ID:    "Samara",
+					Names: "サマラ時間\x1fサマラ標準時\x1fサマラ夏時間",
+				},
+				{
+					ID:    "Samoa",
+					Names: "米領サモア時間\x1f米領サモア標準時\x1f米領サモア夏時間",
+				},
+				{
+					ID:    "Seychelles",
+					Names: "\x1fセーシェル時間",
+				},
+				{
+					ID:    "Singapore",
+					Names: "\x1fシンガポール標準時",
+				},
+				{
+					ID:    "Solomon",
+					Names: "\x1fソロモン諸島時間",
+				},
+				{
+					ID:    "South_Georgia",
+					Names: "\x1fサウスジョージア時間",
+				},
+				{
+					ID:    "Suriname",
+					Names: "\x1fスリナム時間",
+				},
+				{
+					ID:    "Syowa",
+					Names: "\x1f昭和基地時間",
+				},
+				{
+					ID:    "Tahiti",
+					Names: "\x1fタヒチ時間",
+				},
+				{
+					ID:    "Taipei",
+					Names: "台湾時間\x1f台湾標準時\x1f台湾夏時間",
+				},
+				{
+					ID:    "Tajikistan",
+					Names: "\x1fタジキスタン時間",
+				},
+				{
+					ID:    "Tokelau",
+					Names: "\x1fトケラウ時間",
+				},
+				{
+					ID:    "Tonga",
+					Names: "トンガ時間\x1fトンガ標準時\x1fトンガ夏時間",
+				},
+				{
+					ID:    "Truk",
+					Names: "\x1fチューク時間",
+				},
+				{
+					ID:    "Turkey",
+					Names: "トルコ時間\x1fトルコ標準時\x1fトルコ夏時間",
+				},
+				{
+					ID:    "Turkmenistan",
+					Names: "トルクメニスタン時間\x1fトルクメニスタン標準時\x1fトルクメニスタン夏時間",
+				},
+				{
+					ID:    "Tuvalu",
+					Names: "\x1fツバル時間",
+				},
+				{
+					ID:    "Uruguay",
+					Names: "ウルグアイ時間\x1fウルグアイ標準時\x1fウルグアイ夏時間",
+				},
+				{
+					ID:    "Uzbekistan",
+					Names: "ウズベキスタン時間\x1fウズベキスタン標準時\x1fウズベキスタン夏時間",
+				},
+				{
+					ID:    "Vanuatu",
+					Names: "バヌアツ時間\x1fバヌアツ標準時\x1fバヌアツ夏時間",
+				},
+				{
+					ID:    "Venezuela",
+					Names: "\x1fベネズエラ時間",
+				},
+				{
+					ID:    "Vladivostok",
+					Names: "ウラジオストク時間\x1fウラジオストク標準時\x1fウラジオストク夏時間",
+				},
+				{
+					ID:    "Volgograd",
+					Names: "ボルゴグラード時間\x1fボルゴグラード標準時\x1fボルゴグラード夏時間",
+				},
+				{
+					ID:    "Vostok",
+					Names: "\x1fボストーク基地時間",
+				},
+				{
+					ID:    "Wake",
+					Names: "\x1fウェーク島時間",
+				},
+				{
+					ID:    "Wallis",
+					Names: "\x1fウォリス・フツナ時間",
+				},
+				{
+					ID:    "Yakutsk",
+					Names: "ヤクーツク時間\x1fヤクーツク標準時\x1fヤクーツク夏時間",
+				},
+				{
+					ID:    "Yekaterinburg",
+					Names: "エカテリンブルグ時間\x1fエカテリンブルグ標準時\x1fエカテリンブルグ夏時間",
+				},
+				{
+					ID:    "Yukon",
+					Names: "\x1fユーコン時間",
+				},
+			},
+			Zones: []i18n.ZoneNames{
+				{
+					ID:    "America/Ciudad_Juarez",
+					Names: "\x1f\x1f\x1f\x1f\x1f\x1fシウダー・フアレス",
+				},
+				{
+					ID:    "America/Coyhaique",
+					Names: "\x1f\x1f\x1f\x1f\x1f\x1fコジャイケ",
+				},
+				{
+					ID:    "Etc/UTC",
+					Names: "\x1f協定世界時\x1f\x1f\x1fUTC",
+				},
+				{
+					ID:    "Europe/Dublin",
+					Names: "\x1f\x1fアイルランド標準時",
+				},
+				{
+					ID:    "Europe/London",
+					Names: "\x1f\x1f英国夏時間",
+				},
+			},
+			RegionNames: "AD\x1eアンドラ\x1fAE\x1eアラブ首長国連邦\x1fAF\x1eアフガニスタン\x1fAG\x1eアンティグア・バーブーダ\x1fAI\x1eアンギラ\x1fAL\x1eアルバニア\x1fAM\x1eアルメニア\x1fAO\x1eアンゴラ\x1fAQ\x1e南極\x1fAR\x1eアルゼンチン\x1fAS\x1e米領サモア\x1fAT\x1eオーストリア\x1fAU\x1eオーストラリア\x1fAW\x1eアルバ\x1fAX\x1eオーランド諸島\x1fAZ\x1eアゼルバイジャン\x1fBA\x1eボスニア・ヘルツェゴビナ\x1fBB\x1eバルバドス\x1fBD\x1eバングラデシュ\x1fBE\x1eベルギー\x1fBF\x1eブルキナファソ\x1fBG\x1eブルガリア\x1fBH\x1eバーレーン\x1fBI\x1eブルンジ\x1fBJ\x1eベナン\x1fBL\x1eサン・バルテルミー\x1fBM\x1eバミューダ\x1fBN\x1eブルネイ\x1fBO\x1eボリビア\x1fBQ\x1eオランダ領カリブ\x1fBR\x1eブラジル\x1fBS\x1eバハマ\x1fBT\x1eブータン\x1fBW\x1eボツワナ\x1fBY\x1eベラルーシ\x1fBZ\x1eベリーズ\x1fCA\x1eカナダ\x1fCC\x1eココス(キーリング)諸島\x1fCD\x1eコンゴ民主共和国(キンシャサ)\x1fCF\x1e中央アフリカ共和国\x1fCG\x1eコンゴ共和国(ブラザビル)\x1fCH\x1eスイス\x1fCI\x1eコートジボワール\x1fCK\x1eクック諸島\x1fCL\x1eチリ\x1fCM\x1eカメルーン\x1fCN\x1e中国\x1fCO\x1eコロンビア\x1fCR\x1eコスタリカ\x1fCU\x1eキューバ\x1fCV\x1eカーボベルデ\x1fCW\x1eキュラソー\x1fCX\x1eクリスマス島\x1fCY\x1eキプロス\x1fCZ\x1eチェコ\x1fDE\x1eドイツ\x1fDJ\x1eジブチ\x1fDK\x1eデンマーク\x1fDM\x1eドミニカ国\x1fDO\x1eドミニカ共和国\x1fDZ\x1eアルジェリア\x1fEC\x1eエクアドル\x1fEE\x1eエストニア\x1fEG\x1eエジプト\x1fEH\x1e西サハラ\x1fER\x1eエリトリア\x1fES\x1eスペイン\x1fET\x1eエチオピア\x1fFI\x1eフィンランド\x1fFJ\x1eフィジー\x1fFK\x1eフォークランド諸島 (マルビーナス諸島)\x1fFM\x1eミクロネシア連邦\x1fFO\x1eフェロー諸島\x1fFR\x1eフランス\x1fGA\x1eガボン\x1fGB\x1eイギリス\x1fGD\x1eグレナダ\x1fGE\x1eジョージア\x1fGF\x1e仏領ギアナ\x1fGG\x1eガーンジー\x1fGH\x1eガーナ\x1fGI\x1eジブラルタル\x1fGL\x1eグリーンランド\x1fGM\x1eガンビア\x1fGN\x1eギニア\x1fGP\x1eグアドループ\x1fGQ\x1e赤道ギニア\x1fGR\x1eギリシャ\x1fGS\x1eサウスジョージア・サウスサンドウィッチ諸島\x1fGT\x1eグアテマラ\x1fGU\x1eグアム\x1fGW\x1eギニアビサウ\x1fGY\x1eガイアナ\x1fHK\x1e香港\x1fHN\x1eホンジュラス\x1fHR\x1eクロアチア\x1fHT\x1eハイチ\x1fHU\x1eハンガリー\x1fID\x1eインドネシア\x1fIE\x1eアイルランド\x1fIL\x1eイスラエル\x1fIM\x1eマン島\x1fIN\x1eインド\x1fIO\x1e英領インド洋地域\x1fIQ\x1eイラク\x1fIR\x1eイラン\x1fIS\x1eアイスランド\x1fIT\x1eイタリア\x1fJE\x1eジャージー\x1fJM\x1eジャマイカ\x1fJO\x1eヨルダン\x1fJP\x1e日本\x1fKE\x1eケニア\x1fKG\x1eキルギス\x1fKH\x1eカンボジア\x1fKI\x1eキリバス\x1fKM\x1eコモロ\x1fKN\x1eセントクリストファー・ネーヴィス\x1fKP\x1e北朝鮮\x1fKR\x1e韓国\x1fKW\x1eクウェート\x1fKY\x1eケイマン諸島\x1fKZ\x1eカザフスタン\x1fLA\x1eラオス\x1fLB\x1eレバノン\x1fLC\x1eセントルシア\x1fLI\x1eリヒテンシュタイン\x1fLK\x1eスリランカ\x1fLR\x1eリベリア\x1fLS\x1eレソト\x1fLT\x1eリトアニア\x1fLU\x1eルクセンブルク\x1fLV\x1eラトビア\x1fLY\x1eリビア\x1fMA\x1eモロッコ\x1fMC\x1eモナコ\x1fMD\x1eモルドバ\x1fME\x1eモンテネグロ\x1fMF\x1eサン・マルタン\x1fMG\x1eマダガスカル\x1fMH\x1eマーシャル諸島\x1fMK\x1e北マケドニア\x1fML\x1eマリ\x1fMM\x1eミャンマー (ビルマ)\x1fMN\x1eモンゴル\x1fMO\x1eマカオ\x1fMP\x1e北マリアナ諸島\x1fMQ\x1eマルティニーク\x1fMR\x1eモーリタニア\x1fMS\x1eモントセラト\x1fMT\x1eマルタ\x1fMU\x1eモーリシャス\x1fMV\x1eモルディブ\x1fMW\x1eマラウイ\x1fMX\x1eメキシコ\x1fMY\x1eマレーシア\x1fMZ\x1eモザンビーク\x1fNA\x1eナミビア\x1fNC\x1eニューカレドニア\x1fNE\x1eニジェール\x1fNF\x1eノーフォーク島\x1fNG\x1eナイジェリア\x1fNI\x1eニカラグア\x1fNL\x1eオランダ\x1fNO\x1eノルウェー\x1fNP\x1eネパール\x1fNR\x1eナウル\x1fNU\x1eニウエ\x1fNZ\x1eニュージーランド\x1fOM\x1eオマーン\x1fPA\x1eパナマ\x1fPE\x1eペルー\x1fPF\x1e仏領ポリネシア\x1fPG\x1eパプアニューギニア\x1fPH\x1eフィリピン\x1fPK\x1eパキスタン\x1fPL\x1eポーランド\x1fPM\x1eサンピエール島・ミクロン島\x1fPN\x1eピトケアン諸島\x1fPR\x1eプエルトリコ\x1fPS\x1eパレスチナ\x1fPT\x1eポルトガル\x1fPW\x1eパラオ\x1fPY\x1eパラグアイ\x1fQA\x1eカタール\x1fRE\x1eレユニオン\x1fRO\x1eルーマニア\x1fRS\x1eセルビア\x1fRU\x1eロシア\x1fRW\x1eルワンダ\x1fSA\x1eサウジアラビア\x1fSB\x1eソロモン諸島\x1fSC\x1eセーシェル\x1fSD\x1eスーダン\x1fSE\x1eスウェーデン\x1fSG\x1eシンガポール\x1fSH\x1eセントヘレナ\x1fSI\x1eスロベニア\x1fSJ\x1eスバールバル諸島・ヤンマイエン島\x1fSK\x1eスロバキア\x1fSL\x1eシエラレオネ\x1fSM\x1eサンマリノ\x1fSN\x1eセネガル\x1fSO\x1eソマリア\x1fSR\x1eスリナム\x1fSS\x1e南スーダン\x1fST\x1eサントメ・プリンシペ\x1fSV\x1eエルサルバドル\x1fSX\x1eシント・マールテン\x1fSY\x1eシリア\x1fSZ\x1eエスワティニ\x1fTC\x1eタークス・カイコス諸島\x1fTD\x1eチャド\x1fTF\x1e仏領極南諸島\x1fTG\x1eトーゴ\x1fTH\x1eタイ\x1fTJ\x1eタジキスタン\x1fTK\x1eトケラウ\x1fTL\x1e東ティモール\x1fTM\x1eトルクメニスタン\x1fTN\x1eチュニジア\x1fTO\x1eトンガ\x1fTR\x1eトルコ\x1fTT\x1eトリニダード・トバゴ\x1fTV\x1eツバル\x1fTW\x1e台湾\x1fTZ\x1eタンザニア\x1fUA\x1eウクライナ\x1fUG\x1eウガンダ\x1fUM\x1e合衆国領有小離島\x1fUS\x1eアメリカ合衆国\x1fUY\x1eウルグアイ\x1fUZ\x1eウズベキスタン\x1fVA\x1eバチカン市国\x1fVC\x1eセントビンセント及びグレナディーン諸島\x1fVE\x1eベネズエラ\x1fVG\x1e英領ヴァージン諸島\x1fVI\x1e米領ヴァージン諸島\x1fVN\x1eベトナム\x1fVU\x1eバヌアツ\x1fWF\x1eウォリス・フツナ\x1fWS\x1eサモア\x1fYE\x1eイエメン\x1fYT\x1eマヨット\x1fZA\x1e南アフリカ\x1fZM\x1eザンビア\x1fZW\x1eジンバブエ",
+		},
+	},
 	Relative: i18n.RelativeData{
 		Units: [8][3]i18n.RelativeUnit{{
 			{

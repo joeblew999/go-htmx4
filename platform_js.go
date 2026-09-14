@@ -5,6 +5,7 @@ package main
 import (
 	"database/sql"
 	"net/http"
+	_ "time/tzdata" // IANA zones for kit/i18n DateTimeFormat: time.LoadLocation has no zoneinfo files on wasm
 
 	"github.com/joeblew999/go-htmx4/kit/live"
 	"github.com/syumai/workers-go/cloudflare"

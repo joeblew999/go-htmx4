@@ -2581,6 +2581,1154 @@ var locHe = i18n.LocaleData{
 			Name: "מסורתי",
 		},
 	},
+	DateTime: i18n.DateTimeData{
+		Months:     [2][3][12]string{{{"ינו׳", "פבר׳", "מרץ", "אפר׳", "מאי", "יוני", "יולי", "אוג׳", "ספט׳", "אוק׳", "נוב׳", "דצמ׳"}, {"ינואר", "פברואר", "מרץ", "אפריל", "מאי", "יוני", "יולי", "אוגוסט", "ספטמבר", "אוקטובר", "נובמבר", "דצמבר"}, {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"}}, {{"ינו׳", "פבר׳", "מרץ", "אפר׳", "מאי", "יוני", "יולי", "אוג׳", "ספט׳", "אוק׳", "נוב׳", "דצמ׳"}, {"ינואר", "פברואר", "מרץ", "אפריל", "מאי", "יוני", "יולי", "אוגוסט", "ספטמבר", "אוקטובר", "נובמבר", "דצמבר"}, {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"}}},
+		Days:       [2][4][7]string{{{"יום א׳", "יום ב׳", "יום ג׳", "יום ד׳", "יום ה׳", "יום ו׳", "שבת"}, {"יום ראשון", "יום שני", "יום שלישי", "יום רביעי", "יום חמישי", "יום שישי", "יום שבת"}, {"א׳", "ב׳", "ג׳", "ד׳", "ה׳", "ו׳", "ש׳"}, {"א׳", "ב׳", "ג׳", "ד׳", "ה׳", "ו׳", "ש׳"}}, {{"יום א׳", "יום ב׳", "יום ג׳", "יום ד׳", "יום ה׳", "יום ו׳", "שבת"}, {"יום ראשון", "יום שני", "יום שלישי", "יום רביעי", "יום חמישי", "יום שישי", "יום שבת"}, {"א׳", "ב׳", "ג׳", "ד׳", "ה׳", "ו׳", "ש׳"}, {"א׳", "ב׳", "ג׳", "ד׳", "ה׳", "ו׳", "ש׳"}}},
+		Eras:       [3][2]string{{"לפנה״ס", "לספירה"}, {"לפני הספירה", "לספירה"}, {"לפני", "אחריי"}},
+		AmPm:       [3][2]string{{"AM", "PM"}, {"AM", "PM"}, {"AM", "PM"}},
+		DayPeriods: [3][10]string{{"חצות", "", "בוקר", "צהריים", "ערב", "לילה", "", "אחר הצהריים", "", "לפנות בוקר"}, {"חצות", "", "בבוקר", "בצהריים", "בערב", "בלילה", "", "אחר הצהריים", "", "לפנות בוקר"}, {"חצות", "", "בבוקר", "בצהריים", "בערב", "בלילה", "", "אחה״צ", "", "לפנות בוקר"}},
+		DayPeriodRules: i18n.DayPeriodRules{
+			Hours:    [24]int8{5, 5, 5, 9, 9, 9, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 7, 7, 4, 4, 4, 4, 5, 5},
+			Midnight: true,
+		},
+		DateFormats:     [4]string{"EEEE, d בMMMM y", "d בMMMM y", "d בMMM y", "d.M.y"},
+		TimeFormats:     [4]string{"H:mm:ss zzzz", "H:mm:ss z", "H:mm:ss", "H:mm"},
+		DateTimeFormats: [4]string{"{1}, {0}", "{1}, {0}", "{1}, {0}", "{1}, {0}"},
+		AtTimeFormats:   [4]string{"{1} בשעה {0}", "{1} בשעה {0}", "{1}, {0}", "{1}, {0}"},
+		Skeletons: []i18n.SkeletonPattern{
+			{
+				Skeleton:  "Bh",
+				Pattern:   "h B",
+				Specified: true,
+			},
+			{
+				Skeleton:  "Bhm",
+				Pattern:   "h:mm B",
+				Specified: true,
+			},
+			{
+				Skeleton:  "Bhms",
+				Pattern:   "h:mm:ss B",
+				Specified: true,
+			},
+			{
+				Skeleton: "D",
+				Pattern:  "D",
+			},
+			{
+				Skeleton:  "E",
+				Pattern:   "ccc",
+				Specified: true,
+			},
+			{
+				Skeleton:  "EHm",
+				Pattern:   "E H:mm",
+				Specified: true,
+			},
+			{
+				Skeleton:  "EHms",
+				Pattern:   "E H:mm:ss",
+				Specified: true,
+			},
+			{
+				Skeleton:  "Ed",
+				Pattern:   "E ה-d",
+				Specified: true,
+			},
+			{
+				Skeleton:  "EBh",
+				Pattern:   "E h B",
+				Specified: true,
+			},
+			{
+				Skeleton:  "EBhm",
+				Pattern:   "E h:mm B",
+				Specified: true,
+			},
+			{
+				Skeleton:  "EBhms",
+				Pattern:   "E h:mm:ss B",
+				Specified: true,
+			},
+			{
+				Skeleton:  "Eah",
+				Pattern:   "E h\u202fa",
+				Specified: true,
+			},
+			{
+				Skeleton:  "Eahm",
+				Pattern:   "E h:mm a",
+				Specified: true,
+			},
+			{
+				Skeleton:  "Eahms",
+				Pattern:   "E h:mm:ss a",
+				Specified: true,
+			},
+			{
+				Skeleton: "F",
+				Pattern:  "F",
+			},
+			{
+				Skeleton: "G",
+				Pattern:  "G",
+			},
+			{
+				Skeleton:  "Gy",
+				Pattern:   "y G",
+				Specified: true,
+			},
+			{
+				Skeleton:  "GyMMM",
+				Pattern:   "MMM y G",
+				Specified: true,
+			},
+			{
+				Skeleton:  "GyMMMEd",
+				Pattern:   "E, d בMMM y G",
+				Specified: true,
+			},
+			{
+				Skeleton:  "GyMMMd",
+				Pattern:   "d בMMM y G",
+				Specified: true,
+			},
+			{
+				Skeleton:  "GyMd",
+				Pattern:   "d/M/y G",
+				Specified: true,
+			},
+			{
+				Skeleton:  "GyM",
+				Pattern:   "G y-MM",
+				Specified: true,
+			},
+			{
+				Skeleton:  "GyMEd",
+				Pattern:   "G y-MM-dd, E",
+				Specified: true,
+			},
+			{
+				Skeleton:  "H",
+				Pattern:   "H",
+				Specified: true,
+			},
+			{
+				Skeleton: "Hmmsszzzz",
+				Pattern:  "H:mm:ss zzzz",
+				Std:      true,
+			},
+			{
+				Skeleton: "Hmmssz",
+				Pattern:  "H:mm:ss z",
+				Std:      true,
+			},
+			{
+				Skeleton: "Hmmss",
+				Pattern:  "H:mm:ss",
+				Std:      true,
+			},
+			{
+				Skeleton: "Hmm",
+				Pattern:  "H:mm",
+				Std:      true,
+			},
+			{
+				Skeleton:  "Hm",
+				Pattern:   "H:mm",
+				Specified: true,
+			},
+			{
+				Skeleton:  "Hms",
+				Pattern:   "H:mm:ss",
+				Specified: true,
+			},
+			{
+				Skeleton:  "Hv",
+				Pattern:   "H v",
+				Specified: true,
+			},
+			{
+				Skeleton:  "Hmsv",
+				Pattern:   "HH:mm:ss v",
+				Specified: true,
+			},
+			{
+				Skeleton:  "Hmv",
+				Pattern:   "HH:mm v",
+				Specified: true,
+			},
+			{
+				Skeleton:  "M",
+				Pattern:   "L",
+				Specified: true,
+			},
+			{
+				Skeleton:  "MEd",
+				Pattern:   "E, d.M",
+				Specified: true,
+			},
+			{
+				Skeleton:  "MMMEd",
+				Pattern:   "E, d בMMM",
+				Specified: true,
+			},
+			{
+				Skeleton:  "MMMMW",
+				Specified: true,
+			},
+			{
+				Skeleton:  "MMMMd",
+				Pattern:   "d בMMMM",
+				Specified: true,
+			},
+			{
+				Skeleton:  "MMMd",
+				Pattern:   "d בMMM",
+				Specified: true,
+			},
+			{
+				Skeleton:  "Md",
+				Pattern:   "d.M",
+				Specified: true,
+			},
+			{
+				Skeleton:  "MMM",
+				Pattern:   "LLL",
+				Specified: true,
+			},
+			{
+				Skeleton: "Q",
+				Pattern:  "Q",
+			},
+			{
+				Skeleton: "S",
+				Pattern:  "S",
+			},
+			{
+				Skeleton: "W",
+				Pattern:  "W",
+			},
+			{
+				Skeleton: "a",
+				Pattern:  "a",
+			},
+			{
+				Skeleton:  "ah",
+				Pattern:   "\u200fh a",
+				Specified: true,
+			},
+			{
+				Skeleton:  "ahm",
+				Pattern:   "h:mm a",
+				Specified: true,
+			},
+			{
+				Skeleton:  "ahms",
+				Pattern:   "h:mm:ss a",
+				Specified: true,
+			},
+			{
+				Skeleton:  "ahmsv",
+				Pattern:   "h:mm:ss a v",
+				Specified: true,
+			},
+			{
+				Skeleton:  "ahmv",
+				Pattern:   "h:mm a v",
+				Specified: true,
+			},
+			{
+				Skeleton:  "ahv",
+				Pattern:   "h\u202fa v",
+				Specified: true,
+			},
+			{
+				Skeleton:  "d",
+				Pattern:   "d",
+				Specified: true,
+			},
+			{
+				Skeleton: "m",
+				Pattern:  "m",
+			},
+			{
+				Skeleton:  "ms",
+				Pattern:   "mm:ss",
+				Specified: true,
+			},
+			{
+				Skeleton: "s",
+				Pattern:  "s",
+			},
+			{
+				Skeleton: "v",
+				Pattern:  "v",
+			},
+			{
+				Skeleton: "w",
+				Pattern:  "w",
+			},
+			{
+				Skeleton:  "y",
+				Pattern:   "y",
+				Specified: true,
+			},
+			{
+				Skeleton: "yMMMMEEEEd",
+				Pattern:  "EEEE, d בMMMM y",
+				Std:      true,
+			},
+			{
+				Skeleton: "yMMMMd",
+				Pattern:  "d בMMMM y",
+				Std:      true,
+			},
+			{
+				Skeleton:  "yMMMd",
+				Pattern:   "d בMMM y",
+				Specified: true,
+			},
+			{
+				Skeleton:  "yMd",
+				Pattern:   "d.M.y",
+				Specified: true,
+			},
+			{
+				Skeleton:  "yM",
+				Pattern:   "M.y",
+				Specified: true,
+			},
+			{
+				Skeleton:  "yMEd",
+				Pattern:   "E, d.M.y",
+				Specified: true,
+			},
+			{
+				Skeleton:  "yMM",
+				Pattern:   "M.y",
+				Specified: true,
+			},
+			{
+				Skeleton:  "yMMM",
+				Pattern:   "MMM y",
+				Specified: true,
+			},
+			{
+				Skeleton:  "yMMMEd",
+				Pattern:   "E, d בMMM y",
+				Specified: true,
+			},
+			{
+				Skeleton:  "yMMMM",
+				Pattern:   "MMMM y",
+				Specified: true,
+			},
+			{
+				Skeleton:  "yQQQ",
+				Pattern:   "QQQ y",
+				Specified: true,
+			},
+			{
+				Skeleton:  "yQQQQ",
+				Pattern:   "QQQQ y",
+				Specified: true,
+			},
+			{
+				Skeleton:  "yw",
+				Specified: true,
+			},
+		},
+		AppendItems:      [16]string{"{1} {0}", "{1} {0}", "{0} ({2}: {1})", "{0} ({2}: {1})", "{0} ({2}: {1})", "", "{0} {1}", "", "", "{0} ({2}: {1})", "", "{0} ({2}: {1})", "{0} ({2}: {1})", "{0} ({2}: {1})", "", "{0} {1}"},
+		FieldNames:       [16]string{"תקופה", "שנה", "רבעון", "חודש", "שבוע", "השבוע בחודש", "יום בשבוע", "יום בשנה", "יום חול בחודש", "יום", "לפנה״צ/אחה״צ", "שעה", "דקה", "שנייה", "", "אזור זמן"},
+		IntervalFallback: "{0} – {1}",
+		Intervals: []i18n.IntervalFormats{
+			{
+				Skeleton:    "Bh",
+				PatternList: "\x1f\x1f\x1f\x1fh B\u2009–\u2009h B\x1fh–h B",
+			},
+			{
+				Skeleton:    "Bhm",
+				PatternList: "\x1f\x1f\x1f\x1fh:mm B\u2009–\u2009h:mm B\x1fh:mm–h:mm B\x1fh:mm–h:mm B",
+			},
+			{
+				Skeleton:    "Gy",
+				PatternList: "y G – y G\x1fy – y G",
+			},
+			{
+				Skeleton:    "GyM",
+				PatternList: "M.y GGGGG – M.y GGGGG\x1fM.y – M.y G\x1fM.y – M.y G",
+			},
+			{
+				Skeleton:    "GyMEd",
+				PatternList: "E, d.M.y G – E, d.M.y G\x1fE, d.M.y – E, d.M.y GGGGG\x1fE, d.M.y – E, d.M.y G\x1fE, d.M.y – E, d.M.y G",
+			},
+			{
+				Skeleton:    "GyMMM",
+				PatternList: "MMM y G – MMM y G\x1fMMM y – MMM y G\x1fMMM – MMM y G",
+			},
+			{
+				Skeleton:    "GyMMMEd",
+				PatternList: "E, d בMMM y G – E, d בMMM y G\x1fE, d בMMM y – E, d בMMM y G\x1fE, d בMMM – E, d בMMM y G\x1fE, d בMMM – E, d בMMM y G",
+			},
+			{
+				Skeleton:    "GyMMMd",
+				PatternList: "d בMMM y G – d בMMM y G\x1fd בMMM y – d בMMM y G\x1fd בMMM – d בMMM y G\x1fd – d בMMM y G",
+			},
+			{
+				Skeleton:    "GyMd",
+				PatternList: "d.M.y G – d.M.y G\x1fd.M.y – d.M.y G\x1fd.M.y – d.M.y G\x1fd.M.y – d.M.y G",
+			},
+			{
+				Skeleton:    "H",
+				PatternList: "\x1f\x1f\x1f\x1f\x1fH–H",
+			},
+			{
+				Skeleton:    "Hm",
+				PatternList: "\x1f\x1f\x1f\x1f\x1fH:mm–H:mm\x1fH:mm–H:mm",
+			},
+			{
+				Skeleton:    "Hmv",
+				PatternList: "\x1f\x1f\x1f\x1f\x1fH:mm–H:mm v\x1fH:mm–H:mm v",
+			},
+			{
+				Skeleton:    "Hv",
+				PatternList: "\x1f\x1f\x1f\x1f\x1fH–H v",
+			},
+			{
+				Skeleton:    "M",
+				PatternList: "\x1f\x1fM–M",
+			},
+			{
+				Skeleton:    "MEd",
+				PatternList: "\x1f\x1fEEEE d.M – EEEE d.M\x1fEEEE d.M–EEEE d.M",
+			},
+			{
+				Skeleton:    "MMM",
+				PatternList: "\x1f\x1fMMM–MMM",
+			},
+			{
+				Skeleton:    "MMMEd",
+				PatternList: "\x1f\x1fEEEE, d בMMM – EEEE, d בMMM\x1fEEEE, d בMMM – EEEE, d בMMM",
+			},
+			{
+				Skeleton:    "MMMM",
+				PatternList: "\x1f\x1fLLLL–LLLL",
+			},
+			{
+				Skeleton:    "MMMd",
+				PatternList: "\x1f\x1fd בMMM–d בMMM\x1fd–d בMMM",
+			},
+			{
+				Skeleton:    "Md",
+				PatternList: "\x1f\x1fd.M–d.M\x1fd.M–d.M",
+			},
+			{
+				Skeleton:    "d",
+				PatternList: "\x1f\x1f\x1fd–d",
+			},
+			{
+				Skeleton:    "h",
+				PatternList: "\x1f\x1f\x1f\x1fh\u202fa\u2009–\u2009h\u202fa\x1fh–h\u202fa",
+			},
+			{
+				Skeleton:    "hm",
+				PatternList: "\x1f\x1f\x1f\x1fh:mm a\u2009–\u2009h:mm a\x1fh:mm–h:mm a\x1fh:mm–h:mm a",
+			},
+			{
+				Skeleton:    "hmv",
+				PatternList: "\x1f\x1f\x1f\x1fh:mm a\u2009–\u2009h:mm a v\x1fh:mm–h:mm a v\x1fh:mm–h:mm a v",
+			},
+			{
+				Skeleton:    "hv",
+				PatternList: "\x1f\x1f\x1f\x1fh\u202fa\u2009–\u2009h\u202fa v\x1fh–h\u202fa v",
+			},
+			{
+				Skeleton:    "y",
+				PatternList: "\x1fy–y",
+			},
+			{
+				Skeleton:    "yM",
+				PatternList: "\x1fM.y\u200f–M.y\x1fM.y–M.y",
+			},
+			{
+				Skeleton:    "yMEd",
+				PatternList: "\x1fEEEE d.M.y – EEEE d.M.y\x1fEEEE d.M.y – EEEE d.M.y\x1fEEEE d.M.y – EEEE d.M.y",
+			},
+			{
+				Skeleton:    "yMMM",
+				PatternList: "\x1fMMM y – MMM y\x1fMMM–MMM y",
+			},
+			{
+				Skeleton:    "yMMMEd",
+				PatternList: "\x1fEEEE d MMM y – EEEE d MMM y\x1fEEEE d MMM – EEEE d MMM y\x1fEEEE d MMM – EEEE d MMM y",
+			},
+			{
+				Skeleton:    "yMMMM",
+				PatternList: "\x1fMMMM y–MMMM y\x1fMMMM–MMMM y",
+			},
+			{
+				Skeleton:    "yMMMd",
+				PatternList: "\x1fd MMM y – d MMM y\x1fd MMM – d MMM y\x1fd–d בMMM y",
+			},
+			{
+				Skeleton:    "yMd",
+				PatternList: "\x1fd.M.y – d.M.y\x1fd.M.y – d.M.y\x1fdd.M.y – dd.M.y",
+			},
+		},
+		Zone: i18n.ZoneStrings{
+			HourFormat:     "\u200e+HH:mm;-HH:mm\u200e",
+			GMTFormat:      "GMT{0}\u200e",
+			GMTZeroFormat:  "GMT",
+			RegionFormat:   "שעון {0}",
+			FallbackFormat: "{1} ({0})",
+			MetaZones: []i18n.ZoneNames{
+				{
+					ID:    "Afghanistan",
+					Names: "\x1fשעון אפגניסטן",
+				},
+				{
+					ID:    "Africa_Central",
+					Names: "\x1fשעון מרכז אפריקה",
+				},
+				{
+					ID:    "Africa_Eastern",
+					Names: "\x1fשעון מזרח אפריקה",
+				},
+				{
+					ID:    "Africa_Southern",
+					Names: "\x1fשעון דרום אפריקה",
+				},
+				{
+					ID:    "Africa_Western",
+					Names: "\x1fשעון מערב אפריקה",
+				},
+				{
+					ID:    "Alaska",
+					Names: "שעון אלסקה\x1fשעון אלסקה (חורף)\x1fשעון אלסקה (קיץ)",
+				},
+				{
+					ID:    "Almaty",
+					Names: "שעון אלמטי\x1fשעון אלמטי (חורף)\x1fשעון אלמטי (קיץ)",
+				},
+				{
+					ID:    "Amazon",
+					Names: "שעון אמזונס\x1fשעון אמזונס (חורף)\x1fשעון אמזונס (קיץ)",
+				},
+				{
+					ID:    "America_Central",
+					Names: "שעון מרכז ארה״ב\x1fשעון מרכז ארה״ב (חורף)\x1fשעון מרכז ארה״ב (קיץ)",
+				},
+				{
+					ID:    "America_Eastern",
+					Names: "שעון החוף המזרחי\x1fשעון החוף המזרחי (חורף)\x1fשעון החוף המזרחי (קיץ)",
+				},
+				{
+					ID:    "America_Mountain",
+					Names: "שעון אזור ההרים בארה״ב\x1fשעון אזור ההרים בארה״ב (חורף)\x1fשעון אזור ההרים בארה״ב (קיץ)",
+				},
+				{
+					ID:    "America_Pacific",
+					Names: "שעון מערב ארה״ב\x1fשעון מערב ארה״ב (חורף)\x1fשעון מערב ארה״ב (קיץ)",
+				},
+				{
+					ID:    "Anadyr",
+					Names: "שעון אנדיר\x1fשעון רגיל אנדיר\x1fשעון קיץ אנדיר",
+				},
+				{
+					ID:    "Apia",
+					Names: "שעון אפיה\x1fשעון אפיה (חורף)\x1fשעון אפיה (קיץ)",
+				},
+				{
+					ID:    "Aqtau",
+					Names: "שעון אקטאו\x1fשעון אקטאו (חורף)\x1fשעון אקטאו (קיץ)",
+				},
+				{
+					ID:    "Aqtobe",
+					Names: "שעון אקטובה\x1fשעון אוקטובה (חורף)\x1fשעון אוקטובה (קיץ)",
+				},
+				{
+					ID:    "Arabian",
+					Names: "שעון חצי האי ערב\x1fשעון חצי האי ערב (חורף)\x1fשעון חצי האי ערב (קיץ)",
+				},
+				{
+					ID:    "Argentina",
+					Names: "שעון ארגנטינה\x1fשעון ארגנטינה (חורף)\x1fשעון ארגנטינה (קיץ)",
+				},
+				{
+					ID:    "Argentina_Western",
+					Names: "שעון מערב ארגנטינה\x1fשעון מערב ארגנטינה (חורף)\x1fשעון מערב ארגנטינה (קיץ)",
+				},
+				{
+					ID:    "Armenia",
+					Names: "שעון ארמניה\x1fשעון ארמניה (חורף)\x1fשעון ארמניה (קיץ)",
+				},
+				{
+					ID:    "Atlantic",
+					Names: "שעון האוקיינוס האטלנטי\x1fשעון האוקיינוס האטלנטי (חורף)\x1fשעון האוקיינוס האטלנטי (קיץ)",
+				},
+				{
+					ID:    "Australia_Central",
+					Names: "שעון מרכז אוסטרליה\x1fשעון מרכז אוסטרליה (חורף)\x1fשעון מרכז אוסטרליה (קיץ)",
+				},
+				{
+					ID:    "Australia_CentralWestern",
+					Names: "שעון מרכז-מערב אוסטרליה\x1fשעון מרכז-מערב אוסטרליה (חורף)\x1fשעון מרכז-מערב אוסטרליה (קיץ)",
+				},
+				{
+					ID:    "Australia_Eastern",
+					Names: "שעון מזרח אוסטרליה\x1fשעון מזרח אוסטרליה (חורף)\x1fשעון מזרח אוסטרליה (קיץ)",
+				},
+				{
+					ID:    "Australia_Western",
+					Names: "שעון מערב אוסטרליה\x1fשעון מערב אוסטרליה (חורף)\x1fשעון מערב אוסטרליה (קיץ)",
+				},
+				{
+					ID:    "Azerbaijan",
+					Names: "שעון אזרבייג׳ן\x1fשעון אזרבייג׳ן (חורף)\x1fשעון אזרבייג׳ן (קיץ)",
+				},
+				{
+					ID:    "Azores",
+					Names: "שעון האיים האזוריים\x1fשעון האיים האזוריים (חורף)\x1fשעון האיים האזוריים (קיץ)",
+				},
+				{
+					ID:    "Bangladesh",
+					Names: "שעון בנגלדש\x1fשעון בנגלדש (חורף)\x1fשעון בנגלדש (קיץ)",
+				},
+				{
+					ID:    "Bhutan",
+					Names: "\x1fשעון בהוטן",
+				},
+				{
+					ID:    "Bolivia",
+					Names: "\x1fשעון בוליביה",
+				},
+				{
+					ID:    "Brasilia",
+					Names: "שעון ברזיליה\x1fשעון ברזיליה (חורף)\x1fשעון ברזיליה (קיץ)",
+				},
+				{
+					ID:    "Brunei",
+					Names: "\x1fשעון ברוניי דארוסלאם",
+				},
+				{
+					ID:    "Cape_Verde",
+					Names: "שעון כף ורדה\x1fשעון כף ורדה (חורף)\x1fשעון כף ורדה (קיץ)",
+				},
+				{
+					ID:    "Chamorro",
+					Names: "\x1fשעון צ׳אמורו",
+				},
+				{
+					ID:    "Chatham",
+					Names: "שעון צ׳טהאם\x1fשעון צ׳טהאם (חורף)\x1fשעון צ׳טהאם (קיץ)",
+				},
+				{
+					ID:    "Chile",
+					Names: "שעון צ׳ילה\x1fשעון צ׳ילה (חורף)\x1fשעון צ׳ילה (קיץ)",
+				},
+				{
+					ID:    "China",
+					Names: "שעון סין\x1fשעון סין (חורף)\x1fשעון סין (קיץ)",
+				},
+				{
+					ID:    "Christmas",
+					Names: "\x1fשעון האי כריסטמס",
+				},
+				{
+					ID:    "Cocos",
+					Names: "\x1fשעון איי קוקוס",
+				},
+				{
+					ID:    "Colombia",
+					Names: "שעון קולומביה\x1fשעון קולומביה (חורף)\x1fשעון קולומביה (קיץ)",
+				},
+				{
+					ID:    "Cook",
+					Names: "שעון איי קוק\x1fשעון איי קוק (חורף)\x1fשעון איי קוק (מחצית הקיץ)",
+				},
+				{
+					ID:    "Cuba",
+					Names: "שעון קובה\x1fשעון קובה (חורף)\x1fשעון קובה (קיץ)",
+				},
+				{
+					ID:    "Davis",
+					Names: "\x1fשעון דיוויס",
+				},
+				{
+					ID:    "DumontDUrville",
+					Names: "\x1fשעון דומון ד׳אורוויל",
+				},
+				{
+					ID:    "East_Timor",
+					Names: "\x1fשעון מזרח טימור",
+				},
+				{
+					ID:    "Easter",
+					Names: "שעון אי הפסחא\x1fשעון אי הפסחא (חורף)\x1fשעון אי הפסחא (קיץ)",
+				},
+				{
+					ID:    "Ecuador",
+					Names: "\x1fשעון אקוודור",
+				},
+				{
+					ID:    "Europe_Central",
+					Names: "שעון מרכז אירופה\x1fשעון מרכז אירופה (חורף)\x1fשעון מרכז אירופה (קיץ)",
+				},
+				{
+					ID:    "Europe_Eastern",
+					Names: "שעון מזרח אירופה\x1fשעון מזרח אירופה (חורף)\x1fשעון מזרח אירופה (קיץ)",
+				},
+				{
+					ID:    "Europe_Further_Eastern",
+					Names: "\x1fשעון מינסק",
+				},
+				{
+					ID:    "Europe_Western",
+					Names: "שעון מערב אירופה\x1fשעון מערב אירופה (חורף)\x1fשעון מערב אירופה (קיץ)",
+				},
+				{
+					ID:    "Falkland",
+					Names: "שעון איי פוקלנד\x1fשעון איי פוקלנד (חורף)\x1fשעון איי פוקלנד (קיץ)",
+				},
+				{
+					ID:    "Fiji",
+					Names: "שעון פיג׳י\x1fשעון פיג׳י (חורף)\x1fשעון פיג׳י (קיץ)",
+				},
+				{
+					ID:    "French_Guiana",
+					Names: "\x1fשעון גיאנה הצרפתית",
+				},
+				{
+					ID:    "French_Southern",
+					Names: "\x1fשעון הארצות הדרומיות והאנטארקטיות של צרפת",
+				},
+				{
+					ID:    "GMT",
+					Names: "\x1fשעון גריניץ׳\u200f",
+				},
+				{
+					ID:    "Galapagos",
+					Names: "\x1fשעון איי גלאפגוס",
+				},
+				{
+					ID:    "Gambier",
+					Names: "\x1fשעון איי גמבייה",
+				},
+				{
+					ID:    "Georgia",
+					Names: "שעון גאורגיה\x1fשעון גאורגיה (חורף)\x1fשעון גאורגיה (קיץ)",
+				},
+				{
+					ID:    "Gilbert_Islands",
+					Names: "\x1fשעון איי גילברט",
+				},
+				{
+					ID:    "Greenland_Eastern",
+					Names: "שעון מזרח גרינלנד\x1fשעון מזרח גרינלנד (חורף)\x1fשעון מזרח גרינלנד (קיץ)",
+				},
+				{
+					ID:    "Greenland_Western",
+					Names: "שעון מערב גרינלנד\x1fשעון מערב גרינלנד (חורף)\x1fשעון מערב גרינלנד (קיץ)",
+				},
+				{
+					ID:    "Guam",
+					Names: "\x1fשעון גואם",
+				},
+				{
+					ID:    "Gulf",
+					Names: "\x1fשעון מדינות המפרץ",
+				},
+				{
+					ID:    "Guyana",
+					Names: "\x1fשעון גיאנה",
+				},
+				{
+					ID:    "Hawaii",
+					Names: "\x1fשעון האיים האלאוטיים הוואי (חורף)",
+				},
+				{
+					ID:    "Hawaii_Aleutian",
+					Names: "שעון האיים האלאוטיים הוואי\x1fשעון האיים האלאוטיים הוואי (חורף)\x1fשעון האיים האלאוטיים הוואי (קיץ)",
+				},
+				{
+					ID:    "Hong_Kong",
+					Names: "שעון הונג קונג\x1fשעון הונג קונג (חורף)\x1fשעון הונג קונג (קיץ)",
+				},
+				{
+					ID:    "Hovd",
+					Names: "שעון חובד\x1fשעון חובד (חורף)\x1fשעון חובד (קיץ)",
+				},
+				{
+					ID:    "India",
+					Names: "\x1fשעון הודו",
+				},
+				{
+					ID:    "Indian_Ocean",
+					Names: "\x1fשעון האוקיינוס ההודי",
+				},
+				{
+					ID:    "Indochina",
+					Names: "\x1fשעון הודו-סין",
+				},
+				{
+					ID:    "Indonesia_Central",
+					Names: "\x1fשעון מרכז אינדונזיה",
+				},
+				{
+					ID:    "Indonesia_Eastern",
+					Names: "\x1fשעון מזרח אינדונזיה",
+				},
+				{
+					ID:    "Indonesia_Western",
+					Names: "\x1fשעון מערב אינדונזיה",
+				},
+				{
+					ID:    "Iran",
+					Names: "שעון איראן\x1fשעון איראן (חורף)\x1fשעון איראן (קיץ)",
+				},
+				{
+					ID:    "Irkutsk",
+					Names: "שעון אירקוטסק\x1fשעון אירקוטסק (חורף)\x1fשעון אירקוסטק (קיץ)",
+				},
+				{
+					ID:    "Israel",
+					Names: "שעון ישראל\x1fשעון ישראל (חורף)\x1fשעון ישראל (קיץ)",
+				},
+				{
+					ID:    "Japan",
+					Names: "שעון יפן\x1fשעון יפן (חורף)\x1fשעון יפן (קיץ)",
+				},
+				{
+					ID:    "Kamchatka",
+					Names: "שעון פטרופבלובסק-קמצ׳טסקי\x1fשעון רגיל פטרופבלובסק-קמצ׳טסקי\x1fשעון קיץ פטרופבלובסק-קמצ׳טסקי",
+				},
+				{
+					ID:    "Kazakhstan",
+					Names: "\x1fשעון קזחסטן",
+				},
+				{
+					ID:    "Kazakhstan_Eastern",
+					Names: "\x1fשעון מזרח קזחסטן",
+				},
+				{
+					ID:    "Kazakhstan_Western",
+					Names: "\x1fשעון מערב קזחסטן",
+				},
+				{
+					ID:    "Korea",
+					Names: "שעון קוריאה\x1fשעון קוריאה (חורף)\x1fשעון קוריאה (קיץ)",
+				},
+				{
+					ID:    "Kosrae",
+					Names: "\x1fשעון קוסראה",
+				},
+				{
+					ID:    "Krasnoyarsk",
+					Names: "שעון קרסנויארסק\x1fשעון קרסנויארסק (חורף)\x1fשעון קרסנויארסק (קיץ)",
+				},
+				{
+					ID:    "Kyrgystan",
+					Names: "\x1fשעון קירגיזסטן",
+				},
+				{
+					ID:    "Line_Islands",
+					Names: "\x1fשעון איי ליין",
+				},
+				{
+					ID:    "Lord_Howe",
+					Names: "שעון אי הלורד האו\x1fשעון אי הלורד האו (חורף)\x1fשעון אי הלורד האו (קיץ)",
+				},
+				{
+					ID:    "Macau",
+					Names: "שעון מקאו\x1fשעון חורף מקאו\x1fשעון קיץ מקאו",
+				},
+				{
+					ID:    "Magadan",
+					Names: "שעון מגדן\x1fשעון מגדן (חורף)\x1fשעון מגדן (קיץ)",
+				},
+				{
+					ID:    "Malaysia",
+					Names: "\x1fשעון מלזיה",
+				},
+				{
+					ID:    "Maldives",
+					Names: "\x1fשעון האיים המלדיביים",
+				},
+				{
+					ID:    "Marquesas",
+					Names: "\x1fשעון איי מרקיז",
+				},
+				{
+					ID:    "Marshall_Islands",
+					Names: "\x1fשעון איי מרשל",
+				},
+				{
+					ID:    "Mauritius",
+					Names: "שעון מאוריציוס\x1fשעון מאוריציוס (חורף)\x1fשעון מאוריציוס (קיץ)",
+				},
+				{
+					ID:    "Mawson",
+					Names: "\x1fשעון מאוסון",
+				},
+				{
+					ID:    "Mexico_Pacific",
+					Names: "שעון מערב מקסיקו\x1fשעון מערב מקסיקו (חורף)\x1fשעון מערב מקסיקו (קיץ)",
+				},
+				{
+					ID:    "Mongolia",
+					Names: "שעון אולאן באטור\x1fשעון אולאן באטור (חורף)\x1fשעון אולאן באטור (קיץ)",
+				},
+				{
+					ID:    "Moscow",
+					Names: "שעון מוסקבה\x1fשעון מוסקבה (חורף)\x1fשעון מוסקבה (קיץ)",
+				},
+				{
+					ID:    "Myanmar",
+					Names: "\x1fשעון מיאנמר",
+				},
+				{
+					ID:    "Nauru",
+					Names: "\x1fשעון נאורו",
+				},
+				{
+					ID:    "Nepal",
+					Names: "\x1fשעון נפאל",
+				},
+				{
+					ID:    "New_Caledonia",
+					Names: "שעון קלדוניה החדשה\x1fשעון קלדוניה החדשה (חורף)\x1fשעון קלדוניה החדשה (קיץ)",
+				},
+				{
+					ID:    "New_Zealand",
+					Names: "שעון ניו זילנד\x1fשעון ניו זילנד (חורף)\x1fשעון ניו זילנד (קיץ)",
+				},
+				{
+					ID:    "Newfoundland",
+					Names: "שעון ניופאונדלנד\x1fשעון ניופאונדלנד (חורף)\x1fשעון ניופאונדלנד (קיץ)",
+				},
+				{
+					ID:    "Niue",
+					Names: "\x1fשעון ניואה",
+				},
+				{
+					ID:    "Norfolk",
+					Names: "שעון האי נורפוק\x1fשעון האי נורפוק (חורף)\x1fשעון האי נורפוק (קיץ)",
+				},
+				{
+					ID:    "Noronha",
+					Names: "שעון פרננדו די נורוניה\x1fשעון פרננדו די נורוניה (חורף)\x1fשעון פרננדו די נורוניה (קיץ)",
+				},
+				{
+					ID:    "North_Mariana",
+					Names: "\x1fשעון איי מריאנה הצפוניים",
+				},
+				{
+					ID:    "Novosibirsk",
+					Names: "שעון נובוסיבירסק\x1fשעון נובוסיבירסק (חורף)\x1fשעון נובוסיבירסק (קיץ)",
+				},
+				{
+					ID:    "Omsk",
+					Names: "שעון אומסק\x1fשעון אומסק (חורף)\x1fשעון אומסק (קיץ)",
+				},
+				{
+					ID:    "Pakistan",
+					Names: "שעון פקיסטן\x1fשעון פקיסטן (חורף)\x1fשעון פקיסטן (קיץ)",
+				},
+				{
+					ID:    "Palau",
+					Names: "\x1fשעון פלאו",
+				},
+				{
+					ID:    "Papua_New_Guinea",
+					Names: "\x1fשעון פפואה גיניאה החדשה",
+				},
+				{
+					ID:    "Paraguay",
+					Names: "שעון פרגוואי\x1fשעון פרגוואי (חורף)\x1fשעון פרגוואי (קיץ)",
+				},
+				{
+					ID:    "Peru",
+					Names: "שעון פרו\x1fשעון פרו (חורף)\x1fשעון פרו (קיץ)",
+				},
+				{
+					ID:    "Philippines",
+					Names: "שעון הפיליפינים\x1fשעון הפיליפינים (חורף)\x1fשעון הפיליפינים (קיץ)",
+				},
+				{
+					ID:    "Phoenix_Islands",
+					Names: "\x1fשעון איי פיניקס",
+				},
+				{
+					ID:    "Pierre_Miquelon",
+					Names: "שעון סנט פייר ומיקלון\x1fשעון סנט פייר ומיקלון (חורף)\x1fשעון סנט פייר ומיקלון (קיץ)",
+				},
+				{
+					ID:    "Pitcairn",
+					Names: "\x1fשעון פיטקרן",
+				},
+				{
+					ID:    "Ponape",
+					Names: "\x1fשעון פונאפי",
+				},
+				{
+					ID:    "Pyongyang",
+					Names: "\x1fשעון פיונגיאנג",
+				},
+				{
+					ID:    "Qyzylorda",
+					Names: "שעון קיזילורדה\x1fשעון קיזילורדה (חורף)\x1fשעון קיזילורדה (קיץ)",
+				},
+				{
+					ID:    "Reunion",
+					Names: "\x1fשעון ראוניון",
+				},
+				{
+					ID:    "Rothera",
+					Names: "\x1fשעון רות׳רה",
+				},
+				{
+					ID:    "Sakhalin",
+					Names: "שעון סחלין\x1fשעון סחלין (חורף)\x1fשעון סחלין (קיץ)",
+				},
+				{
+					ID:    "Samara",
+					Names: "שעון סמרה\x1fשעון רגיל סמרה\x1fשעון קיץ סמרה",
+				},
+				{
+					ID:    "Samoa",
+					Names: "שעון סמואה\x1fשעון סמואה (חורף)\x1fשעון סמואה (קיץ)",
+				},
+				{
+					ID:    "Seychelles",
+					Names: "\x1fשעון איי סיישל",
+				},
+				{
+					ID:    "Singapore",
+					Names: "\x1fשעון סינגפור",
+				},
+				{
+					ID:    "Solomon",
+					Names: "\x1fשעון איי שלמה",
+				},
+				{
+					ID:    "South_Georgia",
+					Names: "\x1fשעון דרום ג׳ורג׳יה",
+				},
+				{
+					ID:    "Suriname",
+					Names: "\x1fשעון סורינאם",
+				},
+				{
+					ID:    "Syowa",
+					Names: "\x1fשעון סייווה",
+				},
+				{
+					ID:    "Tahiti",
+					Names: "\x1fשעון טהיטי",
+				},
+				{
+					ID:    "Taipei",
+					Names: "שעון טאיפיי\x1fשעון טאיפיי (חורף)\x1fשעון טאיפיי (קיץ)",
+				},
+				{
+					ID:    "Tajikistan",
+					Names: "\x1fשעון טג׳יקיסטן",
+				},
+				{
+					ID:    "Tokelau",
+					Names: "\x1fשעון טוקלאו",
+				},
+				{
+					ID:    "Tonga",
+					Names: "שעון טונגה\x1fשעון טונגה (חורף)\x1fשעון טונגה (קיץ)",
+				},
+				{
+					ID:    "Truk",
+					Names: "\x1fשעון צ׳וק",
+				},
+				{
+					ID:    "Turkmenistan",
+					Names: "שעון טורקמניסטן\x1fשעון טורקמניסטן (חורף)\x1fשעון טורקמניסטן (קיץ)",
+				},
+				{
+					ID:    "Tuvalu",
+					Names: "\x1fשעון טובאלו",
+				},
+				{
+					ID:    "Uruguay",
+					Names: "שעון אורוגוואי\x1fשעון אורוגוואי (חורף)\x1fשעון אורוגוואי (קיץ)",
+				},
+				{
+					ID:    "Uzbekistan",
+					Names: "שעון אוזבקיסטן\x1fשעון אוזבקיסטן (חורף)\x1fשעון אוזבקיסטן (קיץ)",
+				},
+				{
+					ID:    "Vanuatu",
+					Names: "שעון ונואטו\x1fשעון ונואטו (חורף)\x1fשעון ונואטו (קיץ)",
+				},
+				{
+					ID:    "Venezuela",
+					Names: "\x1fשעון ונצואלה",
+				},
+				{
+					ID:    "Vladivostok",
+					Names: "שעון ולדיווסטוק\x1fשעון ולדיווסטוק (חורף)\x1fשעון ולדיווסטוק (קיץ)",
+				},
+				{
+					ID:    "Volgograd",
+					Names: "שעון וולגוגרד\x1fשעון וולגוגרד (חורף)\x1fשעון וולגוגרד (קיץ)",
+				},
+				{
+					ID:    "Vostok",
+					Names: "\x1fשעון ווסטוק",
+				},
+				{
+					ID:    "Wake",
+					Names: "\x1fשעון האי וייק",
+				},
+				{
+					ID:    "Wallis",
+					Names: "\x1fשעון וואליס ופוטונה",
+				},
+				{
+					ID:    "Yakutsk",
+					Names: "שעון יקוטסק\x1fשעון יקוטסק (חורף)\x1fשעון יקוטסק (קיץ)",
+				},
+				{
+					ID:    "Yekaterinburg",
+					Names: "שעון יקטרינבורג\x1fשעון יקטרינבורג (חורף)\x1fשעון יקטרינבורג (קיץ)",
+				},
+				{
+					ID:    "Yukon",
+					Names: "\x1fשעון יוקון",
+				},
+			},
+			Zones: []i18n.ZoneNames{
+				{
+					ID:    "America/Ciudad_Juarez",
+					Names: "\x1f\x1f\x1f\x1f\x1f\x1fסיודד חוארס",
+				},
+				{
+					ID:    "America/Coyhaique",
+					Names: "\x1f\x1f\x1f\x1f\x1f\x1fקויאיקה",
+				},
+				{
+					ID:    "Etc/UTC",
+					Names: "\x1fזמן אוניברסלי מתואם\x1f\x1f\x1fUTC",
+				},
+				{
+					ID:    "Europe/Dublin",
+					Names: "\x1f\x1fשעון קיץ אירלנד",
+				},
+				{
+					ID:    "Europe/London",
+					Names: "\x1f\x1fשעון קיץ בריטניה",
+				},
+			},
+			RegionNames: "AD\x1eאנדורה\x1fAE\x1eאיחוד האמירויות הערביות\x1fAF\x1eאפגניסטן\x1fAG\x1eאנטיגואה וברבודה\x1fAI\x1eאנגווילה\x1fAL\x1eאלבניה\x1fAM\x1eארמניה\x1fAO\x1eאנגולה\x1fAQ\x1eאנטארקטיקה\x1fAR\x1eארגנטינה\x1fAS\x1eסמואה האמריקנית\x1fAT\x1eאוסטריה\x1fAU\x1eאוסטרליה\x1fAW\x1eארובה\x1fAX\x1eאיי אולנד\x1fAZ\x1eאזרבייג׳ן\x1fBA\x1eבוסניה והרצגובינה\x1fBB\x1eברבדוס\x1fBD\x1eבנגלדש\x1fBE\x1eבלגיה\x1fBF\x1eבורקינה פאסו\x1fBG\x1eבולגריה\x1fBH\x1eבחריין\x1fBI\x1eבורונדי\x1fBJ\x1eבנין\x1fBL\x1eסנט ברתולומיאו\x1fBM\x1eברמודה\x1fBN\x1eברוניי\x1fBO\x1eבוליביה\x1fBQ\x1eהאיים הקריביים ההולנדיים\x1fBR\x1eברזיל\x1fBS\x1eאיי בהאמה\x1fBT\x1eבהוטן\x1fBW\x1eבוטסואנה\x1fBY\x1eבלארוס\x1fBZ\x1eבליז\x1fCA\x1eקנדה\x1fCC\x1eאיי קוקוס (קילינג)\x1fCD\x1eקונגו - קינשאסה\x1fCF\x1eהרפובליקה המרכז-אפריקאית\x1fCG\x1eקונגו - ברזאויל\x1fCH\x1eשווייץ\x1fCI\x1eחוף השנהב\x1fCK\x1eאיי קוק\x1fCL\x1eצ׳ילה\x1fCM\x1eקמרון\x1fCN\x1eסין\x1fCO\x1eקולומביה\x1fCR\x1eקוסטה ריקה\x1fCU\x1eקובה\x1fCV\x1eכף ורדה\x1fCW\x1eקוראסאו\x1fCX\x1eאי חג המולד\x1fCY\x1eקפריסין\x1fCZ\x1eצ׳כיה\x1fDE\x1eגרמניה\x1fDJ\x1eג׳יבוטי\x1fDK\x1eדנמרק\x1fDM\x1eדומיניקה\x1fDO\x1eהרפובליקה הדומיניקנית\x1fDZ\x1eאלג׳יריה\x1fEC\x1eאקוודור\x1fEE\x1eאסטוניה\x1fEG\x1eמצרים\x1fEH\x1eסהרה המערבית\x1fER\x1eאריתריאה\x1fES\x1eספרד\x1fET\x1eאתיופיה\x1fFI\x1eפינלנד\x1fFJ\x1eפיג׳י\x1fFK\x1eאיי פוקלנד (איי מלווינס)\x1fFM\x1eמיקרונזיה\x1fFO\x1eאיי פארו\x1fFR\x1eצרפת\x1fGA\x1eגבון\x1fGB\x1eבריטניה\x1fGD\x1eגרנדה\x1fGE\x1eגאורגיה\x1fGF\x1eגיאנה הצרפתית\x1fGG\x1eגרנזי\x1fGH\x1eגאנה\x1fGI\x1eגיברלטר\x1fGL\x1eגרינלנד\x1fGM\x1eגמביה\x1fGN\x1eגינאה\x1fGP\x1eגוואדלופ\x1fGQ\x1eגינאה המשוונית\x1fGR\x1eיוון\x1fGS\x1eג׳ורג׳יה הדרומית ואיי סנדוויץ׳ הדרומיים\x1fGT\x1eגואטמלה\x1fGU\x1eגואם\x1fGW\x1eגינאה-ביסאו\x1fGY\x1eגיאנה\x1fHK\x1eהונג קונג\x1fHN\x1eהונדורס\x1fHR\x1eקרואטיה\x1fHT\x1eהאיטי\x1fHU\x1eהונגריה\x1fID\x1eאינדונזיה\x1fIE\x1eאירלנד\x1fIL\x1eישראל\x1fIM\x1eהאי מאן\x1fIN\x1eהודו\x1fIO\x1eהטריטוריה הבריטית באוקיינוס ההודי\x1fIQ\x1eעיראק\x1fIR\x1eאיראן\x1fIS\x1eאיסלנד\x1fIT\x1eאיטליה\x1fJE\x1eג׳רזי\x1fJM\x1eג׳מייקה\x1fJO\x1eירדן\x1fJP\x1eיפן\x1fKE\x1eקניה\x1fKG\x1eקירגיזסטן\x1fKH\x1eקמבודיה\x1fKI\x1eקיריבאטי\x1fKM\x1eקומורו\x1fKN\x1eסנט קיטס ונוויס\x1fKP\x1eקוריאה הצפונית\x1fKR\x1eקוריאה הדרומית\x1fKW\x1eכווית\x1fKY\x1eאיי קיימן\x1fKZ\x1eקזחסטן\x1fLA\x1eלאוס\x1fLB\x1eלבנון\x1fLC\x1eסנט לוסיה\x1fLI\x1eליכטנשטיין\x1fLK\x1eסרי לנקה\x1fLR\x1eליבריה\x1fLS\x1eלסוטו\x1fLT\x1eליטא\x1fLU\x1eלוקסמבורג\x1fLV\x1eלטביה\x1fLY\x1eלוב\x1fMA\x1eמרוקו\x1fMC\x1eמונקו\x1fMD\x1eמולדובה\x1fME\x1eמונטנגרו\x1fMF\x1eסן מרטן\x1fMG\x1eמדגסקר\x1fMH\x1eאיי מרשל\x1fMK\x1eמקדוניה הצפונית\x1fML\x1eמאלי\x1fMM\x1eמיאנמר (בורמה)\x1fMN\x1eמונגוליה\x1fMO\x1eמקאו\x1fMP\x1eאיי מריאנה הצפוניים\x1fMQ\x1eמרטיניק\x1fMR\x1eמאוריטניה\x1fMS\x1eמונסראט\x1fMT\x1eמלטה\x1fMU\x1eמאוריציוס\x1fMV\x1eהאיים המלדיביים\x1fMW\x1eמלאווי\x1fMX\x1eמקסיקו\x1fMY\x1eמלזיה\x1fMZ\x1eמוזמביק\x1fNA\x1eנמיביה\x1fNC\x1eקלדוניה החדשה\x1fNE\x1eניז׳ר\x1fNF\x1eהאי נורפוק\x1fNG\x1eניגריה\x1fNI\x1eניקרגואה\x1fNL\x1eהולנד\x1fNO\x1eנורווגיה\x1fNP\x1eנפאל\x1fNR\x1eנאורו\x1fNU\x1eניווה\x1fNZ\x1eניו זילנד\x1fOM\x1eעומאן\x1fPA\x1eפנמה\x1fPE\x1eפרו\x1fPF\x1eפולינזיה הצרפתית\x1fPG\x1eפפואה גינאה החדשה\x1fPH\x1eהפיליפינים\x1fPK\x1eפקיסטן\x1fPL\x1eפולין\x1fPM\x1eסנט פייר ומיקלון\x1fPN\x1eאיי פיטקרן\x1fPR\x1eפוארטו ריקו\x1fPS\x1eפלסטין\x1fPT\x1eפורטוגל\x1fPW\x1eפלאו\x1fPY\x1eפרגוואי\x1fQA\x1eקטאר\x1fRE\x1eראוניון\x1fRO\x1eרומניה\x1fRS\x1eסרביה\x1fRU\x1eרוסיה\x1fRW\x1eרואנדה\x1fSA\x1eערב הסעודית\x1fSB\x1eאיי שלמה\x1fSC\x1eאיי סיישל\x1fSD\x1eסודן\x1fSE\x1eשוודיה\x1fSG\x1eסינגפור\x1fSH\x1eסנט הלנה\x1fSI\x1eסלובניה\x1fSJ\x1eסבאלברד ויאן מאיין\x1fSK\x1eסלובקיה\x1fSL\x1eסיירה לאון\x1fSM\x1eסן מרינו\x1fSN\x1eסנגל\x1fSO\x1eסומליה\x1fSR\x1eסורינאם\x1fSS\x1eדרום סודן\x1fST\x1eסאו טומה ופרינסיפה\x1fSV\x1eאל סלבדור\x1fSX\x1eסנט מארטן\x1fSY\x1eסוריה\x1fSZ\x1eאסוואטיני\x1fTC\x1eאיי טרקס וקייקוס\x1fTD\x1eצ׳אד\x1fTF\x1eהטריטוריות הדרומיות של צרפת\x1fTG\x1eטוגו\x1fTH\x1eתאילנד\x1fTJ\x1eטג׳יקיסטן\x1fTK\x1eטוקלאו\x1fTL\x1eטימור-לסטה\x1fTM\x1eטורקמניסטן\x1fTN\x1eתוניסיה\x1fTO\x1eטונגה\x1fTR\x1eטורקיה\x1fTT\x1eטרינידד וטובגו\x1fTV\x1eטובאלו\x1fTW\x1eטייוואן\x1fTZ\x1eטנזניה\x1fUA\x1eאוקראינה\x1fUG\x1eאוגנדה\x1fUM\x1eהאיים המרוחקים הקטנים של ארה״ב\x1fUS\x1eארצות הברית\x1fUY\x1eאורוגוואי\x1fUZ\x1eאוזבקיסטן\x1fVA\x1eהוותיקן\x1fVC\x1eסנט וינסנט והגרנדינים\x1fVE\x1eונצואלה\x1fVG\x1eאיי הבתולה הבריטיים\x1fVI\x1eאיי הבתולה של ארצות הברית\x1fVN\x1eוייטנאם\x1fVU\x1eונואטו\x1fWF\x1eאיי ווליס ופוטונה\x1fWS\x1eסמואה\x1fYE\x1eתימן\x1fYT\x1eמאיוט\x1fZA\x1eדרום אפריקה\x1fZM\x1eזמביה\x1fZW\x1eזימבבואה",
+		},
+	},
 	Relative: i18n.RelativeData{
 		Units: [8][3]i18n.RelativeUnit{{
 			{

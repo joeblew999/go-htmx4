@@ -2529,6 +2529,1142 @@ var locHi = i18n.LocaleData{
 			Name: "पारंपरिक",
 		},
 	},
+	DateTime: i18n.DateTimeData{
+		Months:     [2][3][12]string{{{"जन॰", "फ़र॰", "मार्च", "अप्रैल", "मई", "जून", "जुल॰", "अग॰", "सित॰", "अक्टू॰", "नव॰", "दिस॰"}, {"जनवरी", "फ़रवरी", "मार्च", "अप्रैल", "मई", "जून", "जुलाई", "अगस्त", "सितंबर", "अक्टूबर", "नवंबर", "दिसंबर"}, {"ज", "फ़", "मा", "अ", "म", "जू", "जु", "अ", "सि", "अ", "न", "दि"}}, {{"जन॰", "फ़र॰", "मार्च", "अप्रैल", "मई", "जून", "जुल॰", "अग॰", "सित॰", "अक्टू॰", "नव॰", "दिस॰"}, {"जनवरी", "फ़रवरी", "मार्च", "अप्रैल", "मई", "जून", "जुलाई", "अगस्त", "सितंबर", "अक्टूबर", "नवंबर", "दिसंबर"}, {"ज", "फ़", "मा", "अ", "म", "जू", "जु", "अ", "सि", "अ", "न", "दि"}}},
+		Days:       [2][4][7]string{{{"रवि", "सोम", "मंगल", "बुध", "गुरु", "शुक्र", "शनि"}, {"रविवार", "सोमवार", "मंगलवार", "बुधवार", "गुरुवार", "शुक्रवार", "शनिवार"}, {"र", "सो", "मं", "बु", "गु", "शु", "श"}, {"र", "सो", "मं", "बु", "गु", "शु", "श"}}, {{"रवि", "सोम", "मंगल", "बुध", "गुरु", "शुक्र", "शनि"}, {"रविवार", "सोमवार", "मंगलवार", "बुधवार", "गुरुवार", "शुक्रवार", "शनिवार"}, {"र", "सो", "मं", "बु", "गु", "शु", "श"}, {"र", "सो", "मं", "बु", "गु", "शु", "श"}}},
+		Eras:       [3][2]string{{"ईसा-पूर्व", "ईस्वी"}, {"ईसा-पूर्व", "ईसवी सन"}, {"ईसा-पूर्व", "ईस्वी"}},
+		AmPm:       [3][2]string{{"am", "pm"}, {"am", "pm"}, {"am", "pm"}},
+		DayPeriods: [3][10]string{{"मध्यरात्रि", "", "सुबह", "दोपहर", "शाम", "रात", "", "", "", ""}, {"मध्यरात्रि", "", "सुबह", "दोपहर", "शाम", "रात", "", "", "", ""}, {"मध्यरात्रि", "", "सुबह", "दोपहर", "शाम", "रात", "", "", "", ""}},
+		DayPeriodRules: i18n.DayPeriodRules{
+			Hours:    [24]int8{5, 5, 5, 5, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5},
+			Midnight: true,
+		},
+		DateFormats:     [4]string{"EEEE, d MMMM y", "d MMMM y", "d MMM y", "d/M/yy"},
+		TimeFormats:     [4]string{"h:mm:ss a zzzz", "h:mm:ss a z", "h:mm:ss a", "h:mm a"},
+		DateTimeFormats: [4]string{"{1}, {0}", "{1}, {0}", "{1}, {0}", "{1}, {0}"},
+		AtTimeFormats:   [4]string{"{1} को {0} बजे", "{1} को {0} बजे", "{1}, {0}", "{1}, {0}"},
+		Skeletons: []i18n.SkeletonPattern{
+			{
+				Skeleton:  "Bh",
+				Pattern:   "B h",
+				Specified: true,
+			},
+			{
+				Skeleton:  "Bhm",
+				Pattern:   "B h:mm",
+				Specified: true,
+			},
+			{
+				Skeleton:  "Bhms",
+				Pattern:   "B h:mm:ss",
+				Specified: true,
+			},
+			{
+				Skeleton: "D",
+				Pattern:  "D",
+			},
+			{
+				Skeleton:  "E",
+				Pattern:   "ccc",
+				Specified: true,
+			},
+			{
+				Skeleton:  "EBhm",
+				Pattern:   "E B h:mm",
+				Specified: true,
+			},
+			{
+				Skeleton:  "EBhms",
+				Pattern:   "E B h:mm:ss",
+				Specified: true,
+			},
+			{
+				Skeleton:  "Ed",
+				Pattern:   "E d",
+				Specified: true,
+			},
+			{
+				Skeleton:  "EBh",
+				Pattern:   "E h B",
+				Specified: true,
+			},
+			{
+				Skeleton:  "EHm",
+				Pattern:   "E HH:mm",
+				Specified: true,
+			},
+			{
+				Skeleton:  "EHms",
+				Pattern:   "E HH:mm:ss",
+				Specified: true,
+			},
+			{
+				Skeleton:  "Eah",
+				Pattern:   "E h\u202fa",
+				Specified: true,
+			},
+			{
+				Skeleton:  "Eahm",
+				Pattern:   "E h:mm a",
+				Specified: true,
+			},
+			{
+				Skeleton:  "Eahms",
+				Pattern:   "E h:mm:ss a",
+				Specified: true,
+			},
+			{
+				Skeleton: "F",
+				Pattern:  "F",
+			},
+			{
+				Skeleton: "G",
+				Pattern:  "G",
+			},
+			{
+				Skeleton:  "Gy",
+				Pattern:   "y G",
+				Specified: true,
+			},
+			{
+				Skeleton:  "GyMMM",
+				Pattern:   "MMM G y",
+				Specified: true,
+			},
+			{
+				Skeleton:  "GyMMMEd",
+				Pattern:   "E, d MMM y G",
+				Specified: true,
+			},
+			{
+				Skeleton:  "GyMMMd",
+				Pattern:   "d MMM y G",
+				Specified: true,
+			},
+			{
+				Skeleton:  "GyMd",
+				Pattern:   "GGGGG d/M/y",
+				Specified: true,
+			},
+			{
+				Skeleton:  "GyM",
+				Pattern:   "G y-MM",
+				Specified: true,
+			},
+			{
+				Skeleton:  "GyMEd",
+				Pattern:   "G y-MM-dd, E",
+				Specified: true,
+			},
+			{
+				Skeleton:  "H",
+				Pattern:   "HH",
+				Specified: true,
+			},
+			{
+				Skeleton:  "Hm",
+				Pattern:   "HH:mm",
+				Specified: true,
+			},
+			{
+				Skeleton:  "Hms",
+				Pattern:   "HH:mm:ss",
+				Specified: true,
+			},
+			{
+				Skeleton:  "Hmsv",
+				Pattern:   "HH:mm:ss v",
+				Specified: true,
+			},
+			{
+				Skeleton:  "Hmv",
+				Pattern:   "HH:mm v",
+				Specified: true,
+			},
+			{
+				Skeleton:  "Hv",
+				Pattern:   "HH v",
+				Specified: true,
+			},
+			{
+				Skeleton:  "M",
+				Pattern:   "L",
+				Specified: true,
+			},
+			{
+				Skeleton:  "MEd",
+				Pattern:   "E, d/M",
+				Specified: true,
+			},
+			{
+				Skeleton:  "MMMEd",
+				Pattern:   "E, d MMM",
+				Specified: true,
+			},
+			{
+				Skeleton:  "MMMMEd",
+				Pattern:   "E, d MMMM",
+				Specified: true,
+			},
+			{
+				Skeleton:  "MMMMW",
+				Specified: true,
+			},
+			{
+				Skeleton:  "MMMMd",
+				Pattern:   "d MMMM",
+				Specified: true,
+			},
+			{
+				Skeleton:  "MMMd",
+				Pattern:   "d MMM",
+				Specified: true,
+			},
+			{
+				Skeleton:  "MMdd",
+				Pattern:   "dd/MM",
+				Specified: true,
+			},
+			{
+				Skeleton:  "Md",
+				Pattern:   "d/M",
+				Specified: true,
+			},
+			{
+				Skeleton:  "MMM",
+				Pattern:   "LLL",
+				Specified: true,
+			},
+			{
+				Skeleton: "Q",
+				Pattern:  "Q",
+			},
+			{
+				Skeleton: "S",
+				Pattern:  "S",
+			},
+			{
+				Skeleton: "W",
+				Pattern:  "W",
+			},
+			{
+				Skeleton: "a",
+				Pattern:  "a",
+			},
+			{
+				Skeleton: "ahmmsszzzz",
+				Pattern:  "h:mm:ss a zzzz",
+				Std:      true,
+			},
+			{
+				Skeleton: "ahmmssz",
+				Pattern:  "h:mm:ss a z",
+				Std:      true,
+			},
+			{
+				Skeleton: "ahmmss",
+				Pattern:  "h:mm:ss a",
+				Std:      true,
+			},
+			{
+				Skeleton: "ahmm",
+				Pattern:  "h:mm a",
+				Std:      true,
+			},
+			{
+				Skeleton:  "ah",
+				Pattern:   "h\u202fa",
+				Specified: true,
+			},
+			{
+				Skeleton:  "ahm",
+				Pattern:   "h:mm a",
+				Specified: true,
+			},
+			{
+				Skeleton:  "ahms",
+				Pattern:   "h:mm:ss a",
+				Specified: true,
+			},
+			{
+				Skeleton:  "ahmsv",
+				Pattern:   "h:mm:ss a v",
+				Specified: true,
+			},
+			{
+				Skeleton:  "ahmv",
+				Pattern:   "h:mm a v",
+				Specified: true,
+			},
+			{
+				Skeleton:  "ahv",
+				Pattern:   "h\u202fa v",
+				Specified: true,
+			},
+			{
+				Skeleton:  "d",
+				Pattern:   "d",
+				Specified: true,
+			},
+			{
+				Skeleton: "m",
+				Pattern:  "m",
+			},
+			{
+				Skeleton:  "ms",
+				Pattern:   "mm:ss",
+				Specified: true,
+			},
+			{
+				Skeleton: "s",
+				Pattern:  "s",
+			},
+			{
+				Skeleton: "v",
+				Pattern:  "v",
+			},
+			{
+				Skeleton: "w",
+				Pattern:  "w",
+			},
+			{
+				Skeleton:  "y",
+				Pattern:   "y",
+				Specified: true,
+			},
+			{
+				Skeleton: "yMMMMEEEEd",
+				Pattern:  "EEEE, d MMMM y",
+				Std:      true,
+			},
+			{
+				Skeleton: "yMMMMd",
+				Pattern:  "d MMMM y",
+				Std:      true,
+			},
+			{
+				Skeleton:  "yMMMd",
+				Pattern:   "d MMM y",
+				Specified: true,
+			},
+			{
+				Skeleton: "yyMd",
+				Pattern:  "d/M/yy",
+				Std:      true,
+			},
+			{
+				Skeleton:  "yM",
+				Pattern:   "M/y",
+				Specified: true,
+			},
+			{
+				Skeleton:  "yMEd",
+				Pattern:   "E, d/M/y",
+				Specified: true,
+			},
+			{
+				Skeleton:  "yMM",
+				Pattern:   "MM/y",
+				Specified: true,
+			},
+			{
+				Skeleton:  "yMMM",
+				Pattern:   "MMM y",
+				Specified: true,
+			},
+			{
+				Skeleton:  "yMMMEd",
+				Pattern:   "E, d MMM y",
+				Specified: true,
+			},
+			{
+				Skeleton:  "yMMMM",
+				Pattern:   "MMMM y",
+				Specified: true,
+			},
+			{
+				Skeleton:  "yMMdd",
+				Pattern:   "dd/MM/y",
+				Specified: true,
+			},
+			{
+				Skeleton:  "yMd",
+				Pattern:   "d/M/y",
+				Specified: true,
+			},
+			{
+				Skeleton:  "yQQQ",
+				Pattern:   "QQQ y",
+				Specified: true,
+			},
+			{
+				Skeleton:  "yQQQQ",
+				Pattern:   "QQQQ y",
+				Specified: true,
+			},
+			{
+				Skeleton:  "yw",
+				Specified: true,
+			},
+		},
+		AppendItems:      [16]string{"{1} {0}", "{1} {0}", "{0} ({2}: {1})", "{0} ({2}: {1})", "{0} ({2}: {1})", "", "{0} {1}", "", "", "{0} ({2}: {1})", "", "{0} ({2}: {1})", "{0} ({2}: {1})", "{0} ({2}: {1})", "", "{0} {1}"},
+		FieldNames:       [16]string{"युग", "वर्ष", "तिमाही", "माह", "सप्ताह", "माह का सप्ताह", "सप्ताह का दिन", "वर्ष का दिन", "माह के कार्यदिवस", "दिन", "पूर्वाह्न/अपराह्न", "घंटा", "मिनट", "सेकंड", "", "समय क्षेत्र"},
+		IntervalFallback: "{0} – {1}",
+		Intervals: []i18n.IntervalFormats{
+			{
+				Skeleton:    "Bh",
+				PatternList: "\x1f\x1f\x1f\x1fB h – B h\x1fB h–h",
+			},
+			{
+				Skeleton:    "Bhm",
+				PatternList: "\x1f\x1f\x1f\x1fB h:mm – B h:mm\x1fB h:mm–h:mm\x1fB h:mm–h:mm",
+			},
+			{
+				Skeleton:    "Gy",
+				PatternList: "G y\u2009–\u2009G y\x1fG y–y",
+			},
+			{
+				Skeleton:    "GyM",
+				PatternList: "G y-MM\u2009–\u2009G y-MM\x1fG y-MM\u2009–\u2009y-MM\x1fG y-MM\u2009–\u2009y-MM",
+			},
+			{
+				Skeleton:    "GyMEd",
+				PatternList: "G y-MM-dd, E\u2009–\u2009G y-MM-dd, E\x1fG y-MM-dd, E\u2009–\u2009y-MM-dd, E\x1fG y-MM-dd, E\u2009–\u2009y-MM-dd, E\x1fG y-MM-dd, E\u2009–\u2009y-MM-dd, E",
+			},
+			{
+				Skeleton:    "GyMMM",
+				PatternList: "G y MMM\u2009–\u2009G y MMM\x1fG y MMM\u2009–\u2009y MMM\x1fG y MMM–MMM",
+			},
+			{
+				Skeleton:    "GyMMMEd",
+				PatternList: "G y MMM d, E\u2009–\u2009G y MMM d, E\x1fG y MMM d, E\u2009–\u2009y MMM d, E\x1fG y MMM d, E\u2009–\u2009MMM d, E\x1fG y MMM d, E\u2009–\u2009MMM d, E",
+			},
+			{
+				Skeleton:    "GyMMMd",
+				PatternList: "G y MMM d\u2009–\u2009G y MMM d\x1fG y MMM d\u2009–\u2009y MMM d\x1fG y MMM d\u2009–\u2009MMM d\x1fG y MMM d–d",
+			},
+			{
+				Skeleton:    "GyMd",
+				PatternList: "G y-MM-dd\u2009–\u2009G y-MM-dd\x1fG y-MM-dd\u2009–\u2009y-MM-dd\x1fG y-MM-dd\u2009–\u2009y-MM-dd\x1fG y-MM-dd\u2009–\u2009y-MM-dd",
+			},
+			{
+				Skeleton:    "H",
+				PatternList: "\x1f\x1f\x1f\x1f\x1fHH–HH",
+			},
+			{
+				Skeleton:    "Hm",
+				PatternList: "\x1f\x1f\x1f\x1f\x1fHH:mm–HH:mm\x1fHH:mm–HH:mm",
+			},
+			{
+				Skeleton:    "Hmv",
+				PatternList: "\x1f\x1f\x1f\x1f\x1fHH:mm–HH:mm v\x1fHH:mm–HH:mm v",
+			},
+			{
+				Skeleton:    "Hv",
+				PatternList: "\x1f\x1f\x1f\x1f\x1fHH–HH v",
+			},
+			{
+				Skeleton:    "M",
+				PatternList: "\x1f\x1fM–M",
+			},
+			{
+				Skeleton:    "MEd",
+				PatternList: "\x1f\x1fE, d/M – E, d/M\x1fE, d/M – E, d/M",
+			},
+			{
+				Skeleton:    "MMM",
+				PatternList: "\x1f\x1fMMM–MMM",
+			},
+			{
+				Skeleton:    "MMMEd",
+				PatternList: "\x1f\x1fE, d MMM – E, d MMM\x1fE, d MMM – E, d MMM",
+			},
+			{
+				Skeleton:    "MMMd",
+				PatternList: "\x1f\x1fd MMM – d MMM\x1fd\u2009–\u2009d MMM",
+			},
+			{
+				Skeleton:    "Md",
+				PatternList: "\x1f\x1fd/M – d/M\x1fd/M – d/M",
+			},
+			{
+				Skeleton:    "d",
+				PatternList: "\x1f\x1f\x1fd–d",
+			},
+			{
+				Skeleton:    "h",
+				PatternList: "\x1f\x1f\x1f\x1fh\u202fa\u2009–\u2009h\u202fa\x1fh–h\u202fa",
+			},
+			{
+				Skeleton:    "hm",
+				PatternList: "\x1f\x1f\x1f\x1fh:mm a\u2009–\u2009h:mm a\x1fh:mm–h:mm a\x1fh:mm–h:mm a",
+			},
+			{
+				Skeleton:    "hmv",
+				PatternList: "\x1f\x1f\x1f\x1fh:mm a\u2009–\u2009h:mm a v\x1fh:mm–h:mm a v\x1fh:mm–h:mm a v",
+			},
+			{
+				Skeleton:    "hv",
+				PatternList: "\x1f\x1f\x1f\x1fh\u202fa\u2009–\u2009h\u202fa v\x1fh–h\u202fa v",
+			},
+			{
+				Skeleton:    "y",
+				PatternList: "\x1fy–y",
+			},
+			{
+				Skeleton:    "yM",
+				PatternList: "\x1fM/y – M/y\x1fM/y – M/y",
+			},
+			{
+				Skeleton:    "yMEd",
+				PatternList: "\x1fE, d/M/y – E, d/M/y\x1fE, d/M/y – E, d/M/y\x1fE, d/M/y – E, d/M/y",
+			},
+			{
+				Skeleton:    "yMMM",
+				PatternList: "\x1fMMM y – MMM y\x1fMMM–MMM y",
+			},
+			{
+				Skeleton:    "yMMMEd",
+				PatternList: "\x1fE, d MMM y – E, d MMM y\x1fE, d MMM – E, d MMM y\x1fE, d MMM – E, d MMM y",
+			},
+			{
+				Skeleton:    "yMMMM",
+				PatternList: "\x1fMMMM y – MMMM y\x1fMMMM – MMMM y",
+			},
+			{
+				Skeleton:    "yMMMd",
+				PatternList: "\x1fd MMM y – d MMM y\x1fd MMM – d MMM y\x1fd–d MMM y",
+			},
+			{
+				Skeleton:    "yMd",
+				PatternList: "\x1fd/M/y – d/M/y\x1fd/M/y – d/M/y\x1fd/M/y – d/M/y",
+			},
+		},
+		Zone: i18n.ZoneStrings{
+			HourFormat:     "+HH:mm;-HH:mm",
+			GMTFormat:      "GMT{0}",
+			GMTZeroFormat:  "GMT",
+			RegionFormat:   "{0} समय",
+			FallbackFormat: "{1} ({0})",
+			MetaZones: []i18n.ZoneNames{
+				{
+					ID:    "Afghanistan",
+					Names: "\x1fअफ़गानिस्तान समय",
+				},
+				{
+					ID:    "Africa_Central",
+					Names: "\x1fमध्य अफ़्रीका समय",
+				},
+				{
+					ID:    "Africa_Eastern",
+					Names: "\x1fपूर्वी अफ़्रीका समय",
+				},
+				{
+					ID:    "Africa_Southern",
+					Names: "\x1fदक्षिण अफ़्रीका मानक समय",
+				},
+				{
+					ID:    "Africa_Western",
+					Names: "\x1fपश्चिम अफ़्रीका समय",
+				},
+				{
+					ID:    "Alaska",
+					Names: "अलास्का समय\x1fअलास्\u200dका मानक समय\x1fअलास्\u200dका डेलाइट समय",
+				},
+				{
+					ID:    "Amazon",
+					Names: "अमेज़न समय\x1fअमेज़न मानक समय\x1fअमेज़न ग्रीष्मकालीन समय",
+				},
+				{
+					ID:    "America_Central",
+					Names: "उत्तरी अमेरिकी केंद्रीय समय\x1fउत्तरी अमेरिकी केंद्रीय मानक समय\x1fउत्तरी अमेरिकी केंद्रीय डेलाइट समय",
+				},
+				{
+					ID:    "America_Eastern",
+					Names: "उत्तरी अमेरिकी पूर्वी समय\x1fउत्तरी अमेरिकी पूर्वी मानक समय\x1fउत्तरी अमेरिकी पूर्वी डेलाइट समय",
+				},
+				{
+					ID:    "America_Mountain",
+					Names: "उत्तरी अमेरिकी माउंटेन समय\x1fउत्तरी अमेरिकी माउंटेन मानक समय\x1fउत्तरी अमेरिकी माउंटेन डेलाइट समय",
+				},
+				{
+					ID:    "America_Pacific",
+					Names: "उत्तरी अमेरिकी प्रशांत समय\x1fउत्तरी अमेरिकी प्रशांत मानक समय\x1fउत्तरी अमेरिकी प्रशांत डेलाइट समय",
+				},
+				{
+					ID:    "Anadyr",
+					Names: "एनाडीयर समय\x1fएनाडीयर मानक समय\x1fएनाडीयर ग्रीष्मकालीन समय",
+				},
+				{
+					ID:    "Apia",
+					Names: "एपिआ समय\x1fएपिआ मानक समय\x1fएपिआ डेलाइट समय",
+				},
+				{
+					ID:    "Arabian",
+					Names: "अरब समय\x1fअरब मानक समय\x1fअरब डेलाइट समय",
+				},
+				{
+					ID:    "Argentina",
+					Names: "अर्जेंटीना समय\x1fअर्जेंटीना मानक समय\x1fअर्जेंटीना ग्रीष्मकालीन समय",
+				},
+				{
+					ID:    "Argentina_Western",
+					Names: "पश्चिमी अर्जेंटीना समय\x1fपश्चिमी अर्जेंटीना मानक समय\x1fपश्चिमी अर्जेंटीना ग्रीष्मकालीन समय",
+				},
+				{
+					ID:    "Armenia",
+					Names: "आर्मेनिया समय\x1fआर्मेनिया मानक समय\x1fआर्मेनिया ग्रीष्मकालीन समय",
+				},
+				{
+					ID:    "Atlantic",
+					Names: "अटलांटिक समय\x1fअटलांटिक मानक समय\x1fअटलांटिक डेलाइट समय",
+				},
+				{
+					ID:    "Australia_Central",
+					Names: "मध्य ऑस्ट्रेलियाई समय\x1fऑस्\u200dट्रेलियाई केंद्रीय मानक समय\x1fऑस्\u200dट्रेलियाई केंद्रीय डेलाइट समय",
+				},
+				{
+					ID:    "Australia_CentralWestern",
+					Names: "ऑस्\u200dट्रेलियाई केंद्रीय पश्चिमी समय\x1fऑस्\u200dट्रेलियाई केंद्रीय पश्चिमी मानक समय\x1fऑस्\u200dट्रेलियाई केंद्रीय पश्चिमी डेलाइट समय",
+				},
+				{
+					ID:    "Australia_Eastern",
+					Names: "पूर्वी ऑस्ट्रेलिया समय\x1fऑस्\u200dट्रेलियाई पूर्वी मानक समय\x1fऑस्\u200dट्रेलियाई पूर्वी डेलाइट समय",
+				},
+				{
+					ID:    "Australia_Western",
+					Names: "पश्चिमी ऑस्ट्रेलिया समय\x1fऑस्ट्रेलियाई पश्चिमी मानक समय\x1fऑस्ट्रेलियाई पश्चिमी डेलाइट समय",
+				},
+				{
+					ID:    "Azerbaijan",
+					Names: "अज़रबैजान समय\x1fअज़रबैजान मानक समय\x1fअज़रबैजान ग्रीष्मकालीन समय",
+				},
+				{
+					ID:    "Azores",
+					Names: "अज़ोरेस समय\x1fअज़ोरेस मानक समय\x1fअज़ोरेस ग्रीष्मकालीन समय",
+				},
+				{
+					ID:    "Bangladesh",
+					Names: "बांग्लादेश समय\x1fबांग्लादेश मानक समय\x1fबांग्लादेश ग्रीष्मकालीन समय",
+				},
+				{
+					ID:    "Bhutan",
+					Names: "\x1fभूटान समय",
+				},
+				{
+					ID:    "Bolivia",
+					Names: "\x1fबोलीविया समय",
+				},
+				{
+					ID:    "Brasilia",
+					Names: "ब्राज़ीलिया समय\x1fब्राज़ीलिया मानक समय\x1fब्राज़ीलिया ग्रीष्मकालीन समय",
+				},
+				{
+					ID:    "Brunei",
+					Names: "\x1fब्रूनेई दारूस्सलम समय",
+				},
+				{
+					ID:    "Cape_Verde",
+					Names: "केप वर्ड समय\x1fकेप वर्ड मानक समय\x1fकेप वर्ड ग्रीष्मकालीन समय",
+				},
+				{
+					ID:    "Chamorro",
+					Names: "\x1fचामोरो मानक समय",
+				},
+				{
+					ID:    "Chatham",
+					Names: "चैथम समय\x1fचैथम मानक समय\x1fचैथम डेलाइट समय",
+				},
+				{
+					ID:    "Chile",
+					Names: "चिली समय\x1fचिली मानक समय\x1fचिली ग्रीष्मकालीन समय",
+				},
+				{
+					ID:    "China",
+					Names: "चीन समय\x1fचीन मानक समय\x1fचीन डेलाइट समय",
+				},
+				{
+					ID:    "Christmas",
+					Names: "\x1fक्रिसमस द्वीप समय",
+				},
+				{
+					ID:    "Cocos",
+					Names: "\x1fकोकोस द्वीपसमूह समय",
+				},
+				{
+					ID:    "Colombia",
+					Names: "कोलंबिया समय\x1fकोलंबिया मानक समय\x1fकोलंबिया ग्रीष्मकालीन समय",
+				},
+				{
+					ID:    "Cook",
+					Names: "कुक द्वीपसमूह समय\x1fकुक द्वीपसमूह मानक समय\x1fकुक द्वीपसमूह अर्द्ध ग्रीष्मकालीन समय",
+				},
+				{
+					ID:    "Cuba",
+					Names: "क्यूबा समय\x1fक्यूबा मानक समय\x1fक्यूबा डेलाइट समय",
+				},
+				{
+					ID:    "Davis",
+					Names: "\x1fडेविस समय",
+				},
+				{
+					ID:    "DumontDUrville",
+					Names: "\x1fड्यूमोंट डी अर्विले समय",
+				},
+				{
+					ID:    "East_Timor",
+					Names: "\x1fपूर्वी तिमोर समय",
+				},
+				{
+					ID:    "Easter",
+					Names: "ईस्टर द्वीप समय\x1fईस्टर द्वीप मानक समय\x1fईस्टर द्वीप ग्रीष्मकालीन समय",
+				},
+				{
+					ID:    "Ecuador",
+					Names: "\x1fइक्वाडोर समय",
+				},
+				{
+					ID:    "Europe_Central",
+					Names: "मध्य यूरोपीय समय\x1fमध्य यूरोपीय मानक समय\x1fमध्\u200dय यूरोपीय ग्रीष्\u200dमकालीन समय",
+				},
+				{
+					ID:    "Europe_Eastern",
+					Names: "पूर्वी यूरोपीय समय\x1fपूर्वी यूरोपीय मानक समय\x1fपूर्वी यूरोपीय ग्रीष्मकालीन समय",
+				},
+				{
+					ID:    "Europe_Further_Eastern",
+					Names: "\x1fअग्र पूर्वी यूरोपीय समय",
+				},
+				{
+					ID:    "Europe_Western",
+					Names: "पश्चिमी यूरोपीय समय\x1fपश्चिमी यूरोपीय मानक समय\x1fपश्चिमी यूरोपीय ग्रीष्\u200dमकालीन समय",
+				},
+				{
+					ID:    "Falkland",
+					Names: "फ़ॉकलैंड द्वीपसमूह समय\x1fफ़ॉकलैंड द्वीपसमूह मानक समय\x1fफ़ॉकलैंड द्वीपसमूह ग्रीष्मकालीन समय",
+				},
+				{
+					ID:    "Fiji",
+					Names: "फ़िजी समय\x1fफ़िजी मानक समय\x1fफ़िजी ग्रीष्मकालीन समय",
+				},
+				{
+					ID:    "French_Guiana",
+					Names: "\x1fफ़्रेंच गुयाना समय",
+				},
+				{
+					ID:    "French_Southern",
+					Names: "\x1fदक्षिणी फ़्रांस और अंटार्कटिक समय",
+				},
+				{
+					ID:    "GMT",
+					Names: "\x1fग्रीनविच मीन टाइम",
+				},
+				{
+					ID:    "Galapagos",
+					Names: "\x1fगैलापेगोस का समय",
+				},
+				{
+					ID:    "Gambier",
+					Names: "\x1fगैंबियर समय",
+				},
+				{
+					ID:    "Georgia",
+					Names: "जॉर्जिया समय\x1fजॉर्जिया मानक समय\x1fजॉर्जिया ग्रीष्मकालीन समय",
+				},
+				{
+					ID:    "Gilbert_Islands",
+					Names: "\x1fगिल्बर्ट द्वीपसमूह समय",
+				},
+				{
+					ID:    "Greenland_Eastern",
+					Names: "पूर्वी ग्रीनलैंड समय\x1fपूर्वी ग्रीनलैंड मानक समय\x1fपूर्वी ग्रीनलैंड ग्रीष्मकालीन समय",
+				},
+				{
+					ID:    "Greenland_Western",
+					Names: "पश्चिमी ग्रीनलैंड समय\x1fपश्चिमी ग्रीनलैंड मानक समय\x1fपश्चिमी ग्रीनलैंड ग्रीष्मकालीन समय",
+				},
+				{
+					ID:    "Gulf",
+					Names: "\x1fखाड़ी मानक समय",
+				},
+				{
+					ID:    "Guyana",
+					Names: "\x1fगुयाना समय",
+				},
+				{
+					ID:    "Hawaii",
+					Names: "\x1fहवाई–आल्यूशन मानक समय",
+				},
+				{
+					ID:    "Hawaii_Aleutian",
+					Names: "हवाई–आल्यूशन समय\x1fहवाई–आल्यूशन मानक समय\x1fहवाई–आल्यूशन डेलाइट समय",
+				},
+				{
+					ID:    "Hong_Kong",
+					Names: "हाँग काँग समय\x1fहाँग काँग मानक समय\x1fहाँग काँग ग्रीष्मकालीन समय",
+				},
+				{
+					ID:    "Hovd",
+					Names: "होव्ड समय\x1fहोव्ड मानक समय\x1fहोव्ड ग्रीष्मकालीन समय",
+				},
+				{
+					ID:    "India",
+					Names: "\x1fभारतीय मानक समय\x1f\x1f\x1fIST",
+				},
+				{
+					ID:    "Indian_Ocean",
+					Names: "\x1fहिंद महासागर समय",
+				},
+				{
+					ID:    "Indochina",
+					Names: "\x1fइंडोचाइना समय",
+				},
+				{
+					ID:    "Indonesia_Central",
+					Names: "\x1fमध्य इंडोनेशिया समय",
+				},
+				{
+					ID:    "Indonesia_Eastern",
+					Names: "\x1fपूर्वी इंडोनेशिया समय",
+				},
+				{
+					ID:    "Indonesia_Western",
+					Names: "\x1fपश्चिमी इंडोनेशिया समय",
+				},
+				{
+					ID:    "Iran",
+					Names: "ईरान समय\x1fईरान मानक समय\x1fईरान डेलाइट समय",
+				},
+				{
+					ID:    "Irkutsk",
+					Names: "इर्कुत्स्क समय\x1fइर्कुत्स्क मानक समय\x1fइर्कुत्स्क ग्रीष्मकालीन समय",
+				},
+				{
+					ID:    "Israel",
+					Names: "इज़राइल समय\x1fइज़राइल मानक समय\x1fइज़राइल डेलाइट समय",
+				},
+				{
+					ID:    "Japan",
+					Names: "जापान समय\x1fजापान मानक समय\x1fजापान डेलाइट समय",
+				},
+				{
+					ID:    "Kamchatka",
+					Names: "पेट्रोपेवलास्क-कैमचात्सकी समय\x1fपेट्रोपेवलास्क-कैमचात्सकी मानक समय\x1fपेट्रोपेवलास्क-कैमचात्सकी ग्रीष्मकालीन समय",
+				},
+				{
+					ID:    "Kazakhstan",
+					Names: "\x1fकज़ाखस्तान समय",
+				},
+				{
+					ID:    "Kazakhstan_Eastern",
+					Names: "\x1fपूर्व कज़ाखस्तान समय",
+				},
+				{
+					ID:    "Kazakhstan_Western",
+					Names: "\x1fपश्चिम कज़ाखस्तान समय",
+				},
+				{
+					ID:    "Korea",
+					Names: "कोरियाई समय\x1fकोरियाई मानक समय\x1fकोरियाई डेलाइट समय",
+				},
+				{
+					ID:    "Kosrae",
+					Names: "\x1fकोसराए समय",
+				},
+				{
+					ID:    "Krasnoyarsk",
+					Names: "क्रास्नोयार्स्क समय\x1fक्रास्नोयार्स्क मानक समय\x1fक्रास्नोयार्स्क ग्रीष्मकालीन समय",
+				},
+				{
+					ID:    "Kyrgystan",
+					Names: "\x1fकिर्गिस्\u200dतान समय",
+				},
+				{
+					ID:    "Line_Islands",
+					Names: "\x1fलाइन द्वीपसमूह समय",
+				},
+				{
+					ID:    "Lord_Howe",
+					Names: "लॉर्ड होवे समय\x1fलॉर्ड होवे मानक समय\x1fलॉर्ड होवे डेलाइट समय",
+				},
+				{
+					ID:    "Magadan",
+					Names: "मागादान समय\x1fमागादान मानक समय\x1fमागादान ग्रीष्मकालीन समय",
+				},
+				{
+					ID:    "Malaysia",
+					Names: "\x1fमलेशिया समय",
+				},
+				{
+					ID:    "Maldives",
+					Names: "\x1fमालदीव समय",
+				},
+				{
+					ID:    "Marquesas",
+					Names: "\x1fमार्केसस समय",
+				},
+				{
+					ID:    "Marshall_Islands",
+					Names: "\x1fमार्शल द्वीपसमूह समय",
+				},
+				{
+					ID:    "Mauritius",
+					Names: "मॉरीशस समय\x1fमॉरीशस मानक समय\x1fमॉरीशस ग्रीष्मकालीन समय",
+				},
+				{
+					ID:    "Mawson",
+					Names: "\x1fमाव्सन समय",
+				},
+				{
+					ID:    "Mexico_Pacific",
+					Names: "मेक्सिकन प्रशांत समय\x1fमेक्सिकन प्रशांत मानक समय\x1fमेक्सिकन प्रशांत डेलाइट समय",
+				},
+				{
+					ID:    "Mongolia",
+					Names: "उलान बटोर समय\x1fउलान बटोर मानक समय\x1fउलान बटोर ग्रीष्मकालीन समय",
+				},
+				{
+					ID:    "Moscow",
+					Names: "मॉस्को समय\x1fमॉस्को मानक समय\x1fमॉस्को ग्रीष्मकालीन समय",
+				},
+				{
+					ID:    "Myanmar",
+					Names: "\x1fम्यांमार समय",
+				},
+				{
+					ID:    "Nauru",
+					Names: "\x1fनौरू समय",
+				},
+				{
+					ID:    "Nepal",
+					Names: "\x1fनेपाल समय",
+				},
+				{
+					ID:    "New_Caledonia",
+					Names: "न्यू कैलेडोनिया समय\x1fन्यू कैलेडोनिया मानक समय\x1fन्यू कैलेडोनिया ग्रीष्मकालीन समय",
+				},
+				{
+					ID:    "New_Zealand",
+					Names: "न्यूज़ीलैंड समय\x1fन्यूज़ीलैंड मानक समय\x1fन्यूज़ीलैंड डेलाइट समय",
+				},
+				{
+					ID:    "Newfoundland",
+					Names: "न्यूफ़ाउंडलैंड समय\x1fन्यूफ़ाउंडलैंड मानक समय\x1fन्यूफ़ाउंडलैंड डेलाइट समय",
+				},
+				{
+					ID:    "Niue",
+					Names: "\x1fनीयू समय",
+				},
+				{
+					ID:    "Norfolk",
+					Names: "नॉरफ़ॉक द्वीप समय\x1fनॉरफ़ॉक द्वीप मानक समय\x1fनॉरफ़ॉक द्वीप डेलाइट समय",
+				},
+				{
+					ID:    "Noronha",
+					Names: "फ़र्नांर्डो डे नोरोन्हा समय\x1fफ़र्नांर्डो डे नोरोन्हा मानक समय\x1fफ़र्नांर्डो डे नोरोन्हा ग्रीष्मकालीन समय",
+				},
+				{
+					ID:    "Novosibirsk",
+					Names: "नोवोसिबिर्स्क समय\x1fनोवोसिबिर्स्क मानक समय\x1fनोवोसिबिर्स्क ग्रीष्मकालीन समय",
+				},
+				{
+					ID:    "Omsk",
+					Names: "ओम्स्क समय\x1fओम्स्क मानक समय\x1fओम्स्क ग्रीष्मकालीन समय",
+				},
+				{
+					ID:    "Pakistan",
+					Names: "पाकिस्तान समय\x1fपाकिस्तान मानक समय\x1fपाकिस्तान ग्रीष्मकालीन समय",
+				},
+				{
+					ID:    "Palau",
+					Names: "\x1fपलाउ समय",
+				},
+				{
+					ID:    "Papua_New_Guinea",
+					Names: "\x1fपापुआ न्यू गिनी समय",
+				},
+				{
+					ID:    "Paraguay",
+					Names: "पैराग्वे समय\x1fपैराग्वे मानक समय\x1fपैराग्वे ग्रीष्मकालीन समय",
+				},
+				{
+					ID:    "Peru",
+					Names: "पेरू समय\x1fपेरू मानक समय\x1fपेरू ग्रीष्मकालीन समय",
+				},
+				{
+					ID:    "Philippines",
+					Names: "फ़िलिपीन समय\x1fफ़िलिपीन मानक समय\x1fफ़िलिपीन ग्रीष्मकालीन समय",
+				},
+				{
+					ID:    "Phoenix_Islands",
+					Names: "\x1fफ़ीनिक्स द्वीपसमूह समय",
+				},
+				{
+					ID:    "Pierre_Miquelon",
+					Names: "सेंट पिएरे और मिक्वेलान समय\x1fसेंट पिएरे और मिक्वेलान मानक समय\x1fसेंट पिएरे और मिक्वेलान डेलाइट समय",
+				},
+				{
+					ID:    "Pitcairn",
+					Names: "\x1fपिटकैर्न समय",
+				},
+				{
+					ID:    "Ponape",
+					Names: "\x1fपोनापे समय",
+				},
+				{
+					ID:    "Pyongyang",
+					Names: "\x1fप्योंगयांग समय",
+				},
+				{
+					ID:    "Reunion",
+					Names: "\x1fरीयूनियन समय",
+				},
+				{
+					ID:    "Rothera",
+					Names: "\x1fरोथेरा समय",
+				},
+				{
+					ID:    "Sakhalin",
+					Names: "सखालिन समय\x1fसखालिन मानक समय\x1fसखालिन ग्रीष्मकालीन समय",
+				},
+				{
+					ID:    "Samara",
+					Names: "समारा समय\x1fसमारा मानक समय\x1fसमारा ग्रीष्मकालीन समय",
+				},
+				{
+					ID:    "Samoa",
+					Names: "समोआ समय\x1fसमोआ मानक समय\x1fसमोआ डेलाइट समय",
+				},
+				{
+					ID:    "Seychelles",
+					Names: "\x1fसेशेल्स समय",
+				},
+				{
+					ID:    "Singapore",
+					Names: "\x1fसिंगापुर समय",
+				},
+				{
+					ID:    "Solomon",
+					Names: "\x1fसोलोमन द्वीपसमूह समय",
+				},
+				{
+					ID:    "South_Georgia",
+					Names: "\x1fदक्षिणी जॉर्जिया समय",
+				},
+				{
+					ID:    "Suriname",
+					Names: "\x1fसूरीनाम समय",
+				},
+				{
+					ID:    "Syowa",
+					Names: "\x1fस्योवा समय",
+				},
+				{
+					ID:    "Tahiti",
+					Names: "\x1fताहिती समय",
+				},
+				{
+					ID:    "Taipei",
+					Names: "ताइपे समय\x1fताइपे मानक समय\x1fताइपे डेलाइट समय",
+				},
+				{
+					ID:    "Tajikistan",
+					Names: "\x1fताजिकिस्तान समय",
+				},
+				{
+					ID:    "Tokelau",
+					Names: "\x1fटोकेलाऊ समय",
+				},
+				{
+					ID:    "Tonga",
+					Names: "टोंगा समय\x1fटोंगा मानक समय\x1fटोंगा ग्रीष्मकालीन समय",
+				},
+				{
+					ID:    "Truk",
+					Names: "\x1fचुक समय",
+				},
+				{
+					ID:    "Turkmenistan",
+					Names: "तुर्कमेनिस्तान समय\x1fतुर्कमेनिस्तान मानक समय\x1fतुर्कमेनिस्तान ग्रीष्मकालीन समय",
+				},
+				{
+					ID:    "Tuvalu",
+					Names: "\x1fतुवालू समय",
+				},
+				{
+					ID:    "Uruguay",
+					Names: "उरुग्वे समय\x1fउरुग्वे मानक समय\x1fउरुग्वे ग्रीष्मकालीन समय",
+				},
+				{
+					ID:    "Uzbekistan",
+					Names: "उज़्बेकिस्तान समय\x1fउज़्बेकिस्तान मानक समय\x1fउज़्बेकिस्तान ग्रीष्मकालीन समय",
+				},
+				{
+					ID:    "Vanuatu",
+					Names: "वनुआतू समय\x1fवनुआतू मानक समय\x1fवनुआतू ग्रीष्मकालीन समय",
+				},
+				{
+					ID:    "Venezuela",
+					Names: "\x1fवेनेज़ुएला समय",
+				},
+				{
+					ID:    "Vladivostok",
+					Names: "व्लादिवोस्तोक समय\x1fव्लादिवोस्तोक मानक समय\x1fव्लादिवोस्तोक ग्रीष्मकालीन समय",
+				},
+				{
+					ID:    "Volgograd",
+					Names: "वोल्गोग्राड समय\x1fवोल्गोग्राड मानक समय\x1fवोल्गोग्राड ग्रीष्मकालीन समय",
+				},
+				{
+					ID:    "Vostok",
+					Names: "\x1fवोस्तोक समय",
+				},
+				{
+					ID:    "Wake",
+					Names: "\x1fवेक द्वीप समय",
+				},
+				{
+					ID:    "Wallis",
+					Names: "\x1fवालिस और फ़्यूचूना समय",
+				},
+				{
+					ID:    "Yakutsk",
+					Names: "याकुत्स्क समय\x1fयाकुत्स्क मानक समय\x1fयाकुत्स्क ग्रीष्मकालीन समय",
+				},
+				{
+					ID:    "Yekaterinburg",
+					Names: "येकातेरिनबर्ग समय\x1fयेकातेरिनबर्ग मानक समय\x1fयेकातेरिनबर्ग ग्रीष्मकालीन समय",
+				},
+				{
+					ID:    "Yukon",
+					Names: "\x1fयुकॉन समय",
+				},
+			},
+			Zones: []i18n.ZoneNames{
+				{
+					ID:    "America/Ciudad_Juarez",
+					Names: "\x1f\x1f\x1f\x1f\x1f\x1fस्युदाद ह्वारेज़",
+				},
+				{
+					ID:    "America/Coyhaique",
+					Names: "\x1f\x1f\x1f\x1f\x1f\x1fकॉयहेक",
+				},
+				{
+					ID:    "Etc/UTC",
+					Names: "\x1fसमन्वित वैश्विक समय\x1f\x1f\x1fUTC",
+				},
+				{
+					ID:    "Europe/Dublin",
+					Names: "\x1f\x1fआइरिश मानक समय",
+				},
+				{
+					ID:    "Europe/London",
+					Names: "\x1f\x1fब्रिटिश ग्रीष्मकालीन समय",
+				},
+			},
+			RegionNames: "AD\x1eएंडोरा\x1fAE\x1eसंयुक्त अरब अमीरात\x1fAF\x1eअफ़गानिस्तान\x1fAG\x1eएंटिगुआ और बरबुडा\x1fAI\x1eएंग्विला\x1fAL\x1eअल्बानिया\x1fAM\x1eआर्मेनिया\x1fAO\x1eअंगोला\x1fAQ\x1eअंटार्कटिका\x1fAR\x1eअर्जेंटीना\x1fAS\x1eअमेरिकी समोआ\x1fAT\x1eऑस्ट्रिया\x1fAU\x1eऑस्ट्रेलिया\x1fAW\x1eअरूबा\x1fAX\x1eएलैंड द्वीपसमूह\x1fAZ\x1eअज़रबैजान\x1fBA\x1eबोस्निया और हर्ज़ेगोविना\x1fBB\x1eबारबाडोस\x1fBD\x1eबांग्लादेश\x1fBE\x1eबेल्जियम\x1fBF\x1eबुर्किना फ़ासो\x1fBG\x1eबुल्गारिया\x1fBH\x1eबहरीन\x1fBI\x1eबुरुंडी\x1fBJ\x1eबेनिन\x1fBL\x1eसेंट बार्थेलेमी\x1fBM\x1eबरमूडा\x1fBN\x1eब्रूनेई\x1fBO\x1eबोलीविया\x1fBQ\x1eकैरिबियन नीदरलैंड\x1fBR\x1eब्राज़ील\x1fBS\x1eबहामास\x1fBT\x1eभूटान\x1fBW\x1eबोत्स्वाना\x1fBY\x1eबेलारूस\x1fBZ\x1eबेलीज़\x1fCA\x1eकनाडा\x1fCC\x1eकोकोस (कीलिंग) द्वीपसमूह\x1fCD\x1eकांगो - किंशासा\x1fCF\x1eमध्य अफ़्रीकी गणराज्य\x1fCG\x1eकांगो – ब्राज़ाविल\x1fCH\x1eस्विट्ज़रलैंड\x1fCI\x1eकोत दिवुआर\x1fCK\x1eकुक द्वीपसमूह\x1fCL\x1eचिली\x1fCM\x1eकैमरून\x1fCN\x1eचीन\x1fCO\x1eकोलंबिया\x1fCR\x1eकोस्टारिका\x1fCU\x1eक्यूबा\x1fCV\x1eकेप वर्ड\x1fCW\x1eकुरासाओ\x1fCX\x1eक्रिसमस द्वीप\x1fCY\x1eसाइप्रस\x1fCZ\x1eचेकिया\x1fDE\x1eजर्मनी\x1fDJ\x1eजिबूती\x1fDK\x1eडेनमार्क\x1fDM\x1eडोमिनिका\x1fDO\x1eडोमिनिकन गणराज्य\x1fDZ\x1eअल्जीरिया\x1fEC\x1eइक्वाडोर\x1fEE\x1eएस्टोनिया\x1fEG\x1eमिस्र\x1fEH\x1eपश्चिमी सहारा\x1fER\x1eइरिट्रिया\x1fES\x1eस्पेन\x1fET\x1eइथियोपिया\x1fFI\x1eफ़िनलैंड\x1fFJ\x1eफ़िजी\x1fFK\x1eफ़ॉकलैंड द्वीपसमूह (इज़्लास माल्विनास)\x1fFM\x1eमाइक्रोनेशिया\x1fFO\x1eफ़ेरो द्वीपसमूह\x1fFR\x1eफ़्रांस\x1fGA\x1eगैबॉन\x1fGB\x1eयूनाइटेड किंगडम\x1fGD\x1eग्रेनाडा\x1fGE\x1eजॉर्जिया\x1fGF\x1eफ़्रेंच गुयाना\x1fGG\x1eगर्नसी\x1fGH\x1eघाना\x1fGI\x1eजिब्राल्टर\x1fGL\x1eग्रीनलैंड\x1fGM\x1eगाम्बिया\x1fGN\x1eगिनी\x1fGP\x1eग्वाडेलूप\x1fGQ\x1eइक्वेटोरियल गिनी\x1fGR\x1eयूनान\x1fGS\x1eदक्षिण जॉर्जिया और दक्षिण सैंडविच द्वीपसमूह\x1fGT\x1eग्वाटेमाला\x1fGU\x1eगुआम\x1fGW\x1eगिनी-बिसाउ\x1fGY\x1eगुयाना\x1fHK\x1eहाँग काँग\x1fHN\x1eहोंडूरास\x1fHR\x1eक्रोएशिया\x1fHT\x1eहैती\x1fHU\x1eहंगरी\x1fID\x1eइंडोनेशिया\x1fIE\x1eआयरलैंड\x1fIL\x1eइज़राइल\x1fIM\x1eआइल ऑफ़ मैन\x1fIN\x1eभारत\x1fIO\x1eब्रिटिश हिंद महासागरीय क्षेत्र\x1fIQ\x1eइराक\x1fIR\x1eईरान\x1fIS\x1eआइसलैंड\x1fIT\x1eइटली\x1fJE\x1eजर्सी\x1fJM\x1eजमैका\x1fJO\x1eजॉर्डन\x1fJP\x1eजापान\x1fKE\x1eकेन्या\x1fKG\x1eकिर्गिज़स्तान\x1fKH\x1eकंबोडिया\x1fKI\x1eकिरिबाती\x1fKM\x1eकोमोरोस\x1fKN\x1eसेंट किट्स और नेविस\x1fKP\x1eउत्तर कोरिया\x1fKR\x1eदक्षिण कोरिया\x1fKW\x1eकुवैत\x1fKY\x1eकैमेन द्वीपसमूह\x1fKZ\x1eकज़ाखस्तान\x1fLA\x1eलाओस\x1fLB\x1eलेबनान\x1fLC\x1eसेंट लूसिया\x1fLI\x1eलिचेंस्टीन\x1fLK\x1eश्रीलंका\x1fLR\x1eलाइबेरिया\x1fLS\x1eलेसोथो\x1fLT\x1eलिथुआनिया\x1fLU\x1eलग्ज़मबर्ग\x1fLV\x1eलातविया\x1fLY\x1eलीबिया\x1fMA\x1eमोरक्को\x1fMC\x1eमोनाको\x1fMD\x1eमॉल्डोवा\x1fME\x1eमोंटेनेग्रो\x1fMF\x1eसेंट मार्टिन\x1fMG\x1eमेडागास्कर\x1fMH\x1eमार्शल द्वीपसमूह\x1fMK\x1eउत्तरी मकदूनिया\x1fML\x1eमाली\x1fMM\x1eम्यांमार (बर्मा)\x1fMN\x1eमंगोलिया\x1fMO\x1eमकाऊ\x1fMP\x1eउत्तरी मारियाना द्वीपसमूह\x1fMQ\x1eमार्टीनिक\x1fMR\x1eमॉरिटानिया\x1fMS\x1eमोंटसेरात\x1fMT\x1eमाल्टा\x1fMU\x1eमॉरीशस\x1fMV\x1eमालदीव\x1fMW\x1eमलावी\x1fMX\x1eमैक्सिको\x1fMY\x1eमलेशिया\x1fMZ\x1eमोज़ांबिक\x1fNA\x1eनामीबिया\x1fNC\x1eन्यू कैलेडोनिया\x1fNE\x1eनाइजर\x1fNF\x1eनॉरफ़ॉक द्वीप\x1fNG\x1eनाइजीरिया\x1fNI\x1eनिकारागुआ\x1fNL\x1eनीदरलैंड\x1fNO\x1eनॉर्वे\x1fNP\x1eनेपाल\x1fNR\x1eनाउरु\x1fNU\x1eनीयू\x1fNZ\x1eन्यूज़ीलैंड\x1fOM\x1eओमान\x1fPA\x1eपनामा\x1fPE\x1eपेरू\x1fPF\x1eफ़्रेंच पोलिनेशिया\x1fPG\x1eपापुआ न्यू गिनी\x1fPH\x1eफ़िलिपींस\x1fPK\x1eपाकिस्तान\x1fPL\x1eपोलैंड\x1fPM\x1eसेंट पिएरे और मिक्वेलान\x1fPN\x1eपिटकैर्न द्वीपसमूह\x1fPR\x1eपोर्टो रिको\x1fPS\x1eफ़िलिस्तीन\x1fPT\x1eपुर्तगाल\x1fPW\x1eपलाऊ\x1fPY\x1eपराग्वे\x1fQA\x1eक़तर\x1fRE\x1eरियूनियन\x1fRO\x1eरोमानिया\x1fRS\x1eसर्बिया\x1fRU\x1eरूस\x1fRW\x1eरवांडा\x1fSA\x1eसऊदी अरब\x1fSB\x1eसोलोमन द्वीपसमूह\x1fSC\x1eसेशेल्स\x1fSD\x1eसूडान\x1fSE\x1eस्वीडन\x1fSG\x1eसिंगापुर\x1fSH\x1eसेंट हेलेना\x1fSI\x1eस्लोवेनिया\x1fSJ\x1eस्वालबार्ड और जान मायेन\x1fSK\x1eस्लोवाकिया\x1fSL\x1eसिएरा लियोन\x1fSM\x1eसैन मेरीनो\x1fSN\x1eसेनेगल\x1fSO\x1eसोमालिया\x1fSR\x1eसूरीनाम\x1fSS\x1eदक्षिण सूडान\x1fST\x1eसाओ टोम और प्रिंसिपे\x1fSV\x1eअल सल्वाडोर\x1fSX\x1eसिंट मार्टिन\x1fSY\x1eसीरिया\x1fSZ\x1eएस्वाटिनी\x1fTC\x1eतुर्क और कैकोज़ द्वीपसमूह\x1fTD\x1eचाड\x1fTF\x1eफ़्रांसीसी दक्षिणी क्षेत्र\x1fTG\x1eटोगो\x1fTH\x1eथाईलैंड\x1fTJ\x1eताजिकिस्तान\x1fTK\x1eतोकेलाउ\x1fTL\x1eतिमोर-लेस्त\x1fTM\x1eतुर्कमेनिस्तान\x1fTN\x1eट्यूनीशिया\x1fTO\x1eटोंगा\x1fTR\x1eतुर्किये\x1fTT\x1eत्रिनिदाद और टोबैगो\x1fTV\x1eतुवालू\x1fTW\x1eताइवान\x1fTZ\x1eतंज़ानिया\x1fUA\x1eयूक्रेन\x1fUG\x1eयुगांडा\x1fUM\x1eयू॰एस॰ आउटलाइंग द्वीपसमूह\x1fUS\x1eसंयुक्त राज्य\x1fUY\x1eउरूग्वे\x1fUZ\x1eउज़्बेकिस्तान\x1fVA\x1eवेटिकन सिटी\x1fVC\x1eसेंट विंसेंट और ग्रेनाडाइंस\x1fVE\x1eवेनेज़ुएला\x1fVG\x1eब्रिटिश वर्जिन द्वीपसमूह\x1fVI\x1eयू॰एस॰ वर्जिन द्वीपसमूह\x1fVN\x1eवियतनाम\x1fVU\x1eवनुआतू\x1fWF\x1eवालिस और फ़्यूचूना\x1fWS\x1eसमोआ\x1fYE\x1eयमन\x1fYT\x1eमायोते\x1fZA\x1eदक्षिण अफ़्रीका\x1fZM\x1eज़ाम्बिया\x1fZW\x1eज़िम्बाब्वे",
+		},
+	},
 	Relative: i18n.RelativeData{
 		Units: [8][3]i18n.RelativeUnit{{
 			{

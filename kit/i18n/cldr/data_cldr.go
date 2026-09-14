@@ -39293,6 +39293,8699 @@ var Data = &i18n.Data{
 			},
 		},
 	},
+	TimeZones: i18n.TimeZoneData{
+		Zones: []i18n.ZoneInfo{
+			{
+				ID:      "Africa/Abidjan",
+				Region:  "CI",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "GMT",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Africa/Accra",
+				Region:  "GH",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "GMT",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Africa/Addis_Ababa",
+				Region:  "ET",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Africa_Eastern",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Africa/Algiers",
+				Region:  "DZ",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Europe_Western",
+						To:       246236400,
+					},
+					{
+						MetaZone: "Europe_Central",
+						From:     246236400,
+						To:       309740400,
+					},
+					{
+						MetaZone: "Europe_Western",
+						From:     309740400,
+						To:       357523200,
+					},
+					{
+						MetaZone: "Europe_Central",
+						From:     357523200,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:        "Africa/Asmara",
+				Canonical: "Africa/Asmera",
+			},
+			{
+				ID:      "Africa/Asmera",
+				Region:  "ER",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Africa_Eastern",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Africa/Bamako",
+				Region:  "ML",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "GMT",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Africa/Bangui",
+				Region:  "CF",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Africa_Western",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Africa/Banjul",
+				Region:  "GM",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "GMT",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Africa/Bissau",
+				Region:  "GW",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Africa_FarWestern",
+						To:       157770000,
+					},
+					{
+						MetaZone: "GMT",
+						From:     157770000,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Africa/Blantyre",
+				Region:  "MW",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Africa_Central",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Africa/Brazzaville",
+				Region:  "CG",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Africa_Western",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Africa/Bujumbura",
+				Region:  "BI",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Africa_Central",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Africa/Cairo",
+				Region:  "EG",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Europe_Eastern",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Africa/Casablanca",
+				Region:  "MA",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Europe_Western",
+						To:       448243200,
+					},
+					{
+						MetaZone: "Europe_Central",
+						From:     448243200,
+						To:       504918000,
+					},
+					{
+						MetaZone: "Europe_Western",
+						From:     504918000,
+						To:       1540692000,
+					},
+					{
+						MetaZone: "Europe_Western",
+						From:     1789866000,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "Africa/Ceuta",
+				Region: "ES",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Europe_Western",
+						To:       448243200,
+					},
+					{
+						MetaZone: "Europe_Central",
+						From:     448243200,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Africa/Conakry",
+				Region:  "GN",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "GMT",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Africa/Dakar",
+				Region:  "SN",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "GMT",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Africa/Dar_es_Salaam",
+				Region:  "TZ",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Africa_Eastern",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Africa/Djibouti",
+				Region:  "DJ",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Africa_Eastern",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Africa/Douala",
+				Region:  "CM",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Africa_Western",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Africa/El_Aaiun",
+				Region:  "EH",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Africa_FarWestern",
+						To:       198291600,
+					},
+					{
+						MetaZone: "Europe_Western",
+						From:     198291600,
+						To:       1540692000,
+					},
+					{
+						MetaZone: "Europe_Western",
+						From:     1789866000,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Africa/Freetown",
+				Region:  "SL",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "GMT",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Africa/Gaborone",
+				Region:  "BW",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Africa_Central",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Africa/Harare",
+				Region:  "ZW",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Africa_Central",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Africa/Johannesburg",
+				Region:  "ZA",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Africa_Southern",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Africa/Juba",
+				Region:  "SS",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Africa_Central",
+						To:       947930400,
+					},
+					{
+						MetaZone: "Africa_Eastern",
+						From:     947930400,
+						To:       1612126800,
+					},
+					{
+						MetaZone: "Africa_Central",
+						From:     1612126800,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Africa/Kampala",
+				Region:  "UG",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Africa_Eastern",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Africa/Khartoum",
+				Region:  "SD",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Africa_Central",
+						To:       947930400,
+					},
+					{
+						MetaZone: "Africa_Eastern",
+						From:     947930400,
+						To:       1509483600,
+					},
+					{
+						MetaZone: "Africa_Central",
+						From:     1509483600,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Africa/Kigali",
+				Region:  "RW",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Africa_Central",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "Africa/Kinshasa",
+				Region: "CD",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Africa_Western",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Africa/Lagos",
+				Region:  "NG",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Africa_Western",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Africa/Libreville",
+				Region:  "GA",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Africa_Western",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Africa/Lome",
+				Region:  "TG",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "GMT",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Africa/Luanda",
+				Region:  "AO",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Africa_Western",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "Africa/Lubumbashi",
+				Region: "CD",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Africa_Central",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Africa/Lusaka",
+				Region:  "ZM",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Africa_Central",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Africa/Malabo",
+				Region:  "GQ",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Africa_Western",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Africa/Maputo",
+				Region:  "MZ",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Africa_Central",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Africa/Maseru",
+				Region:  "LS",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Africa_Southern",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Africa/Mbabane",
+				Region:  "SZ",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Africa_Southern",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Africa/Mogadishu",
+				Region:  "SO",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Africa_Eastern",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Africa/Monrovia",
+				Region:  "LR",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Liberia",
+						To:       63593100,
+					},
+					{
+						MetaZone: "GMT",
+						From:     63593100,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Africa/Nairobi",
+				Region:  "KE",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Africa_Eastern",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Africa/Ndjamena",
+				Region:  "TD",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Africa_Western",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Africa/Niamey",
+				Region:  "NE",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Africa_Western",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Africa/Nouakchott",
+				Region:  "MR",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "GMT",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Africa/Ouagadougou",
+				Region:  "BF",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "GMT",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Africa/Porto-Novo",
+				Region:  "BJ",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Africa_Western",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Africa/Sao_Tome",
+				Region:  "ST",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "GMT",
+						To:       1514768400,
+					},
+					{
+						MetaZone: "Africa_Western",
+						From:     1514768400,
+						To:       1546304400,
+					},
+					{
+						MetaZone: "GMT",
+						From:     1546304400,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:        "Africa/Timbuktu",
+				Canonical: "Africa/Bamako",
+			},
+			{
+				ID:      "Africa/Tripoli",
+				Region:  "LY",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Europe_Eastern",
+						To:       378684000,
+					},
+					{
+						MetaZone: "Europe_Central",
+						From:     378684000,
+						To:       641775600,
+					},
+					{
+						MetaZone: "Europe_Eastern",
+						From:     641775600,
+						To:       844034400,
+					},
+					{
+						MetaZone: "Europe_Central",
+						From:     844034400,
+						To:       875916000,
+					},
+					{
+						MetaZone: "Europe_Eastern",
+						From:     875916000,
+						To:       1352505600,
+					},
+					{
+						MetaZone: "Europe_Central",
+						From:     1352505600,
+						To:       1382659200,
+					},
+					{
+						MetaZone: "Europe_Eastern",
+						From:     1382659200,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Africa/Tunis",
+				Region:  "TN",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Europe_Central",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Africa/Windhoek",
+				Region:  "NA",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Africa_Southern",
+						To:       637970400,
+					},
+					{
+						MetaZone: "Africa_Central",
+						From:     637970400,
+						To:       764200800,
+					},
+					{
+						MetaZone: "Africa_Western",
+						From:     764200800,
+						To:       1508796000,
+					},
+					{
+						MetaZone: "Africa_Central",
+						From:     1508796000,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "America/Adak",
+				Region: "US",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Bering",
+						To:       436363200,
+					},
+					{
+						MetaZone: "Hawaii_Aleutian",
+						From:     439034400,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "America/Anchorage",
+				Region: "US",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Alaska_Hawaii",
+						To:       436359600,
+					},
+					{
+						MetaZone: "Alaska",
+						From:     439030800,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "America/Anguilla",
+				Region:  "AI",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Atlantic",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "America/Antigua",
+				Region:  "AG",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Atlantic",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "America/Araguaina",
+				Region: "BR",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Brasilia",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:        "America/Argentina/Buenos_Aires",
+				Canonical: "America/Buenos_Aires",
+			},
+			{
+				ID:        "America/Argentina/Catamarca",
+				Canonical: "America/Catamarca",
+			},
+			{
+				ID:        "America/Argentina/ComodRivadavia",
+				Canonical: "America/Catamarca",
+			},
+			{
+				ID:        "America/Argentina/Cordoba",
+				Canonical: "America/Cordoba",
+			},
+			{
+				ID:        "America/Argentina/Jujuy",
+				Canonical: "America/Jujuy",
+			},
+			{
+				ID:     "America/Argentina/La_Rioja",
+				Region: "AR",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Argentina",
+						To:       667792800,
+					},
+					{
+						MetaZone: "Argentina_Western",
+						From:     667792800,
+						To:       673588800,
+					},
+					{
+						MetaZone: "Argentina",
+						From:     673588800,
+						To:       1086058800,
+					},
+					{
+						MetaZone: "Argentina_Western",
+						From:     1086058800,
+						To:       1087704000,
+					},
+					{
+						MetaZone: "Argentina",
+						From:     1087704000,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:        "America/Argentina/Mendoza",
+				Canonical: "America/Mendoza",
+			},
+			{
+				ID:     "America/Argentina/Rio_Gallegos",
+				Region: "AR",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Argentina",
+						To:       1086058800,
+					},
+					{
+						MetaZone: "Argentina_Western",
+						From:     1086058800,
+						To:       1087704000,
+					},
+					{
+						MetaZone: "Argentina",
+						From:     1087704000,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "America/Argentina/Salta",
+				Region: "AR",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Argentina",
+						To:       667965600,
+					},
+					{
+						MetaZone: "Argentina",
+						From:     687931200,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "America/Argentina/San_Juan",
+				Region: "AR",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Argentina",
+						To:       667792800,
+					},
+					{
+						MetaZone: "Argentina_Western",
+						From:     667792800,
+						To:       673588800,
+					},
+					{
+						MetaZone: "Argentina",
+						From:     673588800,
+						To:       1085972400,
+					},
+					{
+						MetaZone: "Argentina_Western",
+						From:     1085972400,
+						To:       1090728000,
+					},
+					{
+						MetaZone: "Argentina",
+						From:     1090728000,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "America/Argentina/San_Luis",
+				Region: "AR",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Argentina",
+						To:       637380000,
+					},
+					{
+						MetaZone: "Argentina_Western",
+						From:     637380000,
+						To:       675748800,
+					},
+					{
+						MetaZone: "Argentina",
+						From:     675748800,
+						To:       938919600,
+					},
+					{
+						MetaZone: "Argentina_Western",
+						From:     938919600,
+						To:       952052400,
+					},
+					{
+						MetaZone: "Argentina",
+						From:     952052400,
+						To:       1085972400,
+					},
+					{
+						MetaZone: "Argentina_Western",
+						From:     1085972400,
+						To:       1090728000,
+					},
+					{
+						MetaZone: "Argentina",
+						From:     1090728000,
+						To:       1200880800,
+					},
+					{
+						MetaZone: "Argentina_Western",
+						From:     1200880800,
+						To:       1255233600,
+					},
+					{
+						MetaZone: "Argentina",
+						From:     1255233600,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "America/Argentina/Tucuman",
+				Region: "AR",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Argentina",
+						To:       667965600,
+					},
+					{
+						MetaZone: "Argentina",
+						From:     687931200,
+						To:       1086058800,
+					},
+					{
+						MetaZone: "Argentina_Western",
+						From:     1086058800,
+						To:       1087099200,
+					},
+					{
+						MetaZone: "Argentina",
+						From:     1087099200,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "America/Argentina/Ushuaia",
+				Region: "AR",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Argentina",
+						To:       1085886000,
+					},
+					{
+						MetaZone: "Argentina",
+						From:     1087704000,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "America/Aruba",
+				Region:  "AW",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Atlantic",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "America/Asuncion",
+				Region:  "PY",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Paraguay",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:        "America/Atikokan",
+				Canonical: "America/Coral_Harbour",
+			},
+			{
+				ID:        "America/Atka",
+				Canonical: "America/Adak",
+			},
+			{
+				ID:     "America/Bahia",
+				Region: "BR",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Brasilia",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "America/Bahia_Banderas",
+				Region: "MX",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "America_Mountain",
+						To:       1270371600,
+					},
+					{
+						MetaZone: "America_Central",
+						From:     1270371600,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "America/Barbados",
+				Region:  "BB",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Atlantic",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "America/Belem",
+				Region: "BR",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Brasilia",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "America/Belize",
+				Region:  "BZ",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "America_Central",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "America/Blanc-Sablon",
+				Region: "CA",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Atlantic",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "America/Boa_Vista",
+				Region: "BR",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Amazon",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "America/Bogota",
+				Region:  "CO",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Colombia",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "America/Boise",
+				Region: "US",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "America_Mountain",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "America/Buenos_Aires",
+				Region: "AR",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Argentina",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "America/Cambridge_Bay",
+				Region: "CA",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "America_Mountain",
+						To:       941356800,
+					},
+					{
+						MetaZone: "America_Central",
+						From:     941356800,
+						To:       972802800,
+					},
+					{
+						MetaZone: "America_Eastern",
+						From:     972802800,
+						To:       973400400,
+					},
+					{
+						MetaZone: "America_Central",
+						From:     973400400,
+						To:       986115600,
+					},
+					{
+						MetaZone: "America_Mountain",
+						From:     986115600,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "America/Campo_Grande",
+				Region: "BR",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Amazon",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "America/Cancun",
+				Region: "MX",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "America_Central",
+						To:       378201600,
+					},
+					{
+						MetaZone: "America_Eastern",
+						From:     378201600,
+						To:       410504400,
+					},
+					{
+						MetaZone: "America_Central",
+						From:     410504400,
+						To:       877849200,
+					},
+					{
+						MetaZone: "America_Eastern",
+						From:     877849200,
+						To:       902037600,
+					},
+					{
+						MetaZone: "America_Central",
+						From:     902037600,
+						To:       1422777600,
+					},
+					{
+						MetaZone: "America_Eastern",
+						From:     1422777600,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "America/Caracas",
+				Region:  "VE",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Venezuela",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "America/Catamarca",
+				Region: "AR",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Argentina",
+						To:       667965600,
+					},
+					{
+						MetaZone: "Argentina",
+						From:     687931200,
+						To:       1086058800,
+					},
+					{
+						MetaZone: "Argentina_Western",
+						From:     1086058800,
+						To:       1087704000,
+					},
+					{
+						MetaZone: "Argentina",
+						From:     1087704000,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "America/Cayenne",
+				Region:  "GF",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "French_Guiana",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "America/Cayman",
+				Region:  "KY",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "America_Eastern",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "America/Chicago",
+				Region: "US",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "America_Central",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "America/Chihuahua",
+				Region: "MX",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "America_Central",
+						To:       891766800,
+					},
+					{
+						MetaZone: "Mexico_Pacific",
+						From:     891766800,
+						To:       1667116800,
+					},
+					{
+						MetaZone: "America_Central",
+						From:     1667116800,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "America/Ciudad_Juarez",
+				Region: "MX",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "America_Central",
+						To:       891766800,
+					},
+					{
+						MetaZone: "Mexico_Pacific",
+						From:     891766800,
+						To:       1667116800,
+					},
+					{
+						MetaZone: "America_Central",
+						From:     1667116800,
+						To:       1669788000,
+					},
+					{
+						MetaZone: "America_Mountain",
+						From:     1669788000,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "America/Coral_Harbour",
+				Region: "CA",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "America_Eastern",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "America/Cordoba",
+				Region: "AR",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Argentina",
+						To:       667965600,
+					},
+					{
+						MetaZone: "Argentina",
+						From:     687931200,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "America/Costa_Rica",
+				Region:  "CR",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "America_Central",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "America/Coyhaique",
+				Region: "CL",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Chile",
+						To:       1742439600,
+					},
+				},
+			},
+			{
+				ID:     "America/Creston",
+				Region: "CA",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "America_Mountain",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "America/Cuiaba",
+				Region: "BR",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Amazon",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "America/Curacao",
+				Region:  "CW",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Atlantic",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "America/Danmarkshavn",
+				Region: "GL",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Greenland_Western",
+						To:       820465200,
+					},
+					{
+						MetaZone: "GMT",
+						From:     820465200,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "America/Dawson",
+				Region: "CA",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "America_Pacific",
+						From:     120646800,
+						To:       1604214000,
+					},
+					{
+						MetaZone: "Yukon",
+						From:     1604214000,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "America/Dawson_Creek",
+				Region: "CA",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "America_Pacific",
+						To:       84013200,
+					},
+					{
+						MetaZone: "America_Mountain",
+						From:     84013200,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "America/Denver",
+				Region: "US",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "America_Mountain",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "America/Detroit",
+				Region: "US",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "America_Eastern",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "America/Dominica",
+				Region:  "DM",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Atlantic",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "America/Edmonton",
+				Region: "CA",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "America_Mountain",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "America/Eirunepe",
+				Region: "BR",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Acre",
+						To:       1214283600,
+					},
+					{
+						MetaZone: "Amazon",
+						From:     1214283600,
+						To:       1384056000,
+					},
+					{
+						MetaZone: "Acre",
+						From:     1384056000,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "America/El_Salvador",
+				Region:  "SV",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "America_Central",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:        "America/Ensenada",
+				Canonical: "America/Tijuana",
+			},
+			{
+				ID:     "America/Fort_Nelson",
+				Region: "CA",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "America_Pacific",
+						To:       1425808800,
+					},
+					{
+						MetaZone: "America_Mountain",
+						From:     1425808800,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:        "America/Fort_Wayne",
+				Canonical: "America/Indianapolis",
+			},
+			{
+				ID:     "America/Fortaleza",
+				Region: "BR",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Brasilia",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "America/Glace_Bay",
+				Region: "CA",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Atlantic",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "America/Godthab",
+				Region: "GL",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Greenland_Western",
+						To:       1711414800,
+					},
+					{
+						MetaZone: "Greenland",
+						From:     1711414800,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "America/Goose_Bay",
+				Region: "CA",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Atlantic",
+						To:       576043260,
+					},
+					{
+						MetaZone: "Goose_Bay",
+						From:     576043260,
+						To:       594180060,
+					},
+					{
+						MetaZone: "Atlantic",
+						From:     594180060,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "America/Grand_Turk",
+				Region:  "TC",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "America_Eastern",
+						To:       1425798000,
+					},
+					{
+						MetaZone: "Atlantic",
+						From:     1425798000,
+						To:       1520751600,
+					},
+					{
+						MetaZone: "America_Eastern",
+						From:     1520751600,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "America/Grenada",
+				Region:  "GD",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Atlantic",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "America/Guadeloupe",
+				Region:  "GP",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Atlantic",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "America/Guatemala",
+				Region:  "GT",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "America_Central",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "America/Guayaquil",
+				Region:  "EC",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Ecuador",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "America/Guyana",
+				Region:  "GY",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Guyana",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "America/Halifax",
+				Region: "CA",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Atlantic",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "America/Havana",
+				Region:  "CU",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Cuba",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "America/Hermosillo",
+				Region: "MX",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Mexico_Pacific",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:        "America/Indiana/Indianapolis",
+				Canonical: "America/Indianapolis",
+			},
+			{
+				ID:     "America/Indiana/Knox",
+				Region: "US",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "America_Central",
+						To:       688546800,
+					},
+					{
+						MetaZone: "America_Eastern",
+						From:     688546800,
+						To:       1143961200,
+					},
+					{
+						MetaZone: "America_Central",
+						From:     1143961200,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "America/Indiana/Marengo",
+				Region: "US",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "America_Eastern",
+						To:       126687600,
+					},
+					{
+						MetaZone: "America_Central",
+						From:     126687600,
+						To:       152089200,
+					},
+					{
+						MetaZone: "America_Eastern",
+						From:     152089200,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "America/Indiana/Petersburg",
+				Region: "US",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "America_Central",
+						To:       247042800,
+					},
+					{
+						MetaZone: "America_Eastern",
+						From:     247042800,
+						To:       1143961200,
+					},
+					{
+						MetaZone: "America_Central",
+						From:     1143961200,
+						To:       1194159600,
+					},
+					{
+						MetaZone: "America_Eastern",
+						From:     1194159600,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "America/Indiana/Tell_City",
+				Region: "US",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "America_Eastern",
+						To:       1143961200,
+					},
+					{
+						MetaZone: "America_Central",
+						From:     1143961200,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "America/Indiana/Vevay",
+				Region: "US",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "America_Eastern",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "America/Indiana/Vincennes",
+				Region: "US",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "America_Eastern",
+						To:       1143961200,
+					},
+					{
+						MetaZone: "America_Central",
+						From:     1143961200,
+						To:       1194159600,
+					},
+					{
+						MetaZone: "America_Eastern",
+						From:     1194159600,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "America/Indiana/Winamac",
+				Region: "US",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "America_Eastern",
+						To:       1143961200,
+					},
+					{
+						MetaZone: "America_Central",
+						From:     1143961200,
+						To:       1173600000,
+					},
+					{
+						MetaZone: "America_Eastern",
+						From:     1173600000,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "America/Indianapolis",
+				Region: "US",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "America_Eastern",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "America/Inuvik",
+				Region: "CA",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "America_Pacific",
+						To:       294228000,
+					},
+					{
+						MetaZone: "America_Mountain",
+						From:     294228000,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "America/Iqaluit",
+				Region: "CA",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "America_Eastern",
+						To:       941349600,
+					},
+					{
+						MetaZone: "America_Central",
+						From:     941349600,
+						To:       972802800,
+					},
+					{
+						MetaZone: "America_Eastern",
+						From:     972802800,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "America/Jamaica",
+				Region:  "JM",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "America_Eastern",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "America/Jujuy",
+				Region: "AR",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Argentina",
+						To:       636516000,
+					},
+					{
+						MetaZone: "Argentina",
+						From:     686721600,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "America/Juneau",
+				Region: "US",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "America_Pacific",
+						To:       325677600,
+					},
+					{
+						MetaZone: "America_Pacific",
+						From:     341402400,
+						To:       436352400,
+					},
+					{
+						MetaZone: "Alaska",
+						From:     439030800,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:        "America/Kentucky/Louisville",
+				Canonical: "America/Louisville",
+			},
+			{
+				ID:     "America/Kentucky/Monticello",
+				Region: "US",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "America_Central",
+						To:       972802800,
+					},
+					{
+						MetaZone: "America_Eastern",
+						From:     972802800,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:        "America/Knox_IN",
+				Canonical: "America/Indiana/Knox",
+			},
+			{
+				ID:      "America/Kralendijk",
+				Region:  "BQ",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Atlantic",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "America/La_Paz",
+				Region:  "BO",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Bolivia",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "America/Lima",
+				Region:  "PE",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Peru",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "America/Los_Angeles",
+				Region: "US",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "America_Pacific",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "America/Louisville",
+				Region: "US",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "America_Eastern",
+						To:       126687600,
+					},
+					{
+						MetaZone: "America_Central",
+						From:     126687600,
+						To:       152089200,
+					},
+					{
+						MetaZone: "America_Eastern",
+						From:     152089200,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "America/Lower_Princes",
+				Region:  "SX",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Atlantic",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "America/Maceio",
+				Region: "BR",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Brasilia",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "America/Managua",
+				Region:  "NI",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "America_Central",
+						To:       105084000,
+					},
+					{
+						MetaZone: "America_Eastern",
+						From:     105084000,
+						To:       161758800,
+					},
+					{
+						MetaZone: "America_Central",
+						From:     161758800,
+						To:       694260000,
+					},
+					{
+						MetaZone: "America_Eastern",
+						From:     694260000,
+						To:       717310800,
+					},
+					{
+						MetaZone: "America_Central",
+						From:     717310800,
+						To:       725868000,
+					},
+					{
+						MetaZone: "America_Eastern",
+						From:     725868000,
+						To:       852094800,
+					},
+					{
+						MetaZone: "America_Central",
+						From:     852094800,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "America/Manaus",
+				Region: "BR",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Amazon",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "America/Marigot",
+				Region:  "MF",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Atlantic",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "America/Martinique",
+				Region:  "MQ",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Atlantic",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "America/Matamoros",
+				Region: "MX",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "America_Central",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "America/Mazatlan",
+				Region: "MX",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Mexico_Pacific",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "America/Mendoza",
+				Region: "AR",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Argentina",
+						To:       636516000,
+					},
+					{
+						MetaZone: "Argentina",
+						From:     719380800,
+						To:       1085281200,
+					},
+					{
+						MetaZone: "Argentina",
+						From:     1096171200,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "America/Menominee",
+				Region: "US",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "America_Eastern",
+						To:       104914800,
+					},
+					{
+						MetaZone: "America_Central",
+						From:     104914800,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "America/Merida",
+				Region: "MX",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "America_Central",
+						To:       378201600,
+					},
+					{
+						MetaZone: "America_Eastern",
+						From:     378201600,
+						To:       405068400,
+					},
+					{
+						MetaZone: "America_Central",
+						From:     405068400,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "America/Metlakatla",
+				Region: "US",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "America_Pacific",
+						To:       1446372000,
+					},
+					{
+						MetaZone: "Alaska",
+						From:     1446372000,
+						To:       1541325600,
+					},
+					{
+						MetaZone: "America_Pacific",
+						From:     1541325600,
+						To:       1547978400,
+					},
+					{
+						MetaZone: "Alaska",
+						From:     1547978400,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "America/Mexico_City",
+				Region: "MX",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "America_Central",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "America/Miquelon",
+				Region:  "PM",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Atlantic",
+						To:       326001600,
+					},
+					{
+						MetaZone: "Pierre_Miquelon",
+						From:     326001600,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "America/Moncton",
+				Region: "CA",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Atlantic",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "America/Monterrey",
+				Region: "MX",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "America_Central",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "America/Montevideo",
+				Region:  "UY",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Uruguay",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:        "America/Montreal",
+				Canonical: "America/Toronto",
+			},
+			{
+				ID:      "America/Montserrat",
+				Region:  "MS",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Atlantic",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "America/Nassau",
+				Region:  "BS",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "America_Eastern",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "America/New_York",
+				Region: "US",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "America_Eastern",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:        "America/Nipigon",
+				Canonical: "America/Toronto",
+			},
+			{
+				ID:     "America/Nome",
+				Region: "US",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Bering",
+						To:       436363200,
+					},
+					{
+						MetaZone: "Alaska",
+						From:     439030800,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "America/Noronha",
+				Region: "BR",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Noronha",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "America/North_Dakota/Beulah",
+				Region: "US",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "America_Mountain",
+						To:       1289116800,
+					},
+					{
+						MetaZone: "America_Central",
+						From:     1289116800,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "America/North_Dakota/Center",
+				Region: "US",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "America_Mountain",
+						To:       720000000,
+					},
+					{
+						MetaZone: "America_Central",
+						From:     720000000,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "America/North_Dakota/New_Salem",
+				Region: "US",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "America_Mountain",
+						To:       1067155200,
+					},
+					{
+						MetaZone: "America_Central",
+						From:     1067155200,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:        "America/Nuuk",
+				Canonical: "America/Godthab",
+			},
+			{
+				ID:     "America/Ojinaga",
+				Region: "MX",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "America_Central",
+						To:       891766800,
+					},
+					{
+						MetaZone: "America_Mountain",
+						From:     891766800,
+						To:       1667116800,
+					},
+					{
+						MetaZone: "America_Central",
+						From:     1667116800,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "America/Panama",
+				Region:  "PA",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "America_Eastern",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:        "America/Pangnirtung",
+				Canonical: "America/Iqaluit",
+			},
+			{
+				ID:      "America/Paramaribo",
+				Region:  "SR",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Dutch_Guiana",
+						To:       185686200,
+					},
+					{
+						MetaZone: "Suriname",
+						From:     185686200,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "America/Phoenix",
+				Region: "US",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "America_Mountain",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "America/Port-au-Prince",
+				Region:  "HT",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "America_Eastern",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "America/Port_of_Spain",
+				Region:  "TT",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Atlantic",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:        "America/Porto_Acre",
+				Canonical: "America/Rio_Branco",
+			},
+			{
+				ID:     "America/Porto_Velho",
+				Region: "BR",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Amazon",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "America/Puerto_Rico",
+				Region:  "PR",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Atlantic",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "America/Punta_Arenas",
+				Region: "CL",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Chile",
+						To:       1480806000,
+					},
+				},
+			},
+			{
+				ID:        "America/Rainy_River",
+				Canonical: "America/Winnipeg",
+			},
+			{
+				ID:     "America/Rankin_Inlet",
+				Region: "CA",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "America_Central",
+						To:       972802800,
+					},
+					{
+						MetaZone: "America_Eastern",
+						From:     972802800,
+						To:       986112000,
+					},
+					{
+						MetaZone: "America_Central",
+						From:     986112000,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "America/Recife",
+				Region: "BR",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Brasilia",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "America/Regina",
+				Region: "CA",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "America_Central",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "America/Resolute",
+				Region: "CA",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "America_Central",
+						To:       972802800,
+					},
+					{
+						MetaZone: "America_Eastern",
+						From:     972802800,
+						To:       986112000,
+					},
+					{
+						MetaZone: "America_Central",
+						From:     986112000,
+						To:       1162105200,
+					},
+					{
+						MetaZone: "America_Eastern",
+						From:     1162105200,
+						To:       1173600000,
+					},
+					{
+						MetaZone: "America_Central",
+						From:     1173600000,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "America/Rio_Branco",
+				Region: "BR",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Acre",
+						To:       1214283600,
+					},
+					{
+						MetaZone: "Amazon",
+						From:     1214283600,
+						To:       1384056000,
+					},
+					{
+						MetaZone: "Acre",
+						From:     1384056000,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:        "America/Rosario",
+				Canonical: "America/Cordoba",
+			},
+			{
+				ID:        "America/Santa_Isabel",
+				Canonical: "America/Tijuana",
+			},
+			{
+				ID:     "America/Santarem",
+				Region: "BR",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Amazon",
+						To:       1214280000,
+					},
+					{
+						MetaZone: "Brasilia",
+						From:     1214280000,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "America/Santiago",
+				Region:  "CL",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Chile",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "America/Santo_Domingo",
+				Region:  "DO",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Dominican",
+						To:       152082000,
+					},
+					{
+						MetaZone: "Atlantic",
+						From:     152082000,
+						To:       972799200,
+					},
+					{
+						MetaZone: "America_Eastern",
+						From:     972799200,
+						To:       975823200,
+					},
+					{
+						MetaZone: "Atlantic",
+						From:     975823200,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "America/Sao_Paulo",
+				Region: "BR",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Brasilia",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "America/Scoresbysund",
+				Region: "GL",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Greenland_Central",
+						To:       354679200,
+					},
+					{
+						MetaZone: "Greenland_Eastern",
+						From:     354679200,
+						To:       1711846800,
+					},
+					{
+						MetaZone: "Greenland",
+						From:     1711846800,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:        "America/Shiprock",
+				Canonical: "America/Denver",
+			},
+			{
+				ID:     "America/Sitka",
+				Region: "US",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "America_Pacific",
+						To:       436352400,
+					},
+					{
+						MetaZone: "Alaska",
+						From:     439030800,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "America/St_Barthelemy",
+				Region:  "BL",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Atlantic",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "America/St_Johns",
+				Region: "CA",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Newfoundland",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "America/St_Kitts",
+				Region:  "KN",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Atlantic",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "America/St_Lucia",
+				Region:  "LC",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Atlantic",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "America/St_Thomas",
+				Region:  "VI",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Atlantic",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "America/St_Vincent",
+				Region:  "VC",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Atlantic",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "America/Swift_Current",
+				Region: "CA",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "America_Mountain",
+						To:       73472400,
+					},
+					{
+						MetaZone: "America_Central",
+						From:     73472400,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "America/Tegucigalpa",
+				Region:  "HN",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "America_Central",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "America/Thule",
+				Region: "GL",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Atlantic",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:        "America/Thunder_Bay",
+				Canonical: "America/Toronto",
+			},
+			{
+				ID:     "America/Tijuana",
+				Region: "MX",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "America_Pacific",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "America/Toronto",
+				Region: "CA",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "America_Eastern",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "America/Tortola",
+				Region:  "VG",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Atlantic",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "America/Vancouver",
+				Region: "CA",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "America_Pacific",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:        "America/Virgin",
+				Canonical: "America/St_Thomas",
+			},
+			{
+				ID:     "America/Whitehorse",
+				Region: "CA",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "America_Pacific",
+						To:       1604214000,
+					},
+					{
+						MetaZone: "Yukon",
+						From:     1604214000,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "America/Winnipeg",
+				Region: "CA",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "America_Central",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "America/Yakutat",
+				Region: "US",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Alaska",
+						From:     439030800,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:        "America/Yellowknife",
+				Canonical: "America/Edmonton",
+			},
+			{
+				ID:     "Antarctica/Casey",
+				Region: "AQ",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Australia_Western",
+						To:       1255802400,
+					},
+					{
+						MetaZone: "Casey",
+						From:     1255802400,
+						To:       1267714800,
+					},
+					{
+						MetaZone: "Australia_Western",
+						From:     1267714800,
+						To:       1319738400,
+					},
+					{
+						MetaZone: "Casey",
+						From:     1319738400,
+						To:       1329843600,
+					},
+					{
+						MetaZone: "Australia_Western",
+						From:     1329843600,
+						To:       1477065600,
+					},
+					{
+						MetaZone: "Casey",
+						From:     1477065600,
+						To:       1520701200,
+					},
+					{
+						MetaZone: "Australia_Western",
+						From:     1520701200,
+						To:       1538856000,
+					},
+					{
+						MetaZone: "Casey",
+						From:     1538856000,
+						To:       1552752000,
+					},
+					{
+						MetaZone: "Australia_Western",
+						From:     1552752000,
+						To:       1570129200,
+					},
+					{
+						MetaZone: "Casey",
+						From:     1570129200,
+						To:       1583596800,
+					},
+					{
+						MetaZone: "Australia_Western",
+						From:     1583596800,
+						To:       1601740860,
+					},
+					{
+						MetaZone: "Casey",
+						From:     1601740860,
+						To:       1615640400,
+					},
+					{
+						MetaZone: "Australia_Western",
+						From:     1615640400,
+						To:       1633190460,
+					},
+					{
+						MetaZone: "Casey",
+						From:     1633190460,
+						To:       1647090000,
+					},
+					{
+						MetaZone: "Australia_Western",
+						From:     1647090000,
+						To:       1664640060,
+					},
+					{
+						MetaZone: "Casey",
+						From:     1664640060,
+						To:       1678291200,
+					},
+					{
+						MetaZone: "Australia_Western",
+						From:     1678291200,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "Antarctica/Davis",
+				Region: "AQ",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Davis",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "Antarctica/DumontDUrville",
+				Region: "AQ",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "DumontDUrville",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "Antarctica/Macquarie",
+				Region: "AU",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Australia_Eastern",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "Antarctica/Mawson",
+				Region: "AQ",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Mawson",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "Antarctica/McMurdo",
+				Region: "AQ",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "New_Zealand",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "Antarctica/Palmer",
+				Region: "AQ",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Argentina",
+						To:       389070000,
+					},
+					{
+						MetaZone: "Chile",
+						From:     389070000,
+						To:       1480820400,
+					},
+				},
+			},
+			{
+				ID:     "Antarctica/Rothera",
+				Region: "AQ",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Rothera",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:        "Antarctica/South_Pole",
+				Canonical: "Antarctica/McMurdo",
+			},
+			{
+				ID:     "Antarctica/Syowa",
+				Region: "AQ",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Syowa",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "Antarctica/Troll",
+				Region: "AQ",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "GMT",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "Antarctica/Vostok",
+				Region: "AQ",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Vostok",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Arctic/Longyearbyen",
+				Region:  "SJ",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Europe_Central",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Asia/Aden",
+				Region:  "YE",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Arabian",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "Asia/Almaty",
+				Region: "KZ",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Almaty",
+						To:       1099166400,
+					},
+					{
+						MetaZone: "Kazakhstan_Eastern",
+						From:     1099166400,
+						To:       1709229600,
+					},
+					{
+						MetaZone: "Kazakhstan",
+						From:     1709229600,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Asia/Amman",
+				Region:  "JO",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Europe_Eastern",
+						To:       1666908000,
+					},
+				},
+			},
+			{
+				ID:     "Asia/Anadyr",
+				Region: "RU",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Anadyr",
+						To:       1269698400,
+					},
+					{
+						MetaZone: "Magadan",
+						From:     1269698400,
+						To:       1301151600,
+					},
+					{
+						MetaZone: "Kamchatka",
+						From:     1301151600,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "Asia/Aqtau",
+				Region: "KZ",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Shevchenko",
+						To:       692823600,
+					},
+					{
+						MetaZone: "Aqtau",
+						From:     692823600,
+						To:       1099173600,
+					},
+					{
+						MetaZone: "Kazakhstan_Western",
+						From:     1099173600,
+						To:       1709229600,
+					},
+					{
+						MetaZone: "Kazakhstan",
+						From:     1709229600,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "Asia/Aqtobe",
+				Region: "KZ",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Aktyubinsk",
+						To:       692823600,
+					},
+					{
+						MetaZone: "Aqtobe",
+						From:     692823600,
+						To:       1099170000,
+					},
+					{
+						MetaZone: "Kazakhstan_Western",
+						From:     1099170000,
+						To:       1709229600,
+					},
+					{
+						MetaZone: "Kazakhstan",
+						From:     1709229600,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Asia/Ashgabat",
+				Region:  "TM",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Ashkhabad",
+						To:       695772000,
+					},
+					{
+						MetaZone: "Turkmenistan",
+						From:     695772000,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:        "Asia/Ashkhabad",
+				Canonical: "Asia/Ashgabat",
+			},
+			{
+				ID:     "Asia/Atyrau",
+				Region: "KZ",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Kazakhstan_Western",
+						From:     1099173600,
+						To:       1709229600,
+					},
+					{
+						MetaZone: "Kazakhstan",
+						From:     1709229600,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Asia/Baghdad",
+				Region:  "IQ",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Arabian",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Asia/Bahrain",
+				Region:  "BH",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Gulf",
+						To:       76190400,
+					},
+					{
+						MetaZone: "Arabian",
+						From:     76190400,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Asia/Baku",
+				Region:  "AZ",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Baku",
+						To:       670370400,
+					},
+					{
+						MetaZone: "Azerbaijan",
+						From:     670370400,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Asia/Bangkok",
+				Region:  "TH",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Indochina",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "Asia/Barnaul",
+				Region: "RU",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Krasnoyarsk",
+						From:     1459022400,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Asia/Beirut",
+				Region:  "LB",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Europe_Eastern",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Asia/Bishkek",
+				Region:  "KG",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Frunze",
+						To:       670363200,
+					},
+					{
+						MetaZone: "Kyrgystan",
+						From:     670363200,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Asia/Brunei",
+				Region:  "BN",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Brunei",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Asia/Calcutta",
+				Region:  "IN",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "India",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "Asia/Chita",
+				Region: "RU",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Yakutsk",
+						To:       1414252800,
+					},
+					{
+						MetaZone: "Irkutsk",
+						From:     1414256400,
+						To:       1459015200,
+					},
+					{
+						MetaZone: "Yakutsk",
+						From:     1459015200,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:        "Asia/Choibalsan",
+				Canonical: "Asia/Ulaanbaatar",
+			},
+			{
+				ID:        "Asia/Chongqing",
+				Canonical: "Asia/Shanghai",
+			},
+			{
+				ID:        "Asia/Chungking",
+				Canonical: "Asia/Shanghai",
+			},
+			{
+				ID:      "Asia/Colombo",
+				Region:  "LK",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "India",
+						To:       832962600,
+					},
+					{
+						MetaZone: "Lanka",
+						From:     832962600,
+						To:       1145039400,
+					},
+					{
+						MetaZone: "India",
+						From:     1145039400,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:        "Asia/Dacca",
+				Canonical: "Asia/Dhaka",
+			},
+			{
+				ID:      "Asia/Damascus",
+				Region:  "SY",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Europe_Eastern",
+						To:       1666904400,
+					},
+				},
+			},
+			{
+				ID:      "Asia/Dhaka",
+				Region:  "BD",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Dacca",
+						To:       38772000,
+					},
+					{
+						MetaZone: "Bangladesh",
+						From:     38772000,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Asia/Dili",
+				Region:  "TL",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "East_Timor",
+						To:       199897200,
+					},
+					{
+						MetaZone: "Indonesia_Central",
+						From:     199897200,
+						To:       969120000,
+					},
+					{
+						MetaZone: "East_Timor",
+						From:     969120000,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Asia/Dubai",
+				Region:  "AE",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Gulf",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Asia/Dushanbe",
+				Region:  "TJ",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Dushanbe",
+						To:       684363600,
+					},
+					{
+						MetaZone: "Tajikistan",
+						From:     684363600,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "Asia/Famagusta",
+				Region: "CY",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Europe_Eastern",
+						To:       1473282000,
+					},
+					{
+						MetaZone: "Europe_Eastern",
+						From:     1509238800,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "Asia/Gaza",
+				Region: "PS",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Israel",
+						To:       820447200,
+					},
+					{
+						MetaZone: "Europe_Eastern",
+						From:     820447200,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:        "Asia/Harbin",
+				Canonical: "Asia/Shanghai",
+			},
+			{
+				ID:     "Asia/Hebron",
+				Region: "PS",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Israel",
+						To:       820447200,
+					},
+					{
+						MetaZone: "Europe_Eastern",
+						From:     820447200,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:        "Asia/Ho_Chi_Minh",
+				Canonical: "Asia/Saigon",
+			},
+			{
+				ID:      "Asia/Hong_Kong",
+				Region:  "HK",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Hong_Kong",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "Asia/Hovd",
+				Region: "MN",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Hovd",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "Asia/Irkutsk",
+				Region: "RU",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Irkutsk",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:        "Asia/Istanbul",
+				Canonical: "Europe/Istanbul",
+			},
+			{
+				ID:     "Asia/Jakarta",
+				Region: "ID",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Indonesia_Western",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "Asia/Jayapura",
+				Region: "ID",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Indonesia_Eastern",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Asia/Jerusalem",
+				Region:  "IL",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Israel",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Asia/Kabul",
+				Region:  "AF",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Afghanistan",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "Asia/Kamchatka",
+				Region: "RU",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Kamchatka",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Asia/Karachi",
+				Region:  "PK",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Karachi",
+						To:       38775600,
+					},
+					{
+						MetaZone: "Pakistan",
+						From:     38775600,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:        "Asia/Kashgar",
+				Canonical: "Asia/Urumqi",
+			},
+			{
+				ID:        "Asia/Kathmandu",
+				Canonical: "Asia/Katmandu",
+			},
+			{
+				ID:      "Asia/Katmandu",
+				Region:  "NP",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Nepal",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "Asia/Khandyga",
+				Region: "RU",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Yakutsk",
+						To:       1072882800,
+					},
+					{
+						MetaZone: "Vladivostok",
+						From:     1072882800,
+						To:       1315832400,
+					},
+					{
+						MetaZone: "Yakutsk",
+						From:     1315832400,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:        "Asia/Kolkata",
+				Canonical: "Asia/Calcutta",
+			},
+			{
+				ID:     "Asia/Krasnoyarsk",
+				Region: "RU",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Krasnoyarsk",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Asia/Kuala_Lumpur",
+				Region:  "MY",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Malaya",
+						To:       378662400,
+					},
+					{
+						MetaZone: "Malaysia",
+						From:     378662400,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "Asia/Kuching",
+				Region: "MY",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Borneo",
+						To:       378662400,
+					},
+					{
+						MetaZone: "Malaysia",
+						From:     378662400,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Asia/Kuwait",
+				Region:  "KW",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Arabian",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:        "Asia/Macao",
+				Canonical: "Asia/Macau",
+			},
+			{
+				ID:      "Asia/Macau",
+				Region:  "MO",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Macau",
+						To:       945619200,
+					},
+					{
+						MetaZone: "China",
+						From:     945619200,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "Asia/Magadan",
+				Region: "RU",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Magadan",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "Asia/Makassar",
+				Region: "ID",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Indonesia_Central",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Asia/Manila",
+				Region:  "PH",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Philippines",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Asia/Muscat",
+				Region:  "OM",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Gulf",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "Asia/Nicosia",
+				Region: "CY",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Europe_Eastern",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "Asia/Novokuznetsk",
+				Region: "RU",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Krasnoyarsk",
+						To:       1269716400,
+					},
+					{
+						MetaZone: "Novosibirsk",
+						From:     1269716400,
+						To:       1414263600,
+					},
+					{
+						MetaZone: "Krasnoyarsk",
+						From:     1414263600,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "Asia/Novosibirsk",
+				Region: "RU",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Novosibirsk",
+						To:       1469304000,
+					},
+					{
+						MetaZone: "Krasnoyarsk",
+						From:     1469304000,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "Asia/Omsk",
+				Region: "RU",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Omsk",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "Asia/Oral",
+				Region: "KZ",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Uralsk",
+						To:       692827200,
+					},
+					{
+						MetaZone: "Oral",
+						From:     692827200,
+						To:       1099173600,
+					},
+					{
+						MetaZone: "Kazakhstan_Western",
+						From:     1099173600,
+						To:       1709229600,
+					},
+					{
+						MetaZone: "Kazakhstan",
+						From:     1709229600,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Asia/Phnom_Penh",
+				Region:  "KH",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Indochina",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "Asia/Pontianak",
+				Region: "ID",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Indonesia_Central",
+						To:       567964800,
+					},
+					{
+						MetaZone: "Indonesia_Western",
+						From:     567964800,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Asia/Pyongyang",
+				Region:  "KP",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Korea",
+						To:       1439564400,
+					},
+					{
+						MetaZone: "Pyongyang",
+						From:     1439564400,
+						To:       1525446000,
+					},
+					{
+						MetaZone: "Korea",
+						From:     1525446000,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Asia/Qatar",
+				Region:  "QA",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Gulf",
+						To:       76190400,
+					},
+					{
+						MetaZone: "Arabian",
+						From:     76190400,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "Asia/Qostanay",
+				Region: "KZ",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Kazakhstan_Eastern",
+						From:     1099170000,
+						To:       1709229600,
+					},
+					{
+						MetaZone: "Kazakhstan",
+						From:     1709229600,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "Asia/Qyzylorda",
+				Region: "KZ",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Kizilorda",
+						To:       692823600,
+					},
+					{
+						MetaZone: "Qyzylorda",
+						From:     692823600,
+						To:       1099170000,
+					},
+					{
+						MetaZone: "Kazakhstan_Eastern",
+						From:     1099170000,
+						To:       1545328800,
+					},
+					{
+						MetaZone: "Kazakhstan_Western",
+						From:     1545328800,
+						To:       1709229600,
+					},
+					{
+						MetaZone: "Kazakhstan",
+						From:     1709229600,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Asia/Rangoon",
+				Region:  "MM",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Myanmar",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Asia/Riyadh",
+				Region:  "SA",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Arabian",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Asia/Saigon",
+				Region:  "VN",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Indochina",
+						From:     171820800,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "Asia/Sakhalin",
+				Region: "RU",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Sakhalin",
+						To:       1414249200,
+					},
+					{
+						MetaZone: "Magadan",
+						From:     1414249200,
+						To:       1459008000,
+					},
+					{
+						MetaZone: "Magadan",
+						From:     1461686400,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "Asia/Samarkand",
+				Region: "UZ",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Samarkand",
+						To:       370720800,
+					},
+					{
+						MetaZone: "Tashkent",
+						From:     370720800,
+						To:       386445600,
+					},
+					{
+						MetaZone: "Samarkand",
+						From:     386445600,
+						To:       683661600,
+					},
+					{
+						MetaZone: "Uzbekistan",
+						From:     683661600,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Asia/Seoul",
+				Region:  "KR",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Korea",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Asia/Shanghai",
+				Region:  "CN",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "China",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Asia/Singapore",
+				Region:  "SG",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Singapore",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "Asia/Srednekolymsk",
+				Region: "RU",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Magadan",
+						To:       1414245600,
+					},
+					{
+						MetaZone: "Magadan",
+						From:     1461427200,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Asia/Taipei",
+				Region:  "TW",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Taipei",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Asia/Tashkent",
+				Region:  "UZ",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Tashkent",
+						To:       670363200,
+					},
+					{
+						MetaZone: "Uzbekistan",
+						From:     670363200,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Asia/Tbilisi",
+				Region:  "GE",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Tbilisi",
+						To:       670370400,
+					},
+					{
+						MetaZone: "Georgia",
+						From:     670370400,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Asia/Tehran",
+				Region:  "IR",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Iran",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:        "Asia/Tel_Aviv",
+				Canonical: "Asia/Jerusalem",
+			},
+			{
+				ID:        "Asia/Thimbu",
+				Canonical: "Asia/Thimphu",
+			},
+			{
+				ID:      "Asia/Thimphu",
+				Region:  "BT",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "India",
+						To:       560025000,
+					},
+					{
+						MetaZone: "Bhutan",
+						From:     560025000,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Asia/Tokyo",
+				Region:  "JP",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Japan",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "Asia/Tomsk",
+				Region: "RU",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Krasnoyarsk",
+						From:     1464465600,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:        "Asia/Ujung_Pandang",
+				Canonical: "Asia/Makassar",
+			},
+			{
+				ID:     "Asia/Ulaanbaatar",
+				Region: "MN",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Mongolia",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:        "Asia/Ulan_Bator",
+				Canonical: "Asia/Ulaanbaatar",
+			},
+			{
+				ID:     "Asia/Urumqi",
+				Region: "CN",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Urumqi",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "Asia/Ust-Nera",
+				Region: "RU",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Yakutsk",
+						To:       354898800,
+					},
+					{
+						MetaZone: "Magadan",
+						From:     354898800,
+						To:       1315828800,
+					},
+					{
+						MetaZone: "Vladivostok",
+						From:     1315828800,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Asia/Vientiane",
+				Region:  "LA",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Indochina",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "Asia/Vladivostok",
+				Region: "RU",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Vladivostok",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "Asia/Yakutsk",
+				Region: "RU",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Yakutsk",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:        "Asia/Yangon",
+				Canonical: "Asia/Rangoon",
+			},
+			{
+				ID:     "Asia/Yekaterinburg",
+				Region: "RU",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Sverdlovsk",
+						To:       695772000,
+					},
+					{
+						MetaZone: "Yekaterinburg",
+						From:     695772000,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Asia/Yerevan",
+				Region:  "AM",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Yerevan",
+						To:       670370400,
+					},
+					{
+						MetaZone: "Armenia",
+						From:     670370400,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "Atlantic/Azores",
+				Region: "PT",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Azores",
+						To:       725421600,
+					},
+					{
+						MetaZone: "Europe_Western",
+						From:     725421600,
+						To:       740278800,
+					},
+					{
+						MetaZone: "Azores",
+						From:     740278800,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Atlantic/Bermuda",
+				Region:  "BM",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Atlantic",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "Atlantic/Canary",
+				Region: "ES",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Europe_Western",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Atlantic/Cape_Verde",
+				Region:  "CV",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Cape_Verde",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Atlantic/Faeroe",
+				Region:  "FO",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Europe_Western",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:        "Atlantic/Faroe",
+				Canonical: "Atlantic/Faeroe",
+			},
+			{
+				ID:        "Atlantic/Jan_Mayen",
+				Canonical: "Arctic/Longyearbyen",
+			},
+			{
+				ID:     "Atlantic/Madeira",
+				Region: "PT",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Europe_Western",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Atlantic/Reykjavik",
+				Region:  "IS",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "GMT",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Atlantic/South_Georgia",
+				Region:  "GS",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "South_Georgia",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Atlantic/St_Helena",
+				Region:  "SH",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "GMT",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Atlantic/Stanley",
+				Region:  "FK",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Falkland",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:        "Australia/ACT",
+				Canonical: "Australia/Sydney",
+			},
+			{
+				ID:     "Australia/Adelaide",
+				Region: "AU",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Australia_Central",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "Australia/Brisbane",
+				Region: "AU",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Australia_Eastern",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "Australia/Broken_Hill",
+				Region: "AU",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Australia_Central",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:        "Australia/Canberra",
+				Canonical: "Australia/Sydney",
+			},
+			{
+				ID:        "Australia/Currie",
+				Canonical: "Australia/Hobart",
+			},
+			{
+				ID:     "Australia/Darwin",
+				Region: "AU",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Australia_Central",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "Australia/Eucla",
+				Region: "AU",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Australia_CentralWestern",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "Australia/Hobart",
+				Region: "AU",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Australia_Eastern",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:        "Australia/LHI",
+				Canonical: "Australia/Lord_Howe",
+			},
+			{
+				ID:     "Australia/Lindeman",
+				Region: "AU",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Australia_Eastern",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "Australia/Lord_Howe",
+				Region: "AU",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Australia_Eastern",
+						To:       352216800,
+					},
+					{
+						MetaZone: "Lord_Howe",
+						From:     352216800,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "Australia/Melbourne",
+				Region: "AU",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Australia_Eastern",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:        "Australia/North",
+				Canonical: "Australia/Darwin",
+			},
+			{
+				ID:        "Australia/NSW",
+				Canonical: "Australia/Sydney",
+			},
+			{
+				ID:     "Australia/Perth",
+				Region: "AU",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Australia_Western",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:        "Australia/Queensland",
+				Canonical: "Australia/Brisbane",
+			},
+			{
+				ID:        "Australia/South",
+				Canonical: "Australia/Adelaide",
+			},
+			{
+				ID:     "Australia/Sydney",
+				Region: "AU",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Australia_Eastern",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:        "Australia/Tasmania",
+				Canonical: "Australia/Hobart",
+			},
+			{
+				ID:        "Australia/Victoria",
+				Canonical: "Australia/Melbourne",
+			},
+			{
+				ID:        "Australia/West",
+				Canonical: "Australia/Perth",
+			},
+			{
+				ID:        "Australia/Yancowinna",
+				Canonical: "Australia/Broken_Hill",
+			},
+			{
+				ID:        "Brazil/Acre",
+				Canonical: "America/Rio_Branco",
+			},
+			{
+				ID:        "Brazil/DeNoronha",
+				Canonical: "America/Noronha",
+			},
+			{
+				ID:        "Brazil/East",
+				Canonical: "America/Sao_Paulo",
+			},
+			{
+				ID:        "Brazil/West",
+				Canonical: "America/Manaus",
+			},
+			{
+				ID:        "Canada/Atlantic",
+				Canonical: "America/Halifax",
+			},
+			{
+				ID:        "Canada/Central",
+				Canonical: "America/Winnipeg",
+			},
+			{
+				ID:        "Canada/East-Saskatchewan",
+				Canonical: "America/Regina",
+			},
+			{
+				ID:        "Canada/Eastern",
+				Canonical: "America/Toronto",
+			},
+			{
+				ID:        "Canada/Mountain",
+				Canonical: "America/Edmonton",
+			},
+			{
+				ID:        "Canada/Newfoundland",
+				Canonical: "America/St_Johns",
+			},
+			{
+				ID:        "Canada/Pacific",
+				Canonical: "America/Vancouver",
+			},
+			{
+				ID:        "Canada/Saskatchewan",
+				Canonical: "America/Regina",
+			},
+			{
+				ID:        "Canada/Yukon",
+				Canonical: "America/Whitehorse",
+			},
+			{
+				ID:        "CET",
+				Canonical: "Europe/Brussels",
+			},
+			{
+				ID:        "Chile/Continental",
+				Canonical: "America/Santiago",
+			},
+			{
+				ID:        "Chile/EasterIsland",
+				Canonical: "Pacific/Easter",
+			},
+			{
+				ID:        "CST6CDT",
+				Canonical: "America/Chicago",
+			},
+			{
+				ID:        "Cuba",
+				Canonical: "America/Havana",
+			},
+			{
+				ID:        "EET",
+				Canonical: "Europe/Athens",
+			},
+			{
+				ID:        "Egypt",
+				Canonical: "Africa/Cairo",
+			},
+			{
+				ID:        "Eire",
+				Canonical: "Europe/Dublin",
+			},
+			{
+				ID:        "EST",
+				Canonical: "America/Panama",
+			},
+			{
+				ID:        "EST5EDT",
+				Canonical: "America/New_York",
+			},
+			{
+				ID: "Etc/GMT",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "GMT",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:        "Etc/GMT+0",
+				Canonical: "Etc/GMT",
+			},
+			{
+				ID: "Etc/GMT+1",
+			},
+			{
+				ID: "Etc/GMT+10",
+			},
+			{
+				ID: "Etc/GMT+11",
+			},
+			{
+				ID: "Etc/GMT+12",
+			},
+			{
+				ID: "Etc/GMT+2",
+			},
+			{
+				ID: "Etc/GMT+3",
+			},
+			{
+				ID: "Etc/GMT+4",
+			},
+			{
+				ID: "Etc/GMT+5",
+			},
+			{
+				ID: "Etc/GMT+6",
+			},
+			{
+				ID: "Etc/GMT+7",
+			},
+			{
+				ID: "Etc/GMT+8",
+			},
+			{
+				ID: "Etc/GMT+9",
+			},
+			{
+				ID:        "Etc/GMT-0",
+				Canonical: "Etc/GMT",
+			},
+			{
+				ID: "Etc/GMT-1",
+			},
+			{
+				ID: "Etc/GMT-10",
+			},
+			{
+				ID: "Etc/GMT-11",
+			},
+			{
+				ID: "Etc/GMT-12",
+			},
+			{
+				ID: "Etc/GMT-13",
+			},
+			{
+				ID: "Etc/GMT-14",
+			},
+			{
+				ID: "Etc/GMT-2",
+			},
+			{
+				ID: "Etc/GMT-3",
+			},
+			{
+				ID: "Etc/GMT-4",
+			},
+			{
+				ID: "Etc/GMT-5",
+			},
+			{
+				ID: "Etc/GMT-6",
+			},
+			{
+				ID: "Etc/GMT-7",
+			},
+			{
+				ID: "Etc/GMT-8",
+			},
+			{
+				ID: "Etc/GMT-9",
+			},
+			{
+				ID:        "Etc/GMT0",
+				Canonical: "Etc/GMT",
+			},
+			{
+				ID:        "Etc/Greenwich",
+				Canonical: "Etc/GMT",
+			},
+			{
+				ID:        "Etc/UCT",
+				Canonical: "Etc/UTC",
+			},
+			{
+				ID:        "Etc/Universal",
+				Canonical: "Etc/UTC",
+			},
+			{
+				ID: "Etc/UTC",
+			},
+			{
+				ID:        "Etc/Zulu",
+				Canonical: "Etc/UTC",
+			},
+			{
+				ID:      "Europe/Amsterdam",
+				Region:  "NL",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Europe_Central",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Europe/Andorra",
+				Region:  "AD",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Europe_Central",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "Europe/Astrakhan",
+				Region: "RU",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Moscow",
+						From:     701820000,
+						To:       1459033200,
+					},
+					{
+						MetaZone: "Samara",
+						From:     1459033200,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Europe/Athens",
+				Region:  "GR",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Europe_Eastern",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:        "Europe/Belfast",
+				Canonical: "Europe/London",
+			},
+			{
+				ID:      "Europe/Belgrade",
+				Region:  "RS",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Europe_Central",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Europe/Berlin",
+				Region:  "DE",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Europe_Central",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Europe/Bratislava",
+				Region:  "SK",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Europe_Central",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Europe/Brussels",
+				Region:  "BE",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Europe_Central",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Europe/Bucharest",
+				Region:  "RO",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Europe_Eastern",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Europe/Budapest",
+				Region:  "HU",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Europe_Central",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "Europe/Busingen",
+				Region: "DE",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Europe_Central",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Europe/Chisinau",
+				Region:  "MD",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Moscow",
+						To:       641944800,
+					},
+					{
+						MetaZone: "Europe_Eastern",
+						From:     641944800,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Europe/Copenhagen",
+				Region:  "DK",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Europe_Central",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Europe/Dublin",
+				Region:  "IE",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Irish",
+						To:       57722400,
+					},
+					{
+						MetaZone: "GMT",
+						From:     57722400,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Europe/Gibraltar",
+				Region:  "GI",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Europe_Central",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Europe/Guernsey",
+				Region:  "GG",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "British",
+						To:       57722400,
+					},
+					{
+						MetaZone: "GMT",
+						From:     57722400,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Europe/Helsinki",
+				Region:  "FI",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Europe_Eastern",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Europe/Isle_of_Man",
+				Region:  "IM",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "British",
+						To:       57722400,
+					},
+					{
+						MetaZone: "GMT",
+						From:     57722400,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Europe/Istanbul",
+				Region:  "TR",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Europe_Eastern",
+						To:       267915600,
+					},
+					{
+						MetaZone: "Turkey",
+						From:     267915600,
+						To:       468111600,
+					},
+					{
+						MetaZone: "Europe_Eastern",
+						From:     468111600,
+						To:       1473195600,
+					},
+					{
+						MetaZone: "Turkey",
+						From:     1473195600,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Europe/Jersey",
+				Region:  "JE",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "British",
+						To:       57722400,
+					},
+					{
+						MetaZone: "GMT",
+						From:     57722400,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "Europe/Kaliningrad",
+				Region: "RU",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Moscow",
+						To:       606870000,
+					},
+					{
+						MetaZone: "Europe_Eastern",
+						From:     606870000,
+						To:       1301184000,
+					},
+					{
+						MetaZone: "Europe_Further_Eastern",
+						From:     1301184000,
+						To:       1414278000,
+					},
+					{
+						MetaZone: "Europe_Eastern",
+						From:     1414278000,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Europe/Kiev",
+				Region:  "UA",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Moscow",
+						To:       646783200,
+					},
+					{
+						MetaZone: "Europe_Eastern",
+						From:     646783200,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "Europe/Kirov",
+				Region: "RU",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Moscow",
+						From:     1414274400,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:        "Europe/Kyiv",
+				Canonical: "Europe/Kiev",
+			},
+			{
+				ID:      "Europe/Lisbon",
+				Region:  "PT",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Europe_Central",
+						To:       212544000,
+					},
+					{
+						MetaZone: "Europe_Western",
+						From:     212544000,
+						To:       717555600,
+					},
+					{
+						MetaZone: "Europe_Central",
+						From:     717555600,
+						To:       828234000,
+					},
+					{
+						MetaZone: "Europe_Western",
+						From:     828234000,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Europe/Ljubljana",
+				Region:  "SI",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Europe_Central",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Europe/London",
+				Region:  "GB",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "British",
+						To:       57722400,
+					},
+					{
+						MetaZone: "GMT",
+						From:     57722400,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Europe/Luxembourg",
+				Region:  "LU",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Europe_Central",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Europe/Madrid",
+				Region:  "ES",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Europe_Central",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Europe/Malta",
+				Region:  "MT",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Europe_Central",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Europe/Mariehamn",
+				Region:  "AX",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Europe_Eastern",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Europe/Minsk",
+				Region:  "BY",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Moscow",
+						To:       670374000,
+					},
+					{
+						MetaZone: "Europe_Eastern",
+						From:     670374000,
+						To:       1301184000,
+					},
+					{
+						MetaZone: "Europe_Further_Eastern",
+						From:     1301184000,
+						To:       1414360800,
+					},
+					{
+						MetaZone: "Moscow",
+						From:     1414360800,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Europe/Monaco",
+				Region:  "MC",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Europe_Central",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "Europe/Moscow",
+				Region: "RU",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Moscow",
+						To:       670374000,
+					},
+					{
+						MetaZone: "Europe_Eastern",
+						From:     670374000,
+						To:       695779200,
+					},
+					{
+						MetaZone: "Moscow",
+						From:     695779200,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:        "Europe/Nicosia",
+				Canonical: "Asia/Nicosia",
+			},
+			{
+				ID:      "Europe/Oslo",
+				Region:  "NO",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Europe_Central",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Europe/Paris",
+				Region:  "FR",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Europe_Central",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Europe/Podgorica",
+				Region:  "ME",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Europe_Central",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Europe/Prague",
+				Region:  "CZ",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Europe_Central",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Europe/Riga",
+				Region:  "LV",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Moscow",
+						To:       606870000,
+					},
+					{
+						MetaZone: "Europe_Eastern",
+						From:     606870000,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Europe/Rome",
+				Region:  "IT",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Europe_Central",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "Europe/Samara",
+				Region: "RU",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Kuybyshev",
+						To:       606866400,
+					},
+					{
+						MetaZone: "Moscow",
+						From:     606866400,
+						To:       670374000,
+					},
+					{
+						MetaZone: "Europe_Eastern",
+						From:     670374000,
+						To:       686102400,
+					},
+					{
+						MetaZone: "Samara",
+						From:     686102400,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Europe/San_Marino",
+				Region:  "SM",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Europe_Central",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Europe/Sarajevo",
+				Region:  "BA",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Europe_Central",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "Europe/Saratov",
+				Region: "RU",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Moscow",
+						From:     701820000,
+						To:       1480806000,
+					},
+					{
+						MetaZone: "Samara",
+						From:     1480806000,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "Europe/Simferopol",
+				Region: "UA",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Moscow",
+						To:       646786800,
+					},
+					{
+						MetaZone: "Europe_Eastern",
+						From:     646786800,
+						To:       767739600,
+					},
+					{
+						MetaZone: "Moscow",
+						From:     767739600,
+						To:       859683600,
+					},
+					{
+						MetaZone: "Europe_Eastern",
+						From:     859683600,
+						To:       1396137600,
+					},
+					{
+						MetaZone: "Moscow",
+						From:     1396137600,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Europe/Skopje",
+				Region:  "MK",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Europe_Central",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Europe/Sofia",
+				Region:  "BG",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Europe_Eastern",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Europe/Stockholm",
+				Region:  "SE",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Europe_Central",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Europe/Tallinn",
+				Region:  "EE",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Moscow",
+						To:       606870000,
+					},
+					{
+						MetaZone: "Europe_Eastern",
+						From:     606870000,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Europe/Tirane",
+				Region:  "AL",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Europe_Central",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:        "Europe/Tiraspol",
+				Canonical: "Europe/Chisinau",
+			},
+			{
+				ID:     "Europe/Ulyanovsk",
+				Region: "RU",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Moscow",
+						From:     695779200,
+						To:       1459033200,
+					},
+					{
+						MetaZone: "Samara",
+						From:     1459033200,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:        "Europe/Uzhgorod",
+				Canonical: "Europe/Kiev",
+			},
+			{
+				ID:      "Europe/Vaduz",
+				Region:  "LI",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Europe_Central",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Europe/Vatican",
+				Region:  "VA",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Europe_Central",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Europe/Vienna",
+				Region:  "AT",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Europe_Central",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Europe/Vilnius",
+				Region:  "LT",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Moscow",
+						To:       606870000,
+					},
+					{
+						MetaZone: "Europe_Eastern",
+						From:     606870000,
+						To:       891133200,
+					},
+					{
+						MetaZone: "Europe_Central",
+						From:     891133200,
+						To:       941331600,
+					},
+					{
+						MetaZone: "Europe_Eastern",
+						From:     941331600,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "Europe/Volgograd",
+				Region: "RU",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Volgograd",
+						To:       1609020000,
+					},
+					{
+						MetaZone: "Moscow",
+						From:     1609020000,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Europe/Warsaw",
+				Region:  "PL",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Europe_Central",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Europe/Zagreb",
+				Region:  "HR",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Europe_Central",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:        "Europe/Zaporozhye",
+				Canonical: "Europe/Kiev",
+			},
+			{
+				ID:      "Europe/Zurich",
+				Region:  "CH",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Europe_Central",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:        "Factory",
+				Canonical: "Etc/Unknown",
+			},
+			{
+				ID:        "GB",
+				Canonical: "Europe/London",
+			},
+			{
+				ID:        "GB-Eire",
+				Canonical: "Europe/London",
+			},
+			{
+				ID:        "GMT",
+				Canonical: "Etc/GMT",
+			},
+			{
+				ID:        "GMT+0",
+				Canonical: "Etc/GMT",
+			},
+			{
+				ID:        "GMT-0",
+				Canonical: "Etc/GMT",
+			},
+			{
+				ID:        "GMT0",
+				Canonical: "Etc/GMT",
+			},
+			{
+				ID:        "Greenwich",
+				Canonical: "Etc/GMT",
+			},
+			{
+				ID:        "Hongkong",
+				Canonical: "Asia/Hong_Kong",
+			},
+			{
+				ID:        "HST",
+				Canonical: "Pacific/Honolulu",
+			},
+			{
+				ID:        "Iceland",
+				Canonical: "Atlantic/Reykjavik",
+			},
+			{
+				ID:      "Indian/Antananarivo",
+				Region:  "MG",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Africa_Eastern",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Indian/Chagos",
+				Region:  "IO",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Indian_Ocean",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Indian/Christmas",
+				Region:  "CX",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Christmas",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Indian/Cocos",
+				Region:  "CC",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Cocos",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Indian/Comoro",
+				Region:  "KM",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Africa_Eastern",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Indian/Kerguelen",
+				Region:  "TF",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "French_Southern",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Indian/Mahe",
+				Region:  "SC",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Seychelles",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Indian/Maldives",
+				Region:  "MV",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Maldives",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Indian/Mauritius",
+				Region:  "MU",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Mauritius",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Indian/Mayotte",
+				Region:  "YT",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Africa_Eastern",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Indian/Reunion",
+				Region:  "RE",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Reunion",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:        "Iran",
+				Canonical: "Asia/Tehran",
+			},
+			{
+				ID:        "Israel",
+				Canonical: "Asia/Jerusalem",
+			},
+			{
+				ID:        "Jamaica",
+				Canonical: "America/Jamaica",
+			},
+			{
+				ID:        "Japan",
+				Canonical: "Asia/Tokyo",
+			},
+			{
+				ID:        "Kwajalein",
+				Canonical: "Pacific/Kwajalein",
+			},
+			{
+				ID:        "Libya",
+				Canonical: "Africa/Tripoli",
+			},
+			{
+				ID:        "MET",
+				Canonical: "Europe/Brussels",
+			},
+			{
+				ID:        "Mexico/BajaNorte",
+				Canonical: "America/Tijuana",
+			},
+			{
+				ID:        "Mexico/BajaSur",
+				Canonical: "America/Mazatlan",
+			},
+			{
+				ID:        "Mexico/General",
+				Canonical: "America/Mexico_City",
+			},
+			{
+				ID:        "MST",
+				Canonical: "America/Phoenix",
+			},
+			{
+				ID:        "MST7MDT",
+				Canonical: "America/Denver",
+			},
+			{
+				ID:        "Navajo",
+				Canonical: "America/Denver",
+			},
+			{
+				ID:        "NZ",
+				Canonical: "Pacific/Auckland",
+			},
+			{
+				ID:        "NZ-CHAT",
+				Canonical: "Pacific/Chatham",
+			},
+			{
+				ID:      "Pacific/Apia",
+				Region:  "WS",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Apia",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Pacific/Auckland",
+				Region:  "NZ",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "New_Zealand",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "Pacific/Bougainville",
+				Region: "PG",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Papua_New_Guinea",
+						To:       1419696000,
+					},
+				},
+			},
+			{
+				ID:     "Pacific/Chatham",
+				Region: "NZ",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Chatham",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:        "Pacific/Chuuk",
+				Canonical: "Pacific/Truk",
+			},
+			{
+				ID:     "Pacific/Easter",
+				Region: "CL",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Easter",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Pacific/Efate",
+				Region:  "VU",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Vanuatu",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "Pacific/Enderbury",
+				Region: "KI",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Phoenix_Islands",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Pacific/Fakaofo",
+				Region:  "TK",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Tokelau",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Pacific/Fiji",
+				Region:  "FJ",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Fiji",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Pacific/Funafuti",
+				Region:  "TV",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Tuvalu",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "Pacific/Galapagos",
+				Region: "EC",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Ecuador",
+						To:       504939600,
+					},
+					{
+						MetaZone: "Galapagos",
+						From:     504939600,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "Pacific/Gambier",
+				Region: "PF",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Gambier",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Pacific/Guadalcanal",
+				Region:  "SB",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Solomon",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Pacific/Guam",
+				Region:  "GU",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Guam",
+						To:       977493600,
+					},
+					{
+						MetaZone: "Chamorro",
+						From:     977493600,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "Pacific/Honolulu",
+				Region: "US",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Hawaii",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:        "Pacific/Johnston",
+				Canonical: "Pacific/Honolulu",
+			},
+			{
+				ID:        "Pacific/Kanton",
+				Canonical: "Pacific/Enderbury",
+			},
+			{
+				ID:     "Pacific/Kiritimati",
+				Region: "KI",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Line_Islands",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "Pacific/Kosrae",
+				Region: "FM",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Kosrae",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "Pacific/Kwajalein",
+				Region: "MH",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Kwajalein",
+						To:       745934400,
+					},
+					{
+						MetaZone: "Marshall_Islands",
+						From:     745934400,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Pacific/Majuro",
+				Region:  "MH",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Marshall_Islands",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "Pacific/Marquesas",
+				Region: "PF",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Marquesas",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "Pacific/Midway",
+				Region: "UM",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Bering",
+						To:       436363200,
+					},
+					{
+						MetaZone: "Samoa",
+						From:     436363200,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Pacific/Nauru",
+				Region:  "NR",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Nauru",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Pacific/Niue",
+				Region:  "NU",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Niue",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Pacific/Norfolk",
+				Region:  "NF",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Norfolk",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Pacific/Noumea",
+				Region:  "NC",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "New_Caledonia",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Pacific/Pago_Pago",
+				Region:  "AS",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Bering",
+						To:       436363200,
+					},
+					{
+						MetaZone: "Samoa",
+						From:     436363200,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Pacific/Palau",
+				Region:  "PW",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Palau",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Pacific/Pitcairn",
+				Region:  "PN",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Pitcairn",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:        "Pacific/Pohnpei",
+				Canonical: "Pacific/Ponape",
+			},
+			{
+				ID:     "Pacific/Ponape",
+				Region: "FM",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Ponape",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "Pacific/Port_Moresby",
+				Region: "PG",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Papua_New_Guinea",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Pacific/Rarotonga",
+				Region:  "CK",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Cook",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Pacific/Saipan",
+				Region:  "MP",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "North_Mariana",
+						To:       977493600,
+					},
+					{
+						MetaZone: "Chamorro",
+						From:     977493600,
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:        "Pacific/Samoa",
+				Canonical: "Pacific/Pago_Pago",
+			},
+			{
+				ID:     "Pacific/Tahiti",
+				Region: "PF",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Tahiti",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "Pacific/Tarawa",
+				Region: "KI",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Gilbert_Islands",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Pacific/Tongatapu",
+				Region:  "TO",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Tonga",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "Pacific/Truk",
+				Region: "FM",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Truk",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:     "Pacific/Wake",
+				Region: "UM",
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Wake",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:      "Pacific/Wallis",
+				Region:  "WF",
+				Primary: true,
+				MetaZones: []i18n.MetaZoneSpan{
+					{
+						MetaZone: "Wallis",
+						To:       253402300740,
+					},
+				},
+			},
+			{
+				ID:        "Pacific/Yap",
+				Canonical: "Pacific/Truk",
+			},
+			{
+				ID:        "Poland",
+				Canonical: "Europe/Warsaw",
+			},
+			{
+				ID:        "Portugal",
+				Canonical: "Europe/Lisbon",
+			},
+			{
+				ID:        "PRC",
+				Canonical: "Asia/Shanghai",
+			},
+			{
+				ID:        "PST8PDT",
+				Canonical: "America/Los_Angeles",
+			},
+			{
+				ID:        "ROC",
+				Canonical: "Asia/Taipei",
+			},
+			{
+				ID:        "ROK",
+				Canonical: "Asia/Seoul",
+			},
+			{
+				ID:        "Singapore",
+				Canonical: "Asia/Singapore",
+			},
+			{
+				ID:        "Turkey",
+				Canonical: "Europe/Istanbul",
+			},
+			{
+				ID:        "UCT",
+				Canonical: "Etc/UTC",
+			},
+			{
+				ID:        "Universal",
+				Canonical: "Etc/UTC",
+			},
+			{
+				ID:        "US/Alaska",
+				Canonical: "America/Anchorage",
+			},
+			{
+				ID:        "US/Aleutian",
+				Canonical: "America/Adak",
+			},
+			{
+				ID:        "US/Arizona",
+				Canonical: "America/Phoenix",
+			},
+			{
+				ID:        "US/Central",
+				Canonical: "America/Chicago",
+			},
+			{
+				ID:        "US/East-Indiana",
+				Canonical: "America/Indianapolis",
+			},
+			{
+				ID:        "US/Eastern",
+				Canonical: "America/New_York",
+			},
+			{
+				ID:        "US/Hawaii",
+				Canonical: "Pacific/Honolulu",
+			},
+			{
+				ID:        "US/Indiana-Starke",
+				Canonical: "America/Indiana/Knox",
+			},
+			{
+				ID:        "US/Michigan",
+				Canonical: "America/Detroit",
+			},
+			{
+				ID:        "US/Mountain",
+				Canonical: "America/Denver",
+			},
+			{
+				ID:        "US/Pacific",
+				Canonical: "America/Los_Angeles",
+			},
+			{
+				ID:        "US/Pacific-New",
+				Canonical: "America/Los_Angeles",
+			},
+			{
+				ID:        "US/Samoa",
+				Canonical: "Pacific/Pago_Pago",
+			},
+			{
+				ID:        "UTC",
+				Canonical: "Etc/UTC",
+			},
+			{
+				ID:        "W-SU",
+				Canonical: "Europe/Moscow",
+			},
+			{
+				ID:        "WET",
+				Canonical: "Europe/Lisbon",
+			},
+			{
+				ID:        "Zulu",
+				Canonical: "Etc/UTC",
+			},
+		},
+		MetaZones: []i18n.MetaZoneInfo{
+			{
+				ID: "Acre",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "America/Rio_Branco",
+					},
+				},
+			},
+			{
+				ID: "Afghanistan",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Asia/Kabul",
+					},
+				},
+			},
+			{
+				ID: "Africa_Central",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Africa/Maputo",
+					},
+					{
+						Region: "BI",
+						Zone:   "Africa/Bujumbura",
+					},
+					{
+						Region: "BW",
+						Zone:   "Africa/Gaborone",
+					},
+					{
+						Region: "CD",
+						Zone:   "Africa/Lubumbashi",
+					},
+					{
+						Region: "MW",
+						Zone:   "Africa/Blantyre",
+					},
+					{
+						Region: "RW",
+						Zone:   "Africa/Kigali",
+					},
+					{
+						Region: "ZM",
+						Zone:   "Africa/Lusaka",
+					},
+					{
+						Region: "ZW",
+						Zone:   "Africa/Harare",
+					},
+				},
+			},
+			{
+				ID: "Africa_Eastern",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Africa/Nairobi",
+					},
+					{
+						Region: "DJ",
+						Zone:   "Africa/Djibouti",
+					},
+					{
+						Region: "ER",
+						Zone:   "Africa/Asmera",
+					},
+					{
+						Region: "ET",
+						Zone:   "Africa/Addis_Ababa",
+					},
+					{
+						Region: "KM",
+						Zone:   "Indian/Comoro",
+					},
+					{
+						Region: "MG",
+						Zone:   "Indian/Antananarivo",
+					},
+					{
+						Region: "SO",
+						Zone:   "Africa/Mogadishu",
+					},
+					{
+						Region: "TZ",
+						Zone:   "Africa/Dar_es_Salaam",
+					},
+					{
+						Region: "UG",
+						Zone:   "Africa/Kampala",
+					},
+					{
+						Region: "YT",
+						Zone:   "Indian/Mayotte",
+					},
+				},
+			},
+			{
+				ID: "Africa_FarWestern",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Africa/El_Aaiun",
+					},
+				},
+			},
+			{
+				ID: "Africa_Southern",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Africa/Johannesburg",
+					},
+					{
+						Region: "LS",
+						Zone:   "Africa/Maseru",
+					},
+					{
+						Region: "SZ",
+						Zone:   "Africa/Mbabane",
+					},
+				},
+			},
+			{
+				ID: "Africa_Western",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Africa/Lagos",
+					},
+					{
+						Region: "AO",
+						Zone:   "Africa/Luanda",
+					},
+					{
+						Region: "BJ",
+						Zone:   "Africa/Porto-Novo",
+					},
+					{
+						Region: "CD",
+						Zone:   "Africa/Kinshasa",
+					},
+					{
+						Region: "CF",
+						Zone:   "Africa/Bangui",
+					},
+					{
+						Region: "CG",
+						Zone:   "Africa/Brazzaville",
+					},
+					{
+						Region: "CM",
+						Zone:   "Africa/Douala",
+					},
+					{
+						Region: "GA",
+						Zone:   "Africa/Libreville",
+					},
+					{
+						Region: "GQ",
+						Zone:   "Africa/Malabo",
+					},
+					{
+						Region: "NE",
+						Zone:   "Africa/Niamey",
+					},
+					{
+						Region: "TD",
+						Zone:   "Africa/Ndjamena",
+					},
+				},
+			},
+			{
+				ID: "Aktyubinsk",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Asia/Aqtobe",
+					},
+				},
+			},
+			{
+				ID: "Alaska",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "America/Juneau",
+					},
+				},
+			},
+			{
+				ID: "Alaska_Hawaii",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "America/Anchorage",
+					},
+				},
+			},
+			{
+				ID: "Almaty",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Asia/Almaty",
+					},
+				},
+			},
+			{
+				ID: "Amazon",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "America/Manaus",
+					},
+				},
+			},
+			{
+				ID: "America_Central",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "America/Chicago",
+					},
+					{
+						Region: "BZ",
+						Zone:   "America/Belize",
+					},
+					{
+						Region: "CA",
+						Zone:   "America/Winnipeg",
+					},
+					{
+						Region: "CR",
+						Zone:   "America/Costa_Rica",
+					},
+					{
+						Region: "GT",
+						Zone:   "America/Guatemala",
+					},
+					{
+						Region: "HN",
+						Zone:   "America/Tegucigalpa",
+					},
+					{
+						Region: "MX",
+						Zone:   "America/Mexico_City",
+					},
+					{
+						Region: "SV",
+						Zone:   "America/El_Salvador",
+					},
+				},
+			},
+			{
+				ID: "America_Eastern",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "America/New_York",
+					},
+					{
+						Region: "BS",
+						Zone:   "America/Nassau",
+					},
+					{
+						Region: "CA",
+						Zone:   "America/Toronto",
+					},
+					{
+						Region: "HT",
+						Zone:   "America/Port-au-Prince",
+					},
+					{
+						Region: "JM",
+						Zone:   "America/Jamaica",
+					},
+					{
+						Region: "KY",
+						Zone:   "America/Cayman",
+					},
+					{
+						Region: "PA",
+						Zone:   "America/Panama",
+					},
+				},
+			},
+			{
+				ID: "America_Mountain",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "America/Denver",
+					},
+					{
+						Region: "CA",
+						Zone:   "America/Edmonton",
+					},
+				},
+			},
+			{
+				ID: "America_Pacific",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "America/Los_Angeles",
+					},
+					{
+						Region: "CA",
+						Zone:   "America/Vancouver",
+					},
+					{
+						Region: "MX",
+						Zone:   "America/Tijuana",
+					},
+				},
+			},
+			{
+				ID: "Anadyr",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Asia/Anadyr",
+					},
+				},
+			},
+			{
+				ID: "Apia",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Pacific/Apia",
+					},
+				},
+			},
+			{
+				ID: "Aqtau",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Asia/Aqtau",
+					},
+				},
+			},
+			{
+				ID: "Aqtobe",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Asia/Aqtobe",
+					},
+				},
+			},
+			{
+				ID: "Arabian",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Asia/Riyadh",
+					},
+					{
+						Region: "BH",
+						Zone:   "Asia/Bahrain",
+					},
+					{
+						Region: "IQ",
+						Zone:   "Asia/Baghdad",
+					},
+					{
+						Region: "KW",
+						Zone:   "Asia/Kuwait",
+					},
+					{
+						Region: "QA",
+						Zone:   "Asia/Qatar",
+					},
+					{
+						Region: "YE",
+						Zone:   "Asia/Aden",
+					},
+				},
+			},
+			{
+				ID: "Argentina",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "America/Buenos_Aires",
+					},
+				},
+			},
+			{
+				ID: "Argentina_Western",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "America/Argentina/San_Luis",
+					},
+				},
+			},
+			{
+				ID: "Armenia",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Asia/Yerevan",
+					},
+				},
+			},
+			{
+				ID: "Ashkhabad",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Asia/Ashgabat",
+					},
+				},
+			},
+			{
+				ID: "Atlantic",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "America/Halifax",
+					},
+					{
+						Region: "AG",
+						Zone:   "America/Antigua",
+					},
+					{
+						Region: "AI",
+						Zone:   "America/Anguilla",
+					},
+					{
+						Region: "AW",
+						Zone:   "America/Aruba",
+					},
+					{
+						Region: "BB",
+						Zone:   "America/Barbados",
+					},
+					{
+						Region: "BM",
+						Zone:   "Atlantic/Bermuda",
+					},
+					{
+						Region: "BQ",
+						Zone:   "America/Kralendijk",
+					},
+					{
+						Region: "CW",
+						Zone:   "America/Curacao",
+					},
+					{
+						Region: "DM",
+						Zone:   "America/Dominica",
+					},
+					{
+						Region: "GD",
+						Zone:   "America/Grenada",
+					},
+					{
+						Region: "GL",
+						Zone:   "America/Thule",
+					},
+					{
+						Region: "GP",
+						Zone:   "America/Guadeloupe",
+					},
+					{
+						Region: "KN",
+						Zone:   "America/St_Kitts",
+					},
+					{
+						Region: "LC",
+						Zone:   "America/St_Lucia",
+					},
+					{
+						Region: "MF",
+						Zone:   "America/Marigot",
+					},
+					{
+						Region: "MQ",
+						Zone:   "America/Martinique",
+					},
+					{
+						Region: "MS",
+						Zone:   "America/Montserrat",
+					},
+					{
+						Region: "PR",
+						Zone:   "America/Puerto_Rico",
+					},
+					{
+						Region: "SX",
+						Zone:   "America/Lower_Princes",
+					},
+					{
+						Region: "TT",
+						Zone:   "America/Port_of_Spain",
+					},
+					{
+						Region: "VC",
+						Zone:   "America/St_Vincent",
+					},
+					{
+						Region: "VG",
+						Zone:   "America/Tortola",
+					},
+					{
+						Region: "VI",
+						Zone:   "America/St_Thomas",
+					},
+				},
+			},
+			{
+				ID: "Australia_Central",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Australia/Adelaide",
+					},
+				},
+			},
+			{
+				ID: "Australia_CentralWestern",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Australia/Eucla",
+					},
+				},
+			},
+			{
+				ID: "Australia_Eastern",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Australia/Sydney",
+					},
+				},
+			},
+			{
+				ID: "Australia_Western",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Australia/Perth",
+					},
+				},
+			},
+			{
+				ID: "Azerbaijan",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Asia/Baku",
+					},
+				},
+			},
+			{
+				ID: "Azores",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Atlantic/Azores",
+					},
+				},
+			},
+			{
+				ID: "Baku",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Asia/Baku",
+					},
+				},
+			},
+			{
+				ID: "Bangladesh",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Asia/Dhaka",
+					},
+				},
+			},
+			{
+				ID: "Bering",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "America/Adak",
+					},
+				},
+			},
+			{
+				ID: "Bhutan",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Asia/Thimphu",
+					},
+				},
+			},
+			{
+				ID: "Bolivia",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "America/La_Paz",
+					},
+				},
+			},
+			{
+				ID: "Borneo",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Asia/Kuching",
+					},
+				},
+			},
+			{
+				ID: "Brasilia",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "America/Sao_Paulo",
+					},
+				},
+			},
+			{
+				ID: "British",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Europe/London",
+					},
+				},
+			},
+			{
+				ID: "Brunei",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Asia/Brunei",
+					},
+				},
+			},
+			{
+				ID: "Cape_Verde",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Atlantic/Cape_Verde",
+					},
+				},
+			},
+			{
+				ID: "Casey",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Antarctica/Casey",
+					},
+				},
+			},
+			{
+				ID: "Chamorro",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Pacific/Saipan",
+					},
+					{
+						Region: "GU",
+						Zone:   "Pacific/Guam",
+					},
+				},
+			},
+			{
+				ID: "Chatham",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Pacific/Chatham",
+					},
+				},
+			},
+			{
+				ID: "Chile",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "America/Santiago",
+					},
+				},
+			},
+			{
+				ID: "China",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Asia/Shanghai",
+					},
+				},
+			},
+			{
+				ID: "Christmas",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Indian/Christmas",
+					},
+				},
+			},
+			{
+				ID: "Cocos",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Indian/Cocos",
+					},
+				},
+			},
+			{
+				ID: "Colombia",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "America/Bogota",
+					},
+				},
+			},
+			{
+				ID: "Cook",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Pacific/Rarotonga",
+					},
+				},
+			},
+			{
+				ID: "Cuba",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "America/Havana",
+					},
+				},
+			},
+			{
+				ID: "Dacca",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Asia/Dhaka",
+					},
+				},
+			},
+			{
+				ID: "Davis",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Antarctica/Davis",
+					},
+				},
+			},
+			{
+				ID: "Dominican",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "America/Santo_Domingo",
+					},
+				},
+			},
+			{
+				ID: "DumontDUrville",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Antarctica/DumontDUrville",
+					},
+				},
+			},
+			{
+				ID: "Dushanbe",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Asia/Dushanbe",
+					},
+				},
+			},
+			{
+				ID: "Dutch_Guiana",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "America/Paramaribo",
+					},
+				},
+			},
+			{
+				ID: "East_Timor",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Asia/Dili",
+					},
+				},
+			},
+			{
+				ID: "Easter",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Pacific/Easter",
+					},
+				},
+			},
+			{
+				ID: "Ecuador",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "America/Guayaquil",
+					},
+				},
+			},
+			{
+				ID: "Europe_Central",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Europe/Paris",
+					},
+					{
+						Region: "AD",
+						Zone:   "Europe/Andorra",
+					},
+					{
+						Region: "AL",
+						Zone:   "Europe/Tirane",
+					},
+					{
+						Region: "AT",
+						Zone:   "Europe/Vienna",
+					},
+					{
+						Region: "BA",
+						Zone:   "Europe/Sarajevo",
+					},
+					{
+						Region: "BE",
+						Zone:   "Europe/Brussels",
+					},
+					{
+						Region: "CH",
+						Zone:   "Europe/Zurich",
+					},
+					{
+						Region: "CZ",
+						Zone:   "Europe/Prague",
+					},
+					{
+						Region: "DE",
+						Zone:   "Europe/Berlin",
+					},
+					{
+						Region: "DK",
+						Zone:   "Europe/Copenhagen",
+					},
+					{
+						Region: "ES",
+						Zone:   "Europe/Madrid",
+					},
+					{
+						Region: "GI",
+						Zone:   "Europe/Gibraltar",
+					},
+					{
+						Region: "HR",
+						Zone:   "Europe/Zagreb",
+					},
+					{
+						Region: "HU",
+						Zone:   "Europe/Budapest",
+					},
+					{
+						Region: "IT",
+						Zone:   "Europe/Rome",
+					},
+					{
+						Region: "LI",
+						Zone:   "Europe/Vaduz",
+					},
+					{
+						Region: "LU",
+						Zone:   "Europe/Luxembourg",
+					},
+					{
+						Region: "MC",
+						Zone:   "Europe/Monaco",
+					},
+					{
+						Region: "ME",
+						Zone:   "Europe/Podgorica",
+					},
+					{
+						Region: "MK",
+						Zone:   "Europe/Skopje",
+					},
+					{
+						Region: "MT",
+						Zone:   "Europe/Malta",
+					},
+					{
+						Region: "NL",
+						Zone:   "Europe/Amsterdam",
+					},
+					{
+						Region: "NO",
+						Zone:   "Europe/Oslo",
+					},
+					{
+						Region: "PL",
+						Zone:   "Europe/Warsaw",
+					},
+					{
+						Region: "RS",
+						Zone:   "Europe/Belgrade",
+					},
+					{
+						Region: "SE",
+						Zone:   "Europe/Stockholm",
+					},
+					{
+						Region: "SI",
+						Zone:   "Europe/Ljubljana",
+					},
+					{
+						Region: "SJ",
+						Zone:   "Arctic/Longyearbyen",
+					},
+					{
+						Region: "SK",
+						Zone:   "Europe/Bratislava",
+					},
+					{
+						Region: "SM",
+						Zone:   "Europe/San_Marino",
+					},
+					{
+						Region: "TN",
+						Zone:   "Africa/Tunis",
+					},
+					{
+						Region: "VA",
+						Zone:   "Europe/Vatican",
+					},
+					{
+						Region: "XK",
+						Zone:   "Europe/Belgrade",
+					},
+				},
+			},
+			{
+				ID: "Europe_Eastern",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Europe/Bucharest",
+					},
+					{
+						Region: "AX",
+						Zone:   "Europe/Mariehamn",
+					},
+					{
+						Region: "BG",
+						Zone:   "Europe/Sofia",
+					},
+					{
+						Region: "CY",
+						Zone:   "Asia/Nicosia",
+					},
+					{
+						Region: "EG",
+						Zone:   "Africa/Cairo",
+					},
+					{
+						Region: "FI",
+						Zone:   "Europe/Helsinki",
+					},
+					{
+						Region: "GR",
+						Zone:   "Europe/Athens",
+					},
+					{
+						Region: "LB",
+						Zone:   "Asia/Beirut",
+					},
+				},
+			},
+			{
+				ID: "Europe_Further_Eastern",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Europe/Minsk",
+					},
+					{
+						Region: "RU",
+						Zone:   "Europe/Kaliningrad",
+					},
+				},
+			},
+			{
+				ID: "Europe_Western",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Atlantic/Canary",
+					},
+					{
+						Region: "FO",
+						Zone:   "Atlantic/Faeroe",
+					},
+				},
+			},
+			{
+				ID: "Falkland",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Atlantic/Stanley",
+					},
+				},
+			},
+			{
+				ID: "Fiji",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Pacific/Fiji",
+					},
+				},
+			},
+			{
+				ID: "French_Guiana",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "America/Cayenne",
+					},
+				},
+			},
+			{
+				ID: "French_Southern",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Indian/Kerguelen",
+					},
+				},
+			},
+			{
+				ID: "Frunze",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Asia/Bishkek",
+					},
+				},
+			},
+			{
+				ID: "GMT",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Atlantic/Reykjavik",
+					},
+					{
+						Region: "BF",
+						Zone:   "Africa/Ouagadougou",
+					},
+					{
+						Region: "CI",
+						Zone:   "Africa/Abidjan",
+					},
+					{
+						Region: "GB",
+						Zone:   "Europe/London",
+					},
+					{
+						Region: "GH",
+						Zone:   "Africa/Accra",
+					},
+					{
+						Region: "GM",
+						Zone:   "Africa/Banjul",
+					},
+					{
+						Region: "GN",
+						Zone:   "Africa/Conakry",
+					},
+					{
+						Region: "IE",
+						Zone:   "Europe/Dublin",
+					},
+					{
+						Region: "ML",
+						Zone:   "Africa/Bamako",
+					},
+					{
+						Region: "MR",
+						Zone:   "Africa/Nouakchott",
+					},
+					{
+						Region: "SH",
+						Zone:   "Atlantic/St_Helena",
+					},
+					{
+						Region: "SL",
+						Zone:   "Africa/Freetown",
+					},
+					{
+						Region: "SN",
+						Zone:   "Africa/Dakar",
+					},
+					{
+						Region: "TG",
+						Zone:   "Africa/Lome",
+					},
+				},
+			},
+			{
+				ID: "Galapagos",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Pacific/Galapagos",
+					},
+				},
+			},
+			{
+				ID: "Gambier",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Pacific/Gambier",
+					},
+				},
+			},
+			{
+				ID: "Georgia",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Asia/Tbilisi",
+					},
+				},
+			},
+			{
+				ID: "Gilbert_Islands",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Pacific/Tarawa",
+					},
+				},
+			},
+			{
+				ID: "Goose_Bay",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "America/Goose_Bay",
+					},
+				},
+			},
+			{
+				ID: "Greenland",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "America/Godthab",
+					},
+				},
+			},
+			{
+				ID: "Greenland_Central",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "America/Scoresbysund",
+					},
+				},
+			},
+			{
+				ID: "Greenland_Eastern",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "America/Scoresbysund",
+					},
+				},
+			},
+			{
+				ID: "Greenland_Western",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "America/Godthab",
+					},
+				},
+			},
+			{
+				ID: "Guam",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Pacific/Guam",
+					},
+				},
+			},
+			{
+				ID: "Gulf",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Asia/Dubai",
+					},
+					{
+						Region: "OM",
+						Zone:   "Asia/Muscat",
+					},
+				},
+			},
+			{
+				ID: "Guyana",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "America/Guyana",
+					},
+				},
+			},
+			{
+				ID: "Hawaii",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Pacific/Honolulu",
+					},
+				},
+			},
+			{
+				ID: "Hawaii_Aleutian",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "America/Adak",
+					},
+				},
+			},
+			{
+				ID: "Hong_Kong",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Asia/Hong_Kong",
+					},
+				},
+			},
+			{
+				ID: "Hovd",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Asia/Hovd",
+					},
+				},
+			},
+			{
+				ID: "India",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Asia/Calcutta",
+					},
+					{
+						Region: "LK",
+						Zone:   "Asia/Colombo",
+					},
+				},
+			},
+			{
+				ID: "Indian_Ocean",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Indian/Chagos",
+					},
+				},
+			},
+			{
+				ID: "Indochina",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Asia/Bangkok",
+					},
+					{
+						Region: "KH",
+						Zone:   "Asia/Phnom_Penh",
+					},
+					{
+						Region: "LA",
+						Zone:   "Asia/Vientiane",
+					},
+				},
+			},
+			{
+				ID: "Indonesia_Central",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Asia/Makassar",
+					},
+				},
+			},
+			{
+				ID: "Indonesia_Eastern",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Asia/Jayapura",
+					},
+				},
+			},
+			{
+				ID: "Indonesia_Western",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Asia/Jakarta",
+					},
+				},
+			},
+			{
+				ID: "Iran",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Asia/Tehran",
+					},
+				},
+			},
+			{
+				ID: "Irish",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Europe/Dublin",
+					},
+				},
+			},
+			{
+				ID: "Irkutsk",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Asia/Irkutsk",
+					},
+				},
+			},
+			{
+				ID: "Israel",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Asia/Jerusalem",
+					},
+				},
+			},
+			{
+				ID: "Japan",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Asia/Tokyo",
+					},
+				},
+			},
+			{
+				ID: "Kamchatka",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Asia/Kamchatka",
+					},
+				},
+			},
+			{
+				ID: "Karachi",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Asia/Karachi",
+					},
+				},
+			},
+			{
+				ID: "Kazakhstan",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Asia/Almaty",
+					},
+				},
+			},
+			{
+				ID: "Kazakhstan_Eastern",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Asia/Almaty",
+					},
+				},
+			},
+			{
+				ID: "Kazakhstan_Western",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Asia/Aqtobe",
+					},
+				},
+			},
+			{
+				ID: "Kizilorda",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Asia/Qyzylorda",
+					},
+				},
+			},
+			{
+				ID: "Korea",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Asia/Seoul",
+					},
+				},
+			},
+			{
+				ID: "Kosrae",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Pacific/Kosrae",
+					},
+				},
+			},
+			{
+				ID: "Krasnoyarsk",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Asia/Krasnoyarsk",
+					},
+				},
+			},
+			{
+				ID: "Kuybyshev",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Europe/Samara",
+					},
+				},
+			},
+			{
+				ID: "Kwajalein",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Pacific/Kwajalein",
+					},
+				},
+			},
+			{
+				ID: "Kyrgystan",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Asia/Bishkek",
+					},
+				},
+			},
+			{
+				ID: "Lanka",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Asia/Colombo",
+					},
+				},
+			},
+			{
+				ID: "Liberia",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Africa/Monrovia",
+					},
+				},
+			},
+			{
+				ID: "Line_Islands",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Pacific/Kiritimati",
+					},
+				},
+			},
+			{
+				ID: "Lord_Howe",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Australia/Lord_Howe",
+					},
+				},
+			},
+			{
+				ID: "Macau",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Asia/Macau",
+					},
+				},
+			},
+			{
+				ID: "Magadan",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Asia/Magadan",
+					},
+				},
+			},
+			{
+				ID: "Malaya",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Asia/Kuala_Lumpur",
+					},
+				},
+			},
+			{
+				ID: "Malaysia",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Asia/Kuching",
+					},
+				},
+			},
+			{
+				ID: "Maldives",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Indian/Maldives",
+					},
+				},
+			},
+			{
+				ID: "Marquesas",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Pacific/Marquesas",
+					},
+				},
+			},
+			{
+				ID: "Marshall_Islands",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Pacific/Majuro",
+					},
+				},
+			},
+			{
+				ID: "Mauritius",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Indian/Mauritius",
+					},
+				},
+			},
+			{
+				ID: "Mawson",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Antarctica/Mawson",
+					},
+				},
+			},
+			{
+				ID: "Mexico_Pacific",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "America/Mazatlan",
+					},
+				},
+			},
+			{
+				ID: "Mongolia",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Asia/Ulaanbaatar",
+					},
+				},
+			},
+			{
+				ID: "Moscow",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Europe/Moscow",
+					},
+				},
+			},
+			{
+				ID: "Myanmar",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Asia/Rangoon",
+					},
+				},
+			},
+			{
+				ID: "Nauru",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Pacific/Nauru",
+					},
+				},
+			},
+			{
+				ID: "Nepal",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Asia/Katmandu",
+					},
+				},
+			},
+			{
+				ID: "New_Caledonia",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Pacific/Noumea",
+					},
+				},
+			},
+			{
+				ID: "New_Zealand",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Pacific/Auckland",
+					},
+					{
+						Region: "AQ",
+						Zone:   "Antarctica/McMurdo",
+					},
+				},
+			},
+			{
+				ID: "Newfoundland",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "America/St_Johns",
+					},
+				},
+			},
+			{
+				ID: "Niue",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Pacific/Niue",
+					},
+				},
+			},
+			{
+				ID: "Norfolk",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Pacific/Norfolk",
+					},
+				},
+			},
+			{
+				ID: "Noronha",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "America/Noronha",
+					},
+				},
+			},
+			{
+				ID: "North_Mariana",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Pacific/Saipan",
+					},
+				},
+			},
+			{
+				ID: "Novosibirsk",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Asia/Novosibirsk",
+					},
+				},
+			},
+			{
+				ID: "Omsk",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Asia/Omsk",
+					},
+				},
+			},
+			{
+				ID: "Oral",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Asia/Oral",
+					},
+				},
+			},
+			{
+				ID: "Pakistan",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Asia/Karachi",
+					},
+				},
+			},
+			{
+				ID: "Palau",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Pacific/Palau",
+					},
+				},
+			},
+			{
+				ID: "Papua_New_Guinea",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Pacific/Port_Moresby",
+					},
+				},
+			},
+			{
+				ID: "Paraguay",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "America/Asuncion",
+					},
+				},
+			},
+			{
+				ID: "Peru",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "America/Lima",
+					},
+				},
+			},
+			{
+				ID: "Philippines",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Asia/Manila",
+					},
+				},
+			},
+			{
+				ID: "Phoenix_Islands",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Pacific/Enderbury",
+					},
+				},
+			},
+			{
+				ID: "Pierre_Miquelon",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "America/Miquelon",
+					},
+				},
+			},
+			{
+				ID: "Pitcairn",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Pacific/Pitcairn",
+					},
+				},
+			},
+			{
+				ID: "Ponape",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Pacific/Ponape",
+					},
+				},
+			},
+			{
+				ID: "Pyongyang",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Asia/Pyongyang",
+					},
+				},
+			},
+			{
+				ID: "Qyzylorda",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Asia/Qyzylorda",
+					},
+				},
+			},
+			{
+				ID: "Reunion",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Indian/Reunion",
+					},
+				},
+			},
+			{
+				ID: "Rothera",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Antarctica/Rothera",
+					},
+				},
+			},
+			{
+				ID: "Sakhalin",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Asia/Sakhalin",
+					},
+				},
+			},
+			{
+				ID: "Samara",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Europe/Samara",
+					},
+				},
+			},
+			{
+				ID: "Samarkand",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Asia/Samarkand",
+					},
+				},
+			},
+			{
+				ID: "Samoa",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Pacific/Pago_Pago",
+					},
+				},
+			},
+			{
+				ID: "Seychelles",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Indian/Mahe",
+					},
+				},
+			},
+			{
+				ID: "Shevchenko",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Asia/Aqtau",
+					},
+				},
+			},
+			{
+				ID: "Singapore",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Asia/Singapore",
+					},
+				},
+			},
+			{
+				ID: "Solomon",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Pacific/Guadalcanal",
+					},
+				},
+			},
+			{
+				ID: "South_Georgia",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Atlantic/South_Georgia",
+					},
+				},
+			},
+			{
+				ID: "Suriname",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "America/Paramaribo",
+					},
+				},
+			},
+			{
+				ID: "Sverdlovsk",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Asia/Yekaterinburg",
+					},
+				},
+			},
+			{
+				ID: "Syowa",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Antarctica/Syowa",
+					},
+				},
+			},
+			{
+				ID: "Tahiti",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Pacific/Tahiti",
+					},
+				},
+			},
+			{
+				ID: "Taipei",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Asia/Taipei",
+					},
+				},
+			},
+			{
+				ID: "Tajikistan",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Asia/Dushanbe",
+					},
+				},
+			},
+			{
+				ID: "Tashkent",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Asia/Tashkent",
+					},
+				},
+			},
+			{
+				ID: "Tbilisi",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Asia/Tbilisi",
+					},
+				},
+			},
+			{
+				ID: "Tokelau",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Pacific/Fakaofo",
+					},
+				},
+			},
+			{
+				ID: "Tonga",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Pacific/Tongatapu",
+					},
+				},
+			},
+			{
+				ID: "Truk",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Pacific/Truk",
+					},
+				},
+			},
+			{
+				ID: "Turkey",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Europe/Istanbul",
+					},
+				},
+			},
+			{
+				ID: "Turkmenistan",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Asia/Ashgabat",
+					},
+				},
+			},
+			{
+				ID: "Tuvalu",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Pacific/Funafuti",
+					},
+				},
+			},
+			{
+				ID: "Uralsk",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Asia/Oral",
+					},
+				},
+			},
+			{
+				ID: "Uruguay",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "America/Montevideo",
+					},
+				},
+			},
+			{
+				ID: "Urumqi",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Asia/Urumqi",
+					},
+				},
+			},
+			{
+				ID: "Uzbekistan",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Asia/Tashkent",
+					},
+				},
+			},
+			{
+				ID: "Vanuatu",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Pacific/Efate",
+					},
+				},
+			},
+			{
+				ID: "Venezuela",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "America/Caracas",
+					},
+				},
+			},
+			{
+				ID: "Vladivostok",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Asia/Vladivostok",
+					},
+				},
+			},
+			{
+				ID: "Volgograd",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Europe/Volgograd",
+					},
+				},
+			},
+			{
+				ID: "Vostok",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Antarctica/Vostok",
+					},
+				},
+			},
+			{
+				ID: "Wake",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Pacific/Wake",
+					},
+				},
+			},
+			{
+				ID: "Wallis",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Pacific/Wallis",
+					},
+				},
+			},
+			{
+				ID: "Yakutsk",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Asia/Yakutsk",
+					},
+				},
+			},
+			{
+				ID: "Yekaterinburg",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Asia/Yekaterinburg",
+					},
+				},
+			},
+			{
+				ID: "Yerevan",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "Asia/Yerevan",
+					},
+				},
+			},
+			{
+				ID: "Yukon",
+				Zones: []i18n.RegionZone{
+					{
+						Region: "001",
+						Zone:   "America/Whitehorse",
+					},
+				},
+			},
+		},
+	},
 	Weeks: []i18n.RegionWeek{
 		{
 			Region:   "001",

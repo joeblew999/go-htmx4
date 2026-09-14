@@ -2556,6 +2556,1186 @@ var locDe = i18n.LocaleData{
 			Name: "Traditionell",
 		},
 	},
+	DateTime: i18n.DateTimeData{
+		Months:     [2][3][12]string{{{"Jan.", "Feb.", "März", "Apr.", "Mai", "Juni", "Juli", "Aug.", "Sept.", "Okt.", "Nov.", "Dez."}, {"Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"}, {"J", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"}}, {{"Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"}, {"Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"}, {"J", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"}}},
+		Days:       [2][4][7]string{{{"So.", "Mo.", "Di.", "Mi.", "Do.", "Fr.", "Sa."}, {"Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"}, {"S", "M", "D", "M", "D", "F", "S"}, {"So.", "Mo.", "Di.", "Mi.", "Do.", "Fr.", "Sa."}}, {{"So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"}, {"Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"}, {"S", "M", "D", "M", "D", "F", "S"}, {"So.", "Mo.", "Di.", "Mi.", "Do.", "Fr.", "Sa."}}},
+		Eras:       [3][2]string{{"v. Chr.", "n. Chr."}, {"v. Chr.", "n. Chr."}, {"v. Chr.", "n. Chr."}},
+		AmPm:       [3][2]string{{"AM", "PM"}, {"AM", "PM"}, {"AM", "PM"}},
+		DayPeriods: [3][10]string{{"Mitternacht", "", "morgens", "mittags", "abends", "nachts", "vorm.", "nachm.", "", ""}, {"Mitternacht", "", "morgens", "mittags", "abends", "nachts", "vormittags", "nachmittags", "", ""}, {"Mitternacht", "", "morgens", "mittags", "abends", "nachts", "vorm.", "nachm.", "", ""}},
+		DayPeriodRules: i18n.DayPeriodRules{
+			Hours:    [24]int8{5, 5, 5, 5, 5, 2, 2, 2, 2, 2, 6, 6, 3, 7, 7, 7, 7, 7, 4, 4, 4, 4, 4, 4},
+			Midnight: true,
+		},
+		DateFormats:     [4]string{"EEEE, d. MMMM y", "d. MMMM y", "dd.MM.y", "dd.MM.yy"},
+		TimeFormats:     [4]string{"HH:mm:ss zzzz", "HH:mm:ss z", "HH:mm:ss", "HH:mm"},
+		DateTimeFormats: [4]string{"{1}, {0}", "{1}, {0}", "{1}, {0}", "{1}, {0}"},
+		AtTimeFormats:   [4]string{"{1} 'um' {0}", "{1} 'um' {0}", "{1}, {0}", "{1}, {0}"},
+		Skeletons: []i18n.SkeletonPattern{
+			{
+				Skeleton:  "Bh",
+				Pattern:   "h 'Uhr' B",
+				Specified: true,
+			},
+			{
+				Skeleton:  "Bhm",
+				Pattern:   "h:mm B",
+				Specified: true,
+			},
+			{
+				Skeleton:  "Bhms",
+				Pattern:   "h:mm:ss B",
+				Specified: true,
+			},
+			{
+				Skeleton: "D",
+				Pattern:  "D",
+			},
+			{
+				Skeleton:  "E",
+				Pattern:   "ccc",
+				Specified: true,
+			},
+			{
+				Skeleton:  "EBh",
+				Pattern:   "E, h 'Uhr' B",
+				Specified: true,
+			},
+			{
+				Skeleton:  "EBhm",
+				Pattern:   "E, h:mm 'Uhr' B",
+				Specified: true,
+			},
+			{
+				Skeleton:  "EBhms",
+				Pattern:   "E, h:mm:ss 'Uhr' B",
+				Specified: true,
+			},
+			{
+				Skeleton:  "EHm",
+				Pattern:   "E, HH:mm",
+				Specified: true,
+			},
+			{
+				Skeleton:  "EHms",
+				Pattern:   "E, HH:mm:ss",
+				Specified: true,
+			},
+			{
+				Skeleton:  "Ed",
+				Pattern:   "E, d.",
+				Specified: true,
+			},
+			{
+				Skeleton:  "Eah",
+				Pattern:   "E, h\u202fa",
+				Specified: true,
+			},
+			{
+				Skeleton:  "Eahm",
+				Pattern:   "E h:mm\u202fa",
+				Specified: true,
+			},
+			{
+				Skeleton:  "Eahms",
+				Pattern:   "E, h:mm:ss\u202fa",
+				Specified: true,
+			},
+			{
+				Skeleton: "F",
+				Pattern:  "F",
+			},
+			{
+				Skeleton: "G",
+				Pattern:  "G",
+			},
+			{
+				Skeleton:  "Gy",
+				Pattern:   "y G",
+				Specified: true,
+			},
+			{
+				Skeleton:  "GyM",
+				Pattern:   "MM/y G",
+				Specified: true,
+			},
+			{
+				Skeleton:  "GyMEd",
+				Pattern:   "E, dd.MM.y G",
+				Specified: true,
+			},
+			{
+				Skeleton:  "GyMMM",
+				Pattern:   "MMM y G",
+				Specified: true,
+			},
+			{
+				Skeleton:  "GyMMMEd",
+				Pattern:   "E, d. MMM y G",
+				Specified: true,
+			},
+			{
+				Skeleton:  "GyMMMd",
+				Pattern:   "d. MMM y G",
+				Specified: true,
+			},
+			{
+				Skeleton:  "GyMd",
+				Pattern:   "dd.MM.y G",
+				Specified: true,
+			},
+			{
+				Skeleton:  "H",
+				Pattern:   "HH 'Uhr'",
+				Specified: true,
+			},
+			{
+				Skeleton: "HHmmsszzzz",
+				Pattern:  "HH:mm:ss zzzz",
+				Std:      true,
+			},
+			{
+				Skeleton: "HHmmssz",
+				Pattern:  "HH:mm:ss z",
+				Std:      true,
+			},
+			{
+				Skeleton: "HHmmss",
+				Pattern:  "HH:mm:ss",
+				Std:      true,
+			},
+			{
+				Skeleton: "HHmm",
+				Pattern:  "HH:mm",
+				Std:      true,
+			},
+			{
+				Skeleton:  "Hv",
+				Pattern:   "HH 'Uhr' v",
+				Specified: true,
+			},
+			{
+				Skeleton:  "Hm",
+				Pattern:   "HH:mm",
+				Specified: true,
+			},
+			{
+				Skeleton:  "Hms",
+				Pattern:   "HH:mm:ss",
+				Specified: true,
+			},
+			{
+				Skeleton:  "Hmsv",
+				Pattern:   "HH:mm:ss v",
+				Specified: true,
+			},
+			{
+				Skeleton:  "Hmv",
+				Pattern:   "HH:mm v",
+				Specified: true,
+			},
+			{
+				Skeleton:  "M",
+				Pattern:   "L",
+				Specified: true,
+			},
+			{
+				Skeleton:  "MEd",
+				Pattern:   "E, d.M.",
+				Specified: true,
+			},
+			{
+				Skeleton:  "MMMEd",
+				Pattern:   "E, d. MMM",
+				Specified: true,
+			},
+			{
+				Skeleton:  "MMMMEd",
+				Pattern:   "E, d. MMMM",
+				Specified: true,
+			},
+			{
+				Skeleton:  "MMMMW",
+				Specified: true,
+			},
+			{
+				Skeleton:  "MMMMd",
+				Pattern:   "d. MMMM",
+				Specified: true,
+			},
+			{
+				Skeleton:  "MMMd",
+				Pattern:   "d. MMM",
+				Specified: true,
+			},
+			{
+				Skeleton:  "MMd",
+				Pattern:   "dd.MM.",
+				Specified: true,
+			},
+			{
+				Skeleton:  "MMdd",
+				Pattern:   "dd.MM.",
+				Specified: true,
+			},
+			{
+				Skeleton:  "Md",
+				Pattern:   "d.M.",
+				Specified: true,
+			},
+			{
+				Skeleton:  "MMM",
+				Pattern:   "LLL",
+				Specified: true,
+			},
+			{
+				Skeleton: "Q",
+				Pattern:  "Q",
+			},
+			{
+				Skeleton: "S",
+				Pattern:  "S",
+			},
+			{
+				Skeleton: "W",
+				Pattern:  "W",
+			},
+			{
+				Skeleton: "a",
+				Pattern:  "a",
+			},
+			{
+				Skeleton:  "ah",
+				Pattern:   "h\u202fa",
+				Specified: true,
+			},
+			{
+				Skeleton:  "ahm",
+				Pattern:   "h:mm\u202fa",
+				Specified: true,
+			},
+			{
+				Skeleton:  "ahms",
+				Pattern:   "h:mm:ss\u202fa",
+				Specified: true,
+			},
+			{
+				Skeleton:  "ahmsv",
+				Pattern:   "h:mm:ss\u202fa v",
+				Specified: true,
+			},
+			{
+				Skeleton:  "ahmv",
+				Pattern:   "h:mm\u202fa v",
+				Specified: true,
+			},
+			{
+				Skeleton:  "ahv",
+				Pattern:   "h\u202fa v",
+				Specified: true,
+			},
+			{
+				Skeleton:  "d",
+				Pattern:   "d",
+				Specified: true,
+			},
+			{
+				Skeleton: "m",
+				Pattern:  "m",
+			},
+			{
+				Skeleton:  "ms",
+				Pattern:   "mm:ss",
+				Specified: true,
+			},
+			{
+				Skeleton: "s",
+				Pattern:  "s",
+			},
+			{
+				Skeleton: "v",
+				Pattern:  "v",
+			},
+			{
+				Skeleton: "w",
+				Pattern:  "w",
+			},
+			{
+				Skeleton:  "y",
+				Pattern:   "y",
+				Specified: true,
+			},
+			{
+				Skeleton: "yMMMMEEEEd",
+				Pattern:  "EEEE, d. MMMM y",
+				Std:      true,
+			},
+			{
+				Skeleton: "yMMMMd",
+				Pattern:  "d. MMMM y",
+				Std:      true,
+			},
+			{
+				Skeleton:  "yMMdd",
+				Pattern:   "dd.MM.y",
+				Specified: true,
+			},
+			{
+				Skeleton:  "yM",
+				Pattern:   "M/y",
+				Specified: true,
+			},
+			{
+				Skeleton:  "yMEd",
+				Pattern:   "E, d.M.y",
+				Specified: true,
+			},
+			{
+				Skeleton:  "yMM",
+				Pattern:   "MM/y",
+				Specified: true,
+			},
+			{
+				Skeleton:  "yMMM",
+				Pattern:   "MMM y",
+				Specified: true,
+			},
+			{
+				Skeleton:  "yMMMEd",
+				Pattern:   "E, d. MMM y",
+				Specified: true,
+			},
+			{
+				Skeleton:  "yMMMM",
+				Pattern:   "MMMM y",
+				Specified: true,
+			},
+			{
+				Skeleton:  "yMMMd",
+				Pattern:   "d. MMM y",
+				Specified: true,
+			},
+			{
+				Skeleton:  "yMd",
+				Pattern:   "d.M.y",
+				Specified: true,
+			},
+			{
+				Skeleton:  "yQQQ",
+				Pattern:   "QQQ y",
+				Specified: true,
+			},
+			{
+				Skeleton:  "yQQQQ",
+				Pattern:   "QQQQ y",
+				Specified: true,
+			},
+			{
+				Skeleton:  "yw",
+				Specified: true,
+			},
+		},
+		AppendItems:      [16]string{"{1} {0}", "{1} {0}", "{0} ({2}: {1})", "{0} ({2}: {1})", "{0} ({2}: {1})", "", "{0} {1}", "", "", "{0} ({2}: {1})", "", "{0} ({2}: {1})", "{0} ({2}: {1})", "{0} ({2}: {1})", "", "{0} {1}"},
+		FieldNames:       [16]string{"Epoche", "Jahr", "Quartal", "Monat", "Woche", "Woche des Monats", "Wochentag", "Tag des Jahres", "Wochentag", "Tag", "Tageshälfte", "Stunde", "Minute", "Sekunde", "", "Zeitzone"},
+		IntervalFallback: "{0}\u2009–\u2009{1}",
+		Intervals: []i18n.IntervalFormats{
+			{
+				Skeleton:    "Bh",
+				PatternList: "\x1f\x1f\x1f\x1fh 'Uhr' B\u2009–\u2009h 'Uhr' B\x1fh–h 'Uhr' B",
+			},
+			{
+				Skeleton:    "Bhm",
+				PatternList: "\x1f\x1f\x1f\x1fh:mm 'Uhr' B\u2009–\u2009h:mm 'Uhr' B\x1fh:mm\u2009–\u2009h:mm 'Uhr' B\x1fh:mm\u2009–\u2009h:mm 'Uhr' B",
+			},
+			{
+				Skeleton:    "Gy",
+				PatternList: "y G\u2009–\u2009y G\x1fy–y G",
+			},
+			{
+				Skeleton:    "GyM",
+				PatternList: "MM/y G\u2009–\u2009MM/y G\x1fMM/y\u2009–\u2009MM/y G\x1fMM/y\u2009–\u2009MM/y G",
+			},
+			{
+				Skeleton:    "GyMEd",
+				PatternList: "E, dd.MM.y G\u2009–\u2009E, dd.MM.y G\x1fE, dd.MM.y\u2009–\u2009E, dd.MM.y G\x1fE, dd.MM.\u2009–\u2009E, dd.MM.y G\x1fE, dd.MM.y\u2009–\u2009E, dd.MM.y G",
+			},
+			{
+				Skeleton:    "GyMMM",
+				PatternList: "MMM y G\u2009–\u2009MMM y G\x1fMMM y\u2009–\u2009MMM y G\x1fMMM–MMM y G",
+			},
+			{
+				Skeleton:    "GyMMMEd",
+				PatternList: "E, d. MMM y G\u2009–\u2009E, d. MMM y G\x1fE, d. MMM y\u2009–\u2009E, d. MMM y G\x1fE, d. MMM\u2009–\u2009E, d. MMM y G\x1fE, d.\u2009–\u2009E, d. MMM y G",
+			},
+			{
+				Skeleton:    "GyMMMd",
+				PatternList: "d. MMM y G\u2009–\u2009d. MMM y G\x1fd. MMM y\u2009–\u2009d. MMM y G\x1fd. MMM\u2009–\u2009d. MMM y G\x1fd.–d. MMM y G",
+			},
+			{
+				Skeleton:    "GyMd",
+				PatternList: "dd.MM.y G\u2009–\u2009dd.MM.y G\x1fdd.MM.y\u2009–\u2009dd.MM.y G\x1fdd.MM.\u2009–\u2009dd.MM.y G\x1fdd.–dd.MM.y G",
+			},
+			{
+				Skeleton:    "H",
+				PatternList: "\x1f\x1f\x1f\x1f\x1fHH–HH 'Uhr'",
+			},
+			{
+				Skeleton:    "Hm",
+				PatternList: "\x1f\x1f\x1f\x1f\x1fHH:mm–HH:mm 'Uhr'\x1fHH:mm–HH:mm 'Uhr'",
+			},
+			{
+				Skeleton:    "Hmv",
+				PatternList: "\x1f\x1f\x1f\x1f\x1fHH:mm–HH:mm 'Uhr' v\x1fHH:mm–HH:mm 'Uhr' v",
+			},
+			{
+				Skeleton:    "Hv",
+				PatternList: "\x1f\x1f\x1f\x1f\x1fHH–HH 'Uhr' v",
+			},
+			{
+				Skeleton:    "M",
+				PatternList: "\x1f\x1fMM–MM",
+			},
+			{
+				Skeleton:    "MEd",
+				PatternList: "\x1f\x1fE, dd.MM.\u2009–\u2009E, dd.MM.\x1fE, dd.\u2009–\u2009E, dd.MM.",
+			},
+			{
+				Skeleton:    "MMM",
+				PatternList: "\x1f\x1fMMM–MMM",
+			},
+			{
+				Skeleton:    "MMMEd",
+				PatternList: "\x1f\x1fE, d. MMM\u2009–\u2009E, d. MMM\x1fE, d.\u2009–\u2009E, d. MMM",
+			},
+			{
+				Skeleton:    "MMMM",
+				PatternList: "\x1f\x1fLLLL–LLLL",
+			},
+			{
+				Skeleton:    "MMMd",
+				PatternList: "\x1f\x1fd. MMM\u2009–\u2009d. MMM\x1fd.–d. MMM",
+			},
+			{
+				Skeleton:    "Md",
+				PatternList: "\x1f\x1fdd.MM.\u2009–\u2009dd.MM.\x1fdd.–dd.MM.",
+			},
+			{
+				Skeleton:    "d",
+				PatternList: "\x1f\x1f\x1fd.–d.",
+			},
+			{
+				Skeleton:    "h",
+				PatternList: "\x1f\x1f\x1f\x1fh\u202fa\u2009–\u2009h\u202fa\x1fh\u2009–\u2009h\u202fa",
+			},
+			{
+				Skeleton:    "hm",
+				PatternList: "\x1f\x1f\x1f\x1fh:mm\u202fa\u2009–\u2009h:mm\u202fa\x1fh:mm–h:mm\u202fa\x1fh:mm–h:mm\u202fa",
+			},
+			{
+				Skeleton:    "hmv",
+				PatternList: "\x1f\x1f\x1f\x1fh:mm\u202fa\u2009–\u2009h:mm\u202fa v\x1fh:mm–h:mm\u202fa v\x1fh:mm–h:mm\u202fa v",
+			},
+			{
+				Skeleton:    "hv",
+				PatternList: "\x1f\x1f\x1f\x1fh\u202fa\u2009–\u2009h\u202fa v\x1fh–h\u202fa v",
+			},
+			{
+				Skeleton:    "y",
+				PatternList: "\x1fy–y",
+			},
+			{
+				Skeleton:    "yM",
+				PatternList: "\x1fM/y\u2009–\u2009M/y\x1fM/y\u2009–\u2009M/y",
+			},
+			{
+				Skeleton:    "yMEd",
+				PatternList: "\x1fE, dd.MM.y\u2009–\u2009E, dd.MM.y\x1fE, dd.MM.\u2009–\u2009E, dd.MM.y\x1fE, dd.\u2009–\u2009E, dd.MM.y",
+			},
+			{
+				Skeleton:    "yMMM",
+				PatternList: "\x1fMMM y\u2009–\u2009MMM y\x1fMMM–MMM y",
+			},
+			{
+				Skeleton:    "yMMMEd",
+				PatternList: "\x1fE, d. MMM y\u2009–\u2009E, d. MMM y\x1fE, d. MMM\u2009–\u2009E, d. MMM y\x1fE, d.\u2009–\u2009E, d. MMM y",
+			},
+			{
+				Skeleton:    "yMMMM",
+				PatternList: "\x1fMMMM y\u2009–\u2009MMMM y\x1fMMMM–MMMM y",
+			},
+			{
+				Skeleton:    "yMMMd",
+				PatternList: "\x1fd. MMM y\u2009–\u2009d. MMM y\x1fd. MMM\u2009–\u2009d. MMM y\x1fd.–d. MMM y",
+			},
+			{
+				Skeleton:    "yMd",
+				PatternList: "\x1fdd.MM.y\u2009–\u2009dd.MM.y\x1fdd.MM.\u2009–\u2009dd.MM.y\x1fdd.–dd.MM.y",
+			},
+		},
+		Zone: i18n.ZoneStrings{
+			HourFormat:     "+HH:mm;-HH:mm",
+			GMTFormat:      "GMT{0}",
+			GMTZeroFormat:  "GMT",
+			RegionFormat:   "{0} (Ortszeit)",
+			FallbackFormat: "{1} ({0})",
+			MetaZones: []i18n.ZoneNames{
+				{
+					ID:    "Acre",
+					Names: "Acre-Zeit\x1fAcre-Normalzeit\x1fAcre-Sommerzeit",
+				},
+				{
+					ID:    "Afghanistan",
+					Names: "\x1fAfghanistan-Zeit",
+				},
+				{
+					ID:    "Africa_Central",
+					Names: "\x1fZentralafrikanische Zeit",
+				},
+				{
+					ID:    "Africa_Eastern",
+					Names: "\x1fOstafrikanische Zeit",
+				},
+				{
+					ID:    "Africa_Southern",
+					Names: "\x1fSüdafrikanische Zeit",
+				},
+				{
+					ID:    "Africa_Western",
+					Names: "\x1fWestafrikanische Zeit",
+				},
+				{
+					ID:    "Alaska",
+					Names: "Alaska-Zeit\x1fAlaska-Normalzeit\x1fAlaska-Sommerzeit",
+				},
+				{
+					ID:    "Almaty",
+					Names: "Almaty-Zeit\x1fAlmaty-Normalzeit\x1fAlmaty-Sommerzeit",
+				},
+				{
+					ID:    "Amazon",
+					Names: "Amazonas-Zeit\x1fAmazonas-Normalzeit\x1fAmazonas-Sommerzeit",
+				},
+				{
+					ID:    "America_Central",
+					Names: "Nordamerikanische Zentralzeit\x1fNordamerikanische Zentral-Normalzeit\x1fNordamerikanische Zentral-Sommerzeit",
+				},
+				{
+					ID:    "America_Eastern",
+					Names: "Nordamerikanische Ostküstenzeit\x1fNordamerikanische Ostküsten-Normalzeit\x1fNordamerikanische Ostküsten-Sommerzeit",
+				},
+				{
+					ID:    "America_Mountain",
+					Names: "Rocky-Mountains-Zeit\x1fRocky-Mountains-Normalzeit\x1fRocky-Mountains-Sommerzeit",
+				},
+				{
+					ID:    "America_Pacific",
+					Names: "Nordamerikanische Westküstenzeit\x1fNordamerikanische Westküsten-Normalzeit\x1fNordamerikanische Westküsten-Sommerzeit",
+				},
+				{
+					ID:    "Anadyr",
+					Names: "Anadyr Zeit\x1fAnadyr Normalzeit\x1fAnadyr Sommerzeit",
+				},
+				{
+					ID:    "Apia",
+					Names: "Apia-Zeit\x1fApia-Normalzeit\x1fApia-Sommerzeit",
+				},
+				{
+					ID:    "Aqtau",
+					Names: "Aqtau-Zeit\x1fAqtau-Normalzeit\x1fAqtau-Sommerzeit",
+				},
+				{
+					ID:    "Aqtobe",
+					Names: "Aqtöbe-Zeit\x1fAqtöbe-Normalzeit\x1fAqtöbe-Sommerzeit",
+				},
+				{
+					ID:    "Arabian",
+					Names: "Arabische Zeit\x1fArabische Normalzeit\x1fArabische Sommerzeit",
+				},
+				{
+					ID:    "Argentina",
+					Names: "Argentinische Zeit\x1fArgentinische Normalzeit\x1fArgentinische Sommerzeit",
+				},
+				{
+					ID:    "Argentina_Western",
+					Names: "Westargentinische Zeit\x1fWestargentinische Normalzeit\x1fWestargentinische Sommerzeit",
+				},
+				{
+					ID:    "Armenia",
+					Names: "Armenische Zeit\x1fArmenische Normalzeit\x1fArmenische Sommerzeit",
+				},
+				{
+					ID:    "Atlantic",
+					Names: "Atlantik-Zeit\x1fAtlantik-Normalzeit\x1fAtlantik-Sommerzeit",
+				},
+				{
+					ID:    "Australia_Central",
+					Names: "Zentralaustralische Zeit\x1fZentralaustralische Normalzeit\x1fZentralaustralische Sommerzeit",
+				},
+				{
+					ID:    "Australia_CentralWestern",
+					Names: "Zentral-/Westaustralische Zeit\x1fZentral-/Westaustralische Normalzeit\x1fZentral-/Westaustralische Sommerzeit",
+				},
+				{
+					ID:    "Australia_Eastern",
+					Names: "Ostaustralische Zeit\x1fOstaustralische Normalzeit\x1fOstaustralische Sommerzeit",
+				},
+				{
+					ID:    "Australia_Western",
+					Names: "Westaustralische Zeit\x1fWestaustralische Normalzeit\x1fWestaustralische Sommerzeit",
+				},
+				{
+					ID:    "Azerbaijan",
+					Names: "Aserbaidschanische Zeit\x1fAserbeidschanische Normalzeit\x1fAserbaidschanische Sommerzeit",
+				},
+				{
+					ID:    "Azores",
+					Names: "Azoren-Zeit\x1fAzoren-Normalzeit\x1fAzoren-Sommerzeit",
+				},
+				{
+					ID:    "Bangladesh",
+					Names: "Bangladesch-Zeit\x1fBangladesch-Normalzeit\x1fBangladesch-Sommerzeit",
+				},
+				{
+					ID:    "Bhutan",
+					Names: "\x1fBhutan-Zeit",
+				},
+				{
+					ID:    "Bolivia",
+					Names: "\x1fBolivianische Zeit",
+				},
+				{
+					ID:    "Brasilia",
+					Names: "Brasília-Zeit\x1fBrasília-Normalzeit\x1fBrasília-Sommerzeit",
+				},
+				{
+					ID:    "Brunei",
+					Names: "\x1fBrunei-Darussalam-Zeit",
+				},
+				{
+					ID:    "Cape_Verde",
+					Names: "Cabo-Verde-Zeit\x1fCabo-Verde-Normalzeit\x1fCabo-Verde-Sommerzeit",
+				},
+				{
+					ID:    "Casey",
+					Names: "\x1fCasey-Zeit",
+				},
+				{
+					ID:    "Chamorro",
+					Names: "\x1fChamorro-Zeit",
+				},
+				{
+					ID:    "Chatham",
+					Names: "Chatham-Zeit\x1fChatham-Normalzeit\x1fChatham-Sommerzeit",
+				},
+				{
+					ID:    "Chile",
+					Names: "Chilenische Zeit\x1fChilenische Normalzeit\x1fChilenische Sommerzeit",
+				},
+				{
+					ID:    "China",
+					Names: "Chinesische Zeit\x1fChinesische Normalzeit\x1fChinesische Sommerzeit",
+				},
+				{
+					ID:    "Christmas",
+					Names: "\x1fWeihnachtsinsel-Zeit",
+				},
+				{
+					ID:    "Cocos",
+					Names: "\x1fKokosinseln-Zeit",
+				},
+				{
+					ID:    "Colombia",
+					Names: "Kolumbianische Zeit\x1fKolumbianische Normalzeit\x1fKolumbianische Sommerzeit",
+				},
+				{
+					ID:    "Cook",
+					Names: "Cookinseln-Zeit\x1fCookinseln-Normalzeit\x1fCookinseln-Sommerzeit",
+				},
+				{
+					ID:    "Cuba",
+					Names: "Kubanische Zeit\x1fKubanische Normalzeit\x1fKubanische Sommerzeit",
+				},
+				{
+					ID:    "Davis",
+					Names: "\x1fDavis-Zeit",
+				},
+				{
+					ID:    "DumontDUrville",
+					Names: "\x1fDumont-d’Urville-Zeit",
+				},
+				{
+					ID:    "East_Timor",
+					Names: "\x1fOsttimor-Zeit",
+				},
+				{
+					ID:    "Easter",
+					Names: "Osterinsel-Zeit\x1fOsterinsel-Normalzeit\x1fOsterinsel-Sommerzeit",
+				},
+				{
+					ID:    "Ecuador",
+					Names: "\x1fEcuadorianische Zeit",
+				},
+				{
+					ID:    "Europe_Central",
+					Names: "Mitteleuropäische Zeit\x1fMitteleuropäische Normalzeit\x1fMitteleuropäische Sommerzeit\x1fMEZ\x1fMEZ\x1fMESZ",
+				},
+				{
+					ID:    "Europe_Eastern",
+					Names: "Osteuropäische Zeit\x1fOsteuropäische Normalzeit\x1fOsteuropäische Sommerzeit\x1fOEZ\x1fOEZ\x1fOESZ",
+				},
+				{
+					ID:    "Europe_Further_Eastern",
+					Names: "\x1fKaliningrader Zeit",
+				},
+				{
+					ID:    "Europe_Western",
+					Names: "Westeuropäische Zeit\x1fWesteuropäische Normalzeit\x1fWesteuropäische Sommerzeit\x1fWEZ\x1fWEZ\x1fWESZ",
+				},
+				{
+					ID:    "Falkland",
+					Names: "Falklandinseln-Zeit\x1fFalklandinseln-Normalzeit\x1fFalklandinseln-Sommerzeit",
+				},
+				{
+					ID:    "Fiji",
+					Names: "Fidschi-Zeit\x1fFidschi-Normalzeit\x1fFidschi-Sommerzeit",
+				},
+				{
+					ID:    "French_Guiana",
+					Names: "\x1fFranzösisch-Guayana-Zeit",
+				},
+				{
+					ID:    "French_Southern",
+					Names: "\x1fFranzösische-Süd-und-Antarktisgebiete-Zeit",
+				},
+				{
+					ID:    "GMT",
+					Names: "\x1fMittlere Greenwich-Zeit",
+				},
+				{
+					ID:    "Galapagos",
+					Names: "\x1fGalapagos-Zeit",
+				},
+				{
+					ID:    "Gambier",
+					Names: "\x1fGambier-Zeit",
+				},
+				{
+					ID:    "Georgia",
+					Names: "Georgische Zeit\x1fGeorgische Normalzeit\x1fGeorgische Sommerzeit",
+				},
+				{
+					ID:    "Gilbert_Islands",
+					Names: "\x1fGilbert-Inseln-Zeit",
+				},
+				{
+					ID:    "Greenland_Eastern",
+					Names: "Ostgrönland-Zeit\x1fOstgrönland-Normalzeit\x1fOstgrönland-Sommerzeit",
+				},
+				{
+					ID:    "Greenland_Western",
+					Names: "Westgrönland-Zeit\x1fWestgrönland-Normalzeit\x1fWestgrönland-Sommerzeit",
+				},
+				{
+					ID:    "Guam",
+					Names: "\x1fGuam-Zeit",
+				},
+				{
+					ID:    "Gulf",
+					Names: "\x1fGolf-Zeit",
+				},
+				{
+					ID:    "Guyana",
+					Names: "\x1fGuyana-Zeit",
+				},
+				{
+					ID:    "Hawaii",
+					Names: "\x1fHawaii-Aleuten-Normalzeit",
+				},
+				{
+					ID:    "Hawaii_Aleutian",
+					Names: "Hawaii-Aleuten-Zeit\x1fHawaii-Aleuten-Normalzeit\x1fHawaii-Aleuten-Sommerzeit",
+				},
+				{
+					ID:    "Hong_Kong",
+					Names: "Hongkong-Zeit\x1fHongkong-Normalzeit\x1fHongkong-Sommerzeit",
+				},
+				{
+					ID:    "Hovd",
+					Names: "Chowd-Zeit\x1fChowd-Normalzeit\x1fChowd-Sommerzeit",
+				},
+				{
+					ID:    "India",
+					Names: "\x1fIndische Normalzeit",
+				},
+				{
+					ID:    "Indian_Ocean",
+					Names: "\x1fIndischer-Ozean-Zeit",
+				},
+				{
+					ID:    "Indochina",
+					Names: "\x1fIndochina-Zeit",
+				},
+				{
+					ID:    "Indonesia_Central",
+					Names: "\x1fZentralindonesische Zeit",
+				},
+				{
+					ID:    "Indonesia_Eastern",
+					Names: "\x1fOstindonesische Zeit",
+				},
+				{
+					ID:    "Indonesia_Western",
+					Names: "\x1fWestindonesische Zeit",
+				},
+				{
+					ID:    "Iran",
+					Names: "Iranische Zeit\x1fIranische Normalzeit\x1fIranische Sommerzeit",
+				},
+				{
+					ID:    "Irkutsk",
+					Names: "Irkutsker Zeit\x1fIrkutsker Normalzeit\x1fIrkutsker Sommerzeit",
+				},
+				{
+					ID:    "Israel",
+					Names: "Israelische Zeit\x1fIsraelische Normalzeit\x1fIsraelische Sommerzeit",
+				},
+				{
+					ID:    "Japan",
+					Names: "Japanische Zeit\x1fJapanische Normalzeit\x1fJapanische Sommerzeit",
+				},
+				{
+					ID:    "Kamchatka",
+					Names: "Kamtschatka-Zeit\x1fKamtschatka-Normalzeit\x1fKamtschatka-Sommerzeit",
+				},
+				{
+					ID:    "Kazakhstan",
+					Names: "\x1fKasachische Zeit",
+				},
+				{
+					ID:    "Kazakhstan_Eastern",
+					Names: "\x1fOstkasachische Zeit",
+				},
+				{
+					ID:    "Kazakhstan_Western",
+					Names: "\x1fWestkasachische Zeit",
+				},
+				{
+					ID:    "Korea",
+					Names: "Koreanische Zeit\x1fKoreanische Normalzeit\x1fKoreanische Sommerzeit",
+				},
+				{
+					ID:    "Kosrae",
+					Names: "\x1fKosrae-Zeit",
+				},
+				{
+					ID:    "Krasnoyarsk",
+					Names: "Krasnojarsker Zeit\x1fKrasnojarsker Normalzeit\x1fKrasnojarsker Sommerzeit",
+				},
+				{
+					ID:    "Kyrgystan",
+					Names: "\x1fKirgisische Zeit",
+				},
+				{
+					ID:    "Lanka",
+					Names: "\x1fSri-Lanka-Zeit",
+				},
+				{
+					ID:    "Line_Islands",
+					Names: "\x1fLinieninseln-Zeit",
+				},
+				{
+					ID:    "Lord_Howe",
+					Names: "Lord-Howe-Zeit\x1fLord-Howe-Normalzeit\x1fLord-Howe-Sommerzeit",
+				},
+				{
+					ID:    "Macau",
+					Names: "Macau-Zeit\x1fMacau-Normalzeit\x1fMacau-Sommerzeit",
+				},
+				{
+					ID:    "Magadan",
+					Names: "Magadan-Zeit\x1fMagadan-Normalzeit\x1fMagadan-Sommerzeit",
+				},
+				{
+					ID:    "Malaysia",
+					Names: "\x1fMalaysische Zeit",
+				},
+				{
+					ID:    "Maldives",
+					Names: "\x1fMalediven-Zeit",
+				},
+				{
+					ID:    "Marquesas",
+					Names: "\x1fMarquesas-Zeit",
+				},
+				{
+					ID:    "Marshall_Islands",
+					Names: "\x1fMarshallinseln-Zeit",
+				},
+				{
+					ID:    "Mauritius",
+					Names: "Mauritius-Zeit\x1fMauritius-Normalzeit\x1fMauritius-Sommerzeit",
+				},
+				{
+					ID:    "Mawson",
+					Names: "\x1fMawson-Zeit",
+				},
+				{
+					ID:    "Mexico_Pacific",
+					Names: "Mexikanische Pazifikzeit\x1fMexikanische Pazifik-Normalzeit\x1fMexikanische Pazifik-Sommerzeit",
+				},
+				{
+					ID:    "Mongolia",
+					Names: "Ulaanbaatar-Zeit\x1fUlaanbaatar-Normalzeit\x1fUlaanbaatar-Sommerzeit",
+				},
+				{
+					ID:    "Moscow",
+					Names: "Moskauer Zeit\x1fMoskauer Normalzeit\x1fMoskauer Sommerzeit",
+				},
+				{
+					ID:    "Myanmar",
+					Names: "\x1fMyanmar-Zeit",
+				},
+				{
+					ID:    "Nauru",
+					Names: "\x1fNauru-Zeit",
+				},
+				{
+					ID:    "Nepal",
+					Names: "\x1fNepalesische Zeit",
+				},
+				{
+					ID:    "New_Caledonia",
+					Names: "Neukaledonische Zeit\x1fNeukaledonische Normalzeit\x1fNeukaledonische Sommerzeit",
+				},
+				{
+					ID:    "New_Zealand",
+					Names: "Neuseeland-Zeit\x1fNeuseeland-Normalzeit\x1fNeuseeland-Sommerzeit",
+				},
+				{
+					ID:    "Newfoundland",
+					Names: "Neufundland-Zeit\x1fNeufundland-Normalzeit\x1fNeufundland-Sommerzeit",
+				},
+				{
+					ID:    "Niue",
+					Names: "\x1fNiue-Zeit",
+				},
+				{
+					ID:    "Norfolk",
+					Names: "Norfolkinsel-Zeit\x1fNorfolkinsel-Normalzeit\x1fNorfolkinsel-Sommerzeit",
+				},
+				{
+					ID:    "Noronha",
+					Names: "Fernando-de-Noronha-Zeit\x1fFernando-de-Noronha-Normalzeit\x1fFernando-de-Noronha-Sommerzeit",
+				},
+				{
+					ID:    "North_Mariana",
+					Names: "\x1fNördliche-Marianen-Zeit",
+				},
+				{
+					ID:    "Novosibirsk",
+					Names: "Nowosibirsker Zeit\x1fNowosibirsker Normalzeit\x1fNowosibirsker Sommerzeit",
+				},
+				{
+					ID:    "Omsk",
+					Names: "Omsker Zeit\x1fOmsker Normalzeit\x1fOmsker Sommerzeit",
+				},
+				{
+					ID:    "Pakistan",
+					Names: "Pakistanische Zeit\x1fPakistanische Normalzeit\x1fPakistanische Sommerzeit",
+				},
+				{
+					ID:    "Palau",
+					Names: "\x1fPalau-Zeit",
+				},
+				{
+					ID:    "Papua_New_Guinea",
+					Names: "\x1fPapua-Neuguinea-Zeit",
+				},
+				{
+					ID:    "Paraguay",
+					Names: "Paraguayische Zeit\x1fParaguayische Normalzeit\x1fParaguayische Sommerzeit",
+				},
+				{
+					ID:    "Peru",
+					Names: "Peruanische Zeit\x1fPeruanische Normalzeit\x1fPeruanische Sommerzeit",
+				},
+				{
+					ID:    "Philippines",
+					Names: "Philippinische Zeit\x1fPhilippinische Normalzeit\x1fPhilippinische Sommerzeit",
+				},
+				{
+					ID:    "Phoenix_Islands",
+					Names: "\x1fPhoenixinseln-Zeit",
+				},
+				{
+					ID:    "Pierre_Miquelon",
+					Names: "St.-Pierre-und-Miquelon-Zeit\x1fSt.-Pierre-und-Miquelon-Normalzeit\x1fSt.-Pierre-und-Miquelon-Sommerzeit",
+				},
+				{
+					ID:    "Pitcairn",
+					Names: "\x1fPitcairninseln-Zeit",
+				},
+				{
+					ID:    "Ponape",
+					Names: "\x1fPohnpei-Zeit",
+				},
+				{
+					ID:    "Pyongyang",
+					Names: "\x1fPjöngjang-Zeit",
+				},
+				{
+					ID:    "Qyzylorda",
+					Names: "Quysylorda-Zeit\x1fQuysylorda-Normalzeit\x1fQysylorda-Sommerzeit",
+				},
+				{
+					ID:    "Reunion",
+					Names: "\x1fRéunion-Zeit",
+				},
+				{
+					ID:    "Rothera",
+					Names: "\x1fRothera-Zeit",
+				},
+				{
+					ID:    "Sakhalin",
+					Names: "Sachalin-Zeit\x1fSachalin-Normalzeit\x1fSachalin-Sommerzeit",
+				},
+				{
+					ID:    "Samara",
+					Names: "Samara-Zeit\x1fSamara-Normalzeit\x1fSamara-Sommerzeit",
+				},
+				{
+					ID:    "Samoa",
+					Names: "Samoa-Zeit\x1fSamoa-Normalzeit\x1fSamoa-Sommerzeit",
+				},
+				{
+					ID:    "Seychelles",
+					Names: "\x1fSeychellen-Zeit",
+				},
+				{
+					ID:    "Singapore",
+					Names: "\x1fSingapurische Normalzeit",
+				},
+				{
+					ID:    "Solomon",
+					Names: "\x1fSalomonen-Zeit",
+				},
+				{
+					ID:    "South_Georgia",
+					Names: "\x1fSüdgeorgische Zeit",
+				},
+				{
+					ID:    "Suriname",
+					Names: "\x1fSuriname-Zeit",
+				},
+				{
+					ID:    "Syowa",
+					Names: "\x1fSyowa-Zeit",
+				},
+				{
+					ID:    "Tahiti",
+					Names: "\x1fTahiti-Zeit",
+				},
+				{
+					ID:    "Taipei",
+					Names: "Taipeh-Zeit\x1fTaipeh-Normalzeit\x1fTaipeh-Sommerzeit",
+				},
+				{
+					ID:    "Tajikistan",
+					Names: "\x1fTadschikische Zeit",
+				},
+				{
+					ID:    "Tokelau",
+					Names: "\x1fTokelau-Zeit",
+				},
+				{
+					ID:    "Tonga",
+					Names: "Tongaische Zeit\x1fTongaische Normalzeit\x1fTongaische Sommerzeit",
+				},
+				{
+					ID:    "Truk",
+					Names: "\x1fChuuk-Zeit",
+				},
+				{
+					ID:    "Turkey",
+					Names: "Türkische Zeit\x1fTürkische Normalzeit\x1fTürkische Sommerzeit",
+				},
+				{
+					ID:    "Turkmenistan",
+					Names: "Turkmenistan-Zeit\x1fTurkmenische Normalzeit\x1fTurkmenische Sommerzeit",
+				},
+				{
+					ID:    "Tuvalu",
+					Names: "\x1fTuvalu-Zeit",
+				},
+				{
+					ID:    "Uruguay",
+					Names: "Uruguayische Zeit\x1fUruguayische Normalzeit\x1fUruguayische Sommerzeit",
+				},
+				{
+					ID:    "Uzbekistan",
+					Names: "Usbekische Zeit\x1fUsbekische Normalzeit\x1fUsbekische Sommerzeit",
+				},
+				{
+					ID:    "Vanuatu",
+					Names: "Vanuatu-Zeit\x1fVanuatu-Normalzeit\x1fVanuatu-Sommerzeit",
+				},
+				{
+					ID:    "Venezuela",
+					Names: "\x1fVenezuela-Zeit",
+				},
+				{
+					ID:    "Vladivostok",
+					Names: "Wladiwostoker Zeit\x1fWladiwostoker Normalzeit\x1fWladiwostoker Sommerzeit",
+				},
+				{
+					ID:    "Volgograd",
+					Names: "Wolgograder Zeit\x1fWolgograder Normalzeit\x1fWolgograder Sommerzeit",
+				},
+				{
+					ID:    "Vostok",
+					Names: "\x1fWostok-Zeit",
+				},
+				{
+					ID:    "Wake",
+					Names: "\x1fWake-Insel-Zeit",
+				},
+				{
+					ID:    "Wallis",
+					Names: "\x1fWallis-und-Futuna-Zeit",
+				},
+				{
+					ID:    "Yakutsk",
+					Names: "Jakutsker Zeit\x1fJakutsker Normalzeit\x1fJakutsker Sommerzeit",
+				},
+				{
+					ID:    "Yekaterinburg",
+					Names: "Jekaterinburger Zeit\x1fJekaterinburger Normalzeit\x1fJekaterinburger Sommerzeit",
+				},
+				{
+					ID:    "Yukon",
+					Names: "\x1fYukon-Zeit",
+				},
+			},
+			Zones: []i18n.ZoneNames{
+				{
+					ID:    "America/Ciudad_Juarez",
+					Names: "\x1f\x1f\x1f\x1f\x1f\x1fCiudad Juárez",
+				},
+				{
+					ID:    "Etc/UTC",
+					Names: "\x1fKoordinierte Weltzeit\x1f\x1f\x1fUTC",
+				},
+				{
+					ID:    "Europe/Dublin",
+					Names: "\x1f\x1fIrische Sommerzeit",
+				},
+				{
+					ID:    "Europe/London",
+					Names: "\x1f\x1fBritische Sommerzeit",
+				},
+			},
+			RegionNames: "AD\x1eAndorra\x1fAE\x1eVereinigte Arabische Emirate\x1fAF\x1eAfghanistan\x1fAG\x1eAntigua und Barbuda\x1fAI\x1eAnguilla\x1fAL\x1eAlbanien\x1fAM\x1eArmenien\x1fAO\x1eAngola\x1fAQ\x1eAntarktis\x1fAR\x1eArgentinien\x1fAS\x1eAmerikanisch-Samoa\x1fAT\x1eÖsterreich\x1fAU\x1eAustralien\x1fAW\x1eAruba\x1fAX\x1eÅlandinseln\x1fAZ\x1eAserbaidschan\x1fBA\x1eBosnien und Herzegowina\x1fBB\x1eBarbados\x1fBD\x1eBangladesch\x1fBE\x1eBelgien\x1fBF\x1eBurkina Faso\x1fBG\x1eBulgarien\x1fBH\x1eBahrain\x1fBI\x1eBurundi\x1fBJ\x1eBenin\x1fBL\x1eSt. Barthélemy\x1fBM\x1eBermuda\x1fBN\x1eBrunei Darussalam\x1fBO\x1eBolivien\x1fBQ\x1eKaribische Niederlande\x1fBR\x1eBrasilien\x1fBS\x1eBahamas\x1fBT\x1eBhutan\x1fBW\x1eBotsuana\x1fBY\x1eBelarus\x1fBZ\x1eBelize\x1fCA\x1eKanada\x1fCC\x1eKokosinseln\x1fCD\x1eKongo-Kinshasa\x1fCF\x1eZentralafrikanische Republik\x1fCG\x1eKongo-Brazzaville\x1fCH\x1eSchweiz\x1fCI\x1eCôte d’Ivoire\x1fCK\x1eCookinseln\x1fCL\x1eChile\x1fCM\x1eKamerun\x1fCN\x1eChina\x1fCO\x1eKolumbien\x1fCR\x1eCosta Rica\x1fCU\x1eKuba\x1fCV\x1eCabo Verde\x1fCW\x1eCuraçao\x1fCX\x1eWeihnachtsinsel\x1fCY\x1eZypern\x1fCZ\x1eTschechien\x1fDE\x1eDeutschland\x1fDJ\x1eDschibuti\x1fDK\x1eDänemark\x1fDM\x1eDominica\x1fDO\x1eDominikanische Republik\x1fDZ\x1eAlgerien\x1fEC\x1eEcuador\x1fEE\x1eEstland\x1fEG\x1eÄgypten\x1fEH\x1eWestsahara\x1fER\x1eEritrea\x1fES\x1eSpanien\x1fET\x1eÄthiopien\x1fFI\x1eFinnland\x1fFJ\x1eFidschi\x1fFK\x1eFalklandinseln (Malwinen)\x1fFM\x1eMikronesien\x1fFO\x1eFäröer\x1fFR\x1eFrankreich\x1fGA\x1eGabun\x1fGB\x1eVereinigtes Königreich\x1fGD\x1eGrenada\x1fGE\x1eGeorgien\x1fGF\x1eFranzösisch-Guayana\x1fGG\x1eGuernsey\x1fGH\x1eGhana\x1fGI\x1eGibraltar\x1fGL\x1eGrönland\x1fGM\x1eGambia\x1fGN\x1eGuinea\x1fGP\x1eGuadeloupe\x1fGQ\x1eÄquatorialguinea\x1fGR\x1eGriechenland\x1fGS\x1eSüdgeorgien und die Südlichen Sandwichinseln\x1fGT\x1eGuatemala\x1fGU\x1eGuam\x1fGW\x1eGuinea-Bissau\x1fGY\x1eGuyana\x1fHK\x1eHongkong\x1fHN\x1eHonduras\x1fHR\x1eKroatien\x1fHT\x1eHaiti\x1fHU\x1eUngarn\x1fID\x1eIndonesien\x1fIE\x1eIrland\x1fIL\x1eIsrael\x1fIM\x1eIsle of Man\x1fIN\x1eIndien\x1fIO\x1eBritisches Territorium im Indischen Ozean\x1fIQ\x1eIrak\x1fIR\x1eIran\x1fIS\x1eIsland\x1fIT\x1eItalien\x1fJE\x1eJersey\x1fJM\x1eJamaika\x1fJO\x1eJordanien\x1fJP\x1eJapan\x1fKE\x1eKenia\x1fKG\x1eKirgisistan\x1fKH\x1eKambodscha\x1fKI\x1eKiribati\x1fKM\x1eKomoren\x1fKN\x1eSt. Kitts und Nevis\x1fKP\x1eNordkorea\x1fKR\x1eSüdkorea\x1fKW\x1eKuwait\x1fKY\x1eKaimaninseln\x1fKZ\x1eKasachstan\x1fLA\x1eLaos\x1fLB\x1eLibanon\x1fLC\x1eSt. Lucia\x1fLI\x1eLiechtenstein\x1fLK\x1eSri Lanka\x1fLR\x1eLiberia\x1fLS\x1eLesotho\x1fLT\x1eLitauen\x1fLU\x1eLuxemburg\x1fLV\x1eLettland\x1fLY\x1eLibyen\x1fMA\x1eMarokko\x1fMC\x1eMonaco\x1fMD\x1eRepublik Moldau\x1fME\x1eMontenegro\x1fMF\x1eSt. Martin\x1fMG\x1eMadagaskar\x1fMH\x1eMarshallinseln\x1fMK\x1eNordmazedonien\x1fML\x1eMali\x1fMM\x1eMyanmar\x1fMN\x1eMongolei\x1fMO\x1eMacau\x1fMP\x1eNördliche Marianen\x1fMQ\x1eMartinique\x1fMR\x1eMauretanien\x1fMS\x1eMontserrat\x1fMT\x1eMalta\x1fMU\x1eMauritius\x1fMV\x1eMalediven\x1fMW\x1eMalawi\x1fMX\x1eMexiko\x1fMY\x1eMalaysia\x1fMZ\x1eMosambik\x1fNA\x1eNamibia\x1fNC\x1eNeukaledonien\x1fNE\x1eNiger\x1fNF\x1eNorfolkinsel\x1fNG\x1eNigeria\x1fNI\x1eNicaragua\x1fNL\x1eNiederlande\x1fNO\x1eNorwegen\x1fNP\x1eNepal\x1fNR\x1eNauru\x1fNU\x1eNiue\x1fNZ\x1eNeuseeland\x1fOM\x1eOman\x1fPA\x1ePanama\x1fPE\x1ePeru\x1fPF\x1eFranzösisch-Polynesien\x1fPG\x1ePapua-Neuguinea\x1fPH\x1ePhilippinen\x1fPK\x1ePakistan\x1fPL\x1ePolen\x1fPM\x1eSt. Pierre und Miquelon\x1fPN\x1ePitcairninseln\x1fPR\x1ePuerto Rico\x1fPS\x1ePalästina\x1fPT\x1ePortugal\x1fPW\x1ePalau\x1fPY\x1eParaguay\x1fQA\x1eKatar\x1fRE\x1eRéunion\x1fRO\x1eRumänien\x1fRS\x1eSerbien\x1fRU\x1eRussland\x1fRW\x1eRuanda\x1fSA\x1eSaudi-Arabien\x1fSB\x1eSalomonen\x1fSC\x1eSeychellen\x1fSD\x1eSudan\x1fSE\x1eSchweden\x1fSG\x1eSingapur\x1fSH\x1eSt. Helena\x1fSI\x1eSlowenien\x1fSJ\x1eSpitzbergen und Jan Mayen\x1fSK\x1eSlowakei\x1fSL\x1eSierra Leone\x1fSM\x1eSan Marino\x1fSN\x1eSenegal\x1fSO\x1eSomalia\x1fSR\x1eSuriname\x1fSS\x1eSüdsudan\x1fST\x1eSão Tomé und Príncipe\x1fSV\x1eEl Salvador\x1fSX\x1eSint Maarten\x1fSY\x1eSyrien\x1fSZ\x1eEswatini\x1fTC\x1eTurks- und Caicosinseln\x1fTD\x1eTschad\x1fTF\x1eFranzösische Süd- und Antarktisgebiete\x1fTG\x1eTogo\x1fTH\x1eThailand\x1fTJ\x1eTadschikistan\x1fTK\x1eTokelau\x1fTL\x1eTimor-Leste\x1fTM\x1eTurkmenistan\x1fTN\x1eTunesien\x1fTO\x1eTonga\x1fTR\x1eTürkei\x1fTT\x1eTrinidad und Tobago\x1fTV\x1eTuvalu\x1fTW\x1eTaiwan\x1fTZ\x1eTansania\x1fUA\x1eUkraine\x1fUG\x1eUganda\x1fUM\x1eAmerikanische Überseeinseln\x1fUS\x1eVereinigte Staaten\x1fUY\x1eUruguay\x1fUZ\x1eUsbekistan\x1fVA\x1eVatikanstadt\x1fVC\x1eSt. Vincent und die Grenadinen\x1fVE\x1eVenezuela\x1fVG\x1eBritische Jungferninseln\x1fVI\x1eAmerikanische Jungferninseln\x1fVN\x1eVietnam\x1fVU\x1eVanuatu\x1fWF\x1eWallis und Futuna\x1fWS\x1eSamoa\x1fYE\x1eJemen\x1fYT\x1eMayotte\x1fZA\x1eSüdafrika\x1fZM\x1eSambia\x1fZW\x1eSimbabwe",
+		},
+	},
 	Relative: i18n.RelativeData{
 		Units: [8][3]i18n.RelativeUnit{{
 			{
