@@ -13,6 +13,8 @@ import (
 
 	"github.com/joeblew999/go-htmx4/kit/i18n"
 	"github.com/joeblew999/go-htmx4/kit/i18n/cldr"
+	"github.com/joeblew999/go-htmx4/kit/i18n/cldrgen"
+	"github.com/joeblew999/go-htmx4/kit/i18n/intltest"
 	"github.com/joeblew999/go-htmx4/locales"
 	"github.com/joeblew999/go-htmx4/views"
 	nethtml "golang.org/x/net/html"
@@ -416,5 +418,40 @@ func TestTimeZonePreferences(t *testing.T) {
 		if got := post("return=" + ret).Header().Get("Location"); got != want {
 			t.Errorf("return=%s redirects to %q, want %q", ret, got, want)
 		}
+	}
+}
+
+// TestReferencePins keeps the reference data's version pins in step (kit/i18n/README.md, "Reference data"): mise's
+// workerd is the one the goldens were recorded with, the tables come from the pinned cldr-json, and mise's
+// I18N_LOCALES is the locale set the tables were generated for.
+func TestReferencePins(t *testing.T) {
+	mise, err := os.ReadFile("mise.toml")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if m := regexp.MustCompile(`(?m)^workerd = "([^"]+)"`).FindSubmatch(mise); m == nil || string(m[1]) != cldrgen.Workerd {
+		t.Errorf("mise.toml workerd = %q, cldrgen.Workerd = %q: change both, then mise run i18n:golden", m, cldrgen.Workerd)
+	}
+	g, err := intltest.Load("kit/i18n/testdata/golden/workerd.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	v := cldrgen.Workerd // 1.YYYYMMDD.n → the golden's "workerd YYYY-MM-DD"
+	if want := "workerd " + v[2:6] + "-" + v[6:8] + "-" + v[8:10]; g.Runtime != want {
+		t.Errorf("golden recorded with %q, cldrgen.Workerd is %s: mise run i18n:golden", g.Runtime, v)
+	}
+	if cldr.Data.CLDRJSONVersion != cldrgen.DefaultTag {
+		t.Errorf("kit/i18n/cldr is from cldr-json %s, cldrgen.DefaultTag is %s: mise run i18n:generate", cldr.Data.CLDRJSONVersion, cldrgen.DefaultTag)
+	}
+	m := regexp.MustCompile(`(?m)^I18N_LOCALES = "([^"]+)"`).FindSubmatch(mise)
+	var ids []string
+	for _, ld := range cldr.Data.Locales {
+		ids = append(ids, ld.ID)
+	}
+	if m == nil || string(m[1]) != strings.Join(ids, ",") {
+		t.Errorf("mise.toml I18N_LOCALES = %q, kit/i18n/cldr has %s: mise run i18n:generate", m, strings.Join(ids, ","))
+	}
+	if got := strings.Join(intltest.Locales, ","); got != strings.Join(ids, ",") {
+		t.Errorf("kit/i18n/intltest Locales = %s, kit/i18n/cldr has %s: update it, then mise run i18n:golden", got, strings.Join(ids, ","))
 	}
 }

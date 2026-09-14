@@ -154,6 +154,12 @@
 - `kit/i18n` (runtime) and `kit/i18n/cldr` (generated tables) compile into the Worker: sorted slices, no maps or init funcs.
 - Never hand-edit `kit/i18n/cldr/*_cldr.go`. The locale list is `I18N_LOCALES` in `mise.toml`; `mise run i18n:generate`
   (`cmd/cldrgen`) rewrites the tables from pinned cldr-json (+ CLDR XML for root/number-system symbols).
+- **Reference data** (sources, pins, cache, moving a pin): [kit/i18n/README.md](kit/i18n/README.md).
+  - Every upstream input is pinned in `kit/i18n/cldrgen/sources.go` or `mise.toml`: cldr-json, CLDR XML, the
+    Chromium ICU commit of the pinned workerd, and workerd. `TestReferencePins` keeps them consistent.
+  - Chrome-specific data comes from the pinned Chromium ICU files, never from memory.
+  - `mise run i18n:verify` must pass before committing a pin, generator or case change.
+  - A `known` conformance entry needs `knownEvidence`, unless the feature is unimplemented.
 - Conformance is byte-for-byte against Intl. `mise run i18n:golden` (`cmd/intloracle`) records workerd's output for
   `kit/i18n/intltest` cases in `kit/i18n/testdata/golden/workerd.json`, and `TestConformance` must stay green. Add cases
   there before adding features. An accepted difference goes in `known` with a checkable reason.

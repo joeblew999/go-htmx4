@@ -25,7 +25,7 @@ var oracleJS []byte
 
 // Golden is what the oracle recorded for a set of cases.
 type Golden struct {
-	Runtime string            `json:"runtime"` // e.g. "workerd 1.20260911.1"
+	Runtime string            `json:"runtime"` // workerd --version, e.g. "workerd 2026-09-11" (release 1.20260911.x)
 	Meta    map[string]string `json:"meta"`
 	Results map[string]string `json:"results"` // case ID → output
 }

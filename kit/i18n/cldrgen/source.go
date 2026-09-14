@@ -1,6 +1,7 @@
 package cldrgen
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -9,16 +10,20 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 )
 
-// source reads cldr-json files, fetching each once into the cache directory.
+// source reads upstream files, fetching each once into the cache directory.
 type source struct {
-	base  string // …/cldr-json/<tag>/cldr-json
-	cache string
+	base   string // …/cldr-json/<tag>/cldr-json
+	cache  string
+	query  string // appended to each URL, e.g. "?format=TEXT"
+	base64 bool   // the server answers base64 (gitiles ?format=TEXT)
 }
 
-var errNotFound = errors.New("not in cldr-json")
+// ErrNotFound is returned for an upstream file that does not exist at the pinned version.
+var ErrNotFound = errors.New("not found upstream")
 
 type obj = map[string]any
 
@@ -28,7 +33,7 @@ func (s *source) raw(rel string) ([]byte, error) {
 	b, err := os.ReadFile(path)
 	if errors.Is(err, fs.ErrNotExist) {
 		if _, err := os.Stat(path + ".404"); err == nil {
-			return nil, errNotFound
+			return nil, ErrNotFound
 		}
 		b, err = s.fetch(rel, path)
 	}
@@ -53,14 +58,14 @@ func (s *source) fetch(rel, path string) ([]byte, error) {
 		return nil, err
 	}
 	client := &http.Client{Timeout: 60 * time.Second}
-	res, err := client.Get(s.base + "/" + rel)
+	res, err := client.Get(s.base + "/" + rel + s.query)
 	if err != nil {
 		return nil, err
 	}
 	defer res.Body.Close()
 	if res.StatusCode == http.StatusNotFound {
 		os.WriteFile(path+".404", nil, 0o644)
-		return nil, errNotFound
+		return nil, ErrNotFound
 	}
 	if res.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("GET %s: %s", rel, res.Status)
@@ -68,6 +73,11 @@ func (s *source) fetch(rel, path string) ([]byte, error) {
 	b, err := io.ReadAll(res.Body)
 	if err != nil {
 		return nil, err
+	}
+	if s.base64 {
+		if b, err = base64.StdEncoding.DecodeString(strings.TrimSpace(string(b))); err != nil {
+			return nil, fmt.Errorf("GET %s: %w", rel, err)
+		}
 	}
 	tmp := path + ".tmp"
 	if err := os.WriteFile(tmp, b, 0o644); err != nil {
@@ -122,7 +132,7 @@ func (g *gen) localeFile(pkg, file, id string) (obj, error) {
 			continue
 		}
 		o, err := g.src.read(pkg + "/main/" + c + "/" + file)
-		if errors.Is(err, errNotFound) {
+		if errors.Is(err, ErrNotFound) {
 			continue
 		}
 		if err != nil {

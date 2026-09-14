@@ -1,6 +1,7 @@
 package i18n_test
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"os"
@@ -9,6 +10,7 @@ import (
 	"testing"
 
 	"github.com/joeblew999/go-htmx4/kit/i18n/cldr"
+	"github.com/joeblew999/go-htmx4/kit/i18n/cldrgen"
 	"github.com/joeblew999/go-htmx4/kit/i18n/intltest"
 )
 
@@ -44,6 +46,117 @@ var known = map[string]string{
 }
 
 const noISOCalendar = "calendar iso8601 is not implemented (plan Phase 9): kit/i18n formats and reports gregory, Intl uses CLDR's ISO 8601 calendar patterns"
+
+// TestGoldenReproduces (under `mise run i18n:verify`) records Intl's output again with the pinned workerd and
+// requires the committed golden: the goldens are exactly what that runtime produces for the current cases.
+func TestGoldenReproduces(t *testing.T) {
+	if os.Getenv("I18N_VERIFY") == "" {
+		t.Skip("golden reproduction: run `mise run i18n:verify` (needs workerd from mise)")
+	}
+	committed, err := intltest.Load("testdata/golden/workerd.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	fresh, err := intltest.Oracle{Port: 8947}.Run(context.Background(), intltest.All())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if fresh.Runtime != committed.Runtime {
+		t.Errorf("golden recorded with %q, this workerd is %q", committed.Runtime, fresh.Runtime)
+	}
+	diffs := 0
+	for id, want := range fresh.Results {
+		if got, ok := committed.Results[id]; !ok || got != want {
+			if diffs++; diffs <= 20 {
+				t.Errorf("%s: committed golden %q, workerd now %q", id, got, want)
+			}
+		}
+	}
+	for id := range committed.Results {
+		if _, ok := fresh.Results[id]; !ok {
+			if diffs++; diffs <= 20 {
+				t.Errorf("%s: in the committed golden but no longer a case", id)
+			}
+		}
+	}
+	if diffs > 0 {
+		t.Errorf("%d golden differences: review them, then mise run i18n:golden", diffs)
+	}
+}
+
+// evidence is an upstream fact a known entry rests on: a pinned file (cldrgen.Reference) that has, or lacks, a
+// piece of text. "chromium-icu" is the ICU data Intl ships (cldrgen.ChromiumICU), "cldr-json" what kit/i18n is
+// generated from (cldrgen.DefaultTag).
+type evidence struct{ source, file, has, lacks string }
+
+const (
+	chromiumLocales = "source/data/locales/"
+	cldrGregorian   = "cldr-dates-full/main/%s/ca-gregorian.json"
+)
+
+// knownEvidence backs every data-difference entry in known with checkable upstream text; `mise run i18n:verify`
+// fetches the pinned files and checks it (TestKnownEvidence). Entries for unimplemented features need none.
+var knownEvidence = map[string][]evidence{
+	"es/datetime/more-yMMMMdv/": {
+		{source: "chromium-icu", file: chromiumLocales + "es.txt", has: `Hv{"H 'h' v"}`},
+		{source: "cldr-json", file: fmt.Sprintf(cldrGregorian, "es"), has: `"Hv": "H v"`},
+	},
+	"he/datetime/more-yMMMMdv/": {
+		{source: "chromium-icu", file: chromiumLocales + "he.txt", lacks: `Hv{"`},
+		{source: "chromium-icu", file: chromiumLocales + "root.txt", has: `Hv{"HH'h' v"}`},
+		{source: "cldr-json", file: fmt.Sprintf(cldrGregorian, "he"), has: `"Hv": "H v"`},
+	},
+	"pt-BR/datetime/more-yMMMMdv/": {
+		{source: "chromium-icu", file: chromiumLocales + "pt.txt", has: `Hv{"HH'h', v"}`},
+		{source: "cldr-json", file: fmt.Sprintf(cldrGregorian, "pt"), has: `"Hv": "HH v"`},
+	},
+	"pt-PT/datetime/more-yMMMMdv/": {
+		{source: "chromium-icu", file: chromiumLocales + "pt.txt", has: `Hv{"HH'h', v"}`},
+		{source: "chromium-icu", file: chromiumLocales + "pt_PT.txt", lacks: `Hv{"`},
+		{source: "cldr-json", file: fmt.Sprintf(cldrGregorian, "pt-PT"), has: `"Hv": "HH v"`},
+	},
+	"ru/datetime/more-yMMMMdv/": {
+		{source: "chromium-icu", file: chromiumLocales + "ru.txt", has: `Hv{"HH 'ч'. v"}`},
+		{source: "cldr-json", file: fmt.Sprintf(cldrGregorian, "ru"), has: `"Hv": "HH v"`},
+	},
+	"de/datetime/morerange-dateFull/era": {
+		{source: "chromium-icu", file: chromiumLocales + "de.txt", has: "E E, d. MMM y G"},
+		{source: "cldr-json", file: fmt.Sprintf(cldrGregorian, "de"), lacks: "E E, d. MMM y G"},
+	},
+}
+
+// TestKnownEvidence: known entries without evidence must be unimplemented features, and (under
+// `mise run i18n:verify`) every piece of evidence must hold in the pinned upstream files.
+func TestKnownEvidence(t *testing.T) {
+	for prefix, reason := range known {
+		if _, ok := knownEvidence[prefix]; !ok && reason != noISOCalendar {
+			t.Errorf("known %q has no knownEvidence (only unimplemented features may go without)", prefix)
+		}
+	}
+	for prefix := range knownEvidence {
+		if _, ok := known[prefix]; !ok {
+			t.Errorf("knownEvidence %q has no known entry", prefix)
+		}
+	}
+	if os.Getenv("I18N_VERIFY") == "" {
+		t.Skip("upstream evidence: run `mise run i18n:verify`")
+	}
+	for prefix, evs := range knownEvidence {
+		for _, ev := range evs {
+			b, err := cldrgen.Reference(ev.source, ev.file)
+			if err != nil {
+				t.Errorf("%s: %s %s: %v", prefix, ev.source, ev.file, err)
+				continue
+			}
+			if ev.has != "" && !strings.Contains(string(b), ev.has) {
+				t.Errorf("%s: %s %s lacks %q: the difference may be gone (re-record goldens, drop the known entry)", prefix, ev.source, ev.file, ev.has)
+			}
+			if ev.lacks != "" && strings.Contains(string(b), ev.lacks) {
+				t.Errorf("%s: %s %s has %q", prefix, ev.source, ev.file, ev.lacks)
+			}
+		}
+	}
+}
 
 // TestConformance compares kit/i18n with what Intl (workerd = Chrome's V8/ICU) produced for every case
 // in kit/i18n/intltest. Regenerate the golden file with `go run ./cmd/intloracle`.

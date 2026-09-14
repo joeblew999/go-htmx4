@@ -136,6 +136,9 @@ browser ─ hx-post /board/add|note ─────▶ worker/index.mjs ─▶ G
 Importable from other repos with `go get github.com/joeblew999/go-htmx4/kit/…`. They don't import the app (checked by
 `mise run test`) and are tested without Cloudflare (fake API, fake Room).
 
+`kit/i18n` is generated from pinned Unicode CLDR data and checked against Chrome's `Intl`. Where that reference data
+comes from and how to update it: [kit/i18n/README.md](kit/i18n/README.md).
+
 | Package | What |
 | --- | --- |
 | [`kit/cfdeploy`](kit/cfdeploy) | Deploy a workers-go Worker with the REST API: Static Assets Direct Upload, script upload, plain-text/D1/Durable Object/rate limiting bindings, D1 create + migrations, Durable Object migrations, workers.dev. No wrangler. |

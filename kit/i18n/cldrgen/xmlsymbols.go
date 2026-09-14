@@ -21,7 +21,7 @@ var symbolFields = []string{"decimal", "group", "percentSign", "plusSign", "minu
 func (g *gen) xmlSymbolsOf(id string) (xmlSymbols, error) {
 	file := "common/main/" + strings.ReplaceAll(id, "-", "_") + ".xml"
 	b, err := g.xsrc.raw(file)
-	if errors.Is(err, errNotFound) {
+	if errors.Is(err, ErrNotFound) {
 		return nil, nil
 	}
 	if err != nil {

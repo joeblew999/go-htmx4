@@ -3,7 +3,9 @@
 #   mise run i18n:generate   # CLDR tables for the shipped locales → kit/i18n/cldr (committed; network on first run)
 #   mise run i18n:golden     # record Intl's output (workerd = Chrome's V8/ICU) for kit/i18n/intltest cases
 #   mise run i18n:messages   # locales/*.toml (ICU MessageFormat) → typed accessors in locales/*_msg_gen.go
+#   mise run i18n:verify     # prove the committed tables, goldens and known-difference evidence come from the pins
 #
+# Reference data (sources, pins, cache, how to move a pin): kit/i18n/README.md.
 # `go test ./kit/i18n` (part of mise run check) compares kit/i18n with the golden file, byte for byte.
 
 ["i18n:generate"]
@@ -20,3 +22,18 @@ run = "go run ./cmd/intloracle -out kit/i18n/testdata/golden/workerd.json"
 description = "Generate locales/*_msg_gen.go from the UI message catalogs locales/*.toml (I18N_LOCALES, en first)"
 dir = "{{config_root}}"
 run = "go run ./cmd/msggen -dir locales -out locales -locales \"$I18N_LOCALES\""
+
+["i18n:verify"]
+description = "Prove kit/i18n's committed reference data comes from the pinned sources (network on first run; see kit/i18n/README.md)"
+dir = "{{config_root}}"
+run = '''
+#!/usr/bin/env bash
+set -euo pipefail
+export I18N_VERIFY=1
+# Tables regenerate byte for byte; region names match Chromium's ICU data.
+go test -count=1 -run 'TestTablesReproduce|TestChromiumRegionNames' -v ./kit/i18n/cldrgen | grep -E '^(---|ok|FAIL|\s+reference_test)'
+# Goldens re-record identically with the pinned workerd; every known difference's upstream evidence holds.
+go test -count=1 -run 'TestGoldenReproduces|TestKnownEvidence|TestConformance' -v ./kit/i18n | grep -E '^(---|ok|FAIL|\s+conformance_test)'
+go test -count=1 -run TestReferencePins . >/dev/null
+echo "✓ reference data reproduces from the pins (cache: ${I18N_CACHE:-user cache dir/go-htmx4})"
+'''

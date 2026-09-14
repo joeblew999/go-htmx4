@@ -12,7 +12,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"os"
 	"path/filepath"
 	"slices"
 	"strings"
@@ -20,25 +19,18 @@ import (
 	"github.com/joeblew999/go-htmx4/kit/i18n"
 )
 
-// DefaultTag is the cldr-json release the tables are generated from. Chrome 152 and Cloudflare Workers
-// use CLDR 48 data (checked in the i18n plan's Phase 0).
-const DefaultTag = "48.2.1"
-
-// DefaultCLDRTag is the unicode-org/cldr release matching DefaultTag, for the few things cldr-json's
-// resolved JSON leaves out (root's explicit arab/arabext number symbols).
-const DefaultCLDRTag = "release-48-2"
-
 // Config is one generation run.
 type Config struct {
-	Locales    []string // BCP 47 ids to ship, e.g. "en", "pt-BR"; the first is the default
-	Out        string   // output directory of the generated package
-	Package    string   // package name (default: base of Out)
-	Tag        string   // cldr-json tag (default DefaultTag)
-	CLDRTag    string   // unicode-org/cldr git tag for XML-only data such as root symbols (default DefaultCLDRTag)
-	CacheDir   string   // default: $XDG_CACHE_HOME/go-htmx4/cldr-json/<tag>
-	BaseURL    string   // default https://raw.githubusercontent.com/unicode-org/cldr-json
-	Currencies []string // currency codes to include names for; empty = all
-	Log        io.Writer
+	Locales     []string // BCP 47 ids to ship, e.g. "en", "pt-BR"; the first is the default
+	Out         string   // output directory of the generated package
+	Package     string   // package name (default: base of Out)
+	Tag         string   // cldr-json tag (default DefaultTag)
+	CLDRTag     string   // unicode-org/cldr git tag for XML-only data such as root symbols (default DefaultCLDRTag)
+	ChromiumICU string   // chromium/deps/icu commit for Chrome's ICU data filter (default ChromiumICU)
+	CacheDir    string   // default: <user cache dir>/go-htmx4/cldr-json/<tag> (see CacheRoot)
+	BaseURL     string   // default https://raw.githubusercontent.com/unicode-org/cldr-json
+	Currencies  []string // currency codes to include names for; empty = all
+	Log         io.Writer
 }
 
 // Generate fetches the CLDR files cfg needs and writes the generated package.
@@ -56,14 +48,17 @@ func Generate(cfg Config) error {
 		cfg.Package = filepath.Base(cfg.Out)
 	}
 	if cfg.BaseURL == "" {
-		cfg.BaseURL = "https://raw.githubusercontent.com/unicode-org/cldr-json"
+		cfg.BaseURL = strings.TrimSuffix(cldrJSONBase, "/")
 	}
 	if cfg.CacheDir == "" {
-		base, err := os.UserCacheDir()
+		root, err := CacheRoot()
 		if err != nil {
 			return err
 		}
-		cfg.CacheDir = filepath.Join(base, "go-htmx4", "cldr-json", cfg.Tag)
+		cfg.CacheDir = filepath.Join(root, "cldr-json", cfg.Tag)
+	}
+	if cfg.ChromiumICU == "" {
+		cfg.ChromiumICU = ChromiumICU
 	}
 	if cfg.Log == nil {
 		cfg.Log = io.Discard
@@ -74,7 +69,8 @@ func Generate(cfg Config) error {
 	g := &gen{
 		cfg:  cfg,
 		src:  &source{base: cfg.BaseURL + "/" + cfg.Tag + "/cldr-json", cache: cfg.CacheDir},
-		xsrc: &source{base: "https://raw.githubusercontent.com/unicode-org/cldr/" + cfg.CLDRTag, cache: filepath.Join(cfg.CacheDir, "..", "cldr-"+cfg.CLDRTag)},
+		xsrc: &source{base: cldrXMLBase + cfg.CLDRTag, cache: filepath.Join(cfg.CacheDir, "..", "cldr-"+cfg.CLDRTag)},
+		csrc: chromiumSource(cfg.ChromiumICU, filepath.Join(cfg.CacheDir, "..", "..", "chromium-icu", cfg.ChromiumICU)),
 	}
 	if err := g.run(); err != nil {
 		return fmt.Errorf("cldrgen: %w", err)
@@ -86,6 +82,7 @@ type gen struct {
 	cfg  Config
 	src  *source
 	xsrc *source // unicode-org/cldr XML
+	csrc *source // chromium/deps/icu (Chrome's ICU data filter)
 	sup  *supplemental
 	data *i18n.Data
 }

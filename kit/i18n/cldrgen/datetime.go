@@ -317,7 +317,7 @@ func (g *gen) availableFormatsOrder(dataID string) ([]string, error) {
 	for _, id := range chain {
 		file := "common/main/" + strings.ReplaceAll(id, "-", "_") + ".xml"
 		b, err := g.xsrc.raw(file)
-		if errors.Is(err, errNotFound) {
+		if errors.Is(err, ErrNotFound) {
 			continue
 		}
 		if err != nil {
@@ -459,7 +459,10 @@ func (g *gen) buildZoneStrings(ld *i18n.LocaleData) error {
 			zs.MetaZones = append(zs.MetaZones, n)
 		}
 	}
-	trimmed, trimmedCity := chromeTrims()
+	trimmed, trimmedCity, err := g.chromeTrims()
+	if err != nil {
+		return err
+	}
 	var walk func(prefix string, node obj)
 	walk = func(prefix string, node obj) {
 		for _, k := range sortedKeys(node) {
@@ -515,18 +518,3 @@ func (g *gen) buildZoneStrings(ld *i18n.LocaleData) error {
 
 // chromeRegionAlt are the CLDR territory alternates Chromium's ICU data uses as the region name.
 var chromeRegionAlt = map[string]string{"HK": "-alt-short", "MO": "-alt-short", "PS": "-alt-short", "FK": "-alt-variant"}
-
-// chromeTrims returns the zones whose zoneStrings Chromium's ICU filter removes entirely, and those
-// whose exemplar city it removes (chromium/deps/icu filters/common.json, zone_tree).
-func chromeTrims() (all, city map[string]bool) {
-	all, city = map[string]bool{}, map[string]bool{}
-	for _, id := range strings.Fields(chromeTrimmedZones) {
-		id = strings.ReplaceAll(id, ":", "/")
-		if base, ok := strings.CutSuffix(id, "/ec"); ok {
-			city[base] = true
-		} else {
-			all[id] = true
-		}
-	}
-	return all, city
-}
