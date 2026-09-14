@@ -166,6 +166,15 @@ check "hx-live.js from static/"   "$(curl -s -o /dev/null -w '%{http_code} %{con
 check "theme toggle in header"    "$(curl -s "$base/")" 'data-site-theme-toggle'
 check "405 on wrong method"       "$(curl -s -o /dev/null -w '%{http_code}' "$base/greet")" '405'
 check "404 for missing file"      "$(curl -s -o /dev/null -w '%{http_code}' "$base/nope.txt")" '404'
+# Locales (kit/i18n on TinyGo): prefixed URLs, <html lang dir>, CLDR formatting byte-identical to Intl.
+nbsp=$(printf '\302\240')
+check "locale page /de/"          "$(curl -s "$base/de/")" '<html lang="de" dir="ltr">'
+check "rtl page /ar/formats"      "$(curl -s "$base/ar/formats")" '<html lang="ar" dir="rtl">'
+check "CLDR numbers on TinyGo"    "$(curl -s "$base/hi/formats")" '१२,३४,५६७.८९१'
+check "CLDR currency on TinyGo"   "$(curl -s "$base/de/formats")" "1.234,50${nbsp}€"
+check "localized hx-post"         "$(curl -s "$base/de/board?topic=smoke")" 'hx-post="/de/board/add?topic=smoke'
+check "/en/ prefix → 301"         "$(curl -s -o /dev/null -w '%{http_code} %{redirect_url}' "$base/en/about")" '301'
+check "unknown locale → 404"      "$(curl -s -o /dev/null -w '%{http_code}' "$base/xx/")" '404'
 # Shared board: Go (TinyGo) → database/sql d1 driver → LocalD1 → publish → Room DO → hx-ws.
 check "board page with hx-ws"     "$(curl -s "$base/board?topic=smoke")" 'hx-ws:connect="/live/smoke"'
 check "board write via D1 driver" "$(curl -s -X POST -d delta=1 "$base/board/add?topic=smoke")" 'hx-swap-oob="true" data-version="'

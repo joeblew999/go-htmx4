@@ -159,6 +159,17 @@
   there before adding features. An accepted difference goes in `known` with a checkable reason.
 - `kit/i18n/cldrgen`, `kit/i18n/intltest` and their cmds are local tooling (standard Go). `intltest/oracle.mjs` is a local-only
   workerd shim.
+- **Locale URLs in the app** (`i18n.go`):
+  - The default locale (`en`) is unprefixed; every other locale is `/<lowercase id>/…`.
+  - `/en/…` and mixed-case prefixes 301 to the canonical URL.
+  - No Accept-Language redirects. A page view remembers its locale in the `locale` cookie, and only the bare `/`
+    follows it.
+- Every in-app `href`/`hx-*` URL in views goes through `URL(ctx, "/path")`. `/static/`, `/assets/`, `/gsxui/` and
+  `/live/` don't. `TestLocalizedURLs` checks every page in every locale.
+- Views use logical Tailwind classes only (`ms-`/`me-`/`ps-`/`pe-`/`start-`/`end-`/`text-start`/`text-end`), so
+  `dir="rtl"` mirrors. `TestLogicalClasses` fails on physical ones.
+- A locale whose UI text isn't translated yet (not in `translated`, `i18n.go`) is served with `X-Robots-Tag: noindex`.
+- The language list is plain links in the footer, outside the boosted nav: a locale switch must be a full page load.
 
 # Code Style
 

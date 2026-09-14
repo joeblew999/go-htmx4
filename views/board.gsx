@@ -51,7 +51,7 @@ component BoardPage(topic string, b Board, live bool) {
 						variant="outline"
 						size="icon"
 						aria-label="Decrement"
-						hx-post={"/board/add?topic=" + topic + "&delta=-1"}
+						hx-post={URL(ctx, "/board/add?topic="+topic+"&delta=-1")}
 						hx-swap="none"
 					>
 						<icon.Minus/>
@@ -61,14 +61,14 @@ component BoardPage(topic string, b Board, live bool) {
 						variant="outline"
 						size="icon"
 						aria-label="Increment"
-						hx-post={"/board/add?topic=" + topic + "&delta=1"}
+						hx-post={URL(ctx, "/board/add?topic="+topic+"&delta=1")}
 						hx-swap="none"
 					>
 						<icon.Plus/>
 					</ui.Button>
 				</ui.ButtonGroup>
 				<form
-					hx-post={"/board/note?topic=" + topic}
+					hx-post={URL(ctx, "/board/note?topic="+topic)}
 					hx-swap="none"
 					hx-on:htmx:after:request=js`this.reset()`
 					class="flex min-w-0 flex-1 gap-2"

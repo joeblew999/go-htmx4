@@ -80,6 +80,11 @@ func (s *server) routes() http.Handler {
 			s.render(w, r, "home", views.HomePage(target(), env, flavours, components))
 		}
 	})
+	mux.HandleFunc("/formats", func(w http.ResponseWriter, r *http.Request) {
+		if allow(w, r, http.MethodGet) {
+			s.render(w, r, "formats", views.Formats())
+		}
+	})
 	mux.HandleFunc("/about", func(w http.ResponseWriter, r *http.Request) {
 		if allow(w, r, http.MethodGet) {
 			s.render(w, r, "about", views.About(stack))
@@ -130,7 +135,7 @@ func (s *server) routes() http.Handler {
 		s.render(w, r, "stats", views.Stats(snapshot))
 	})
 	s.boardRoutes(mux)
-	return mux
+	return withLocale(mux)
 }
 
 // render counts the request, then writes n with httpx.Render (buffered, Content-Length: chunked

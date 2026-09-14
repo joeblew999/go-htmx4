@@ -23,6 +23,7 @@
     "ui/native-select.gsx": "e82241029b187146d793861ca26298dcfa83c3c898453b27261207fbd2f0689d",
     "ui/separator.gsx": "ed17da94c06b28bbdcd8f30d5b05059d13da4fb2fc84e87e43903ba3fc4e93fc",
     "ui/switch.gsx": "09cb6a78f9d68428439bd1c9dd570136689c8db4a14267032b7dfb289477c8ba",
+    "ui/table.gsx": "2b18be0d0d82c9aac98eeaf207ac7984804ef2847ef5b0a5671a5b0105dfb1be",
     "ui/tabs.gsx": "ef88c65efda52f23f969c68bb7a8138746fce032ba636bb1428644bc9490218b",
     "ui/toast.gsx": "06c376aca1b6db39370fe9ca52f8752616cfa522b8f9c27b70be84887a522072",
     "ui/toaster.gsx": "fa0de14416f762cc1a364afffb0881518862891608aeb2a40439d4d83b472753",

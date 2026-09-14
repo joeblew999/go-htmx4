@@ -3,6 +3,7 @@ package views
 import (
 	"github.com/gsxhq/gsx"
 	"github.com/joeblew999/go-htmx4/ui"
+	"github.com/joeblew999/go-htmx4/ui/icon"
 )
 
 // Layout is the document shell, following gsxui's site layout: gsxui theme CSS, the theme toggle, a header of
@@ -16,9 +17,12 @@ import (
 //
 // htmx 4 inheritance is explicit: only the nav links are boosted (morph + view transition), so the pages'
 // own hx-* requests keep their default swaps.
+//
+// <html lang dir> come from the request's locale (views/i18n.go). The language links sit in the footer, outside
+// the boosted nav: switching locale must be a full page load, since a boosted swap keeps the old <html lang dir>.
 component Layout(title string, path string, children gsx.Node) {
 	<!DOCTYPE html>
-	<html lang="en">
+	<html lang={Loc(ctx).Lang()} dir={Loc(ctx).Dir()}>
 		<head>
 			<meta charset="utf-8"/>
 			<meta name="viewport" content="width=device-width, initial-scale=1"/>
@@ -39,17 +43,53 @@ component Layout(title string, path string, children gsx.Node) {
 					hx-boost:inherited="true"
 					hx-swap:inherited="outerMorph transition:true"
 				>
-					<a href="/" class="mr-auto font-semibold">go-htmx4</a>
-					<ui.Button variant={navVariant(path, "/")} size="sm" href="/">Home</ui.Button>
-					<ui.Button variant={navVariant(path, "/board")} size="sm" href="/board">Board</ui.Button>
-					<ui.Button variant={navVariant(path, "/about")} size="sm" href="/about">About</ui.Button>
+					<a href={URL(ctx, "/")} class="me-auto font-semibold">go-htmx4</a>
+					<ui.Button variant={navVariant(path, "/")} size="sm" href={URL(ctx, "/")}>Home</ui.Button>
+					<ui.Button variant={navVariant(path, "/board")} size="sm" href={URL(ctx, "/board")}>Board</ui.Button>
+					<ui.Button variant={navVariant(path, "/formats")} size="sm" href={URL(ctx, "/formats")}>Formats</ui.Button>
+					<ui.Button variant={navVariant(path, "/about")} size="sm" href={URL(ctx, "/about")}>About</ui.Button>
+					<ui.Button
+						variant="ghost"
+						size="icon-sm"
+						href="#languages"
+						hx-boost:inherited="false"
+						aria-label="Languages"
+						title="Languages"
+					>
+						<icon.Languages/>
+					</ui.Button>
 					<ThemeToggle/>
 				</nav>
 			</header>
 			<main class="mx-auto flex max-w-3xl flex-col gap-6 p-4">{ children }</main>
+			<LanguageFooter/>
 			<ui.Toaster/>
 		</body>
 	</html>
+}
+
+// LanguageFooter lists the current page in every shipped locale: plain links (crawlable, no JS), each named in its
+// own language with lang and hreflang.
+component LanguageFooter() {
+	<footer id="languages" class="border-t">
+		<nav aria-label="Languages" class="mx-auto flex max-w-3xl flex-wrap items-center gap-1 p-4">
+			<icon.Languages class="me-1 size-4 text-muted-foreground"/>
+			{ for _, l := range LocaleLinks(ctx) {
+				<ui.Button
+					variant={navVariant(l.Href, LocaleLinkHref(ctx))}
+					size="sm"
+					href={l.Href}
+					hreflang={l.Lang}
+					lang={l.Lang}
+					{ if l.Current {
+						aria-current="page"
+					} }
+				>
+					{ l.Name }
+				</ui.Button>
+			} }
+		</nav>
+	</footer>
 }
 
 // VersionGuard keeps the board monotonic: HTTP responses and hx-ws pushes both go through htmx.swap and can

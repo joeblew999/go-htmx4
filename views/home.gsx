@@ -40,7 +40,7 @@ component GreetCard(flavours []string) {
 			</ui.CardDescription>
 		</ui.CardHeader>
 		<ui.CardContent class="flex flex-col gap-4">
-			<form hx-post="/greet" hx-target="#greeting" class="flex flex-col gap-4">
+			<form hx-post={URL(ctx, "/greet")} hx-target="#greeting" class="flex flex-col gap-4">
 				<ui.FieldGroup>
 					<ui.Field>
 						<ui.FieldLabel for="name">Name</ui.FieldLabel>
@@ -66,7 +66,7 @@ component GreetCard(flavours []string) {
 					<ui.Button
 						variant="ghost"
 						type="button"
-						hx-action="/greet"
+						hx-action={URL(ctx, "/greet")}
 						hx-method="delete"
 						hx-target="#greeting"
 					>
@@ -92,7 +92,7 @@ component DialogCard() {
 					data-gsxui-slot-dialog-trigger
 					aria-haspopup="dialog"
 					aria-expanded="false"
-					hx-get="/fragments/server-info"
+					hx-get={URL(ctx, "/fragments/server-info")}
 					hx-target="#server-info"
 				>
 					Show server info
@@ -120,7 +120,12 @@ component TabsCard() {
 			<ui.Tabs value="overview">
 				<ui.TabsList>
 					<ui.TabsTrigger value="overview" selected>Overview</ui.TabsTrigger>
-					<ui.TabsTrigger value="stats" hx-get="/fragments/stats" hx-target="#tab-stats" hx-trigger="click once">
+					<ui.TabsTrigger
+						value="stats"
+						hx-get={URL(ctx, "/fragments/stats")}
+						hx-target="#tab-stats"
+						hx-trigger="click once"
+					>
 						Stats
 					</ui.TabsTrigger>
 				</ui.TabsList>
@@ -198,7 +203,7 @@ component BoardCard() {
 			</ui.CardDescription>
 		</ui.CardHeader>
 		<ui.CardContent>
-			<ui.Button href="/board">
+			<ui.Button href={URL(ctx, "/board")}>
 				<icon.Radio/> Open the shared board
 			</ui.Button>
 		</ui.CardContent>
