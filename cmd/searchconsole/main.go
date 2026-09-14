@@ -93,24 +93,47 @@ func status(ctx context.Context, c *searchconsole.Client, httpc *http.Client, si
 	if err != nil {
 		fail(err)
 	}
-	w := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
+	// The URL Inspection API takes seconds per URL; run a few at once (quota: 600 per minute, 2,000 per day) and print
+	// each row as soon as it and the rows before it are done.
+	type row struct {
+		line    string
+		problem bool
+	}
+	rows := make([]chan row, len(urls))
+	sem := make(chan struct{}, 6)
+	for i, u := range urls {
+		rows[i] = make(chan row, 1)
+		go func(u string, out chan<- row) {
+			sem <- struct{}{}
+			defer func() { <-sem }()
+			in, err := c.Inspect(ctx, u, "en")
+			if err != nil {
+				out <- row{fmt.Sprintf("%s\tERROR\t%v\t\t", u, err), true}
+				return
+			}
+			canonical, problem := "ok", false
+			if in.GoogleCanonical != "" && in.GoogleCanonical != u {
+				canonical, problem = "Google chose "+in.GoogleCanonical, true
+			}
+			out <- row{fmt.Sprintf("%s\t%s\t%s\t%s\t%s", u, in.Verdict, in.CoverageState, or(in.LastCrawlTime, "-"), canonical), problem}
+		}(u, rows[i])
+	}
+	w := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', tabwriter.FilterHTML)
 	fmt.Fprintln(w, "URL\tVERDICT\tCOVERAGE\tLAST CRAWL\tCANONICAL")
 	problems := 0
-	for _, u := range urls {
-		in, err := c.Inspect(ctx, u, "en")
-		if err != nil {
-			fmt.Fprintf(w, "%s\tERROR\t%v\t\t\n", u, err)
-			problems++
-			continue
-		}
-		canonical := "ok"
-		if in.GoogleCanonical != "" && in.GoogleCanonical != u {
-			canonical = "Google chose " + in.GoogleCanonical
+	counts := map[string]int{}
+	for _, ch := range rows {
+		r := <-ch
+		fmt.Fprintln(w, r.line)
+		w.Flush()
+		if r.problem {
 			problems++
 		}
-		fmt.Fprintf(w, "%s\t%s\t%s\t%s\t%s\n", u, in.Verdict, in.CoverageState, or(in.LastCrawlTime, "-"), canonical)
+		counts[strings.Split(r.line, "\t")[2]]++
 	}
-	w.Flush()
+	for state, n := range counts {
+		fmt.Printf("  %3d  %s\n", n, state)
+	}
 	fmt.Printf("%d URLs inspected (Google's index, not a live fetch); %d with errors or a different canonical\n", len(urls), problems)
 }
 
