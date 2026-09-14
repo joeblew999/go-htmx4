@@ -108,6 +108,7 @@ title = "关于"
 heading = "关于 go-htmx4"
 stack = "技术栈"
 stack_description = "所有工具都在 mise.toml 中锁定版本。这里完全不需要 Node。"
+description = "go-htmx4 背后的技术：搭配 gsx 和 gsxui 的 Go、htmx 4、TinyGo，以及搭配 D1 和 Durable Objects 的 Cloudflare Workers。"
 
 [about.roles]
 gsx = "编译为 Go 的 JSX 风格模板"

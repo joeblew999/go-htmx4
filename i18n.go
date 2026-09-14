@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/joeblew999/go-htmx4/kit/httpx"
 	"github.com/joeblew999/go-htmx4/kit/i18n"
 	"github.com/joeblew999/go-htmx4/kit/i18n/cldr"
 	"github.com/joeblew999/go-htmx4/locales"
@@ -107,7 +108,8 @@ func withLocale(next http.Handler) http.Handler {
 		}
 		tz, chosen, hc := preferences(r)
 		r2 := r.Clone(i18n.WithRequest(r.Context(), i18n.Request{
-			Locale: loc, Path: pathWithQuery(path, r.URL.RawQuery), TimeZone: tz, TimeZoneChosen: chosen, HourCycle: hc,
+			Locale: loc, Path: pathWithQuery(path, r.URL.RawQuery), Origin: httpx.Origin(r),
+			TimeZone: tz, TimeZoneChosen: chosen, HourCycle: hc,
 		}))
 		r2.URL.Path, r2.URL.RawPath = path, ""
 		next.ServeHTTP(w, r2)
@@ -186,7 +188,7 @@ func remember(w http.ResponseWriter, r *http.Request, ld *i18n.LocaleData) {
 
 // isPage reports whether path is a page (not an API, fragment, asset or health check).
 func isPage(path string) bool {
-	for _, p := range []string{"/fragments/", "/board/", "/greet", "/healthz", "/static/", "/assets/", "/gsxui/", "/live/"} {
+	for _, p := range []string{"/fragments/", "/board/", "/greet", "/healthz", "/static/", "/assets/", "/gsxui/", "/live/", "/preferences", "/sitemap.xml", "/robots.txt"} {
 		if strings.HasPrefix(path, p) {
 			return false
 		}

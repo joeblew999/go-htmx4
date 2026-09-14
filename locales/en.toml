@@ -111,6 +111,7 @@ title = "About"
 heading = "About go-htmx4"
 stack = "Stack"
 stack_description = "Everything is pinned in mise.toml. Nothing here needs Node."
+description = "The stack behind go-htmx4: Go with gsx and gsxui, htmx 4, TinyGo, and Cloudflare Workers with D1 and Durable Objects."
 
 [about.roles]
 gsx = "JSX-style templates compiled to Go"

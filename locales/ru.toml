@@ -108,6 +108,7 @@ title = "О проекте"
 heading = "О go-htmx4"
 stack = "Стек"
 stack_description = "Версии всех инструментов зафиксированы в mise.toml. Здесь ничего не требует Node."
+description = "Технологии go-htmx4: Go с gsx и gsxui, htmx 4, TinyGo, а также Cloudflare Workers с D1 и Durable Objects."
 
 [about.roles]
 gsx = "шаблоны в стиле JSX, компилируемые в Go"

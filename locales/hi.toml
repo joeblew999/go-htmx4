@@ -108,6 +108,7 @@ title = "परिचय"
 heading = "go-htmx4 का परिचय"
 stack = "स्टैक"
 stack_description = "हर टूल का वर्ज़न mise.toml में पिन है। यहाँ किसी भी चीज़ को Node की ज़रूरत नहीं है।"
+description = "go-htmx4 के पीछे की तकनीकें: gsx और gsxui के साथ Go, htmx 4, TinyGo, और D1 व Durable Objects के साथ Cloudflare Workers।"
 
 [about.roles]
 gsx = "JSX-शैली के टेम्पलेट, जो Go में कंपाइल होते हैं"

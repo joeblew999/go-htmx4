@@ -108,6 +108,7 @@ title = "概要"
 heading = "go-htmx4 について"
 stack = "スタック"
 stack_description = "すべて mise.toml でバージョンを固定しています。Node は一切不要です。"
+description = "go-htmx4 を支える技術：gsx と gsxui を使う Go、htmx 4、TinyGo、そして D1 と Durable Objects を使う Cloudflare Workers。"
 
 [about.roles]
 gsx = "Go にコンパイルされる JSX 風テンプレート"

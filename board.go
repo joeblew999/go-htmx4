@@ -28,7 +28,7 @@ import (
 )
 
 const (
-	defaultTopic = "lobby"
+	defaultTopic = views.DefaultTopic
 	maxNotes     = 5  // shown on the board
 	keepNotes    = 50 // kept per topic; older notes are deleted as new ones arrive
 	maxNoteRunes = 280

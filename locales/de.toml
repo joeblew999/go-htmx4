@@ -108,6 +108,7 @@ title = "Über"
 heading = "Über go-htmx4"
 stack = "Stack"
 stack_description = "Alle Versionen sind in mise.toml festgelegt. Nichts hier braucht Node."
+description = "Der Stack hinter go-htmx4: Go mit gsx und gsxui, htmx 4, TinyGo sowie Cloudflare Workers mit D1 und Durable Objects."
 
 [about.roles]
 gsx = "Templates im JSX-Stil, zu Go kompiliert"

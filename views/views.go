@@ -10,6 +10,9 @@ import (
 	"github.com/joeblew999/go-htmx4/locales"
 )
 
+// DefaultTopic is the board's topic without ?topic= (its canonical URL is plain /board).
+const DefaultTopic = "lobby"
+
 // Board is one topic's shared state as the board page and its pushed fragment show it.
 type Board struct {
 	Topic   string

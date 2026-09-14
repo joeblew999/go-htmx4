@@ -4,672 +4,677 @@ package locales
 
 import "github.com/joeblew999/go-htmx4/kit/i18n"
 
+// AboutDescription is "about.description": The stack behind go-htmx4: Go with gsx and gsxui, htmx 4, TinyGo, and Cloudflare Workers with D1 and Durable Objects.
+func (m Messages) AboutDescription() string {
+	return m.format(0)
+}
+
 // AboutHeading is "about.heading": About go-htmx4
 func (m Messages) AboutHeading() string {
-	return m.format(0)
+	return m.format(1)
 }
 
 // AboutRolesD1 is "about.roles.d1": board source of truth
 func (m Messages) AboutRolesD1() string {
-	return m.format(1)
+	return m.format(2)
 }
 
 // AboutRolesDurableObjects is "about.roles.durable_objects": one Room per topic, hibernating WebSockets
 func (m Messages) AboutRolesDurableObjects() string {
-	return m.format(2)
+	return m.format(3)
 }
 
 // AboutRolesGsx is "about.roles.gsx": JSX-style templates compiled to Go
 func (m Messages) AboutRolesGsx() string {
-	return m.format(3)
+	return m.format(4)
 }
 
 // AboutRolesGsxui is "about.roles.gsxui": shadcn-style components, copied in
 func (m Messages) AboutRolesGsxui() string {
-	return m.format(4)
+	return m.format(5)
 }
 
 // AboutRolesHtmx is "about.roles.htmx": requests, boost, morph, OOB swaps
 func (m Messages) AboutRolesHtmx() string {
-	return m.format(5)
+	return m.format(6)
 }
 
 // AboutRolesHxLive is "about.roles.hx_live": client-side state (htmx 4 extension)
 func (m Messages) AboutRolesHxLive() string {
-	return m.format(6)
+	return m.format(7)
 }
 
 // AboutRolesHxWs is "about.roles.hx_ws": live board over WebSockets (htmx 4 extension)
 func (m Messages) AboutRolesHxWs() string {
-	return m.format(7)
+	return m.format(8)
 }
 
 // AboutRolesMise is "about.roles.mise": pins every tool
 func (m Messages) AboutRolesMise() string {
-	return m.format(8)
+	return m.format(9)
 }
 
 // AboutRolesTailwind is "about.roles.tailwind": standalone CLI, no npm
 func (m Messages) AboutRolesTailwind() string {
-	return m.format(9)
+	return m.format(10)
 }
 
 // AboutRolesTinygo is "about.roles.tinygo": compiles the Worker to wasm
 func (m Messages) AboutRolesTinygo() string {
-	return m.format(10)
+	return m.format(11)
 }
 
 // AboutRolesWorkersGo is "about.roles.workers_go": Go on Cloudflare Workers
 func (m Messages) AboutRolesWorkersGo() string {
-	return m.format(11)
+	return m.format(12)
 }
 
 // AboutStack is "about.stack": Stack
 func (m Messages) AboutStack() string {
-	return m.format(12)
+	return m.format(13)
 }
 
 // AboutStackDescription is "about.stack_description": Everything is pinned in mise.toml. Nothing here needs Node.
 func (m Messages) AboutStackDescription() string {
-	return m.format(13)
+	return m.format(14)
 }
 
 // AboutTitle is "about.title": About
 func (m Messages) AboutTitle() string {
-	return m.format(14)
+	return m.format(15)
 }
 
 // BoardDecrement is "board.decrement": Decrement
 func (m Messages) BoardDecrement() string {
-	return m.format(15)
+	return m.format(16)
 }
 
 // BoardEmptyDescription is "board.empty_description": Leave one below. Every open tab sees it instantly.
 func (m Messages) BoardEmptyDescription() string {
-	return m.format(16)
+	return m.format(17)
 }
 
 // BoardEmptyTitle is "board.empty_title": No notes yet
 func (m Messages) BoardEmptyTitle() string {
-	return m.format(17)
+	return m.format(18)
 }
 
 // BoardErrorsDelta is "board.errors.delta": delta must be 1 or -1
 func (m Messages) BoardErrorsDelta() string {
-	return m.format(18)
+	return m.format(19)
 }
 
 // BoardErrorsNoteLength is "board.errors.note_length": note must be 1–{max, number} characters
 func (m Messages) BoardErrorsNoteLength(max float64) string {
-	return m.format(19, i18n.FloatArg(max))
+	return m.format(20, i18n.FloatArg(max))
 }
 
 // BoardErrorsStore is "board.errors.store": store unavailable
 func (m Messages) BoardErrorsStore() string {
-	return m.format(20)
+	return m.format(21)
 }
 
 // BoardErrorsTopic is "board.errors.topic": topic must be 1–32 of a-z, 0-9, -
 func (m Messages) BoardErrorsTopic() string {
-	return m.format(21)
+	return m.format(22)
 }
 
 // BoardHint is "board.hint": Open this page in another tab and change something.
 func (m Messages) BoardHint() string {
-	return m.format(22)
+	return m.format(23)
 }
 
 // BoardIncrement is "board.increment": Increment
 func (m Messages) BoardIncrement() string {
-	return m.format(23)
+	return m.format(24)
 }
 
 // BoardIntro is "board.intro": Go writes to D1, then the topic's Durable Object pushes the fragment to every open tab over hx-ws.
 func (m Messages) BoardIntro() string {
-	return m.format(24)
+	return m.format(25)
 }
 
 // BoardNoLive is "board.no_live": No live push (go run .)
 func (m Messages) BoardNoLive() string {
-	return m.format(25)
+	return m.format(26)
 }
 
 // BoardNoteLabel is "board.note_label": Note
 func (m Messages) BoardNoteLabel() string {
-	return m.format(26)
+	return m.format(27)
 }
 
 // BoardNotePlaceholder is "board.note_placeholder": Leave a note
 func (m Messages) BoardNotePlaceholder() string {
-	return m.format(27)
+	return m.format(28)
 }
 
 // BoardOnline is "board.online": online
 func (m Messages) BoardOnline() string {
-	return m.format(28)
+	return m.format(29)
 }
 
 // BoardPost is "board.post": Post
 func (m Messages) BoardPost() string {
-	return m.format(29)
+	return m.format(30)
 }
 
 // BoardSlowDescription is "board.slow_description": Too many changes from your connection. Try again in a few seconds.
 func (m Messages) BoardSlowDescription() string {
-	return m.format(30)
+	return m.format(31)
 }
 
 // BoardSlowTitle is "board.slow_title": Slow down
 func (m Messages) BoardSlowTitle() string {
-	return m.format(31)
+	return m.format(32)
 }
 
 // BoardTitle is "board.title": Shared board
 func (m Messages) BoardTitle() string {
-	return m.format(32)
+	return m.format(33)
 }
 
 // BoardTopic is "board.topic": Topic
 func (m Messages) BoardTopic() string {
-	return m.format(33)
+	return m.format(34)
 }
 
 // BoardVersion is "board.version": version {version, number}
 func (m Messages) BoardVersion(version float64) string {
-	return m.format(34, i18n.FloatArg(version))
+	return m.format(35, i18n.FloatArg(version))
 }
 
 // FormatsCurrencyDescription is "formats.currency_description": Money is exact (integer minor units), with CLDR currency digits. Local currency: {currency}.
 func (m Messages) FormatsCurrencyDescription(currency string) string {
-	return m.format(35, i18n.StrArg(currency))
+	return m.format(36, i18n.StrArg(currency))
 }
 
 // FormatsCurrencyTitle is "formats.currency_title": Currency
 func (m Messages) FormatsCurrencyTitle() string {
-	return m.format(36)
+	return m.format(37)
 }
 
 // FormatsDatesDescription is "formats.dates_description": Intl.DateTimeFormat: CLDR styles, skeletons, day periods, eras and hour cycles, all for the instant in the first column, in your time zone.
 func (m Messages) FormatsDatesDescription() string {
-	return m.format(37)
+	return m.format(38)
 }
 
 // FormatsDatesTitle is "formats.dates_title": Dates and times
 func (m Messages) FormatsDatesTitle() string {
-	return m.format(38)
+	return m.format(39)
 }
 
 // FormatsDirection is "formats.direction": direction {dir}
 func (m Messages) FormatsDirection(dir string) string {
-	return m.format(39, i18n.StrArg(dir))
+	return m.format(40, i18n.StrArg(dir))
 }
 
 // FormatsDurationsDescription is "formats.durations_description": Intl.DurationFormat, with Chrome's output for numeric units.
 func (m Messages) FormatsDurationsDescription() string {
-	return m.format(40)
+	return m.format(41)
 }
 
 // FormatsDurationsTitle is "formats.durations_title": Durations
 func (m Messages) FormatsDurationsTitle() string {
-	return m.format(41)
+	return m.format(42)
 }
 
 // FormatsInput is "formats.input": Input
 func (m Messages) FormatsInput() string {
-	return m.format(42)
+	return m.format(43)
 }
 
 // FormatsIntro is "formats.intro": Locale-aware formatting rendered by Go from Unicode CLDR, with the options and output of JavaScript's Intl. Switch language at the bottom of the page.
 func (m Messages) FormatsIntro() string {
-	return m.format(43)
+	return m.format(44)
 }
 
 // FormatsListsDescription is "formats.lists_description": Intl.ListFormat: CLDR list patterns, plus the Spanish and Hebrew rules ICU applies in code.
 func (m Messages) FormatsListsDescription() string {
-	return m.format(44)
+	return m.format(45)
 }
 
 // FormatsListsTitle is "formats.lists_title": Lists
 func (m Messages) FormatsListsTitle() string {
-	return m.format(45)
+	return m.format(46)
 }
 
 // FormatsNative is "formats.native": native {system}
 func (m Messages) FormatsNative(system string) string {
-	return m.format(46, i18n.StrArg(system))
+	return m.format(47, i18n.StrArg(system))
 }
 
 // FormatsNumbering is "formats.numbering": numbers {system}
 func (m Messages) FormatsNumbering(system string) string {
-	return m.format(47, i18n.StrArg(system))
+	return m.format(48, i18n.StrArg(system))
 }
 
 // FormatsNumbersDescription is "formats.numbers_description": Intl.NumberFormat options, formatted on the server from CLDR data.
 func (m Messages) FormatsNumbersDescription() string {
-	return m.format(48)
+	return m.format(49)
 }
 
 // FormatsNumbersTitle is "formats.numbers_title": Numbers
 func (m Messages) FormatsNumbersTitle() string {
-	return m.format(49)
+	return m.format(50)
 }
 
 // FormatsOptions is "formats.options": Options
 func (m Messages) FormatsOptions() string {
-	return m.format(50)
+	return m.format(51)
 }
 
 // FormatsPluralsDescription is "formats.plurals_description": CLDR plural categories with the first numbers that select them.
 func (m Messages) FormatsPluralsDescription() string {
-	return m.format(51)
+	return m.format(52)
 }
 
 // FormatsPluralsTitle is "formats.plurals_title": Plural rules
 func (m Messages) FormatsPluralsTitle() string {
-	return m.format(52)
+	return m.format(53)
 }
 
 // FormatsRangesDescription is "formats.ranges_description": Intl.DateTimeFormat formatRange: CLDR interval formats show the shared fields once and repeat only those that differ.
 func (m Messages) FormatsRangesDescription() string {
-	return m.format(53)
+	return m.format(54)
 }
 
 // FormatsRangesTitle is "formats.ranges_title": Date ranges
 func (m Messages) FormatsRangesTitle() string {
-	return m.format(54)
+	return m.format(55)
 }
 
 // FormatsRelativeDescription is "formats.relative_description": Intl.RelativeTimeFormat: CLDR dateFields with plural rules; numeric "auto" uses words like yesterday.
 func (m Messages) FormatsRelativeDescription() string {
-	return m.format(55)
+	return m.format(56)
 }
 
 // FormatsRelativeTitle is "formats.relative_title": Relative time
 func (m Messages) FormatsRelativeTitle() string {
-	return m.format(56)
+	return m.format(57)
 }
 
 // FormatsResult is "formats.result": Result
 func (m Messages) FormatsResult() string {
-	return m.format(57)
+	return m.format(58)
 }
 
 // FormatsTimeZone is "formats.time_zone": time zone {zone}
 func (m Messages) FormatsTimeZone(zone string) string {
-	return m.format(58, i18n.StrArg(zone))
+	return m.format(59, i18n.StrArg(zone))
 }
 
 // FormatsTitle is "formats.title": Formats
 func (m Messages) FormatsTitle() string {
-	return m.format(59)
+	return m.format(60)
 }
 
 // FormatsUnitsDescription is "formats.units_description": Intl.NumberFormat style "unit": CLDR unit patterns with plural forms, per-units and compact numbers.
 func (m Messages) FormatsUnitsDescription() string {
-	return m.format(60)
+	return m.format(61)
 }
 
 // FormatsUnitsTitle is "formats.units_title": Units
 func (m Messages) FormatsUnitsTitle() string {
-	return m.format(61)
+	return m.format(62)
 }
 
 // FormatsWeekDescription is "formats.week_description": Intl.Locale getWeekInfo: CLDR weekData for the locale's region (1 = Monday … 7 = Sunday).
 func (m Messages) FormatsWeekDescription() string {
-	return m.format(62)
+	return m.format(63)
 }
 
 // FormatsWeekTitle is "formats.week_title": Week
 func (m Messages) FormatsWeekTitle() string {
-	return m.format(63)
+	return m.format(64)
 }
 
 // FormatsZonesDescription is "formats.zones_description": The same instant in other time zones, with CLDR zone names: specific, generic, location and offset.
 func (m Messages) FormatsZonesDescription() string {
-	return m.format(64)
+	return m.format(65)
 }
 
 // FormatsZonesTitle is "formats.zones_title": Time zones
 func (m Messages) FormatsZonesTitle() string {
-	return m.format(65)
+	return m.format(66)
 }
 
 // GreetCleared is "greet.cleared": Cleared.
 func (m Messages) GreetCleared() string {
-	return m.format(66)
+	return m.format(67)
 }
 
 // GreetClearedToastDescription is "greet.cleared_toast_description": Sent with hx-action and hx-method delete.
 func (m Messages) GreetClearedToastDescription() string {
-	return m.format(67)
+	return m.format(68)
 }
 
 // GreetClearedToastTitle is "greet.cleared_toast_title": Cleared
 func (m Messages) GreetClearedToastTitle() string {
-	return m.format(68)
+	return m.format(69)
 }
 
 // GreetEmpty is "greet.empty": Please enter a name.
 func (m Messages) GreetEmpty() string {
-	return m.format(69)
+	return m.format(70)
 }
 
 // GreetHello is "greet.hello": Hello, {name}.
 func (m Messages) GreetHello(name string) string {
-	return m.format(70, i18n.StrArg(name))
+	return m.format(71, i18n.StrArg(name))
 }
 
 // GreetShout is "greet.shout": HELLO, {name}!
 func (m Messages) GreetShout(name string) string {
-	return m.format(71, i18n.StrArg(name))
+	return m.format(72, i18n.StrArg(name))
 }
 
 // GreetToastDescription is "greet.toast_description": Server-rendered toast for {name}.
 func (m Messages) GreetToastDescription(name string) string {
-	return m.format(72, i18n.StrArg(name))
+	return m.format(73, i18n.StrArg(name))
 }
 
 // GreetToastTitle is "greet.toast_title": Greeting rendered
 func (m Messages) GreetToastTitle() string {
-	return m.format(73)
+	return m.format(74)
 }
 
 // HomeBoardDescription is "home.board.description": D1 plus a Durable Object per topic push every change to all open tabs over hx-ws.
 func (m Messages) HomeBoardDescription() string {
-	return m.format(74)
+	return m.format(75)
 }
 
 // HomeBoardOpen is "home.board.open": Open the shared board
 func (m Messages) HomeBoardOpen() string {
-	return m.format(75)
+	return m.format(76)
 }
 
 // HomeBoardTitle is "home.board.title": Live updates
 func (m Messages) HomeBoardTitle() string {
-	return m.format(76)
+	return m.format(77)
 }
 
 // HomeDialogClose is "home.dialog.close": Close
 func (m Messages) HomeDialogClose() string {
-	return m.format(77)
+	return m.format(78)
 }
 
 // HomeDialogDescription is "home.dialog.description": The dialog body is fetched from the server each time it opens.
 func (m Messages) HomeDialogDescription() string {
-	return m.format(78)
+	return m.format(79)
 }
 
 // HomeDialogHeading is "home.dialog.heading": Server info
 func (m Messages) HomeDialogHeading() string {
-	return m.format(79)
+	return m.format(80)
 }
 
 // HomeDialogLoading is "home.dialog.loading": Loading…
 func (m Messages) HomeDialogLoading() string {
-	return m.format(80)
+	return m.format(81)
 }
 
 // HomeDialogOpen is "home.dialog.open": Show server info
 func (m Messages) HomeDialogOpen() string {
-	return m.format(81)
+	return m.format(82)
 }
 
 // HomeDialogSubtitle is "home.dialog.subtitle": Rendered by a gsx component on request.
 func (m Messages) HomeDialogSubtitle() string {
-	return m.format(82)
+	return m.format(83)
 }
 
 // HomeDialogTitle is "home.dialog.title": Dialog + hx-get
 func (m Messages) HomeDialogTitle() string {
-	return m.format(83)
+	return m.format(84)
 }
 
 // HomeEnv is "home.env": env
 func (m Messages) HomeEnv() string {
-	return m.format(84)
+	return m.format(85)
 }
 
 // HomeGreetClear is "home.greet.clear": Clear
 func (m Messages) HomeGreetClear() string {
-	return m.format(85)
+	return m.format(86)
 }
 
 // HomeGreetDescription is "home.greet.description": hx-post a gsxui form. The server answers with a gsx fragment and an out-of-band toast.
 func (m Messages) HomeGreetDescription() string {
-	return m.format(86)
+	return m.format(87)
 }
 
 // HomeGreetFlavour is "home.greet.flavour": Favourite part of the stack
 func (m Messages) HomeGreetFlavour() string {
-	return m.format(87)
+	return m.format(88)
 }
 
 // HomeGreetName is "home.greet.name": Name
 func (m Messages) HomeGreetName() string {
-	return m.format(88)
+	return m.format(89)
 }
 
 // HomeGreetNamePlaceholder is "home.greet.name_placeholder": Jamie Lee
 func (m Messages) HomeGreetNamePlaceholder() string {
-	return m.format(89)
+	return m.format(90)
 }
 
 // HomeGreetShout is "home.greet.shout": Shout it
 func (m Messages) HomeGreetShout() string {
-	return m.format(90)
+	return m.format(91)
 }
 
 // HomeGreetSubmit is "home.greet.submit": Say hello
 func (m Messages) HomeGreetSubmit() string {
-	return m.format(91)
+	return m.format(92)
 }
 
 // HomeGreetTitle is "home.greet.title": Server round-trip
 func (m Messages) HomeGreetTitle() string {
-	return m.format(92)
+	return m.format(93)
 }
 
 // HomeHeading is "home.heading": Go + htmx 4 + gsxui on Cloudflare Workers
 func (m Messages) HomeHeading() string {
-	return m.format(93)
+	return m.format(94)
 }
 
 // HomeIntro is "home.intro": Server-rendered gsx components, htmx 4 for requests, hx-live for local state, D1 and Durable Objects for live updates. Go compiled with TinyGo. No Node, no bundler.
 func (m Messages) HomeIntro() string {
-	return m.format(94)
+	return m.format(95)
 }
 
 // HomeLiveBold is "home.live.bold": Bold
 func (m Messages) HomeLiveBold() string {
-	return m.format(95)
+	return m.format(96)
 }
 
 // HomeLiveCount is "home.live.count": Count:
 func (m Messages) HomeLiveCount() string {
-	return m.format(96)
+	return m.format(97)
 }
 
 // HomeLiveDescription is "home.live.description": No server round-trip: a counter, a dropdown, a toggle and a live filter.
 func (m Messages) HomeLiveDescription() string {
-	return m.format(97)
+	return m.format(98)
 }
 
 // HomeLiveFilterLabel is "home.live.filter_label": Filter components
 func (m Messages) HomeLiveFilterLabel() string {
-	return m.format(98)
+	return m.format(99)
 }
 
 // HomeLiveFilterPlaceholder is "home.live.filter_placeholder": Filter gsxui components…
 func (m Messages) HomeLiveFilterPlaceholder() string {
-	return m.format(99)
+	return m.format(100)
 }
 
 // HomeLiveIncrement is "home.live.increment": Increment
 func (m Messages) HomeLiveIncrement() string {
-	return m.format(100)
+	return m.format(101)
 }
 
 // HomeLiveMenu is "home.live.menu": Menu
 func (m Messages) HomeLiveMenu() string {
-	return m.format(101)
+	return m.format(102)
 }
 
 // HomeLiveStateBag is "home.live.state_bag": Typed state bag:
 func (m Messages) HomeLiveStateBag() string {
-	return m.format(102)
+	return m.format(103)
 }
 
 // HomeLiveTitle is "home.live.title": Client state with hx-live
 func (m Messages) HomeLiveTitle() string {
-	return m.format(103)
+	return m.format(104)
 }
 
 // HomeServedBy is "home.served_by": Served by
 func (m Messages) HomeServedBy() string {
-	return m.format(104)
+	return m.format(105)
 }
 
 // HomeTabsDescription is "home.tabs.description": The Stats panel loads once, the first time its tab is clicked.
 func (m Messages) HomeTabsDescription() string {
-	return m.format(105)
+	return m.format(106)
 }
 
 // HomeTabsLoading is "home.tabs.loading": Loading…
 func (m Messages) HomeTabsLoading() string {
-	return m.format(106)
+	return m.format(107)
 }
 
 // HomeTabsOverview is "home.tabs.overview": Overview
 func (m Messages) HomeTabsOverview() string {
-	return m.format(107)
+	return m.format(108)
 }
 
 // HomeTabsOverviewBody is "home.tabs.overview_body": This panel was rendered with the page.
 func (m Messages) HomeTabsOverviewBody() string {
-	return m.format(108)
+	return m.format(109)
 }
 
 // HomeTabsStats is "home.tabs.stats": Stats
 func (m Messages) HomeTabsStats() string {
-	return m.format(109)
+	return m.format(110)
 }
 
 // HomeTabsTitle is "home.tabs.title": Tabs + lazy panel
 func (m Messages) HomeTabsTitle() string {
-	return m.format(110)
+	return m.format(111)
 }
 
 // HomeTitle is "home.title": Home
 func (m Messages) HomeTitle() string {
-	return m.format(111)
+	return m.format(112)
 }
 
 // NavAbout is "nav.about": About
 func (m Messages) NavAbout() string {
-	return m.format(112)
+	return m.format(113)
 }
 
 // NavBoard is "nav.board": Board
 func (m Messages) NavBoard() string {
-	return m.format(113)
+	return m.format(114)
 }
 
 // NavFormats is "nav.formats": Formats
 func (m Messages) NavFormats() string {
-	return m.format(114)
+	return m.format(115)
 }
 
 // NavHome is "nav.home": Home
 func (m Messages) NavHome() string {
-	return m.format(115)
+	return m.format(116)
 }
 
 // NavLanguages is "nav.languages": Languages
 func (m Messages) NavLanguages() string {
-	return m.format(116)
+	return m.format(117)
 }
 
 // NavPreferences is "nav.preferences": Time zone and clock
 func (m Messages) NavPreferences() string {
-	return m.format(117)
+	return m.format(118)
 }
 
 // NavToggleTheme is "nav.toggle_theme": Toggle theme
 func (m Messages) NavToggleTheme() string {
-	return m.format(118)
+	return m.format(119)
 }
 
 // PageTitle is "page_title": {title} · go-htmx4
 func (m Messages) PageTitle(title string) string {
-	return m.format(119, i18n.StrArg(title))
+	return m.format(120, i18n.StrArg(title))
 }
 
 // PreferencesDescription is "preferences.description": Dates and times on every page use these settings. Automatic uses your connection's time zone, and your browser corrects it when it differs.
 func (m Messages) PreferencesDescription() string {
-	return m.format(120)
+	return m.format(121)
 }
 
 // PreferencesHourCycle is "preferences.hour_cycle": Clock
 func (m Messages) PreferencesHourCycle() string {
-	return m.format(121)
+	return m.format(122)
 }
 
 // PreferencesHourCycleAuto is "preferences.hour_cycle_auto": Language default ({example})
 func (m Messages) PreferencesHourCycleAuto(example string) string {
-	return m.format(122, i18n.StrArg(example))
+	return m.format(123, i18n.StrArg(example))
 }
 
 // PreferencesLoading is "preferences.loading": Loading…
 func (m Messages) PreferencesLoading() string {
-	return m.format(123)
+	return m.format(124)
 }
 
 // PreferencesSave is "preferences.save": Save
 func (m Messages) PreferencesSave() string {
-	return m.format(124)
+	return m.format(125)
 }
 
 // PreferencesTimeZone is "preferences.time_zone": Time zone
 func (m Messages) PreferencesTimeZone() string {
-	return m.format(125)
+	return m.format(126)
 }
 
 // PreferencesTimeZoneAuto is "preferences.time_zone_auto": Automatic ({zone})
 func (m Messages) PreferencesTimeZoneAuto(zone string) string {
-	return m.format(126, i18n.StrArg(zone))
+	return m.format(127, i18n.StrArg(zone))
 }
 
 // PreferencesTitle is "preferences.title": Time zone and clock
 func (m Messages) PreferencesTitle() string {
-	return m.format(127)
+	return m.format(128)
 }
 
 // ServerInfoGo is "server_info.go": Go
 func (m Messages) ServerInfoGo() string {
-	return m.format(128)
+	return m.format(129)
 }
 
 // ServerInfoNote is "server_info.note": Note
 func (m Messages) ServerInfoNote() string {
-	return m.format(129)
+	return m.format(130)
 }
 
 // ServerInfoRendered is "server_info.rendered": Rendered
 func (m Messages) ServerInfoRendered() string {
-	return m.format(130)
+	return m.format(131)
 }
 
 // ServerInfoRequests is "server_info.requests": Requests
 func (m Messages) ServerInfoRequests() string {
-	return m.format(131)
+	return m.format(132)
 }
 
 // ServerInfoUptime is "server_info.uptime": Uptime
 func (m Messages) ServerInfoUptime() string {
-	return m.format(132)
+	return m.format(133)
 }
 
 // ServerInfoWorkersNote is "server_info.workers_note": Cloudflare Workers: every request starts a fresh Go runtime, so uptime, requests and stats start over.
 func (m Messages) ServerInfoWorkersNote() string {
-	return m.format(133)
+	return m.format(134)
 }

@@ -189,6 +189,14 @@
 - A locale whose catalog isn't complete (`locales.Complete`) is served with `X-Robots-Tag: noindex`.
   `TestShippedLocalesComplete` keeps every shipped locale complete.
 - The language list is plain links in the footer, outside the boosted nav: a locale switch must be a full page load.
+- **SEO head and sitemap** (`views/seo.go`):
+  - Every page renders through `Layout(title, description, path)` with a translated description.
+  - Layout emits the canonical URL and reciprocal `hreflang` links for all locales plus `x-default`, absolute from
+    `httpx.Origin`.
+  - Only `?topic=` (non-default) survives into a canonical URL. A new query parameter that makes a different page
+    must be added to `pageKey`.
+  - A new indexable page goes into `views.SitemapPages`.
+  - `TestCanonicalAndHreflang` and `TestSitemap` check reciprocity against the pages.
 - **Dates** are never formatted with `time.Format` for readers.
   - Views render an instant with `<LocalTime t={…} opts={i18n.DateTimeOptions{…}}/>` (or `FormatDateTime` /
     `FormatDateRange`). Both use the request's locale and the viewer's time zone and hour cycle.

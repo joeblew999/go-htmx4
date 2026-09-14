@@ -9,6 +9,14 @@ var catalogs = []*i18n.Catalog{
 		Locale: "en",
 		Messages: []i18n.CatalogMessage{
 			{
+				Key: "about.description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "The stack behind go-htmx4: Go with gsx and gsxui, htmx 4, TinyGo, and Cloudflare Workers with D1 and Durable Objects.",
+					},
+				},
+			},
+			{
 				Key: "about.heading",
 				Parts: []i18n.MsgPart{
 					{
@@ -1145,6 +1153,14 @@ var catalogs = []*i18n.Catalog{
 	&i18n.Catalog{
 		Locale: "en-IN",
 		Messages: []i18n.CatalogMessage{
+			{
+				Key: "about.description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "The stack behind go-htmx4: Go with gsx and gsxui, htmx 4, TinyGo, and Cloudflare Workers with D1 and Durable Objects.",
+					},
+				},
+			},
 			{
 				Key: "about.heading",
 				Parts: []i18n.MsgPart{
@@ -2283,6 +2299,14 @@ var catalogs = []*i18n.Catalog{
 		Locale: "de",
 		Messages: []i18n.CatalogMessage{
 			{
+				Key: "about.description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Der Stack hinter go-htmx4: Go mit gsx und gsxui, htmx 4, TinyGo sowie Cloudflare Workers mit D1 und Durable Objects.",
+					},
+				},
+			},
+			{
 				Key: "about.heading",
 				Parts: []i18n.MsgPart{
 					{
@@ -3419,6 +3443,14 @@ var catalogs = []*i18n.Catalog{
 	&i18n.Catalog{
 		Locale: "fr",
 		Messages: []i18n.CatalogMessage{
+			{
+				Key: "about.description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "La pile technique de go-htmx4\u00a0: Go avec gsx et gsxui, htmx 4, TinyGo, et Cloudflare Workers avec D1 et Durable Objects.",
+					},
+				},
+			},
 			{
 				Key: "about.heading",
 				Parts: []i18n.MsgPart{
@@ -4557,6 +4589,14 @@ var catalogs = []*i18n.Catalog{
 		Locale: "es",
 		Messages: []i18n.CatalogMessage{
 			{
+				Key: "about.description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "La pila tecnológica de go-htmx4: Go con gsx y gsxui, htmx 4, TinyGo, y Cloudflare Workers con D1 y Durable Objects.",
+					},
+				},
+			},
+			{
 				Key: "about.heading",
 				Parts: []i18n.MsgPart{
 					{
@@ -5693,6 +5733,14 @@ var catalogs = []*i18n.Catalog{
 	&i18n.Catalog{
 		Locale: "pt-BR",
 		Messages: []i18n.CatalogMessage{
+			{
+				Key: "about.description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "A stack por trás do go-htmx4: Go com gsx e gsxui, htmx 4, TinyGo e Cloudflare Workers com D1 e Durable Objects.",
+					},
+				},
+			},
 			{
 				Key: "about.heading",
 				Parts: []i18n.MsgPart{
@@ -6831,6 +6879,14 @@ var catalogs = []*i18n.Catalog{
 		Locale: "pt-PT",
 		Messages: []i18n.CatalogMessage{
 			{
+				Key: "about.description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "A stack por detrás do go-htmx4: Go com gsx e gsxui, htmx 4, TinyGo e Cloudflare Workers com D1 e Durable Objects.",
+					},
+				},
+			},
+			{
 				Key: "about.heading",
 				Parts: []i18n.MsgPart{
 					{
@@ -7968,6 +8024,14 @@ var catalogs = []*i18n.Catalog{
 		Locale: "ar",
 		Messages: []i18n.CatalogMessage{
 			{
+				Key: "about.description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "التقنيات التي يقوم عليها go-htmx4: Go مع gsx وgsxui، وhtmx 4، وTinyGo، وCloudflare Workers مع D1 وDurable Objects.",
+					},
+				},
+			},
+			{
 				Key: "about.heading",
 				Parts: []i18n.MsgPart{
 					{
@@ -9101,6 +9165,14 @@ var catalogs = []*i18n.Catalog{
 	&i18n.Catalog{
 		Locale: "he",
 		Messages: []i18n.CatalogMessage{
+			{
+				Key: "about.description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "הטכנולוגיות שמאחורי go-htmx4: Go עם gsx ו-gsxui, htmx 4, TinyGo, ו-Cloudflare Workers עם D1 ו-Durable Objects.",
+					},
+				},
+			},
 			{
 				Key: "about.heading",
 				Parts: []i18n.MsgPart{
@@ -10239,6 +10311,14 @@ var catalogs = []*i18n.Catalog{
 		Locale: "ja",
 		Messages: []i18n.CatalogMessage{
 			{
+				Key: "about.description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "go-htmx4 を支える技術：gsx と gsxui を使う Go、htmx 4、TinyGo、そして D1 と Durable Objects を使う Cloudflare Workers。",
+					},
+				},
+			},
+			{
 				Key: "about.heading",
 				Parts: []i18n.MsgPart{
 					{
@@ -11372,6 +11452,14 @@ var catalogs = []*i18n.Catalog{
 	&i18n.Catalog{
 		Locale: "zh-Hans",
 		Messages: []i18n.CatalogMessage{
+			{
+				Key: "about.description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "go-htmx4 背后的技术：搭配 gsx 和 gsxui 的 Go、htmx 4、TinyGo，以及搭配 D1 和 Durable Objects 的 Cloudflare Workers。",
+					},
+				},
+			},
 			{
 				Key: "about.heading",
 				Parts: []i18n.MsgPart{
@@ -12510,6 +12598,14 @@ var catalogs = []*i18n.Catalog{
 		Locale: "zh-Hant",
 		Messages: []i18n.CatalogMessage{
 			{
+				Key: "about.description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "go-htmx4 背後的技術：搭配 gsx 和 gsxui 的 Go、htmx 4、TinyGo，以及搭配 D1 和 Durable Objects 的 Cloudflare Workers。",
+					},
+				},
+			},
+			{
 				Key: "about.heading",
 				Parts: []i18n.MsgPart{
 					{
@@ -13647,6 +13743,14 @@ var catalogs = []*i18n.Catalog{
 		Locale: "hi",
 		Messages: []i18n.CatalogMessage{
 			{
+				Key: "about.description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "go-htmx4 के पीछे की तकनीकें: gsx और gsxui के साथ Go, htmx 4, TinyGo, और D1 व Durable Objects के साथ Cloudflare Workers।",
+					},
+				},
+			},
+			{
 				Key: "about.heading",
 				Parts: []i18n.MsgPart{
 					{
@@ -14780,6 +14884,14 @@ var catalogs = []*i18n.Catalog{
 	&i18n.Catalog{
 		Locale: "ru",
 		Messages: []i18n.CatalogMessage{
+			{
+				Key: "about.description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Технологии go-htmx4: Go с gsx и gsxui, htmx 4, TinyGo, а также Cloudflare Workers с D1 и Durable Objects.",
+					},
+				},
+			},
 			{
 				Key: "about.heading",
 				Parts: []i18n.MsgPart{
@@ -15959,6 +16071,20 @@ var catalogs = []*i18n.Catalog{
 var pseudoCatalog = &i18n.Catalog{
 	Locale: "en-XA",
 	Messages: []i18n.CatalogMessage{
+		{
+			Key: "about.description",
+			Parts: []i18n.MsgPart{
+				{
+					Text: "⟦",
+				},
+				{
+					Text: "Ţĥé šţáçķ ƀéĥíñð ĝó-ĥţɱẋ4: Ĝó ŵíţĥ ĝšẋ áñð ĝšẋúí, ĥţɱẋ 4, ŢíñýĜó, áñð Çļóúðƒļáŕé Ŵóŕķéŕš ŵíţĥ Đ1 áñð Đúŕáƀļé Öƀĵéçţš.···································",
+				},
+				{
+					Text: "⟧",
+				},
+			},
+		},
 		{
 			Key: "about.heading",
 			Parts: []i18n.MsgPart{

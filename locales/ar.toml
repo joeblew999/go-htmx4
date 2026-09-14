@@ -108,6 +108,7 @@ title = "حول"
 heading = "حول go-htmx4"
 stack = "الحزمة التقنية"
 stack_description = "إصدار كل أداة مثبّت في mise.toml. لا شيء هنا يحتاج إلى Node."
+description = "التقنيات التي يقوم عليها go-htmx4: Go مع gsx وgsxui، وhtmx 4، وTinyGo، وCloudflare Workers مع D1 وDurable Objects."
 
 [about.roles]
 gsx = "قوالب بأسلوب JSX تُصرَّف إلى Go"

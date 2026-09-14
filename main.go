@@ -17,6 +17,7 @@ package main
 
 import (
 	"cmp"
+	"io"
 	"log"
 	"net/http"
 	"runtime"
@@ -27,6 +28,7 @@ import (
 
 	"github.com/gsxhq/gsx"
 	"github.com/joeblew999/go-htmx4/kit/httpx"
+	"github.com/joeblew999/go-htmx4/kit/i18n"
 	"github.com/joeblew999/go-htmx4/kit/i18n/cldr"
 	"github.com/joeblew999/go-htmx4/locales"
 	"github.com/joeblew999/go-htmx4/views"
@@ -91,6 +93,19 @@ func (s *server) routes() http.Handler {
 		if allow(w, r, http.MethodGet) {
 			s.render(w, r, "about", views.About(stack))
 		}
+	})
+	mux.HandleFunc("/robots.txt", robotsTxt)
+	mux.HandleFunc("/sitemap.xml", func(w http.ResponseWriter, r *http.Request) {
+		if !allow(w, r, http.MethodGet) {
+			return
+		}
+		req, _ := i18n.FromContext(r.Context())
+		if req.Locale.Data != cldr.Data.Locales[0] {
+			http.NotFound(w, r) // one sitemap, at the root: it already lists every locale
+			return
+		}
+		w.Header().Set("Content-Type", "application/xml; charset=utf-8")
+		io.WriteString(w, views.Sitemap(req.Origin))
 	})
 	mux.HandleFunc("/healthz", func(w http.ResponseWriter, r *http.Request) {
 		if allow(w, r, http.MethodGet) {

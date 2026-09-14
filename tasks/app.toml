@@ -178,6 +178,10 @@ check "localized hx-post"         "$(curl -s "$base/de/board?topic=smoke")" 'hx-
 check "UI catalog on TinyGo"      "$(curl -s "$base/de/")" 'Go + htmx 4 + gsxui auf Cloudflare Workers'
 check "ICU plural on TinyGo"      "$(curl -s -X POST -d body= "$base/ru/board/note?topic=smoke")" 'до 280 символов'
 check "translated page indexable" "$(curl -sI "$base/de/about" | grep -ci '^x-robots-tag' || true)" '0'
+# SEO (i18n Phase 8): canonical + reciprocal hreflang in the head, a generated sitemap with every locale.
+check "canonical + hreflang"      "$(curl -s "$base/de/about")" "<link rel=\"canonical\" href=\"$base/de/about\">"
+check "hreflang x-default"        "$(curl -s "$base/de/about")" "<link rel=\"alternate\" hreflang=\"x-default\" href=\"$base/about\">"
+check "sitemap with alternates"   "$(curl -s "$base/sitemap.xml")" "<xhtml:link rel=\"alternate\" hreflang=\"zh-Hant\" href=\"$base/zh-hant/formats\"/>"
 # Dates (kit/i18n DateTimeFormat + time/tzdata on TinyGo): a style, a named zone, the viewer's zone cookie.
 check "DateTimeFormat on TinyGo"  "$(curl -s "$base/de/formats")" 'Samstag, 4. Juli 2026'
 check "named zone on TinyGo"      "$(curl -s "$base/formats")" '11:30 AM Eastern Time'
@@ -382,6 +386,8 @@ check "hx-ws.js asset"            "$(curl -s -o /dev/null -w '%{http_code}' "$ba
 check "/live needs an upgrade"    "$(curl -s -o /dev/null -w '%{http_code}' "$base/live/smoke")" '426'
 check "UI catalog"                "$(curl -s "$base/de/")" 'Go + htmx 4 + gsxui auf Cloudflare Workers'
 check "translated page indexable" "$(curl -sI "$base/de/about" | grep -ci '^x-robots-tag' || true)" '0'
+check "canonical + hreflang"      "$(curl -s "$base/de/about")" "<link rel=\"canonical\" href=\"$base/de/about\">"
+check "sitemap with alternates"   "$(curl -s "$base/sitemap.xml")" "<xhtml:link rel=\"alternate\" hreflang=\"zh-Hant\" href=\"$base/zh-hant/formats\"/>"
 if go run ./cmd/wsload -base "$base" -n 2 -topic smoke; then
   echo "✓ live push to 3 WebSockets in 3 locales + cached fragment (wsload)"
 else

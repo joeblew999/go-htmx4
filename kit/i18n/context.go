@@ -10,6 +10,9 @@ type ctxKey struct{}
 type Request struct {
 	Locale *Locale
 	Path   string // e.g. "/about?x=1", never locale-prefixed
+	// Origin is the request's scheme and host, e.g. "https://example.com", for absolute URLs: canonical links,
+	// hreflang alternates and sitemaps must not be relative.
+	Origin string
 
 	// TimeZone is the viewer's time zone as [Data.TimeZone] resolves it ("Europe/Berlin", "UTC"); "" means UTC.
 	TimeZone string
