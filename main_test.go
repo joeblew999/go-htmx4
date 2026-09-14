@@ -4,6 +4,9 @@ package main
 
 import (
 	"cmp"
+	"context"
+	"github.com/joeblew999/go-htmx4/kit/i18n/cldr"
+	"github.com/joeblew999/go-htmx4/views"
 	"html"
 	"net/http"
 	"net/http/httptest"
@@ -153,9 +156,9 @@ func TestBoard(t *testing.T) {
 	}
 
 	expect(do("GET", "/board?topic=t-page", ""), http.StatusOK,
-		`hx-ws:connect="/live/t-page"`, `src="/static/hx-ws.js"`, `id="board"`, `data-version="0"`,
+		`hx-ws:connect="/live/t-page?locale=en"`, `src="/static/hx-ws.js"`, `id="board"`, `data-version="0"`,
 		`hx-post="/board/add?topic=t-page&amp;delta=1"`, `htmx:before:swap`, `id="presence"`)
-	expect(do("GET", "/board", ""), http.StatusOK, `hx-ws:connect="/live/lobby"`, `<section id="board" data-version="`)
+	expect(do("GET", "/board", ""), http.StatusOK, `hx-ws:connect="/live/lobby?locale=en"`, `<section id="board" data-version="`)
 	// The page's #board must not be out-of-band: a boosted navigation would drop it.
 	if page := do("GET", "/board", "").Body.String(); strings.Contains(page, "hx-swap-oob=\"true\" data-version") {
 		t.Errorf("board page renders #board with hx-swap-oob; boosted navigation to /board would drop it")
@@ -216,34 +219,51 @@ func TestBoardFragmentWireFormat(t *testing.T) {
 		{ID: 2, Body: `<img src=x onerror="alert(1)"> & 'quotes'`, CreatedAt: "2026-09-14 <b>"},
 		{ID: 1, Body: "unicode ✓ 日本", CreatedAt: "2026-09-14 00:00:00"},
 	}}
-	got := renderBoard(b)
-	if !strings.HasPrefix(got, `<section id="board" hx-swap-oob="true" data-version="42"`) {
-		t.Errorf("fragment must start with id, hx-swap-oob and data-version; got %.120q", got)
+	set := renderBoardLocales(context.Background(), b)
+	if set.Default != "en" || len(set.Fragments) != len(cldr.Data.Locales) {
+		t.Fatalf("renderBoardLocales: default %q, %d fragments; want en and one per shipped locale", set.Default, len(set.Fragments))
 	}
-	if m := regexp.MustCompile(`data-version="(\d+)"`).FindStringSubmatch(got); m == nil || m[1] != "42" {
-		t.Errorf("page guard regex can't read data-version from %.120q", got)
-	}
-	for _, want := range []string{
-		">-3</output>",
-		html.EscapeString(`<img src=x onerror="alert(1)"> & 'quotes'`),
-		html.EscapeString("2026-09-14 <b>"),
-		"unicode ✓ 日本",
-		"version 42",
-		"</section>",
-	} {
-		if !strings.Contains(got, want) {
-			t.Errorf("fragment missing %q", want)
+	for key, got := range set.Fragments {
+		if !strings.HasPrefix(got, `<section id="board" hx-swap-oob="true" data-version="42" lang="`) {
+			t.Errorf("%s: fragment must start with id, hx-swap-oob, data-version and lang; got %.120q", key, got)
+		}
+		if m := regexp.MustCompile(`data-version="(\d+)"`).FindStringSubmatch(got); m == nil || m[1] != "42" {
+			t.Errorf("%s: page guard regex can't read data-version from %.120q", key, got)
+		}
+		for _, want := range []string{
+			html.EscapeString(`<img src=x onerror="alert(1)"> & 'quotes'`),
+			html.EscapeString("2026-09-14 <b>"),
+			"unicode ✓ 日本",
+			"42",
+			"</section>",
+		} {
+			if !strings.Contains(got, want) {
+				t.Errorf("%s: fragment missing %q", key, want)
+			}
+		}
+		if strings.Contains(got, "<img") {
+			t.Errorf("%s: note body not escaped: %q", key, got)
+		}
+		if strings.Count(got, `id="board"`) != 1 {
+			t.Errorf("%s: want exactly one #board element", key)
 		}
 	}
-	if strings.Contains(got, "<img") {
-		t.Errorf("note body not escaped: %q", got)
+	for key, lang := range map[string]string{"en": "en", "de": "de", "pt-br": "pt-BR", "ar": "ar"} {
+		if !strings.Contains(set.Fragments[key], `lang="`+lang+`"`) {
+			t.Errorf("fragment %s lacks lang=%q", key, lang)
+		}
 	}
-	if strings.Count(got, `id="board"`) != 1 {
-		t.Errorf("want exactly one #board element")
+	if !strings.Contains(set.Fragments["en"], ">-3</output>") {
+		t.Errorf("en fragment lacks the value")
+	}
+	// The publish body the Room parses.
+	body := string(set.JSON())
+	if !strings.HasPrefix(body, `{"default":"en","fragments":{"ar":"<section id=\"board\"`) || strings.Contains(body, `\u003c`) {
+		t.Errorf("publish body %.120q: want sorted locales and unescaped HTML", body)
 	}
 }
 
-// The Worker entry and the Room are JavaScript: they must use kit/live's topic rule and version header.
+// The Worker entry and the Room are JavaScript: they must use kit/live's topic and locale rules and version header.
 func TestWorkerJSMatchesKitLive(t *testing.T) {
 	index, err := os.ReadFile("worker/index.mjs")
 	if err != nil {
@@ -252,11 +272,22 @@ func TestWorkerJSMatchesKitLive(t *testing.T) {
 	if !strings.Contains(string(index), "/"+live.TopicPattern+"/") {
 		t.Errorf("worker/index.mjs must validate topics with /%s/", live.TopicPattern)
 	}
+	if !strings.Contains(string(index), "/"+live.LocalePattern+"/") {
+		t.Errorf("worker/index.mjs must validate locales with /%s/", live.LocalePattern)
+	}
 	room, err := os.ReadFile("worker/room.mjs")
 	if err != nil {
 		t.Fatal(err)
 	}
 	if !strings.Contains(string(room), `"`+live.VersionHeader+`"`) {
 		t.Errorf("worker/room.mjs must read the %s header", live.VersionHeader)
+	}
+	if !strings.Contains(string(room), `searchParams.get("`+live.LocaleParam+`")`) {
+		t.Errorf("worker/room.mjs must tag sockets with ?%s=", live.LocaleParam)
+	}
+	for _, ld := range cldr.Data.Locales {
+		if key := views.LocaleKey(ld); !live.ValidLocale(key) || !regexp.MustCompile(live.LocalePattern).MatchString(key) {
+			t.Errorf("shipped locale key %q fails kit/live's locale rule", key)
+		}
 	}
 }

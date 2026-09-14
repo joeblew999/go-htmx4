@@ -176,12 +176,12 @@ check "localized hx-post"         "$(curl -s "$base/de/board?topic=smoke")" 'hx-
 check "/en/ prefix → 301"         "$(curl -s -o /dev/null -w '%{http_code} %{redirect_url}' "$base/en/about")" '301'
 check "unknown locale → 404"      "$(curl -s -o /dev/null -w '%{http_code}' "$base/xx/")" '404'
 # Shared board: Go (TinyGo) → database/sql d1 driver → LocalD1 → publish → Room DO → hx-ws.
-check "board page with hx-ws"     "$(curl -s "$base/board?topic=smoke")" 'hx-ws:connect="/live/smoke"'
+check "board page with hx-ws"     "$(curl -s "$base/board?topic=smoke")" 'hx-ws:connect="/live/smoke?locale=en"'
 check "board write via D1 driver" "$(curl -s -X POST -d delta=1 "$base/board/add?topic=smoke")" 'hx-swap-oob="true" data-version="'
 check "hx-ws.js from static/"     "$(curl -s -o /dev/null -w '%{http_code} %{content_type}' "$base/static/hx-ws.js")" '200 text/javascript'
 check "/live needs an upgrade"    "$(curl -s -o /dev/null -w '%{http_code}' "$base/live/smoke")" '426'
-if go run ./cmd/wsload -n 2 -topic smoke >build/wsload-smoke.log 2>&1; then
-  echo "✓ live push to 2 WebSockets + cached fragment (wsload)"
+if go run ./cmd/wsload -n 3 -locales en,de,ar -topic smoke >build/wsload-smoke.log 2>&1; then
+  echo "✓ live push to 3 WebSockets in 3 locales + cached fragment (wsload)"
 else
   echo "✗ wsload:"; cat build/wsload-smoke.log; fail=1
 fi
@@ -221,7 +221,7 @@ E2E_BASE="$base" go test -C e2e -count=1 -v ./... 2>&1 | grep -v "unhandled node
 # Design size: 1,000 WebSockets on one topic, then a burst of 50 concurrent writes (coalescing).
 # Starts its own workerd on :8913 unless LOAD_BASE points somewhere else (e.g. the deployed URL).
 ["load"]
-description = "1,000 WebSockets on one topic + a 50-write burst (local workerd, or LOAD_BASE=https://…)"
+description = "1,000 WebSockets in every locale on one topic + a 50-write burst (local workerd, or LOAD_BASE=https://…)"
 depends = ["build"]
 dir = "{{config_root}}"
 run = '''
@@ -240,8 +240,10 @@ if [ -z "$base" ]; then
   for _ in $(seq 1 80); do [ "$(curl -s "$base/healthz")" = ok ] && break; sleep 0.25; done
 fi
 echo "→ $base"
-go run ./cmd/wsload -base "$base" -n 1000 -topic load
-go run ./cmd/wsload -base "$base" -n 1000 -writes 50 -topic load-burst
+# Sockets spread over every shipped locale: each must get only its own locale's fragments.
+locales=$(sed -n 's/^I18N_LOCALES = "\(.*\)"$/\1/p' mise.toml | tr 'A-Z' 'a-z')
+go run ./cmd/wsload -base "$base" -n 1000 -locales "$locales" -topic load
+go run ./cmd/wsload -base "$base" -n 1000 -writes 50 -locales "$locales" -topic load-burst
 # The Room refuses socket 1,001 (worker/room.mjs MAX_SOCKETS).
 full=$(go run ./cmd/wsload -base "$base" -n 1001 -topic load-full 2>&1 || true)
 if grep -q "connected 1000/1001" <<<"$full"; then echo "✓ room refuses socket 1,001"; else echo "$full" | tail -5; echo "✗ room cap"; exit 1; fi
@@ -362,12 +364,12 @@ check "theme toggle in header"    "$(curl -s "$base/")" 'data-site-theme-toggle'
 check "405 on wrong method"       "$(curl -s -o /dev/null -w '%{http_code}' "$base/greet")" '405'
 check "404 for missing file"      "$(curl -s -o /dev/null -w '%{http_code}' "$base/nope.txt")" '404'
 # Shared board: Go → D1 → Room DO → hx-ws.
-check "board page with hx-ws"     "$(curl -s "$base/board?topic=smoke")" 'hx-ws:connect="/live/smoke"'
+check "board page with hx-ws"     "$(curl -s "$base/board?topic=smoke")" 'hx-ws:connect="/live/smoke?locale=en"'
 check "board write via D1"        "$(curl -s -X POST -d delta=1 "$base/board/add?topic=smoke")" 'hx-swap-oob="true" data-version="'
 check "hx-ws.js asset"            "$(curl -s -o /dev/null -w '%{http_code}' "$base/static/hx-ws.js")" '200'
 check "/live needs an upgrade"    "$(curl -s -o /dev/null -w '%{http_code}' "$base/live/smoke")" '426'
 if go run ./cmd/wsload -base "$base" -n 2 -topic smoke; then
-  echo "✓ live push to 2 WebSockets + cached fragment (wsload)"
+  echo "✓ live push to 3 WebSockets in 3 locales + cached fragment (wsload)"
 else
   echo "✗ wsload"; fail=1
 fi

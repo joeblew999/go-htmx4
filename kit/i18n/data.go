@@ -86,6 +86,7 @@ type LocaleData struct {
 	DateTime    DateTimeData
 	Relative    RelativeData
 	Lists       ListData
+	Units       UnitData
 	Duration    DurationData
 }
 
@@ -139,6 +140,7 @@ type NumberSystem struct {
 type NumberSymbols struct {
 	Decimal, Group, Percent, PerMille, Minus, Plus, Exponential, Infinity, NaN, ApproximatelySign string
 	CurrencyDecimal, CurrencyGroup                                                                string // "" = same as Decimal/Group
+	TimeSeparator                                                                                 string // e.g. ":"
 }
 
 // NumPattern is a parsed LDML number pattern. Affixes use private-use runes for pattern specials.

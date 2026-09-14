@@ -158,5 +158,10 @@ func All() []Case {
 		all = append(all, gen()...)
 	}
 	slices.SortFunc(all, func(a, b Case) int { return strings.Compare(a.ID, b.ID) })
+	for i := 1; i < len(all); i++ {
+		if all[i].ID == all[i-1].ID {
+			panic("intltest: duplicate case ID " + all[i].ID)
+		}
+	}
 	return all
 }

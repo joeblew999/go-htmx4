@@ -55,7 +55,7 @@ func (f *fakeRoom) broadcast(msg string) {
 
 func (f *fakeRoom) presenceChanged() {
 	if f.presence {
-		f.broadcast(fmt.Sprintf(`<span id="presence" hx-swap-oob="true">%d online</span>`, len(f.conns)))
+		f.broadcast(fmt.Sprintf(`<span id="presence" hx-swap-oob="true">%d</span>`, len(f.conns)))
 	}
 }
 

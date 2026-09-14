@@ -135,8 +135,10 @@ func (tb *tab) clickText(selector, text string) {
 	}
 }
 
+// presence is the online badge's text, e.g. "2 online": the Room pushes the count into #presence and the
+// page renders the label next to it.
 func (tb *tab) presence() string {
-	return tb.str(`document.getElementById("presence")?.textContent ?? "(none)"`)
+	return tb.str(`(() => { const p = document.getElementById("presence")?.parentElement; return p ? [...p.childNodes].map((n) => n.textContent.trim()).filter(Boolean).join(" ") : "(none)"; })()`)
 }
 
 func (tb *tab) version() int {

@@ -7,7 +7,7 @@ import (
 
 // BoardPage is the shared board page, composed from gsxui components. With live (on Workers) it connects to
 // /live/{topic} with hx-ws (loaded by Layout); the Room Durable Object pushes BoardFragment on every change and
-// "N online" into #presence. Without it (`go run .`, no Durable Objects) only the poster's own response
+// the online count into #presence (the label next to it is rendered here, in the page's language). Without it (`go run .`, no Durable Objects) only the poster's own response
 // updates the board, and a badge says so.
 component BoardPage(topic string, b Board, live bool) {
 	<Layout title="Shared board" path="/board">
@@ -25,7 +25,8 @@ component BoardPage(topic string, b Board, live bool) {
 					{ if live {
 						<ui.Badge variant="secondary">
 							<icon.Users/>
-							<span id="presence">connecting…</span>
+							<span id="presence">…</span>
+							<span>online</span>
 						</ui.Badge>
 					} else {
 						<ui.Badge variant="outline">
@@ -37,7 +38,7 @@ component BoardPage(topic string, b Board, live bool) {
 			</ui.CardHeader>
 			<ui.CardContent>
 				{ if live {
-					<div hx-ws:connect={"/live/" + topic} hx-swap="none">
+					<div hx-ws:connect={"/live/" + topic + "?locale=" + LocaleKey(Loc(ctx).Data)} hx-swap="none">
 						<boardSection b={b}/>
 					</div>
 				} else {
@@ -94,7 +95,7 @@ component BoardPage(topic string, b Board, live bool) {
 // both use it. The Room and the page's version guard rely on its id="board", hx-swap-oob="true" and
 // data-version (see TestBoardFragmentWireFormat).
 component BoardFragment(b Board) {
-	<section id="board" hx-swap-oob="true" data-version={b.Version} class="flex flex-col gap-6">
+	<section id="board" hx-swap-oob="true" data-version={b.Version} lang={Loc(ctx).Lang()} class="flex flex-col gap-6">
 		<boardBody b={b}/>
 	</section>
 }
@@ -102,7 +103,7 @@ component BoardFragment(b Board) {
 // boardSection is #board as the page renders it: no hx-swap-oob, or a boosted navigation to /board
 // would treat the board as out-of-band content and drop it (no #board on the page it came from).
 component boardSection(b Board) {
-	<section id="board" data-version={b.Version} class="flex flex-col gap-6">
+	<section id="board" data-version={b.Version} lang={Loc(ctx).Lang()} class="flex flex-col gap-6">
 		<boardBody b={b}/>
 	</section>
 }
@@ -134,7 +135,9 @@ component boardBody(b Board) {
 					</ui.ItemMedia>
 					<ui.ItemContent>
 						<ui.ItemTitle>{ n.Body }</ui.ItemTitle>
-						<ui.ItemDescription>{ n.CreatedAt }</ui.ItemDescription>
+						<ui.ItemDescription>
+							<time datetime={NoteISO(n.CreatedAt)} data-relative-time>{ RelativeSince(ctx, n.CreatedAt) }</time>
+						</ui.ItemDescription>
 					</ui.ItemContent>
 				</ui.Item>
 			} }

@@ -1,12 +1,12 @@
 // Package wsload checks a live board end to end over real WebSockets: it opens N sockets to
 // /live/{topic}, makes changes through the app (POST /board/add), and reports how many sockets
 // received the newest version, how fast, how many broadcasts coalescing let through, whether
-// presence ("N online") tracks connects and closes, and whether a late joiner gets the cached
-// fragment.
+// presence (the online count) tracks connects and closes, whether each socket only gets its own locale's
+// fragments, and whether a late joiner gets the cached fragment.
 //
 // It speaks the protocol of github.com/joeblew999/go-htmx4/kit/live's Room: pushes are elements with
-// id="board" and data-version="N", presence is <span id="presence" …>N online</span>, and "ping" is
-// answered with "pong". Local tooling (standard Go).
+// id="board", data-version="N" and lang="…", presence is <span id="presence" …>N</span>, sockets connect with
+// ?locale=, and "ping" is answered with "pong". Local tooling (standard Go).
 package wsload
 
 import (
@@ -37,6 +37,7 @@ type Options struct {
 	Timeout         time.Duration // how long to wait for delivery (default 15s)
 	PresenceTimeout time.Duration // how long to wait for presence to settle (default 5s)
 	Hold            time.Duration // after the checks, keep the sockets open this long and report drops
+	Locales         []string      // socket i connects with ?locale=Locales[i % len]; nil connects without
 	Out             io.Writer     // progress lines; nil discards them
 	HTTP            *http.Client  // for POST /board/add (default http.DefaultClient)
 }
@@ -52,16 +53,18 @@ type Result struct {
 	Delivered        int           // sockets that received Newest (or newer)
 	P50, P95, Max    time.Duration // delivery latency after the writes returned
 	LateJoinerCached bool          // a socket opened afterwards got the cached newest fragment
+	WrongLocale      int           // board pushes whose lang didn't match the socket's locale
 }
 
 // OK reports whether every check passed.
 func (r Result) OK() bool {
-	return r.Connected == r.Sockets && r.Delivered == r.Sockets && r.Pong && r.PresenceOK && r.LateJoinerCached
+	return r.Connected == r.Sockets && r.Delivered == r.Sockets && r.Pong && r.PresenceOK && r.LateJoinerCached && r.WrongLocale == 0
 }
 
 var (
 	versionRe  = regexp.MustCompile(`data-version="(\d+)"`)
-	presenceRe = regexp.MustCompile(`id="presence"[^>]*>(\d+) online<`)
+	presenceRe = regexp.MustCompile(`id="presence"[^>]*>(\d+)<`)
+	langRe     = regexp.MustCompile(`id="board"[^>]*\blang="([^"]+)"`)
 )
 
 // Run performs the checks. It returns an error when it can't run them at all (bad URL, a failed
@@ -114,7 +117,7 @@ func Run(ctx context.Context, o Options) (Result, error) {
 		sem <- struct{}{}
 		go func() {
 			defer func() { <-sem; wg.Done() }()
-			s, err := dial(wsURL.String(), u.String())
+			s, err := dial(socketURL(wsURL, o.Locales, i), u.String())
 			if err != nil {
 				fmt.Fprintf(o.Out, "dial %d: %v\n", i, err)
 				return
@@ -214,18 +217,29 @@ func Run(ctx context.Context, o Options) (Result, error) {
 	}
 	for _, s := range sockets {
 		s.conn.Close()
+		res.WrongLocale += s.wrongLocale()
 	}
 
-	// 5. A late joiner gets the Room's cached fragment on connect, without any new change.
-	if s, err := dial(wsURL.String(), u.String()); err == nil {
+	// 5. A late joiner (in the last locale) gets the Room's cached fragment on connect, without any new change.
+	if s, err := dial(socketURL(wsURL, o.Locales, max(len(o.Locales)-1, 0)), u.String()); err == nil {
 		res.LateJoinerCached = waitUntil(ctx, 2*time.Second, func() bool {
 			_, ok := s.firstAtLeast(res.Newest)
 			return ok
 		})
 		s.conn.Close()
+		res.WrongLocale += s.wrongLocale()
 	}
 	fmt.Fprintf(o.Out, "late joiner got cached version ≥ %d: %v\n", res.Newest, res.LateJoinerCached)
+	if len(o.Locales) > 0 {
+		fmt.Fprintf(o.Out, "board pushes in the wrong locale across %s: %d\n", strings.Join(o.Locales, ","), res.WrongLocale)
+	}
 	return res, nil
+}
+
+func (s *socket) wrongLocale() int {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return s.wrong
 }
 
 func hold(ctx context.Context, o Options, sockets []*socket) {
@@ -275,8 +289,20 @@ func post(ctx context.Context, hc *http.Client, base, topic string) (int64, erro
 	return strconv.ParseInt(string(m[1]), 10, 64)
 }
 
+// socketURL is the WebSocket URL for socket i, with its locale when Locales is set.
+func socketURL(base url.URL, locales []string, i int) string {
+	if len(locales) > 0 {
+		q := base.Query()
+		q.Set("locale", locales[i%len(locales)])
+		base.RawQuery = q.Encode()
+	}
+	return base.String()
+}
+
 type socket struct {
 	conn     *websocket.Conn
+	locale   string // expected lang of board pushes ("" = don't check)
+	wrong    int    // board pushes in another locale
 	mu       sync.Mutex
 	pong     bool
 	presence int64     // latest "N online" (-1 until the first)
@@ -291,6 +317,10 @@ type hit struct {
 }
 
 func dial(wsURL, origin string) (*socket, error) {
+	locale := ""
+	if pu, err := url.Parse(wsURL); err == nil {
+		locale = pu.Query().Get("locale")
+	}
 	cfg, err := websocket.NewConfig(wsURL, origin)
 	if err != nil {
 		return nil, err
@@ -299,7 +329,7 @@ func dial(wsURL, origin string) (*socket, error) {
 	if err != nil {
 		return nil, err
 	}
-	s := &socket{conn: conn, presence: -1}
+	s := &socket{conn: conn, presence: -1, locale: locale}
 	go s.read()
 	return s, nil
 }
@@ -323,6 +353,9 @@ func (s *socket) read() {
 		} else if m := versionRe.FindStringSubmatch(msg); m != nil && strings.Contains(msg, `id="board"`) {
 			v, _ := strconv.ParseInt(m[1], 10, 64)
 			s.hits = append(s.hits, hit{v, now})
+			if l := langRe.FindStringSubmatch(msg); l != nil && s.locale != "" && !strings.EqualFold(l[1], s.locale) {
+				s.wrong++
+			}
 		}
 		s.mu.Unlock()
 	}

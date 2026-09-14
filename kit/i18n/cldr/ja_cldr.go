@@ -34,6 +34,7 @@ var locJa = i18n.LocaleData{
 					Infinity:          "∞",
 					NaN:               "NaN",
 					ApproximatelySign: "約",
+					TimeSeparator:     ":",
 				},
 				Decimal: i18n.NumPattern{
 					Set:     true,
@@ -2442,5 +2443,664 @@ var locJa = i18n.LocaleData{
 			Code: "Hant",
 			Name: "繁体字",
 		},
+	},
+	Relative: i18n.RelativeData{
+		Units: [8][3]i18n.RelativeUnit{{
+			{
+				Phrases: []i18n.RelPhrase{
+					{
+						Offset: -1,
+						Text:   "昨年",
+					},
+					{
+						Text: "今年",
+					},
+					{
+						Offset: 1,
+						Text:   "来年",
+					},
+				},
+				Future: [i18n.PluralCatCount]string{"", "", "", "", "", "{0} 年後"},
+				Past:   [i18n.PluralCatCount]string{"", "", "", "", "", "{0} 年前"},
+			},
+			{
+				Phrases: []i18n.RelPhrase{
+					{
+						Offset: -1,
+						Text:   "昨年",
+					},
+					{
+						Text: "今年",
+					},
+					{
+						Offset: 1,
+						Text:   "来年",
+					},
+				},
+				Future: [i18n.PluralCatCount]string{"", "", "", "", "", "{0} 年後"},
+				Past:   [i18n.PluralCatCount]string{"", "", "", "", "", "{0} 年前"},
+			},
+			{
+				Phrases: []i18n.RelPhrase{
+					{
+						Offset: -1,
+						Text:   "昨年",
+					},
+					{
+						Text: "今年",
+					},
+					{
+						Offset: 1,
+						Text:   "来年",
+					},
+				},
+				Future: [i18n.PluralCatCount]string{"", "", "", "", "", "{0}年後"},
+				Past:   [i18n.PluralCatCount]string{"", "", "", "", "", "{0}年前"},
+			},
+		}, {
+			{
+				Phrases: []i18n.RelPhrase{
+					{
+						Offset: -1,
+						Text:   "前四半期",
+					},
+					{
+						Text: "今四半期",
+					},
+					{
+						Offset: 1,
+						Text:   "翌四半期",
+					},
+				},
+				Future: [i18n.PluralCatCount]string{"", "", "", "", "", "{0} 四半期後"},
+				Past:   [i18n.PluralCatCount]string{"", "", "", "", "", "{0} 四半期前"},
+			},
+			{
+				Phrases: []i18n.RelPhrase{
+					{
+						Offset: -1,
+						Text:   "前四半期",
+					},
+					{
+						Text: "今四半期",
+					},
+					{
+						Offset: 1,
+						Text:   "翌四半期",
+					},
+				},
+				Future: [i18n.PluralCatCount]string{"", "", "", "", "", "{0} 四半期後"},
+				Past:   [i18n.PluralCatCount]string{"", "", "", "", "", "{0} 四半期前"},
+			},
+			{
+				Phrases: []i18n.RelPhrase{
+					{
+						Offset: -1,
+						Text:   "前四半期",
+					},
+					{
+						Text: "今四半期",
+					},
+					{
+						Offset: 1,
+						Text:   "翌四半期",
+					},
+				},
+				Future: [i18n.PluralCatCount]string{"", "", "", "", "", "{0}四半期後"},
+				Past:   [i18n.PluralCatCount]string{"", "", "", "", "", "{0}四半期前"},
+			},
+		}, {
+			{
+				Phrases: []i18n.RelPhrase{
+					{
+						Offset: -1,
+						Text:   "先月",
+					},
+					{
+						Text: "今月",
+					},
+					{
+						Offset: 1,
+						Text:   "来月",
+					},
+				},
+				Future: [i18n.PluralCatCount]string{"", "", "", "", "", "{0} か月後"},
+				Past:   [i18n.PluralCatCount]string{"", "", "", "", "", "{0} か月前"},
+			},
+			{
+				Phrases: []i18n.RelPhrase{
+					{
+						Offset: -1,
+						Text:   "先月",
+					},
+					{
+						Text: "今月",
+					},
+					{
+						Offset: 1,
+						Text:   "来月",
+					},
+				},
+				Future: [i18n.PluralCatCount]string{"", "", "", "", "", "{0} か月後"},
+				Past:   [i18n.PluralCatCount]string{"", "", "", "", "", "{0} か月前"},
+			},
+			{
+				Phrases: []i18n.RelPhrase{
+					{
+						Offset: -1,
+						Text:   "先月",
+					},
+					{
+						Text: "今月",
+					},
+					{
+						Offset: 1,
+						Text:   "来月",
+					},
+				},
+				Future: [i18n.PluralCatCount]string{"", "", "", "", "", "{0}か月後"},
+				Past:   [i18n.PluralCatCount]string{"", "", "", "", "", "{0}か月前"},
+			},
+		}, {
+			{
+				Phrases: []i18n.RelPhrase{
+					{
+						Offset: -1,
+						Text:   "先週",
+					},
+					{
+						Text: "今週",
+					},
+					{
+						Offset: 1,
+						Text:   "来週",
+					},
+				},
+				Future: [i18n.PluralCatCount]string{"", "", "", "", "", "{0} 週間後"},
+				Past:   [i18n.PluralCatCount]string{"", "", "", "", "", "{0} 週間前"},
+			},
+			{
+				Phrases: []i18n.RelPhrase{
+					{
+						Offset: -1,
+						Text:   "先週",
+					},
+					{
+						Text: "今週",
+					},
+					{
+						Offset: 1,
+						Text:   "来週",
+					},
+				},
+				Future: [i18n.PluralCatCount]string{"", "", "", "", "", "{0} 週間後"},
+				Past:   [i18n.PluralCatCount]string{"", "", "", "", "", "{0} 週間前"},
+			},
+			{
+				Phrases: []i18n.RelPhrase{
+					{
+						Offset: -1,
+						Text:   "先週",
+					},
+					{
+						Text: "今週",
+					},
+					{
+						Offset: 1,
+						Text:   "来週",
+					},
+				},
+				Future: [i18n.PluralCatCount]string{"", "", "", "", "", "{0}週間後"},
+				Past:   [i18n.PluralCatCount]string{"", "", "", "", "", "{0}週間前"},
+			},
+		}, {
+			{
+				Phrases: []i18n.RelPhrase{
+					{
+						Offset: -2,
+						Text:   "一昨日",
+					},
+					{
+						Offset: -1,
+						Text:   "昨日",
+					},
+					{
+						Text: "今日",
+					},
+					{
+						Offset: 1,
+						Text:   "明日",
+					},
+					{
+						Offset: 2,
+						Text:   "明後日",
+					},
+				},
+				Future: [i18n.PluralCatCount]string{"", "", "", "", "", "{0} 日後"},
+				Past:   [i18n.PluralCatCount]string{"", "", "", "", "", "{0} 日前"},
+			},
+			{
+				Phrases: []i18n.RelPhrase{
+					{
+						Offset: -2,
+						Text:   "一昨日",
+					},
+					{
+						Offset: -1,
+						Text:   "昨日",
+					},
+					{
+						Text: "今日",
+					},
+					{
+						Offset: 1,
+						Text:   "明日",
+					},
+					{
+						Offset: 2,
+						Text:   "明後日",
+					},
+				},
+				Future: [i18n.PluralCatCount]string{"", "", "", "", "", "{0} 日後"},
+				Past:   [i18n.PluralCatCount]string{"", "", "", "", "", "{0} 日前"},
+			},
+			{
+				Phrases: []i18n.RelPhrase{
+					{
+						Offset: -2,
+						Text:   "一昨日",
+					},
+					{
+						Offset: -1,
+						Text:   "昨日",
+					},
+					{
+						Text: "今日",
+					},
+					{
+						Offset: 1,
+						Text:   "明日",
+					},
+					{
+						Offset: 2,
+						Text:   "明後日",
+					},
+				},
+				Future: [i18n.PluralCatCount]string{"", "", "", "", "", "{0}日後"},
+				Past:   [i18n.PluralCatCount]string{"", "", "", "", "", "{0}日前"},
+			},
+		}, {
+			{
+				Phrases: []i18n.RelPhrase{
+					{
+						Text: "1 時間以内",
+					},
+				},
+				Future: [i18n.PluralCatCount]string{"", "", "", "", "", "{0} 時間後"},
+				Past:   [i18n.PluralCatCount]string{"", "", "", "", "", "{0} 時間前"},
+			},
+			{
+				Phrases: []i18n.RelPhrase{
+					{
+						Text: "1 時間以内",
+					},
+				},
+				Future: [i18n.PluralCatCount]string{"", "", "", "", "", "{0} 時間後"},
+				Past:   [i18n.PluralCatCount]string{"", "", "", "", "", "{0} 時間前"},
+			},
+			{
+				Phrases: []i18n.RelPhrase{
+					{
+						Text: "1 時間以内",
+					},
+				},
+				Future: [i18n.PluralCatCount]string{"", "", "", "", "", "{0}時間後"},
+				Past:   [i18n.PluralCatCount]string{"", "", "", "", "", "{0}時間前"},
+			},
+		}, {
+			{
+				Phrases: []i18n.RelPhrase{
+					{
+						Text: "1 分以内",
+					},
+				},
+				Future: [i18n.PluralCatCount]string{"", "", "", "", "", "{0} 分後"},
+				Past:   [i18n.PluralCatCount]string{"", "", "", "", "", "{0} 分前"},
+			},
+			{
+				Phrases: []i18n.RelPhrase{
+					{
+						Text: "1 分以内",
+					},
+				},
+				Future: [i18n.PluralCatCount]string{"", "", "", "", "", "{0} 分後"},
+				Past:   [i18n.PluralCatCount]string{"", "", "", "", "", "{0} 分前"},
+			},
+			{
+				Phrases: []i18n.RelPhrase{
+					{
+						Text: "1 分以内",
+					},
+				},
+				Future: [i18n.PluralCatCount]string{"", "", "", "", "", "{0}分後"},
+				Past:   [i18n.PluralCatCount]string{"", "", "", "", "", "{0}分前"},
+			},
+		}, {
+			{
+				Phrases: []i18n.RelPhrase{
+					{
+						Text: "今",
+					},
+				},
+				Future: [i18n.PluralCatCount]string{"", "", "", "", "", "{0} 秒後"},
+				Past:   [i18n.PluralCatCount]string{"", "", "", "", "", "{0} 秒前"},
+			},
+			{
+				Phrases: []i18n.RelPhrase{
+					{
+						Text: "今",
+					},
+				},
+				Future: [i18n.PluralCatCount]string{"", "", "", "", "", "{0} 秒後"},
+				Past:   [i18n.PluralCatCount]string{"", "", "", "", "", "{0} 秒前"},
+			},
+			{
+				Phrases: []i18n.RelPhrase{
+					{
+						Text: "今",
+					},
+				},
+				Future: [i18n.PluralCatCount]string{"", "", "", "", "", "{0}秒後"},
+				Past:   [i18n.PluralCatCount]string{"", "", "", "", "", "{0}秒前"},
+			},
+		}},
+	},
+	Lists: i18n.ListData{
+		Patterns: [3][3]i18n.ListPattern{{
+			{
+				Two:    "{0}、{1}",
+				Start:  "{0}、{1}",
+				Middle: "{0}、{1}",
+				End:    "{0}、{1}",
+			},
+			{
+				Two:    "{0}、{1}",
+				Start:  "{0}、{1}",
+				Middle: "{0}、{1}",
+				End:    "{0}、{1}",
+			},
+			{
+				Two:    "{0}、{1}",
+				Start:  "{0}、{1}",
+				Middle: "{0}、{1}",
+				End:    "{0}、{1}",
+			},
+		}, {
+			{
+				Two:    "{0}または{1}",
+				Start:  "{0}、{1}",
+				Middle: "{0}、{1}",
+				End:    "{0}、または{1}",
+			},
+			{
+				Two:    "{0}または{1}",
+				Start:  "{0}、{1}",
+				Middle: "{0}、{1}",
+				End:    "{0}、または{1}",
+			},
+			{
+				Two:    "{0}または{1}",
+				Start:  "{0}、{1}",
+				Middle: "{0}、{1}",
+				End:    "{0}、または{1}",
+			},
+		}, {
+			{
+				Two:    "{0} {1}",
+				Start:  "{0} {1}",
+				Middle: "{0} {1}",
+				End:    "{0} {1}",
+			},
+			{
+				Two:    "{0} {1}",
+				Start:  "{0} {1}",
+				Middle: "{0} {1}",
+				End:    "{0} {1}",
+			},
+			{
+				Two:    "{0}{1}",
+				Start:  "{0}{1}",
+				Middle: "{0}{1}",
+				End:    "{0}{1}",
+			},
+		}},
+	},
+	Units: i18n.UnitData{
+		Units: []i18n.UnitPatterns{
+			{
+				ID:       "acre",
+				Patterns: [3][i18n.PluralCatCount]string{{"", "", "", "", "", "{0} ac"}, {"", "", "", "", "", "{0} エーカー"}, {"", "", "", "", "", "{0}ac"}},
+			},
+			{
+				ID:       "bit",
+				Patterns: [3][i18n.PluralCatCount]string{{"", "", "", "", "", "{0} bit"}, {"", "", "", "", "", "{0} ビット"}, {"", "", "", "", "", "{0}b"}},
+			},
+			{
+				ID:       "byte",
+				Patterns: [3][i18n.PluralCatCount]string{{"", "", "", "", "", "{0} byte"}, {"", "", "", "", "", "{0} バイト"}, {"", "", "", "", "", "{0}B"}},
+			},
+			{
+				ID:       "celsius",
+				Patterns: [3][i18n.PluralCatCount]string{{"", "", "", "", "", "{0}°C"}, {"", "", "", "", "", "摂氏 {0} 度"}, {"", "", "", "", "", "{0}°C"}},
+			},
+			{
+				ID:       "centimeter",
+				Patterns: [3][i18n.PluralCatCount]string{{"", "", "", "", "", "{0} cm"}, {"", "", "", "", "", "{0} センチメートル"}, {"", "", "", "", "", "{0}cm"}},
+				PerUnit:  [3]string{"{0}/cm", "{0}/センチメートル", "{0}/cm"},
+			},
+			{
+				ID:       "day",
+				Patterns: [3][i18n.PluralCatCount]string{{"", "", "", "", "", "{0} 日"}, {"", "", "", "", "", "{0} 日"}, {"", "", "", "", "", "{0}d"}},
+				PerUnit:  [3]string{"{0}/日", "{0}/日", "{0}/日"},
+			},
+			{
+				ID:       "degree",
+				Patterns: [3][i18n.PluralCatCount]string{{"", "", "", "", "", "{0} 度"}, {"", "", "", "", "", "{0} 度"}, {"", "", "", "", "", "{0}°"}},
+			},
+			{
+				ID:       "fahrenheit",
+				Patterns: [3][i18n.PluralCatCount]string{{"", "", "", "", "", "{0}°F"}, {"", "", "", "", "", "華氏 {0} 度"}, {"", "", "", "", "", "{0}°F"}},
+			},
+			{
+				ID:       "fluid-ounce",
+				Patterns: [3][i18n.PluralCatCount]string{{"", "", "", "", "", "{0} fl oz"}, {"", "", "", "", "", "{0} 液量オンス"}, {"", "", "", "", "", "{0}fl oz"}},
+			},
+			{
+				ID:       "foot",
+				Patterns: [3][i18n.PluralCatCount]string{{"", "", "", "", "", "{0} ft"}, {"", "", "", "", "", "{0} フィート"}, {"", "", "", "", "", "{0}′"}},
+				PerUnit:  [3]string{"{0}/ft", "{0}/フィート", "{0}/ft"},
+			},
+			{
+				ID:       "gallon",
+				Patterns: [3][i18n.PluralCatCount]string{{"", "", "", "", "", "{0} gal"}, {"", "", "", "", "", "{0} ガロン"}, {"", "", "", "", "", "{0}gal"}},
+				PerUnit:  [3]string{"{0}/gal", "{0}/ガロン", "{0}/gal"},
+			},
+			{
+				ID:       "gigabit",
+				Patterns: [3][i18n.PluralCatCount]string{{"", "", "", "", "", "{0} Gb"}, {"", "", "", "", "", "{0} ギガビット"}, {"", "", "", "", "", "{0}Gb"}},
+			},
+			{
+				ID:       "gigabyte",
+				Patterns: [3][i18n.PluralCatCount]string{{"", "", "", "", "", "{0} GB"}, {"", "", "", "", "", "{0} ギガバイト"}, {"", "", "", "", "", "{0}GB"}},
+			},
+			{
+				ID:       "gram",
+				Patterns: [3][i18n.PluralCatCount]string{{"", "", "", "", "", "{0} g"}, {"", "", "", "", "", "{0} グラム"}, {"", "", "", "", "", "{0}g"}},
+				PerUnit:  [3]string{"{0}/g", "{0}/グラム", "{0}/g"},
+			},
+			{
+				ID:       "hectare",
+				Patterns: [3][i18n.PluralCatCount]string{{"", "", "", "", "", "{0} ha"}, {"", "", "", "", "", "{0} ヘクタール"}, {"", "", "", "", "", "{0}ha"}},
+			},
+			{
+				ID:       "hour",
+				Patterns: [3][i18n.PluralCatCount]string{{"", "", "", "", "", "{0} 時間"}, {"", "", "", "", "", "{0} 時間"}, {"", "", "", "", "", "{0}h"}},
+				PerUnit:  [3]string{"{0}/時間", "{0}/時間", "{0}/時間"},
+			},
+			{
+				ID:       "inch",
+				Patterns: [3][i18n.PluralCatCount]string{{"", "", "", "", "", "{0} in"}, {"", "", "", "", "", "{0} インチ"}, {"", "", "", "", "", "{0}″"}},
+				PerUnit:  [3]string{"{0}/in", "{0}/インチ", "{0}/in"},
+			},
+			{
+				ID:       "kilobit",
+				Patterns: [3][i18n.PluralCatCount]string{{"", "", "", "", "", "{0} kb"}, {"", "", "", "", "", "{0} キロビット"}, {"", "", "", "", "", "{0}kb"}},
+			},
+			{
+				ID:       "kilobyte",
+				Patterns: [3][i18n.PluralCatCount]string{{"", "", "", "", "", "{0} KB"}, {"", "", "", "", "", "{0} キロバイト"}, {"", "", "", "", "", "{0}KB"}},
+			},
+			{
+				ID:       "kilogram",
+				Patterns: [3][i18n.PluralCatCount]string{{"", "", "", "", "", "{0} kg"}, {"", "", "", "", "", "{0} キログラム"}, {"", "", "", "", "", "{0}kg"}},
+				PerUnit:  [3]string{"{0}/kg", "{0}/キログラム", "{0}/kg"},
+			},
+			{
+				ID:       "kilometer",
+				Patterns: [3][i18n.PluralCatCount]string{{"", "", "", "", "", "{0} km"}, {"", "", "", "", "", "{0} キロメートル"}, {"", "", "", "", "", "{0}km"}},
+				PerUnit:  [3]string{"{0}/km", "{0}/キロメートル", "{0}/km"},
+			},
+			{
+				ID:       "kilometer-per-hour",
+				Patterns: [3][i18n.PluralCatCount]string{{"", "", "", "", "", "{0} km/h"}, {"", "", "", "", "", "時速 {0} キロメートル"}, {"", "", "", "", "", "{0}km/h"}},
+			},
+			{
+				ID:       "liter",
+				Patterns: [3][i18n.PluralCatCount]string{{"", "", "", "", "", "{0} L"}, {"", "", "", "", "", "{0} リットル"}, {"", "", "", "", "", "{0}L"}},
+				PerUnit:  [3]string{"{0}/L", "{0}/リットル", "{0}/L"},
+			},
+			{
+				ID:       "liter-per-kilometer",
+				Patterns: [3][i18n.PluralCatCount]string{{"", "", "", "", "", "{0} L/km"}, {"", "", "", "", "", "{0} リットル毎キロメートル"}, {"", "", "", "", "", "{0}L/km"}},
+			},
+			{
+				ID:       "megabit",
+				Patterns: [3][i18n.PluralCatCount]string{{"", "", "", "", "", "{0} Mb"}, {"", "", "", "", "", "{0} メガビット"}, {"", "", "", "", "", "{0}Mb"}},
+			},
+			{
+				ID:       "megabyte",
+				Patterns: [3][i18n.PluralCatCount]string{{"", "", "", "", "", "{0} MB"}, {"", "", "", "", "", "{0} メガバイト"}, {"", "", "", "", "", "{0}MB"}},
+			},
+			{
+				ID:       "meter",
+				Patterns: [3][i18n.PluralCatCount]string{{"", "", "", "", "", "{0} m"}, {"", "", "", "", "", "{0} メートル"}, {"", "", "", "", "", "{0}m"}},
+				PerUnit:  [3]string{"{0}/m", "{0}/メートル", "{0}/m"},
+			},
+			{
+				ID:       "meter-per-second",
+				Patterns: [3][i18n.PluralCatCount]string{{"", "", "", "", "", "{0} m/s"}, {"", "", "", "", "", "秒速 {0} メートル"}, {"", "", "", "", "", "{0}m/s"}},
+			},
+			{
+				ID:       "microsecond",
+				Patterns: [3][i18n.PluralCatCount]string{{"", "", "", "", "", "{0} μs"}, {"", "", "", "", "", "{0} マイクロ秒"}, {"", "", "", "", "", "{0}μs"}},
+			},
+			{
+				ID:       "mile",
+				Patterns: [3][i18n.PluralCatCount]string{{"", "", "", "", "", "{0} mi"}, {"", "", "", "", "", "{0} マイル"}, {"", "", "", "", "", "{0}mi"}},
+			},
+			{
+				ID:       "mile-per-gallon",
+				Patterns: [3][i18n.PluralCatCount]string{{"", "", "", "", "", "{0} mpg"}, {"", "", "", "", "", "{0} マイル毎ガロン"}, {"", "", "", "", "", "{0}mpg"}},
+			},
+			{
+				ID:       "mile-per-hour",
+				Patterns: [3][i18n.PluralCatCount]string{{"", "", "", "", "", "{0} mph"}, {"", "", "", "", "", "時速 {0} マイル"}, {"", "", "", "", "", "{0}mi/h"}},
+			},
+			{
+				ID:       "mile-scandinavian",
+				Patterns: [3][i18n.PluralCatCount]string{{"", "", "", "", "", "{0} smi"}, {"", "", "", "", "", "{0} スカンジナビアマイル"}, {"", "", "", "", "", "{0}smi"}},
+			},
+			{
+				ID:       "milliliter",
+				Patterns: [3][i18n.PluralCatCount]string{{"", "", "", "", "", "{0} ml"}, {"", "", "", "", "", "{0} ミリリットル"}, {"", "", "", "", "", "{0}ml"}},
+			},
+			{
+				ID:       "millimeter",
+				Patterns: [3][i18n.PluralCatCount]string{{"", "", "", "", "", "{0} mm"}, {"", "", "", "", "", "{0} ミリメートル"}, {"", "", "", "", "", "{0}mm"}},
+			},
+			{
+				ID:       "millisecond",
+				Patterns: [3][i18n.PluralCatCount]string{{"", "", "", "", "", "{0} ms"}, {"", "", "", "", "", "{0} ミリ秒"}, {"", "", "", "", "", "{0}ms"}},
+			},
+			{
+				ID:       "minute",
+				Patterns: [3][i18n.PluralCatCount]string{{"", "", "", "", "", "{0} 分"}, {"", "", "", "", "", "{0} 分"}, {"", "", "", "", "", "{0}m"}},
+				PerUnit:  [3]string{"{0}/分", "{0}/分", "{0}/分"},
+			},
+			{
+				ID:       "month",
+				Patterns: [3][i18n.PluralCatCount]string{{"", "", "", "", "", "{0} か月"}, {"", "", "", "", "", "{0} か月"}, {"", "", "", "", "", "{0}m"}},
+				PerUnit:  [3]string{"{0}/月", "{0}/月", "{0}/月"},
+			},
+			{
+				ID:       "nanosecond",
+				Patterns: [3][i18n.PluralCatCount]string{{"", "", "", "", "", "{0} ns"}, {"", "", "", "", "", "{0} ナノ秒"}, {"", "", "", "", "", "{0}ns"}},
+			},
+			{
+				ID:       "ounce",
+				Patterns: [3][i18n.PluralCatCount]string{{"", "", "", "", "", "{0} oz"}, {"", "", "", "", "", "{0} オンス"}, {"", "", "", "", "", "{0}oz"}},
+				PerUnit:  [3]string{"{0}/oz", "{0}/オンス", "{0}/oz"},
+			},
+			{
+				ID:       "percent",
+				Patterns: [3][i18n.PluralCatCount]string{{"", "", "", "", "", "{0}%"}, {"", "", "", "", "", "{0} パーセント"}, {"", "", "", "", "", "{0}%"}},
+			},
+			{
+				ID:       "petabyte",
+				Patterns: [3][i18n.PluralCatCount]string{{"", "", "", "", "", "{0} PB"}, {"", "", "", "", "", "{0} ペタバイト"}, {"", "", "", "", "", "{0}PB"}},
+			},
+			{
+				ID:       "pound",
+				Patterns: [3][i18n.PluralCatCount]string{{"", "", "", "", "", "{0} lb"}, {"", "", "", "", "", "{0} ポンド"}, {"", "", "", "", "", "{0}lb"}},
+				PerUnit:  [3]string{"{0}/lb", "{0}/ポンド", "{0}/lb"},
+			},
+			{
+				ID:       "second",
+				Patterns: [3][i18n.PluralCatCount]string{{"", "", "", "", "", "{0} 秒"}, {"", "", "", "", "", "{0} 秒"}, {"", "", "", "", "", "{0}s"}},
+				PerUnit:  [3]string{"{0}/秒", "{0}/秒", "{0}/秒"},
+			},
+			{
+				ID:       "stone",
+				Patterns: [3][i18n.PluralCatCount]string{{"", "", "", "", "", "{0} st"}, {"", "", "", "", "", "{0} ストーン"}, {"", "", "", "", "", "{0}st"}},
+			},
+			{
+				ID:       "terabit",
+				Patterns: [3][i18n.PluralCatCount]string{{"", "", "", "", "", "{0} Tb"}, {"", "", "", "", "", "{0} テラビット"}, {"", "", "", "", "", "{0}Tb"}},
+			},
+			{
+				ID:       "terabyte",
+				Patterns: [3][i18n.PluralCatCount]string{{"", "", "", "", "", "{0} TB"}, {"", "", "", "", "", "{0} テラバイト"}, {"", "", "", "", "", "{0}TB"}},
+			},
+			{
+				ID:       "week",
+				Patterns: [3][i18n.PluralCatCount]string{{"", "", "", "", "", "{0} 週間"}, {"", "", "", "", "", "{0} 週間"}, {"", "", "", "", "", "{0}w"}},
+				PerUnit:  [3]string{"{0}/週", "{0}/週", "{0}/週"},
+			},
+			{
+				ID:       "yard",
+				Patterns: [3][i18n.PluralCatCount]string{{"", "", "", "", "", "{0} yd"}, {"", "", "", "", "", "{0} ヤード"}, {"", "", "", "", "", "{0}yd"}},
+			},
+			{
+				ID:       "year",
+				Patterns: [3][i18n.PluralCatCount]string{{"", "", "", "", "", "{0} 年"}, {"", "", "", "", "", "{0} 年"}, {"", "", "", "", "", "{0}y"}},
+				PerUnit:  [3]string{"{0}/年", "{0}/年", "{0}/年"},
+			},
+		},
+		Per: [3]string{"{0}/{1}", "{0}毎{1}", "{0}/{1}"},
+	},
+	Duration: i18n.DurationData{
+		HM:  "h:mm",
+		HMS: "h:mm:ss",
+		MS:  "m:ss",
 	},
 }

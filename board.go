@@ -12,6 +12,8 @@ import (
 	"bytes"
 	"context"
 	"errors"
+	"github.com/joeblew999/go-htmx4/kit/i18n"
+	"github.com/joeblew999/go-htmx4/kit/i18n/cldr"
 	"log"
 	"net/http"
 	"strconv"
@@ -86,7 +88,7 @@ func (s *server) boardRoutes(mux *http.ServeMux) {
 		if s.limited(w, r) {
 			return
 		}
-		change(w, topic, func(st store) (Board, error) { return st.Add(topic, delta) })
+		change(w, r, topic, func(st store) (Board, error) { return st.Add(topic, delta) })
 	})
 	mux.HandleFunc("/board/note", func(w http.ResponseWriter, r *http.Request) {
 		topic, ok := topicOf(w, r)
@@ -101,7 +103,7 @@ func (s *server) boardRoutes(mux *http.ServeMux) {
 		if s.limited(w, r) {
 			return
 		}
-		change(w, topic, func(st store) (Board, error) { return st.AddNote(topic, body) })
+		change(w, r, topic, func(st store) (Board, error) { return st.AddNote(topic, body) })
 	})
 }
 
@@ -119,7 +121,7 @@ func (s *server) limited(w http.ResponseWriter, r *http.Request) bool {
 // change applies a write, publishes the new fragment to the topic's Room, and returns the
 // fragment to the poster. A failed publish only delays other tabs: the Room's cache and the
 // next change catch them up.
-func change(w http.ResponseWriter, topic string, write func(store) (Board, error)) {
+func change(w http.ResponseWriter, r *http.Request, topic string, write func(store) (Board, error)) {
 	st, err := newStore()
 	if err != nil {
 		storeError(w, err)
@@ -130,11 +132,11 @@ func change(w http.ResponseWriter, topic string, write func(store) (Board, error
 		storeError(w, err)
 		return
 	}
-	fragment := renderBoard(b)
-	if err := publish(topic, b.Version, fragment); err != nil {
+	fragments := renderBoardLocales(r.Context(), b)
+	if err := publish(topic, b.Version, fragments); err != nil {
 		log.Printf("publish %s v%d: %v", topic, b.Version, err)
 	}
-	httpx.WriteHTML(w, []byte(fragment))
+	httpx.WriteHTML(w, []byte(fragments.Fragments[views.LocaleKey(views.Loc(r.Context()).Data)]))
 }
 
 // topicOf reads ?topic= (default "lobby") and checks it with live.ValidTopic, the rule worker/index.mjs
@@ -156,12 +158,23 @@ func storeError(w http.ResponseWriter, err error) {
 	http.Error(w, "store unavailable", http.StatusInternalServerError)
 }
 
-// renderBoard returns BoardFragment as a string: the poster's response and the Room publish carry
-// the same bytes.
-func renderBoard(b Board) string {
+// renderBoard returns BoardFragment for the context's locale as a string.
+func renderBoard(ctx context.Context, b Board) string {
 	var buf bytes.Buffer
-	if err := views.BoardFragment(b).Render(context.Background(), &buf); err != nil {
+	if err := views.BoardFragment(b).Render(ctx, &buf); err != nil {
 		log.Printf("render board %s v%d: %v", b.Topic, b.Version, err)
 	}
 	return buf.String()
+}
+
+// renderBoardLocales renders the board once per shipped locale: the Room sends each browser the fragment
+// in its page's locale, and the poster gets its own from the same set.
+func renderBoardLocales(ctx context.Context, b Board) live.Localized {
+	out := live.Localized{Default: views.LocaleKey(cldr.Data.Locales[0]), Fragments: map[string]string{}}
+	for _, ld := range cldr.Data.Locales {
+		loc, _ := cldr.Data.Locale(i18n.MustParseTag(ld.ID))
+		lctx := i18n.WithRequest(ctx, i18n.Request{Locale: loc, Path: "/board"})
+		out.Fragments[views.LocaleKey(ld)] = renderBoard(lctx, b)
+	}
+	return out
 }

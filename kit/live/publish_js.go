@@ -12,10 +12,10 @@ import (
 	"github.com/syumai/workers-go/cloudflare"
 )
 
-// Publish hands fragment to topic's Room through the Durable Object namespace bound as binding (e.g.
-// "ROOM"), which pushes it to every browser connected to that topic. A failed publish only delays
-// other tabs: the Room's cache and the next publish catch them up.
-func Publish(binding, topic string, version int64, fragment string) error {
+// Publish hands one version of a fragment, rendered per locale, to topic's Room through the Durable Object
+// namespace bound as binding (e.g. "ROOM"), which pushes each connected browser its locale's fragment. A
+// failed publish only delays other tabs: the Room's cache and the next publish catch them up.
+func Publish(binding, topic string, version int64, fragments Localized) error {
 	ns, err := cloudflare.NewDurableObjectNamespace(binding)
 	if err != nil {
 		return err
@@ -24,7 +24,7 @@ func Publish(binding, topic string, version int64, fragment string) error {
 	if err != nil {
 		return err
 	}
-	req, err := http.NewRequest(http.MethodPost, "https://room/publish", strings.NewReader(fragment))
+	req, err := http.NewRequest(http.MethodPost, "https://room/publish", strings.NewReader(string(fragments.JSON())))
 	if err != nil {
 		return err
 	}

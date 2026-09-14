@@ -14,6 +14,7 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"strings"
 	"time"
 
 	"github.com/joeblew999/go-htmx4/kit/wsload"
@@ -29,7 +30,11 @@ func main() {
 	flag.IntVar(&o.Writes, "writes", 1, "concurrent POST /board/add requests")
 	flag.DurationVar(&o.Timeout, "timeout", 15*time.Second, "how long to wait for delivery")
 	flag.DurationVar(&o.Hold, "hold", 0, "after the checks, keep the sockets open this long and report drops")
+	locales := flag.String("locales", "", "comma-separated ?locale= values spread over the sockets (each must get only its own fragments)")
 	flag.Parse()
+	if *locales != "" {
+		o.Locales = strings.Split(*locales, ",")
+	}
 	o.Out = os.Stdout
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)

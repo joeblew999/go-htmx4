@@ -33,8 +33,8 @@ func newStore() (store, error) {
 	return sqlStore{db}, nil
 }
 
-// publish hands a board fragment to the topic's Room Durable Object (worker/room.mjs, bound as ROOM),
-// which pushes it to every connected browser.
-func publish(topic string, version int64, fragment string) error {
-	return live.Publish("ROOM", topic, version, fragment)
+// publish hands a board version, rendered for every locale, to the topic's Room Durable Object
+// (worker/room.mjs, bound as ROOM), which pushes each connected browser its locale's fragment.
+func publish(topic string, version int64, fragments live.Localized) error {
+	return live.Publish("ROOM", topic, version, fragments)
 }

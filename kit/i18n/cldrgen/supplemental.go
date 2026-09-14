@@ -196,6 +196,7 @@ func (g *gen) rootSymbols() ([]i18n.SystemSymbols, error) {
 			PerMille          string   `xml:"perMille"`
 			Infinity          string   `xml:"infinity"`
 			NaN               string   `xml:"nan"`
+			TimeSeparator     string   `xml:"timeSeparator"`
 		} `xml:"numbers>symbols"`
 	}
 	if err := xml.Unmarshal(b, &root); err != nil {
@@ -209,7 +210,7 @@ func (g *gen) rootSymbols() ([]i18n.SystemSymbols, error) {
 		out = append(out, i18n.SystemSymbols{ID: s.System, Symbols: i18n.NumberSymbols{
 			Decimal: s.Decimal, Group: s.Group, Percent: s.PercentSign, PerMille: s.PerMille,
 			Minus: s.MinusSign, Plus: s.PlusSign, Exponential: s.Exponential, Infinity: s.Infinity,
-			NaN: s.NaN, ApproximatelySign: s.ApproximatelySign,
+			NaN: s.NaN, ApproximatelySign: s.ApproximatelySign, TimeSeparator: s.TimeSeparator,
 		}})
 	}
 	slices.SortFunc(out, func(a, b i18n.SystemSymbols) int { return strings.Compare(a.ID, b.ID) })

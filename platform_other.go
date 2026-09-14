@@ -3,6 +3,7 @@
 package main
 
 import (
+	"github.com/joeblew999/go-htmx4/kit/live"
 	"net/http"
 	"os"
 
@@ -30,4 +31,4 @@ func newStore() (store, error) { return mem, nil }
 
 // publish is a no-op under `go run .`: there are no Durable Objects or WebSockets, so only the
 // poster's response carries the new fragment.
-func publish(topic string, version int64, fragment string) error { return nil }
+func publish(topic string, version int64, fragments live.Localized) error { return nil }

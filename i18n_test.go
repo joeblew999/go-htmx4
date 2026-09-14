@@ -11,6 +11,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/joeblew999/go-htmx4/kit/i18n"
 	"github.com/joeblew999/go-htmx4/kit/i18n/cldr"
 	"github.com/joeblew999/go-htmx4/views"
 )
@@ -219,5 +220,40 @@ func TestFormatsPage(t *testing.T) {
 				t.Errorf("%s lacks %q", path, w)
 			}
 		}
+	}
+}
+
+// TestRelativeTimeJSMatchesGo keeps the browser's unit thresholds equal to kit/i18n's, so the text the
+// browser refreshes is the text the server rendered.
+func TestRelativeTimeJSMatchesGo(t *testing.T) {
+	js, err := os.ReadFile("static/relative-time.js")
+	if err != nil {
+		t.Fatal(err)
+	}
+	for name, want := range map[string]string{
+		"SECONDS_MAX": "45", "MINUTES_MAX": "45 * 60", "HOURS_MAX": "22 * 3600", "DAYS_MAX": "26 * 86400", "MONTHS_MAX": "320 * 86400",
+	} {
+		if !regexp.MustCompile(`\b` + name + ` = ` + regexp.QuoteMeta(want) + `\b`).Match(js) {
+			t.Errorf("static/relative-time.js: %s is not %s (kit/i18n Relative*Max)", name, want)
+		}
+	}
+	for want, got := range map[int]int{45: i18n.RelativeSecondsMax, 45 * 60: i18n.RelativeMinutesMax, 22 * 3600: i18n.RelativeHoursMax, 26 * 86400: i18n.RelativeDaysMax, 320 * 86400: i18n.RelativeMonthsMax} {
+		if want != got {
+			t.Errorf("kit/i18n threshold %d changed to %d: update static/relative-time.js too", want, got)
+		}
+	}
+}
+
+func TestNoteRelativeTime(t *testing.T) {
+	h := newServer().routes()
+	post := httptest.NewRequest("POST", "/de/board/note?topic=reltime", strings.NewReader("body=hallo"))
+	post.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	h.ServeHTTP(httptest.NewRecorder(), post)
+	page := get(t, h, "/de/board?topic=reltime").Body.String()
+	if !regexp.MustCompile(`<time datetime="20\d\d-\d\d-\d\dT\d\d:\d\d:\d\dZ" data-relative-time>(jetzt|vor \d+ Sekunden?)</time>`).MatchString(page) {
+		t.Errorf("German board page lacks a German relative <time> for the note")
+	}
+	if !strings.Contains(page, `src="/static/relative-time.js"`) {
+		t.Errorf("layout lacks static/relative-time.js")
 	}
 }

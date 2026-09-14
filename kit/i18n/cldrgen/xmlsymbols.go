@@ -16,7 +16,7 @@ type xmlSymbols map[string]map[string]string
 
 const inheritMarker = "↑↑↑"
 
-var symbolFields = []string{"decimal", "group", "percentSign", "plusSign", "minusSign", "approximatelySign", "exponential", "perMille", "infinity", "nan"}
+var symbolFields = []string{"decimal", "group", "percentSign", "plusSign", "minusSign", "approximatelySign", "exponential", "perMille", "infinity", "nan", "timeSeparator"}
 
 func (g *gen) xmlSymbolsOf(id string) (xmlSymbols, error) {
 	file := "common/main/" + strings.ReplaceAll(id, "-", "_") + ".xml"
@@ -85,7 +85,7 @@ func (g *gen) extraSymbols(ld *i18n.LocaleData) ([]i18n.SystemSymbols, error) {
 	latnField := map[string]string{
 		"decimal": latn.Decimal, "group": latn.Group, "percentSign": latn.Percent, "plusSign": latn.Plus,
 		"minusSign": latn.Minus, "approximatelySign": latn.ApproximatelySign, "exponential": latn.Exponential,
-		"perMille": latn.PerMille, "infinity": latn.Infinity, "nan": latn.NaN,
+		"perMille": latn.PerMille, "infinity": latn.Infinity, "nan": latn.NaN, "timeSeparator": latn.TimeSeparator,
 	}
 	var out []i18n.SystemSymbols
 	for _, ns := range g.data.NumberingSystems {
@@ -116,6 +116,7 @@ func (g *gen) extraSymbols(ld *i18n.LocaleData) ([]i18n.SystemSymbols, error) {
 			Decimal: resolved["decimal"], Group: resolved["group"], Percent: resolved["percentSign"],
 			Plus: resolved["plusSign"], Minus: resolved["minusSign"], ApproximatelySign: resolved["approximatelySign"],
 			Exponential: resolved["exponential"], PerMille: resolved["perMille"], Infinity: resolved["infinity"], NaN: resolved["nan"],
+			TimeSeparator: resolved["timeSeparator"],
 		}
 		fallback := latn
 		for _, rs := range g.data.RootSymbols {

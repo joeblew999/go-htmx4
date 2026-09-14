@@ -102,7 +102,95 @@ func NumberSections(ctx context.Context) []FormatSection {
 			})
 		}
 	}
-	return []FormatSection{numbers, money, plurals}
+	return []FormatSection{numbers, money, units(loc), relativeTimes(loc), lists(loc), durations(loc), plurals, week(loc)}
+}
+
+func units(loc *i18n.Locale) FormatSection {
+	sec := FormatSection{Title: "Units", Description: "Intl.NumberFormat style \"unit\": CLDR unit patterns with plural forms, per-units and compact numbers."}
+	add := func(label, opts string, o i18n.NumberOptions, in string) {
+		o.Style = i18n.StyleUnit
+		f, err := loc.NumberFormat(o)
+		if err != nil {
+			sec.Rows = append(sec.Rows, FormatRow{label, opts, "error: " + err.Error()})
+			return
+		}
+		sec.Rows = append(sec.Rows, FormatRow{label, opts, f.FormatString(in)})
+	}
+	add("1 kilometer", `{style: "unit", unit: "kilometer", unitDisplay: "long"}`, i18n.NumberOptions{Unit: "kilometer", UnitDisplay: i18n.Long}, "1")
+	add("2.5 kilometer", `{…, unitDisplay: "long"}`, i18n.NumberOptions{Unit: "kilometer", UnitDisplay: i18n.Long}, "2.5")
+	add("88 kilometer-per-hour", `{unit: "kilometer-per-hour"}`, i18n.NumberOptions{Unit: "kilometer-per-hour"}, "88")
+	add("21.5 celsius", `{unit: "celsius"}`, i18n.NumberOptions{Unit: "celsius"}, "21.5")
+	add("512 megabyte", `{unit: "megabyte", unitDisplay: "narrow"}`, i18n.NumberOptions{Unit: "megabyte", UnitDisplay: i18n.Narrow}, "512")
+	add("3 liter-per-kilometer", `{unit: "liter-per-kilometer", unitDisplay: "long"}`, i18n.NumberOptions{Unit: "liter-per-kilometer", UnitDisplay: i18n.Long}, "3")
+	add("1234567 meter", `{unit: "meter", notation: "compact", unitDisplay: "long"}`, i18n.NumberOptions{Unit: "meter", Notation: i18n.NotationCompact, UnitDisplay: i18n.Long}, "1234567")
+	return sec
+}
+
+func relativeTimes(loc *i18n.Locale) FormatSection {
+	sec := FormatSection{Title: "Relative time", Description: "Intl.RelativeTimeFormat: CLDR dateFields with plural rules; numeric \"auto\" uses words like yesterday."}
+	add := func(label, opts string, o i18n.RelativeTimeOptions, v float64, u i18n.RelUnit) {
+		s, err := loc.RelativeTimeFormat(o).Format(v, u)
+		if err != nil {
+			s = "error: " + err.Error()
+		}
+		sec.Rows = append(sec.Rows, FormatRow{label, opts, s})
+	}
+	add("-1 day", `{numeric: "auto"}`, i18n.RelativeTimeOptions{NumericAuto: true}, -1, i18n.RelDay)
+	add("2 day", `{numeric: "auto"}`, i18n.RelativeTimeOptions{NumericAuto: true}, 2, i18n.RelDay)
+	add("-3 hour", `{}`, i18n.RelativeTimeOptions{}, -3, i18n.RelHour)
+	add("5 minute", `{style: "short"}`, i18n.RelativeTimeOptions{Style: i18n.TextShort}, 5, i18n.RelMinute)
+	add("-1.5 week", `{style: "narrow"}`, i18n.RelativeTimeOptions{Style: i18n.TextNarrow}, -1.5, i18n.RelWeek)
+	add("1 quarter", `{numeric: "auto"}`, i18n.RelativeTimeOptions{NumericAuto: true}, 1, i18n.RelQuarter)
+	add("-10 year", `{}`, i18n.RelativeTimeOptions{}, -10, i18n.RelYear)
+	return sec
+}
+
+func lists(loc *i18n.Locale) FormatSection {
+	sec := FormatSection{Title: "Lists", Description: "Intl.ListFormat: CLDR list patterns, plus the Spanish and Hebrew rules ICU applies in code."}
+	items := []string{loc.Data.NativeName, "Go", "htmx", "Cloudflare"}
+	add := func(opts string, o i18n.ListOptions, n int) {
+		sec.Rows = append(sec.Rows, FormatRow{strings.Join(items[:n], " · "), opts, loc.ListFormat(o).Format(items[:n])})
+	}
+	add(`{type: "conjunction"}`, i18n.ListOptions{}, 3)
+	add(`{type: "disjunction"}`, i18n.ListOptions{Type: i18n.ListDisjunction}, 3)
+	add(`{type: "unit", style: "narrow"}`, i18n.ListOptions{Type: i18n.ListUnit, Style: i18n.TextNarrow}, 4)
+	add(`{style: "short"}`, i18n.ListOptions{Style: i18n.TextShort}, 2)
+	return sec
+}
+
+func durations(loc *i18n.Locale) FormatSection {
+	sec := FormatSection{Title: "Durations", Description: "Intl.DurationFormat, with Chrome's output for numeric units."}
+	d := i18n.Duration{i18n.DurDays: 1, i18n.DurHours: 2, i18n.DurMinutes: 5, i18n.DurSeconds: 30, i18n.DurMilliseconds: 250}
+	add := func(opts string, o i18n.DurationOptions) {
+		f, err := loc.DurationFormat(o)
+		s := ""
+		if err == nil {
+			s, err = f.Format(d)
+		}
+		if err != nil {
+			s = "error: " + err.Error()
+		}
+		sec.Rows = append(sec.Rows, FormatRow{"1d 2h 5m 30.25s", opts, s})
+	}
+	add(`{}`, i18n.DurationOptions{})
+	add(`{style: "long"}`, i18n.DurationOptions{Style: i18n.DurationLong})
+	add(`{style: "narrow"}`, i18n.DurationOptions{Style: i18n.DurationNarrow})
+	add(`{style: "digital", fractionalDigits: 2}`, i18n.DurationOptions{Style: i18n.DurationDigital, FractionalDigits: i18n.N(2)})
+	return sec
+}
+
+func week(loc *i18n.Locale) FormatSection {
+	wi := loc.WeekInfo()
+	days := make([]string, len(wi.Weekend))
+	for i, d := range wi.Weekend {
+		days[i] = strconv.Itoa(d)
+	}
+	return FormatSection{Title: "Week", Description: "Intl.Locale getWeekInfo: CLDR weekData for the locale's region (1 = Monday … 7 = Sunday).",
+		Rows: []FormatRow{
+			{"firstDay", "getWeekInfo()", strconv.Itoa(wi.FirstDay)},
+			{"weekend", "getWeekInfo()", strings.Join(days, ", ")},
+			{"minimalDays", "CLDR weekData", strconv.Itoa(wi.MinimalDays)},
+		}}
 }
 
 // pluralSamples returns up to six numbers selecting cat: integers first, then (for cardinals) one-decimal values.

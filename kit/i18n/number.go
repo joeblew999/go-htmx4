@@ -141,6 +141,8 @@ type NumberFormat struct {
 	cur     *CurrencyNames
 	curCode string
 	minGrp  int // minimum grouping digits; 0 = no grouping
+
+	unit, perUnit *UnitPatterns // style unit: the unit, and the denominator of an X-per-Y compound
 }
 
 // NumberFormat compiles options for this locale (Intl.NumberFormat's constructor).
@@ -175,7 +177,9 @@ func (l *Locale) NumberFormat(o NumberOptions) (*NumberFormat, error) {
 	case StylePercent:
 		mnfdDefault, mxfdDefault = 0, 0
 	case StyleUnit:
-		return nil, errors.New("i18n: unit style is not implemented yet")
+		if err := f.compileUnit(); err != nil {
+			return nil, err
+		}
 	}
 	if err := f.digitOptions(mnfdDefault, mxfdDefault); err != nil {
 		return nil, err
@@ -485,6 +489,11 @@ func (f *NumberFormat) format(b *strings.Builder, x Decimal) {
 	var r rounded
 	compactPre, compactSuf := "", ""
 	useCompactPattern := false
+	compactExp := 0 // compact exponent of the displayed number (1.2M → 6), for unit plural forms
+	if o.Style == StyleUnit && f.unit.ID == "percent" && o.UnitDisplay != Long {
+		// ICU formats unit "percent" (short/narrow, even as X-per-Y) with the locale's percent pattern, unscaled.
+		pat = &sys.Percent
+	}
 	switch o.Notation {
 	case NotationScientific, NotationEngineering:
 		r = f.formatExponent(&body, x)
@@ -495,6 +504,7 @@ func (f *NumberFormat) format(b *strings.Builder, x Decimal) {
 			f.writeDigits(&body, r) // a literal exact-value pattern ("mille") replaces the number
 		}
 		if cp != nil {
+			compactExp = int(cp.Magnitude) - int(cp.Zeros) + 1
 			compactPre, compactSuf = cp.Pre, cp.Suf
 			useCompactPattern = true
 		}
@@ -544,6 +554,28 @@ func (f *NumberFormat) format(b *strings.Builder, x Decimal) {
 			pre += compactPre
 			suf = compactSuf + suf
 		}
+	}
+	if o.Style == StyleUnit {
+		var num strings.Builder
+		f.writeAffix(&num, pre, "")
+		num.WriteString(body.String())
+		f.writeAffix(&num, suf, "")
+		if f.unit.ID == "percent" && o.UnitDisplay != Long {
+			b.WriteString(num.String())
+			return
+		}
+		cat := Other
+		if r.v.kind == finite {
+			op := r.v.plain(r.minFrac)
+			if compactExp > 0 {
+				// ICU picks a compact unit's plural form from the original value (ar "1.2 مليون كيلومترًا" is
+				// "many" because 1234567 % 100 = 67), not from the displayed 1.2.
+				op = x.plain(0)
+			}
+			cat = f.loc.Data.Cardinal.Select(op)
+		}
+		b.WriteString(f.applyUnit(num.String(), cat))
+		return
 	}
 	sym := f.currencySymbol()
 	f.writeAffix(b, pre, sym)

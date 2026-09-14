@@ -66,7 +66,7 @@ func TestBoardTwoBrowsers(t *testing.T) {
 func TestBoostBoard(t *testing.T) {
 	a, b := newTab(t, "A"), newTab(t, "B")
 	a.run(chromedp.Navigate(base+"/board"), chromedp.WaitVisible("#board", chromedp.ByQuery))
-	waitFor(3*time.Second, func() bool { return strings.HasSuffix(a.presence(), " online") })
+	waitFor(3*time.Second, func() bool { var k int; _, err := fmt.Sscanf(a.presence(), "%d", &k); return err == nil })
 	time.Sleep(time.Second)
 	var n int
 	fmt.Sscanf(a.presence(), "%d", &n) // the lobby may have other visitors
@@ -124,5 +124,5 @@ func TestBareClosePresence(t *testing.T) {
 		watcher.ws.close(1000);
 		return result + " | " + presence;
 	})()`, topic("e2e-close")))
-	check(t, "bare close() completes and presence drops", strings.HasPrefix(res, "closed 1000") && strings.Contains(res, ">1 online<"), res)
+	check(t, "bare close() completes and presence drops", strings.HasPrefix(res, "closed 1000") && strings.Contains(res, ">1</span>"), res)
 }

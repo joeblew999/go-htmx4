@@ -117,6 +117,7 @@ func (g *gen) numberSystem(nums obj, id string) (i18n.NumberSystem, [2]func(rune
 		Exponential: str(sym, "exponential"), Infinity: str(sym, "infinity"), NaN: str(sym, "nan"),
 		ApproximatelySign: str(sym, "approximatelySign"),
 		CurrencyDecimal:   str(sym, "currencyDecimal"), CurrencyGroup: str(sym, "currencyGroup"),
+		TimeSeparator: str(sym, "timeSeparator"),
 	}
 	var err error
 	parse := func(dst *i18n.NumPattern, path ...string) {

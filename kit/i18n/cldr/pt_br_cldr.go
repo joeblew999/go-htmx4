@@ -89,6 +89,7 @@ var locPtBr = i18n.LocaleData{
 					Infinity:          "∞",
 					NaN:               "NaN",
 					ApproximatelySign: "~",
+					TimeSeparator:     ":",
 				},
 				Decimal: i18n.NumPattern{
 					Set:     true,
@@ -2611,5 +2612,664 @@ var locPtBr = i18n.LocaleData{
 			Code: "Hant",
 			Name: "tradicional",
 		},
+	},
+	Relative: i18n.RelativeData{
+		Units: [8][3]i18n.RelativeUnit{{
+			{
+				Phrases: []i18n.RelPhrase{
+					{
+						Offset: -1,
+						Text:   "ano passado",
+					},
+					{
+						Text: "este ano",
+					},
+					{
+						Offset: 1,
+						Text:   "próximo ano",
+					},
+				},
+				Future: [i18n.PluralCatCount]string{"", "em {0} ano", "", "", "", "em {0} anos"},
+				Past:   [i18n.PluralCatCount]string{"", "há {0} ano", "", "", "", "há {0} anos"},
+			},
+			{
+				Phrases: []i18n.RelPhrase{
+					{
+						Offset: -1,
+						Text:   "ano passado",
+					},
+					{
+						Text: "este ano",
+					},
+					{
+						Offset: 1,
+						Text:   "próximo ano",
+					},
+				},
+				Future: [i18n.PluralCatCount]string{"", "em {0} ano", "", "", "", "em {0} anos"},
+				Past:   [i18n.PluralCatCount]string{"", "há {0} ano", "", "", "", "há {0} anos"},
+			},
+			{
+				Phrases: []i18n.RelPhrase{
+					{
+						Offset: -1,
+						Text:   "ano passado",
+					},
+					{
+						Text: "este ano",
+					},
+					{
+						Offset: 1,
+						Text:   "próximo ano",
+					},
+				},
+				Future: [i18n.PluralCatCount]string{"", "em {0} ano", "", "", "", "em {0} anos"},
+				Past:   [i18n.PluralCatCount]string{"", "há {0} ano", "", "", "", "há {0} anos"},
+			},
+		}, {
+			{
+				Phrases: []i18n.RelPhrase{
+					{
+						Offset: -1,
+						Text:   "último trimestre",
+					},
+					{
+						Text: "este trimestre",
+					},
+					{
+						Offset: 1,
+						Text:   "próximo trimestre",
+					},
+				},
+				Future: [i18n.PluralCatCount]string{"", "em {0} trim.", "", "", "", "em {0} trim."},
+				Past:   [i18n.PluralCatCount]string{"", "há {0} trim.", "", "", "", "há {0} trim."},
+			},
+			{
+				Phrases: []i18n.RelPhrase{
+					{
+						Offset: -1,
+						Text:   "último trimestre",
+					},
+					{
+						Text: "este trimestre",
+					},
+					{
+						Offset: 1,
+						Text:   "próximo trimestre",
+					},
+				},
+				Future: [i18n.PluralCatCount]string{"", "em {0} trimestre", "", "", "", "em {0} trimestres"},
+				Past:   [i18n.PluralCatCount]string{"", "há {0} trimestre", "", "", "", "há {0} trimestres"},
+			},
+			{
+				Phrases: []i18n.RelPhrase{
+					{
+						Offset: -1,
+						Text:   "último trimestre",
+					},
+					{
+						Text: "este trimestre",
+					},
+					{
+						Offset: 1,
+						Text:   "próximo trimestre",
+					},
+				},
+				Future: [i18n.PluralCatCount]string{"", "em {0} trim.", "", "", "", "em {0} trim."},
+				Past:   [i18n.PluralCatCount]string{"", "há {0} trim.", "", "", "", "há {0} trim."},
+			},
+		}, {
+			{
+				Phrases: []i18n.RelPhrase{
+					{
+						Offset: -1,
+						Text:   "mês passado",
+					},
+					{
+						Text: "este mês",
+					},
+					{
+						Offset: 1,
+						Text:   "próximo mês",
+					},
+				},
+				Future: [i18n.PluralCatCount]string{"", "em {0} mês", "", "", "", "em {0} meses"},
+				Past:   [i18n.PluralCatCount]string{"", "há {0} mês", "", "", "", "há {0} meses"},
+			},
+			{
+				Phrases: []i18n.RelPhrase{
+					{
+						Offset: -1,
+						Text:   "mês passado",
+					},
+					{
+						Text: "este mês",
+					},
+					{
+						Offset: 1,
+						Text:   "próximo mês",
+					},
+				},
+				Future: [i18n.PluralCatCount]string{"", "em {0} mês", "", "", "", "em {0} meses"},
+				Past:   [i18n.PluralCatCount]string{"", "há {0} mês", "", "", "", "há {0} meses"},
+			},
+			{
+				Phrases: []i18n.RelPhrase{
+					{
+						Offset: -1,
+						Text:   "mês passado",
+					},
+					{
+						Text: "este mês",
+					},
+					{
+						Offset: 1,
+						Text:   "próximo mês",
+					},
+				},
+				Future: [i18n.PluralCatCount]string{"", "em {0} mês", "", "", "", "em {0} meses"},
+				Past:   [i18n.PluralCatCount]string{"", "há {0} mês", "", "", "", "há {0} meses"},
+			},
+		}, {
+			{
+				Phrases: []i18n.RelPhrase{
+					{
+						Offset: -1,
+						Text:   "semana passada",
+					},
+					{
+						Text: "esta semana",
+					},
+					{
+						Offset: 1,
+						Text:   "próxima semana",
+					},
+				},
+				Future: [i18n.PluralCatCount]string{"", "em {0} sem.", "", "", "", "em {0} sem."},
+				Past:   [i18n.PluralCatCount]string{"", "há {0} sem.", "", "", "", "há {0} sem."},
+			},
+			{
+				Phrases: []i18n.RelPhrase{
+					{
+						Offset: -1,
+						Text:   "semana passada",
+					},
+					{
+						Text: "esta semana",
+					},
+					{
+						Offset: 1,
+						Text:   "próxima semana",
+					},
+				},
+				Future: [i18n.PluralCatCount]string{"", "em {0} semana", "", "", "", "em {0} semanas"},
+				Past:   [i18n.PluralCatCount]string{"", "há {0} semana", "", "", "", "há {0} semanas"},
+			},
+			{
+				Phrases: []i18n.RelPhrase{
+					{
+						Offset: -1,
+						Text:   "semana passada",
+					},
+					{
+						Text: "esta semana",
+					},
+					{
+						Offset: 1,
+						Text:   "próxima semana",
+					},
+				},
+				Future: [i18n.PluralCatCount]string{"", "em {0} sem.", "", "", "", "em {0} sem."},
+				Past:   [i18n.PluralCatCount]string{"", "há {0} sem.", "", "", "", "há {0} sem."},
+			},
+		}, {
+			{
+				Phrases: []i18n.RelPhrase{
+					{
+						Offset: -2,
+						Text:   "anteontem",
+					},
+					{
+						Offset: -1,
+						Text:   "ontem",
+					},
+					{
+						Text: "hoje",
+					},
+					{
+						Offset: 1,
+						Text:   "amanhã",
+					},
+					{
+						Offset: 2,
+						Text:   "depois de amanhã",
+					},
+				},
+				Future: [i18n.PluralCatCount]string{"", "em {0} dia", "", "", "", "em {0} dias"},
+				Past:   [i18n.PluralCatCount]string{"", "há {0} dia", "", "", "", "há {0} dias"},
+			},
+			{
+				Phrases: []i18n.RelPhrase{
+					{
+						Offset: -2,
+						Text:   "anteontem",
+					},
+					{
+						Offset: -1,
+						Text:   "ontem",
+					},
+					{
+						Text: "hoje",
+					},
+					{
+						Offset: 1,
+						Text:   "amanhã",
+					},
+					{
+						Offset: 2,
+						Text:   "depois de amanhã",
+					},
+				},
+				Future: [i18n.PluralCatCount]string{"", "em {0} dia", "", "", "", "em {0} dias"},
+				Past:   [i18n.PluralCatCount]string{"", "há {0} dia", "", "", "", "há {0} dias"},
+			},
+			{
+				Phrases: []i18n.RelPhrase{
+					{
+						Offset: -2,
+						Text:   "anteontem",
+					},
+					{
+						Offset: -1,
+						Text:   "ontem",
+					},
+					{
+						Text: "hoje",
+					},
+					{
+						Offset: 1,
+						Text:   "amanhã",
+					},
+					{
+						Offset: 2,
+						Text:   "depois de amanhã",
+					},
+				},
+				Future: [i18n.PluralCatCount]string{"", "em {0} dia", "", "", "", "em {0} dias"},
+				Past:   [i18n.PluralCatCount]string{"", "há {0} dia", "", "", "", "há {0} dias"},
+			},
+		}, {
+			{
+				Phrases: []i18n.RelPhrase{
+					{
+						Text: "esta hora",
+					},
+				},
+				Future: [i18n.PluralCatCount]string{"", "em {0} h", "", "", "", "em {0} h"},
+				Past:   [i18n.PluralCatCount]string{"", "há {0} h", "", "", "", "há {0} h"},
+			},
+			{
+				Phrases: []i18n.RelPhrase{
+					{
+						Text: "esta hora",
+					},
+				},
+				Future: [i18n.PluralCatCount]string{"", "em {0} hora", "", "", "", "em {0} horas"},
+				Past:   [i18n.PluralCatCount]string{"", "há {0} hora", "", "", "", "há {0} horas"},
+			},
+			{
+				Phrases: []i18n.RelPhrase{
+					{
+						Text: "esta hora",
+					},
+				},
+				Future: [i18n.PluralCatCount]string{"", "em {0} h", "", "", "", "em {0} h"},
+				Past:   [i18n.PluralCatCount]string{"", "há {0} h", "", "", "", "há {0} h"},
+			},
+		}, {
+			{
+				Phrases: []i18n.RelPhrase{
+					{
+						Text: "este minuto",
+					},
+				},
+				Future: [i18n.PluralCatCount]string{"", "em {0} min.", "", "", "", "em {0} min."},
+				Past:   [i18n.PluralCatCount]string{"", "há {0} min.", "", "", "", "há {0} min."},
+			},
+			{
+				Phrases: []i18n.RelPhrase{
+					{
+						Text: "este minuto",
+					},
+				},
+				Future: [i18n.PluralCatCount]string{"", "em {0} minuto", "", "", "", "em {0} minutos"},
+				Past:   [i18n.PluralCatCount]string{"", "há {0} minuto", "", "", "", "há {0} minutos"},
+			},
+			{
+				Phrases: []i18n.RelPhrase{
+					{
+						Text: "este minuto",
+					},
+				},
+				Future: [i18n.PluralCatCount]string{"", "em {0} min.", "", "", "", "em {0} min."},
+				Past:   [i18n.PluralCatCount]string{"", "há {0} min.", "", "", "", "há {0} min."},
+			},
+		}, {
+			{
+				Phrases: []i18n.RelPhrase{
+					{
+						Text: "agora",
+					},
+				},
+				Future: [i18n.PluralCatCount]string{"", "em {0} seg.", "", "", "", "em {0} seg."},
+				Past:   [i18n.PluralCatCount]string{"", "há {0} seg.", "", "", "", "há {0} seg."},
+			},
+			{
+				Phrases: []i18n.RelPhrase{
+					{
+						Text: "agora",
+					},
+				},
+				Future: [i18n.PluralCatCount]string{"", "em {0} segundo", "", "", "", "em {0} segundos"},
+				Past:   [i18n.PluralCatCount]string{"", "há {0} segundo", "", "", "", "há {0} segundos"},
+			},
+			{
+				Phrases: []i18n.RelPhrase{
+					{
+						Text: "agora",
+					},
+				},
+				Future: [i18n.PluralCatCount]string{"", "em {0} seg.", "", "", "", "em {0} seg."},
+				Past:   [i18n.PluralCatCount]string{"", "há {0} seg.", "", "", "", "há {0} seg."},
+			},
+		}},
+	},
+	Lists: i18n.ListData{
+		Patterns: [3][3]i18n.ListPattern{{
+			{
+				Two:    "{0} e {1}",
+				Start:  "{0}, {1}",
+				Middle: "{0}, {1}",
+				End:    "{0} e {1}",
+			},
+			{
+				Two:    "{0} e {1}",
+				Start:  "{0}, {1}",
+				Middle: "{0}, {1}",
+				End:    "{0} e {1}",
+			},
+			{
+				Two:    "{0}, {1}",
+				Start:  "{0}, {1}",
+				Middle: "{0}, {1}",
+				End:    "{0}, {1}",
+			},
+		}, {
+			{
+				Two:    "{0} ou {1}",
+				Start:  "{0}, {1}",
+				Middle: "{0}, {1}",
+				End:    "{0} ou {1}",
+			},
+			{
+				Two:    "{0} ou {1}",
+				Start:  "{0}, {1}",
+				Middle: "{0}, {1}",
+				End:    "{0} ou {1}",
+			},
+			{
+				Two:    "{0} ou {1}",
+				Start:  "{0}, {1}",
+				Middle: "{0}, {1}",
+				End:    "{0} ou {1}",
+			},
+		}, {
+			{
+				Two:    "{0} e {1}",
+				Start:  "{0}, {1}",
+				Middle: "{0}, {1}",
+				End:    "{0} e {1}",
+			},
+			{
+				Two:    "{0} e {1}",
+				Start:  "{0}, {1}",
+				Middle: "{0}, {1}",
+				End:    "{0} e {1}",
+			},
+			{
+				Two:    "{0} {1}",
+				Start:  "{0} {1}",
+				Middle: "{0} {1}",
+				End:    "{0} {1}",
+			},
+		}},
+	},
+	Units: i18n.UnitData{
+		Units: []i18n.UnitPatterns{
+			{
+				ID:       "acre",
+				Patterns: [3][i18n.PluralCatCount]string{{"", "", "", "", "", "{0} ac"}, {"", "{0} acre", "", "", "", "{0} acres"}, {"", "{0} acre", "", "", "", "{0} acres"}},
+			},
+			{
+				ID:       "bit",
+				Patterns: [3][i18n.PluralCatCount]string{{"", "{0} bits", "", "", "", "{0} bits"}, {"", "{0} bit", "", "", "", "{0} bits"}, {"", "{0} bit", "", "", "", "{0} bits"}},
+			},
+			{
+				ID:       "byte",
+				Patterns: [3][i18n.PluralCatCount]string{{"", "{0} bytes", "", "", "", "{0} bytes"}, {"", "{0} byte", "", "", "", "{0} bytes"}, {"", "{0} B", "", "", "", "{0} B"}},
+			},
+			{
+				ID:       "celsius",
+				Patterns: [3][i18n.PluralCatCount]string{{"", "{0} °C", "", "", "", "{0} °C"}, {"", "{0} grau Celsius", "", "", "", "{0} graus Celsius"}, {"", "{0} °C", "", "", "", "{0} °C"}},
+			},
+			{
+				ID:       "centimeter",
+				Patterns: [3][i18n.PluralCatCount]string{{"", "", "", "", "", "{0} cm"}, {"", "{0} centímetro", "", "", "", "{0} centímetros"}, {"", "", "", "", "", "{0} cm"}},
+				PerUnit:  [3]string{"{0}/cm", "{0} por centímetro", "{0}/cm"},
+			},
+			{
+				ID:       "day",
+				Patterns: [3][i18n.PluralCatCount]string{{"", "{0} dia", "", "", "", "{0} dias"}, {"", "{0} dia", "", "", "", "{0} dias"}, {"", "{0} dia", "", "", "", "{0} dias"}},
+				PerUnit:  [3]string{"{0}/dia", "{0} por dia", "{0}/dia"},
+			},
+			{
+				ID:       "degree",
+				Patterns: [3][i18n.PluralCatCount]string{{"", "{0} °", "", "", "", "{0} °"}, {"", "{0} grau", "", "", "", "{0} graus"}, {"", "{0} °", "", "", "", "{0} °"}},
+			},
+			{
+				ID:       "fahrenheit",
+				Patterns: [3][i18n.PluralCatCount]string{{"", "{0} °F", "", "", "", "{0} °F"}, {"", "{0} grau Fahrenheit", "", "", "", "{0} graus Fahrenheit"}, {"", "{0} °F", "", "", "", "{0} °F"}},
+			},
+			{
+				ID:       "fluid-ounce",
+				Patterns: [3][i18n.PluralCatCount]string{{"", "{0} fl oz", "", "", "", "{0} fl oz"}, {"", "{0} onça fluida", "", "", "", "{0} onças fluidas"}, {"", "{0} fl. oz.", "", "", "", "{0} fl. oz."}},
+			},
+			{
+				ID:       "foot",
+				Patterns: [3][i18n.PluralCatCount]string{{"", "", "", "", "", "{0} ft"}, {"", "{0} pé", "", "", "", "{0} pés"}, {"", "{0}′", "", "", "", "{0}′"}},
+				PerUnit:  [3]string{"{0}/ft", "{0} por pé", "{0}/ft"},
+			},
+			{
+				ID:       "gallon",
+				Patterns: [3][i18n.PluralCatCount]string{{"", "{0} gal", "", "", "", "{0} gal"}, {"", "{0} galão", "", "", "", "{0} galões"}, {"", "{0} gal", "", "", "", "{0} gal"}},
+				PerUnit:  [3]string{"{0}/gal", "{0} por galão", "{0}/gal"},
+			},
+			{
+				ID:       "gigabit",
+				Patterns: [3][i18n.PluralCatCount]string{{"", "", "", "", "", "{0} Gb"}, {"", "{0} gigabit", "", "", "", "{0} gigabits"}, {"", "", "", "", "", "{0} Gb"}},
+			},
+			{
+				ID:       "gigabyte",
+				Patterns: [3][i18n.PluralCatCount]string{{"", "", "", "", "", "{0} GB"}, {"", "{0} gigabyte", "", "", "", "{0} gigabytes"}, {"", "", "", "", "", "{0} GB"}},
+			},
+			{
+				ID:       "gram",
+				Patterns: [3][i18n.PluralCatCount]string{{"", "", "", "", "", "{0} g"}, {"", "{0} grama", "", "", "", "{0} gramas"}, {"", "{0}g", "", "", "", "{0}g"}},
+				PerUnit:  [3]string{"{0}/g", "{0} por grama", "{0}/g"},
+			},
+			{
+				ID:       "hectare",
+				Patterns: [3][i18n.PluralCatCount]string{{"", "", "", "", "", "{0} ha"}, {"", "{0} hectare", "", "", "", "{0} hectares"}, {"", "", "", "", "", "{0} ha"}},
+			},
+			{
+				ID:       "hour",
+				Patterns: [3][i18n.PluralCatCount]string{{"", "", "", "", "", "{0} h"}, {"", "{0} hora", "", "", "", "{0} horas"}, {"", "", "", "", "", "{0} h"}},
+				PerUnit:  [3]string{"{0}/h", "{0} por hora", "{0}/h"},
+			},
+			{
+				ID:       "inch",
+				Patterns: [3][i18n.PluralCatCount]string{{"", "{0} pol.", "", "", "", "{0} pol."}, {"", "{0} polegada", "", "", "", "{0} polegadas"}, {"", "{0}″", "", "", "", "{0}″"}},
+				PerUnit:  [3]string{"{0}/pol.", "{0} por polegada", "{0}/pol."},
+			},
+			{
+				ID:       "kilobit",
+				Patterns: [3][i18n.PluralCatCount]string{{"", "", "", "", "", "{0} kb"}, {"", "{0} kilobit", "", "", "", "{0} kilobits"}, {"", "", "", "", "", "{0} kb"}},
+			},
+			{
+				ID:       "kilobyte",
+				Patterns: [3][i18n.PluralCatCount]string{{"", "", "", "", "", "{0} kB"}, {"", "{0} kilobyte", "", "", "", "{0} kilobytes"}, {"", "", "", "", "", "{0} kB"}},
+			},
+			{
+				ID:       "kilogram",
+				Patterns: [3][i18n.PluralCatCount]string{{"", "", "", "", "", "{0} kg"}, {"", "{0} quilograma", "", "", "", "{0} quilogramas"}, {"", "{0}kg", "", "", "", "{0}kg"}},
+				PerUnit:  [3]string{"{0}/kg", "{0} por quilograma", "{0}/kg"},
+			},
+			{
+				ID:       "kilometer",
+				Patterns: [3][i18n.PluralCatCount]string{{"", "", "", "", "", "{0} km"}, {"", "{0} quilômetro", "", "", "", "{0} quilômetros"}, {"", "", "", "", "", "{0} km"}},
+				PerUnit:  [3]string{"{0}/km", "{0} por quilômetro", "{0}/km"},
+			},
+			{
+				ID:       "kilometer-per-hour",
+				Patterns: [3][i18n.PluralCatCount]string{{"", "", "", "", "", "{0} km/h"}, {"", "{0} quilômetro por hora", "", "", "", "{0} quilômetros por hora"}, {"", "{0}km/h", "", "", "", "{0}km/h"}},
+			},
+			{
+				ID:       "liter",
+				Patterns: [3][i18n.PluralCatCount]string{{"", "", "", "", "", "{0} l"}, {"", "{0} litro", "", "", "", "{0} litros"}, {"", "{0}l", "", "", "", "{0}l"}},
+				PerUnit:  [3]string{"{0}/l", "{0} por litro", "{0}/l"},
+			},
+			{
+				ID:       "liter-per-kilometer",
+				Patterns: [3][i18n.PluralCatCount]string{{"", "{0} l/km", "", "", "", "{0} l/km"}, {"", "{0} litro por quilômetro", "", "", "", "{0} litros por quilômetro"}, {"", "{0} l/km", "", "", "", "{0} l/km"}},
+			},
+			{
+				ID:       "megabit",
+				Patterns: [3][i18n.PluralCatCount]string{{"", "", "", "", "", "{0} Mb"}, {"", "{0} megabit", "", "", "", "{0} megabits"}, {"", "", "", "", "", "{0} Mb"}},
+			},
+			{
+				ID:       "megabyte",
+				Patterns: [3][i18n.PluralCatCount]string{{"", "", "", "", "", "{0} MB"}, {"", "{0} megabyte", "", "", "", "{0} megabytes"}, {"", "", "", "", "", "{0} MB"}},
+			},
+			{
+				ID:       "meter",
+				Patterns: [3][i18n.PluralCatCount]string{{"", "", "", "", "", "{0} m"}, {"", "{0} metro", "", "", "", "{0} metros"}, {"", "", "", "", "", "{0} m"}},
+				PerUnit:  [3]string{"{0}/m", "{0} por metro", "{0}/m"},
+			},
+			{
+				ID:       "meter-per-second",
+				Patterns: [3][i18n.PluralCatCount]string{{"", "", "", "", "", "{0} m/s"}, {"", "{0} metro por segundo", "", "", "", "{0} metros por segundo"}, {"", "", "", "", "", "{0} m/s"}},
+			},
+			{
+				ID:       "microsecond",
+				Patterns: [3][i18n.PluralCatCount]string{{"", "", "", "", "", "{0} μs"}, {"", "{0} microssegundo", "", "", "", "{0} microssegundos"}, {"", "", "", "", "", "{0} μs"}},
+			},
+			{
+				ID:       "mile",
+				Patterns: [3][i18n.PluralCatCount]string{{"", "", "", "", "", "{0} mi"}, {"", "{0} milha", "", "", "", "{0} milhas"}, {"", "", "", "", "", "{0} mi"}},
+			},
+			{
+				ID:       "mile-per-gallon",
+				Patterns: [3][i18n.PluralCatCount]string{{"", "{0} mpg", "", "", "", "{0} mpg"}, {"", "{0} milha por galão", "", "", "", "{0} milhas por galão"}, {"", "{0} mpg", "", "", "", "{0} mpg"}},
+			},
+			{
+				ID:       "mile-per-hour",
+				Patterns: [3][i18n.PluralCatCount]string{{"", "{0} mph", "", "", "", "{0} mph"}, {"", "{0} milha por hora", "", "", "", "{0} milhas por hora"}, {"", "{0} mph", "", "", "", "{0} mph"}},
+			},
+			{
+				ID:       "mile-scandinavian",
+				Patterns: [3][i18n.PluralCatCount]string{{"", "", "", "", "", "{0} smi"}, {"", "{0} milha escandinava", "", "", "", "{0} milhas escandinavas"}, {"", "", "", "", "", "{0} smi"}},
+			},
+			{
+				ID:       "milliliter",
+				Patterns: [3][i18n.PluralCatCount]string{{"", "{0} ml", "", "", "", "{0} ml"}, {"", "{0} mililitro", "", "", "", "{0} mililitros"}, {"", "{0} ml", "", "", "", "{0} ml"}},
+			},
+			{
+				ID:       "millimeter",
+				Patterns: [3][i18n.PluralCatCount]string{{"", "", "", "", "", "{0} mm"}, {"", "{0} milímetro", "", "", "", "{0} milímetros"}, {"", "", "", "", "", "{0} mm"}},
+			},
+			{
+				ID:       "millisecond",
+				Patterns: [3][i18n.PluralCatCount]string{{"", "", "", "", "", "{0} ms"}, {"", "{0} milissegundo", "", "", "", "{0} milissegundos"}, {"", "", "", "", "", "{0} ms"}},
+			},
+			{
+				ID:       "minute",
+				Patterns: [3][i18n.PluralCatCount]string{{"", "", "", "", "", "{0} min"}, {"", "{0} minuto", "", "", "", "{0} minutos"}, {"", "", "", "", "", "{0} min"}},
+				PerUnit:  [3]string{"{0}/min", "{0} por minuto", "{0}/min"},
+			},
+			{
+				ID:       "month",
+				Patterns: [3][i18n.PluralCatCount]string{{"", "{0} mês", "", "", "", "{0} meses"}, {"", "{0} mês", "", "", "", "{0} meses"}, {"", "{0} mês", "", "", "", "{0} meses"}},
+				PerUnit:  [3]string{"{0}/mês", "{0} por mês", "{0}/mês"},
+			},
+			{
+				ID:       "nanosecond",
+				Patterns: [3][i18n.PluralCatCount]string{{"", "", "", "", "", "{0} ns"}, {"", "{0} nanossegundo", "", "", "", "{0} nanossegundos"}, {"", "", "", "", "", "{0} ns"}},
+			},
+			{
+				ID:       "ounce",
+				Patterns: [3][i18n.PluralCatCount]string{{"", "", "", "", "", "{0} oz"}, {"", "{0} onça", "", "", "", "{0} onças"}, {"", "", "", "", "", "{0} oz"}},
+				PerUnit:  [3]string{"{0}/oz", "{0} por onça", "{0}/oz"},
+			},
+			{
+				ID:       "percent",
+				Patterns: [3][i18n.PluralCatCount]string{{"", "", "", "", "", "{0}%"}, {"", "{0} por cento", "", "", "", "{0} por cento"}, {"", "", "", "", "", "{0}%"}},
+			},
+			{
+				ID:       "petabyte",
+				Patterns: [3][i18n.PluralCatCount]string{{"", "", "", "", "", "{0} PB"}, {"", "{0} petabyte", "", "", "", "{0} petabytes"}, {"", "", "", "", "", "{0} PB"}},
+			},
+			{
+				ID:       "pound",
+				Patterns: [3][i18n.PluralCatCount]string{{"", "", "", "", "", "{0} lb"}, {"", "{0} libra", "", "", "", "{0} libras"}, {"", "", "", "", "", "{0} lb"}},
+				PerUnit:  [3]string{"{0}/lb", "{0} por libra", "{0}/lb"},
+			},
+			{
+				ID:       "second",
+				Patterns: [3][i18n.PluralCatCount]string{{"", "", "", "", "", "{0} s"}, {"", "{0} segundo", "", "", "", "{0} segundos"}, {"", "", "", "", "", "{0} s"}},
+				PerUnit:  [3]string{"{0}/s", "{0} por segundo", "{0}/s"},
+			},
+			{
+				ID:       "stone",
+				Patterns: [3][i18n.PluralCatCount]string{{"", "", "", "", "", "{0} st"}, {"", "{0} stone", "", "", "", "{0} stones"}, {"", "", "", "", "", "{0} st"}},
+			},
+			{
+				ID:       "terabit",
+				Patterns: [3][i18n.PluralCatCount]string{{"", "", "", "", "", "{0} Tb"}, {"", "{0} terabit", "", "", "", "{0} terabits"}, {"", "", "", "", "", "{0} Tb"}},
+			},
+			{
+				ID:       "terabyte",
+				Patterns: [3][i18n.PluralCatCount]string{{"", "", "", "", "", "{0} TB"}, {"", "{0} terabyte", "", "", "", "{0} terabytes"}, {"", "", "", "", "", "{0} TB"}},
+			},
+			{
+				ID:       "week",
+				Patterns: [3][i18n.PluralCatCount]string{{"", "{0} sem.", "", "", "", "{0} sem."}, {"", "{0} semana", "", "", "", "{0} semanas"}, {"", "{0} sem.", "", "", "", "{0} sem."}},
+				PerUnit:  [3]string{"{0}/sem.", "{0} por semana", "{0}/sem."},
+			},
+			{
+				ID:       "yard",
+				Patterns: [3][i18n.PluralCatCount]string{{"", "", "", "", "", "{0} yd"}, {"", "{0} jarda", "", "", "", "{0} jardas"}, {"", "", "", "", "", "{0} yd"}},
+			},
+			{
+				ID:       "year",
+				Patterns: [3][i18n.PluralCatCount]string{{"", "{0} ano", "", "", "", "{0} anos"}, {"", "{0} ano", "", "", "", "{0} anos"}, {"", "{0} ano", "", "", "", "{0} anos"}},
+				PerUnit:  [3]string{"{0}/ano", "{0} por ano", "{0}/ano"},
+			},
+		},
+		Per: [3]string{"{0}/{1}", "{0} por {1}", "{0}/{1}"},
+	},
+	Duration: i18n.DurationData{
+		HM:  "h:mm",
+		HMS: "h:mm:ss",
+		MS:  "m:ss",
 	},
 }

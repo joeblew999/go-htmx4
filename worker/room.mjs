@@ -1,7 +1,11 @@
 // Room: one Durable Object per board topic (deployed). It holds the browsers' WebSockets with the
-// Hibernation API and pushes each published fragment to all of them. It owns no board data: D1 is
+// Hibernation API and pushes each published version to all of them. It owns no board data: D1 is
 // the source of truth. "last" is only a cache so a (re)connecting browser gets the newest fragment
 // at once, without a D1 read.
+//
+// Locales (plan: .plans/2026-09-14_1106_full-i18n.md, Phase 6): Go publishes one fragment per locale
+// ({default, fragments}); each socket is tagged with its page's ?locale= and gets that locale's fragment
+// (or the default's). Presence is a bare count, so the page renders its label in its own language.
 //
 // Designed for ~1,000 sockets per topic (plan: .plans/done/2026-09-14_0754_workers-realtime-d1-do.md):
 // sockets are receive-only, pings are auto-answered without waking the object, and broadcasts are
@@ -17,6 +21,13 @@ const FLUSH_MS = 200;
 // Design ceiling per topic: a Room handles ~1,000 requests/s, and every socket reconnects after a deploy.
 // Socket 1,001 gets 503 (hx-ws retries with backoff).
 const MAX_SOCKETS = 1000;
+
+// fragmentFor picks a socket's fragment from a published version: its locale's, else the default's. A cache
+// written before per-locale publishing ({version, html}) still serves until the topic's next publish.
+function fragmentFor(msg, locale) {
+  if (!msg.fragments) return msg.html;
+  return msg.fragments[locale] ?? msg.fragments[msg.default];
+}
 
 export class Room extends DurableObject {
   constructor(ctx, env) {
@@ -34,9 +45,11 @@ export class Room extends DurableObject {
       return new Response("room full", { status: 503, headers: { "Retry-After": "10" } });
     }
     const [client, server] = Object.values(new WebSocketPair());
-    this.ctx.acceptWebSocket(server);
+    // index.mjs has checked ?locale= against kit/live's LocalePattern.
+    const locale = new URL(request.url).searchParams.get("locale") ?? "";
+    this.ctx.acceptWebSocket(server, [locale]);
     const last = await this.ctx.storage.get("last");
-    if (last) server.send(last.html);
+    if (last) server.send(fragmentFor(last, locale));
     await this.presenceChanged();
     return new Response(null, { status: 101, webSocket: client });
   }
@@ -47,13 +60,21 @@ export class Room extends DurableObject {
     if (!Number.isSafeInteger(version) || version < 1) {
       return new Response("bad X-Board-Version", { status: 400 });
     }
-    const html = await request.text();
+    let body;
+    try {
+      body = await request.json();
+    } catch {
+      return new Response("bad publish body", { status: 400 });
+    }
+    if (typeof body?.default !== "string" || typeof body?.fragments?.[body.default] !== "string") {
+      return new Response("publish body needs fragments for its default locale", { status: 400 });
+    }
     const storage = this.ctx.storage;
     const [last, pending] = await Promise.all([storage.get("last"), storage.get("pending")]);
     if (version <= Math.max(last?.version ?? 0, pending?.version ?? 0)) {
       return Response.json({ version, stale: true });
     }
-    const msg = { version, html, at: Date.now() };
+    const msg = { version, default: body.default, fragments: body.fragments, at: Date.now() };
     if (!pending && msg.at - (last?.at ?? 0) >= FLUSH_MS) {
       return Response.json({ version, sent: await this.broadcast(msg) });
     }
@@ -92,7 +113,7 @@ export class Room extends DurableObject {
     // Count the socket being accepted too (not OPEN yet while its connect runs); skip closing ones.
     const open = this.ctx.getWebSockets().filter((ws) => ws.readyState < WebSocket.CLOSING);
     await this.ctx.storage.put("presenceAt", Date.now());
-    const html = `<span id="presence" hx-swap-oob="true">${open.length} online</span>`;
+    const html = `<span id="presence" hx-swap-oob="true">${open.length}</span>`;
     for (const ws of open) {
       try {
         ws.send(html);
@@ -113,7 +134,7 @@ export class Room extends DurableObject {
     let sent = 0;
     for (const ws of this.ctx.getWebSockets()) {
       try {
-        ws.send(msg.html);
+        ws.send(fragmentFor(msg, this.ctx.getTags(ws)[0] ?? ""));
         sent++;
       } catch {
         // The socket is already closing; the runtime drops it from getWebSockets().

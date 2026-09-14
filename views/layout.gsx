@@ -33,6 +33,7 @@ component Layout(title string, path string, children gsx.Node) {
 			<script src="/static/htmx.min.js"></script>
 			<script src="/static/hx-live.js"></script>
 			<script src="/static/hx-ws.js"></script>
+			<script src="/static/relative-time.js" defer></script>
 			<VersionGuard/>
 			<script type="module" src="/gsxui/index.js"></script>
 		</head>

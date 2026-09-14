@@ -143,8 +143,10 @@ func NumberOptions(m map[string]any) (i18n.NumberOptions, error) {
 	o.RoundingMode = []i18n.RoundingMode{i18n.HalfExpand, i18n.Ceil, i18n.Floor, i18n.Expand, i18n.Trunc, i18n.HalfCeil, i18n.HalfFloor, i18n.HalfExpand, i18n.HalfTrunc, i18n.HalfEven}[pick("roundingMode", []string{"", "ceil", "floor", "expand", "trunc", "halfCeil", "halfFloor", "halfExpand", "halfTrunc", "halfEven"})]
 	o.StripIfInteger = m["trailingZeroDisplay"] == "stripIfInteger"
 	o.NumberingSystem, _ = m["numberingSystem"].(string)
+	o.Unit, _ = m["unit"].(string)
+	o.UnitDisplay = []i18n.Width{i18n.Short, i18n.Long, i18n.Narrow}[pick("unitDisplay", []string{"short", "long", "narrow"})]
 	for k := range m {
-		if !strings.Contains(" style currency currencyDisplay currencySign notation compactDisplay signDisplay useGrouping minimumIntegerDigits minimumFractionDigits maximumFractionDigits minimumSignificantDigits maximumSignificantDigits roundingPriority roundingIncrement roundingMode trailingZeroDisplay numberingSystem type ", " "+k+" ") {
+		if !strings.Contains(" unit unitDisplay style currency currencyDisplay currencySign notation compactDisplay signDisplay useGrouping minimumIntegerDigits minimumFractionDigits maximumFractionDigits minimumSignificantDigits maximumSignificantDigits roundingPriority roundingIncrement roundingMode trailingZeroDisplay numberingSystem type ", " "+k+" ") {
 			return o, fmt.Errorf("unsupported option %q", k)
 		}
 	}

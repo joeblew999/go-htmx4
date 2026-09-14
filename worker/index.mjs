@@ -7,15 +7,18 @@ import goWorker from "./build/worker.mjs";
 
 export { Room } from "./room.mjs";
 
-// Same rule as validTopic in board.go.
+// Same rules as kit/live (TopicPattern, LocalePattern); TestWorkerJSMatchesKitLive checks.
 const TOPIC = /^[a-z0-9-]{1,32}$/;
+const LOCALE = /^[a-z]{2,3}(-[a-z0-9]{2,8}){0,3}$/;
 
 export default {
   async fetch(request, env, ctx) {
-    const { pathname } = new URL(request.url);
+    const { pathname, searchParams } = new URL(request.url);
     if (pathname.startsWith("/live/")) {
       const topic = pathname.slice("/live/".length);
       if (!TOPIC.test(topic)) return new Response("bad topic", { status: 400 });
+      const locale = searchParams.get("locale");
+      if (locale !== null && !LOCALE.test(locale)) return new Response("bad locale", { status: 400 });
       if (request.headers.get("Upgrade") !== "websocket") {
         return new Response("expected a WebSocket upgrade", { status: 426 });
       }
