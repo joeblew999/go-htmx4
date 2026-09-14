@@ -1,8 +1,9 @@
-# mise.toml — go-htmx4: Go + htmx 4 demos (no Node anywhere)
+# mise.toml — go-htmx4: Go + htmx 4 + gsxui on Cloudflare Workers (no Node anywhere)
 #
 #   mise install        # install pinned tools
-#   mise run check      # test both demos (native + TinyGo under workerd)
-#   mise tasks          # list everything (demo:gsxui:*, demo:workers:*, upstream:*:fetch/serve)
+#   mise run dev        # gsx dev → TinyGo + workerd → http://localhost:8913
+#   mise run check      # test everything (TinyGo under workerd + go test)
+#   mise tasks          # list everything
 
 [tools]
 go = "1.27.1"
@@ -23,9 +24,13 @@ workerd = "1.20260911.1"
 # fnox: Cloudflare credentials from the keychain via `fnox exec -- …`.
 fnox = "1.35.0"
 
+[env]
+# Worker script and D1 database name (mise run deploy): https://$APP_NAME.<subdomain>.workers.dev
+APP_NAME = "go-htmx4"
+
 [task_config]
-includes = ["tasks/gsxui.toml", "tasks/workers.toml"]
+includes = ["tasks/app.toml", "tasks/gsxui.toml", "tasks/upstream.toml"]
 
 [tasks.check]
-description = "Test both demos: gsxui (native + TinyGo on workerd) and workers (TinyGo on workerd + go test)"
-depends = ["demo:gsxui:test", "demo:gsxui:workers:smoke", "demo:workers:test"]
+description = "Test the app (TinyGo on workerd + go test) and the gsxui demo (native + TinyGo on workerd)"
+depends = ["test", "demo:gsxui:test", "demo:gsxui:workers:smoke"]

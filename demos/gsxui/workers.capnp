@@ -1,6 +1,6 @@
 # workerd config for demos/gsxui on Workers (mise run demo:gsxui:workers:serve, run from demos/gsxui).
 #
-#   :8918 → assets-first (../workers/workerd/assets-first.mjs, local-only stand-in for Static Assets)
+#   :8918 → assets-first (../../workerd/assets-first.mjs, local-only stand-in for Static Assets)
 #             ├─ file in build/assets/ (/static, /gsxui, /assets) → disk service
 #             └─ everything else → Go Worker (build/worker, TinyGo)
 #
@@ -18,7 +18,7 @@ const config :Workerd.Config = (
 );
 
 const assetsFirst :Workerd.Worker = (
-  modules = [ (name = "assets-first.mjs", esModule = embed "../workers/workerd/assets-first.mjs") ],
+  modules = [ (name = "assets-first.mjs", esModule = embed "../../workerd/assets-first.mjs") ],
   bindings = [
     (name = "ASSETS", service = "assets"),
     (name = "APP", service = "app"),

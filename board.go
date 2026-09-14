@@ -6,7 +6,7 @@ package main
 // and the resulting fragment is published to the topic's Room Durable Object, which pushes it
 // to every browser connected to /live/{topic} over hx-ws. The poster gets the same fragment
 // in its HTTP response. Fragments are the whole #board element, so the newest one is always
-// complete state; BoardPage drops any swap older than what's on screen. Markup lives in board.gsx.
+// complete state; BoardPage drops any swap older than what's on screen. Markup lives in views/board.gsx.
 
 import (
 	"bytes"
@@ -18,6 +18,7 @@ import (
 	"unicode/utf8"
 
 	"github.com/gsxhq/gsx"
+	"github.com/joeblew999/go-htmx4/views"
 )
 
 const (
@@ -26,18 +27,11 @@ const (
 	maxNoteRunes = 280
 )
 
-type Board struct {
-	Topic   string
-	Value   int64
-	Version int64
-	Notes   []Note // newest first, at most maxNotes
-}
-
-type Note struct {
-	ID        int64
-	Body      string
-	CreatedAt string
-}
+// Board and Note are the view types: the store returns exactly what views renders.
+type (
+	Board = views.Board
+	Note  = views.Note
+)
 
 // store is the board's source of truth: D1 on Workers (store_sql.go), memory under `go run .`.
 type store interface {
@@ -62,7 +56,7 @@ func boardRoutes(mux *http.ServeMux) {
 			storeError(w, err)
 			return
 		}
-		writeNode(w, BoardPage(topic, b))
+		writeNode(w, views.BoardPage(topic, b))
 	})
 	mux.HandleFunc("/board/add", func(w http.ResponseWriter, r *http.Request) {
 		topic, ok := topicOf(w, r)
@@ -111,7 +105,7 @@ func change(w http.ResponseWriter, topic string, write func(store) (Board, error
 	writeHTML(w, fragment)
 }
 
-// topicOf reads ?topic= (default "lobby"): 1–32 of [a-z0-9-], the same rule index.mjs applies
+// topicOf reads ?topic= (default "lobby"): 1–32 of [a-z0-9-], the same rule worker/index.mjs applies
 // to /live/{topic}.
 func topicOf(w http.ResponseWriter, r *http.Request) (string, bool) {
 	topic := r.URL.Query().Get("topic")
@@ -146,7 +140,7 @@ func storeError(w http.ResponseWriter, err error) {
 // the same bytes.
 func renderBoard(b Board) string {
 	var buf bytes.Buffer
-	if err := BoardFragment(b).Render(context.Background(), &buf); err != nil {
+	if err := views.BoardFragment(b).Render(context.Background(), &buf); err != nil {
 		log.Printf("render board %s v%d: %v", b.Topic, b.Version, err)
 	}
 	return buf.String()
@@ -163,12 +157,4 @@ func writeNode(w http.ResponseWriter, n gsx.Node) {
 	}
 	w.Header().Set("Content-Length", strconv.Itoa(buf.Len()))
 	writeHTML(w, buf.String())
-}
-
-// navVariant highlights the current page's header button (as demos/gsxui's Layout does).
-func navVariant(path, href string) string {
-	if path == href {
-		return "secondary"
-	}
-	return "ghost"
 }

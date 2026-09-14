@@ -8,5 +8,16 @@
 .vscode/
 .DS_Store
 
-# Upstream checkouts driven by mise tasks (tasks/*.toml)
+# Upstream checkouts driven by mise tasks (tasks/upstream.toml)
 /.upstream/
+
+# gsx generated code (gsx Getting started: do not edit or commit)
+*.x.go
+# workers-assets-gen + tinygo output (mise run build)
+/build/
+# Tailwind output + assembled Static Assets (mise run assets)
+/dist/
+# Last deployed URL (mise run deploy)
+/.deploy-url
+# Durable Object SQLite state for local workerd (Room cache, LocalD1 board data)
+/.workerd-state/

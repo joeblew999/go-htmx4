@@ -1,8 +1,8 @@
-package main
+package views
 
 import (
-	"github.com/joeblew999/go-htmx4/demos/workers/ui"
-	"github.com/joeblew999/go-htmx4/demos/workers/ui/icon"
+	"github.com/joeblew999/go-htmx4/ui"
+	"github.com/joeblew999/go-htmx4/ui/icon"
 )
 
 // BoardPage is the shared board page, composed from gsxui components. It connects to /live/{topic}
@@ -89,7 +89,7 @@ component BoardPage(topic string, b Board) {
 
 // boardHead is the board's extra <head> after htmx: hx-ws and the version guard.
 component boardHead() {
-	<script src="/hx-ws.js"></script>
+	<script src="/static/hx-ws.js"></script>
 	<script>
 		// HTTP responses and hx-ws pushes both go through htmx.swap and can arrive out of order.
 		// Drop any swap whose board version is older than the one on screen.

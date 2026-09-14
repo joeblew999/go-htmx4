@@ -1,12 +1,12 @@
-// Command workers is a demo of htmx 4 on Cloudflare Workers via workers-go v0.35.0,
-// built with TinyGo and no Node (plan: .plans/done/2026-09-13_1111_adopt-workers-go.md).
+// Command go-htmx4 is a Go + htmx 4 + gsxui app on Cloudflare Workers via workers-go v0.35.0, built
+// with TinyGo and no Node (plans: .plans/done/).
 //
 // The same handlers run in two places:
 //
-//	mise run demo:workers:serve   TinyGo → wasm on workerd  → http://localhost:8913
-//	mise run demo:workers:run     go run . (non-js fallback) → http://localhost:9913
+//	mise run serve   TinyGo → wasm on workerd  → http://localhost:8913
+//	mise run run     go run . (non-js fallback) → http://localhost:9913
 //
-// Files in dist/site (public/, gsxui CSS, behaviours and fonts) are served by Workers Static Assets
+// Files in dist/site (static/, gsxui CSS, behaviours and fonts) are served by Workers Static Assets
 // before the Worker runs (locally: workerd's disk service, fronted by workerd/assets-first.mjs).
 // Only `go run .` serves them from Go. Platform calls live in platform_js.go / platform_other.go.
 package main
@@ -19,12 +19,12 @@ import (
 	"strings"
 	"time"
 
+	"github.com/joeblew999/go-htmx4/views"
 	"github.com/syumai/workers-go"
 )
 
 // No html/template: under TinyGo 0.42 it compiles but panics at execute time with
-// "unimplemented: (reflect.Type).NumOut()". Pages are gsx components (home.gsx, board.gsx, fragments.gsx)
-// built from gsxui.
+// "unimplemented: (reflect.Type).NumOut()". Pages are gsx components in views/, built from gsxui.
 
 // count is package-level state. On Workers every request gets a fresh Go runtime, so it
 // is always 1 there; under `go run .` it keeps counting.
@@ -44,11 +44,11 @@ func routes() http.Handler {
 			return
 		}
 		if allow(w, r, http.MethodGet) {
-			env := getenv("DEMO_ENV")
+			env := getenv("APP_ENV")
 			if env == "" {
-				env = "(DEMO_ENV not set)"
+				env = "(APP_ENV not set)"
 			}
-			writeNode(w, HomePage(target(), env))
+			writeNode(w, views.HomePage(target(), env))
 		}
 	})
 	boardRoutes(mux)
@@ -60,14 +60,14 @@ func routes() http.Handler {
 	mux.HandleFunc("/fragments/now", func(w http.ResponseWriter, r *http.Request) {
 		if allow(w, r, http.MethodGet) {
 			now := time.Now().UTC().Format(time.RFC3339)
-			writeNode(w, NowFragment(now, target()))
+			writeNode(w, views.NowFragment(now, target()))
 		}
 	})
 	mux.HandleFunc("/greet", func(w http.ResponseWriter, r *http.Request) {
 		if !allow(w, r, http.MethodPost) {
 			return
 		}
-		writeNode(w, GreetFragment(strings.TrimSpace(r.FormValue("name"))))
+		writeNode(w, views.GreetFragment(strings.TrimSpace(r.FormValue("name"))))
 	})
 	mux.HandleFunc("/count", func(w http.ResponseWriter, r *http.Request) {
 		if allow(w, r, http.MethodPost) {

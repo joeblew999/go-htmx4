@@ -2,132 +2,6 @@
 #
 # No Node anywhere. Tools come from mise.toml: go, tailwindcss (standalone), gsxui, gsx.
 #
-# upstream:gsxui:*  run gsxui's own demo (showcase site, component examples, theme editor)
-#                   through its unbundled Go harness, jstest/harness. The steps mirror
-#                   jstest/global-setup.ts, minus npx:
-#
-#   mise run upstream:gsxui:serve    # fetch + generate + deps + css, then serve
-#                                    # → http://127.0.0.1:7799/
-
-# ── upstream:gsxui:fetch ─────────────────────────────────────────────────────
-["upstream:gsxui:fetch"]
-description = "Check out gsxhq/gsxui at the pinned commit into .upstream/gsxui"
-dir = "{{config_root}}"
-run = '''
-#!/usr/bin/env bash
-set -euo pipefail
-rev=c7fd6a82e7ce8b7fb03940fcb3de8da06b833340
-dir=.upstream/gsxui
-if [ ! -d "$dir/.git" ]; then
-  mkdir -p "$dir"
-  git -C "$dir" init -q
-  git -C "$dir" remote add origin https://github.com/gsxhq/gsxui.git
-fi
-if [ "$(git -C "$dir" rev-parse -q --verify HEAD 2>/dev/null)" != "$rev" ]; then
-  git -C "$dir" fetch -q --depth 1 origin "$rev"
-  git -C "$dir" checkout -q --detach FETCH_HEAD
-fi
-echo "✓ gsxui @ $(git -C "$dir" log -1 --format='%h %cs %s')"
-'''
-
-# ── upstream:gsxui:generate ──────────────────────────────────────────────────
-["upstream:gsxui:generate"]
-description = "go tool gsx generate in the gsxui checkout"
-depends = ["upstream:gsxui:fetch"]
-dir = "{{config_root}}/.upstream/gsxui"
-run = "go tool gsx generate"
-
-# ── upstream:gsxui:test ──────────────────────────────────────────────────────
-["upstream:gsxui:test"]
-description = "gsxui's make test (generate + go vet + go test), Node-free"
-depends = ["upstream:gsxui:generate", "upstream:gsxui:deps"]
-dir = "{{config_root}}/.upstream/gsxui"
-# internal/stylegen expects node_modules/.bin/tailwindcss; upstream:gsxui:deps links the
-# standalone binary there. TestE2E* in internal/cli run `gsx init --yes`, whose Vite
-# scaffold runs `npm install`, so they can't pass without Node and are skipped.
-run = "go vet ./... && go test -skip '^TestE2E' ./..."
-
-# ── upstream:gsxui:deps ──────────────────────────────────────────────────────
-# The harness import map (jstest/harness/shell.go) and web/site.css resolve a few
-# packages from node_modules/. Fetch those exact tarballs from the npm registry with
-# curl, check them against package-lock.json's integrity hashes, and unpack them.
-# No npm or node is involved.
-["upstream:gsxui:deps"]
-description = "Fetch the lock-pinned packages the harness needs into node_modules (curl, no npm)"
-depends = ["upstream:gsxui:fetch"]
-dir = "{{config_root}}/.upstream/gsxui"
-run = '''
-#!/usr/bin/env bash
-set -euo pipefail
-packages=(
-  htmx.org css-tree mdn-data source-map-js jsonc-parser          # JS: harness import map
-  tw-animate-css @fontsource-variable/geist @fontsource-variable/geist-mono   # CSS: web/site.css
-)
-for p in "${packages[@]}"; do
-  entry=$(jq -ce --arg k "node_modules/$p" '.packages[$k]' package-lock.json) \
-    || { echo "✗ $p not in package-lock.json"; exit 1; }
-  version=$(jq -r .version <<<"$entry")
-  url=$(jq -r .resolved <<<"$entry")
-  integrity=$(jq -r .integrity <<<"$entry")
-  dest="node_modules/$p"
-  if [ -f "$dest/package.json" ] && [ "$(jq -r .version "$dest/package.json")" = "$version" ]; then
-    echo "· $p@$version (cached)"; continue
-  fi
-  tgz=$(mktemp)
-  curl -sfL -o "$tgz" "$url"
-  algo=${integrity%%-*}; want=${integrity#*-}
-  got=$(openssl dgst -"$algo" -binary "$tgz" | base64)
-  [ "$got" = "$want" ] || { echo "✗ $p@$version integrity mismatch"; rm -f "$tgz"; exit 1; }
-  rm -rf "$dest" && mkdir -p "$dest"
-  tar -xzf "$tgz" -C "$dest" --strip-components 1
-  rm -f "$tgz"
-  echo "✓ $p@$version"
-done
-# Tests in internal/stylegen run node_modules/.bin/tailwindcss; the standalone CLI takes
-# the same flags (gsxui npm-free guide).
-mkdir -p node_modules/.bin
-ln -sf "$(command -v tailwindcss)" node_modules/.bin/tailwindcss
-echo "✓ node_modules/.bin/tailwindcss → $(readlink node_modules/.bin/tailwindcss)"
-'''
-
-# ── upstream:gsxui:css ───────────────────────────────────────────────────────
-# global-setup.ts: compile jstest/full.css + jstest/foundation.css, then symlink the
-# font files the compiled CSS references (Tailwind keeps the url()s relative to their
-# source stylesheet).
-["upstream:gsxui:css"]
-description = "Compile the harness stylesheets with the standalone Tailwind CLI + link fonts"
-depends = ["upstream:gsxui:deps", "upstream:gsxui:generate"]
-dir = "{{config_root}}/.upstream/gsxui"
-run = '''
-#!/usr/bin/env bash
-set -euo pipefail
-tmp=jstest/.tmp
-mkdir -p "$tmp/files"
-go run ./jstest/harness -manifest "$tmp/examples.json"
-tailwindcss -i jstest/full.css -o "$tmp/site.css"
-tailwindcss -i jstest/foundation.css -o "$tmp/foundation.css"
-
-missing=()
-# @fontsource: url(./files/<name>) → node_modules/@fontsource-variable/*/files/<name>
-for name in $(grep -oE 'url\(\./files/[^)"'"'"']+\)' "$tmp/site.css" | sed -E 's#url\(\./files/##; s#\)$##' | sort -u); do
-  src=$(ls node_modules/@fontsource-variable/*/files/"$name" 2>/dev/null | head -1 || true)
-  [ -n "$src" ] && ln -sf "$PWD/$src" "$tmp/files/$name" || missing+=("$name")
-done
-# gsxui's own fonts: url("./<name>.woff2") → assets/fonts/<name>.woff2
-for name in $(grep -oE "url\([\"']?\./[^/)\"']+\.woff2[\"']?\)" "$tmp/site.css" | sed -E "s#url\([\"']?\./##; s#[\"']?\)\$##" | sort -u); do
-  [ -f "assets/fonts/$name" ] && ln -sf "$PWD/assets/fonts/$name" "$tmp/$name" || missing+=("$name")
-done
-[ -z "${missing[*]:-}" ] || { echo "✗ unresolved font files: ${missing[*]}"; exit 1; }
-echo "✓ $tmp/site.css $(wc -c <"$tmp/site.css" | tr -d ' ')B, foundation.css $(wc -c <"$tmp/foundation.css" | tr -d ' ')B, fonts linked"
-'''
-
-# ── upstream:gsxui:serve ─────────────────────────────────────────────────────
-["upstream:gsxui:serve"]
-description = "Serve gsxui's full demo via its Go harness → http://127.0.0.1:7799/"
-depends = ["upstream:gsxui:css"]
-dir = "{{config_root}}/.upstream/gsxui"
-run = "go run ./jstest/harness -root ."
-
 # ═════════════════════════════════════════════════════════════════════════════
 # demo:gsxui:*  our own demo in demos/gsxui, built with the npm-free gsxui flow
 #               (https://ui.gsxhq.dev/docs/npm-free) and the gsx CLI.
@@ -308,17 +182,17 @@ if grep -qiE 'panic|uncaught' build/workerd-smoke.log; then echo "✗ errors in 
 exit $fail
 '''
 
-# Deploy with demos/workers/cmd/deploy (Direct Upload + script upload, no wrangler): Go-only layout
+# Deploy with cmd/deploy (Direct Upload + script upload, no wrangler): Go-only layout
 # (build/worker/worker.mjs is the entry), build/assets as Static Assets.
 ["demo:gsxui:workers:deploy"]
 description = "Local workerd smoke + token check, then deploy → https://go-htmx4-gsxui-demo.<subdomain>.workers.dev"
-depends = ["demo:gsxui:workers:smoke", "demo:workers:token-check"]
-dir = "{{config_root}}/demos/workers"
+depends = ["demo:gsxui:workers:smoke", "token-check"]
+dir = "{{config_root}}"
 run = '''
 #!/usr/bin/env bash
 set -euo pipefail
 fnox exec -- go run ./cmd/deploy -name go-htmx4-gsxui-demo -allow-existing -main "" \
-  -build ../gsxui/build/worker -assets ../gsxui/build/assets | tee ../gsxui/.deploy-url
+  -build demos/gsxui/build/worker -assets demos/gsxui/build/assets | tee demos/gsxui/.deploy-url
 '''
 
 ["demo:gsxui:workers:smoke-remote"]

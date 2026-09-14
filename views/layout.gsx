@@ -1,11 +1,11 @@
-package main
+package views
 
 import (
 	"github.com/gsxhq/gsx"
-	"github.com/joeblew999/go-htmx4/demos/workers/ui"
+	"github.com/joeblew999/go-htmx4/ui"
 )
 
-// Layout is the document shell, mirroring demos/gsxui/views/layout.gsx: gsxui theme CSS, htmx, the
+// Layout is the document shell, mirroring gsxui's site layout: gsxui theme CSS, htmx, the
 // gsxui behaviours module, a header of gsxui Buttons, plus the theme toggle. htmxConfig becomes the
 // htmx-config meta, which must precede htmx's script (htmx reads it when it loads); head carries
 // page-specific tags that need htmx (the board adds hx-ws).
@@ -21,7 +21,7 @@ component Layout(title string, path string, htmxConfig string, head gsx.Node, ch
 			{ if htmxConfig != "" {
 				<meta name="htmx-config" content={htmxConfig}/>
 			} }
-			<script src="/htmx.min.js"></script>
+			<script src="/static/htmx.min.js"></script>
 			<script type="module" src="/gsxui/index.js"></script>
 			{ head }
 		</head>

@@ -1,16 +1,16 @@
-// Command deploy uploads demos/workers to Cloudflare Workers with the REST API: no wrangler,
+// Command deploy uploads the app to Cloudflare Workers with the REST API: no wrangler,
 // no Node. It follows https://developers.cloudflare.com/workers/static-assets/direct-upload/:
 //
 //  0. D1: find (or create) each database by name and apply migrations/*.sql not yet recorded
 //     in its _migrations table (D1 REST API)
-//  1. hash every file in public/ into a manifest → POST …/assets-upload-session
+//  1. hash every file in the -assets directory into a manifest → POST …/assets-upload-session
 //  2. upload the buckets Cloudflare asks for (base64 multipart, upload JWT) → completion JWT
-//  3. PUT the script: index.mjs + JS modules + build/ (TinyGo) + metadata (compatibility date,
+//  3. PUT the script: worker/index.mjs + JS modules + build/ (TinyGo) + metadata (compatibility date,
 //     bindings, Durable Object migration if not yet applied, assets JWT)
 //  4. enable https://<name>.<account subdomain>.workers.dev
 //
 // Credentials come from CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID; `mise run
-// demo:workers:deploy` injects them with `fnox exec`. This is local-only tooling (standard Go);
+// deploy` injects them with `fnox exec`. This is local-only tooling (standard Go);
 // the Worker itself is the TinyGo build in build/.
 package main
 
@@ -116,9 +116,11 @@ func main() {
 			modules = append(modules, module{f, filepath.Join(*buildDir, f)})
 		}
 	} else {
-		modules = append(modules, module{*mainModule, *mainModule})
+		// JS modules are named by file name (worker/index.mjs → "index.mjs"), so their relative
+		// imports (./room.mjs, ./build/worker.mjs) resolve the same as in workerd/config.capnp.
+		modules = append(modules, module{filepath.Base(*mainModule), *mainModule})
 		for _, m := range jsModules {
-			modules = append(modules, module{m, m})
+			modules = append(modules, module{filepath.Base(m), m})
 		}
 		for _, f := range buildFiles {
 			modules = append(modules, module{"build/" + f, filepath.Join(*buildDir, f)})
@@ -126,7 +128,7 @@ func main() {
 	}
 	for _, m := range modules {
 		if _, err := os.Stat(m.path); err != nil {
-			log.Fatalf("deploy: %v (run mise run demo:workers:build)", err)
+			log.Fatalf("deploy: %v (run mise run build)", err)
 		}
 	}
 	log.Printf("worker %q: %d modules (main %s), %d assets from %q, vars %v, d1 %v, do %v, migration %q %v",

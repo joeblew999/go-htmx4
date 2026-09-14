@@ -1,6 +1,6 @@
 # go-htmx4 as a real repo: one app, a GitHub template, importable kit packages
 
-**Status:** decisions made, waiting for go · **Created:** 2026-09-14 10:37
+**Status:** Phase 1 done; Phase 2 next · **Created:** 2026-09-14 10:37
 
 ## Goal
 
@@ -98,12 +98,13 @@ theme toggle across all pages.
 
 ### Phase 1: root app from the Workers demo (no behaviour change)
 
-- [ ] `git mv demos/workers/*` → root layout above (`worker/`, `workerd/`, `static/`, `views/`).
-- [ ] Module `github.com/joeblew999/go-htmx4`, then fix imports, `gsx.toml` `class_merger` and `gsxui.json` paths.
-- [ ] Tasks move to `tasks/app.toml` with short names: `dev`, `dev:native`, `serve`, `run`, `test`, `smoke`, `load`,
-      `deploy`, `smoke-remote`, `tail`. `check` = test + smoke. Ports: workerd 8913, native 9913.
-- [ ] `APP_NAME` (Worker + D1 name) set once in `mise.toml` `[env]`.
-- [ ] `mise run check` green; the board browser check (scratchpad harness) green against local workerd. **Commit.**
+- [x] `git mv demos/workers/*` → root layout above (`worker/`, `workerd/`, `static/`, `views/`).
+- [x] Module `github.com/joeblew999/go-htmx4`, then fix imports, `gsx.toml` `class_merger` and `gsxui.json` paths.
+- [x] Tasks move to `tasks/app.toml` with short names: `dev`, `dev:native`, `serve`, `run`, `test`, `smoke`, `load`,
+      `deploy`, `smoke-remote`, `tail`. `check` = test + smoke. Ports: workerd 8913, native 9913. — `dev:native` and `tail`
+      come in Phase 4; upstream tasks moved to `tasks/upstream.toml`.
+- [x] `APP_NAME` (Worker + D1 name) set once in `mise.toml` `[env]`.
+- [x] `mise run check` green; the board browser check (scratchpad harness) green against local workerd. **Commit.**
 
 ### Phase 2: merge the gsxui demo in
 
@@ -185,4 +186,24 @@ theme toggle across all pages.
 
 ## Findings
 
-(none yet)
+### 2026-09-14 11:05: Phase 1 (root app from the Workers demo)
+
+- Layout as planned: package `main` at the root, pages/fragments in package `views` (`Board`/`Note` view types live there;
+  `board.go` aliases them), `worker/` (index.mjs, room.mjs), `workerd/` (config.capnp + shims), `static/` (htmx, hx-ws),
+  `cmd/`, `migrations/`, `ui/`, `web/`. History follows (`git mv`).
+- Small behaviour changes that go with the move: static files under `/static/` (the gsxui demo's layout), text binding
+  `DEMO_ENV` → `APP_ENV`, local Durable Object keys `go-htmx4-room` / `go-htmx4-local-d1` (fresh local state), deploy name
+  `$APP_NAME` = `go-htmx4` (not deployed yet).
+- `cmd/deploy` names `-main`/`-module` JS by file name (`worker/index.mjs` → `index.mjs`), so imports resolve the same as in
+  `workerd/config.capnp`; checked with `-dry-run`.
+- **workerd:** `embed` paths are relative to the config file, `disk` paths to the working directory (the old comment said
+  both were file-relative; they were the same directory before).
+- **workerd ignores SIGTERM and SIGINT** once it has served WebSockets: a smoke run left an orphan on :8913. `smoke`/`load`
+  now escalate to SIGKILL after 3 s.
+- **gsx v0.1.0 walks into nested Go modules** with the outer `gsx.toml` (`gen/gen.go` `walkForGsx` skips dot dirs, vendor,
+  node_modules and testdata, but not `go.mod` boundaries), so at the root it generated `demos/gsxui` with the app's
+  `class_merger` and failed. `generate`/`test` pass explicit dirs (`views ui`). `gsx dev` has no path arguments, so
+  **`mise run dev` fails until Phase 2 removes `demos/gsxui`**. Worth an upstream issue.
+- `gofmt -l <dir>` recurses (into `.upstream/`); `test` passes this module's file list from `go list -json`.
+- Checks: `mise run check` green (38 ✓); board browser check 13/13 on local workerd (push 84 ms, presence 2 → 1, theme,
+  version guard, no console errors); deploy `-dry-run` shows modules `index.mjs`, `room.mjs`, `build/*` and 24 assets.

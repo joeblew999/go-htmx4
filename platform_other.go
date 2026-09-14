@@ -10,7 +10,7 @@ import (
 // getenv reads a process environment variable (`go run .`).
 func getenv(name string) string { return os.Getenv(name) }
 
-// staticFiles serves the assembled static assets (dist/site: public/, gsxui behaviours, compiled
+// staticFiles serves the assembled static assets (dist/site: static/, gsxui behaviours, compiled
 // gsxui CSS + fonts) from disk, standing in for Workers Static Assets under `go run .`.
 func staticFiles() http.Handler { return http.FileServer(http.Dir("dist/site")) }
 

@@ -1,59 +1,26 @@
-# tasks/workers.toml — Cloudflare Workers tasks (plan: .plans/done/2026-09-13_1111_adopt-workers-go.md)
+# tasks/app.toml — the app's tasks (plans: .plans/done/2026-09-13_1111_adopt-workers-go.md and later).
 #
-# workers-go v0.35.0, TinyGo only, no Node (no npm, no wrangler). Tools come from mise.toml:
-# go, tinygo, binaryen (wasm-opt), workerd, fnox.
+# workers-go v0.35.0, TinyGo for everything that ships to Workers, no Node (no npm, no wrangler). Standard Go
+# only for local-only code: `go run .`, go test/vet, cmd/deploy, cmd/wsload. Tools come from mise.toml.
 #
-# upstream:workers-go:fetch  read-only checkout of workers-go v0.35.0 (source reference).
-#
-# demo:workers:*  our own demo in demos/workers (htmx 4 + workers-go, TinyGo):
-#
-#   mise run demo:workers:dev     # gsx dev: save → regenerate → TinyGo + assets → workerd restart
-#   mise run demo:workers:serve   # TinyGo build + workerd (static files first) → http://localhost:8913
-#   mise run demo:workers:run     # go run . (non-js fallback)                  → http://localhost:9913
-#   mise run demo:workers:test    # TinyGo build (size-gated) + workerd smoke + gofmt + vet + test
-#   mise run demo:workers:deploy  # test + token check, then Direct Upload → go-htmx4-workers-demo.<subdomain>.workers.dev
-#   mise run demo:workers:smoke-remote   # curl every route of the deployed Worker
-#   mise run demo:workers:load    # 1,000 WebSockets on one topic + 50-write burst (local, or LOAD_BASE=…)
+#   mise run dev            # gsx dev: save → regenerate → TinyGo + assets → workerd restart → http://localhost:8913
+#   mise run serve          # TinyGo build + workerd (static files first)                  → http://localhost:8913
+#   mise run run            # go run . (non-js fallback)                                  → http://localhost:9913
+#   mise run test           # TinyGo build (size-gated) + workerd smoke + gsx fmt/gofmt + vet + go test
+#   mise run load           # 1,000 WebSockets on one topic + 50-write burst (local, or LOAD_BASE=…)
+#   mise run deploy         # test + token check, then Direct Upload → https://$APP_NAME.<subdomain>.workers.dev
+#   mise run smoke-remote   # curl every route of the deployed Worker
 
-# ── upstream:workers-go:fetch ────────────────────────────────────────────────
-# Check out the v0.35.0 tag into .upstream/workers-go, a read-only reference for its source.
-["upstream:workers-go:fetch"]
-description = "Check out syumai/workers-go v0.35.0 into .upstream/workers-go (read-only source reference)"
+# Vendor htmx 4.0.0 + the hx-ws extension from the npm registry tarball (integrity-checked,
+# no npm), same approach as demo:gsxui:vendor.
+["vendor"]
+description = "Vendor htmx 4.0.0 htmx.min.js + ext/hx-ws.js into static/ (curl, integrity-checked)"
 dir = "{{config_root}}"
 run = '''
 #!/usr/bin/env bash
 set -euo pipefail
-tag=v0.35.0
-rev=b2086b413f689acbb2fdc64bef89363d008f26fb
-dir=.upstream/workers-go
-if [ ! -d "$dir/.git" ]; then
-  mkdir -p "$dir"
-  git -C "$dir" init -q
-  git -C "$dir" remote add origin https://github.com/syumai/workers-go.git
-fi
-if [ "$(git -C "$dir" rev-parse -q --verify HEAD 2>/dev/null)" != "$rev" ]; then
-  git -C "$dir" fetch -q --depth 1 origin "refs/tags/$tag:refs/tags/$tag"
-  git -C "$dir" checkout -q --detach "$tag"
-fi
-[ "$(git -C "$dir" rev-parse HEAD)" = "$rev" ] || { echo "✗ $tag is not $rev"; exit 1; }
-echo "✓ workers-go $tag @ $(git -C "$dir" log -1 --format='%h %cs %s')"
-'''
-
-# ═════════════════════════════════════════════════════════════════════════════
-# demo:workers:*  our own demo in demos/workers. TinyGo for everything that ships to
-#                 Workers; standard Go only for `go run .` and go test/vet (local-only).
-# ═════════════════════════════════════════════════════════════════════════════
-
-# Vendor htmx 4.0.0 + the hx-ws extension from the npm registry tarball (integrity-checked,
-# no npm), same approach as demo:gsxui:vendor.
-["demo:workers:vendor"]
-description = "Vendor htmx 4.0.0 htmx.min.js + ext/hx-ws.js into demos/workers/public (curl, integrity-checked)"
-dir = "{{config_root}}/demos/workers"
-run = '''
-#!/usr/bin/env bash
-set -euo pipefail
 version=4.0.0
-if [ -f public/hx-ws.js ] && [ "$(cat .htmx-version 2>/dev/null)" = "$version" ]; then
+if [ -f static/hx-ws.js ] && [ "$(cat static/.htmx-version 2>/dev/null)" = "$version" ]; then
   echo "· htmx $version (cached)"; exit 0
 fi
 meta=$(curl -sfL "https://registry.npmjs.org/htmx.org/$version")
@@ -62,43 +29,44 @@ tgz=$(mktemp); curl -sfL -o "$tgz" "$url"
 algo=${integrity%%-*}; want=${integrity#*-}
 [ "$(openssl dgst -"$algo" -binary "$tgz" | base64)" = "$want" ] || { echo "✗ integrity mismatch"; exit 1; }
 tmp=$(mktemp -d); tar -xzf "$tgz" -C "$tmp" --strip-components 1
-cp "$tmp/dist/htmx.min.js" public/htmx.min.js
-cp "$tmp/dist/ext/hx-ws.js" public/hx-ws.js
-echo "$version" > .htmx-version
+cp "$tmp/dist/htmx.min.js" static/htmx.min.js
+cp "$tmp/dist/ext/hx-ws.js" static/hx-ws.js
+echo "$version" > static/.htmx-version
 rm -rf "$tgz" "$tmp"
-echo "✓ htmx $version: public/htmx.min.js, public/hx-ws.js"
+echo "✓ htmx $version: static/htmx.min.js, static/hx-ws.js"
 '''
 
-# gsx components (board.gsx) → *.x.go, which are gitignored; every build/run/test path depends on this.
-["demo:workers:generate"]
-description = "go tool gsx generate (demos/workers)"
-dir = "{{config_root}}/demos/workers"
-run = "go tool gsx generate"
+# gsx components (views/, ui/) → *.x.go, which are gitignored; every build/run/test path depends on this.
+["generate"]
+description = "go tool gsx generate"
+dir = "{{config_root}}"
+# Explicit dirs: gsx generate/fmt walk into nested modules (demos/gsxui) with this module's gsx.toml (gsx v0.1.0).
+run = "go tool gsx generate views ui"
 
 # gsxui (npm-free mode): compile web/gsxui/index.css with the standalone Tailwind CLI, then assemble the
-# Static Assets directory with the same URL layout as demos/gsxui: / = public/ (htmx, hx-ws),
+# Static Assets directory: /static/ = static/ (htmx, hx-ws),
 # /gsxui/ = web/gsxui/ behaviours, /assets/ = compiled CSS + fonts (fonts.css url()s are relative).
-["demo:workers:assets"]
+["assets"]
 description = "Tailwind (gsxui CSS) + assemble dist/site (Static Assets for workerd, go run . and deploy)"
-depends = ["demo:workers:vendor"]
-dir = "{{config_root}}/demos/workers"
+depends = ["vendor"]
+dir = "{{config_root}}"
 run = '''
 #!/usr/bin/env bash
 set -euo pipefail
 tailwindcss -i web/gsxui/index.css -o dist/gsxui.css --minify 2>&1 | grep -v "^≈\|^$" || true
 rm -rf dist/site
-mkdir -p dist/site/gsxui dist/site/assets
-cp public/*.js dist/site/
+mkdir -p dist/site/static dist/site/gsxui dist/site/assets
+cp static/*.js dist/site/static/
 cp -R web/gsxui/. dist/site/gsxui/
 cp dist/gsxui.css dist/site/assets/
 cp web/gsxui/fonts/*.woff2 dist/site/assets/
 echo "✓ dist/site: $(find dist/site -type f | wc -l | tr -d ' ') files, gsxui.css $(wc -c <dist/site/assets/gsxui.css | tr -d ' ')B"
 '''
 
-["demo:workers:build"]
-depends = ["demo:workers:vendor", "demo:workers:generate", "demo:workers:assets"]
-description = "TinyGo build of demos/workers → build/ (fails if app.wasm gzip > 10 MB, Workers Paid)"
-dir = "{{config_root}}/demos/workers"
+["build"]
+depends = ["vendor", "generate", "assets"]
+description = "TinyGo build → build/ (fails if app.wasm gzip > 10 MB, Workers Paid)"
+dir = "{{config_root}}"
 run = '''
 #!/usr/bin/env bash
 set -euo pipefail
@@ -113,39 +81,41 @@ echo "✓ build/app.wasm raw=${raw}B gzip=${gz}B (limit ${limit}B)"
 '''
 
 # The gsx CLI's dev loop on Workers: gsx.toml [dev] builds the TinyGo worker + gsxui CSS and runs workerd.
-["demo:workers:dev"]
+["dev"]
 description = "go tool gsx dev: save .gsx/.go → regenerate → TinyGo + CSS → workerd restart → http://localhost:8913"
-dir = "{{config_root}}/demos/workers"
+dir = "{{config_root}}"
 run = "go tool gsx dev --no-web"
 
-["demo:workers:run"]
+["run"]
 description = "go run . (non-js fallback, dist/site served by Go) → http://localhost:9913"
-depends = ["demo:workers:generate", "demo:workers:assets"]
-dir = "{{config_root}}/demos/workers"
-env = { PORT = "9913", DEMO_ENV = "go run . (local)" }
+depends = ["generate", "assets"]
+dir = "{{config_root}}"
+env = { PORT = "9913", APP_ENV = "go run . (local)" }
 run = "go run ."
 
-["demo:workers:serve"]
+["serve"]
 description = "TinyGo build, then workerd with static files first → http://localhost:8913"
-depends = ["demo:workers:build"]
-dir = "{{config_root}}/demos/workers"
-run = "mkdir -p .workerd-state && exec workerd serve config.capnp"
+depends = ["build"]
+dir = "{{config_root}}"
+run = "mkdir -p .workerd-state && exec workerd serve workerd/config.capnp"
 
 # go test runs the handlers on standard Go, which hides TinyGo runtime gaps (html/template
 # panics, pre-1.22 ServeMux). So also run the real TinyGo wasm under workerd and curl it.
-["demo:workers:smoke"]
+["smoke"]
 description = "Serve the TinyGo build on workerd (:8913) and curl every route"
-depends = ["demo:workers:build"]
-dir = "{{config_root}}/demos/workers"
+depends = ["build"]
+dir = "{{config_root}}"
 run = '''
 #!/usr/bin/env bash
 set -euo pipefail
 base=http://127.0.0.1:8913
 curl -s -o /dev/null "$base/" && { echo "✗ :8913 is already in use"; exit 1; }
 mkdir -p .workerd-state
-workerd serve config.capnp >build/workerd-smoke.log 2>&1 &
+workerd serve workerd/config.capnp >build/workerd-smoke.log 2>&1 &
 pid=$!
-trap 'kill $pid 2>/dev/null' EXIT
+# workerd can ignore SIGTERM while it drains (seen with hibernated WebSockets): escalate so :8913 is freed.
+stop() { kill "$pid" 2>/dev/null || return 0; for _ in $(seq 1 30); do kill -0 "$pid" 2>/dev/null || return 0; sleep 0.1; done; kill -9 "$pid" 2>/dev/null || true; }
+trap stop EXIT
 for _ in $(seq 1 80); do [ "$(curl -s "$base/healthz")" = ok ] && break; sleep 0.25; done
 fail=0
 check() { # name got want-substring
@@ -153,11 +123,11 @@ check() { # name got want-substring
 }
 page=$(curl -s "$base/")
 check "page runs on TinyGo wasm"  "$page" '<span id="target">tinygo js/wasm</span>'
-check "text binding DEMO_ENV"     "$page" '<span id="env">workerd (local)</span>'
+check "text binding APP_ENV"      "$page" '<span id="env">workerd (local)</span>'
 check "GET fragment"              "$(curl -s "$base/fragments/now")" '<time datetime='
 check "POST form, escaped"        "$(curl -s -X POST --data-urlencode 'name=<b>Ada' "$base/greet")" 'Hello, &lt;b&gt;Ada.'
 check "state resets per request"  "$(curl -s -X POST "$base/count")$(curl -s -X POST "$base/count")" '11'
-check "static file first"         "$(curl -s -o /dev/null -w '%{http_code} %{content_type}' "$base/htmx.min.js")" '200 text/javascript'
+check "static file first"         "$(curl -s -o /dev/null -w '%{http_code} %{content_type}' "$base/static/htmx.min.js")" '200 text/javascript'
 check "gsxui css asset"           "$(curl -s -o /dev/null -w '%{http_code} %{content_type}' "$base/assets/gsxui.css")" '200 text/css'
 check "gsxui behaviours module"   "$(curl -s -o /dev/null -w '%{http_code} %{content_type}' "$base/gsxui/index.js")" '200 text/javascript'
 check "gsxui font asset"          "$(curl -s -o /dev/null -w '%{http_code} %{content_type}' "$base/assets/geist-latin-wght-normal.woff2")" '200 font/woff2'
@@ -167,7 +137,7 @@ check "404 for missing file"      "$(curl -s -o /dev/null -w '%{http_code}' "$ba
 # Shared board: Go (TinyGo) → database/sql d1 driver → LocalD1 → publish → Room DO → hx-ws.
 check "board page with hx-ws"     "$(curl -s "$base/board?topic=smoke")" 'hx-ws:connect="/live/smoke"'
 check "board write via D1 driver" "$(curl -s -X POST -d delta=1 "$base/board/add?topic=smoke")" 'hx-swap-oob="true" data-version="'
-check "hx-ws.js from public/"     "$(curl -s -o /dev/null -w '%{http_code} %{content_type}' "$base/hx-ws.js")" '200 text/javascript'
+check "hx-ws.js from static/"     "$(curl -s -o /dev/null -w '%{http_code} %{content_type}' "$base/static/hx-ws.js")" '200 text/javascript'
 check "/live needs an upgrade"    "$(curl -s -o /dev/null -w '%{http_code}' "$base/live/smoke")" '426'
 if go run ./cmd/wsload -n 2 -topic smoke >build/wsload-smoke.log 2>&1; then
   echo "✓ live push to 2 WebSockets + cached fragment (wsload)"
@@ -180,10 +150,10 @@ exit $fail
 
 # Design size: 1,000 WebSockets on one topic, then a burst of 50 concurrent writes (coalescing).
 # Starts its own workerd on :8913 unless LOAD_BASE points somewhere else (e.g. the deployed URL).
-["demo:workers:load"]
+["load"]
 description = "1,000 WebSockets on one topic + a 50-write burst (local workerd, or LOAD_BASE=https://…)"
-depends = ["demo:workers:build"]
-dir = "{{config_root}}/demos/workers"
+depends = ["build"]
+dir = "{{config_root}}"
 run = '''
 #!/usr/bin/env bash
 set -euo pipefail
@@ -193,9 +163,10 @@ if [ -z "$base" ]; then
   base=http://127.0.0.1:8913
   curl -s -o /dev/null "$base/" && { echo "✗ :8913 is already in use"; exit 1; }
   mkdir -p .workerd-state
-  workerd serve config.capnp >build/workerd-load.log 2>&1 &
+  workerd serve workerd/config.capnp >build/workerd-load.log 2>&1 &
   pid=$!
-  trap 'kill $pid 2>/dev/null' EXIT
+  stop() { kill "$pid" 2>/dev/null || return 0; for _ in $(seq 1 30); do kill -0 "$pid" 2>/dev/null || return 0; sleep 0.1; done; kill -9 "$pid" 2>/dev/null || true; }
+  trap stop EXIT
   for _ in $(seq 1 80); do [ "$(curl -s "$base/healthz")" = ok ] && break; sleep 0.25; done
 fi
 echo "→ $base"
@@ -203,23 +174,26 @@ go run ./cmd/wsload -base "$base" -n 1000 -topic load
 go run ./cmd/wsload -base "$base" -n 1000 -writes 50 -topic load-burst
 '''
 
-["demo:workers:test"]
-description = "TinyGo build + workerd smoke test + gsx fmt/gofmt check + go vet + go test (demos/workers)"
-depends = ["demo:workers:smoke"]
-dir = "{{config_root}}/demos/workers"
+["test"]
+description = "TinyGo build + workerd smoke test + gsx fmt/gofmt check + go vet + go test"
+depends = ["smoke"]
+dir = "{{config_root}}"
 run = '''
 #!/usr/bin/env bash
 set -euo pipefail
-go tool gsx fmt -l . || { echo "✗ gsx fmt: run 'go tool gsx fmt -w .'"; exit 1; }
-test -z "$(gofmt -l .)" || { gofmt -l .; echo "✗ gofmt: files need formatting"; exit 1; }
+go tool gsx fmt -l views ui || { echo "✗ gsx fmt: run 'go tool gsx fmt -w views ui'"; exit 1; }
+# Files of this module only (gofmt -l on a directory recurses into demos/ and .upstream/); IgnoredGoFiles
+# are the other platform's build-tagged files.
+unformatted=$(gofmt -l $(go list -json ./... | jq -r '.Dir as $d | (.GoFiles + (.TestGoFiles // []) + (.XTestGoFiles // []) + (.IgnoredGoFiles // []))[] | "\($d)/\(.)"'))
+test -z "$unformatted" || { echo "$unformatted"; echo "✗ gofmt: files need formatting"; exit 1; }
 go vet ./...
 go test ./...
 '''
 
-# ── demo:workers:token-check ─────────────────────────────────────────────────
+# ── token-check ─────────────────────────────────────────────────
 # Credentials come from fnox via mise (global keychain config). The inner sh -c '…' is
 # single-quoted so $CLOUDFLARE_API_TOKEN expands after fnox has injected it.
-["demo:workers:token-check"]
+["token-check"]
 description = "Verify CLOUDFLARE_API_TOKEN (from fnox) against the Cloudflare API"
 run = '''
 fnox exec -- sh -c '
@@ -230,34 +204,34 @@ fnox exec -- sh -c '
 '
 '''
 
-# ── demo:workers:deploy ──────────────────────────────────────────────────────
-# Direct Upload via demos/workers/cmd/deploy (stdlib Go, no wrangler). Runs the full local test
-# (TinyGo build + workerd smoke + go test) and the token check first. The name is dedicated to
-# this demo, so updating an existing script of that name is allowed.
-["demo:workers:deploy"]
-description = "Test, then deploy demos/workers → https://go-htmx4-workers-demo.<subdomain>.workers.dev"
-depends = ["demo:workers:test", "demo:workers:token-check"]
-dir = "{{config_root}}/demos/workers"
+# ── deploy ──────────────────────────────────────────────────────
+# Direct Upload via cmd/deploy (stdlib Go, no wrangler). Runs the full local test
+# (TinyGo build + workerd smoke + go test) and the token check first. The Worker and D1 names are
+# $APP_NAME (mise.toml [env]); updating an existing script of that name is allowed.
+["deploy"]
+description = "Test, then deploy → https://$APP_NAME.<subdomain>.workers.dev"
+depends = ["test", "token-check"]
+dir = "{{config_root}}"
 run = '''
 #!/usr/bin/env bash
 set -euo pipefail
-fnox exec -- go run ./cmd/deploy -name go-htmx4-workers-demo -allow-existing \
-  -main index.mjs -module room.mjs -assets dist/site \
-  -var "DEMO_ENV=cloudflare (workers.dev)" \
-  -d1 DB=go-htmx4-workers-demo -d1-create -migrations migrations \
+fnox exec -- go run ./cmd/deploy -name "$APP_NAME" -allow-existing \
+  -main worker/index.mjs -module worker/room.mjs -assets dist/site \
+  -var "APP_ENV=cloudflare (workers.dev)" \
+  -d1 DB="$APP_NAME" -d1-create -migrations migrations \
   -do ROOM=Room -migration-tag v1 -new-sqlite-class Room \
   | tee .deploy-url   # outside build/: workers-assets-gen wipes build/ on every build
 '''
 
-# ── demo:workers:smoke-remote ────────────────────────────────────────────────
-# Same checks as demo:workers:smoke, against the deployed URL (from .deploy-url, written by demo:workers:deploy).
-["demo:workers:smoke-remote"]
+# ── smoke-remote ────────────────────────────────────────────────
+# Same checks as smoke, against the deployed URL (from .deploy-url, written by deploy).
+["smoke-remote"]
 description = "curl every route of the deployed Worker"
-dir = "{{config_root}}/demos/workers"
+dir = "{{config_root}}"
 run = '''
 #!/usr/bin/env bash
 set -euo pipefail
-base=$(cat .deploy-url 2>/dev/null) || { echo "✗ no .deploy-url; run demo:workers:deploy"; exit 1; }
+base=$(cat .deploy-url 2>/dev/null) || { echo "✗ no .deploy-url; run deploy"; exit 1; }
 echo "→ $base"
 # A brand-new workers.dev hostname can take a little while to answer.
 for _ in $(seq 1 60); do [ "$(curl -s "$base/healthz")" = ok ] && break; sleep 2; done
@@ -271,7 +245,7 @@ check "plain_text binding"        "$page" '<span id="env">cloudflare (workers.de
 check "GET fragment"              "$(curl -s "$base/fragments/now")" '<time datetime='
 check "POST form, escaped"        "$(curl -s -X POST --data-urlencode 'name=<b>Ada' "$base/greet")" 'Hello, &lt;b&gt;Ada.'
 check "state resets per request"  "$(curl -s -X POST "$base/count")$(curl -s -X POST "$base/count")" '11'
-check "static asset htmx"         "$(curl -s -o /dev/null -w '%{http_code} %{content_type}' "$base/htmx.min.js")" '200 '
+check "static asset htmx"         "$(curl -s -o /dev/null -w '%{http_code} %{content_type}' "$base/static/htmx.min.js")" '200 '
 check "static asset css"          "$(curl -s -o /dev/null -w '%{http_code} %{content_type}' "$base/assets/gsxui.css")" '200 text/css'
 check "gsxui behaviours module"   "$(curl -s -o /dev/null -w '%{http_code}' "$base/gsxui/index.js")" '200'
 check "theme toggle in header"    "$(curl -s "$base/")" 'data-site-theme-toggle'
@@ -280,7 +254,7 @@ check "404 for missing file"      "$(curl -s -o /dev/null -w '%{http_code}' "$ba
 # Shared board: Go → D1 → Room DO → hx-ws.
 check "board page with hx-ws"     "$(curl -s "$base/board?topic=smoke")" 'hx-ws:connect="/live/smoke"'
 check "board write via D1"        "$(curl -s -X POST -d delta=1 "$base/board/add?topic=smoke")" 'hx-swap-oob="true" data-version="'
-check "hx-ws.js asset"            "$(curl -s -o /dev/null -w '%{http_code}' "$base/hx-ws.js")" '200'
+check "hx-ws.js asset"            "$(curl -s -o /dev/null -w '%{http_code}' "$base/static/hx-ws.js")" '200'
 check "/live needs an upgrade"    "$(curl -s -o /dev/null -w '%{http_code}' "$base/live/smoke")" '426'
 if go run ./cmd/wsload -base "$base" -n 2 -topic smoke; then
   echo "✓ live push to 2 WebSockets + cached fragment (wsload)"

@@ -1,6 +1,6 @@
-class_merger = "github.com/joeblew999/go-htmx4/demos/workers/ui/merge.Merge"
+class_merger = "github.com/joeblew999/go-htmx4/ui/merge.Merge"
 
-# gsx config for demos/workers (gsx Configuration guide).
+# gsx config for the app (gsx Configuration guide).
 # gsx's htmx preset predates htmx 4: add hx-action, and hx-ws:connect, which also carries a URL.
 url_presets = ["htmx"]
 
@@ -9,10 +9,10 @@ names = ["hx-action", "hx-ws:connect"]
 
 # gsx dev drives the Workers loop (gsx Configuration guide, [dev]): a .gsx/.go save regenerates, rebuilds the
 # TinyGo worker + gsxui CSS, restarts workerd and probes /healthz. workerd listens on the fixed port in
-# config.capnp, so upstream points there instead of gsx's GO_PORT. mise run demo:workers:dev
+# workerd/config.capnp, so upstream points there instead of gsx's GO_PORT. mise run dev
 [dev]
 no_web = true
-build = ["mise", "run", "demo:workers:build"]
-run = ["sh", "-c", "mkdir -p .workerd-state && exec workerd serve config.capnp"]
+build = ["mise", "run", "build"]
+run = ["sh", "-c", "mkdir -p .workerd-state && exec workerd serve workerd/config.capnp"]
 upstream = "http://127.0.0.1:8913"
 health = "/healthz"

@@ -2,7 +2,7 @@
 # CI entrypoint (plan: .plans/done/2026-09-14_0915_ci-mise-check.md). Shell only, no Node.
 #
 # Installs mise if it's missing (mise's standalone installer, pinned), the tools pinned in mise.toml, then runs
-# `mise run check`: demo:gsxui:test + demo:gsxui:workers:smoke + demo:workers:test. Runnable locally too.
+# `mise run check`: the app's test (TinyGo on workerd + go test) + the gsxui demo's tests. Runnable locally too.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 

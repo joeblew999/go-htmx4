@@ -19,7 +19,7 @@ func TestRoutes(t *testing.T) {
 		want               []string
 	}{
 		"page": {method: "GET", path: "/", want: []string{
-			"htmx 4 on Cloudflare Workers", `src="/htmx.min.js"`, `href="/assets/gsxui.css"`, `src="/gsxui/index.js"`,
+			"htmx 4 on Cloudflare Workers", `src="/static/htmx.min.js"`, `href="/assets/gsxui.css"`, `src="/gsxui/index.js"`,
 			`hx-get="/fragments/now"`, `hx-post="/greet"`, `hx-post="/count"`, `id="target"`,
 			`data-site-theme-toggle`, `localStorage.getItem("gsxui-theme")`, `data-gsxui-slot-card`,
 		}},
@@ -28,7 +28,7 @@ func TestRoutes(t *testing.T) {
 		"greet escape": {method: "POST", path: "/greet", body: "name=<b>", want: []string{"Hello, &lt;b&gt;."}},
 		"greet empty":  {method: "POST", path: "/greet", body: "name=+", want: []string{"Please enter a name."}},
 		"healthz":      {method: "GET", path: "/healthz", want: []string{"ok"}},
-		"htmx":         {method: "GET", path: "/htmx.min.js", want: []string{"htmx"}},
+		"htmx":         {method: "GET", path: "/static/htmx.min.js", want: []string{"htmx"}},
 		"css":          {method: "GET", path: "/assets/gsxui.css", want: []string{"--background"}},
 		"gsxui js":     {method: "GET", path: "/gsxui/index.js", want: []string{"gsxui"}},
 		"not found":    {method: "GET", path: "/nope.txt", status: http.StatusNotFound},
@@ -60,7 +60,7 @@ func TestRoutes(t *testing.T) {
 }
 
 func TestPagePlaceholdersFilled(t *testing.T) {
-	t.Setenv("DEMO_ENV", `<i>test</i>`)
+	t.Setenv("APP_ENV", `<i>test</i>`)
 	rec := httptest.NewRecorder()
 	routes().ServeHTTP(rec, httptest.NewRequest("GET", "/", nil))
 	body := rec.Body.String()
@@ -68,7 +68,7 @@ func TestPagePlaceholdersFilled(t *testing.T) {
 		t.Errorf("unfilled placeholder in page")
 	}
 	if !strings.Contains(body, `<span id="env">&lt;i&gt;test&lt;/i&gt;</span>`) {
-		t.Errorf("DEMO_ENV not escaped into page")
+		t.Errorf("APP_ENV not escaped into page")
 	}
 }
 
@@ -112,14 +112,14 @@ func TestBoard(t *testing.T) {
 	}
 
 	expect(do("GET", "/board?topic=t-page", ""), http.StatusOK,
-		`hx-ws:connect="/live/t-page"`, `src="/hx-ws.js"`, `id="board"`, `data-version="0"`,
+		`hx-ws:connect="/live/t-page"`, `src="/static/hx-ws.js"`, `id="board"`, `data-version="0"`,
 		`hx-post="/board/add?topic=t-page&amp;delta=1"`, `htmx:before:swap`, `ws.reconnectDelay:2s ws.reconnectJitter:0.5`)
 	expect(do("GET", "/board", ""), http.StatusOK, `hx-ws:connect="/live/lobby"`)
 
 	// htmx reads <meta name="htmx-config"> when its script loads, so the meta must come first, and
 	// hx-ws.js (which needs window.htmx) after.
 	page := do("GET", "/board", "").Body.String()
-	meta, htmx, ws := strings.Index(page, `name="htmx-config"`), strings.Index(page, `src="/htmx.min.js"`), strings.Index(page, `src="/hx-ws.js"`)
+	meta, htmx, ws := strings.Index(page, `name="htmx-config"`), strings.Index(page, `src="/static/htmx.min.js"`), strings.Index(page, `src="/static/hx-ws.js"`)
 	if meta < 0 || htmx < 0 || ws < 0 || !(meta < htmx && htmx < ws) {
 		t.Errorf("head order must be htmx-config meta (%d) < htmx.min.js (%d) < hx-ws.js (%d)", meta, htmx, ws)
 	}

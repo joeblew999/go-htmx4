@@ -2,12 +2,12 @@
 
 [![check](https://github.com/joeblew999/go-htmx4/actions/workflows/check.yml/badge.svg)](https://github.com/joeblew999/go-htmx4/actions/workflows/check.yml)
 
-Server-rendered web apps with [Go](https://go.dev) and [htmx 4](https://four.htmx.org), in two demos:
+Server-rendered web apps with [Go](https://go.dev) and [htmx 4](https://four.htmx.org) on Cloudflare Workers:
 
-- **[`demos/gsxui`](demos/gsxui)**: gsx + gsxui components + htmx 4 + hx-live. Runs as a native Go server **and** on
-  Cloudflare Workers from the same code.
-- **[`demos/workers`](demos/workers)**: htmx 4 on Cloudflare Workers with Go (TinyGo), including a live **shared
+- **The app (repo root)**: htmx 4 + gsx + gsxui on Cloudflare Workers with Go (TinyGo), including a live **shared
   board**: D1 + a Durable Object per topic push every change to all open tabs over WebSockets.
+- **[`demos/gsxui`](demos/gsxui)**: gsx + gsxui components + htmx 4 + hx-live, native Go server **and** Workers from the
+  same code. Being merged into the app ([plan](.plans/2026-09-14_1037_one-app-template-and-kit.md)).
 
 No Node anywhere: no npm, no Vite, no wrangler. Every tool is pinned in [`mise.toml`](mise.toml).
 
@@ -17,9 +17,9 @@ No Node anywhere: no npm, no Vite, no wrangler. Every tool is pinned in [`mise.t
 git clone https://github.com/joeblew999/go-htmx4.git
 cd go-htmx4
 mise install                      # every pinned tool (Go, TinyGo, workerd, Tailwind, gsx, …)
+mise run serve                    # the app on workerd      → http://localhost:8913/board
 mise run demo:gsxui:run           # gsxui demo, native      → http://localhost:7777
-mise run demo:workers:serve       # Workers demo on workerd → http://localhost:8913/board
-mise run check                    # test both demos
+mise run check                    # test everything
 ```
 
 `mise tasks` lists everything. CI runs the same `mise run check` on every push and pull request
@@ -32,7 +32,7 @@ mise run check                    # test both demos
 | Language | [Go](https://go.dev) | 1.27.1 | Native server for the gsxui demo; standard Go for tests and tooling |
 | Interactivity | [htmx](https://four.htmx.org) | 4.0.0 | Vendored per demo |
 | Toolchain & tasks | [mise](https://mise.jdx.dev) | — | Pins every tool; `mise tasks` lists tasks |
-| Templates | [gsx](https://gsxhq.github.io): JSX-style, type-checked Go templates | v0.1.0 | `go tool gsx` in `demos/gsxui` |
+| Templates | [gsx](https://gsxhq.github.io): JSX-style, type-checked Go templates | v0.1.0 | `go tool gsx` |
 | UI components | [gsxui](https://ui.gsxhq.dev): shadcn/ui for gsx, npm-free mode | `c7fd6a8` | Vendored with `gsxui add` |
 | Client state | [hx-live](https://four.htmx.org/extensions/hx-live/) | 4.0.0 | htmx 4 extension |
 | CSS | [Tailwind CSS standalone CLI](https://tailwindcss.com/docs/installation/tailwind-cli) | 4.3.3 | Single binary, no npm |
@@ -52,7 +52,7 @@ Plans, decisions and measurements live in [`.plans/`](.plans/).
 | --- | --- | --- |
 | **gsxui demo** ([`demos/gsxui`](demos/gsxui)): gsx + gsxui + htmx 4 + hx-live. Form with an OOB toast, dialog and tabs loaded via `hx-get`, boosted nav with `outerMorph`, hx-live counter and filter. | `mise run demo:gsxui:run`<br>`mise run demo:gsxui:dev` (live rebuild)<br>`mise run demo:gsxui:test` | http://localhost:7777 |
 | **gsxui demo on Workers**: the same app built with TinyGo (`platform_js.go`), static files as Workers Static Assets. HTML is byte-identical to the native server. | `mise run demo:gsxui:workers:dev` (gsx dev → TinyGo + workerd)<br>`mise run demo:gsxui:workers:serve`<br>`mise run demo:gsxui:workers:smoke`<br>`mise run demo:gsxui:workers:deploy` | http://localhost:8918<br>live: https://go-htmx4-gsxui-demo.gedw99.workers.dev |
-| **Workers demo** ([`demos/workers`](demos/workers)): htmx 4 on Cloudflare Workers via workers-go and TinyGo, UI entirely gsxui (light/dark toggle). Fragment round-trip, form post, a counter that resets on every request, Static Assets, and the **shared board** at `/board`. | `mise run demo:workers:dev` (gsx dev → TinyGo + workerd)<br>`mise run demo:workers:serve` (workerd)<br>`mise run demo:workers:run` (`go run .`)<br>`mise run demo:workers:test`<br>`mise run demo:workers:load` (1,000 WebSockets)<br>`mise run demo:workers:deploy` | http://localhost:8913 (`/board`)<br>http://localhost:9913<br>live: https://go-htmx4-workers-demo.gedw99.workers.dev/board |
+| **The app** (repo root): htmx 4 on Cloudflare Workers via workers-go and TinyGo, UI entirely gsxui (light/dark toggle). Fragment round-trip, form post, a counter that resets on every request, Static Assets, and the **shared board** at `/board`. | `mise run dev` (gsx dev → TinyGo + workerd)<br>`mise run serve` (workerd)<br>`mise run run` (`go run .`)<br>`mise run test`<br>`mise run load` (1,000 WebSockets)<br>`mise run deploy` | http://localhost:8913 (`/board`)<br>http://localhost:9913<br>live (until the cutover): https://go-htmx4-workers-demo.gedw99.workers.dev/board |
 
 ### Upstream references
 
@@ -65,13 +65,13 @@ Read-only checkouts in gitignored `.upstream/`, reproduced without Node.
 
 ## Cloudflare Workers without Node
 
-workers-go's docs use `npm create cloudflare` and wrangler. `tasks/workers.toml` and `tasks/gsxui.toml` do the same steps
+workers-go's docs use `npm create cloudflare` and wrangler. `tasks/app.toml` and `tasks/gsxui.toml` do the same steps
 without them:
 
 - **Build:** `workers-assets-gen -mode=tinygo` + `tinygo build -target wasm` (the template's own build script).
-- **Run locally:** `workerd serve`, the runtime `wrangler dev` uses. `demos/workers/workerd/assets-first.mjs` stands in for
+- **Run locally:** `workerd serve`, the runtime `wrangler dev` uses. `workerd/assets-first.mjs` stands in for
   Static Assets (it runs inside workerd, not Node).
-- **Deploy:** [`demos/workers/cmd/deploy`](demos/workers/cmd/deploy), a stdlib Go client for Cloudflare's
+- **Deploy:** [`cmd/deploy`](cmd/deploy), a stdlib Go client for Cloudflare's
   [Static Assets Direct Upload](https://developers.cloudflare.com/workers/static-assets/direct-upload/), script upload,
   D1 and Durable Object migration APIs. Credentials come from fnox (`fnox exec -- …`).
 
@@ -85,8 +85,8 @@ tasks also curl the real TinyGo build under workerd.
 Design and measurements: [workers-realtime plan](.plans/done/2026-09-14_0754_workers-realtime-d1-do.md).
 
 ```
-browser ─ hx-ws:connect /live/{topic} ─▶ index.mjs ─▶ Room Durable Object (room.mjs, hibernatable WebSockets)
-browser ─ hx-post /board/add|note ─────▶ index.mjs ─▶ Go Worker (TinyGo)
+browser ─ hx-ws:connect /live/{topic} ─▶ worker/index.mjs ─▶ Room Durable Object (worker/room.mjs, hibernatable WebSockets)
+browser ─ hx-post /board/add|note ─────▶ worker/index.mjs ─▶ Go Worker (TinyGo)
                                            1. D1: INSERT … ON CONFLICT DO UPDATE … RETURNING version
                                            2. ROOM stub: POST /publish <#board fragment>
                                                  └▶ Room: ws.send(fragment) to every tab (≤ 5 broadcasts/s, newest wins)
@@ -100,7 +100,7 @@ browser ─ hx-post /board/add|note ─────▶ index.mjs ─▶ Go Worke
   from the click on a phone hotspot.
 - **Presence:** the Room pushes "N online" on connects and closes, through the same coalescing (one update for a
   1,000-socket join in the local test).
-- **Markup is gsx** (`board.gsx`), rendered by TinyGo; a test pins the pushed fragment's wire format (`id`, `hx-swap-oob`, `data-version`).
+- **Markup is gsx** (`views/board.gsx`), rendered by TinyGo; a test pins the pushed fragment's wire format (`id`, `hx-swap-oob`, `data-version`).
 - **JS only where Go can't go:** `index.mjs` (workers-go has no WebSocket support) and `room.mjs` (workers-go can only call
   Durable Objects). Locally, `workerd/local-d1.mjs` gives Go a D1-shaped `DB` over Durable Object SQLite, so the same
   `database/sql` code runs on workerd without miniflare.
@@ -109,12 +109,20 @@ browser ─ hx-post /board/add|note ─────▶ index.mjs ─▶ Go Worke
 
 ```
 .
-├── mise.toml            # pinned tools + `check`; includes tasks/*.toml
+├── mise.toml            # pinned tools, APP_NAME, `check`; includes tasks/*.toml
+├── go.mod               # module github.com/joeblew999/go-htmx4 (the app)
+├── main.go board.go store_*.go platform_{js,other}.go   # handlers, D1/memory stores, platform split
+├── views/               # pages + fragments (.gsx) composed from gsxui
+├── ui/ web/gsxui/       # gsxui components, behaviours, CSS entry, fonts (gsxui add)
+├── static/              # vendored htmx 4 + hx-ws
+├── worker/              # index.mjs (Worker entry) + room.mjs (Room Durable Object): deployed
+├── workerd/             # config.capnp + local-only shims (static files first, D1 over DO SQLite)
+├── migrations/          # D1 schema
+├── cmd/deploy cmd/wsload  # Cloudflare deploy client, WebSocket load tester
 ├── tasks/
-│   ├── gsxui.toml       # demo:gsxui:*, demo:gsxui:workers:*, upstream:gsxui:*
-│   └── workers.toml     # demo:workers:*, upstream:workers-go:fetch
-├── demos/
-│   ├── gsxui/           # gsx + gsxui + htmx 4 (native server + Workers), own Go module
-│   └── workers/         # htmx 4 on Workers + shared board (D1, Durable Objects), own Go module
+│   ├── app.toml         # dev, serve, run, test, smoke, load, deploy, smoke-remote, …
+│   ├── gsxui.toml       # demo:gsxui:*, demo:gsxui:workers:*
+│   └── upstream.toml    # upstream:gsxui:*, upstream:workers-go:fetch
+├── demos/gsxui/         # gsx + gsxui + htmx 4 (native server + Workers), own Go module (merging into the app)
 └── .plans/              # timestamped plans with findings
 ```

@@ -1,13 +1,14 @@
-# workerd config for demos/workers (mise run demo:workers:serve, run from demos/workers).
+# workerd config for the app (mise run serve, run from the repo root).
 #
 #   :8913 → assets-first (workerd/assets-first.mjs)
 #             ├─ file in dist/site/ → disk service "public"         (stands in for Static Assets)
 #             └─ everything else → "app": workerd/local-entry.mjs
-#                                    ├─ /live/{topic} WebSocket → Room DO (room.mjs, hibernation)
+#                                    ├─ /live/{topic} WebSocket → Room DO (worker/room.mjs, hibernation)
 #                                    └─ else → Go Worker (build/, TinyGo) with DB = LocalD1 shim
 #
-# Deployed, index.mjs is the main module and DB is real D1; workerd/ is local-only.
-# Embed and disk paths are relative to this file. Module names mirror the relative imports.
+# Deployed, worker/index.mjs is the main module and DB is real D1; workerd/ is local-only.
+# Embed paths are relative to this file; disk paths to the working directory (the repo root). Module names mirror the
+# relative imports (and cmd/deploy's names).
 
 using Workerd = import "/workerd/workerd.capnp";
 
@@ -23,7 +24,7 @@ const config :Workerd.Config = (
 );
 
 const assetsFirst :Workerd.Worker = (
-  modules = [ (name = "assets-first.mjs", esModule = embed "workerd/assets-first.mjs") ],
+  modules = [ (name = "assets-first.mjs", esModule = embed "assets-first.mjs") ],
   bindings = [
     (name = "ASSETS", service = "public"),
     (name = "APP", service = "app"),
@@ -33,23 +34,23 @@ const assetsFirst :Workerd.Worker = (
 
 const app :Workerd.Worker = (
   modules = [
-    (name = "workerd/local-entry.mjs", esModule = embed "workerd/local-entry.mjs"),
-    (name = "workerd/local-d1.mjs", esModule = embed "workerd/local-d1.mjs"),
-    (name = "migrations/0001_board.sql", text = embed "migrations/0001_board.sql"),
-    (name = "index.mjs", esModule = embed "index.mjs"),
-    (name = "room.mjs", esModule = embed "room.mjs"),
-    (name = "build/worker.mjs", esModule = embed "build/worker.mjs"),
-    (name = "build/wasm_exec.js", esModule = embed "build/wasm_exec.js"),
-    (name = "build/runtime.mjs", esModule = embed "build/runtime.mjs"),
-    (name = "build/app.wasm", wasm = embed "build/app.wasm"),
+    (name = "workerd/local-entry.mjs", esModule = embed "local-entry.mjs"),
+    (name = "workerd/local-d1.mjs", esModule = embed "local-d1.mjs"),
+    (name = "migrations/0001_board.sql", text = embed "../migrations/0001_board.sql"),
+    (name = "index.mjs", esModule = embed "../worker/index.mjs"),
+    (name = "room.mjs", esModule = embed "../worker/room.mjs"),
+    (name = "build/worker.mjs", esModule = embed "../build/worker.mjs"),
+    (name = "build/wasm_exec.js", esModule = embed "../build/wasm_exec.js"),
+    (name = "build/runtime.mjs", esModule = embed "../build/runtime.mjs"),
+    (name = "build/app.wasm", wasm = embed "../build/app.wasm"),
   ],
   durableObjectNamespaces = [
-    (className = "Room", uniqueKey = "go-htmx4-workers-demo-room", enableSql = true),
-    (className = "LocalD1", uniqueKey = "go-htmx4-workers-demo-local-d1", enableSql = true),
+    (className = "Room", uniqueKey = "go-htmx4-room", enableSql = true),
+    (className = "LocalD1", uniqueKey = "go-htmx4-local-d1", enableSql = true),
   ],
   durableObjectStorage = (localDisk = "do-storage"),
   bindings = [
-    (name = "DEMO_ENV", text = "workerd (local)"),
+    (name = "APP_ENV", text = "workerd (local)"),
     (name = "ROOM", durableObjectNamespace = "Room"),
     (name = "LOCAL_D1", durableObjectNamespace = "LocalD1"),
   ],

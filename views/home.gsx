@@ -1,8 +1,8 @@
-package main
+package views
 
 import (
-	"github.com/joeblew999/go-htmx4/demos/workers/ui"
-	"github.com/joeblew999/go-htmx4/demos/workers/ui/icon"
+	"github.com/joeblew999/go-htmx4/ui"
+	"github.com/joeblew999/go-htmx4/ui/icon"
 )
 
 // HomePage shows htmx 4 round-trips against Go on Workers, composed from gsxui components.

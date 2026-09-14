@@ -1,8 +1,8 @@
-package main
+package views
 
 import (
-	"github.com/joeblew999/go-htmx4/demos/workers/ui"
-	"github.com/joeblew999/go-htmx4/demos/workers/ui/icon"
+	"github.com/joeblew999/go-htmx4/ui"
+	"github.com/joeblew999/go-htmx4/ui/icon"
 )
 
 // ThemeScript goes in <head>. Both scripts are gsxui's showcase site, copied: the paint-blocking

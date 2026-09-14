@@ -17,7 +17,7 @@ import (
 // getenv reads a Worker text binding (Cloudflare vars; locally a workerd text binding).
 func getenv(name string) string { return cloudflare.Getenv(name) }
 
-// staticFiles: on Workers, public/ is served by Static Assets before the Worker runs, so a
+// staticFiles: on Workers, dist/site is served by Static Assets before the Worker runs, so a
 // request that reaches Go here is a real 404.
 func staticFiles() http.Handler { return http.NotFoundHandler() }
 
@@ -30,7 +30,7 @@ func newStore() (store, error) {
 	return sqlStore{db}, nil
 }
 
-// publish hands a board fragment to the topic's Room Durable Object (room.mjs), which pushes it
+// publish hands a board fragment to the topic's Room Durable Object (worker/room.mjs), which pushes it
 // to every connected browser.
 func publish(topic string, version int64, fragment string) error {
 	ns, err := cloudflare.NewDurableObjectNamespace("ROOM")

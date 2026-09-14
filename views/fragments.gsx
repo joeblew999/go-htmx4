@@ -1,4 +1,4 @@
-package main
+package views
 
 // NowFragment answers the home page's hx-get with the server time and the compiler that served it.
 component NowFragment(now string, target string) {
