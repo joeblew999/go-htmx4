@@ -1,0 +1,2 @@
+# go-htmx4 UI strings in English (India): only what differs from en.toml. Every other key comes from en (the
+# CLDR parent chain en-IN → en-001 → en); numbers and dates differ through CLDR (12,34,567), not through messages.

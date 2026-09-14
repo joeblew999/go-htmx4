@@ -5,6 +5,9 @@ package views
 import (
 	"maps"
 	"slices"
+	"time"
+
+	"github.com/joeblew999/go-htmx4/locales"
 )
 
 // Board is one topic's shared state as the board page and its pushed fragment show it.
@@ -24,16 +27,17 @@ type Note struct {
 
 // StackItem is one row on the About page.
 type StackItem struct {
-	Name, Role, URL string
+	Name, URL string
+	Role      func(locales.Messages) string // e.g. locales.Messages.AboutRolesGsx
 }
 
 // ServerInfo is what the home page's dialog shows about the process that rendered it.
 type ServerInfo struct {
 	GoVersion string
-	Uptime    string
+	Uptime    time.Duration
 	Requests  int64
-	Now       string
-	Note      string // platform caveat, e.g. per-request state on Workers
+	Now       time.Time // TODO(i18n Phase 3): DateTimeFormat in the viewer's time zone
+	Note      string    // platform caveat, e.g. per-request state on Workers
 }
 
 // navVariant highlights the current page's header button (as gsxui's site layout does).

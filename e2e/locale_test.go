@@ -30,8 +30,8 @@ func TestLocales(t *testing.T) {
 	b.waitJS(5*time.Second, `document.readyState === "complete" && typeof htmx === "object"`)
 	marker = b.num(`window.__marker = Math.floor(Math.random() * 1e9)`)
 	b.eval(`document.querySelector('header nav a[href="/ar/about"]').click()`, nil)
-	ok = b.waitJS(5*time.Second, `location.pathname === "/ar/about" && !!document.body?.textContent.includes("About go-htmx4")`)
-	check(t, "boosted nav stays under /ar/", ok && b.is(fmt.Sprintf(`window.__marker === %d && document.documentElement.dir === "rtl"`, marker)))
+	ok = b.waitJS(5*time.Second, `location.pathname === "/ar/about" && !!document.body?.textContent.includes("حول go-htmx4")`)
+	check(t, "boosted nav stays under /ar/ (Arabic UI text)", ok && b.is(fmt.Sprintf(`window.__marker === %d && document.documentElement.dir === "rtl"`, marker)))
 
 	// The remembered locale: the bare / goes to /ar/.
 	b.run(chromedp.Navigate(base+"/"), chromedp.WaitReady("main", chromedp.ByQuery))

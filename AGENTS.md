@@ -168,7 +168,20 @@
   `/live/` don't. `TestLocalizedURLs` checks every page in every locale.
 - Views use logical Tailwind classes only (`ms-`/`me-`/`ps-`/`pe-`/`start-`/`end-`/`text-start`/`text-end`), so
   `dir="rtl"` mirrors. `TestLogicalClasses` fails on physical ones.
-- A locale whose UI text isn't translated yet (not in `translated`, `i18n.go`) is served with `X-Robots-Tag: noindex`.
+- **UI text** comes from `locales/*.toml` (ICU MessageFormat 1: `{name}`, `{n, number[, style]}`, plural with `=N`
+  and `offset:`, selectordinal, select; flattened dotted keys). `en.toml` is the source.
+  - Views use `M(ctx).Key(args)`, handlers use `locales.For(r.Context())`. No literal user-facing text in `views/` or
+    handlers.
+  - Brand names, code and machine values carry `translate="no"`, and kit/i18n output carries `data-i18n="cldr"`.
+    `TestNoHardcodedText` renders everything with en-XA pseudo messages and fails on any other ASCII word.
+  - User text inside a message is wrapped with `Isolate(Loc(ctx).Dir(), s)`; user text in its own element gets
+    `dir="auto"`.
+  - Never hand-edit `locales/*_msg_gen.go`: `mise run i18n:messages` (part of `mise run generate`) regenerates it,
+    and `TestGeneratedUpToDate` fails when it's stale.
+  - A translation must use the source's arguments with the same kinds. A missing key comes from the CLDR parent
+    chain (`en-IN.toml` holds only what differs from `en`).
+- A locale whose catalog isn't complete (`locales.Complete`) is served with `X-Robots-Tag: noindex`.
+  `TestShippedLocalesComplete` keeps every shipped locale complete.
 - The language list is plain links in the footer, outside the boosted nav: a locale switch must be a full page load.
 
 # Code Style

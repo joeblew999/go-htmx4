@@ -1,0 +1,151 @@
+# go-htmx4 UI strings: the source catalog. ICU MessageFormat 1 (plural, selectordinal, select, number).
+# Translations live next to it as <locale>.toml with the same keys; `mise run i18n:messages` generates the typed
+# accessors in this package (locales.For(ctx).HomeHeading(), …). Brand and technical names (gsx, htmx, D1,
+# Durable Objects, TinyGo, Workers) stay as they are in every language.
+
+page_title = "{title} · go-htmx4"
+
+[nav]
+home = "Home"
+board = "Board"
+formats = "Formats"
+about = "About"
+languages = "Languages"
+toggle_theme = "Toggle theme"
+
+[home]
+title = "Home"
+heading = "Go + htmx 4 + gsxui on Cloudflare Workers"
+intro = "Server-rendered gsx components, htmx 4 for requests, hx-live for local state, D1 and Durable Objects for live updates. Go compiled with TinyGo. No Node, no bundler."
+served_by = "Served by"
+env = "env"
+
+[home.greet]
+title = "Server round-trip"
+description = "hx-post a gsxui form. The server answers with a gsx fragment and an out-of-band toast."
+name = "Name"
+name_placeholder = "Jamie Lee"
+flavour = "Favourite part of the stack"
+shout = "Shout it"
+submit = "Say hello"
+clear = "Clear"
+
+[home.dialog]
+title = "Dialog + hx-get"
+description = "The dialog body is fetched from the server each time it opens."
+open = "Show server info"
+heading = "Server info"
+subtitle = "Rendered by a gsx component on request."
+loading = "Loading…"
+close = "Close"
+
+[home.tabs]
+title = "Tabs + lazy panel"
+description = "The Stats panel loads once, the first time its tab is clicked."
+overview = "Overview"
+stats = "Stats"
+overview_body = "This panel was rendered with the page."
+loading = "Loading…"
+
+[home.live]
+title = "Client state with hx-live"
+description = "No server round-trip: a counter, a dropdown, a toggle and a live filter."
+increment = "Increment"
+count = "Count:"
+menu = "Menu"
+state_bag = "Typed state bag:"
+bold = "Bold"
+filter_placeholder = "Filter gsxui components…"
+filter_label = "Filter components"
+
+[home.board]
+title = "Live updates"
+description = "D1 plus a Durable Object per topic push every change to all open tabs over hx-ws."
+open = "Open the shared board"
+
+[greet]
+hello = "Hello, {name}."
+shout = "HELLO, {name}!"
+toast_title = "Greeting rendered"
+toast_description = "Server-rendered toast for {name}."
+empty = "Please enter a name."
+cleared = "Cleared."
+cleared_toast_title = "Cleared"
+cleared_toast_description = "Sent with hx-action and hx-method delete."
+
+[server_info]
+go = "Go"
+uptime = "Uptime"
+requests = "Requests"
+rendered = "Rendered"
+note = "Note"
+workers_note = "Cloudflare Workers: every request starts a fresh Go runtime, so uptime, requests and stats start over."
+
+[board]
+title = "Shared board"
+intro = "Go writes to D1, then the topic's Durable Object pushes the fragment to every open tab over hx-ws."
+topic = "Topic"
+hint = "Open this page in another tab and change something."
+online = "online"
+no_live = "No live push (go run .)"
+decrement = "Decrement"
+increment = "Increment"
+note_placeholder = "Leave a note"
+note_label = "Note"
+post = "Post"
+version = "version {version, number}"
+empty_title = "No notes yet"
+empty_description = "Leave one below. Every open tab sees it instantly."
+slow_title = "Slow down"
+slow_description = "Too many changes from your connection. Try again in a few seconds."
+
+[board.errors]
+delta = "delta must be 1 or -1"
+note_length = "note must be 1–{max, number} characters"
+topic = "topic must be 1–32 of a-z, 0-9, -"
+store = "store unavailable"
+
+[about]
+title = "About"
+heading = "About go-htmx4"
+stack = "Stack"
+stack_description = "Everything is pinned in mise.toml. Nothing here needs Node."
+
+[about.roles]
+gsx = "JSX-style templates compiled to Go"
+gsxui = "shadcn-style components, copied in"
+htmx = "requests, boost, morph, OOB swaps"
+hx_live = "client-side state (htmx 4 extension)"
+hx_ws = "live board over WebSockets (htmx 4 extension)"
+workers_go = "Go on Cloudflare Workers"
+tinygo = "compiles the Worker to wasm"
+d1 = "board source of truth"
+durable_objects = "one Room per topic, hibernating WebSockets"
+tailwind = "standalone CLI, no npm"
+mise = "pins every tool"
+
+[formats]
+title = "Formats"
+intro = "Locale-aware formatting rendered by Go from Unicode CLDR, with the options and output of JavaScript's Intl. Switch language at the bottom of the page."
+input = "Input"
+options = "Options"
+result = "Result"
+numbering = "numbers {system}"
+native = "native {system}"
+direction = "direction {dir}"
+numbers_title = "Numbers"
+numbers_description = "Intl.NumberFormat options, formatted on the server from CLDR data."
+currency_title = "Currency"
+currency_description = "Money is exact (integer minor units), with CLDR currency digits. Local currency: {currency}."
+units_title = "Units"
+units_description = "Intl.NumberFormat style \"unit\": CLDR unit patterns with plural forms, per-units and compact numbers."
+relative_title = "Relative time"
+relative_description = "Intl.RelativeTimeFormat: CLDR dateFields with plural rules; numeric \"auto\" uses words like yesterday."
+lists_title = "Lists"
+lists_description = "Intl.ListFormat: CLDR list patterns, plus the Spanish and Hebrew rules ICU applies in code."
+durations_title = "Durations"
+durations_description = "Intl.DurationFormat, with Chrome's output for numeric units."
+plurals_title = "Plural rules"
+plurals_description = "CLDR plural categories with the first numbers that select them."
+week_title = "Week"
+week_description = "Intl.Locale getWeekInfo: CLDR weekData for the locale's region (1 = Monday … 7 = Sunday)."

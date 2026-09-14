@@ -2,6 +2,7 @@
 #
 #   mise run i18n:generate   # CLDR tables for the shipped locales → kit/i18n/cldr (committed; network on first run)
 #   mise run i18n:golden     # record Intl's output (workerd = Chrome's V8/ICU) for kit/i18n/intltest cases
+#   mise run i18n:messages   # locales/*.toml (ICU MessageFormat) → typed accessors in locales/*_msg_gen.go
 #
 # `go test ./kit/i18n` (part of mise run check) compares kit/i18n with the golden file, byte for byte.
 
@@ -14,3 +15,8 @@ run = "go run ./cmd/cldrgen -locales \"$I18N_LOCALES\" -out kit/i18n/cldr"
 description = "Record Intl output for the kit/i18n conformance cases (local workerd) → kit/i18n/testdata/golden/workerd.json"
 dir = "{{config_root}}"
 run = "go run ./cmd/intloracle -out kit/i18n/testdata/golden/workerd.json"
+
+["i18n:messages"]
+description = "Generate locales/*_msg_gen.go from the UI message catalogs locales/*.toml (I18N_LOCALES, en first)"
+dir = "{{config_root}}"
+run = "go run ./cmd/msggen -dir locales -out locales -locales \"$I18N_LOCALES\""

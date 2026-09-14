@@ -1,0 +1,148 @@
+# go-htmx4 UI strings in Japanese (translated from en.toml)
+
+page_title = "{title} · go-htmx4"
+
+[nav]
+home = "ホーム"
+board = "ボード"
+formats = "書式"
+about = "概要"
+languages = "言語"
+toggle_theme = "テーマを切り替え"
+
+[home]
+title = "ホーム"
+heading = "Cloudflare Workers で動く Go + htmx 4 + gsxui"
+intro = "サーバーでレンダリングする gsx コンポーネント、リクエストには htmx 4、ローカル状態には hx-live、ライブ更新には D1 と Durable Objects。Go は TinyGo でコンパイルします。Node もバンドラーも不要です。"
+served_by = "配信元"
+env = "env"
+
+[home.greet]
+title = "サーバーとの往復"
+description = "gsxui のフォームを hx-post で送信します。サーバーは gsx フラグメントと帯域外（out-of-band）のトーストで応答します。"
+name = "名前"
+name_placeholder = "山田 花子"
+flavour = "スタックで気に入っている部分"
+shout = "大声で叫ぶ"
+submit = "あいさつする"
+clear = "クリア"
+
+[home.dialog]
+title = "ダイアログ + hx-get"
+description = "ダイアログの本文は、開くたびにサーバーから取得されます。"
+open = "サーバー情報を表示"
+heading = "サーバー情報"
+subtitle = "リクエスト時に gsx コンポーネントでレンダリングされました。"
+loading = "読み込み中…"
+close = "閉じる"
+
+[home.tabs]
+title = "タブ + 遅延読み込みパネル"
+description = "「統計」パネルは、そのタブを初めてクリックしたときに一度だけ読み込まれます。"
+overview = "概要"
+stats = "統計"
+overview_body = "このパネルはページと一緒にレンダリングされました。"
+loading = "読み込み中…"
+
+[home.live]
+title = "hx-live によるクライアント状態"
+description = "サーバーとの往復なし：カウンター、ドロップダウン、トグル、ライブフィルター。"
+increment = "増やす"
+count = "カウント："
+menu = "メニュー"
+state_bag = "型付きの状態バッグ："
+bold = "太字"
+filter_placeholder = "gsxui コンポーネントを絞り込み…"
+filter_label = "コンポーネントを絞り込み"
+
+[home.board]
+title = "ライブ更新"
+description = "D1 とトピックごとの Durable Object が、すべての変更を hx-ws 経由で開いているすべてのタブにプッシュします。"
+open = "共有ボードを開く"
+
+[greet]
+hello = "こんにちは、{name} さん。"
+shout = "こんにちはー！{name} さん！"
+toast_title = "あいさつをレンダリングしました"
+toast_description = "{name} さん向けにサーバーでレンダリングしたトーストです。"
+empty = "名前を入力してください。"
+cleared = "クリアしました。"
+cleared_toast_title = "クリアしました"
+cleared_toast_description = "hx-action と hx-method delete で送信しました。"
+
+[server_info]
+go = "Go"
+uptime = "稼働時間"
+requests = "リクエスト数"
+rendered = "レンダリング時刻"
+note = "注記"
+workers_note = "Cloudflare Workers ではリクエストごとに新しい Go ランタイムが起動するため、稼働時間、リクエスト数、統計はリセットされます。"
+
+[board]
+title = "共有ボード"
+intro = "Go が D1 に書き込み、そのトピックの Durable Object が hx-ws 経由で開いているすべてのタブにフラグメントをプッシュします。"
+topic = "トピック"
+hint = "このページを別のタブで開いて、何か変更してみてください。"
+online = "人がオンライン"
+no_live = "ライブプッシュなし（go run .）"
+decrement = "減らす"
+increment = "増やす"
+note_placeholder = "メモを残す"
+note_label = "メモ"
+post = "投稿"
+version = "バージョン {version, number}"
+empty_title = "メモはまだありません"
+empty_description = "下から書き込んでください。開いているすべてのタブにすぐ表示されます。"
+slow_title = "操作が多すぎます"
+slow_description = "お使いの接続からの変更が多すぎます。数秒後にもう一度お試しください。"
+
+[board.errors]
+delta = "delta は 1 または -1 である必要があります"
+note_length = "メモは 1～{max, number} 文字で入力してください"
+topic = "トピックは a-z、0-9、- を使って 1～32 文字で指定してください"
+store = "ストアを利用できません"
+
+[about]
+title = "概要"
+heading = "go-htmx4 について"
+stack = "スタック"
+stack_description = "すべて mise.toml でバージョンを固定しています。Node は一切不要です。"
+
+[about.roles]
+gsx = "Go にコンパイルされる JSX 風テンプレート"
+gsxui = "コピーして取り込む shadcn 風コンポーネント"
+htmx = "リクエスト、boost、morph、OOB スワップ"
+hx_live = "クライアント側の状態（htmx 4 拡張）"
+hx_ws = "WebSockets によるライブボード（htmx 4 拡張）"
+workers_go = "Cloudflare Workers 上の Go"
+tinygo = "Worker を wasm にコンパイル"
+d1 = "ボードの信頼できる唯一の情報源"
+durable_objects = "トピックごとに 1 つの Room、ハイバネーション対応の WebSockets"
+tailwind = "スタンドアロン CLI、npm 不要"
+mise = "すべてのツールのバージョンを固定"
+
+[formats]
+title = "書式"
+intro = "Unicode CLDR をもとに Go がレンダリングするロケール対応の書式設定です。オプションと出力は JavaScript の Intl と同じです。言語はページ下部で切り替えられます。"
+input = "入力"
+options = "オプション"
+result = "結果"
+numbering = "数字 {system}"
+native = "ネイティブ {system}"
+direction = "書字方向 {dir}"
+numbers_title = "数値"
+numbers_description = "Intl.NumberFormat のオプションを、CLDR データからサーバー側で書式化します。"
+currency_title = "通貨"
+currency_description = "金額は正確に扱われ（整数の補助単位）、CLDR の通貨桁数を使用します。現地通貨：{currency}。"
+units_title = "単位"
+units_description = "Intl.NumberFormat の style \"unit\"：複数形に対応した CLDR の単位パターン、複合単位（毎時など）、コンパクト表記。"
+relative_title = "相対時間"
+relative_description = "Intl.RelativeTimeFormat：複数形ルールを含む CLDR の dateFields。numeric \"auto\" では「昨日」のような語を使います。"
+lists_title = "リスト"
+lists_description = "Intl.ListFormat：CLDR のリストパターンに加え、ICU がコード内で適用するスペイン語とヘブライ語のルール。"
+durations_title = "期間"
+durations_description = "Intl.DurationFormat。数値単位は Chrome の出力に合わせています。"
+plurals_title = "複数形ルール"
+plurals_description = "CLDR の複数形カテゴリと、それぞれが選ばれる最初の数値。"
+week_title = "週"
+week_description = "Intl.Locale の getWeekInfo：ロケールの地域に対応する CLDR の weekData（1 = 月曜日 … 7 = 日曜日）。"

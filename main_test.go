@@ -108,7 +108,7 @@ func TestEnvEscaped(t *testing.T) {
 	t.Setenv("APP_ENV", `<i>test</i>`)
 	rec := httptest.NewRecorder()
 	newServer().routes().ServeHTTP(rec, httptest.NewRequest("GET", "/", nil))
-	if !strings.Contains(rec.Body.String(), `<span id="env">&lt;i&gt;test&lt;/i&gt;</span>`) {
+	if !strings.Contains(rec.Body.String(), `<span id="env" translate="no">&lt;i&gt;test&lt;/i&gt;</span>`) {
 		t.Errorf("APP_ENV not escaped into page")
 	}
 }

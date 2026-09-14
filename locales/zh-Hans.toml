@@ -1,0 +1,148 @@
+# go-htmx4 UI strings in Simplified Chinese (translated from en.toml)
+
+page_title = "{title} · go-htmx4"
+
+[nav]
+home = "首页"
+board = "看板"
+formats = "格式"
+about = "关于"
+languages = "语言"
+toggle_theme = "切换主题"
+
+[home]
+title = "首页"
+heading = "在 Cloudflare Workers 上运行 Go + htmx 4 + gsxui"
+intro = "服务器端渲染的 gsx 组件，htmx 4 负责请求，hx-live 管理本地状态，D1 和 Durable Objects 提供实时更新。Go 由 TinyGo 编译。无需 Node，也无需打包工具。"
+served_by = "运行于"
+env = "env"
+
+[home.greet]
+title = "服务器往返"
+description = "用 hx-post 提交 gsxui 表单。服务器返回一个 gsx 片段和一条带外（out-of-band）提示消息。"
+name = "姓名"
+name_placeholder = "王小明"
+flavour = "最喜欢技术栈的哪一部分"
+shout = "大声喊出来"
+submit = "打个招呼"
+clear = "清除"
+
+[home.dialog]
+title = "对话框 + hx-get"
+description = "每次打开对话框时，都会从服务器获取其内容。"
+open = "显示服务器信息"
+heading = "服务器信息"
+subtitle = "由 gsx 组件按请求渲染。"
+loading = "正在加载…"
+close = "关闭"
+
+[home.tabs]
+title = "标签页 + 延迟加载面板"
+description = "“统计”面板仅在首次点击其标签页时加载一次。"
+overview = "概览"
+stats = "统计"
+overview_body = "此面板随页面一起渲染。"
+loading = "正在加载…"
+
+[home.live]
+title = "使用 hx-live 的客户端状态"
+description = "无需服务器往返：计数器、下拉菜单、开关和实时筛选。"
+increment = "增加"
+count = "计数："
+menu = "菜单"
+state_bag = "类型化状态包："
+bold = "粗体"
+filter_placeholder = "筛选 gsxui 组件…"
+filter_label = "筛选组件"
+
+[home.board]
+title = "实时更新"
+description = "D1 加上每个主题一个 Durable Object，通过 hx-ws 将每次更改推送到所有打开的标签页。"
+open = "打开共享看板"
+
+[greet]
+hello = "你好，{name}。"
+shout = "你——好——，{name}！"
+toast_title = "问候已渲染"
+toast_description = "在服务器端为 {name} 渲染的提示消息。"
+empty = "请输入姓名。"
+cleared = "已清除。"
+cleared_toast_title = "已清除"
+cleared_toast_description = "通过 hx-action 和 hx-method delete 发送。"
+
+[server_info]
+go = "Go"
+uptime = "运行时间"
+requests = "请求数"
+rendered = "渲染时间"
+note = "说明"
+workers_note = "Cloudflare Workers：每个请求都会启动一个全新的 Go 运行时，因此运行时间、请求数和统计数据都会重新开始。"
+
+[board]
+title = "共享看板"
+intro = "Go 写入 D1，然后该主题的 Durable Object 通过 hx-ws 将片段推送到每个打开的标签页。"
+topic = "主题"
+hint = "在另一个标签页中打开此页面，然后改点什么。"
+online = "人在线"
+no_live = "无实时推送（go run .）"
+decrement = "减少"
+increment = "增加"
+note_placeholder = "写一条留言"
+note_label = "留言"
+post = "发布"
+version = "版本 {version, number}"
+empty_title = "还没有留言"
+empty_description = "在下方留一条吧。所有打开的标签页都会立即看到。"
+slow_title = "请慢一点"
+slow_description = "你的连接提交的更改过多。请几秒后再试。"
+
+[board.errors]
+delta = "delta 必须为 1 或 -1"
+note_length = "留言长度必须为 1 到 {max, number} 个字符"
+topic = "主题必须为 1 到 32 个字符，且仅限 a-z、0-9 和 -"
+store = "存储不可用"
+
+[about]
+title = "关于"
+heading = "关于 go-htmx4"
+stack = "技术栈"
+stack_description = "所有工具都在 mise.toml 中锁定版本。这里完全不需要 Node。"
+
+[about.roles]
+gsx = "编译为 Go 的 JSX 风格模板"
+gsxui = "shadcn 风格组件，直接复制到项目中"
+htmx = "请求、boost、morph、OOB 交换"
+hx_live = "客户端状态（htmx 4 扩展）"
+hx_ws = "基于 WebSockets 的实时看板（htmx 4 扩展）"
+workers_go = "在 Cloudflare Workers 上运行 Go"
+tinygo = "将 Worker 编译为 wasm"
+d1 = "看板的唯一可信数据源"
+durable_objects = "每个主题一个 Room，WebSockets 可休眠"
+tailwind = "独立 CLI，无需 npm"
+mise = "锁定所有工具的版本"
+
+[formats]
+title = "格式"
+intro = "由 Go 基于 Unicode CLDR 渲染的区域感知格式，选项和输出与 JavaScript 的 Intl 一致。可在页面底部切换语言。"
+input = "输入"
+options = "选项"
+result = "结果"
+numbering = "数字 {system}"
+native = "原生 {system}"
+direction = "方向 {dir}"
+numbers_title = "数字"
+numbers_description = "Intl.NumberFormat 选项，由服务器根据 CLDR 数据格式化。"
+currency_title = "货币"
+currency_description = "金额精确无误（以整数最小单位表示），并采用 CLDR 的货币小数位数。本地货币：{currency}。"
+units_title = "单位"
+units_description = "Intl.NumberFormat style \"unit\"：带复数形式的 CLDR 单位模式、复合单位（每…）和紧凑数字。"
+relative_title = "相对时间"
+relative_description = "Intl.RelativeTimeFormat：带复数规则的 CLDR dateFields；numeric \"auto\" 会使用“昨天”之类的词。"
+lists_title = "列表"
+lists_description = "Intl.ListFormat：CLDR 列表模式，以及 ICU 在代码中应用的西班牙语和希伯来语规则。"
+durations_title = "时长"
+durations_description = "Intl.DurationFormat，数字单位采用 Chrome 的输出。"
+plurals_title = "复数规则"
+plurals_description = "CLDR 复数类别，以及选中各类别的前几个数字。"
+week_title = "周"
+week_description = "Intl.Locale getWeekInfo：该语言区域所在地区的 CLDR weekData（1 = 星期一 … 7 = 星期日）。"

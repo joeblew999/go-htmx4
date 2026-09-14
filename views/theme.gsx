@@ -44,8 +44,8 @@ component ThemeToggle() {
 		size="icon-sm"
 		type="button"
 		data-site-theme-toggle
-		aria-label="Toggle theme"
-		title="Toggle theme"
+		aria-label={M(ctx).NavToggleTheme()}
+		title={M(ctx).NavToggleTheme()}
 	>
 		<icon.SunMoon/>
 	</ui.Button>

@@ -1,0 +1,148 @@
+# go-htmx4 UI strings in Spanish (translated from en.toml)
+
+page_title = "{title} · go-htmx4"
+
+[nav]
+home = "Inicio"
+board = "Tablero"
+formats = "Formatos"
+about = "Acerca de"
+languages = "Idiomas"
+toggle_theme = "Cambiar tema"
+
+[home]
+title = "Inicio"
+heading = "Go + htmx 4 + gsxui en Cloudflare Workers"
+intro = "Componentes gsx renderizados en el servidor, htmx 4 para las peticiones, hx-live para el estado local, D1 y Durable Objects para actualizaciones en vivo. Go compilado con TinyGo. Sin Node ni bundler."
+served_by = "Servido por"
+env = "env"
+
+[home.greet]
+title = "Ida y vuelta al servidor"
+description = "Envía un formulario gsxui con hx-post. El servidor responde con un fragmento gsx y un toast fuera de banda."
+name = "Nombre"
+name_placeholder = "Lucía García"
+flavour = "Parte favorita del stack"
+shout = "Gritarlo"
+submit = "Saludar"
+clear = "Borrar"
+
+[home.dialog]
+title = "Diálogo + hx-get"
+description = "El contenido del diálogo se obtiene del servidor cada vez que se abre."
+open = "Ver info del servidor"
+heading = "Info del servidor"
+subtitle = "Renderizado a petición por un componente gsx."
+loading = "Cargando…"
+close = "Cerrar"
+
+[home.tabs]
+title = "Pestañas + panel diferido"
+description = "El panel Estadísticas se carga una sola vez, la primera vez que haces clic en su pestaña."
+overview = "Resumen"
+stats = "Estadísticas"
+overview_body = "Este panel se renderizó junto con la página."
+loading = "Cargando…"
+
+[home.live]
+title = "Estado del cliente con hx-live"
+description = "Sin ida y vuelta al servidor: un contador, un desplegable, un interruptor y un filtro en vivo."
+increment = "Incrementar"
+count = "Cuenta:"
+menu = "Menú"
+state_bag = "Contenedor de estado tipado:"
+bold = "Negrita"
+filter_placeholder = "Filtrar componentes gsxui…"
+filter_label = "Filtrar componentes"
+
+[home.board]
+title = "Actualizaciones en vivo"
+description = "D1 y un Durable Object por tema envían cada cambio a todas las pestañas abiertas mediante hx-ws."
+open = "Abrir el tablero compartido"
+
+[greet]
+hello = "Hola, {name}."
+shout = "¡HOLA, {name}!"
+toast_title = "Saludo renderizado"
+toast_description = "Toast renderizado en el servidor para {name}."
+empty = "Escribe un nombre."
+cleared = "Borrado."
+cleared_toast_title = "Borrado"
+cleared_toast_description = "Enviado con hx-action y hx-method delete."
+
+[server_info]
+go = "Go"
+uptime = "Tiempo activo"
+requests = "Peticiones"
+rendered = "Renderizado"
+note = "Nota"
+workers_note = "Cloudflare Workers: cada petición arranca un runtime de Go nuevo, así que el tiempo activo, las peticiones y las estadísticas vuelven a empezar de cero."
+
+[board]
+title = "Tablero compartido"
+intro = "Go escribe en D1 y luego el Durable Object del tema envía el fragmento a cada pestaña abierta mediante hx-ws."
+topic = "Tema"
+hint = "Abre esta página en otra pestaña y cambia algo."
+online = "en línea"
+no_live = "Sin push en vivo (go run .)"
+decrement = "Decrementar"
+increment = "Incrementar"
+note_placeholder = "Deja una nota"
+note_label = "Nota"
+post = "Publicar"
+version = "versión {version, number}"
+empty_title = "Aún no hay notas"
+empty_description = "Deja una abajo. Todas las pestañas abiertas la ven al instante."
+slow_title = "Más despacio"
+slow_description = "Demasiados cambios desde tu conexión. Vuelve a intentarlo en unos segundos."
+
+[board.errors]
+delta = "delta debe ser 1 o -1"
+note_length = "la nota debe tener entre 1 y {max, number} caracteres"
+topic = "el tema debe tener de 1 a 32 caracteres entre a-z, 0-9, -"
+store = "almacenamiento no disponible"
+
+[about]
+title = "Acerca de"
+heading = "Acerca de go-htmx4"
+stack = "Stack"
+stack_description = "Todas las versiones están fijadas en mise.toml. Nada aquí necesita Node."
+
+[about.roles]
+gsx = "plantillas estilo JSX compiladas a Go"
+gsxui = "componentes estilo shadcn, copiados al proyecto"
+htmx = "peticiones, boost, morph, swaps OOB"
+hx_live = "estado en el cliente (extensión de htmx 4)"
+hx_ws = "tablero en vivo mediante WebSockets (extensión de htmx 4)"
+workers_go = "Go en Cloudflare Workers"
+tinygo = "compila el Worker a wasm"
+d1 = "fuente de verdad del tablero"
+durable_objects = "un Room por tema, WebSockets en hibernación"
+tailwind = "CLI independiente, sin npm"
+mise = "fija la versión de cada herramienta"
+
+[formats]
+title = "Formatos"
+intro = "Formato según la configuración regional, renderizado por Go a partir de Unicode CLDR, con las opciones y la salida de Intl de JavaScript. Cambia el idioma al pie de la página."
+input = "Entrada"
+options = "Opciones"
+result = "Resultado"
+numbering = "numeración {system}"
+native = "nativa {system}"
+direction = "dirección {dir}"
+numbers_title = "Números"
+numbers_description = "Opciones de Intl.NumberFormat, formateadas en el servidor con datos de CLDR."
+currency_title = "Moneda"
+currency_description = "El dinero es exacto (unidades menores enteras), con los decimales de moneda de CLDR. Moneda local: {currency}."
+units_title = "Unidades"
+units_description = "Intl.NumberFormat style \"unit\": patrones de unidades de CLDR con formas plurales, unidades compuestas («por») y números compactos."
+relative_title = "Tiempo relativo"
+relative_description = "Intl.RelativeTimeFormat: dateFields de CLDR con reglas de plural; numeric \"auto\" usa palabras como «ayer»."
+lists_title = "Listas"
+lists_description = "Intl.ListFormat: patrones de lista de CLDR, más las reglas del español y el hebreo que ICU aplica en código."
+durations_title = "Duraciones"
+durations_description = "Intl.DurationFormat, con la salida de Chrome para unidades numéricas."
+plurals_title = "Reglas de plural"
+plurals_description = "Categorías de plural de CLDR con los primeros números que las seleccionan."
+week_title = "Semana"
+week_description = "Intl.Locale getWeekInfo: weekData de CLDR para la región de la configuración regional (1 = lunes … 7 = domingo)."

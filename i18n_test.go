@@ -13,7 +13,9 @@ import (
 
 	"github.com/joeblew999/go-htmx4/kit/i18n"
 	"github.com/joeblew999/go-htmx4/kit/i18n/cldr"
+	"github.com/joeblew999/go-htmx4/locales"
 	"github.com/joeblew999/go-htmx4/views"
+	nethtml "golang.org/x/net/html"
 )
 
 func get(t *testing.T, h http.Handler, path string, cookies ...*http.Cookie) *httptest.ResponseRecorder {
@@ -76,11 +78,12 @@ func TestUntranslatedNoindex(t *testing.T) {
 		t.Errorf("/about X-Robots-Tag = %q, want none", got)
 	}
 	for _, ld := range cldr.Data.Locales[1:] {
-		if translated[ld.ID] {
-			continue
+		want := ""
+		if !locales.Complete(ld.ID) {
+			want = "noindex"
 		}
-		if got := get(t, h, views.LocalePrefix(ld)+"/about").Header().Get("X-Robots-Tag"); got != "noindex" {
-			t.Errorf("%s (untranslated) X-Robots-Tag = %q, want noindex", ld.ID, got)
+		if got := get(t, h, views.LocalePrefix(ld)+"/about").Header().Get("X-Robots-Tag"); got != want {
+			t.Errorf("%s (complete catalog: %v) X-Robots-Tag = %q, want %q", ld.ID, locales.Complete(ld.ID), got, want)
 		}
 	}
 }
@@ -178,7 +181,7 @@ func TestLanguageLinks(t *testing.T) {
 	for _, want := range []string{
 		`href="/about\?x=1"[^>]* hreflang="en" lang="en"`,
 		`href="/ar/about\?x=1"[^>]* hreflang="ar" lang="ar"`,
-		`href="/fr/about\?x=1"[^>]* hreflang="fr" lang="fr" aria-current="page"`,
+		`href="/fr/about\?x=1"[^>]* hreflang="fr" lang="fr"[^>]* aria-current="page"`,
 		`>\s*português \(Brasil\)\s*<`, `>\s*العربية\s*<`,
 	} {
 		if !regexp.MustCompile(want).MatchString(body) {
@@ -255,5 +258,77 @@ func TestNoteRelativeTime(t *testing.T) {
 	}
 	if !strings.Contains(page, `src="/static/relative-time.js"`) {
 		t.Errorf("layout lacks static/relative-time.js")
+	}
+}
+
+// gsxuiHardcoded are English labels inside vendored gsxui components with no way to pass a translation
+// (plan decision 10: an upstream gsxui issue); nothing else may reach the page without a catalog.
+var gsxuiHardcoded = map[string]bool{
+	"Notifications": true, // ui/toaster.gsx section aria-label
+	"Close":         true, // ui/toast.gsx close button aria-label
+}
+
+// TestNoHardcodedText renders pages and fragments with en-XA pseudo-localized messages and fails on any
+// plain-ASCII word left in visible text or in placeholder/aria-label/title: such text doesn't come from
+// locales/*.toml. Brand and technical values opt out with translate="no" (or <code>, <time>); kit/i18n
+// output in the page's language with data-i18n="cldr". <template> is client-side markup (gsxui toaster).
+func TestNoHardcodedText(t *testing.T) {
+	views.PseudoMessages = true
+	defer func() { views.PseudoMessages = false }()
+	h := newServer().routes()
+	word := regexp.MustCompile(`[A-Za-z]{3,}`)
+	pseudo := regexp.MustCompile(`⟦[^⟧]*⟧`) // a pseudo message, arguments included
+	check := func(name, body string) {
+		doc, err := nethtml.Parse(strings.NewReader(body))
+		if err != nil {
+			t.Fatalf("%s: %v", name, err)
+		}
+		var walk func(n *nethtml.Node, skip bool)
+		walk = func(n *nethtml.Node, skip bool) {
+			if n.Type == nethtml.ElementNode {
+				switch n.Data {
+				case "script", "style", "code", "time", "svg", "template":
+					skip = true
+				}
+				for _, a := range n.Attr {
+					if a.Key == "translate" && a.Val == "no" || a.Key == "data-i18n" && a.Val == "cldr" {
+						skip = true
+					}
+				}
+				if !skip {
+					for _, a := range n.Attr {
+						if (a.Key == "placeholder" || a.Key == "aria-label" || a.Key == "title" || a.Key == "alt") && word.MatchString(pseudo.ReplaceAllString(a.Val, "")) && !gsxuiHardcoded[a.Val] {
+							t.Errorf("%s: <%s %s=%q> isn't from a catalog", name, n.Data, a.Key, a.Val)
+						}
+					}
+				}
+			}
+			if n.Type == nethtml.TextNode && !skip {
+				if w := word.FindString(pseudo.ReplaceAllString(n.Data, "")); w != "" && !gsxuiHardcoded[strings.TrimSpace(n.Data)] {
+					t.Errorf("%s: text %q isn't from a catalog", name, strings.TrimSpace(n.Data))
+				}
+			}
+			for c := n.FirstChild; c != nil; c = c.NextSibling {
+				walk(c, skip)
+			}
+		}
+		walk(doc, false)
+	}
+	for _, path := range []string{"/", "/about", "/formats", "/board?topic=pseudo", "/fragments/server-info", "/fragments/stats"} {
+		check(path, get(t, h, path).Body.String())
+	}
+	for _, tc := range []struct{ method, path, body string }{
+		{"POST", "/greet", "name=Ada&flavour=gsx"},
+		{"POST", "/greet", "name=Ada&shout=on"},
+		{"POST", "/greet", "name="},
+		{"DELETE", "/greet", ""},
+		{"POST", "/board/add?topic=pseudo", "delta=1"},
+	} {
+		req := httptest.NewRequest(tc.method, tc.path, strings.NewReader(tc.body))
+		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+		rec := httptest.NewRecorder()
+		h.ServeHTTP(rec, req)
+		// fragments are parsed inside a body so the HTML parser keeps their text
+		check(tc.method+" "+tc.path, "<body>"+rec.Body.String())
 	}
 }

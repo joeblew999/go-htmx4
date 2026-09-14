@@ -7,6 +7,7 @@ import (
 
 	"github.com/joeblew999/go-htmx4/kit/i18n"
 	"github.com/joeblew999/go-htmx4/kit/i18n/cldr"
+	"github.com/joeblew999/go-htmx4/locales"
 )
 
 // FormatRow is one example on the /formats page: what is formatted, the Intl-style options, and the result
@@ -57,7 +58,8 @@ func NumberSections(ctx context.Context) []FormatSection {
 		}
 		return FormatRow{label, opts, f.FormatString(input)}
 	}
-	numbers := FormatSection{Title: "Numbers", Description: "Intl.NumberFormat options, formatted on the server from CLDR data."}
+	m := M(ctx)
+	numbers := FormatSection{Title: m.FormatsNumbersTitle(), Description: m.FormatsNumbersDescription()}
 	numbers.Rows = []FormatRow{
 		row("1234567.891", "{}", i18n.NumberOptions{}, "1234567.891"),
 		row("-0.256", `{style: "percent", maximumFractionDigits: 1}`, i18n.NumberOptions{Style: i18n.StylePercent, MaximumFractionDigits: i18n.N(1)}, "-0.256"),
@@ -75,7 +77,7 @@ func NumberSections(ctx context.Context) []FormatSection {
 		numbers.Rows = append(numbers.Rows, row("1234567.891", `{numberingSystem: "`+native+`"}`, i18n.NumberOptions{NumberingSystem: native}, "1234567.891"))
 	}
 
-	money := FormatSection{Title: "Currency", Description: "Money is exact (integer minor units), with CLDR currency digits. Local currency: " + cur + "."}
+	money := FormatSection{Title: m.FormatsCurrencyTitle(), Description: m.FormatsCurrencyDescription(cur)}
 	c := func(o i18n.NumberOptions) i18n.NumberOptions { o.Style = i18n.StyleCurrency; return o }
 	money.Rows = []FormatRow{
 		row("1234.5 "+cur, `{style: "currency", currency: "`+cur+`"}`, c(i18n.NumberOptions{Currency: cur}), "1234.5"),
@@ -89,7 +91,7 @@ func NumberSections(ctx context.Context) []FormatSection {
 		row("1234.5 BHD", `{style: "currency", currency: "BHD"}`, c(i18n.NumberOptions{Currency: "BHD"}), "1234.5"),
 	}
 
-	plurals := FormatSection{Title: "Plural rules", Description: "CLDR plural categories with the first numbers that select them."}
+	plurals := FormatSection{Title: m.FormatsPluralsTitle(), Description: m.FormatsPluralsDescription()}
 	for _, typ := range []struct {
 		name  string
 		rules i18n.PluralRules
@@ -102,11 +104,11 @@ func NumberSections(ctx context.Context) []FormatSection {
 			})
 		}
 	}
-	return []FormatSection{numbers, money, units(loc), relativeTimes(loc), lists(loc), durations(loc), plurals, week(loc)}
+	return []FormatSection{numbers, money, units(loc, m), relativeTimes(loc, m), lists(loc, m), durations(loc, m), plurals, week(loc, m)}
 }
 
-func units(loc *i18n.Locale) FormatSection {
-	sec := FormatSection{Title: "Units", Description: "Intl.NumberFormat style \"unit\": CLDR unit patterns with plural forms, per-units and compact numbers."}
+func units(loc *i18n.Locale, m locales.Messages) FormatSection {
+	sec := FormatSection{Title: m.FormatsUnitsTitle(), Description: m.FormatsUnitsDescription()}
 	add := func(label, opts string, o i18n.NumberOptions, in string) {
 		o.Style = i18n.StyleUnit
 		f, err := loc.NumberFormat(o)
@@ -126,8 +128,8 @@ func units(loc *i18n.Locale) FormatSection {
 	return sec
 }
 
-func relativeTimes(loc *i18n.Locale) FormatSection {
-	sec := FormatSection{Title: "Relative time", Description: "Intl.RelativeTimeFormat: CLDR dateFields with plural rules; numeric \"auto\" uses words like yesterday."}
+func relativeTimes(loc *i18n.Locale, m locales.Messages) FormatSection {
+	sec := FormatSection{Title: m.FormatsRelativeTitle(), Description: m.FormatsRelativeDescription()}
 	add := func(label, opts string, o i18n.RelativeTimeOptions, v float64, u i18n.RelUnit) {
 		s, err := loc.RelativeTimeFormat(o).Format(v, u)
 		if err != nil {
@@ -145,8 +147,8 @@ func relativeTimes(loc *i18n.Locale) FormatSection {
 	return sec
 }
 
-func lists(loc *i18n.Locale) FormatSection {
-	sec := FormatSection{Title: "Lists", Description: "Intl.ListFormat: CLDR list patterns, plus the Spanish and Hebrew rules ICU applies in code."}
+func lists(loc *i18n.Locale, m locales.Messages) FormatSection {
+	sec := FormatSection{Title: m.FormatsListsTitle(), Description: m.FormatsListsDescription()}
 	items := []string{loc.Data.NativeName, "Go", "htmx", "Cloudflare"}
 	add := func(opts string, o i18n.ListOptions, n int) {
 		sec.Rows = append(sec.Rows, FormatRow{strings.Join(items[:n], " · "), opts, loc.ListFormat(o).Format(items[:n])})
@@ -158,8 +160,8 @@ func lists(loc *i18n.Locale) FormatSection {
 	return sec
 }
 
-func durations(loc *i18n.Locale) FormatSection {
-	sec := FormatSection{Title: "Durations", Description: "Intl.DurationFormat, with Chrome's output for numeric units."}
+func durations(loc *i18n.Locale, m locales.Messages) FormatSection {
+	sec := FormatSection{Title: m.FormatsDurationsTitle(), Description: m.FormatsDurationsDescription()}
 	d := i18n.Duration{i18n.DurDays: 1, i18n.DurHours: 2, i18n.DurMinutes: 5, i18n.DurSeconds: 30, i18n.DurMilliseconds: 250}
 	add := func(opts string, o i18n.DurationOptions) {
 		f, err := loc.DurationFormat(o)
@@ -179,13 +181,13 @@ func durations(loc *i18n.Locale) FormatSection {
 	return sec
 }
 
-func week(loc *i18n.Locale) FormatSection {
+func week(loc *i18n.Locale, m locales.Messages) FormatSection {
 	wi := loc.WeekInfo()
 	days := make([]string, len(wi.Weekend))
 	for i, d := range wi.Weekend {
 		days[i] = strconv.Itoa(d)
 	}
-	return FormatSection{Title: "Week", Description: "Intl.Locale getWeekInfo: CLDR weekData for the locale's region (1 = Monday … 7 = Sunday).",
+	return FormatSection{Title: m.FormatsWeekTitle(), Description: m.FormatsWeekDescription(),
 		Rows: []FormatRow{
 			{"firstDay", "getWeekInfo()", strconv.Itoa(wi.FirstDay)},
 			{"weekend", "getWeekInfo()", strings.Join(days, ", ")},

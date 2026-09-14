@@ -1,0 +1,148 @@
+# go-htmx4 UI strings in Russian (translated from en.toml)
+
+page_title = "{title} · go-htmx4"
+
+[nav]
+home = "Главная"
+board = "Доска"
+formats = "Форматы"
+about = "О проекте"
+languages = "Языки"
+toggle_theme = "Сменить тему"
+
+[home]
+title = "Главная"
+heading = "Go + htmx 4 + gsxui на Cloudflare Workers"
+intro = "Компоненты gsx с рендерингом на сервере, htmx 4 для запросов, hx-live для локального состояния, D1 и Durable Objects для обновлений в реальном времени. Go компилируется с помощью TinyGo. Без Node и без сборщика."
+served_by = "Обслуживает"
+env = "env"
+
+[home.greet]
+title = "Запрос к серверу и обратно"
+description = "Форма gsxui отправляется через hx-post. Сервер отвечает фрагментом gsx и всплывающим уведомлением вне основного обмена (OOB)."
+name = "Имя"
+name_placeholder = "Анна Смирнова"
+flavour = "Любимая часть стека"
+shout = "Прокричать"
+submit = "Поздороваться"
+clear = "Очистить"
+
+[home.dialog]
+title = "Диалог + hx-get"
+description = "Содержимое диалога загружается с сервера при каждом открытии."
+open = "Показать сведения о сервере"
+heading = "Сведения о сервере"
+subtitle = "Отрисовано компонентом gsx по запросу."
+loading = "Загрузка…"
+close = "Закрыть"
+
+[home.tabs]
+title = "Вкладки + ленивая панель"
+description = "Панель «Статистика» загружается один раз — при первом нажатии на её вкладку."
+overview = "Обзор"
+stats = "Статистика"
+overview_body = "Эта панель отрисована вместе со страницей."
+loading = "Загрузка…"
+
+[home.live]
+title = "Состояние на клиенте с hx-live"
+description = "Без обращения к серверу: счётчик, выпадающее меню, переключатель и фильтр на лету."
+increment = "Увеличить"
+count = "Счётчик:"
+menu = "Меню"
+state_bag = "Типизированное хранилище состояния:"
+bold = "Жирный"
+filter_placeholder = "Фильтр компонентов gsxui…"
+filter_label = "Фильтр компонентов"
+
+[home.board]
+title = "Обновления в реальном времени"
+description = "D1 и Durable Object для каждой темы отправляют любое изменение во все открытые вкладки через hx-ws."
+open = "Открыть общую доску"
+
+[greet]
+hello = "Привет, {name}."
+shout = "ПРИВЕТ, {name}!"
+toast_title = "Приветствие отрисовано"
+toast_description = "{name}, это уведомление отрисовано на сервере."
+empty = "Введите имя."
+cleared = "Очищено."
+cleared_toast_title = "Очищено"
+cleared_toast_description = "Отправлено через hx-action и hx-method delete."
+
+[server_info]
+go = "Go"
+uptime = "Время работы"
+requests = "Запросы"
+rendered = "Отрисовано"
+note = "Примечание"
+workers_note = "Cloudflare Workers: каждый запрос запускает новую среду выполнения Go, поэтому время работы, число запросов и статистика обнуляются."
+
+[board]
+title = "Общая доска"
+intro = "Go записывает данные в D1, затем Durable Object темы отправляет фрагмент во все открытые вкладки через hx-ws."
+topic = "Тема"
+hint = "Откройте эту страницу в другой вкладке и что-нибудь измените."
+online = "онлайн"
+no_live = "Без обновлений в реальном времени (go run .)"
+decrement = "Уменьшить"
+increment = "Увеличить"
+note_placeholder = "Оставьте заметку"
+note_label = "Заметка"
+post = "Опубликовать"
+version = "версия {version, number}"
+empty_title = "Заметок пока нет"
+empty_description = "Оставьте первую ниже. Все открытые вкладки сразу её увидят."
+slow_title = "Не так быстро"
+slow_description = "Слишком много изменений с вашего подключения. Повторите попытку через несколько секунд."
+
+[board.errors]
+delta = "значение delta должно быть 1 или -1"
+note_length = "длина заметки должна быть от 1 до {max, plural, one {# символа} few {# символов} many {# символов} other {# символа}}"
+topic = "тема должна содержать от 1 до 32 символов a-z, 0-9, -"
+store = "хранилище недоступно"
+
+[about]
+title = "О проекте"
+heading = "О go-htmx4"
+stack = "Стек"
+stack_description = "Версии всех инструментов зафиксированы в mise.toml. Здесь ничего не требует Node."
+
+[about.roles]
+gsx = "шаблоны в стиле JSX, компилируемые в Go"
+gsxui = "компоненты в стиле shadcn, копируются в проект"
+htmx = "запросы, boost, morph, OOB-замены"
+hx_live = "состояние на клиенте (расширение htmx 4)"
+hx_ws = "живая доска через WebSockets (расширение htmx 4)"
+workers_go = "Go на Cloudflare Workers"
+tinygo = "компилирует Worker в wasm"
+d1 = "источник истины для доски"
+durable_objects = "одна комната (Room) на тему, WebSockets с гибернацией"
+tailwind = "автономный CLI, без npm"
+mise = "фиксирует версии всех инструментов"
+
+[formats]
+title = "Форматы"
+intro = "Форматирование с учётом локали: Go отрисовывает его по данным Unicode CLDR с теми же опциями и результатом, что и Intl в JavaScript. Язык можно сменить внизу страницы."
+input = "Входные данные"
+options = "Опции"
+result = "Результат"
+numbering = "цифры {system}"
+native = "национальные {system}"
+direction = "направление {dir}"
+numbers_title = "Числа"
+numbers_description = "Опции Intl.NumberFormat, форматирование на сервере по данным CLDR."
+currency_title = "Валюта"
+currency_description = "Суммы точные (в целых младших единицах), число знаков после запятой — по данным CLDR для валюты. Местная валюта: {currency}."
+units_title = "Единицы измерения"
+units_description = "Intl.NumberFormat со style \"unit\": шаблоны единиц CLDR с формами множественного числа, составные единицы (в час, на литр) и компактные числа."
+relative_title = "Относительное время"
+relative_description = "Intl.RelativeTimeFormat: dateFields из CLDR с правилами множественного числа; numeric \"auto\" использует слова вроде «вчера»."
+lists_title = "Списки"
+lists_description = "Intl.ListFormat: шаблоны списков CLDR, а также правила для испанского и иврита, которые ICU применяет в коде."
+durations_title = "Длительность"
+durations_description = "Intl.DurationFormat с выводом Chrome для числовых единиц."
+plurals_title = "Правила множественного числа"
+plurals_description = "Категории множественного числа CLDR и первые числа, которые к ним относятся."
+week_title = "Неделя"
+week_description = "Intl.Locale getWeekInfo: weekData из CLDR для региона локали (1 = понедельник … 7 = воскресенье)."

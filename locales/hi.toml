@@ -1,0 +1,148 @@
+# go-htmx4 UI strings in Hindi (translated from en.toml)
+
+page_title = "{title} · go-htmx4"
+
+[nav]
+home = "होम"
+board = "बोर्ड"
+formats = "फ़ॉर्मैट"
+about = "परिचय"
+languages = "भाषाएँ"
+toggle_theme = "थीम बदलें"
+
+[home]
+title = "होम"
+heading = "Cloudflare Workers पर Go + htmx 4 + gsxui"
+intro = "सर्वर पर रेंडर होने वाले gsx कॉम्पोनेंट, अनुरोधों के लिए htmx 4, लोकल स्टेट के लिए hx-live, और लाइव अपडेट के लिए D1 और Durable Objects। Go को TinyGo से कंपाइल किया जाता है। न Node, न bundler।"
+served_by = "सर्व करने वाला"
+env = "env"
+
+[home.greet]
+title = "सर्वर राउंड-ट्रिप"
+description = "gsxui फ़ॉर्म को hx-post करें। सर्वर एक gsx फ़्रैगमेंट और एक आउट-ऑफ़-बैंड (OOB) टोस्ट के साथ जवाब देता है।"
+name = "नाम"
+name_placeholder = "प्रिया शर्मा"
+flavour = "स्टैक का पसंदीदा हिस्सा"
+shout = "ज़ोर से कहें"
+submit = "नमस्ते कहें"
+clear = "साफ़ करें"
+
+[home.dialog]
+title = "डायलॉग + hx-get"
+description = "डायलॉग हर बार खुलने पर उसका कंटेंट सर्वर से लाया जाता है।"
+open = "सर्वर की जानकारी दिखाएँ"
+heading = "सर्वर की जानकारी"
+subtitle = "अनुरोध पर gsx कॉम्पोनेंट द्वारा रेंडर किया गया।"
+loading = "लोड हो रहा है…"
+close = "बंद करें"
+
+[home.tabs]
+title = "टैब + लेज़ी पैनल"
+description = "आँकड़े पैनल सिर्फ़ एक बार लोड होता है, जब पहली बार उसके टैब पर क्लिक किया जाता है।"
+overview = "अवलोकन"
+stats = "आँकड़े"
+overview_body = "यह पैनल पेज के साथ ही रेंडर हुआ था।"
+loading = "लोड हो रहा है…"
+
+[home.live]
+title = "hx-live के साथ क्लाइंट स्टेट"
+description = "सर्वर तक कोई राउंड-ट्रिप नहीं: एक काउंटर, एक ड्रॉपडाउन, एक टॉगल और एक लाइव फ़िल्टर।"
+increment = "बढ़ाएँ"
+count = "गिनती:"
+menu = "मेन्यू"
+state_bag = "टाइप्ड स्टेट बैग:"
+bold = "बोल्ड"
+filter_placeholder = "gsxui कॉम्पोनेंट फ़िल्टर करें…"
+filter_label = "कॉम्पोनेंट फ़िल्टर करें"
+
+[home.board]
+title = "लाइव अपडेट"
+description = "D1 और हर टॉपिक का एक Durable Object, हर बदलाव को hx-ws के ज़रिए सभी खुले टैब तक पहुँचाते हैं।"
+open = "साझा बोर्ड खोलें"
+
+[greet]
+hello = "नमस्ते, {name}।"
+shout = "नमस्ते, {name}!"
+toast_title = "अभिवादन रेंडर हुआ"
+toast_description = "{name} के लिए सर्वर पर रेंडर किया गया टोस्ट।"
+empty = "कृपया नाम दर्ज करें।"
+cleared = "साफ़ कर दिया गया।"
+cleared_toast_title = "साफ़ किया गया"
+cleared_toast_description = "hx-action और hx-method delete के साथ भेजा गया।"
+
+[server_info]
+go = "Go"
+uptime = "अपटाइम"
+requests = "अनुरोध"
+rendered = "रेंडर किया गया"
+note = "नोट"
+workers_note = "Cloudflare Workers: हर अनुरोध एक नया Go रनटाइम शुरू करता है, इसलिए अपटाइम, अनुरोध और आँकड़े फिर से शुरू होते हैं।"
+
+[board]
+title = "साझा बोर्ड"
+intro = "Go, D1 में लिखता है, फिर टॉपिक का Durable Object फ़्रैगमेंट को hx-ws के ज़रिए हर खुले टैब तक भेजता है।"
+topic = "टॉपिक"
+hint = "इस पेज को दूसरे टैब में खोलें और कुछ बदलें।"
+online = "ऑनलाइन"
+no_live = "लाइव पुश नहीं (go run .)"
+decrement = "घटाएँ"
+increment = "बढ़ाएँ"
+note_placeholder = "एक नोट लिखें"
+note_label = "नोट"
+post = "पोस्ट करें"
+version = "संस्करण {version, number}"
+empty_title = "अभी कोई नोट नहीं"
+empty_description = "नीचे एक नोट लिखें। हर खुला टैब उसे तुरंत देखेगा।"
+slow_title = "थोड़ा धीरे"
+slow_description = "आपके कनेक्शन से बहुत ज़्यादा बदलाव हो रहे हैं। कुछ सेकंड बाद फिर से कोशिश करें।"
+
+[board.errors]
+delta = "delta का मान 1 या -1 होना चाहिए"
+note_length = "नोट 1–{max, number} वर्णों का होना चाहिए"
+topic = "टॉपिक में a-z, 0-9, - के 1–32 वर्ण होने चाहिए"
+store = "स्टोर उपलब्ध नहीं है"
+
+[about]
+title = "परिचय"
+heading = "go-htmx4 का परिचय"
+stack = "स्टैक"
+stack_description = "हर टूल का वर्ज़न mise.toml में पिन है। यहाँ किसी भी चीज़ को Node की ज़रूरत नहीं है।"
+
+[about.roles]
+gsx = "JSX-शैली के टेम्पलेट, जो Go में कंपाइल होते हैं"
+gsxui = "shadcn-शैली के कॉम्पोनेंट, प्रोजेक्ट में कॉपी किए गए"
+htmx = "अनुरोध, boost, morph, OOB स्वैप"
+hx_live = "क्लाइंट-साइड स्टेट (htmx 4 एक्सटेंशन)"
+hx_ws = "WebSockets पर लाइव बोर्ड (htmx 4 एक्सटेंशन)"
+workers_go = "Cloudflare Workers पर Go"
+tinygo = "Worker को wasm में कंपाइल करता है"
+d1 = "बोर्ड डेटा का प्रामाणिक स्रोत"
+durable_objects = "हर टॉपिक के लिए एक Room, हाइबरनेट होने वाले WebSockets"
+tailwind = "स्टैंडअलोन CLI, npm के बिना"
+mise = "हर टूल का वर्ज़न पिन करता है"
+
+[formats]
+title = "फ़ॉर्मैट"
+intro = "लोकेल के अनुसार फ़ॉर्मैटिंग, जिसे Go, Unicode CLDR से रेंडर करता है, JavaScript के Intl जैसे विकल्पों और आउटपुट के साथ। भाषा पेज के नीचे से बदलें।"
+input = "इनपुट"
+options = "विकल्प"
+result = "परिणाम"
+numbering = "अंक {system}"
+native = "मूल अंक {system}"
+direction = "दिशा {dir}"
+numbers_title = "संख्याएँ"
+numbers_description = "Intl.NumberFormat के विकल्प, CLDR डेटा से सर्वर पर फ़ॉर्मैट किए गए।"
+currency_title = "मुद्रा"
+currency_description = "रकम सटीक रहती है (छोटी इकाइयों के पूर्णांक में), CLDR के मुद्रा अंकों के साथ। स्थानीय मुद्रा: {currency}।"
+units_title = "इकाइयाँ"
+units_description = "Intl.NumberFormat style \"unit\": बहुवचन रूपों, प्रति-इकाइयों और कॉम्पैक्ट संख्याओं के साथ CLDR इकाई पैटर्न।"
+relative_title = "सापेक्ष समय"
+relative_description = "Intl.RelativeTimeFormat: बहुवचन नियमों के साथ CLDR dateFields; numeric \"auto\" \"कल\" जैसे शब्दों का इस्तेमाल करता है।"
+lists_title = "सूचियाँ"
+lists_description = "Intl.ListFormat: CLDR सूची पैटर्न, साथ ही स्पैनिश और हिब्रू के वे नियम जो ICU कोड में लागू करता है।"
+durations_title = "अवधि"
+durations_description = "Intl.DurationFormat, संख्यात्मक इकाइयों के लिए Chrome के आउटपुट के साथ।"
+plurals_title = "बहुवचन नियम"
+plurals_description = "CLDR बहुवचन श्रेणियाँ और उन्हें चुनने वाली पहली संख्याएँ।"
+week_title = "सप्ताह"
+week_description = "Intl.Locale getWeekInfo: लोकेल के क्षेत्र के लिए CLDR weekData (1 = सोमवार … 7 = रविवार)।"

@@ -6,6 +6,7 @@ import (
 
 	"github.com/joeblew999/go-htmx4/kit/i18n"
 	"github.com/joeblew999/go-htmx4/kit/i18n/cldr"
+	"github.com/joeblew999/go-htmx4/locales"
 	"github.com/joeblew999/go-htmx4/views"
 )
 
@@ -21,11 +22,6 @@ import (
 
 // localeCookie remembers the locale of the last full page a browser viewed.
 const localeCookie = "locale"
-
-// translated lists locales whose UI text is translated (message catalogs, plan Phase 5). Pages in other
-// locales show English text with localized formatting, so they carry X-Robots-Tag: noindex: an English page
-// under /de/ must not be indexed as German or as a duplicate.
-var translated = map[string]bool{"en": true}
 
 // withLocale resolves the request's locale from its URL prefix, strips the prefix, and puts
 // i18n.Request in the context for handlers and views.
@@ -81,7 +77,9 @@ func withLocale(next http.Handler) http.Handler {
 			remember(w, r, ld)
 		}
 		w.Header().Set("Content-Language", ld.ID)
-		if !translated[ld.ID] {
+		// A locale whose catalog isn't complete (locales/*.toml) shows some English: noindex, so an English page
+		// under /de/ isn't indexed as German or as a duplicate.
+		if !locales.Complete(ld.ID) {
 			w.Header().Set("X-Robots-Tag", "noindex")
 		}
 		r2 := r.Clone(i18n.WithRequest(r.Context(), i18n.Request{Locale: loc, Path: pathWithQuery(path, r.URL.RawQuery)}))

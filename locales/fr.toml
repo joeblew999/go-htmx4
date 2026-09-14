@@ -1,0 +1,148 @@
+# go-htmx4 UI strings in French (translated from en.toml)
+
+page_title = "{title} · go-htmx4"
+
+[nav]
+home = "Accueil"
+board = "Tableau"
+formats = "Formats"
+about = "À propos"
+languages = "Langues"
+toggle_theme = "Changer de thème"
+
+[home]
+title = "Accueil"
+heading = "Go + htmx 4 + gsxui sur Cloudflare Workers"
+intro = "Composants gsx rendus côté serveur, htmx 4 pour les requêtes, hx-live pour l'état local, D1 et Durable Objects pour les mises à jour en direct. Go compilé avec TinyGo. Sans Node, sans bundler."
+served_by = "Servi par"
+env = "env"
+
+[home.greet]
+title = "Aller-retour serveur"
+description = "Envoyez un formulaire gsxui avec hx-post. Le serveur répond avec un fragment gsx et un toast hors bande."
+name = "Nom"
+name_placeholder = "Camille Martin"
+flavour = "Partie préférée de la stack"
+shout = "Le crier"
+submit = "Dire bonjour"
+clear = "Effacer"
+
+[home.dialog]
+title = "Boîte de dialogue + hx-get"
+description = "Le contenu de la boîte de dialogue est récupéré sur le serveur à chaque ouverture."
+open = "Afficher les infos serveur"
+heading = "Infos serveur"
+subtitle = "Rendu à la demande par un composant gsx."
+loading = "Chargement…"
+close = "Fermer"
+
+[home.tabs]
+title = "Onglets + panneau différé"
+description = "Le panneau Statistiques se charge une seule fois, au premier clic sur son onglet."
+overview = "Aperçu"
+stats = "Statistiques"
+overview_body = "Ce panneau a été rendu avec la page."
+loading = "Chargement…"
+
+[home.live]
+title = "État client avec hx-live"
+description = "Sans aller-retour serveur : un compteur, un menu déroulant, un interrupteur et un filtre en direct."
+increment = "Incrémenter"
+count = "Compteur :"
+menu = "Menu"
+state_bag = "Conteneur d'état typé :"
+bold = "Gras"
+filter_placeholder = "Filtrer les composants gsxui…"
+filter_label = "Filtrer les composants"
+
+[home.board]
+title = "Mises à jour en direct"
+description = "D1 et un Durable Object par sujet envoient chaque modification à tous les onglets ouverts via hx-ws."
+open = "Ouvrir le tableau partagé"
+
+[greet]
+hello = "Bonjour, {name}."
+shout = "BONJOUR, {name} !"
+toast_title = "Salutation rendue"
+toast_description = "Toast rendu côté serveur pour {name}."
+empty = "Veuillez saisir un nom."
+cleared = "Effacé."
+cleared_toast_title = "Effacé"
+cleared_toast_description = "Envoyé avec hx-action et hx-method delete."
+
+[server_info]
+go = "Go"
+uptime = "Temps de fonctionnement"
+requests = "Requêtes"
+rendered = "Rendu"
+note = "Remarque"
+workers_note = "Cloudflare Workers : chaque requête démarre un nouveau runtime Go, donc le temps de fonctionnement, les requêtes et les statistiques repartent de zéro."
+
+[board]
+title = "Tableau partagé"
+intro = "Go écrit dans D1, puis le Durable Object du sujet envoie le fragment à chaque onglet ouvert via hx-ws."
+topic = "Sujet"
+hint = "Ouvrez cette page dans un autre onglet et modifiez quelque chose."
+online = "en ligne"
+no_live = "Pas de push en direct (go run .)"
+decrement = "Décrémenter"
+increment = "Incrémenter"
+note_placeholder = "Laissez une note"
+note_label = "Note"
+post = "Publier"
+version = "version {version, number}"
+empty_title = "Aucune note pour l'instant"
+empty_description = "Laissez-en une ci-dessous. Tous les onglets ouverts la voient instantanément."
+slow_title = "Doucement"
+slow_description = "Trop de modifications depuis votre connexion. Réessayez dans quelques secondes."
+
+[board.errors]
+delta = "delta doit valoir 1 ou -1"
+note_length = "la note doit comporter de 1 à {max, number} caractères"
+topic = "le sujet doit comporter de 1 à 32 caractères parmi a-z, 0-9, -"
+store = "stockage indisponible"
+
+[about]
+title = "À propos"
+heading = "À propos de go-htmx4"
+stack = "Stack"
+stack_description = "Toutes les versions sont fixées dans mise.toml. Rien ici ne nécessite Node."
+
+[about.roles]
+gsx = "templates de style JSX compilés en Go"
+gsxui = "composants de style shadcn, copiés dans le projet"
+htmx = "requêtes, boost, morph, swaps OOB"
+hx_live = "état côté client (extension htmx 4)"
+hx_ws = "tableau en direct via WebSockets (extension htmx 4)"
+workers_go = "Go sur Cloudflare Workers"
+tinygo = "compile le Worker en wasm"
+d1 = "source de vérité du tableau"
+durable_objects = "un Room par sujet, WebSockets en hibernation"
+tailwind = "CLI autonome, sans npm"
+mise = "fixe la version de chaque outil"
+
+[formats]
+title = "Formats"
+intro = "Formatage adapté à la locale, rendu par Go à partir d'Unicode CLDR, avec les options et le résultat d'Intl en JavaScript. Changez de langue en bas de la page."
+input = "Entrée"
+options = "Options"
+result = "Résultat"
+numbering = "chiffres {system}"
+native = "natifs {system}"
+direction = "direction {dir}"
+numbers_title = "Nombres"
+numbers_description = "Options d'Intl.NumberFormat, formatées sur le serveur à partir des données CLDR."
+currency_title = "Devise"
+currency_description = "Les montants sont exacts (unités mineures entières), avec les décimales de devise CLDR. Devise locale : {currency}."
+units_title = "Unités"
+units_description = "Intl.NumberFormat style \"unit\" : motifs d'unités CLDR avec formes du pluriel, unités composées (« par ») et nombres compacts."
+relative_title = "Temps relatif"
+relative_description = "Intl.RelativeTimeFormat : dateFields CLDR avec règles de pluriel ; numeric \"auto\" utilise des mots comme « hier »."
+lists_title = "Listes"
+lists_description = "Intl.ListFormat : motifs de liste CLDR, ainsi que les règles de l'espagnol et de l'hébreu qu'ICU applique dans le code."
+durations_title = "Durées"
+durations_description = "Intl.DurationFormat, avec le résultat de Chrome pour les unités numériques."
+plurals_title = "Règles de pluriel"
+plurals_description = "Catégories de pluriel CLDR avec les premiers nombres qui les sélectionnent."
+week_title = "Semaine"
+week_description = "Intl.Locale getWeekInfo : weekData CLDR pour la région de la locale (1 = lundi … 7 = dimanche)."

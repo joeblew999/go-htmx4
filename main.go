@@ -17,6 +17,7 @@ package main
 
 import (
 	"cmp"
+	"github.com/joeblew999/go-htmx4/locales"
 	"log"
 	"net/http"
 	"runtime"
@@ -36,17 +37,17 @@ var (
 	components = []string{"badge", "button", "button-group", "card", "dialog", "empty", "field", "input", "item",
 		"label", "native-select", "separator", "switch", "tabs", "toast", "toaster"}
 	stack = []views.StackItem{
-		{Name: "gsx", Role: "JSX-style templates compiled to Go", URL: "https://gsxhq.github.io"},
-		{Name: "gsxui", Role: "shadcn-style components, copied in", URL: "https://ui.gsxhq.dev"},
-		{Name: "htmx 4", Role: "requests, boost, morph, OOB swaps", URL: "https://four.htmx.org"},
-		{Name: "hx-live", Role: "client-side state (htmx 4 extension)", URL: "https://four.htmx.org/extensions/hx-live/"},
-		{Name: "hx-ws", Role: "live board over WebSockets (htmx 4 extension)", URL: "https://four.htmx.org/extensions/hx-ws"},
-		{Name: "workers-go", Role: "Go on Cloudflare Workers", URL: "https://github.com/syumai/workers-go"},
-		{Name: "TinyGo", Role: "compiles the Worker to wasm", URL: "https://tinygo.org"},
-		{Name: "Cloudflare D1", Role: "board source of truth", URL: "https://developers.cloudflare.com/d1/"},
-		{Name: "Durable Objects", Role: "one Room per topic, hibernating WebSockets", URL: "https://developers.cloudflare.com/durable-objects/"},
-		{Name: "Tailwind CSS", Role: "standalone CLI, no npm", URL: "https://tailwindcss.com/docs/installation/tailwind-cli"},
-		{Name: "mise", Role: "pins every tool", URL: "https://mise.jdx.dev"},
+		{Name: "gsx", Role: locales.Messages.AboutRolesGsx, URL: "https://gsxhq.github.io"},
+		{Name: "gsxui", Role: locales.Messages.AboutRolesGsxui, URL: "https://ui.gsxhq.dev"},
+		{Name: "htmx 4", Role: locales.Messages.AboutRolesHtmx, URL: "https://four.htmx.org"},
+		{Name: "hx-live", Role: locales.Messages.AboutRolesHxLive, URL: "https://four.htmx.org/extensions/hx-live/"},
+		{Name: "hx-ws", Role: locales.Messages.AboutRolesHxWs, URL: "https://four.htmx.org/extensions/hx-ws"},
+		{Name: "workers-go", Role: locales.Messages.AboutRolesWorkersGo, URL: "https://github.com/syumai/workers-go"},
+		{Name: "TinyGo", Role: locales.Messages.AboutRolesTinygo, URL: "https://tinygo.org"},
+		{Name: "Cloudflare D1", Role: locales.Messages.AboutRolesD1, URL: "https://developers.cloudflare.com/d1/"},
+		{Name: "Durable Objects", Role: locales.Messages.AboutRolesDurableObjects, URL: "https://developers.cloudflare.com/durable-objects/"},
+		{Name: "Tailwind CSS", Role: locales.Messages.AboutRolesTailwind, URL: "https://tailwindcss.com/docs/installation/tailwind-cli"},
+		{Name: "mise", Role: locales.Messages.AboutRolesMise, URL: "https://mise.jdx.dev"},
 	}
 )
 
@@ -105,7 +106,7 @@ func (s *server) routes() http.Handler {
 		}
 		name := strings.TrimSpace(r.FormValue("name"))
 		if name == "" {
-			s.render(w, r, "greet:error", views.GreetingError("Please enter a name."))
+			s.render(w, r, "greet:error", views.GreetingError())
 			return
 		}
 		s.render(w, r, "greet", views.Greeting(name, cmp.Or(r.FormValue("flavour"), "gsx"), r.FormValue("shout") == "on"))
@@ -116,9 +117,9 @@ func (s *server) routes() http.Handler {
 		}
 		s.render(w, r, "server-info", views.ServerInfoView(views.ServerInfo{
 			GoVersion: runtime.Compiler + " " + runtime.Version() + " " + runtime.GOOS + "/" + runtime.GOARCH,
-			Uptime:    time.Since(s.started).Round(time.Second).String(),
+			Uptime:    time.Since(s.started),
 			Requests:  s.requests.Load(),
-			Now:       time.Now().Format(time.RFC1123),
+			Now:       time.Now(),
 			Note:      platformNote,
 		}))
 	})

@@ -9,16 +9,19 @@ import (
 // out-of-band toast, lazily loaded dialog and tab content, client-side state with hx-live, and the live
 // board.
 component HomePage(target string, env string, flavours []string, components []string) {
-	<Layout title="Home" path="/">
+	<Layout title={M(ctx).HomeTitle()} path="/">
 		<div class="flex flex-col gap-2">
-			<h1 class="text-3xl font-semibold tracking-tight">Go + htmx 4 + gsxui on Cloudflare Workers</h1>
-			<p class="text-muted-foreground">
-				Server-rendered gsx components, htmx 4 for requests, hx-live for local state, D1 and Durable Objects for live
-				updates. Go compiled with TinyGo. No Node, no bundler.
-			</p>
+			<h1 class="text-3xl font-semibold tracking-tight">{ M(ctx).HomeHeading() }</h1>
+			<p class="text-muted-foreground">{ M(ctx).HomeIntro() }</p>
 			<div class="flex flex-wrap gap-2">
-				<ui.Badge variant="secondary">Served by <span id="target">{ target }</span></ui.Badge>
-				<ui.Badge variant="outline">env <span id="env">{ env }</span></ui.Badge>
+				<ui.Badge variant="secondary">
+					{ M(ctx).HomeServedBy() }
+					<span id="target" translate="no">{ target }</span>
+				</ui.Badge>
+				<ui.Badge variant="outline">
+					{ M(ctx).HomeEnv() }
+					<span id="env" translate="no">{ env }</span>
+				</ui.Badge>
 			</div>
 		</div>
 		<GreetCard flavours={flavours}/>
@@ -34,21 +37,19 @@ component HomePage(target string, env string, flavours []string, components []st
 component GreetCard(flavours []string) {
 	<ui.Card>
 		<ui.CardHeader>
-			<ui.CardTitle>Server round-trip</ui.CardTitle>
-			<ui.CardDescription>
-				hx-post a gsxui form. The server answers with a gsx fragment and an out-of-band toast.
-			</ui.CardDescription>
+			<ui.CardTitle>{ M(ctx).HomeGreetTitle() }</ui.CardTitle>
+			<ui.CardDescription>{ M(ctx).HomeGreetDescription() }</ui.CardDescription>
 		</ui.CardHeader>
 		<ui.CardContent class="flex flex-col gap-4">
 			<form hx-post={URL(ctx, "/greet")} hx-target="#greeting" class="flex flex-col gap-4">
 				<ui.FieldGroup>
 					<ui.Field>
-						<ui.FieldLabel for="name">Name</ui.FieldLabel>
-						<ui.Input id="name" name="name" placeholder="Jamie Lee" required/>
+						<ui.FieldLabel for="name">{ M(ctx).HomeGreetName() }</ui.FieldLabel>
+						<ui.Input id="name" name="name" placeholder={M(ctx).HomeGreetNamePlaceholder()} required/>
 					</ui.Field>
 					<ui.Field>
-						<ui.FieldLabel for="flavour">Favourite part of the stack</ui.FieldLabel>
-						<ui.NativeSelect id="flavour" name="flavour">
+						<ui.FieldLabel for="flavour">{ M(ctx).HomeGreetFlavour() }</ui.FieldLabel>
+						<ui.NativeSelect id="flavour" name="flavour" translate="no">
 							{ for _, f := range flavours {
 								<ui.NativeSelectOption value={f}>{ f }</ui.NativeSelectOption>
 							} }
@@ -56,12 +57,13 @@ component GreetCard(flavours []string) {
 					</ui.Field>
 					<ui.Field orientation="horizontal">
 						<ui.Switch id="shout" name="shout" value="on"/>
-						<ui.FieldLabel for="shout">Shout it</ui.FieldLabel>
+						<ui.FieldLabel for="shout">{ M(ctx).HomeGreetShout() }</ui.FieldLabel>
 					</ui.Field>
 				</ui.FieldGroup>
 				<div class="flex gap-2">
 					<ui.Button type="submit">
-						<icon.Send/> Say hello
+						<icon.Send/>
+						{ M(ctx).HomeGreetSubmit() }
 					</ui.Button>
 					<ui.Button
 						variant="ghost"
@@ -70,7 +72,7 @@ component GreetCard(flavours []string) {
 						hx-method="delete"
 						hx-target="#greeting"
 					>
-						Clear
+						{ M(ctx).HomeGreetClear() }
 					</ui.Button>
 				</div>
 			</form>
@@ -79,11 +81,13 @@ component GreetCard(flavours []string) {
 	</ui.Card>
 }
 
+// DialogCard's close button is gsxui DialogFooter's own markup (ui/dialog.gsx) with a translated label: gsxui
+// hard-codes "Close" in DialogContent and DialogFooter, so both built-in buttons are turned off.
 component DialogCard() {
 	<ui.Card>
 		<ui.CardHeader>
-			<ui.CardTitle>Dialog + hx-get</ui.CardTitle>
-			<ui.CardDescription>The dialog body is fetched from the server each time it opens.</ui.CardDescription>
+			<ui.CardTitle>{ M(ctx).HomeDialogTitle() }</ui.CardTitle>
+			<ui.CardDescription>{ M(ctx).HomeDialogDescription() }</ui.CardDescription>
 		</ui.CardHeader>
 		<ui.CardContent>
 			<ui.Dialog>
@@ -95,15 +99,19 @@ component DialogCard() {
 					hx-get={URL(ctx, "/fragments/server-info")}
 					hx-target="#server-info"
 				>
-					Show server info
+					{ M(ctx).HomeDialogOpen() }
 				</ui.Button>
-				<ui.DialogContent>
+				<ui.DialogContent hideCloseButton={true}>
 					<ui.DialogHeader>
-						<ui.DialogTitle>Server info</ui.DialogTitle>
-						<ui.DialogDescription>Rendered by a gsx component on request.</ui.DialogDescription>
+						<ui.DialogTitle>{ M(ctx).HomeDialogHeading() }</ui.DialogTitle>
+						<ui.DialogDescription>{ M(ctx).HomeDialogSubtitle() }</ui.DialogDescription>
 					</ui.DialogHeader>
-					<div id="server-info" class="text-sm text-muted-foreground">Loading…</div>
-					<ui.DialogFooter showCloseButton={true}></ui.DialogFooter>
+					<div id="server-info" class="text-sm text-muted-foreground">{ M(ctx).HomeDialogLoading() }</div>
+					<ui.DialogFooter showCloseButton={false}>
+						<ui.Button variant="outline" data-gsxui-dialog-close data-gsxui-slot-dialog-footer-close>
+							{ M(ctx).HomeDialogClose() }
+						</ui.Button>
+					</ui.DialogFooter>
 				</ui.DialogContent>
 			</ui.Dialog>
 		</ui.CardContent>
@@ -113,27 +121,27 @@ component DialogCard() {
 component TabsCard() {
 	<ui.Card>
 		<ui.CardHeader>
-			<ui.CardTitle>Tabs + lazy panel</ui.CardTitle>
-			<ui.CardDescription>The Stats panel loads once, the first time its tab is clicked.</ui.CardDescription>
+			<ui.CardTitle>{ M(ctx).HomeTabsTitle() }</ui.CardTitle>
+			<ui.CardDescription>{ M(ctx).HomeTabsDescription() }</ui.CardDescription>
 		</ui.CardHeader>
 		<ui.CardContent>
 			<ui.Tabs value="overview">
 				<ui.TabsList>
-					<ui.TabsTrigger value="overview" selected>Overview</ui.TabsTrigger>
+					<ui.TabsTrigger value="overview" selected>{ M(ctx).HomeTabsOverview() }</ui.TabsTrigger>
 					<ui.TabsTrigger
 						value="stats"
 						hx-get={URL(ctx, "/fragments/stats")}
 						hx-target="#tab-stats"
 						hx-trigger="click once"
 					>
-						Stats
+						{ M(ctx).HomeTabsStats() }
 					</ui.TabsTrigger>
 				</ui.TabsList>
 				<ui.TabsContent value="overview" selected class="pt-3 text-sm">
-					This panel was rendered with the page.
+					{ M(ctx).HomeTabsOverviewBody() }
 				</ui.TabsContent>
 				<ui.TabsContent value="stats" class="pt-3 text-sm">
-					<div id="tab-stats" class="text-muted-foreground">Loading…</div>
+					<div id="tab-stats" class="text-muted-foreground">{ M(ctx).HomeTabsLoading() }</div>
 				</ui.TabsContent>
 			</ui.Tabs>
 		</ui.CardContent>
@@ -145,26 +153,26 @@ component TabsCard() {
 component LiveCard(components []string) {
 	<ui.Card>
 		<ui.CardHeader>
-			<ui.CardTitle>Client state with hx-live</ui.CardTitle>
-			<ui.CardDescription>No server round-trip: a counter, a dropdown, a toggle and a live filter.</ui.CardDescription>
+			<ui.CardTitle>{ M(ctx).HomeLiveTitle() }</ui.CardTitle>
+			<ui.CardDescription>{ M(ctx).HomeLiveDescription() }</ui.CardDescription>
 		</ui.CardHeader>
 		<ui.CardContent class="flex flex-col gap-4">
 			<div data-count="0" class="flex items-center gap-3">
-				<ui.Button variant="outline" hx-on:click=js`data.count++`>Increment</ui.Button>
+				<ui.Button variant="outline" hx-on:click=js`data.count++`>{ M(ctx).HomeLiveIncrement() }</ui.Button>
 				<span class="text-sm">
-					Count:
+					{ M(ctx).HomeLiveCount() }
 					<ui.Badge variant="secondary" :text=js`data.count`>0</ui.Badge>
 				</span>
 			</div>
 			<div class="flex flex-wrap items-start gap-3">
 				<div data-open="false" class="relative" hx-on="click from:outside -> data.open = false">
-					<ui.Button variant="outline" hx-on:click=js`data.open = !data.open`>Menu</ui.Button>
+					<ui.Button variant="outline" hx-on:click=js`data.open = !data.open`>{ M(ctx).HomeLiveMenu() }</ui.Button>
 					<div
 						hidden
 						:hidden=js`!data.open`
 						class="absolute z-10 mt-2 flex w-40 flex-col gap-1 rounded-md border bg-popover p-2 text-sm shadow-md"
 					>
-						<span>Typed state bag:</span>
+						<span>{ M(ctx).HomeLiveStateBag() }</span>
 						<code>data.open</code>
 					</div>
 				</div>
@@ -174,13 +182,14 @@ component LiveCard(components []string) {
 					hx-on:click=js`aria.pressed = !aria.pressed`
 					:class=js`{ 'font-bold underline': aria.pressed }`
 				>
-					Bold
+					{ M(ctx).HomeLiveBold() }
 				</ui.Button>
 			</div>
 			<div class="flex flex-col gap-2">
-				<ui.Input placeholder="Filter gsxui components…" aria-label="Filter components"/>
+				<ui.Input placeholder={M(ctx).HomeLiveFilterPlaceholder()} aria-label={M(ctx).HomeLiveFilterLabel()}/>
 				<ul
 					class="flex flex-wrap gap-2"
+					translate="no"
 					hx-live=js`for (let li of q('li in this')) li.hidden = !li.textContent.toLowerCase().includes(q('previous input').value.toLowerCase())`
 				>
 					{ for _, c := range components {
@@ -197,14 +206,13 @@ component LiveCard(components []string) {
 component BoardCard() {
 	<ui.Card>
 		<ui.CardHeader>
-			<ui.CardTitle>Live updates</ui.CardTitle>
-			<ui.CardDescription>
-				D1 plus a Durable Object per topic push every change to all open tabs over hx-ws.
-			</ui.CardDescription>
+			<ui.CardTitle>{ M(ctx).HomeBoardTitle() }</ui.CardTitle>
+			<ui.CardDescription>{ M(ctx).HomeBoardDescription() }</ui.CardDescription>
 		</ui.CardHeader>
 		<ui.CardContent>
 			<ui.Button href={URL(ctx, "/board")}>
-				<icon.Radio/> Open the shared board
+				<icon.Radio/>
+				{ M(ctx).HomeBoardOpen() }
 			</ui.Button>
 		</ui.CardContent>
 	</ui.Card>

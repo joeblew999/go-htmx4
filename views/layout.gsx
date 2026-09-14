@@ -18,15 +18,16 @@ import (
 // htmx 4 inheritance is explicit: only the nav links are boosted (morph + view transition), so the pages'
 // own hx-* requests keep their default swaps.
 //
-// <html lang dir> come from the request's locale (views/i18n.go). The language links sit in the footer, outside
-// the boosted nav: switching locale must be a full page load, since a boosted swap keeps the old <html lang dir>.
+// <html lang dir> come from the request's locale (views/i18n.go), and every UI string from locales/*.toml (M). The
+// language links sit in the footer, outside the boosted nav: switching locale must be a full page load, since a
+// boosted swap keeps the old <html lang dir>.
 component Layout(title string, path string, children gsx.Node) {
 	<!DOCTYPE html>
 	<html lang={Loc(ctx).Lang()} dir={Loc(ctx).Dir()}>
 		<head>
 			<meta charset="utf-8"/>
 			<meta name="viewport" content="width=device-width, initial-scale=1"/>
-			<title>{ title } · go-htmx4</title>
+			<title>{ M(ctx).PageTitle(title) }</title>
 			<ThemeScript/>
 			<link rel="stylesheet" href="/assets/gsxui.css"/>
 			<meta name="htmx-config" content="ws.reconnectDelay:2s ws.reconnectJitter:0.5"/>
@@ -44,18 +45,24 @@ component Layout(title string, path string, children gsx.Node) {
 					hx-boost:inherited="true"
 					hx-swap:inherited="outerMorph transition:true"
 				>
-					<a href={URL(ctx, "/")} class="me-auto font-semibold">go-htmx4</a>
-					<ui.Button variant={navVariant(path, "/")} size="sm" href={URL(ctx, "/")}>Home</ui.Button>
-					<ui.Button variant={navVariant(path, "/board")} size="sm" href={URL(ctx, "/board")}>Board</ui.Button>
-					<ui.Button variant={navVariant(path, "/formats")} size="sm" href={URL(ctx, "/formats")}>Formats</ui.Button>
-					<ui.Button variant={navVariant(path, "/about")} size="sm" href={URL(ctx, "/about")}>About</ui.Button>
+					<a href={URL(ctx, "/")} class="me-auto font-semibold" translate="no">go-htmx4</a>
+					<ui.Button variant={navVariant(path, "/")} size="sm" href={URL(ctx, "/")}>{ M(ctx).NavHome() }</ui.Button>
+					<ui.Button variant={navVariant(path, "/board")} size="sm" href={URL(ctx, "/board")}>
+						{ M(ctx).NavBoard() }
+					</ui.Button>
+					<ui.Button variant={navVariant(path, "/formats")} size="sm" href={URL(ctx, "/formats")}>
+						{ M(ctx).NavFormats() }
+					</ui.Button>
+					<ui.Button variant={navVariant(path, "/about")} size="sm" href={URL(ctx, "/about")}>
+						{ M(ctx).NavAbout() }
+					</ui.Button>
 					<ui.Button
 						variant="ghost"
 						size="icon-sm"
 						href="#languages"
 						hx-boost:inherited="false"
-						aria-label="Languages"
-						title="Languages"
+						aria-label={M(ctx).NavLanguages()}
+						title={M(ctx).NavLanguages()}
 					>
 						<icon.Languages/>
 					</ui.Button>
@@ -70,10 +77,10 @@ component Layout(title string, path string, children gsx.Node) {
 }
 
 // LanguageFooter lists the current page in every shipped locale: plain links (crawlable, no JS), each named in its
-// own language with lang and hreflang.
+// own language with lang and hreflang (and translate="no": a locale's own name must not be machine-translated).
 component LanguageFooter() {
 	<footer id="languages" class="border-t">
-		<nav aria-label="Languages" class="mx-auto flex max-w-3xl flex-wrap items-center gap-1 p-4">
+		<nav aria-label={M(ctx).NavLanguages()} class="mx-auto flex max-w-3xl flex-wrap items-center gap-1 p-4">
 			<icon.Languages class="me-1 size-4 text-muted-foreground"/>
 			{ for _, l := range LocaleLinks(ctx) {
 				<ui.Button
@@ -82,6 +89,7 @@ component LanguageFooter() {
 					href={l.Href}
 					hreflang={l.Lang}
 					lang={l.Lang}
+					translate="no"
 					{ if l.Current {
 						aria-current="page"
 					} }

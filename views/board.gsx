@@ -10,28 +10,29 @@ import (
 // the online count into #presence (the label next to it is rendered here, in the page's language). Without it (`go run .`, no Durable Objects) only the poster's own response
 // updates the board, and a badge says so.
 component BoardPage(topic string, b Board, live bool) {
-	<Layout title="Shared board" path="/board">
+	<Layout title={M(ctx).BoardTitle()} path="/board">
 		<div class="flex flex-col gap-2">
-			<h1 class="text-3xl font-semibold tracking-tight">Shared board</h1>
-			<p class="text-muted-foreground">
-				Go writes to D1, then the topic's Durable Object pushes the fragment to every open tab over hx-ws.
-			</p>
+			<h1 class="text-3xl font-semibold tracking-tight">{ M(ctx).BoardTitle() }</h1>
+			<p class="text-muted-foreground">{ M(ctx).BoardIntro() }</p>
 		</div>
 		<ui.Card>
 			<ui.CardHeader>
-				<ui.CardTitle>Topic <code>{ topic }</code></ui.CardTitle>
-				<ui.CardDescription>Open this page in another tab and change something.</ui.CardDescription>
+				<ui.CardTitle>
+					{ M(ctx).BoardTopic() }
+					<code translate="no">{ topic }</code>
+				</ui.CardTitle>
+				<ui.CardDescription>{ M(ctx).BoardHint() }</ui.CardDescription>
 				<ui.CardAction>
 					{ if live {
 						<ui.Badge variant="secondary">
 							<icon.Users/>
 							<span id="presence">…</span>
-							<span>online</span>
+							<span>{ M(ctx).BoardOnline() }</span>
 						</ui.Badge>
 					} else {
 						<ui.Badge variant="outline">
 							<icon.WifiOff/>
-							No live push (go run .)
+							{ M(ctx).BoardNoLive() }
 						</ui.Badge>
 					} }
 				</ui.CardAction>
@@ -51,7 +52,7 @@ component BoardPage(topic string, b Board, live bool) {
 						type="button"
 						variant="outline"
 						size="icon"
-						aria-label="Decrement"
+						aria-label={M(ctx).BoardDecrement()}
 						hx-post={URL(ctx, "/board/add?topic="+topic+"&delta=-1")}
 						hx-swap="none"
 					>
@@ -61,7 +62,7 @@ component BoardPage(topic string, b Board, live bool) {
 						type="button"
 						variant="outline"
 						size="icon"
-						aria-label="Increment"
+						aria-label={M(ctx).BoardIncrement()}
 						hx-post={URL(ctx, "/board/add?topic="+topic+"&delta=1")}
 						hx-swap="none"
 					>
@@ -77,13 +78,14 @@ component BoardPage(topic string, b Board, live bool) {
 					<ui.Input
 						name="body"
 						maxlength="280"
-						placeholder="Leave a note"
+						placeholder={M(ctx).BoardNotePlaceholder()}
 						autocomplete="off"
-						aria-label="Note"
+						aria-label={M(ctx).BoardNoteLabel()}
 						required
 					/>
 					<ui.Button type="submit">
-						<icon.Send/> Post
+						<icon.Send/>
+						{ M(ctx).BoardPost() }
 					</ui.Button>
 				</form>
 			</ui.CardFooter>
@@ -110,8 +112,8 @@ component boardSection(b Board) {
 
 component boardBody(b Board) {
 	<div class="flex items-baseline gap-3">
-		<output class="text-6xl font-semibold tracking-tight tabular-nums">{ b.Value }</output>
-		<span class="text-sm text-muted-foreground">version { b.Version }</span>
+		<output class="text-6xl font-semibold tracking-tight tabular-nums">{ Num(ctx, b.Value) }</output>
+		<span class="text-sm text-muted-foreground">{ M(ctx).BoardVersion(float64(b.Version)) }</span>
 	</div>
 	{ if len(b.Notes) == 0 {
 		<ui.Empty>
@@ -119,8 +121,8 @@ component boardBody(b Board) {
 				<ui.EmptyMedia variant="icon">
 					<icon.MessageSquare/>
 				</ui.EmptyMedia>
-				<ui.EmptyTitle>No notes yet</ui.EmptyTitle>
-				<ui.EmptyDescription>Leave one below. Every open tab sees it instantly.</ui.EmptyDescription>
+				<ui.EmptyTitle>{ M(ctx).BoardEmptyTitle() }</ui.EmptyTitle>
+				<ui.EmptyDescription>{ M(ctx).BoardEmptyDescription() }</ui.EmptyDescription>
 			</ui.EmptyHeader>
 		</ui.Empty>
 	} else {
@@ -134,7 +136,7 @@ component boardBody(b Board) {
 						<icon.MessageSquare/>
 					</ui.ItemMedia>
 					<ui.ItemContent>
-						<ui.ItemTitle>{ n.Body }</ui.ItemTitle>
+						<ui.ItemTitle dir="auto">{ n.Body }</ui.ItemTitle>
 						<ui.ItemDescription>
 							<time datetime={NoteISO(n.CreatedAt)} data-relative-time>{ RelativeSince(ctx, n.CreatedAt) }</time>
 						</ui.ItemDescription>

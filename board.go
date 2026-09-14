@@ -14,6 +14,7 @@ import (
 	"errors"
 	"github.com/joeblew999/go-htmx4/kit/i18n"
 	"github.com/joeblew999/go-htmx4/kit/i18n/cldr"
+	"github.com/joeblew999/go-htmx4/locales"
 	"log"
 	"net/http"
 	"strconv"
@@ -82,7 +83,7 @@ func (s *server) boardRoutes(mux *http.ServeMux) {
 		}
 		delta, err := strconv.ParseInt(r.FormValue("delta"), 10, 64)
 		if err != nil || (delta != 1 && delta != -1) {
-			http.Error(w, "delta must be 1 or -1", http.StatusBadRequest)
+			http.Error(w, locales.For(r.Context()).BoardErrorsDelta(), http.StatusBadRequest)
 			return
 		}
 		if s.limited(w, r) {
@@ -97,7 +98,7 @@ func (s *server) boardRoutes(mux *http.ServeMux) {
 		}
 		body := strings.TrimSpace(r.FormValue("body"))
 		if body == "" || utf8.RuneCountInString(body) > maxNoteRunes {
-			http.Error(w, "note must be 1–280 characters", http.StatusBadRequest)
+			http.Error(w, locales.For(r.Context()).BoardErrorsNoteLength(maxNoteRunes), http.StatusBadRequest)
 			return
 		}
 		if s.limited(w, r) {
@@ -147,7 +148,7 @@ func topicOf(w http.ResponseWriter, r *http.Request) (string, bool) {
 		topic = defaultTopic
 	}
 	if !live.ValidTopic(topic) {
-		http.Error(w, "topic must be 1–32 of a-z, 0-9, -", http.StatusBadRequest)
+		http.Error(w, locales.For(r.Context()).BoardErrorsTopic(), http.StatusBadRequest)
 		return "", false
 	}
 	return topic, true

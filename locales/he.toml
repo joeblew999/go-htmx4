@@ -1,0 +1,148 @@
+# go-htmx4 UI strings in Hebrew (translated from en.toml)
+
+page_title = "{title} · go-htmx4"
+
+[nav]
+home = "בית"
+board = "לוח"
+formats = "פורמטים"
+about = "אודות"
+languages = "שפות"
+toggle_theme = "החלפת ערכת נושא"
+
+[home]
+title = "בית"
+heading = "Go + htmx 4 + gsxui על Cloudflare Workers"
+intro = "רכיבי gsx שמרונדרים בשרת, htmx 4 לבקשות, hx-live למצב מקומי, D1 ו-Durable Objects לעדכונים חיים. Go מהודר עם TinyGo. בלי Node ובלי bundler."
+served_by = "מוגש על ידי"
+env = "env"
+
+[home.greet]
+title = "הלוך ושוב לשרת"
+description = "שליחת טופס gsxui עם hx-post. השרת עונה במקטע gsx ובהודעה קופצת מחוץ לרצף (OOB)."
+name = "שם"
+name_placeholder = "נועה כהן"
+flavour = "החלק המועדף בסטאק"
+shout = "בקול רם"
+submit = "להגיד שלום"
+clear = "ניקוי"
+
+[home.dialog]
+title = "חלון דו-שיח + hx-get"
+description = "תוכן החלון נטען מהשרת בכל פעם שהוא נפתח."
+open = "הצגת פרטי השרת"
+heading = "פרטי השרת"
+subtitle = "רונדר על ידי רכיב gsx לפי בקשה."
+loading = "בטעינה…"
+close = "סגירה"
+
+[home.tabs]
+title = "כרטיסיות + חלונית בטעינה עצלה"
+description = "חלונית הסטטיסטיקה נטענת פעם אחת, בלחיצה הראשונה על הכרטיסייה שלה."
+overview = "סקירה"
+stats = "סטטיסטיקה"
+overview_body = "החלונית הזו רונדרה יחד עם הדף."
+loading = "בטעינה…"
+
+[home.live]
+title = "מצב בצד הלקוח עם hx-live"
+description = "בלי פנייה לשרת: מונה, תפריט נפתח, מתג וסינון חי."
+increment = "הגדלה"
+count = "מונה:"
+menu = "תפריט"
+state_bag = "מאגר מצב עם טיפוסים:"
+bold = "מודגש"
+filter_placeholder = "סינון רכיבי gsxui…"
+filter_label = "סינון רכיבים"
+
+[home.board]
+title = "עדכונים חיים"
+description = "D1 ו-Durable Object לכל נושא דוחפים כל שינוי לכל הכרטיסיות הפתוחות דרך hx-ws."
+open = "פתיחת הלוח המשותף"
+
+[greet]
+hello = "שלום, {name}."
+shout = "שלום, {name}!"
+toast_title = "הברכה רונדרה"
+toast_description = "הודעה קופצת שרונדרה בשרת עבור {name}."
+empty = "נא להזין שם."
+cleared = "נוקה."
+cleared_toast_title = "נוקה"
+cleared_toast_description = "נשלח עם hx-action ו-hx-method delete."
+
+[server_info]
+go = "Go"
+uptime = "זמן פעילות"
+requests = "בקשות"
+rendered = "רונדר"
+note = "הערה"
+workers_note = "Cloudflare Workers: כל בקשה מפעילה סביבת ריצה חדשה של Go, ולכן זמן הפעילות, מספר הבקשות והסטטיסטיקה מתאפסים."
+
+[board]
+title = "לוח משותף"
+intro = "Go כותב ל-D1, ואז ה-Durable Object של הנושא דוחף את המקטע לכל כרטיסייה פתוחה דרך hx-ws."
+topic = "נושא"
+hint = "אפשר לפתוח את הדף הזה בכרטיסייה נוספת ולשנות משהו."
+online = "אונליין"
+no_live = "אין עדכון חי (go run .)"
+decrement = "הקטנה"
+increment = "הגדלה"
+note_placeholder = "השאירו הערה"
+note_label = "הערה"
+post = "פרסום"
+version = "גרסה {version, number}"
+empty_title = "אין עדיין הערות"
+empty_description = "אפשר להשאיר הערה למטה. כל כרטיסייה פתוחה תראה אותה מיד."
+slow_title = "לאט יותר"
+slow_description = "יותר מדי שינויים מהחיבור שלך. אפשר לנסות שוב בעוד כמה שניות."
+
+[board.errors]
+delta = "הערך delta חייב להיות 1 או -1"
+note_length = "ההערה חייבת להכיל בין 1 ל-{max, number} תווים"
+topic = "הנושא חייב להכיל 1 עד 32 תווים מתוך a-z, 0-9, -"
+store = "האחסון אינו זמין"
+
+[about]
+title = "אודות"
+heading = "אודות go-htmx4"
+stack = "סטאק"
+stack_description = "הגרסה של כל כלי מקובעת ב-mise.toml. שום דבר כאן לא דורש Node."
+
+[about.roles]
+gsx = "תבניות בסגנון JSX שמהודרות ל-Go"
+gsxui = "רכיבים בסגנון shadcn, מועתקים לפרויקט"
+htmx = "בקשות, boost, morph, החלפות OOB"
+hx_live = "מצב בצד הלקוח (הרחבה של htmx 4)"
+hx_ws = "לוח חי דרך WebSockets (הרחבה של htmx 4)"
+workers_go = "Go על Cloudflare Workers"
+tinygo = "מהדר את ה-Worker ל-wasm"
+d1 = "מקור האמת של הלוח"
+durable_objects = "חדר (Room) אחד לכל נושא, WebSockets במצב שינה"
+tailwind = "CLI עצמאי, בלי npm"
+mise = "מקבע את הגרסה של כל כלי"
+
+[formats]
+title = "פורמטים"
+intro = "עיצוב מותאם לשפה ולאזור, שמרונדר ב-Go מנתוני Unicode CLDR, עם האפשרויות והפלט של Intl ב-JavaScript. אפשר להחליף שפה בתחתית הדף."
+input = "קלט"
+options = "אפשרויות"
+result = "תוצאה"
+numbering = "ספרות {system}"
+native = "ספרות מקומיות {system}"
+direction = "כיוון {dir}"
+numbers_title = "מספרים"
+numbers_description = "אפשרויות Intl.NumberFormat, בעיצוב בשרת מנתוני CLDR."
+currency_title = "מטבע"
+currency_description = "סכומים מדויקים (ביחידות משנה שלמות), עם מספר הספרות של כל מטבע לפי CLDR. המטבע המקומי: {currency}."
+units_title = "יחידות"
+units_description = "Intl.NumberFormat עם style \"unit\": תבניות יחידות מ-CLDR עם צורות ריבוי, יחידות מורכבות (ליחידה) ומספרים מקוצרים."
+relative_title = "זמן יחסי"
+relative_description = "Intl.RelativeTimeFormat: נתוני dateFields מ-CLDR עם כללי ריבוי; numeric \"auto\" משתמש במילים כמו \"אתמול\"."
+lists_title = "רשימות"
+lists_description = "Intl.ListFormat: תבניות רשימה מ-CLDR, וגם כללי הספרדית והעברית ש-ICU מיישם בקוד."
+durations_title = "משכי זמן"
+durations_description = "Intl.DurationFormat, עם הפלט של Chrome ליחידות מספריות."
+plurals_title = "כללי ריבוי"
+plurals_description = "קטגוריות הריבוי של CLDR עם המספרים הראשונים שנופלים בכל אחת מהן."
+week_title = "שבוע"
+week_description = "Intl.Locale getWeekInfo: נתוני weekData מ-CLDR לאזור של השפה (1 = שני … 7 = ראשון)."

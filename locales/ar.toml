@@ -1,0 +1,148 @@
+# go-htmx4 UI strings in Arabic (translated from en.toml)
+
+page_title = "{title} · go-htmx4"
+
+[nav]
+home = "الرئيسية"
+board = "اللوحة"
+formats = "التنسيقات"
+about = "حول"
+languages = "اللغات"
+toggle_theme = "تبديل السمة"
+
+[home]
+title = "الرئيسية"
+heading = "Go و htmx 4 و gsxui على Cloudflare Workers"
+intro = "مكونات gsx تُعرض على الخادم، وhtmx 4 للطلبات، وhx-live للحالة المحلية، وD1 وDurable Objects للتحديثات المباشرة. تُصرَّف شيفرة Go باستخدام TinyGo. بلا Node وبلا مُجمِّع حزم."
+served_by = "يقدّمه"
+env = "env"
+
+[home.greet]
+title = "ذهاب وإياب إلى الخادم"
+description = "يُرسَل نموذج gsxui عبر hx-post. يردّ الخادم بجزء gsx وإشعار منبثق خارج النطاق (OOB)."
+name = "الاسم"
+name_placeholder = "سارة أحمد"
+flavour = "الجزء المفضل من الحزمة التقنية"
+shout = "بصوت عالٍ"
+submit = "قل مرحبًا"
+clear = "مسح"
+
+[home.dialog]
+title = "مربع حوار + hx-get"
+description = "يُجلب محتوى مربع الحوار من الخادم في كل مرة يُفتح فيها."
+open = "عرض معلومات الخادم"
+heading = "معلومات الخادم"
+subtitle = "يعرضه مكوّن gsx عند الطلب."
+loading = "جارٍ التحميل…"
+close = "إغلاق"
+
+[home.tabs]
+title = "علامات تبويب + لوحة بتحميل مؤجل"
+description = "تُحمَّل لوحة الإحصاءات مرة واحدة، عند النقر على علامة تبويبها أول مرة."
+overview = "نظرة عامة"
+stats = "الإحصاءات"
+overview_body = "عُرضت هذه اللوحة مع الصفحة."
+loading = "جارٍ التحميل…"
+
+[home.live]
+title = "حالة العميل مع hx-live"
+description = "بلا ذهاب وإياب إلى الخادم: عدّاد وقائمة منسدلة ومفتاح تبديل وتصفية فورية."
+increment = "زيادة"
+count = "العدد:"
+menu = "القائمة"
+state_bag = "حاوية حالة محددة الأنواع:"
+bold = "عريض"
+filter_placeholder = "تصفية مكونات gsxui…"
+filter_label = "تصفية المكونات"
+
+[home.board]
+title = "تحديثات مباشرة"
+description = "تدفع D1 مع Durable Object لكل موضوع كل تغيير إلى جميع علامات التبويب المفتوحة عبر hx-ws."
+open = "فتح اللوحة المشتركة"
+
+[greet]
+hello = "مرحبًا، {name}."
+shout = "مرحبًا يا {name}!"
+toast_title = "تم عرض التحية"
+toast_description = "إشعار من الخادم إلى {name}."
+empty = "يُرجى إدخال اسم."
+cleared = "تم المسح."
+cleared_toast_title = "تم المسح"
+cleared_toast_description = "أُرسل عبر hx-action وhx-method delete."
+
+[server_info]
+go = "Go"
+uptime = "مدة التشغيل"
+requests = "الطلبات"
+rendered = "وقت العرض"
+note = "ملاحظة"
+workers_note = "Cloudflare Workers: يبدأ كل طلب بيئة تشغيل Go جديدة، لذا تبدأ مدة التشغيل والطلبات والإحصاءات من جديد."
+
+[board]
+title = "اللوحة المشتركة"
+intro = "تكتب Go إلى D1، ثم يدفع Durable Object الخاص بالموضوع الجزء إلى كل علامة تبويب مفتوحة عبر hx-ws."
+topic = "الموضوع"
+hint = "افتح هذه الصفحة في علامة تبويب أخرى وغيّر شيئًا."
+online = "عبر الإنترنت"
+no_live = "بلا تحديث مباشر (go run .)"
+decrement = "إنقاص"
+increment = "زيادة"
+note_placeholder = "اترك ملاحظة"
+note_label = "ملاحظة"
+post = "نشر"
+version = "الإصدار {version, number}"
+empty_title = "لا توجد ملاحظات بعد"
+empty_description = "اترك واحدة أدناه. تراها كل علامة تبويب مفتوحة فورًا."
+slow_title = "تمهّل"
+slow_description = "تغييرات كثيرة جدًا من اتصالك. حاول مرة أخرى بعد بضع ثوانٍ."
+
+[board.errors]
+delta = "يجب أن تكون قيمة delta إما 1 أو -1"
+note_length = "يجب أن يكون عدد أحرف الملاحظة من 1 إلى {max, number}"
+topic = "يجب أن يتكون الموضوع من 1 إلى 32 رمزًا من a-z و0-9 و-"
+store = "التخزين غير متاح"
+
+[about]
+title = "حول"
+heading = "حول go-htmx4"
+stack = "الحزمة التقنية"
+stack_description = "إصدار كل أداة مثبّت في mise.toml. لا شيء هنا يحتاج إلى Node."
+
+[about.roles]
+gsx = "قوالب بأسلوب JSX تُصرَّف إلى Go"
+gsxui = "مكونات بأسلوب shadcn تُنسخ إلى المشروع"
+htmx = "الطلبات، وboost، وmorph، وتبديلات OOB"
+hx_live = "الحالة على جانب العميل (إضافة htmx 4)"
+hx_ws = "لوحة مباشرة عبر WebSockets (إضافة htmx 4)"
+workers_go = "Go على Cloudflare Workers"
+tinygo = "يصرّف Worker إلى wasm"
+d1 = "المصدر الموثوق لبيانات اللوحة"
+durable_objects = "غرفة (Room) واحدة لكل موضوع، وWebSockets في وضع السبات"
+tailwind = "أداة CLI مستقلة، بلا npm"
+mise = "يثبّت إصدار كل أداة"
+
+[formats]
+title = "التنسيقات"
+intro = "تنسيق يراعي اللغة والمنطقة، تعرضه Go من بيانات Unicode CLDR، بخيارات Intl في JavaScript ومخرجاته. غيّر اللغة من أسفل الصفحة."
+input = "المُدخل"
+options = "الخيارات"
+result = "النتيجة"
+numbering = "الأرقام {system}"
+native = "الأرقام الأصلية {system}"
+direction = "الاتجاه {dir}"
+numbers_title = "الأرقام"
+numbers_description = "خيارات Intl.NumberFormat، مُنسَّقة على الخادم من بيانات CLDR."
+currency_title = "العملة"
+currency_description = "المبالغ دقيقة (بوحدات فرعية صحيحة)، مع عدد خانات كل عملة وفق CLDR. العملة المحلية: {currency}."
+units_title = "الوحدات"
+units_description = "Intl.NumberFormat مع style \"unit\": أنماط وحدات CLDR مع صيغ الجمع، والوحدات المركّبة (لكل)، والأرقام المختصرة."
+relative_title = "الوقت النسبي"
+relative_description = "Intl.RelativeTimeFormat: حقول dateFields من CLDR مع قواعد الجمع؛ ويستخدم numeric \"auto\" كلمات مثل «أمس»."
+lists_title = "القوائم"
+lists_description = "Intl.ListFormat: أنماط القوائم من CLDR، إضافة إلى قواعد الإسبانية والعبرية التي تطبقها ICU في الشيفرة."
+durations_title = "المدد"
+durations_description = "Intl.DurationFormat، مع مخرجات Chrome للوحدات الرقمية."
+plurals_title = "قواعد الجمع"
+plurals_description = "فئات الجمع في CLDR مع أول الأعداد التي تنتمي إلى كل فئة."
+week_title = "الأسبوع"
+week_description = "getWeekInfo في Intl.Locale: بيانات weekData من CLDR لمنطقة اللغة (1 = الاثنين … 7 = الأحد)."
