@@ -42,6 +42,7 @@ type ServerInfo struct {
 	Uptime    string
 	Requests  int64
 	Now       string
+	Note      string // platform caveat, e.g. per-request state on Workers
 }
 
 component ServerInfoView(info ServerInfo) {
@@ -54,6 +55,10 @@ component ServerInfoView(info ServerInfo) {
 		<dd>{ info.Requests }</dd>
 		<dt class="font-medium text-foreground">Rendered</dt>
 		<dd>{ info.Now }</dd>
+		{ if info.Note != "" {
+			<dt class="font-medium text-foreground">Note</dt>
+			<dd>{ info.Note }</dd>
+		} }
 	</dl>
 }
 

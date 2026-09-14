@@ -34,6 +34,14 @@
   event names, no `hx-ext` / `hx-vars` / `hx-params`. gsx's editor completions still suggest htmx 2 attributes; ignore them.
 - JS-valued attributes (`hx-on:*`, `hx-live`, `:text`, …) use gsx `` js`…` `` literals.
 - `.upstream/gsxui` is a gitignored upstream checkout (`mise run upstream:gsxui:serve`). Never modify it.
+- **The gsxui demo also runs on Workers** (TinyGo, one app, two entrypoints): shared handlers in `main.go`,
+  native server + embedded files in `platform_other.go`, `workers.Serve` in `platform_js.go`. The TinyGo rules from the
+  Workers section apply here too: plain-path routes + `allow()`, never `GET /x` or `{$}`.
+  - `render` buffers the HTML and sets `Content-Length`. Keep it: streamed (chunked) responses broke htmx history
+    restore (Back) under local workerd.
+  - Tasks: `mise run demo:gsxui:workers:{build,serve,smoke,deploy,smoke-remote}` (workerd on :8918). `build/` and
+    `.deploy-url` are gitignored. Static Assets = `build/assets` (`/static`, `/gsxui`, `/assets`), assembled by a task.
+  - Run `demo:gsxui:workers:smoke` after view or route changes; `go test` can't see TinyGo runtime issues.
 
 # Demo (Cloudflare Workers)
 

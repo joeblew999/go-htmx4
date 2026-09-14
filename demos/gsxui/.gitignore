@@ -4,3 +4,7 @@
 /dist/*
 !/dist/.gitkeep
 /bin/
+# Workers build: TinyGo worker + assembled Static Assets (mise run demo:gsxui:workers:build)
+/build/
+# Last deployed Workers URL (mise run demo:gsxui:workers:deploy)
+/.deploy-url

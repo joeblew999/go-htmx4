@@ -37,7 +37,7 @@ See [`.plans/`](.plans/) for details.
 
 | Layer | Technology | Plan |
 | --- | --- | --- |
-| gsxui on Workers | gsx runtime + gsxui under TinyGo (needs a workerd runtime check, not just a build) | [adopt-workers-go](.plans/2026-09-13_1111_adopt-workers-go.md) Phase 5 |
+| — | Nothing planned right now | — |
 
 ## Requirements
 
@@ -62,6 +62,7 @@ Set `ADDR=:3000` to change the listen address.
 | **Our gsxui demo** ([`demos/gsxui`](demos/gsxui)): gsx + gsxui + htmx 4 + hx-live. Form with an OOB toast, dialog and tabs loaded via `hx-get`, boosted nav with `outerMorph`, hx-live counter and filter. | `mise run demo:gsxui:run`<br>`mise run demo:gsxui:dev` (live rebuild)<br>`mise run demo:gsxui:test` | http://localhost:7777 |
 | **gsxui's own demo** (showcase site, all component examples, theme editor), served by its Go harness from a gitignored checkout in `.upstream/gsxui` | `mise run upstream:gsxui:serve` | http://127.0.0.1:7799 |
 | **Our Workers demo** ([`demos/workers`](demos/workers)): htmx 4 on Cloudflare Workers via workers-go, built with TinyGo. Fragment round-trip, form post, a counter that resets on every request, static files served by Workers Static Assets, and a **shared board** at `/board`: D1 + a Durable Object per topic push every change to all open tabs over `hx-ws`. | `mise run demo:workers:serve` (workerd)<br>`mise run demo:workers:run` (`go run .`)<br>`mise run demo:workers:test`<br>`mise run demo:workers:load` (1,000 WebSockets)<br>`mise run demo:workers:deploy` | http://localhost:8913 (`/board`)<br>http://localhost:9913<br>live: https://go-htmx4-workers-demo.gedw99.workers.dev/board |
+| **Our gsxui demo on Workers**: the same `demos/gsxui` app, built with TinyGo (`platform_js.go`), static files as Workers Static Assets. HTML is byte-identical to the native server. | `mise run demo:gsxui:workers:serve`<br>`mise run demo:gsxui:workers:smoke`<br>`mise run demo:gsxui:workers:deploy` | http://localhost:8918<br>live: https://go-htmx4-gsxui-demo.gedw99.workers.dev |
 | **workers-go's Durable Object example** and **Cloudflare's WebSocket Hibernation example**, on plain workerd | `mise run upstream:workers-go:do`<br>`mise run upstream:cf:ws-hibernation` | http://localhost:8914<br>ws://localhost:8915/ws |
 | **workers-go's own template** (`worker-tinygo`) and `_examples/env`, from a gitignored checkout in `.upstream/workers-go` | `mise run upstream:workers-go:serve`<br>`mise run upstream:workers-go:env` | http://localhost:8911<br>http://localhost:8912 |
 

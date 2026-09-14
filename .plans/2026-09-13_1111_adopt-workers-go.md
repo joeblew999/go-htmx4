@@ -1,6 +1,6 @@
 # Adopt workers-go (deploy to Cloudflare Workers)
 
-**Status:** Phases 1–4 done; live at https://go-htmx4-workers-demo.gedw99.workers.dev · open items in **Open questions** · **Created:** 2026-09-13 11:11 · **Revised:** 2026-09-14
+**Status:** Phases 1–5 done; live at https://go-htmx4-workers-demo.gedw99.workers.dev and https://go-htmx4-gsxui-demo.gedw99.workers.dev · **Created:** 2026-09-13 11:11 · **Revised:** 2026-09-14
 
 ## Goal
 
@@ -197,9 +197,88 @@ tasks/workerd/*.capnp        # tracked workerd configs for the upstream template
 
 ### Phase 5 (later, separate go-ahead): gsxui demo on Workers
 
-- [ ] Check whether the gsx runtime + gsxui components build with TinyGo 0.42 **and run under workerd** (smoke test,
-      not just a build: see the `html/template` finding) and fit under 10 MB gzip (Workers Paid).
-      If yes, host `demos/gsxui` behind `workers.Serve` with `dist/` + `web/gsxui/` as static assets.
+**Read-only analysis (2026-09-14, nothing built):**
+
+- Runtime deps of `demos/gsxui` are small: `gsx`, `gsx/internal/htmlattr`, `gsx/std`, `tailwind-merge-go`
+  (`twmerge`, `cache`, `lru`), plus our `ui`, `ui/icon`, `ui/merge`, `views`.
+- Generated code only calls `gw.Node/BoolAttr/Class/StyleMerged/Spread/Text/AttrValue/NodeResult/ClassMerged/Nonce/IntInto/URL`.
+- **Reflection that is reached:** `anyRenderVal` (`renderval.go`) runs for spread and dynamic attribute values:
+  `fmt.Stringer` check, then `reflect.ValueOf(v).Kind()` switch (`reflect.Copy` only for named byte slices). This is basic
+  reflection, not the method calls (`NumOut`) that broke `html/template`, but it needs a runtime check.
+- **Reflection not reached by this demo:** `js.go` `jsValEscaper` (`encoding/json` + `reflect.Type.Implements`) only runs
+  for Go values interpolated into JS. The demo's `hx-on`/`hx-live` use `js` literals (`RawJS`).
+- `tailwind-merge-go` is `regexp` + `sync` + an LRU: should work, but adds size.
+- **Must port for TinyGo:** `main.go` uses Go 1.22 patterns (`GET /{$}`, `GET /static/`, `POST /greet`, `DELETE /greet`, …)
+  that TinyGo's pre-1.22 mux can't route; static files come from `embed` + `http.FileServer` (should be Static Assets on
+  Workers); the `requests`/`stats` counters reset per request on Workers.
+
+**Steps (each stops for review):**
+
+- [x] **5a. Spike, local:** `go tool gsx generate`, then TinyGo-build the demo as-is (record compile errors + size); then
+      a scratch TinyGo Worker that renders `views.Home` / `views.About` / the fragments on workerd, curling for
+      panics (the `anyRenderVal` + `twmerge` paths). Go/no-go. — **GO** (2026-09-14):
+  - Demo as-is compiles with TinyGo 0.42 for wasm with **no errors**: 2,674,322 B raw / 986,731 B gzip (includes the
+    embedded static files and fonts).
+  - Scratch Worker (scratchpad, not committed): `views.Home`, `About`, `Greeting` (POST, shout + `<b>` markup),
+    `GreetingError` (with `<name> & "more"`), `GreetingCleared`, `ServerInfoView`, `Stats`, `DialogCard`, `GreetCard`,
+    `LiveCard`, `TabsCard` via `workers.Serve` with plain-path routes. TinyGo build **1,927,491 B raw / 617,585 B gzip**
+    (gsx + all gsxui components + tailwind-merge-go, no embedded assets).
+  - **All 11 responses are byte-identical** between TinyGo on workerd and the same code on standard Go (`go run .`):
+    home 47,979 B, about 16,809 B, cards 3.7–13.6 KB, fragments 133 B–1.9 KB. So `anyRenderVal`'s reflection, spread
+    attributes, `ClassMerged`/`StyleMerged` (tailwind-merge regexp + LRU) and escaping behave identically.
+  - No panics or errors in the workerd log. Single renders took 5–15 ms on workerd (fresh Go runtime per request). 50
+    concurrent `GET /` gave 50/50 identical output, p50 342 ms / p95 507 ms (one local workerd thread, CPU-bound
+    queueing).
+  - Remaining porting work is exactly what the analysis listed (routes, static assets, counters); nothing in gsx/gsxui
+    needs changing.
+- [x] **5b. Port `demos/gsxui` to one app, two entrypoints:** plain-path routes + method checks (incl. `DELETE /greet`),
+      platform split (`workers.Serve` on js; `gsx dev`/`GO_PORT` server on `!js`), static files as a Static Assets dir
+      assembled by a task (`/static`, `/gsxui`, `/assets` = `dist` + fonts), counters labelled per-request on Workers.
+      Existing `go test` stays green. — done 2026-09-14:
+  - `main.go` (shared): plain-path routes + `allow(w, r, methods…)` (GET also allows HEAD; `/greet` = POST, DELETE),
+    exact-path 404 for `/`. `platform_other.go` (`!js`): the native `main` (GO_PORT/PORT/7777), the `embed` FS and
+    `staticRoutes` (GET-only). `platform_js.go` (`js && wasm`): `workers.Serve(newServer().routes())`, `staticRoutes` a
+    no-op. `workers-go v0.35.0` added to the module.
+  - `views.ServerInfo` gained `Note` (rendered only when set); server-info shows `runtime.Compiler + Version + GOOS/GOARCH`:
+    `gc go1.27.1 darwin/arm64` natively, **`tinygo 0.42.0 js/wasm`** on Workers (TinyGo's `runtime.Version()` is the
+    TinyGo version, not `go1.x`), plus the per-request note.
+  - `go test` + new `TestRouteRules` (405 + `Allow` for GET /greet, POST /, POST /about, POST /static/…; 404 for unknown
+    paths; HEAD /) and `demo:gsxui:test` pass.
+- [x] **5c. Tasks:** `demo:gsxui:workers:{build,serve,smoke}` (TinyGo, size gate, workerd + assets-first, curl checks). — done:
+  - `demo:gsxui:workers:assets` → `build/assets` (27 files, 748 K), `:build` → `build/worker` (`workers-assets-gen -o`),
+    **1,938,823 B raw / 622,054 B gzip**; `workers.capnp` (:8918) reuses `../workers/workerd/assets-first.mjs`.
+  - `demo:gsxui:workers:smoke`: **17/17** (home markers incl. `hx-boost:inherited` + hx-live, about, POST greet escaped +
+    empty, DELETE greet, server-info on TinyGo + note, stats, 5 assets with content types, 405, 404, no panics).
+  - Native build (GO_PORT=7788) vs TinyGo on workerd, byte-for-byte: `/`, `/about`, POST/DELETE `/greet`, and all 5
+    assets are **identical**. `/fragments/stats` differs by design (native accumulates, Workers starts empty per request).
+  - ⚠ Incident: port 7777 was already held by a demo server I didn't start (probably yours or the other session's);
+    my first comparison accidentally measured it, and my cleanup killed it. Redone on 7788 with PID-scoped cleanup.
+    Rule: only kill processes by the PID you started.
+- [x] **5d. Browser check (chromedp) on workerd:** boosted nav + `outerMorph`, dialog `hx-get`, OOB toast, lazy tab,
+      hx-live counter/filter, no console errors. — done 2026-09-14, **18/18** on the TinyGo build under workerd:
+  - page loads htmx + hx-live + toaster; web fonts load from `/assets/`; hx-live counter, menu (opens, closes on click
+    outside), `aria.pressed` + `:class` toggle, filter (`dia` → `dialog`); greet form swaps `#greeting` with `<b>`
+    escaped + success toast adopted by the toaster; Clear (`hx-action` + `hx-method=delete`) + info toast; dialog opens
+    (`showModal`, `data-state=open`), loads server info via `hx-get` (`tinygo 0.42.0 js/wasm` + note), closes on Escape;
+    Stats tab loads lazily; boosted nav to `/about` in the same document; **Back** restores `/` in the same document;
+    no console errors, exceptions or HTTP ≥ 400 (except the demo's missing `/favicon.ico`, same natively).
+  - **Bug found and fixed:** Back left the About content on screen on workerd (native was fine). htmx 4's history
+    restore sent `GET /` with `HX-History-Restore-Request: true`, got 200 `text/html`, but swapped nothing. The only
+    difference from native was framing: workers-go streamed the response chunked (no `Content-Length`). `render` now
+    renders into a buffer and sets `Content-Length` (also turns render errors into a clean 500). Back then passed.
+    htmx core has no length-specific code, so the exact mechanism (possibly the local assets-first streaming layer) is
+    not pinned down; the fix is verified locally and must be re-checked on the deployed Worker.
+  - Harness: a scratchpad Go program with chromedp (not committed); the same checks against the native server pass
+    except the TinyGo-specific server-info text.
+- [x] **5e. Deploy (⚠ needs OK):** separate Worker `go-htmx4-gsxui-demo` via `demos/workers/cmd/deploy`, remote smoke. — done 2026-09-14:
+  - Name checked free (read-only), then `mise run demo:gsxui:workers:deploy` = local workerd smoke (17/17) + token
+    check + `cmd/deploy -main "" -build ../gsxui/build/worker -assets ../gsxui/build/assets`. 27 manifest entries,
+    **21 files uploaded** (the 6 fonts under both `/gsxui/fonts/` and `/assets/` share hashes), 4 modules.
+  - **Live:** https://go-htmx4-gsxui-demo.gedw99.workers.dev. `demo:gsxui:workers:smoke-remote` (same script, `SMOKE_BASE`)
+    **17/17**; headless Chrome **18/18** incl. boosted nav + **Back** (same document), toasts, dialog, lazy tab, hx-live,
+    no console errors.
+  - Live responses carry no `Content-Length` header (Cloudflare re-frames them) and Back still works, which suggests
+    the local `assets-first.mjs` streaming layer, not htmx itself, triggered the Back bug on workerd. Buffering stays.
 
 ## Risks
 

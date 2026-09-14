@@ -1,18 +1,25 @@
 // Command gsxui is a demo of gsx + gsxui + htmx 4 (with hx-live), built with the
 // npm-free tooling from https://ui.gsxhq.dev/docs/npm-free.
 //
-// Generated *.x.go files and dist/ are build outputs: run `mise run demo:gsxui:build`
-// (css + gsx generate + go build) or `mise run demo:gsxui:dev`.
+// One app, two entrypoints:
+//
+//	platform_other.go  native server (`mise run demo:gsxui:run` / `:dev`, gsx dev's GO_PORT),
+//	                   static files embedded
+//	platform_js.go     Cloudflare Workers via workers-go, TinyGo build (`mise run demo:gsxui:workers:serve`),
+//	                   static files as Workers Static Assets
+//
+// Routes are plain paths with method checks: TinyGo 0.42's net/http has the pre-Go 1.22 ServeMux
+// (no "GET /x" patterns, no {$}). Generated *.x.go files and dist/ are build outputs.
 package main
 
 import (
+	"bytes"
 	"cmp"
-	"embed"
-	"io/fs"
 	"log"
 	"net/http"
-	"os"
 	"runtime"
+	"slices"
+	"strconv"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -21,9 +28,6 @@ import (
 	"github.com/gsxhq/gsx"
 	"github.com/joeblew999/go-htmx4/demos/gsxui/views"
 )
-
-//go:embed static web/gsxui all:dist
-var assetsFS embed.FS
 
 var (
 	flavours   = []string{"gsx", "gsxui", "htmx 4", "hx-live", "Tailwind", "mise"}
@@ -39,13 +43,6 @@ var (
 	}
 )
 
-func main() {
-	// gsx dev injects GO_PORT and probes /healthz (gsx Configuration → [dev]).
-	addr := ":" + cmp.Or(os.Getenv("GO_PORT"), os.Getenv("PORT"), "7777")
-	log.Printf("listening on http://localhost%s", addr)
-	log.Fatal(http.ListenAndServe(addr, newServer().routes()))
-}
-
 type server struct {
 	started  time.Time
 	requests atomic.Int64
@@ -60,29 +57,36 @@ func newServer() *server {
 
 func (s *server) routes() http.Handler {
 	mux := http.NewServeMux()
+	// /static/, /gsxui/, /assets/: embedded files natively, Workers Static Assets on Cloudflare.
+	staticRoutes(mux)
 
-	sub := func(dir string) http.FileSystem {
-		f, err := fs.Sub(assetsFS, dir)
-		if err != nil {
-			panic(err)
+	mux.HandleFunc("/healthz", func(w http.ResponseWriter, r *http.Request) {
+		if allow(w, r, http.MethodGet) {
+			w.Write([]byte("ok"))
 		}
-		return http.FS(f)
-	}
-	mux.Handle("GET /static/", http.StripPrefix("/static/", http.FileServer(sub("static"))))
-	mux.Handle("GET /gsxui/", http.StripPrefix("/gsxui/", http.FileServer(sub("web/gsxui"))))
-	// The Tailwind CLI keeps fonts.css url()s relative ("./geist-….woff2"), so the
-	// compiled stylesheet and the font files are served from the same prefix.
-	mux.Handle("GET /assets/", http.StripPrefix("/assets/", firstFound(sub("dist"), sub("web/gsxui/fonts"))))
-
-	mux.HandleFunc("GET /healthz", func(w http.ResponseWriter, r *http.Request) { w.Write([]byte("ok")) })
-
-	mux.HandleFunc("GET /{$}", func(w http.ResponseWriter, r *http.Request) {
-		s.render(w, r, "home", views.Home(flavours, components))
 	})
-	mux.HandleFunc("GET /about", func(w http.ResponseWriter, r *http.Request) {
-		s.render(w, r, "about", views.About(stack))
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/" {
+			http.NotFound(w, r)
+			return
+		}
+		if allow(w, r, http.MethodGet) {
+			s.render(w, r, "home", views.Home(flavours, components))
+		}
 	})
-	mux.HandleFunc("POST /greet", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/about", func(w http.ResponseWriter, r *http.Request) {
+		if allow(w, r, http.MethodGet) {
+			s.render(w, r, "about", views.About(stack))
+		}
+	})
+	mux.HandleFunc("/greet", func(w http.ResponseWriter, r *http.Request) {
+		if !allow(w, r, http.MethodPost, http.MethodDelete) {
+			return
+		}
+		if r.Method == http.MethodDelete {
+			s.render(w, r, "greet:clear", views.GreetingCleared())
+			return
+		}
 		name := strings.TrimSpace(r.FormValue("name"))
 		if name == "" {
 			s.render(w, r, "greet:error", views.GreetingError("Please enter a name."))
@@ -90,18 +94,22 @@ func (s *server) routes() http.Handler {
 		}
 		s.render(w, r, "greet", views.Greeting(name, cmp.Or(r.FormValue("flavour"), "gsx"), r.FormValue("shout") == "on"))
 	})
-	mux.HandleFunc("DELETE /greet", func(w http.ResponseWriter, r *http.Request) {
-		s.render(w, r, "greet:clear", views.GreetingCleared())
-	})
-	mux.HandleFunc("GET /fragments/server-info", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/fragments/server-info", func(w http.ResponseWriter, r *http.Request) {
+		if !allow(w, r, http.MethodGet) {
+			return
+		}
 		s.render(w, r, "server-info", views.ServerInfoView(views.ServerInfo{
-			GoVersion: runtime.Version(),
+			GoVersion: runtime.Compiler + " " + runtime.Version() + " " + runtime.GOOS + "/" + runtime.GOARCH,
 			Uptime:    time.Since(s.started).Round(time.Second).String(),
 			Requests:  s.requests.Load(),
 			Now:       time.Now().Format(time.RFC1123),
+			Note:      platformNote,
 		}))
 	})
-	mux.HandleFunc("GET /fragments/stats", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/fragments/stats", func(w http.ResponseWriter, r *http.Request) {
+		if !allow(w, r, http.MethodGet) {
+			return
+		}
 		s.mu.Lock()
 		snapshot := make(map[string]int, len(s.stats))
 		for k, v := range s.stats {
@@ -118,22 +126,25 @@ func (s *server) render(w http.ResponseWriter, r *http.Request, name string, n g
 	s.mu.Lock()
 	s.stats[name]++
 	s.mu.Unlock()
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := n.Render(r.Context(), w); err != nil {
+	// Render into a buffer so a failed render is a clean 500 and the response has a Content-Length
+	// (workers-go otherwise streams it chunked).
+	var buf bytes.Buffer
+	if err := n.Render(r.Context(), &buf); err != nil {
 		log.Printf("render %s: %v", name, err)
+		http.Error(w, "render failed", http.StatusInternalServerError)
+		return
 	}
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	w.Header().Set("Content-Length", strconv.Itoa(buf.Len()))
+	w.Write(buf.Bytes())
 }
 
-// firstFound serves a path from the first file system that has it.
-func firstFound(systems ...http.FileSystem) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		for _, fsys := range systems {
-			if f, err := fsys.Open(r.URL.Path); err == nil {
-				f.Close()
-				http.FileServer(fsys).ServeHTTP(w, r)
-				return
-			}
-		}
-		http.NotFound(w, r)
-	})
+// allow reports whether r uses one of methods (GET also allows HEAD), replying 405 otherwise.
+func allow(w http.ResponseWriter, r *http.Request, methods ...string) bool {
+	if slices.Contains(methods, r.Method) || (r.Method == http.MethodHead && slices.Contains(methods, http.MethodGet)) {
+		return true
+	}
+	w.Header().Set("Allow", strings.Join(methods, ", "))
+	http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+	return false
 }

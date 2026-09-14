@@ -208,3 +208,124 @@ css=$!
 trap 'kill $css 2>/dev/null' EXIT
 go tool gsx dev --no-web
 '''
+
+# ═════════════════════════════════════════════════════════════════════════════
+# demo:gsxui:workers:*  the same demo on Cloudflare Workers: workers-go v0.35.0, TinyGo, no Node
+#                       (plan: .plans/2026-09-13_1111_adopt-workers-go.md Phase 5).
+#
+#   mise run demo:gsxui:workers:serve   # TinyGo build + workerd → http://localhost:8918
+#   mise run demo:gsxui:workers:smoke   # the same, plus curl checks
+#   mise run demo:gsxui:workers:deploy  # smoke + deploy → https://go-htmx4-gsxui-demo.<subdomain>.workers.dev
+#   mise run demo:gsxui:workers:smoke-remote
+# ═════════════════════════════════════════════════════════════════════════════
+
+# Static Assets with the native server's URL layout: /static = static/, /gsxui = web/gsxui/,
+# /assets = dist/ + web/gsxui/fonts/ (fonts.css url()s are relative to the compiled CSS).
+["demo:gsxui:workers:assets"]
+description = "Assemble build/assets (Workers Static Assets) from static/, web/gsxui/, dist/ and fonts"
+depends = ["demo:gsxui:vendor", "demo:gsxui:css"]
+dir = "{{config_root}}/demos/gsxui"
+run = '''
+#!/usr/bin/env bash
+set -euo pipefail
+rm -rf build/assets
+mkdir -p build/assets/static build/assets/gsxui build/assets/assets
+cp static/*.js build/assets/static/
+cp -R web/gsxui/. build/assets/gsxui/
+cp dist/gsxui.css build/assets/assets/
+cp web/gsxui/fonts/*.woff2 build/assets/assets/
+echo "✓ build/assets: $(find build/assets -type f | wc -l | tr -d ' ') files, $(du -sh build/assets | cut -f1)"
+'''
+
+["demo:gsxui:workers:build"]
+description = "gsx generate + TinyGo build → build/worker (fails if app.wasm gzip > 10 MB) + build/assets"
+depends = ["demo:gsxui:generate", "demo:gsxui:workers:assets"]
+dir = "{{config_root}}/demos/gsxui"
+run = '''
+#!/usr/bin/env bash
+set -euo pipefail
+go run github.com/syumai/workers-go/cmd/workers-assets-gen -mode=tinygo -o build/worker
+tinygo build -o build/worker/app.wasm -target wasm -no-debug .
+raw=$(wc -c <build/worker/app.wasm | tr -d ' ')
+gz=$(gzip -9 -c build/worker/app.wasm | wc -c | tr -d ' ')
+limit=10000000  # Workers Paid: 10 MB compressed
+[ "$gz" -le "$limit" ] || { echo "✗ app.wasm gzip ${gz}B exceeds ${limit}B"; exit 1; }
+echo "✓ build/worker/app.wasm raw=${raw}B gzip=${gz}B (limit ${limit}B)"
+'''
+
+["demo:gsxui:workers:serve"]
+description = "TinyGo build, then workerd with static files first → http://localhost:8918"
+depends = ["demo:gsxui:workers:build"]
+dir = "{{config_root}}/demos/gsxui"
+run = "exec workerd serve workers.capnp"
+
+# go test runs on standard Go; this runs the real TinyGo build under workerd.
+["demo:gsxui:workers:smoke"]
+description = "Serve the TinyGo build on workerd (:8918) and curl pages, fragments, assets and route rules"
+depends = ["demo:gsxui:workers:build"]
+dir = "{{config_root}}/demos/gsxui"
+run = '''
+#!/usr/bin/env bash
+set -euo pipefail
+# SMOKE_BASE=https://… runs the same checks against a deployed Worker (demo:gsxui:workers:smoke-remote).
+base=${SMOKE_BASE:-}
+touch build/workerd-smoke.log
+if [ -z "$base" ]; then
+  base=http://127.0.0.1:8918
+  curl -s -o /dev/null "$base/" && { echo "✗ :8918 is already in use"; exit 1; }
+  workerd serve workers.capnp >build/workerd-smoke.log 2>&1 &
+  pid=$!
+  trap 'kill $pid 2>/dev/null' EXIT
+fi
+echo "→ $base"
+for _ in $(seq 1 120); do [ "$(curl -s "$base/healthz")" = ok ] && break; sleep 0.5; done
+fail=0
+check() { # name got want-substring
+  if [[ "$2" == *"$3"* ]]; then echo "✓ $1"; else echo "✗ $1: got '${2:0:160}'"; fail=1; fi
+}
+code() { curl -s -o /dev/null -w '%{http_code} %{content_type}' "$@"; }
+home=$(curl -s "$base/")
+check "home page (gsx + gsxui)"         "$home" 'gsxui + htmx 4'
+check "home: boost + morph inherited"   "$home" 'hx-boost:inherited="true"'
+check "home: hx-live counter"           "$home" 'hx-on:click="data.count++"'
+check "about page"                      "$(curl -s "$base/about")" 'About this demo'
+check "POST /greet (escaped)"           "$(curl -s -X POST --data-urlencode 'name=Ada <b>' -d flavour=gsxui "$base/greet")" 'Ada &lt;b&gt;'
+check "POST /greet empty"               "$(curl -s -X POST -d name= "$base/greet")" 'Please enter a name.'
+check "DELETE /greet"                   "$(curl -s -X DELETE "$base/greet")" 'Cleared'
+info=$(curl -s "$base/fragments/server-info")
+check "server-info on TinyGo wasm"      "$info" 'tinygo 0.42.0 js/wasm'
+check "server-info per-request note"    "$info" 'fresh Go runtime'
+check "stats fragment"                  "$(curl -s "$base/fragments/stats")" '<ul'
+check "asset /static/htmx.min.js"       "$(code "$base/static/htmx.min.js")" '200 text/javascript'
+check "asset /static/hx-live.js"        "$(code "$base/static/hx-live.js")" '200 text/javascript'
+check "asset /gsxui/index.js"           "$(code "$base/gsxui/index.js")" '200 text/javascript'
+check "asset /assets/gsxui.css"         "$(code "$base/assets/gsxui.css")" '200 text/css'
+check "asset font via /assets/"         "$(code "$base/assets/geist-latin-wght-normal.woff2")" '200 font/woff2'
+check "405 GET /greet"                  "$(code "$base/greet")" '405'
+check "404 unknown path"                "$(code "$base/nope")" '404'
+if grep -qiE 'panic|uncaught' build/workerd-smoke.log; then echo "✗ errors in workerd log:"; cat build/workerd-smoke.log; fail=1; fi
+exit $fail
+'''
+
+# Deploy with demos/workers/cmd/deploy (Direct Upload + script upload, no wrangler): Go-only layout
+# (build/worker/worker.mjs is the entry), build/assets as Static Assets.
+["demo:gsxui:workers:deploy"]
+description = "Local workerd smoke + token check, then deploy → https://go-htmx4-gsxui-demo.<subdomain>.workers.dev"
+depends = ["demo:gsxui:workers:smoke", "demo:workers:token-check"]
+dir = "{{config_root}}/demos/workers"
+run = '''
+#!/usr/bin/env bash
+set -euo pipefail
+fnox exec -- go run ./cmd/deploy -name go-htmx4-gsxui-demo -allow-existing -main "" \
+  -build ../gsxui/build/worker -assets ../gsxui/build/assets | tee ../gsxui/.deploy-url
+'''
+
+["demo:gsxui:workers:smoke-remote"]
+description = "Run the workerd smoke checks against the deployed gsxui Worker (URL from .deploy-url)"
+dir = "{{config_root}}/demos/gsxui"
+run = '''
+#!/usr/bin/env bash
+set -euo pipefail
+url=$(cat .deploy-url 2>/dev/null) || { echo "✗ no .deploy-url; run demo:gsxui:workers:deploy"; exit 1; }
+SMOKE_BASE="$url" mise run demo:gsxui:workers:smoke
+'''
