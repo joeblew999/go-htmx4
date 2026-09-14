@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"regexp"
+	"strings"
 )
 
 // Reference data pins. Every upstream input of kit/i18n's generated tables (kit/i18n/cldr) and of the
@@ -32,6 +34,7 @@ const (
 )
 
 const (
+	workerdBase  = "https://raw.githubusercontent.com/cloudflare/workerd/"
 	cldrJSONBase = "https://raw.githubusercontent.com/unicode-org/cldr-json/"
 	cldrXMLBase  = "https://raw.githubusercontent.com/unicode-org/cldr/"
 	chromiumBase = "https://chromium.googlesource.com/chromium/deps/icu/+/"
@@ -77,4 +80,67 @@ func Reference(kind, path string) ([]byte, error) {
 		return nil, fmt.Errorf("cldrgen: unknown reference source %q", kind)
 	}
 	return s.raw(path)
+}
+
+// WorkerdICU is the ICU a workerd release is built with.
+type WorkerdICU struct {
+	Release     string // e.g. "1.20260911.1"
+	ChromiumICU string // chromium/deps/icu commit
+	ICUVersion  string // e.g. "78.2.0.0"
+	CLDRVersion string // CLDR major in that ICU's data, e.g. "48"
+}
+
+var (
+	chromiumICURepo = regexp.MustCompile(`(?s)name = "com_googlesource_chromium_icu",.*?commit = "([0-9a-f]{40})"`)
+	icuVersion      = regexp.MustCompile(`ICUVersion\{"([^"]+)"\}`)
+	icuCLDRVersion  = regexp.MustCompile(`CLDRVersion\{"([^"]+)"\}`)
+)
+
+// LookupWorkerdICU reads which Chromium ICU commit a workerd release builds with (repository
+// com_googlesource_chromium_icu in the release tag's build/deps/gen/deps.MODULE.bazel) and that commit's ICU and
+// CLDR versions (source/data/misc/icuver.txt). Files are cached in CacheRoot: tags and commits don't change.
+func LookupWorkerdICU(release string) (WorkerdICU, error) {
+	root, err := CacheRoot()
+	if err != nil {
+		return WorkerdICU{}, err
+	}
+	w := WorkerdICU{Release: release}
+	deps := &source{base: workerdBase + "v" + release, cache: filepath.Join(root, "workerd", release)}
+	b, err := deps.raw("build/deps/gen/deps.MODULE.bazel")
+	if err != nil {
+		return w, fmt.Errorf("workerd %s deps: %w", release, err)
+	}
+	m := chromiumICURepo.FindSubmatch(b)
+	if m == nil {
+		return w, fmt.Errorf("workerd %s: no com_googlesource_chromium_icu commit in build/deps/gen/deps.MODULE.bazel", release)
+	}
+	w.ChromiumICU = string(m[1])
+	icu := chromiumSource(w.ChromiumICU, filepath.Join(root, "chromium-icu", w.ChromiumICU))
+	ver, err := icu.raw("source/data/misc/icuver.txt")
+	if err != nil {
+		return w, fmt.Errorf("chromium icu %s icuver.txt: %w", w.ChromiumICU, err)
+	}
+	if m := icuVersion.FindSubmatch(ver); m != nil {
+		w.ICUVersion = string(m[1])
+	}
+	if m := icuCLDRVersion.FindSubmatch(ver); m != nil {
+		w.CLDRVersion = string(m[1])
+	}
+	return w, nil
+}
+
+// CheckPins compares the pins with what the pinned workerd release really uses; each problem is one line.
+func CheckPins() ([]string, error) {
+	w, err := LookupWorkerdICU(Workerd)
+	if err != nil {
+		return nil, err
+	}
+	var problems []string
+	if w.ChromiumICU != ChromiumICU {
+		problems = append(problems, fmt.Sprintf("ChromiumICU is %s, but workerd %s builds with %s (ICU %s)", ChromiumICU, Workerd, w.ChromiumICU, w.ICUVersion))
+	}
+	if major, _, _ := strings.Cut(DefaultTag, "."); w.CLDRVersion != "" && major != w.CLDRVersion {
+		problems = append(problems, fmt.Sprintf("DefaultTag is cldr-json %s, but workerd %s's ICU %s has CLDR %s", DefaultTag, Workerd, w.ICUVersion, w.CLDRVersion))
+	}
+	return problems, nil
 }

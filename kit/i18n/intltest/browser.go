@@ -23,12 +23,13 @@ import (
 // Workers, but its version drifts from the pinned workerd; Firefox builds its own ICU. The drift tells whether
 // browser code that re-formats server text (static/relative-time.js) would change it.
 type Browser struct {
-	Name    string   // "chrome" or "firefox"
+	Name    string   // "chrome", "firefox" or "safari"
 	Command []string // binary and flags before the URL; default FindBrowser(Name)
 	Log     io.Writer
 }
 
-// FindBrowser returns the command for a headless browser: $CHROME or $FIREFOX, else the usual install locations.
+// FindBrowser returns the command for a browser: $CHROME, $FIREFOX or $SAFARIDRIVER, else the usual install locations.
+// Safari runs through safaridriver (WebDriver), which needs "Allow Remote Automation" (`safaridriver --enable`).
 func FindBrowser(name string) ([]string, error) {
 	var env string
 	var paths []string
@@ -39,8 +40,11 @@ func FindBrowser(name string) ([]string, error) {
 	case "firefox":
 		env = "FIREFOX"
 		paths = []string{"/Applications/Firefox.app/Contents/MacOS/firefox", "firefox"}
+	case "safari":
+		env = "SAFARIDRIVER"
+		paths = []string{"/usr/bin/safaridriver", "safaridriver"}
 	default:
-		return nil, fmt.Errorf("intltest: unknown browser %q (chrome or firefox)", name)
+		return nil, fmt.Errorf("intltest: unknown browser %q (chrome, firefox or safari)", name)
 	}
 	if p := os.Getenv(env); p != "" {
 		paths = []string{p}
@@ -121,20 +125,38 @@ func (b Browser) Run(ctx context.Context, cases []Case) (*Golden, error) {
 	url := "http://" + ln.Addr().String() + "/"
 
 	args := slices.Clone(cmdline[1:])
+	var driverPort int
 	switch b.Name {
 	case "firefox":
-		args = append(args, "--headless", "--no-remote", "--profile", profile)
+		args = append(args, "--headless", "--no-remote", "--profile", profile, url)
+	case "safari":
+		// safaridriver has no headless mode: it opens an automation window, driven over WebDriver below.
+		if driverPort, err = freePort(); err != nil {
+			return nil, err
+		}
+		args = append(args, "-p", strconv.Itoa(driverPort))
 	default:
 		args = append(args, "--headless", "--disable-gpu", "--no-first-run", "--no-default-browser-check", "--disable-extensions", "--user-data-dir="+profile)
+		if os.Getenv("CI") != "" {
+			args = append(args, "--no-sandbox") // CI containers can't set up Chrome's sandbox
+		}
+		args = append(args, url)
 	}
-	cmd := exec.CommandContext(ctx, cmdline[0], append(args, url)...)
+	cmd := exec.CommandContext(ctx, cmdline[0], args...)
 	cmd.Stdout, cmd.Stderr = logw, logw
-	// Intl defaults follow the host; pin them like the workerd oracle does.
+	// Intl defaults follow the host; pin them like the workerd oracle does (Safari and macOS Chrome use the system's).
 	cmd.Env = append(os.Environ(), "TZ=UTC", "LANG=en_US.UTF-8", "LC_ALL=en_US.UTF-8")
 	if err := cmd.Start(); err != nil {
 		return nil, err
 	}
 	defer stop(cmd)
+	if b.Name == "safari" {
+		session, err := webdriverOpen(ctx, driverPort, url)
+		if err != nil {
+			return nil, fmt.Errorf("intltest: safari: %w (enable it once with `safaridriver --enable`)", err)
+		}
+		defer webdriverClose(driverPort, session)
+	}
 
 	var res result
 	select {
@@ -162,6 +184,69 @@ func (b Browser) Run(ctx context.Context, cases []Case) (*Golden, error) {
 		return nil, fmt.Errorf("intltest: %s returned %d results for %d cases", b.Name, len(out.Results), len(cases))
 	}
 	return &Golden{Runtime: browserVersion(out.Meta["userAgent"]), Meta: out.Meta, Results: out.Results}, nil
+}
+
+func freePort() (int, error) {
+	ln, err := net.Listen("tcp", "127.0.0.1:0")
+	if err != nil {
+		return 0, err
+	}
+	defer ln.Close()
+	return ln.Addr().(*net.TCPAddr).Port, nil
+}
+
+// webdriverOpen starts a WebDriver session on the driver at port (waiting for it to listen) and navigates to url.
+func webdriverOpen(ctx context.Context, port int, url string) (string, error) {
+	base := "http://127.0.0.1:" + strconv.Itoa(port)
+	post := func(path, body string) (map[string]any, error) {
+		req, err := http.NewRequestWithContext(ctx, "POST", base+path, strings.NewReader(body))
+		if err != nil {
+			return nil, err
+		}
+		req.Header.Set("Content-Type", "application/json")
+		res, err := (&http.Client{Timeout: 60 * time.Second}).Do(req)
+		if err != nil {
+			return nil, err
+		}
+		defer res.Body.Close()
+		var out map[string]any
+		if err := json.NewDecoder(res.Body).Decode(&out); err != nil {
+			return nil, err
+		}
+		if res.StatusCode != http.StatusOK {
+			return nil, fmt.Errorf("WebDriver %s: %s %v", path, res.Status, out["value"])
+		}
+		return out, nil
+	}
+	var created map[string]any
+	var err error
+	for deadline := time.Now().Add(15 * time.Second); ; time.Sleep(200 * time.Millisecond) {
+		created, err = post("/session", `{"capabilities":{"alwaysMatch":{"browserName":"safari"}}}`)
+		if err == nil || time.Now().After(deadline) || !strings.Contains(err.Error(), "connect") {
+			break
+		}
+	}
+	if err != nil {
+		return "", err
+	}
+	value, _ := created["value"].(map[string]any)
+	session, _ := value["sessionId"].(string)
+	if session == "" {
+		return "", fmt.Errorf("WebDriver: no session id in %v", created)
+	}
+	b, _ := json.Marshal(map[string]string{"url": url})
+	if _, err := post("/session/"+session+"/url", string(b)); err != nil {
+		webdriverClose(port, session)
+		return "", err
+	}
+	return session, nil
+}
+
+func webdriverClose(port int, session string) {
+	req, _ := http.NewRequest("DELETE", "http://127.0.0.1:"+strconv.Itoa(port)+"/session/"+session, nil)
+	if res, err := (&http.Client{Timeout: 10 * time.Second}).Do(req); err == nil {
+		res.Body.Close()
+	}
 }
 
 // browserVersion names the browser from its user agent, e.g. "Chrome 152.0.7600.0", "Firefox 155.0".

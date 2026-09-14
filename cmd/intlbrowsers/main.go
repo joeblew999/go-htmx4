@@ -2,7 +2,7 @@
 // output drifts from the golden file (workerd, the pinned Chrome V8/ICU). kit/i18n matches the golden byte for
 // byte; the drift shows what browser-side formatting (static/relative-time.js) would change on screen.
 //
-//	go run ./cmd/intlbrowsers -browsers chrome,firefox -out build/i18n-browsers
+//	go run ./cmd/intlbrowsers -browsers chrome,firefox,safari -out build/i18n-browsers
 package main
 
 import (
@@ -18,7 +18,7 @@ import (
 )
 
 func main() {
-	browsers := flag.String("browsers", "chrome,firefox", "comma-separated: chrome, firefox")
+	browsers := flag.String("browsers", "chrome,firefox", "comma-separated: chrome, firefox, safari (safaridriver --enable once)")
 	golden := flag.String("golden", "kit/i18n/testdata/golden/workerd.json", "golden file to compare with")
 	out := flag.String("out", "build/i18n-browsers", "directory for <browser>.json drift reports")
 	examples := flag.Int("examples", 3, "example differences shown per area")

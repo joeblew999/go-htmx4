@@ -8,9 +8,14 @@
 // viewer's time zone (Cloudflare's, from the connection). When the browser's own zone differs, the text is
 // re-formatted with Intl.DateTimeFormat in it. The server omits data-local-time when the viewer chose a zone.
 //
-// Both always use the page's own language, never the browser's default, and leave the server text alone when
-// the browser lacks full data for that language (Chrome and Firefox trim ICU data for many locales), so they
-// can only correct the text, never degrade it.
+// Both always use the page's own language, never the browser's default, and first prove that this browser words
+// things exactly like the server. Otherwise they leave the server text alone, so they can only correct the text,
+// never change its wording:
+// - Some browsers lack data for the language: Chrome and Firefox trim ICU data for many locales.
+// - Some word it differently: Safari 26 says "आने वाला कल" where CLDR/Chrome say "कल", and Firefox writes "6:45 PM"
+//   for a 12-hour clock where Chrome writes "06:45 PM" (`mise run i18n:browsers` measures this).
+// - A date is corrected only if the browser reproduces the server's text in the server's zone.
+// - A relative time is corrected only if the server's text is one this browser produces.
 //
 // The unit thresholds must match kit/i18n ElapsedUnit (TestRelativeTimeJSMatchesGo).
 (() => {
@@ -45,6 +50,19 @@
     return rtf;
   }
 
+  // RANGES are the values elapsedUnit can produce per unit.
+  const RANGES = [["second", 45], ["minute", 45], ["hour", 22], ["day", 26], ["month", 11], ["year", 200]];
+
+  // producible: this browser formats some elapsed time as text, so it words relative times like the server.
+  function producible(rtf, text) {
+    for (const [unit, max] of RANGES) {
+      for (let v = 0; v <= max; v++) {
+        if (rtf.format(-v, unit) === text || rtf.format(v, unit) === text) return true;
+      }
+    }
+    return false;
+  }
+
   function updateRelative(root) {
     const rtf = formatter();
     if (!rtf) return;
@@ -53,7 +71,15 @@
       if (Number.isNaN(when)) continue;
       const [value, unit] = elapsedUnit((when - Date.now()) / 1000);
       const text = rtf.format(value, unit);
-      if (el.textContent !== text) el.textContent = text;
+      const current = el.textContent.trim();
+      if (current === text) continue;
+      // Server text (not yet ours) that this browser can't produce: its data differs; stop for this page's language.
+      if (!el.hasAttribute("data-relative-ok") && !producible(rtf, current)) {
+        cached.rtf = null;
+        return;
+      }
+      el.textContent = text;
+      el.setAttribute("data-relative-ok", "");
     }
   }
 
@@ -77,6 +103,8 @@
       if (Number.isNaN(when)) continue;
       try {
         const options = JSON.parse(el.getAttribute("data-local-time"));
+        // Only if this browser reproduces the server's text in the server's zone does it word dates the same way.
+        if (new Intl.DateTimeFormat(lang, { ...options, timeZone: from }).format(when) !== el.textContent.trim()) continue;
         el.textContent = new Intl.DateTimeFormat(lang, { ...options, timeZone: zone }).format(when);
         el.setAttribute("data-time-zone", zone);
       } catch {

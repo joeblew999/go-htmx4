@@ -20,6 +20,19 @@ func needVerify(t *testing.T) {
 	}
 }
 
+// TestPinsMatchWorkerd: ChromiumICU is the ICU commit the pinned workerd release builds with, and its CLDR major
+// is DefaultTag's (`go run ./cmd/i18npins` explains and moves them).
+func TestPinsMatchWorkerd(t *testing.T) {
+	needVerify(t)
+	problems, err := cldrgen.CheckPins()
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, p := range problems {
+		t.Error(p)
+	}
+}
+
 // TestTablesReproduce regenerates kit/i18n/cldr from the pinned sources and requires the committed files byte for
 // byte: the tables in the repo are exactly what cldr-json DefaultTag, cldr DefaultCLDRTag and Chromium ICU
 // ChromiumICU produce.

@@ -196,8 +196,9 @@
     (`connectionTimeZone`), then UTC.
   - Fragments pushed to every viewer (the board) can't use a viewer's zone: relative time, plus a UTC tooltip.
   - `static/relative-time.js` is the one browser-`Intl` exception (plan decision 6). It re-formats
-    `<time data-relative-time>` and, when the zone wasn't chosen, `<time data-local-time>` in the browser's zone,
-    and only when the browser has full data for the page's `lang`.
+    `<time data-relative-time>` and, when the zone wasn't chosen, `<time data-local-time>` in the browser's zone.
+    It only does so after calibrating: the browser must reproduce the server's exact wording. Safari and Firefox
+    `Intl` differ from Chrome (`mise run i18n:browsers`).
 - Option combinations the app uses need workerd oracle cases (`kit/i18n/intltest`). V8 has quirks such as ja
   `dateStyle: "full"` with `hourCycle: "h12"` giving "2026/5/10日曜日", and kit/i18n matches them byte for byte.
 

@@ -4,7 +4,8 @@
 #   mise run i18n:golden     # record Intl's output (workerd = Chrome's V8/ICU) for kit/i18n/intltest cases
 #   mise run i18n:messages   # locales/*.toml (ICU MessageFormat) → typed accessors in locales/*_msg_gen.go
 #   mise run i18n:verify     # prove the committed tables, goldens and known-difference evidence come from the pins
-#   mise run i18n:browsers   # drift of real browsers' Intl (Chrome, Firefox) from the golden → build/i18n-browsers/
+#   mise run i18n:pins       # pins vs the pinned workerd release; the newest release's ICU (-- -write to move)
+#   mise run i18n:browsers   # drift of real browsers' Intl (Chrome, Firefox, Safari) from the golden → build/i18n-browsers/
 #
 # Reference data (sources, pins, cache, how to move a pin): kit/i18n/README.md.
 # `go test ./kit/i18n` (part of mise run check) compares kit/i18n with the golden file, byte for byte.
@@ -31,8 +32,8 @@ run = '''
 #!/usr/bin/env bash
 set -euo pipefail
 export I18N_VERIFY=1
-# Tables regenerate byte for byte; region names match Chromium's ICU data.
-go test -count=1 -run 'TestTablesReproduce|TestChromiumRegionNames' -v ./kit/i18n/cldrgen | grep -E '^(---|ok|FAIL|\s+reference_test)'
+# Pins match the workerd release; tables regenerate byte for byte; region names match Chromium's ICU data.
+go test -count=1 -run 'TestPinsMatchWorkerd|TestTablesReproduce|TestChromiumRegionNames' -v ./kit/i18n/cldrgen | grep -E '^(---|ok|FAIL|\s+reference_test)'
 # Goldens re-record identically with the pinned workerd; every known difference's upstream evidence holds.
 go test -count=1 -run 'TestGoldenReproduces|TestKnownEvidence|TestConformance' -v ./kit/i18n | grep -E '^(---|ok|FAIL|\s+conformance_test)'
 go test -count=1 -run TestReferencePins . >/dev/null
@@ -40,6 +41,14 @@ echo "✓ reference data reproduces from the pins (cache: ${I18N_CACHE:-user cac
 '''
 
 ["i18n:browsers"]
-description = "Run the kit/i18n conformance cases in headless Chrome and Firefox and report drift from the golden (build/i18n-browsers/)"
+description = "Run the kit/i18n conformance cases in Chrome, Firefox and Safari and report drift from the golden (build/i18n-browsers/)"
 dir = "{{config_root}}"
-run = "go run ./cmd/intlbrowsers -browsers \"${I18N_BROWSERS:-chrome,firefox}\" -out build/i18n-browsers"
+run = "go run ./cmd/intlbrowsers -browsers \"${I18N_BROWSERS:-chrome,firefox,safari}\" -out build/i18n-browsers"
+
+["i18n:pins"]
+description = "Check the reference data pins against the pinned workerd release, and show the newest release's ICU"
+dir = "{{config_root}}"
+run = """
+go run ./cmd/i18npins
+go run ./cmd/i18npins -latest
+"""

@@ -16,7 +16,8 @@ import (
 // Everything loads on every page, so a boosted navigation to /board has hx-ws ready.
 //
 // htmx 4 inheritance is explicit: only the nav links are boosted (morph + view transition), so the pages'
-// own hx-* requests keep their default swaps.
+// own hx-* requests keep their default swaps. The nav wraps: translated labels don't fit one row on a phone
+// (e2e TestNoOverflow).
 //
 // <html lang dir> come from the request's locale (views/i18n.go), and every UI string from locales/*.toml (M). The
 // language links sit in the footer, outside the boosted nav: switching locale must be a full page load, since a
@@ -41,7 +42,7 @@ component Layout(title string, path string, children gsx.Node) {
 		<body class="min-h-svh bg-background font-sans text-foreground antialiased">
 			<header class="border-b">
 				<nav
-					class="mx-auto flex max-w-3xl items-center gap-2 p-4"
+					class="mx-auto flex max-w-3xl flex-wrap items-center gap-2 p-4"
 					hx-boost:inherited="true"
 					hx-swap:inherited="outerMorph transition:true"
 				>

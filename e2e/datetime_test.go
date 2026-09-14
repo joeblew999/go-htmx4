@@ -25,6 +25,26 @@ func TestViewerTimeZone(t *testing.T) {
 	check(t, "browser re-formats an automatic time in its own zone", ok && strings.Contains(text, "GMT+9"), " ", text)
 	b.run(chromedp.KeyEvent("\x1b"))
 
+	// Calibration: the browser corrects a time only when it reproduces the server's text in the server's zone.
+	guard := b.str(`(() => {
+		const opts = '{"dateStyle":"full","timeStyle":"long"}', at = "2026-07-04T15:30:45Z";
+		const make = (text) => {
+			const el = document.createElement("time");
+			el.setAttribute("datetime", at);
+			el.setAttribute("data-local-time", opts);
+			el.setAttribute("data-time-zone", "UTC");
+			el.textContent = text;
+			document.body.append(el);
+			return el;
+		};
+		const same = make(new Intl.DateTimeFormat("en", { dateStyle: "full", timeStyle: "long", timeZone: "UTC" }).format(Date.parse(at)));
+		const other = make("Saturday the 4th of July, 3:30 in the afternoon");
+		relativeTime.update();
+		return JSON.stringify({ same: same.textContent, other: other.textContent });
+	})()`)
+	check(t, "calibrated: matching server text is corrected to Tokyo, foreign wording left alone",
+		strings.Contains(guard, `"same":"Sunday, July 5, 2026 at 12:30:45 AM GMT+9"`) && strings.Contains(guard, `"other":"Saturday the 4th of July, 3:30 in the afternoon"`), " ", guard)
+
 	// Choose America/Los_Angeles and a 24-hour clock in the header dialog.
 	b.eval(`document.querySelector('header button[hx-get$="/fragments/preferences"]').click()`, nil)
 	check(t, "preferences dialog loads the zone list", b.waitJS(5*time.Second, `document.querySelectorAll("#pref-tz option").length > 400`))

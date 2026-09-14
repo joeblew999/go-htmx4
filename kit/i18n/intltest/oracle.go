@@ -51,7 +51,7 @@ const oracle :Workerd.Worker = (
     (name = "intl.mjs", esModule = embed "intl.mjs"),
     (name = "cases.json", json = embed "cases.json"),
   ],
-  compatibilityDate = "2026-09-11",
+  compatibilityDate = "%s",
 );
 `
 
@@ -79,17 +79,23 @@ func (o Oracle) Run(ctx context.Context, cases []Case) (*Golden, error) {
 		return nil, err
 	}
 	files := map[string][]byte{
-		"oracle.mjs":   oracleJS,
-		"intl.mjs":     intlJS,
-		"cases.json":   casesJSON,
-		"config.capnp": []byte(fmt.Sprintf(oracleConfig, port)),
+		"oracle.mjs": oracleJS,
+		"intl.mjs":   intlJS,
+		"cases.json": casesJSON,
 	}
+	version, _ := exec.CommandContext(ctx, bin, "--version").Output()
+	// "workerd 2026-09-11": a release supports compatibility dates up to its own, so the oracle runs with the newest
+	// behaviour of whichever workerd is pinned, and the pin lives only in mise.toml / cldrgen.Workerd.
+	compat, ok := strings.CutPrefix(strings.TrimSpace(string(version)), "workerd ")
+	if !ok || len(compat) != len("2006-01-02") {
+		return nil, fmt.Errorf("intltest: unexpected %s --version output %q", bin, version)
+	}
+	files["config.capnp"] = []byte(fmt.Sprintf(oracleConfig, port, compat))
 	for name, b := range files {
 		if err := os.WriteFile(filepath.Join(dir, name), b, 0o644); err != nil {
 			return nil, err
 		}
 	}
-	version, _ := exec.CommandContext(ctx, bin, "--version").Output()
 
 	base := "http://127.0.0.1:" + strconv.Itoa(port) + "/"
 	if res, err := http.Get(base); err == nil {
