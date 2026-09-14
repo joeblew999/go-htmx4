@@ -72,6 +72,18 @@
 - Handlers render through `s.render(w, r, name, node)` (`kit/httpx.Render`): it buffers the HTML and sets `Content-Length`. Keep it: streamed
   (chunked) responses broke htmx history restore (Back) under local workerd.
 
+# Search (crawl rules)
+
+- `/robots.txt` (`robots.go`) and `/sitemap.xml` are Go routes: absolute URLs come from `httpx.Origin(r)`, never a
+  hard-coded host, so they're right locally, on the custom domain and after `mise run rename`. robots.txt keeps exactly
+  one `*` group with no `Disallow` and no named Google groups (`TestRobotsTxt`); both answer only at the root.
+- Fragments go under `/fragments/`: `noindexNonPages` marks them, `/healthz` and every non-GET/HEAD request
+  `X-Robots-Tag: noindex`. Don't add page routes under `/fragments/`, and don't add a robots `Disallow` for them.
+- New pages: pass a translated title and description to `Layout` (canonical, hreflang and Open Graph follow), add
+  them to `views.SitemapPages`, and keep `TestOpenGraph`, `TestCanonicalAndHreflang` and `TestSitemap` green.
+- Search Console: `mise run search:status` (API) for index coverage. *Test live URL*, *Request indexing* and Crawl stats
+  have no API and stay in the UI.
+
 # Cloudflare Workers
 
 - **No Node, no wrangler.** No `npm create cloudflare`, `wrangler`, or miniflare. Run locally with `workerd`, deploy with

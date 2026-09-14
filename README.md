@@ -132,6 +132,21 @@ browser ─ hx-post /board/add|note ─────▶ worker/index.mjs ─▶ G
   Durable Objects). Locally, `workerd/local-d1.mjs` gives Go a D1-shaped `DB` over Durable Object SQLite, so the same
   `database/sql` code runs on workerd without miniflare.
 
+## Search and link previews
+
+- **Indexed host:** https://go-htmx4.ubuntusoftware.net (Search Console property `sc-domain:ubuntusoftware.net`). The
+  `*.workers.dev` URL 301s there, so there is one host to index.
+- **Crawl files are Go routes built from the request origin:** `/robots.txt` (one `*` group, Gemini training and grounding
+  allowed, points at the sitemap) and `/sitemap.xml` (every page in every locale with `hreflang` alternates).
+- **Every page carries:** a translated `<title>` and description, a canonical URL, reciprocal `hreflang` + `x-default`,
+  and Open Graph tags with `og:locale`.
+- **Not indexed:** fragments, `/healthz` and form posts send `X-Robots-Tag: noindex`.
+- **Search Console by API:** `mise run search:sites|submit|status` (sitemap submit, URL Inspection). Status on
+  2026-09-14: sitemap read (56 URLs, 0 errors), pages "discovered", not yet indexed.
+
+Plans: [search indexing](.plans/2026-09-14_0938_search-indexing-google-gemini.md),
+[custom domain](.plans/2026-09-14_0915_workers-custom-domains.md).
+
 ## Reusable packages (`kit/`)
 
 Importable from other repos with `go get github.com/joeblew999/go-htmx4/kit/…`. They don't import the app (checked by

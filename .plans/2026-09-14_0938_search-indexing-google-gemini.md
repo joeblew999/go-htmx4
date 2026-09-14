@@ -204,7 +204,7 @@ Cloudflare can block Google before a request ever reaches the Worker, so our tes
 
 ### Phase 7: docs
 
-- [ ] README (indexing status) and AGENTS.md crawl rules:
+- [x] README (indexing status) and AGENTS.md crawl rules:
   - `robots.txt` is a Go route (one `*` group, origin from the request); the sitemap is generated (i18n Phase 8)
   - fragments live under `/fragments/`, so the middleware marks them `noindex`; form posts are covered by method
   - canonical + description on new pages
@@ -239,8 +239,9 @@ Cloudflare can block Google before a request ever reaches the Worker, so our tes
 
 ### Follow-ups
 
-- [ ] Phase 4: deploy by go-htmx4-87 (authorized for the shared i18n + search deploy), then Rich Results Test on `/`,
-      `/board`, `/de/`; go-htmx4-12 runs independent read-only live checks.
-- [ ] Phase 5: Search Console. Note: `ubuntusoftware.net` already has a `google-site-verification` TXT record, so you may
+- [x] Phase 4: deploy by go-htmx4-87 (authorized for the shared i18n + search deploy), then Rich Results Test on `/`,
+      `/board`, `/de/`; go-htmx4-12 runs independent read-only live checks. — deployed; go-htmx4-12's live checks 24/24
+      on the custom host (workers.dev /about 301s to it). Rich Results Test is still open in Phase 4 (UI only).
+- [-] Phase 5: Search Console (superseded: `sc-domain:ubuntusoftware.net` covers the custom host; see Phase 5). Note: `ubuntusoftware.net` already has a `google-site-verification` TXT record, so you may
       already own a Domain property there; once the app moves to a subdomain of it (custom-domains plan) that property
       covers it. For `go-htmx4.gedw99.workers.dev` a URL-prefix property + HTML file (a root route) is still needed.
