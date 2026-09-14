@@ -20,7 +20,7 @@ import (
 // (e2e TestNoOverflow).
 //
 // <html lang dir> come from the request's locale (views/i18n.go), and every UI string from locales/*.toml (M). The
-// head carries a translated description, the canonical URL and the page in every locale (views/seo.go). The
+// head carries a translated description, the canonical URL, the page in every locale and Open Graph (views/seo.go). The
 // language links sit in the footer, outside the boosted nav: switching locale must be a full page load, since a
 // boosted swap keeps the old <html lang dir>.
 component Layout(title string, description string, path string, children gsx.Node) {
@@ -34,6 +34,15 @@ component Layout(title string, description string, path string, children gsx.Nod
 			<link rel="canonical" href={CanonicalURL(ctx)}/>
 			{ for _, a := range Alternates(ctx) {
 				<link rel="alternate" hreflang={a.Lang} href={a.Href}/>
+			} }
+			<meta property="og:type" content="website"/>
+			<meta property="og:site_name" content="go-htmx4"/>
+			<meta property="og:title" content={M(ctx).PageTitle(title)}/>
+			<meta property="og:description" content={description}/>
+			<meta property="og:url" content={CanonicalURL(ctx)}/>
+			<meta property="og:locale" content={OGLocale(Loc(ctx).Data)}/>
+			{ for _, l := range OGLocaleAlternates(ctx) {
+				<meta property="og:locale:alternate" content={l}/>
 			} }
 			<ThemeScript/>
 			<link rel="stylesheet" href="/assets/gsxui.css"/>

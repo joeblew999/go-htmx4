@@ -182,6 +182,9 @@ check "translated page indexable" "$(curl -sI "$base/de/about" | grep -ci '^x-ro
 check "canonical + hreflang"      "$(curl -s "$base/de/about")" "<link rel=\"canonical\" href=\"$base/de/about\">"
 check "hreflang x-default"        "$(curl -s "$base/de/about")" "<link rel=\"alternate\" hreflang=\"x-default\" href=\"$base/about\">"
 check "sitemap with alternates"   "$(curl -s "$base/sitemap.xml")" "<xhtml:link rel=\"alternate\" hreflang=\"zh-Hant\" href=\"$base/zh-hant/formats\"/>"
+check "robots.txt is ours"        "$(curl -s "$base/robots.txt")" "Sitemap: $base/sitemap.xml"
+check "fragment noindex"          "$(curl -sI "$base/fragments/stats" | tr -d '\r' | grep -i '^x-robots-tag' || true)" 'noindex'
+check "Open Graph url + locale"   "$(curl -s "$base/de/about")" "<meta property=\"og:url\" content=\"$base/de/about\"><meta property=\"og:locale\" content=\"de_DE\">"
 # Dates (kit/i18n DateTimeFormat + time/tzdata on TinyGo): a style, a named zone, the viewer's zone cookie.
 check "DateTimeFormat on TinyGo"  "$(curl -s "$base/de/formats")" 'Samstag, 4. Juli 2026'
 check "named zone on TinyGo"      "$(curl -s "$base/formats")" '11:30 AM Eastern Time'
@@ -388,6 +391,9 @@ check "UI catalog"                "$(curl -s "$base/de/")" 'Go + htmx 4 + gsxui 
 check "translated page indexable" "$(curl -sI "$base/de/about" | grep -ci '^x-robots-tag' || true)" '0'
 check "canonical + hreflang"      "$(curl -s "$base/de/about")" "<link rel=\"canonical\" href=\"$base/de/about\">"
 check "sitemap with alternates"   "$(curl -s "$base/sitemap.xml")" "<xhtml:link rel=\"alternate\" hreflang=\"zh-Hant\" href=\"$base/zh-hant/formats\"/>"
+check "robots.txt is ours"        "$(curl -s "$base/robots.txt")" "Sitemap: $base/sitemap.xml"
+check "fragment noindex"          "$(curl -sI "$base/fragments/stats" | tr -d '\r' | grep -i '^x-robots-tag' || true)" 'noindex'
+check "Open Graph url + locale"   "$(curl -s "$base/de/about")" "<meta property=\"og:url\" content=\"$base/de/about\"><meta property=\"og:locale\" content=\"de_DE\">"
 if go run ./cmd/wsload -base "$base" -n 2 -topic smoke; then
   echo "✓ live push to 3 WebSockets in 3 locales + cached fragment (wsload)"
 else

@@ -87,3 +87,29 @@ func Sitemap(origin string) string {
 var xmlEscaper = strings.NewReplacer("&", "&amp;", "<", "&lt;", ">", "&gt;", `"`, "&quot;", "'", "&apos;")
 
 func xmlEscape(s string) string { return xmlEscaper.Replace(s) }
+
+// Open Graph (search plan Phase 2): link previews in chat apps and social sites. og:url is the canonical URL,
+// og:title/og:description are the page's translated title and description, og:locale is the page's locale and
+// og:locale:alternate every other shipped locale.
+
+// OGLocale is a locale in Open Graph's language_TERRITORY form, from its likely-subtags maximum: "en" → "en_US",
+// "pt-BR" → "pt_BR", "zh-Hant" (zh-Hant-TW) → "zh_TW".
+func OGLocale(ld *i18n.LocaleData) string {
+	t := i18n.MustParseTag(ld.Maximal)
+	if t.Region == "" {
+		return t.Language
+	}
+	return t.Language + "_" + t.Region
+}
+
+// OGLocaleAlternates are every shipped locale except the request's, in data order.
+func OGLocaleAlternates(ctx context.Context) []string {
+	self := Loc(ctx).Data
+	out := make([]string, 0, len(cldr.Data.Locales)-1)
+	for _, ld := range cldr.Data.Locales {
+		if ld != self {
+			out = append(out, OGLocale(ld))
+		}
+	}
+	return out
+}

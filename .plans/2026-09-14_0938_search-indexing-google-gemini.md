@@ -1,6 +1,6 @@
 # Get indexed by Google Search and Gemini
 
-**Status:** go (2026-09-14 17:00, your answer here); Phase 1 in progress, sequenced with i18n Phase 8 · **Created:** 2026-09-14 09:38 · **Refreshed:** 2026-09-14 16:40
+**Status:** Phases 1–3 done; Phase 4 deploy by the i18n session (go-htmx4-87), Phase 5 needs your Google account · **Created:** 2026-09-14 09:38 · **Refreshed:** 2026-09-14 16:40
 
 Written this morning against the two demos. It was never committed, and those demos, their Workers and `page.html` are
 gone. The decisions below are kept; everything else is rewritten for the app as it is now: one Worker at
@@ -138,28 +138,30 @@ Cloudflare can block Google before a request ever reaches the Worker, so our tes
       One `*` group only: a named group (e.g. `User-agent: Googlebot`) would make that bot ignore `*`. No group for
       `Google-Extended` means it's allowed. Google doesn't read `Content-Signal`; it replaces Cloudflare's neutral notice
       for other crawlers. `TestRobotsTxt` pins one group, no `Disallow`, no named Google groups, the sitemap URL, 405 on
-      POST. [ ] Registered in `main.go` (`mux.HandleFunc("/robots.txt", robotsTxt)`) after i18n Phase 8, which owns
-      main.go right now.
-- [-] `sitemap.xml` — moved to i18n Phase 8 (generated in Go from the locale data). If search Phase 1 ships first,
-      robots.txt's `Sitemap:` line points at a 404 until then; harmless, or hold the line back until Phase 8 lands.
+      POST. [x] Registered in `main.go` next to `/sitemap.xml` by i18n Phase 8 (c87ac81).
+- [x] `sitemap.xml`: done by i18n Phase 8 (c87ac81), generated in Go from the locale data, 56 URLs with alternates.
 - [x] `httpx.NoIndex(h)` (sets `X-Robots-Tag: noindex`) and `httpx.Origin(r)` in `kit/httpx`, with tests.
-- [ ] Apply `NoIndex` to `/fragments/*`, `/healthz` and every POST route (`/greet`, `/preferences`, `/board/add`,
-      `/board/note`) after i18n Phase 8 (main.go, board.go). `/live/` isn't a page. `/board` stays indexable for every
-      topic.
+- [x] `noindex` on non-page responses, as **one middleware** in `robots.go` wrapped around the mux inside `withLocale`
+      (so `/de/fragments/…` is matched on its unprefixed path): `/fragments/*`, `/healthz` and every request that isn't
+      GET/HEAD (`/greet`, `/preferences`, `/board/add`, `/board/note`, and any future form post). One rule instead of
+      wrapping each handler, so a new fragment or POST route can't forget it. `/live/` isn't a page. Pages, `/board` for
+      every topic, `/robots.txt` and `/sitemap.xml` stay without the header. Main.go edit agreed with go-htmx4-87 first.
+      — `noindexNonPages` (design by go-htmx4-12), `return withLocale(noindexNonPages(mux))`. `/robots.txt` also 404s under
+      locale prefixes like `/sitemap.xml`.
 
 ### Phase 2: Open Graph (after i18n Phase 8)
 
 - [-] Canonical, description, `hreflang` — moved to i18n Phase 8. Note for it: keep `?topic=` in the board's canonical for
       non-default topics (`?topic=lobby` → `/board`), since each topic is its own indexable page.
-- [ ] `og:title`, `og:description`, `og:url` (= Phase 8's canonical), `og:locale` and `og:locale:alternate` from the same
+- [x] `og:title`, `og:description`, `og:url` (= Phase 8's canonical), `og:locale` and `og:locale:alternate` from the same
       locale data, in `Layout` only (never in `BoardFragment`).
-- [ ] No JSON-LD (Google says it isn't needed for AI features) and no llms.txt.
+- [x] No JSON-LD (Google says it isn't needed for AI features) and no llms.txt.
 
 ### Phase 3: tests
 
-- [ ] Go tests: `/robots.txt` served natively, `noindex` on every fragment/POST route (a table test over the mux), OG
+- [x] Go tests: `/robots.txt` served natively, `noindex` on every fragment/POST route (a table test over the mux), OG
       tags on each page (after Phase 2). Sitemap tests belong to i18n Phase 8.
-- [ ] Smoke under workerd (TinyGo): `/robots.txt` has our `User-agent` line, a fragment carries `X-Robots-Tag: noindex`.
+- [x] Smoke under workerd (TinyGo): `/robots.txt` has our `User-agent` line, a fragment carries `X-Robots-Tag: noindex`.
       `mise run check` green.
 
 ### Phase 4: deploy and verify (⚠ needs OK)
@@ -192,8 +194,8 @@ Cloudflare can block Google before a request ever reaches the Worker, so our tes
 ### Phase 7: docs
 
 - [ ] README (indexing status) and AGENTS.md crawl rules:
-  - static `robots.txt` in `web/root/`, one `*` group; the sitemap is generated (i18n Phase 8)
-  - `noindex` on new fragment/POST routes
+  - `robots.txt` is a Go route (one `*` group, origin from the request); the sitemap is generated (i18n Phase 8)
+  - fragments live under `/fragments/`, so the middleware marks them `noindex`; form posts are covered by method
   - canonical + description on new pages
   - new pages appear in the generated sitemap
   - `mise run rename` keeps the host right
@@ -203,3 +205,31 @@ Cloudflare can block Google before a request ever reaches the Worker, so our tes
 - None blocking.
 - If real Google requests turn out to be blocked on workers.dev, we can't change that zone. The fix is bringing a custom
   domain forward (Phase 6), where we control AI Crawl Control.
+
+## Findings (implementation)
+
+### 2026-09-14 17:40: Phases 1–3
+
+- **robots.txt:** a Go route (`robots.go`) because `Sitemap:` must be absolute and the host differs per environment,
+  account and after `mise run rename`; `httpx.Origin(r)` supplies it. 404 under locale prefixes (only the root is read).
+- **noindex:** one middleware (`noindexNonPages`) inside `withLocale`: `/fragments/*` (any locale prefix), `/healthz`,
+  every non-GET/HEAD request. Pages, every `/board` topic, `/robots.txt`, `/sitemap.xml` stay indexable; the i18n
+  middleware's own incomplete-catalog noindex is untouched ("translated page indexable" smoke still green).
+- **Open Graph** in `views/Layout`: `og:type`, `og:site_name`, `og:title` (= `<title>`), `og:description` (= the translated
+  meta description), `og:url` (= canonical), `og:locale` in language_TERRITORY from the likely-subtags maximum
+  (`OGLocale`: en → en_US, en-IN → en_IN, zh-Hant → zh_TW, zh-Hans → zh_CN, ar → ar_EG), `og:locale:alternate` for the
+  other 13 locales.
+- **Tests:** `TestNoIndexNonPages` (20 requests, prefixed fragment included), `TestRobotsTxt` + `TestRobotsTxtOnlyAtRoot`,
+  `TestOpenGraph` (9 pages/locales: og values equal canonical/title/description, 13 unique alternates), plus the i18n
+  session's `TestCanonicalAndHreflang`, `TestSitemap`, `TestNoHardcodedText`. Smoke (local + remote): robots.txt is
+  ours, fragment noindex, Open Graph url + locale. `mise run check` 49 ✓, `mise run e2e` 11/11.
+- **Three sessions coordinated** on these files: go-htmx4-87 (i18n Phase 8, registered the route), go-htmx4-12 (the
+  middleware design and plan edits, then stood down), this session (implementation).
+
+### Follow-ups
+
+- [ ] Phase 4: deploy by go-htmx4-87 (authorized for the shared i18n + search deploy), then Rich Results Test on `/`,
+      `/board`, `/de/`; go-htmx4-12 runs independent read-only live checks.
+- [ ] Phase 5: Search Console. Note: `ubuntusoftware.net` already has a `google-site-verification` TXT record, so you may
+      already own a Domain property there; once the app moves to a subdomain of it (custom-domains plan) that property
+      covers it. For `go-htmx4.gedw99.workers.dev` a URL-prefix property + HTML file (a root route) is still needed.
