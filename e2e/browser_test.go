@@ -46,7 +46,8 @@ type tab struct {
 
 func newTab(t *testing.T, name string) *tab {
 	t.Helper()
-	opts := append(chromedp.DefaultExecAllocatorOptions[:], chromedp.WindowSize(1100, 1000))
+	// No QUIC: some networks break Chrome's HTTP/3 to Cloudflare (net::ERR_QUIC_PROTOCOL_ERROR); HTTP/2 tests the same app.
+	opts := append(chromedp.DefaultExecAllocatorOptions[:], chromedp.WindowSize(1100, 1000), chromedp.Flag("disable-quic", true))
 	if os.Getenv("CI") != "" {
 		opts = append(opts, chromedp.NoSandbox)
 	}
@@ -113,10 +114,17 @@ func (tb *tab) str(js string) string { var s string; tb.eval(js, &s); return s }
 func (tb *tab) num(js string) int    { var n int; tb.eval(js, &n); return n }
 func (tb *tab) is(js string) bool    { var b bool; tb.eval(js, &b); return b }
 
-// waitJS polls a JavaScript condition.
+// waitJS polls a JavaScript condition. An exception counts as "not yet": during a full navigation the document
+// being parsed can briefly have no <html> or <body>.
 func (tb *tab) waitJS(d time.Duration, js string) bool {
 	tb.t.Helper()
-	return waitFor(d, func() bool { return tb.is(js) })
+	return waitFor(d, func() bool {
+		var ok bool
+		err := chromedp.Run(tb.ctx, chromedp.Evaluate(js, &ok, func(p *runtime.EvaluateParams) *runtime.EvaluateParams {
+			return p.WithAwaitPromise(true)
+		}))
+		return err == nil && ok
+	})
 }
 
 // clickText clicks the first element matching selector whose trimmed text is text.
