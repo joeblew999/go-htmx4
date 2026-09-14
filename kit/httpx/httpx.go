@@ -55,3 +55,30 @@ func GetOnly(h http.Handler) http.Handler {
 		}
 	})
 }
+
+// NoIndex wraps h so its responses carry X-Robots-Tag: noindex: for fragments, health checks and form posts that
+// must not show up in search results as bare pages. Use a header, not a robots.txt Disallow, so crawlers can still
+// fetch whatever a page's rendering needs.
+func NoIndex(h http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("X-Robots-Tag", "noindex")
+		h.ServeHTTP(w, r)
+	})
+}
+
+// Origin is the scheme and host the request was made to, e.g. "https://app.example.workers.dev" or
+// "http://localhost:9913", for absolute URLs (sitemaps, canonical links) without configuring a site URL. On Workers
+// the request URL is absolute; under standard Go the scheme comes from TLS and X-Forwarded-Proto.
+func Origin(r *http.Request) string {
+	scheme, host := r.URL.Scheme, r.URL.Host
+	if host == "" {
+		host = r.Host
+	}
+	if scheme == "" {
+		scheme = "http"
+		if r.TLS != nil || strings.EqualFold(r.Header.Get("X-Forwarded-Proto"), "https") {
+			scheme = "https"
+		}
+	}
+	return scheme + "://" + host
+}

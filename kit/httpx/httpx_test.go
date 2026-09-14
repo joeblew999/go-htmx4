@@ -104,3 +104,32 @@ func ExampleAllow() {
 	fmt.Println(rec.Code, rec.Header().Get("Allow"))
 	// Output: 405 POST
 }
+
+func TestNoIndex(t *testing.T) {
+	rec := httptest.NewRecorder()
+	httpx.NoIndex(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { io.WriteString(w, "fragment") })).
+		ServeHTTP(rec, httptest.NewRequest("GET", "/fragments/stats", nil))
+	if got := rec.Header().Get("X-Robots-Tag"); got != "noindex" || rec.Body.String() != "fragment" {
+		t.Errorf("X-Robots-Tag = %q, body %q", got, rec.Body.String())
+	}
+}
+
+func TestOrigin(t *testing.T) {
+	native := httptest.NewRequest("GET", "/robots.txt", nil) // Host example.com, no scheme in URL
+	proxied := httptest.NewRequest("GET", "/robots.txt", nil)
+	proxied.Header.Set("X-Forwarded-Proto", "https")
+	workers := httptest.NewRequest("GET", "https://app.acme.workers.dev/robots.txt", nil)
+	workers.Host = "" // workers-go takes Host from the headers, which a Workers request may not carry
+	for _, tc := range []struct {
+		r    *http.Request
+		want string
+	}{
+		{native, "http://example.com"},
+		{proxied, "https://example.com"},
+		{workers, "https://app.acme.workers.dev"},
+	} {
+		if got := httpx.Origin(tc.r); got != tc.want {
+			t.Errorf("Origin(%s) = %q, want %q", tc.r.URL, got, tc.want)
+		}
+	}
+}
