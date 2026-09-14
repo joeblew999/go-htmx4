@@ -2,7 +2,8 @@
 # CI entrypoint (plan: .plans/done/2026-09-14_0915_ci-mise-check.md). Shell only, no Node.
 #
 # Installs mise if it's missing (mise's standalone installer, pinned), the tools pinned in mise.toml, then runs
-# `mise run check`: the app's test (TinyGo on workerd + gsx fmt + go vet + go test). Runnable locally too.
+# `mise run check` (TinyGo on workerd + gsx fmt + go vet + go test), then `mise run e2e` (headless Chrome against local
+# workerd; GitHub's Ubuntu runner image ships Google Chrome). Runnable locally too.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
@@ -23,3 +24,7 @@ echo "✓ mise install in $(( $(date +%s) - start ))s"
 start=$(date +%s)
 mise run check
 echo "✓ mise run check in $(( $(date +%s) - start ))s"
+
+start=$(date +%s)
+mise run e2e
+echo "✓ mise run e2e in $(( $(date +%s) - start ))s"

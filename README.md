@@ -14,6 +14,19 @@ Cloudflare Workers. One app at the repo root:
 
 No Node anywhere: no npm, no Vite, no wrangler. Every tool is pinned in [`mise.toml`](mise.toml).
 
+## Use it as a template
+
+```sh
+# GitHub: "Use this template" (or clone), then:
+mise install
+mise run rename -- github.com/you/my-app my-app   # module path + app name (Worker, D1, brand)
+mise run check                                    # proves the renamed copy builds and passes
+```
+
+To deploy, put a Cloudflare API token (Workers Scripts, D1 and Workers Tail edit) and your account id in
+[fnox](https://github.com/jdx/fnox) as `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`, then `mise run deploy`. Nothing
+reads a `.env` file.
+
 ## Quick start
 
 ```sh
@@ -31,12 +44,13 @@ mise run check      # TinyGo build + workerd smoke + go test
 | `mise run dev:native` | `gsx dev` on the native server + Tailwind `--watch`: a save is served in ~1 s (memory store, no live push) → http://localhost:9913 |
 | `mise run run` | `go run .` (standard Go, memory store, no live push) → http://localhost:9913 |
 | `mise run test` / `check` | TinyGo build, workerd smoke (curls every route + a 2-socket push), gsx fmt, gofmt, vet, go test |
-| `mise run load` | 1,000 WebSockets on one topic + a 50-write burst (local, or `LOAD_BASE=https://…`) |
+| `mise run load` | 1,000 WebSockets on one topic + a 50-write burst + the 1,001st socket refused (local, or `LOAD_BASE=https://…`) |
+| `mise run e2e` | Headless Chrome ([`e2e/`](e2e), chromedp): pages, the live board in two browsers, boosted nav ↔ presence, write limit (local, or `E2E_BASE=https://…`) |
 | `mise run deploy` | Test, then deploy to `https://$APP_NAME.<subdomain>.workers.dev` (credentials via fnox) |
 | `mise run smoke-remote` | Curl every route of the deployed Worker |
 | `mise run tail` | Live logs of the deployed Worker (requests, console output, exceptions), no wrangler |
 
-`mise tasks` lists everything. CI runs the same `mise run check` on every push and pull request
+`mise tasks` lists everything. CI runs `mise run check` and `mise run e2e` on every push and pull request
 ([`ci/check.sh`](ci/check.sh), shell steps only, no JavaScript actions).
 
 ## Stack
@@ -58,7 +72,7 @@ mise run check      # TinyGo build + workerd smoke + go test
 | Live updates | [Durable Objects](https://developers.cloudflare.com/durable-objects/) (WebSocket Hibernation) + htmx 4 [`hx-ws`](https://four.htmx.org/extensions/hx-ws) | 4.0.0 | One `Room` per topic pushes fragments to every tab |
 | Secrets | [fnox](https://github.com/jdx/fnox) | 1.35.0 | Cloudflare token + account id from the keychain |
 
-Plans, decisions and measurements live in [`.plans/`](.plans/).
+Plans, decisions and measurements live in [`.plans/`](.plans/). Licensed under [MIT](LICENSE).
 
 ## Upstream references
 
@@ -145,7 +159,8 @@ The Room and Worker entry are JavaScript (`worker/room.mjs`, `worker/index.mjs`)
 ├── workerd/             # config.capnp + local-only shims (static files first, D1 over DO SQLite)
 ├── migrations/          # D1 schema
 ├── kit/                 # importable packages (see below)
-├── cmd/deploy cmd/wsload  # CLIs over kit/cfdeploy and kit/wsload
+├── cmd/deploy cmd/tail cmd/wsload  # CLIs over kit/cfdeploy, kit/cftail, kit/wsload
+├── e2e/                 # headless Chrome checks (own Go module: chromedp stays out of the app)
 ├── tasks/
 │   ├── app.toml         # dev, serve, run, test, smoke, load, deploy, smoke-remote, …
 │   └── upstream.toml    # upstream:gsxui:*, upstream:workers-go:fetch

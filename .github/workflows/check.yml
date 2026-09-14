@@ -1,4 +1,5 @@
-# Runs `mise run check` (both demos, native Go + TinyGo under workerd) on every push and pull request to main.
+# Runs `mise run check` (TinyGo under workerd + go test) and `mise run e2e` (headless Chrome) on every push and pull
+# request to main.
 # Strict no-Node: shell `run:` steps only, no JavaScript actions (plan: .plans/done/2026-09-14_0915_ci-mise-check.md).
 name: check
 
@@ -30,5 +31,5 @@ jobs:
           git checkout -q --detach FETCH_HEAD
           git log --oneline -1
 
-      - name: mise install + mise run check
+      - name: mise install + mise run check + mise run e2e
         run: ci/check.sh

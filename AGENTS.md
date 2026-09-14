@@ -37,7 +37,11 @@
   It must pass before pushing; CI (`.github/workflows/check.yml` → `ci/check.sh`) runs the same on every push and PR.
 - CI is strict no-Node: shell `run:` steps only. Don't add `actions/checkout`, `jdx/mise-action` or any JavaScript action;
   new tools go in `mise.toml` so `ci/check.sh` picks them up.
-- The app: `mise run {dev,dev:native,serve,run,test,smoke,load,deploy,smoke-remote,tail}` (tasks in `tasks/app.toml`).
+- The app: `mise run {dev,dev:native,serve,run,test,smoke,load,e2e,deploy,smoke-remote,tail}` (tasks in `tasks/app.toml`).
+- `mise run e2e` (e2e/, its own Go module) drives headless Chrome against local workerd or `E2E_BASE`; CI runs it after
+  `check`. Run it after UI, board or JS changes. Its write-limit test uses up the local write budget, so it runs last.
+- `mise run rename -- <module path> <app name>` turns the template into a new project; keep it working when you add
+  files that mention the module path or the app name (it's verified by renaming a scratch clone and running `check`).
 - Dev loops: `dev:native` (~1 s per save, `go run`-style server, no Durable Objects: use for UI work) and `dev` (~25 s,
   TinyGo on workerd: use for anything touching the board, D1, the Room or TinyGo behaviour). Both are `gsx dev`; the
   backend port comes from `APP_DEV_PORT`. Stopping `gsx dev` can leave workerd running: stop it by PID.

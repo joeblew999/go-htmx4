@@ -9,6 +9,7 @@
 #   mise run run            # go run . (non-js fallback)                                  → http://localhost:9913
 #   mise run test           # TinyGo build (size-gated) + workerd smoke + gsx fmt/gofmt + vet + go test
 #   mise run load           # 1,000 WebSockets on one topic + 50-write burst (local, or LOAD_BASE=…)
+#   mise run e2e            # headless Chrome checks (local workerd, or E2E_BASE=…)
 #   mise run deploy         # test + token check, then Direct Upload → https://$APP_NAME.<subdomain>.workers.dev
 #   mise run smoke-remote   # curl every route of the deployed Worker
 #   mise run tail           # live logs of the deployed Worker
@@ -183,6 +184,31 @@ if grep -qiE 'panic|uncaught' build/workerd-smoke.log; then echo "✗ errors in 
 exit $fail
 '''
 
+# Real-browser checks (e2e/: Go + chromedp + headless Chrome, no Node): pages, the live board across two browsers,
+# boosted navigation ↔ board presence, bare-close presence, the write limit. Starts local workerd unless E2E_BASE
+# points at a deployed Worker. CI runs it too (ci/check.sh).
+["e2e"]
+description = "Headless Chrome checks: pages, live board in two browsers, boost ↔ board, presence, write limit (local workerd, or E2E_BASE=https://…)"
+depends = ["build"]
+run = '''
+#!/usr/bin/env bash
+set -euo pipefail
+base=${E2E_BASE:-}
+if [ -z "$base" ]; then
+  base=http://127.0.0.1:8913
+  curl -s -o /dev/null "$base/" && { echo "✗ :8913 is already in use"; exit 1; }
+  mkdir -p .workerd-state
+  workerd serve workerd/config.capnp >build/workerd-e2e.log 2>&1 &
+  pid=$!
+  stop() { kill "$pid" 2>/dev/null || return 0; for _ in $(seq 1 30); do kill -0 "$pid" 2>/dev/null || return 0; sleep 0.1; done; kill -9 "$pid" 2>/dev/null || true; }
+  trap stop EXIT
+  for _ in $(seq 1 80); do [ "$(curl -s "$base/healthz")" = ok ] && break; sleep 0.25; done
+fi
+echo "→ $base"
+# chromedp logs CDP events it doesn't model ("unhandled node event"); they're noise.
+E2E_BASE="$base" go test -C e2e -count=1 -v ./... 2>&1 | grep -v "unhandled node event"
+'''
+
 # Design size: 1,000 WebSockets on one topic, then a burst of 50 concurrent writes (coalescing).
 # Starts its own workerd on :8913 unless LOAD_BASE points somewhere else (e.g. the deployed URL).
 ["load"]
@@ -229,6 +255,36 @@ go vet ./...
 app_deps=$(go list -deps ./kit/... | grep '^github.com/joeblew999/go-htmx4' | grep -v '^github.com/joeblew999/go-htmx4/kit/' || true)
 test -z "$app_deps" || { echo "$app_deps"; echo "✗ kit/ imports app packages"; exit 1; }
 go test ./...
+'''
+
+# ── rename ───────────────────────────────────────────────────────────────────
+# Make the template yours (GitHub "Use this template" or a clone): new Go module path and app name. The app name is
+# the Worker + D1 name (APP_NAME), the brand in the header/titles and the local Durable Object keys.
+["rename"]
+description = "Make this template yours: mise run rename -- <module path> <app name>  (e.g. github.com/you/board board)"
+run = '''
+#!/usr/bin/env bash
+set -euo pipefail
+module=${1:-}; name=${2:-}
+if [ -z "$module" ] || [ -z "$name" ]; then echo "usage: mise run rename -- <module path> <app name>"; exit 2; fi
+[[ "$name" =~ ^[a-z0-9][a-z0-9-]{0,52}$ ]] || { echo "✗ app name must be lowercase letters, digits and hyphens (it names the Worker)"; exit 1; }
+old_module=$(go list -m)
+old_name=$(sed -n 's/^APP_NAME = "\(.*\)"$/\1/p' mise.toml)
+[ "$old_module" != "$module" ] || [ "$old_name" != "$name" ] || { echo "· already $module / $name"; exit 0; }
+# Module path: every tracked Go, gsx and module file (untracked work is left alone).
+git ls-files -z -- '*.go' '*.gsx' 'gsx.toml' | xargs -0 perl -pi -e "s#\\Q$old_module\\E#$module#g"
+go mod edit -module "$module"
+(cd e2e && go mod edit -module "$module/e2e")
+# App name: config, pages, tests and local Durable Object keys.
+perl -pi -e "s/^APP_NAME = \"\\Q$old_name\\E\"/APP_NAME = \"$name\"/" mise.toml
+git ls-files -z -- views main.go main_test.go e2e tasks/app.toml workerd/config.capnp | xargs -0 perl -pi -e "s/\\b\\Q$old_name\\E\\b/$name/g"
+# Import blocks re-sort under the new path.
+go tool gsx fmt -w . >/dev/null
+git ls-files -z -- '*.go' | xargs -0 gofmt -w
+go tool gsx generate >/dev/null
+go build ./... && (cd e2e && go vet ./...)
+echo "✓ module $old_module → $module, app $old_name → $name"
+echo "  next: mise run check; set CLOUDFLARE_API_TOKEN + CLOUDFLARE_ACCOUNT_ID in fnox; mise run deploy"
 '''
 
 # ── token-check ─────────────────────────────────────────────────

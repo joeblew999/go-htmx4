@@ -1,6 +1,6 @@
 # go-htmx4 as a real repo: one app, a GitHub template, importable kit packages
 
-**Status:** Phases 1–5 done; Phase 6 next · **Created:** 2026-09-14 10:37
+**Status:** Phases 1–6 done; Phase 7 next · **Created:** 2026-09-14 10:37
 
 ## Goal
 
@@ -150,16 +150,16 @@ theme toggle across all pages.
 
 ### Phase 6: make it a proper template
 
-- [ ] `e2e/`: move the chromedp harnesses (board two-tab, gsxui pages, theme, reconnect, boost ↔ board presence, bare
+- [x] `e2e/`: move the chromedp harnesses (board two-tab, gsxui pages, theme, reconnect, boost ↔ board presence, bare
       `close()` → presence drop) into the repo as
       `mise run e2e`. It starts local workerd itself; `E2E_BASE=https://…` runs it against a live URL. Their scratchpad
       copies are the source.
-- [ ] **e2e in CI:** `ci/check.sh` runs `mise run check` then `mise run e2e`. It uses the Chrome preinstalled on GitHub's
+- [x] **e2e in CI:** `ci/check.sh` runs `mise run check` then `mise run e2e`. It uses the Chrome preinstalled on GitHub's
       Ubuntu runner image (check the runner-images docs; fail with a clear message if Chrome is missing). No credentials,
       no live URLs. Local `check` stays e2e-free so the dev loop stays fast.
-- [ ] `mise run rename -- github.com/you/app my-app`: rewrites the module path, imports, `gsx.toml`/`gsxui.json` paths
+- [x] `mise run rename -- github.com/you/app my-app`: rewrites the module path, imports, `gsx.toml`/`gsxui.json` paths
       and `APP_NAME`; verified by running it in a scratch clone + `mise run check`.
-- [ ] README rewritten as a starter:
+- [x] README rewritten as a starter:
   - what you get
   - quick start
   - architecture diagram
@@ -167,8 +167,8 @@ theme toggle across all pages.
   - deploy (fnox setup)
   - the TinyGo rules
   - using `kit/` from another repo
-- [ ] AGENTS.md follows the new layout. `.plans/README.md` unchanged.
-- [ ] `LICENSE` (MIT, holder "joeblew999"). **Commit + push** (no CI watching).
+- [x] AGENTS.md follows the new layout. `.plans/README.md` unchanged.
+- [x] `LICENSE` (MIT, holder "joeblew999"). **Commit + push** (no CI watching).
 
 ### Phase 7: deploy + cut over (⚠ needs OK)
 
@@ -322,8 +322,35 @@ theme toggle across all pages.
 
 ### Follow-ups after Phase 5 (2026-09-14 12:55)
 
-- [ ] Phase 6 (e2e in repo + CI, rename task, README, LICENSE) next.
+- [x] Phase 6 (e2e in repo + CI, rename task, README, LICENSE) next. — done
 - [ ] The rate-limit upload metadata shape is unverified until the Phase 7 deploy.
 - [ ] Ten identical "Slow down" toasts stack when someone hammers the button; acceptable, could be deduplicated later.
 - [ ] Coordination: session go-htmx4-87 (full i18n plan) shares this working tree; it waits for this commit before
       touching main.go/views/platform files, and will later change `worker/room.mjs` (locale-tagged sockets).
+
+### 2026-09-14 13:25: Phase 6 (template)
+
+- **`e2e/`** is its own Go module (chromedp stays out of the app's and `kit/`'s dependency graph; it has no `.gsx`, so the
+  gsx nested-module problem doesn't apply). Five Go tests, one Chrome per simulated user: `TestPages` (hx-live, greet +
+  OOB toasts, dialog + hx-get, lazy tabs, boosted nav + Back in the same document, theme across nav and reload),
+  `TestBoardTwoBrowsers` (sockets, presence 2 → 1, push, escaped note, form reset, htmx-config, version guard),
+  `TestBoostBoard` (boost into /board, away drops presence, Back reconnects; relative to the lobby's baseline),
+  `TestBareClosePresence` (1005 close completes, presence drops), `TestWriteLimit` (last: 429 toasts = 429 count,
+  board = accepted writes). Each fails on console errors, exceptions or unexpected HTTP ≥ 400. `mise run e2e`
+  starts local workerd (or `E2E_BASE`): **5/5, 41 checks, 30 s**. The theme check first failed because a real mouse click
+  at the toggle's coordinates hit a toast still covering the header corner; the test now clicks the element (the toggle
+  itself was verified working in every state).
+- **CI:** `ci/check.sh` runs `mise run e2e` after `check` (Chrome from GitHub's Ubuntu image, `--no-sandbox` when `CI` is
+  set). Not watched (dev-loop rule); first CI run with e2e is unverified.
+- **`mise run rename -- <module> <name>`:** module path in tracked Go/gsx/config, `go mod edit` for both modules,
+  `APP_NAME`, brand in views/tests/tasks, local DO keys, then gsx fmt + gofmt (import blocks re-sort under the new path —
+  the first scratch-clone check failed on exactly that) + generate + build. Verified: fresh clone → rename to
+  `github.com/acme/board-app` / `board-app` → `mise run check` green (29 ✓).
+- `LICENSE` (MIT, 2026 joeblew999). README: "Use it as a template" (rename, fnox credentials), e2e/tail/load rows,
+  layout. AGENTS: e2e and rename rules.
+
+### Follow-ups after Phase 6 (2026-09-14 13:25)
+
+- [ ] Phase 7: deploy the new `go-htmx4` Worker + D1 (first real check of the rate-limit binding metadata), live smoke,
+      e2e and 1,000-socket load against it, then delete `go-htmx4-workers-demo` (+ its D1) and `go-htmx4-gsxui-demo`.
+- [ ] CI with e2e runs on the next push; check its result once (not in the dev loop).
