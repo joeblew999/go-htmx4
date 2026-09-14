@@ -23,6 +23,9 @@ import (
 //go:embed oracle.mjs
 var oracleJS []byte
 
+//go:embed intl.mjs
+var intlJS []byte
+
 // Golden is what the oracle recorded for a set of cases.
 type Golden struct {
 	Runtime string            `json:"runtime"` // workerd --version, e.g. "workerd 2026-09-11" (release 1.20260911.x)
@@ -45,6 +48,7 @@ const config :Workerd.Config = (
 const oracle :Workerd.Worker = (
   modules = [
     (name = "oracle.mjs", esModule = embed "oracle.mjs"),
+    (name = "intl.mjs", esModule = embed "intl.mjs"),
     (name = "cases.json", json = embed "cases.json"),
   ],
   compatibilityDate = "2026-09-11",
@@ -76,6 +80,7 @@ func (o Oracle) Run(ctx context.Context, cases []Case) (*Golden, error) {
 	}
 	files := map[string][]byte{
 		"oracle.mjs":   oracleJS,
+		"intl.mjs":     intlJS,
 		"cases.json":   casesJSON,
 		"config.capnp": []byte(fmt.Sprintf(oracleConfig, port)),
 	}

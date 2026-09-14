@@ -163,8 +163,8 @@
 - Conformance is byte-for-byte against Intl. `mise run i18n:golden` (`cmd/intloracle`) records workerd's output for
   `kit/i18n/intltest` cases in `kit/i18n/testdata/golden/workerd.json`, and `TestConformance` must stay green. Add cases
   there before adding features. An accepted difference goes in `known` with a checkable reason.
-- `kit/i18n/cldrgen`, `kit/i18n/intltest` and their cmds are local tooling (standard Go). `intltest/oracle.mjs` is a local-only
-  workerd shim.
+- `kit/i18n/cldrgen`, `kit/i18n/intltest` and their cmds are local tooling (standard Go). The local-only JS is
+  `intltest/intl.mjs`, which evaluates cases in workerd (`oracle.mjs`) and in real browsers (`mise run i18n:browsers`).
 - **Locale URLs in the app** (`i18n.go`):
   - The default locale (`en`) is unprefixed; every other locale is `/<lowercase id>/…`.
   - `/en/…` and mixed-case prefixes 301 to the canonical URL.

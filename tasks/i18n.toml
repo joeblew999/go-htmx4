@@ -4,6 +4,7 @@
 #   mise run i18n:golden     # record Intl's output (workerd = Chrome's V8/ICU) for kit/i18n/intltest cases
 #   mise run i18n:messages   # locales/*.toml (ICU MessageFormat) → typed accessors in locales/*_msg_gen.go
 #   mise run i18n:verify     # prove the committed tables, goldens and known-difference evidence come from the pins
+#   mise run i18n:browsers   # drift of real browsers' Intl (Chrome, Firefox) from the golden → build/i18n-browsers/
 #
 # Reference data (sources, pins, cache, how to move a pin): kit/i18n/README.md.
 # `go test ./kit/i18n` (part of mise run check) compares kit/i18n with the golden file, byte for byte.
@@ -37,3 +38,8 @@ go test -count=1 -run 'TestGoldenReproduces|TestKnownEvidence|TestConformance' -
 go test -count=1 -run TestReferencePins . >/dev/null
 echo "✓ reference data reproduces from the pins (cache: ${I18N_CACHE:-user cache dir/go-htmx4})"
 '''
+
+["i18n:browsers"]
+description = "Run the kit/i18n conformance cases in headless Chrome and Firefox and report drift from the golden (build/i18n-browsers/)"
+dir = "{{config_root}}"
+run = "go run ./cmd/intlbrowsers -browsers \"${I18N_BROWSERS:-chrome,firefox}\" -out build/i18n-browsers"

@@ -62,6 +62,7 @@ on the next run. Override the location with `I18N_CACHE` (e.g. a CI cache).
 | `mise run i18n:golden` | after adding or changing conformance cases, or moving the workerd pin | no (local workerd) |
 | `mise run i18n:messages` | after editing `locales/*.toml` (also runs inside `mise run generate`) | no |
 | `mise run i18n:verify` | before committing a pin, generator or case change; when reviewing a `known` entry | first run |
+| `mise run i18n:browsers` | when changing browser-side formatting (`static/relative-time.js`) or after browser updates | no (local Chrome/Firefox) |
 
 `i18n:verify` takes about 1.5 minutes and downloads 17 MB from an empty cache, and seconds after that. It proves
 that the committed data is what the pins produce:
@@ -69,6 +70,19 @@ that the committed data is what the pins produce:
 - region names match Chromium's ICU data (`TestChromiumRegionNames`);
 - a fresh recording with the pinned workerd equals the golden file (`TestGoldenReproduces`);
 - every `known` entry's evidence still holds in the pinned files (`TestKnownEvidence`).
+
+### Browser drift
+
+kit/i18n matches the pinned workerd, and the browser only re-formats text where it knows better (the viewer's clock
+and zone). `mise run i18n:browsers` runs every conformance case in headless Chrome and Firefox using the oracle's
+`intl.mjs`, then prints differences from the golden by area. JSON reports go to `build/i18n-browsers/`; use
+`$CHROME`, `$FIREFOX` and `I18N_BROWSERS=chrome` to choose. It is a report, not a gate.
+
+On 2026-09-14:
+- Chrome 152 differed in 1 case, a host-default locale.
+- Firefox 155 differed in 887: dates, numbers, durations and units, but not relative time, lists or plurals.
+
+Check it before browser code formats anything new.
 
 ### Rules
 
