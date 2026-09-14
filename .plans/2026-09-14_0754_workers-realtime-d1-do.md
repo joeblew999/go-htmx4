@@ -175,6 +175,19 @@ case), and real broadcast latency p50/p95 with 1,000 sockets.
 
 ## Findings log
 
+### 2026-09-14 11:20: 1,000 sockets + 50-write burst, live (the run that failed earlier)
+
+Same Mac, same iPhone hotspot (`172.20.10.x`), dialing 20 at a time instead of 50:
+`wsload -base https://go-htmx4-workers-demo.gedw99.workers.dev -n 1000 -writes 50 -dialers 20 -topic load-burst`.
+
+| Connected | 50 writes | Delivered newest (v50) | Broadcasts to a socket | Latency from first POST | Ping | Late joiner |
+| --- | --- | --- | --- | --- | --- | --- |
+| **1000/1000** in 9.2 s, 0 dial errors | 3.4 s | **1000/1000** | **6** (coalesced) | p50 3.44 s, p95 3.58 s (≈ time the 50 writes took) | pong ✓ | cached v50 ✓ |
+
+The earlier 897/960 results were the client network's dial rate (50 concurrent handshakes right after another 1,000),
+not the Room: with gentler dialing, 1,000 sockets on one topic take a burst and all converge on the newest version.
+The "repeat 1,000-socket bursts" to-do is done.
+
 ### 2026-09-14 10:50: browser check, cleanup, docs
 
 - **Browser check (headless Chrome via chromedp, a scratchpad Go program; live URL, two tabs on one topic):** both tabs open
