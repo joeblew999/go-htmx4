@@ -9,6 +9,7 @@
     "ui/button-group.gsx": "dca292ac8dd6a046f6b4b503bf3173a37d74dee66b046f773b92ad3564621ac6",
     "ui/button.gsx": "e92692ccf3742ca74b0ec7c918e38a8e618c70fd514aa4f61dcb2a4b2b942423",
     "ui/card.gsx": "5e064e91149782f955167cc84c6887a03ec3352441dcb52f8edec3f5cf1b0c50",
+    "ui/dialog.gsx": "8cb10458ceabfe86dbc6570735774641403b7a9ecce1ebd2f5c100040e8ec491",
     "ui/empty.gsx": "3b0a905bf5bdec87c0c69be91f6c848dd48aad5ecec37516f43e88a370b806e7",
     "ui/field.gsx": "a80cccf92328d5597e803f312aaca02f4f4e37e2c16c6a3d7ebe9b11e072c159",
     "ui/icon/icon.go": "633d3a2c48e24b03c03992625c03a105713bda00460873783832c0f9cbc1b354",
@@ -19,8 +20,14 @@
     "ui/item.gsx": "8c38476ee475dc055d9854570c32000fcb10b1fa9998a74f484045f6ffd781b2",
     "ui/label.gsx": "9a48a7b6aab77ee098f00aded6664febadb8946ee1f935e1f8e315d4d9a0ed92",
     "ui/merge/merge.go": "d9502a04993ccadcba0bfeca0137a1f8948a6045aeef6838f28c2596445b24d4",
+    "ui/native-select.gsx": "e82241029b187146d793861ca26298dcfa83c3c898453b27261207fbd2f0689d",
     "ui/separator.gsx": "ed17da94c06b28bbdcd8f30d5b05059d13da4fb2fc84e87e43903ba3fc4e93fc",
+    "ui/switch.gsx": "09cb6a78f9d68428439bd1c9dd570136689c8db4a14267032b7dfb289477c8ba",
+    "ui/tabs.gsx": "ef88c65efda52f23f969c68bb7a8138746fce032ba636bb1428644bc9490218b",
+    "ui/toast.gsx": "06c376aca1b6db39370fe9ca52f8752616cfa522b8f9c27b70be84887a522072",
+    "ui/toaster.gsx": "fa0de14416f762cc1a364afffb0881518862891608aeb2a40439d4d83b472753",
     "web/gsxui/animate.css": "3ab8d41164a95572f1a7b142fd71109b6adb1a31f99badc2776e1c1bf9ae1b79",
+    "web/gsxui/dialog.js": "43860dddef85d0fe0cf5105b5a05bf334221e59655746f264dfeee361e7a2e69",
     "web/gsxui/fonts/NOTICE.md": "5eb34652439872f68249cc67323cf589d5ed40a84b30e309e864c26ce207fd76",
     "web/gsxui/fonts/figtree-latin-wght-normal.woff2": "4ba7d3d096695818fe0686be4f1e82c6b05134e18a22260336130335027462dd",
     "web/gsxui/fonts/fonts.css": "9e083d1d860aa1eb8639f4d1a9cfc310a4d041bf3ed8195c9a1e0236d15a8a90",
@@ -32,8 +39,10 @@
     "web/gsxui/foundation.css": "eec35d43fb2cc4e0702866a538ff1395d1f8cc735dff921509974051525adf06",
     "web/gsxui/gsxui.js": "143da470c72062b3290006c7f6a0185e1643ba820f82fb7e7fd1befc3d00e6f1",
     "web/gsxui/index.css": "527fac0a0760bc1cee9f5c9cd8ef3c853b19d4dc46edf7a1d7011c62d87fbd36",
-    "web/gsxui/index.js": "4b5ab291e26db8a36335f641d51678e87613a00f65fad8db4bf0c501a9a815d1",
+    "web/gsxui/index.js": "667f6322e762620a33c711885a505cdc2675a6d9a20666bda47bfa6aad1b224b",
     "web/gsxui/style.css": "d6a3bdaf5ed3082cb99f3b2a86148ac4c88b0aebfeec68cca9ff7090a33aafa9",
-    "web/gsxui/theme.css": "a52a3ab202ee3babfec386281cc4b6af67e15390fab32a4c03d49ee3664b169f"
+    "web/gsxui/tabs.js": "cebb901195af42441a4d9e94d1efe5f2e8671655fe0edb02d6311ea5019bd804",
+    "web/gsxui/theme.css": "a52a3ab202ee3babfec386281cc4b6af67e15390fab32a4c03d49ee3664b169f",
+    "web/gsxui/toaster.js": "6bc5bed8376bd25ba072283628b45f2c19086c0d86126819bff4aa7d98edce58"
   }
 }

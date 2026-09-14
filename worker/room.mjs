@@ -120,7 +120,14 @@ export class Room extends DurableObject {
   async webSocketMessage() {}
 
   async webSocketClose(ws, code, reason) {
-    ws.close(code, reason);
+    // Complete the close handshake. A bare ws.close() in the browser (what hx-ws does when htmx removes
+    // its element, e.g. a boosted navigation away from /board) arrives as 1005 "no status", which can't be
+    // sent back in a close frame: echoing it throws, the socket hangs half-closed and stays "online".
+    try {
+      ws.close(code === 1005 || code === 1006 ? 1000 : code, reason);
+    } catch {
+      // Already closed.
+    }
     await this.presenceChanged();
   }
 

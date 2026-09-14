@@ -1,15 +1,11 @@
 package views
 
-import "github.com/joeblew999/go-htmx4/demos/gsxui/ui"
+import "github.com/joeblew999/go-htmx4/ui"
 
-type StackItem struct {
-	Name, Role, URL string
-}
-
-// About is the second page, so the boosted nav has somewhere to morph to.
+// About lists the stack, and gives the boosted nav a third page to morph to.
 component About(stack []StackItem) {
 	<Layout title="About" path="/about">
-		<h1 class="text-3xl font-semibold tracking-tight">About this demo</h1>
+		<h1 class="text-3xl font-semibold tracking-tight">About go-htmx4</h1>
 		<ui.Card>
 			<ui.CardHeader>
 				<ui.CardTitle>Stack</ui.CardTitle>

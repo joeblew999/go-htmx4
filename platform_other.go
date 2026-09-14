@@ -7,12 +7,22 @@ import (
 	"os"
 )
 
+// platformNote is shown in the server-info fragment; the native server keeps its state.
+const platformNote = ""
+
 // getenv reads a process environment variable (`go run .`).
 func getenv(name string) string { return os.Getenv(name) }
 
 // staticFiles serves the assembled static assets (dist/site: static/, gsxui behaviours, compiled
 // gsxui CSS + fonts) from disk, standing in for Workers Static Assets under `go run .`.
-func staticFiles() http.Handler { return http.FileServer(http.Dir("dist/site")) }
+func staticFiles() http.Handler {
+	files := http.FileServer(http.Dir("dist/site"))
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if allow(w, r, http.MethodGet) {
+			files.ServeHTTP(w, r)
+		}
+	})
+}
 
 var mem = newMemStore()
 

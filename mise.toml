@@ -29,8 +29,8 @@ fnox = "1.35.0"
 APP_NAME = "go-htmx4"
 
 [task_config]
-includes = ["tasks/app.toml", "tasks/gsxui.toml", "tasks/upstream.toml"]
+includes = ["tasks/app.toml", "tasks/upstream.toml"]
 
 [tasks.check]
-description = "Test the app (TinyGo on workerd + go test) and the gsxui demo (native + TinyGo on workerd)"
-depends = ["test", "demo:gsxui:test", "demo:gsxui:workers:smoke"]
+description = "Test the app: TinyGo build + workerd smoke + gsx fmt/gofmt + go vet + go test"
+depends = ["test"]

@@ -11,16 +11,16 @@
 #   mise run deploy         # test + token check, then Direct Upload → https://$APP_NAME.<subdomain>.workers.dev
 #   mise run smoke-remote   # curl every route of the deployed Worker
 
-# Vendor htmx 4.0.0 + the hx-ws extension from the npm registry tarball (integrity-checked,
-# no npm), same approach as demo:gsxui:vendor.
+# Vendor htmx 4.0.0 + the hx-ws and hx-live extensions from the npm registry tarball (integrity-checked,
+# no npm).
 ["vendor"]
-description = "Vendor htmx 4.0.0 htmx.min.js + ext/hx-ws.js into static/ (curl, integrity-checked)"
+description = "Vendor htmx 4.0.0 htmx.min.js + ext/hx-ws.js + ext/hx-live.js into static/ (curl, integrity-checked)"
 dir = "{{config_root}}"
 run = '''
 #!/usr/bin/env bash
 set -euo pipefail
 version=4.0.0
-if [ -f static/hx-ws.js ] && [ "$(cat static/.htmx-version 2>/dev/null)" = "$version" ]; then
+if [ -f static/hx-ws.js ] && [ -f static/hx-live.js ] && [ "$(cat static/.htmx-version 2>/dev/null)" = "$version" ]; then
   echo "· htmx $version (cached)"; exit 0
 fi
 meta=$(curl -sfL "https://registry.npmjs.org/htmx.org/$version")
@@ -31,17 +31,17 @@ algo=${integrity%%-*}; want=${integrity#*-}
 tmp=$(mktemp -d); tar -xzf "$tgz" -C "$tmp" --strip-components 1
 cp "$tmp/dist/htmx.min.js" static/htmx.min.js
 cp "$tmp/dist/ext/hx-ws.js" static/hx-ws.js
+cp "$tmp/dist/ext/hx-live.js" static/hx-live.js
 echo "$version" > static/.htmx-version
 rm -rf "$tgz" "$tmp"
-echo "✓ htmx $version: static/htmx.min.js, static/hx-ws.js"
+echo "✓ htmx $version: static/htmx.min.js, static/hx-ws.js, static/hx-live.js"
 '''
 
 # gsx components (views/, ui/) → *.x.go, which are gitignored; every build/run/test path depends on this.
 ["generate"]
 description = "go tool gsx generate"
 dir = "{{config_root}}"
-# Explicit dirs: gsx generate/fmt walk into nested modules (demos/gsxui) with this module's gsx.toml (gsx v0.1.0).
-run = "go tool gsx generate views ui"
+run = "go tool gsx generate"
 
 # gsxui (npm-free mode): compile web/gsxui/index.css with the standalone Tailwind CLI, then assemble the
 # Static Assets directory: /static/ = static/ (htmx, hx-ws),
@@ -124,13 +124,22 @@ check() { # name got want-substring
 page=$(curl -s "$base/")
 check "page runs on TinyGo wasm"  "$page" '<span id="target">tinygo js/wasm</span>'
 check "text binding APP_ENV"      "$page" '<span id="env">workerd (local)</span>'
-check "GET fragment"              "$(curl -s "$base/fragments/now")" '<time datetime='
+check "home: boost + morph"       "$page" 'hx-boost:inherited="true"'
+check "home: hx-live counter"     "$page" 'hx-on:click="data.count++"'
+check "about page"                "$(curl -s "$base/about")" 'About go-htmx4'
 check "POST form, escaped"        "$(curl -s -X POST --data-urlencode 'name=<b>Ada' "$base/greet")" 'Hello, &lt;b&gt;Ada.'
-check "state resets per request"  "$(curl -s -X POST "$base/count")$(curl -s -X POST "$base/count")" '11'
+check "POST form, OOB toast"      "$(curl -s -X POST -d name=Ada "$base/greet")" 'hx-swap-oob="beforeend:#gsxui-toaster"'
+check "POST form empty"           "$(curl -s -X POST -d name= "$base/greet")" 'Please enter a name.'
+check "DELETE /greet"             "$(curl -s -X DELETE "$base/greet")" 'Cleared'
+info=$(curl -s "$base/fragments/server-info")
+check "server-info on TinyGo"     "$info" 'tinygo 0.42.0 js/wasm'
+check "state resets per request"  "$info$(curl -s "$base/fragments/server-info")" 'fresh Go runtime'
+check "stats fragment"            "$(curl -s "$base/fragments/stats")" '<ul'
 check "static file first"         "$(curl -s -o /dev/null -w '%{http_code} %{content_type}' "$base/static/htmx.min.js")" '200 text/javascript'
 check "gsxui css asset"           "$(curl -s -o /dev/null -w '%{http_code} %{content_type}' "$base/assets/gsxui.css")" '200 text/css'
 check "gsxui behaviours module"   "$(curl -s -o /dev/null -w '%{http_code} %{content_type}' "$base/gsxui/index.js")" '200 text/javascript'
 check "gsxui font asset"          "$(curl -s -o /dev/null -w '%{http_code} %{content_type}' "$base/assets/geist-latin-wght-normal.woff2")" '200 font/woff2'
+check "hx-live.js from static/"   "$(curl -s -o /dev/null -w '%{http_code} %{content_type}' "$base/static/hx-live.js")" '200 text/javascript'
 check "theme toggle in header"    "$(curl -s "$base/")" 'data-site-theme-toggle'
 check "405 on wrong method"       "$(curl -s -o /dev/null -w '%{http_code}' "$base/greet")" '405'
 check "404 for missing file"      "$(curl -s -o /dev/null -w '%{http_code}' "$base/nope.txt")" '404'
@@ -181,8 +190,8 @@ dir = "{{config_root}}"
 run = '''
 #!/usr/bin/env bash
 set -euo pipefail
-go tool gsx fmt -l views ui || { echo "✗ gsx fmt: run 'go tool gsx fmt -w views ui'"; exit 1; }
-# Files of this module only (gofmt -l on a directory recurses into demos/ and .upstream/); IgnoredGoFiles
+go tool gsx fmt -l . || { echo "✗ gsx fmt: run 'go tool gsx fmt -w .'"; exit 1; }
+# Files of this module only (gofmt -l on a directory recurses into .upstream/); IgnoredGoFiles
 # are the other platform's build-tagged files.
 unformatted=$(gofmt -l $(go list -json ./... | jq -r '.Dir as $d | (.GoFiles + (.TestGoFiles // []) + (.XTestGoFiles // []) + (.IgnoredGoFiles // []))[] | "\($d)/\(.)"'))
 test -z "$unformatted" || { echo "$unformatted"; echo "✗ gofmt: files need formatting"; exit 1; }
@@ -242,9 +251,12 @@ check() { # name got want-substring
 page=$(curl -s "$base/")
 check "page runs on TinyGo wasm"  "$page" '<span id="target">tinygo js/wasm</span>'
 check "plain_text binding"        "$page" '<span id="env">cloudflare (workers.dev)</span>'
-check "GET fragment"              "$(curl -s "$base/fragments/now")" '<time datetime='
+check "home: boost + morph"       "$page" 'hx-boost:inherited="true"'
+check "about page"                "$(curl -s "$base/about")" 'About go-htmx4'
 check "POST form, escaped"        "$(curl -s -X POST --data-urlencode 'name=<b>Ada' "$base/greet")" 'Hello, &lt;b&gt;Ada.'
-check "state resets per request"  "$(curl -s -X POST "$base/count")$(curl -s -X POST "$base/count")" '11'
+check "DELETE /greet"             "$(curl -s -X DELETE "$base/greet")" 'Cleared'
+check "server-info on TinyGo"     "$(curl -s "$base/fragments/server-info")" 'fresh Go runtime'
+check "stats fragment"            "$(curl -s "$base/fragments/stats")" '<ul'
 check "static asset htmx"         "$(curl -s -o /dev/null -w '%{http_code} %{content_type}' "$base/static/htmx.min.js")" '200 '
 check "static asset css"          "$(curl -s -o /dev/null -w '%{http_code} %{content_type}' "$base/assets/gsxui.css")" '200 text/css'
 check "gsxui behaviours module"   "$(curl -s -o /dev/null -w '%{http_code}' "$base/gsxui/index.js")" '200'

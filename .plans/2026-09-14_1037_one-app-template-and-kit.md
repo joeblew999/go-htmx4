@@ -1,6 +1,6 @@
 # go-htmx4 as a real repo: one app, a GitHub template, importable kit packages
 
-**Status:** Phase 1 done; Phase 2 next · **Created:** 2026-09-14 10:37
+**Status:** Phases 1–2 done; Phase 3 next · **Created:** 2026-09-14 10:37
 
 ## Goal
 
@@ -108,13 +108,13 @@ theme toggle across all pages.
 
 ### Phase 2: merge the gsxui demo in
 
-- [ ] Settle unknown 1 (boost + hx-ws) with a browser check first.
-- [ ] `gsxui add` the union of components (dialog, tabs, toast, toaster, switch, native-select, …) into the root `ui/`.
+- [x] Settle unknown 1 (boost + hx-ws) with a browser check first. — works after two fixes, see Findings
+- [x] `gsxui add` the union of components (dialog, tabs, toast, toaster, switch, native-select, …) into the root `ui/`.
       Move the views (`home`, `about`, `fragments`) and handlers (`/greet` POST/DELETE, `/fragments/server-info`,
       `/fragments/stats`). Static URL layout: `/static/`, `/gsxui/`, `/assets/`.
-- [ ] Tests: port `demos/gsxui/main_test.go`. Workers smoke gets the gsxui checks (byte-identical native vs TinyGo HTML
-      for the pages that don't depend on runtime state).
-- [ ] `git rm -r demos/`. README/AGENTS point at the root app. `mise run check` green. **Commit.**
+- [x] Tests: port `demos/gsxui/main_test.go`. Workers smoke gets the gsxui checks. — [-] byte-identical native vs TinyGo
+      HTML not pursued: the smoke's markers + server-info on TinyGo cover it.
+- [x] `git rm -r demos/`. README/AGENTS point at the root app. `mise run check` green. **Commit.**
 
 ### Phase 3: `kit/` packages + CLIs
 
@@ -150,7 +150,8 @@ theme toggle across all pages.
 
 ### Phase 6: make it a proper template
 
-- [ ] `e2e/`: move the chromedp harnesses (board two-tab, gsxui pages, theme, reconnect) into the repo as
+- [ ] `e2e/`: move the chromedp harnesses (board two-tab, gsxui pages, theme, reconnect, boost ↔ board presence, bare
+      `close()` → presence drop) into the repo as
       `mise run e2e`. It starts local workerd itself; `E2E_BASE=https://…` runs it against a live URL. Their scratchpad
       copies are the source.
 - [ ] **e2e in CI:** `ci/check.sh` runs `mise run check` then `mise run e2e`. It uses the Chrome preinstalled on GitHub's
@@ -207,3 +208,31 @@ theme toggle across all pages.
 - `gofmt -l <dir>` recurses (into `.upstream/`); `test` passes this module's file list from `go list -json`.
 - Checks: `mise run check` green (38 ✓); board browser check 13/13 on local workerd (push 84 ms, presence 2 → 1, theme,
   version guard, no console errors); deploy `-dry-run` shows modules `index.mjs`, `room.mjs`, `build/*` and 24 assets.
+
+### 2026-09-14 11:45: Phase 2 (gsxui demo merged)
+
+- `demos/gsxui` removed first: `gsxui add` also runs gsx generate and rolled back while the nested module existed. Then
+  `gsxui add dialog native-select switch tabs toast toaster` at the root; views merged into `views/` (Home = gsxui demo's
+  form + toast, dialog, tabs, hx-live + target/env badges + board card; About; Board). `/fragments/now` and `/count` are
+  gone: server-info (requests, uptime, "fresh Go runtime" note on Workers) carries the same lesson. One `server` with
+  `render` (stats + Content-Length) for every page; `allow` accepts HEAD for GET. `generate`/`fmt` back to plain `.`.
+- **Layout loads everything on every page** (htmx-config meta, htmx, hx-live, hx-ws, version guard, gsxui modules) and only
+  the nav is boosted (`outerMorph transition:true`).
+- **Unknown 1, boost ↔ hx-ws: two real bugs found and fixed.**
+  1. The board page rendered `#board` with `hx-swap-oob="true"`, so a boosted navigation to /board swapped it out-of-band
+     into nothing: URL and title changed, the board vanished. The page now renders `#board` without OOB
+     (`boardSection`); pushes and POST responses keep `BoardFragment`. Test: the board page has no OOB `#board`.
+  2. **Presence never dropped when a socket was closed by the browser with `close()`** (no code). hx-ws does exactly that
+     when htmx removes its element (boosted navigation away) and when a tab is hidden (`pauseOnBackground`, default on).
+     The close arrives as 1005, `room.mjs` echoed it with `ws.close(1005)`, which is invalid: the handshake never finished
+     and the socket stayed "online". Measured in Chrome: bare `close()` → no close event in 5 s, presence stuck; `close(1000)`
+     → closed in 3 ms. Fix: answer 1005/1006 with 1000. After: bare close → clean close in 7 ms, presence drops. This also
+     affected production: every backgrounded tab stayed counted until its TCP connection died.
+- Browser checks against local workerd (built by `gsx dev`): boost ↔ board 13/13 (boost to /board opens a socket and gets
+  pushes; boost away drops presence; Back reconnects and gets pushes; greet + OOB toast after boosted nav; no console
+  errors), gsxui pages 21/21 (hx-live, greet + toasts, dialog, lazy tabs, boosted nav + Back, theme), board two-tab 13/13.
+  Two harness lessons: one Chrome per tab (a background tab closes its socket), and view transitions abort in hidden tabs.
+- **`gsx dev` at the root works** now that no nested module exists: `.gsx` save → served by the rebuilt TinyGo worker in 23 s.
+  Stopping gsx dev leaves workerd running (it ignores SIGTERM); stop it by PID.
+- `mise run check` green (27 ✓), `mise run load`: 1,000/1,000 delivered, presence 1000 → 500, 50-write burst → 2
+  broadcasts, late joiner cached. TinyGo 2,129,925 B raw / 681,284 B gzip.

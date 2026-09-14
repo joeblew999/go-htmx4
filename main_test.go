@@ -1,6 +1,7 @@
 package main
 
 import (
+	"cmp"
 	"html"
 	"net/http"
 	"net/http/httptest"
@@ -11,29 +12,38 @@ import (
 )
 
 func TestRoutes(t *testing.T) {
-	h := routes()
+	h := newServer().routes()
 
 	tests := map[string]struct {
 		method, path, body string
 		status             int
 		want               []string
 	}{
-		"page": {method: "GET", path: "/", want: []string{
-			"htmx 4 on Cloudflare Workers", `src="/static/htmx.min.js"`, `href="/assets/gsxui.css"`, `src="/gsxui/index.js"`,
-			`hx-get="/fragments/now"`, `hx-post="/greet"`, `hx-post="/count"`, `id="target"`,
+		"home": {method: "GET", path: "/", want: []string{
+			"Go + htmx 4 + gsxui on Cloudflare Workers", `src="/static/htmx.min.js"`, `src="/static/hx-live.js"`,
+			`src="/static/hx-ws.js"`, `href="/assets/gsxui.css"`, `src="/gsxui/index.js"`, `hx-boost:inherited="true"`,
+			`id="gsxui-toaster"`, `hx-post="/greet"`, `hx-on:click="data.count++"`, `id="target"`, `href="/board"`,
 			`data-site-theme-toggle`, `localStorage.getItem("gsxui-theme")`, `data-gsxui-slot-card`,
 		}},
-		"now":          {method: "GET", path: "/fragments/now", want: []string{"<time datetime=", "</time> from <code>gc "}},
-		"greet":        {method: "POST", path: "/greet", body: "name=Ada", want: []string{"Hello, Ada."}},
-		"greet escape": {method: "POST", path: "/greet", body: "name=<b>", want: []string{"Hello, &lt;b&gt;."}},
-		"greet empty":  {method: "POST", path: "/greet", body: "name=+", want: []string{"Please enter a name."}},
-		"healthz":      {method: "GET", path: "/healthz", want: []string{"ok"}},
-		"htmx":         {method: "GET", path: "/static/htmx.min.js", want: []string{"htmx"}},
-		"css":          {method: "GET", path: "/assets/gsxui.css", want: []string{"--background"}},
-		"gsxui js":     {method: "GET", path: "/gsxui/index.js", want: []string{"gsxui"}},
-		"not found":    {method: "GET", path: "/nope.txt", status: http.StatusNotFound},
-		"wrong method": {method: "GET", path: "/greet", status: http.StatusMethodNotAllowed},
-		"post page":    {method: "POST", path: "/", status: http.StatusMethodNotAllowed},
+		"home live": {method: "GET", path: "/", want: []string{`hx-action="/greet"`, `hx-method="delete"`, `data-open="false"`,
+			`hx-on="click from:outside -&gt; data.open = false"`, `aria.pressed = !aria.pressed`}},
+		"about":                {method: "GET", path: "/about", want: []string{"About go-htmx4", "hx-live", "Durable Objects"}},
+		"greet":                {method: "POST", path: "/greet", body: "name=Ada&flavour=gsxui", want: []string{"Hello, Ada.", `hx-swap-oob="beforeend:#gsxui-toaster"`, "data-gsxui-slot-toast"}},
+		"greet escape":         {method: "POST", path: "/greet", body: "name=%3Cb%3E", want: []string{"Hello, &lt;b&gt;."}},
+		"greet shout":          {method: "POST", path: "/greet", body: "name=Ada&shout=on", want: []string{"HELLO, ADA!"}},
+		"greet no name":        {method: "POST", path: "/greet", body: "name=+", want: []string{"Please enter a name."}},
+		"greet clear":          {method: "DELETE", path: "/greet", want: []string{`hx-swap-oob="beforeend:#gsxui-toaster"`, "Cleared"}},
+		"server info":          {method: "GET", path: "/fragments/server-info", want: []string{"Uptime"}},
+		"server info compiler": {method: "GET", path: "/fragments/server-info", want: []string{"gc go1."}},
+		"stats":                {method: "GET", path: "/fragments/stats", want: []string{"<ul"}},
+		"healthz":              {method: "GET", path: "/healthz", want: []string{"ok"}},
+		"htmx":                 {method: "GET", path: "/static/htmx.min.js", want: []string{"htmx"}},
+		"hx-live":              {method: "GET", path: "/static/hx-live.js", want: []string{"hx-live"}},
+		"hx-ws":                {method: "GET", path: "/static/hx-ws.js", want: []string{"ws"}},
+		"css":                  {method: "GET", path: "/assets/gsxui.css", want: []string{"--background"}},
+		"gsxui js":             {method: "GET", path: "/gsxui/index.js", want: []string{"gsxui"}},
+		"font via assets":      {method: "GET", path: "/assets/geist-latin-wght-normal.woff2"},
+		"head home":            {method: "HEAD", path: "/"},
 	}
 	for name, tc := range tests {
 		t.Run(name, func(t *testing.T) {
@@ -43,10 +53,7 @@ func TestRoutes(t *testing.T) {
 			}
 			rec := httptest.NewRecorder()
 			h.ServeHTTP(rec, req)
-			want := tc.status
-			if want == 0 {
-				want = http.StatusOK
-			}
+			want := cmp.Or(tc.status, http.StatusOK)
 			if rec.Code != want {
 				t.Fatalf("status = %d, want %d", rec.Code, want)
 			}
@@ -59,36 +66,63 @@ func TestRoutes(t *testing.T) {
 	}
 }
 
-func TestPagePlaceholdersFilled(t *testing.T) {
+// Plain-path routes (TinyGo's pre-Go 1.22 ServeMux) still enforce methods and exact paths.
+func TestRouteRules(t *testing.T) {
+	h := newServer().routes()
+	tests := []struct {
+		method, path string
+		status       int
+		allow        string
+	}{
+		{"GET", "/greet", http.StatusMethodNotAllowed, "POST, DELETE"},
+		{"POST", "/", http.StatusMethodNotAllowed, "GET"},
+		{"POST", "/about", http.StatusMethodNotAllowed, "GET"},
+		{"POST", "/static/htmx.min.js", http.StatusMethodNotAllowed, "GET"},
+		{"GET", "/board/add", http.StatusMethodNotAllowed, "POST"},
+		{"POST", "/board", http.StatusMethodNotAllowed, "GET"},
+		{"GET", "/nope", http.StatusNotFound, ""},
+		{"GET", "/nope.txt", http.StatusNotFound, ""},
+		{"GET", "/fragments/nope", http.StatusNotFound, ""},
+	}
+	for _, tc := range tests {
+		rec := httptest.NewRecorder()
+		h.ServeHTTP(rec, httptest.NewRequest(tc.method, tc.path, nil))
+		if rec.Code != tc.status {
+			t.Errorf("%s %s: status = %d, want %d", tc.method, tc.path, rec.Code, tc.status)
+		}
+		if got := rec.Header().Get("Allow"); got != tc.allow {
+			t.Errorf("%s %s: Allow = %q, want %q", tc.method, tc.path, got, tc.allow)
+		}
+	}
+}
+
+func TestEnvEscaped(t *testing.T) {
 	t.Setenv("APP_ENV", `<i>test</i>`)
 	rec := httptest.NewRecorder()
-	routes().ServeHTTP(rec, httptest.NewRequest("GET", "/", nil))
-	body := rec.Body.String()
-	if strings.Contains(body, "{{") {
-		t.Errorf("unfilled placeholder in page")
-	}
-	if !strings.Contains(body, `<span id="env">&lt;i&gt;test&lt;/i&gt;</span>`) {
+	newServer().routes().ServeHTTP(rec, httptest.NewRequest("GET", "/", nil))
+	if !strings.Contains(rec.Body.String(), `<span id="env">&lt;i&gt;test&lt;/i&gt;</span>`) {
 		t.Errorf("APP_ENV not escaped into page")
 	}
 }
 
-// Under `go run .` (and tests) package state persists across requests; on Workers it
-// doesn't, which the workerd check in the plan confirms.
-func TestCountPersistsLocally(t *testing.T) {
-	h := routes()
-	var last string
-	for range 3 {
+// htmx reads <meta name="htmx-config"> when its script loads, so the meta must come first, and the extensions
+// (which need window.htmx) after. Every page loads hx-ws, so boosted navigation to /board can connect.
+func TestHeadOrder(t *testing.T) {
+	h := newServer().routes()
+	for _, path := range []string{"/", "/about", "/board"} {
 		rec := httptest.NewRecorder()
-		h.ServeHTTP(rec, httptest.NewRequest("POST", "/count", nil))
-		last = rec.Body.String()
-	}
-	if count < 3 || last == "1" {
-		t.Fatalf("count = %d (last body %q), want it to keep counting", count, last)
+		h.ServeHTTP(rec, httptest.NewRequest("GET", path, nil))
+		page := rec.Body.String()
+		meta, htmx := strings.Index(page, `name="htmx-config" content="ws.reconnectDelay:2s ws.reconnectJitter:0.5"`), strings.Index(page, `src="/static/htmx.min.js"`)
+		live, ws := strings.Index(page, `src="/static/hx-live.js"`), strings.Index(page, `src="/static/hx-ws.js"`)
+		if meta < 0 || htmx < 0 || live < 0 || ws < 0 || !(meta < htmx && htmx < live && htmx < ws) {
+			t.Errorf("%s: head order must be htmx-config meta (%d) < htmx.min.js (%d) < hx-live.js (%d), hx-ws.js (%d)", path, meta, htmx, live, ws)
+		}
 	}
 }
 
 func TestBoard(t *testing.T) {
-	h := routes()
+	h := newServer().routes()
 	do := func(method, target, body string) *httptest.ResponseRecorder {
 		t.Helper()
 		req := httptest.NewRequest(method, target, strings.NewReader(body))
@@ -113,15 +147,11 @@ func TestBoard(t *testing.T) {
 
 	expect(do("GET", "/board?topic=t-page", ""), http.StatusOK,
 		`hx-ws:connect="/live/t-page"`, `src="/static/hx-ws.js"`, `id="board"`, `data-version="0"`,
-		`hx-post="/board/add?topic=t-page&amp;delta=1"`, `htmx:before:swap`, `ws.reconnectDelay:2s ws.reconnectJitter:0.5`)
-	expect(do("GET", "/board", ""), http.StatusOK, `hx-ws:connect="/live/lobby"`)
-
-	// htmx reads <meta name="htmx-config"> when its script loads, so the meta must come first, and
-	// hx-ws.js (which needs window.htmx) after.
-	page := do("GET", "/board", "").Body.String()
-	meta, htmx, ws := strings.Index(page, `name="htmx-config"`), strings.Index(page, `src="/static/htmx.min.js"`), strings.Index(page, `src="/static/hx-ws.js"`)
-	if meta < 0 || htmx < 0 || ws < 0 || !(meta < htmx && htmx < ws) {
-		t.Errorf("head order must be htmx-config meta (%d) < htmx.min.js (%d) < hx-ws.js (%d)", meta, htmx, ws)
+		`hx-post="/board/add?topic=t-page&amp;delta=1"`, `htmx:before:swap`, `id="presence"`)
+	expect(do("GET", "/board", ""), http.StatusOK, `hx-ws:connect="/live/lobby"`, `<section id="board" data-version="`)
+	// The page's #board must not be out-of-band: a boosted navigation would drop it.
+	if page := do("GET", "/board", "").Body.String(); strings.Contains(page, "hx-swap-oob=\"true\" data-version") {
+		t.Errorf("board page renders #board with hx-swap-oob; boosted navigation to /board would drop it")
 	}
 
 	expect(do("POST", "/board/add?topic=t-add", "delta=1"), http.StatusOK, `data-version="1"`, `>1</output>`, `hx-swap-oob="true"`)
@@ -140,8 +170,6 @@ func TestBoard(t *testing.T) {
 	expect(do("POST", "/board/note?topic=t-note", "body=+"), http.StatusBadRequest)
 	expect(do("POST", "/board/note?topic=t-note", "body="+strings.Repeat("x", maxNoteRunes+1)), http.StatusBadRequest)
 	expect(do("GET", "/board?topic=Bad!", ""), http.StatusBadRequest)
-	expect(do("GET", "/board/add", ""), http.StatusMethodNotAllowed)
-	expect(do("POST", "/board", ""), http.StatusMethodNotAllowed)
 }
 
 // The Room compares versions (X-Board-Version) and the page's guard parses data-version from the

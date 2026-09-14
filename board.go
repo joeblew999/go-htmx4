@@ -17,7 +17,6 @@ import (
 	"strings"
 	"unicode/utf8"
 
-	"github.com/gsxhq/gsx"
 	"github.com/joeblew999/go-htmx4/views"
 )
 
@@ -40,7 +39,7 @@ type store interface {
 	AddNote(topic, body string) (Board, error)
 }
 
-func boardRoutes(mux *http.ServeMux) {
+func (s *server) boardRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/board", func(w http.ResponseWriter, r *http.Request) {
 		topic, ok := topicOf(w, r)
 		if !ok || !allow(w, r, http.MethodGet) {
@@ -56,7 +55,7 @@ func boardRoutes(mux *http.ServeMux) {
 			storeError(w, err)
 			return
 		}
-		writeNode(w, views.BoardPage(topic, b))
+		s.render(w, "board", views.BoardPage(topic, b))
 	})
 	mux.HandleFunc("/board/add", func(w http.ResponseWriter, r *http.Request) {
 		topic, ok := topicOf(w, r)
@@ -102,7 +101,7 @@ func change(w http.ResponseWriter, topic string, write func(store) (Board, error
 	if err := publish(topic, b.Version, fragment); err != nil {
 		log.Printf("publish %s v%d: %v", topic, b.Version, err)
 	}
-	writeHTML(w, fragment)
+	writeHTML(w, []byte(fragment))
 }
 
 // topicOf reads ?topic= (default "lobby"): 1–32 of [a-z0-9-], the same rule worker/index.mjs applies
@@ -144,17 +143,4 @@ func renderBoard(b Board) string {
 		log.Printf("render board %s v%d: %v", b.Topic, b.Version, err)
 	}
 	return buf.String()
-}
-
-// writeNode renders n into a buffer, so a failed render is a clean 500 and the response has a
-// Content-Length (streamed responses broke htmx history restore under workerd in the gsxui demo).
-func writeNode(w http.ResponseWriter, n gsx.Node) {
-	var buf bytes.Buffer
-	if err := n.Render(context.Background(), &buf); err != nil {
-		log.Printf("render: %v", err)
-		http.Error(w, "render failed", http.StatusInternalServerError)
-		return
-	}
-	w.Header().Set("Content-Length", strconv.Itoa(buf.Len()))
-	writeHTML(w, buf.String())
 }

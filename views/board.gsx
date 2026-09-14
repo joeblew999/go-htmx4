@@ -5,20 +5,11 @@ import (
 	"github.com/joeblew999/go-htmx4/ui/icon"
 )
 
-// BoardPage is the shared board page, composed from gsxui components. It connects to /live/{topic}
-// with hx-ws; the Room Durable Object pushes BoardFragment on every change and "N online" into
+// BoardPage is the shared board page, composed from gsxui components. It connects to /live/{topic} with hx-ws
+// (loaded by Layout); the Room Durable Object pushes BoardFragment on every change and "N online" into
 // #presence.
-//
-// A deploy drops every socket at once (measured). hx-ws's defaults (500 ms ±30%) would bring 1,000
-// tabs back within ~0.3 s, over a Room's ~1,000 requests/s soft limit, so the htmx-config meta
-// spreads reconnects over 1–3 s.
 component BoardPage(topic string, b Board) {
-	<Layout
-		title="Shared board"
-		path="/board"
-		htmxConfig="ws.reconnectDelay:2s ws.reconnectJitter:0.5"
-		head={boardHead()}
-	>
+	<Layout title="Shared board" path="/board">
 		<div class="flex flex-col gap-2">
 			<h1 class="text-3xl font-semibold tracking-tight">Shared board</h1>
 			<p class="text-muted-foreground">
@@ -38,7 +29,7 @@ component BoardPage(topic string, b Board) {
 			</ui.CardHeader>
 			<ui.CardContent>
 				<div hx-ws:connect={"/live/" + topic} hx-swap="none">
-					<BoardFragment b={b}/>
+					<boardSection b={b}/>
 				</div>
 			</ui.CardContent>
 			<ui.CardFooter class="flex flex-wrap items-center gap-3">
@@ -87,56 +78,54 @@ component BoardPage(topic string, b Board) {
 	</Layout>
 }
 
-// boardHead is the board's extra <head> after htmx: hx-ws and the version guard.
-component boardHead() {
-	<script src="/static/hx-ws.js"></script>
-	<script>
-		// HTTP responses and hx-ws pushes both go through htmx.swap and can arrive out of order.
-		// Drop any swap whose board version is older than the one on screen.
-		document.addEventListener("htmx:before:swap", (event) => {
-			const incoming = /data-version="(\d+)"/.exec(event.detail.ctx.text ?? "");
-			const current = document.getElementById("board")?.dataset.version;
-			if (incoming && current && Number(incoming[1]) < Number(current)) event.preventDefault();
-		});
-	</script>
-}
-
-// BoardFragment is the #board element as an out-of-band swap: the initial page, the poster's
-// response and the hx-ws push all use it. The Room and the page's version guard rely on its
-// id="board", hx-swap-oob="true" and data-version (see TestBoardFragmentWireFormat).
+// BoardFragment is the #board element as an out-of-band swap: the poster's response and the hx-ws push
+// both use it. The Room and the page's version guard rely on its id="board", hx-swap-oob="true" and
+// data-version (see TestBoardFragmentWireFormat).
 component BoardFragment(b Board) {
 	<section id="board" hx-swap-oob="true" data-version={b.Version} class="flex flex-col gap-6">
-		<div class="flex items-baseline gap-3">
-			<output class="text-6xl font-semibold tracking-tight tabular-nums">{ b.Value }</output>
-			<span class="text-sm text-muted-foreground">version { b.Version }</span>
-		</div>
-		{ if len(b.Notes) == 0 {
-			<ui.Empty>
-				<ui.EmptyHeader>
-					<ui.EmptyMedia variant="icon">
-						<icon.MessageSquare/>
-					</ui.EmptyMedia>
-					<ui.EmptyTitle>No notes yet</ui.EmptyTitle>
-					<ui.EmptyDescription>Leave one below. Every open tab sees it instantly.</ui.EmptyDescription>
-				</ui.EmptyHeader>
-			</ui.Empty>
-		} else {
-			<ui.ItemGroup>
-				{ for i, n := range b.Notes {
-					{ if i > 0 {
-						<ui.ItemSeparator/>
-					} }
-					<ui.Item size="sm">
-						<ui.ItemMedia variant="icon">
-							<icon.MessageSquare/>
-						</ui.ItemMedia>
-						<ui.ItemContent>
-							<ui.ItemTitle>{ n.Body }</ui.ItemTitle>
-							<ui.ItemDescription>{ n.CreatedAt }</ui.ItemDescription>
-						</ui.ItemContent>
-					</ui.Item>
-				} }
-			</ui.ItemGroup>
-		} }
+		<boardBody b={b}/>
 	</section>
+}
+
+// boardSection is #board as the page renders it: no hx-swap-oob, or a boosted navigation to /board
+// would treat the board as out-of-band content and drop it (no #board on the page it came from).
+component boardSection(b Board) {
+	<section id="board" data-version={b.Version} class="flex flex-col gap-6">
+		<boardBody b={b}/>
+	</section>
+}
+
+component boardBody(b Board) {
+	<div class="flex items-baseline gap-3">
+		<output class="text-6xl font-semibold tracking-tight tabular-nums">{ b.Value }</output>
+		<span class="text-sm text-muted-foreground">version { b.Version }</span>
+	</div>
+	{ if len(b.Notes) == 0 {
+		<ui.Empty>
+			<ui.EmptyHeader>
+				<ui.EmptyMedia variant="icon">
+					<icon.MessageSquare/>
+				</ui.EmptyMedia>
+				<ui.EmptyTitle>No notes yet</ui.EmptyTitle>
+				<ui.EmptyDescription>Leave one below. Every open tab sees it instantly.</ui.EmptyDescription>
+			</ui.EmptyHeader>
+		</ui.Empty>
+	} else {
+		<ui.ItemGroup>
+			{ for i, n := range b.Notes {
+				{ if i > 0 {
+					<ui.ItemSeparator/>
+				} }
+				<ui.Item size="sm">
+					<ui.ItemMedia variant="icon">
+						<icon.MessageSquare/>
+					</ui.ItemMedia>
+					<ui.ItemContent>
+						<ui.ItemTitle>{ n.Body }</ui.ItemTitle>
+						<ui.ItemDescription>{ n.CreatedAt }</ui.ItemDescription>
+					</ui.ItemContent>
+				</ui.Item>
+			} }
+		</ui.ItemGroup>
+	} }
 }

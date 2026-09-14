@@ -14,7 +14,7 @@ package ui
 
 import (
 	"github.com/gsxhq/gsx"
-	"github.com/joeblew999/go-htmx4/demos/gsxui/ui/icon"
+	"github.com/joeblew999/go-htmx4/ui/icon"
 )
 
 // NativeSelect is the shadcn/ui Select, ported (ADAPT, native-select-v1,
