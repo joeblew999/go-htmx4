@@ -147,6 +147,29 @@ case), and real broadcast latency p50/p95 with 1,000 sockets.
 - [x] README (Demos, "Realtime on Workers" section), AGENTS.md (JS allowed only for DO/entry; writes go through Go;
       resync-by-version rule; D1 deployed-only).
 
+### Phase 6 (proposed 2026-09-14, not started): render the board with gsx
+
+gsx + gsxui were verified under TinyGo on Workers (byte-identical output, `adopt-workers-go` plan Phase 5a/5d), so the
+hand-escaped strings in `board.go` / `board.html` can become gsx components.
+
+- [ ] Add gsx v0.1.0 to `demos/workers` (`go get -tool`), `gsx.toml` (htmx URL preset + `hx-action`), `views/board.gsx`:
+      `BoardPage(topic, board)`, `Board(board)` (the OOB `#board` fragment with `data-version`), notes list.
+- [ ] Keep the wire format identical: a test asserts the gsx fragment equals today's `renderBoard` output (or differs
+      only in whitespace), so the Room, the version guard and `wsload` need no change.
+- [ ] `demo:workers:build` runs `go tool gsx generate` first; size gate; `demo:workers:test` + `load` + browser check.
+- [ ] Optional: gsxui components (card, button, input) for the board UI, with Tailwind via the standalone CLI.
+
+### Phase 7 (proposed 2026-09-14, not started): presence per topic
+
+The Room already knows its sockets, so it can push "N online" without a D1 write.
+
+- [ ] Room: on connect and on `webSocketClose`/`webSocketError`, queue a `<span id="presence" hx-swap-oob="true">N
+      online</span>` broadcast through the same ≤ 5/s coalescing (latest count wins); count = `ctx.getWebSockets().length`.
+- [ ] Page: a `#presence` element inside the `hx-ws:connect` container; no version guard needed (latest count wins).
+- [ ] Cost check at design size: 1,000 sockets joining = at most 5 presence broadcasts/s, not 1,000 × 1,000 sends.
+      Measure with `wsload` (connect storm → count converges to 1,000; disconnect → 0).
+- [ ] A second topic *type* (e.g. a shared list or poll) reusing Room + version guard, if still wanted after presence.
+
 ## Risks
 
 - **Three experimental layers:** workers-go (self-described experimental), its D1 driver ("alpha"), and TinyGo's
