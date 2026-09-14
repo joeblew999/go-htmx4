@@ -168,7 +168,7 @@ hand-escaped strings in `board.go` / `board.html` can become gsx components.
       version guard, no console errors).
 - [ ] Optional: gsxui components (card, button, input) for the board UI, with Tailwind via the standalone CLI.
 
-### Phase 7 (done locally 2026-09-14, not deployed): presence per topic
+### Phase 7 (done + deployed 2026-09-14): presence per topic
 
 The Room already knows its sockets, so it can push "N online" without a D1 write.
 
@@ -184,7 +184,11 @@ The Room already knows its sockets, so it can push "N online" without a D1 write
       n=2 → 2 then 1; n=1000 → every socket sees 1000, **socket 0 received 1 presence update for the whole 1,000-socket
       join**, closing 500 → 500. `wsload` fails on wrong counts, so `demo:workers:smoke` (and CI) cover it. Browser check
       11/11: both tabs "2 online", tab A "1 online" after tab B leaves, no console errors.
-- [ ] ⚠ Deploy presence (needs OK), then remote smoke + live 1,000-socket presence run + browser check.
+- [x] ⚠ Deploy presence (needs OK), then remote smoke + live 1,000-socket presence run + browser check. — OK'd; live:
+      smoke-remote 14/14 (2 sockets: 2 → 1 online); `wsload -n 1000 -dialers 20` from the hotspot: 1000/1000 connected
+      in 11.3 s, every socket sees **1000 online**, closing 500 → **500**, push to 1000/1000, late joiner cached; socket 0
+      received **52 presence updates over the 11.6 s join (~4.5/s)**, i.e. the ≤ 5/s coalescing holds when joins trickle
+      in; two-tab browser check 11/11 (2 online both, 1 online after tab B leaves, no console errors).
 - [ ] A second topic *type* (e.g. a shared list or poll) reusing Room + version guard, if still wanted after presence.
 
 ## Risks
