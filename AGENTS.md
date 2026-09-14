@@ -61,7 +61,7 @@
 - **Out-of-band content and boost don't mix on full pages:** a page must not render elements with `hx-swap-oob` it wants
   kept (a boosted navigation treats them as OOB and drops them when the old page has no target). The board page renders
   `#board` without it; only pushes and POST responses use `BoardFragment` (OOB).
-- Handlers render through `s.render(w, name, node)`: it buffers the HTML and sets `Content-Length`. Keep it: streamed
+- Handlers render through `s.render(w, r, name, node)` (`kit/httpx.Render`): it buffers the HTML and sets `Content-Length`. Keep it: streamed
   (chunked) responses broke htmx history restore (Back) under local workerd.
 
 # Cloudflare Workers
@@ -75,11 +75,11 @@
   `APP_NAME` in `mise.toml` `[env]`.
   `dev` is `gsx dev` driving the TinyGo build + workerd (`gsx.toml` `[dev]`). Static Assets are assembled into `dist/site`
   (`mise run assets`: gsxui CSS via standalone Tailwind, `/gsxui/` behaviours, fonts). `<meta name="htmx-config">` must
-  render before htmx's script (Layout's `htmxConfig`), or hx-ws ignores it.
+  render before htmx's script (it does, in `views/layout.gsx`), or hx-ws ignores it.
   Always run `mise run test` after changing handlers: it curls the TinyGo build under workerd, which `go test` can't do.
 - **TinyGo 0.42 gaps:** its `net/http` `ServeMux` is pre-Go 1.22, so register plain paths (`"/greet"`) and check the method
-  with `allow(w, r, method)`, never `"GET /x"` or `{$}`. `html/template` panics at runtime: render markup with gsx
-  (`writeNode`), never string-built HTML. Anything reflection-heavy needs a workerd smoke test, not just a build.
+  with `allow(w, r, method)` (`kit/httpx.Allow`), never `"GET /x"` or `{$}`. `html/template` panics at runtime: render
+  markup with gsx (`s.render`), never string-built HTML. Anything reflection-heavy needs a workerd smoke test, not just a build.
 - **No memory between requests:** each request gets a fresh Go runtime, so package-level state resets. Shared state needs a
   Cloudflare binding.
 - `cloudflare/*` packages import `syscall/js`: call them from `platform_js.go` (`//go:build js && wasm`) with a
