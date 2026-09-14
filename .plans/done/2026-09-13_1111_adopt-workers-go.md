@@ -1,6 +1,6 @@
 # Adopt workers-go (deploy to Cloudflare Workers)
 
-**Status:** Phases 1–5 done; live at https://go-htmx4-workers-demo.gedw99.workers.dev and https://go-htmx4-gsxui-demo.gedw99.workers.dev · **Created:** 2026-09-13 11:11 · **Revised:** 2026-09-14
+**Status:** **Done** (phases 1–5; live at https://go-htmx4-workers-demo.gedw99.workers.dev and https://go-htmx4-gsxui-demo.gedw99.workers.dev) · **Created:** 2026-09-13 11:11 · **Revised:** 2026-09-14
 
 ## Goal
 
@@ -124,7 +124,7 @@ tasks/workerd/*.capnp        # tracked workerd configs for the upstream template
       (`tasks/workerd/env.capnp`) and expect `MY_ENV: my env value`. Build output in `.upstream/` is fine (same as
       the gsxui plan); source files there stay untouched. Note which examples (`kv-counter`, `d1-blog-server`,
       `cache`, `cron`) can't run locally.
-- [ ] ⚠ **Optional, needs your OK (not done):** deploy the template to `*.workers.dev` with the documented
+- [-] *Not pursued (our own demo was deployed instead).* ⚠ **Optional, needs your OK (not done):** deploy the template to `*.workers.dev` with the documented
       curl multipart upload, run as `fnox exec -- curl …` (`main_module: worker.mjs`; `application/javascript+module` parts for the .mjs/.js
       files, `application/wasm` for `app.wasm`). Look up the enable-workers.dev-subdomain call in the Workers API
       docs before this step.
@@ -163,7 +163,7 @@ tasks/workerd/*.capnp        # tracked workerd configs for the upstream template
     on it, because `go test` on standard Go missed both TinyGo runtime bugs.
 - [x] `.gitignore`: `demos/workers/build/`
 - [x] Verify with curl against both `go run .` and workerd.
-- [ ] ⚠ Browser check (needs your OK): click through the three htmx interactions on :8913, no console errors.
+- [-] *Superseded: the board's browser checks (realtime plan) cover the page, htmx and hx-ws on :8913 and live.* ⚠ Browser check (needs your OK): click through the three htmx interactions on :8913, no console errors.
 
 ### Phase 3: Deploy (OK'd 2026-09-13; name `go-htmx4-workers-demo`, no D1)
 
@@ -183,7 +183,7 @@ tasks/workerd/*.capnp        # tracked workerd configs for the upstream template
       JSON. — also enables workers.dev (`POST …/scripts/{name}/subdomain`), refuses to overwrite an existing
       script without `-allow-existing`, and has `-dry-run`
 - [x] `demo:workers:deploy` → smoke-test the `*.workers.dev` URL with curl. — `demo:workers:smoke-remote`, 9/9
-- [ ] Optional D1 (**skipped** for the first deploy, your call 2026-09-13; possible follow-up): create the database + apply `migrations/0001.sql` via the D1 REST API; add a D1 binding in
+- [-] *Moved to the realtime plan (D1 is the board's store).* Optional D1 (**skipped** for the first deploy, your call 2026-09-13; possible follow-up): create the database + apply `migrations/0001.sql` via the D1 REST API; add a D1 binding in
       metadata; D1 code behind `//go:build js && wasm` (the `cloudflare/d1` package is js-only), with a memory
       store for `go run .`. Deployed-only testing (constraint 4).
 

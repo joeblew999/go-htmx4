@@ -1,6 +1,6 @@
 package main
 
-// Shared board (plan: .plans/2026-09-14_0754_workers-realtime-d1-do.md).
+// Shared board (plan: .plans/done/2026-09-14_0754_workers-realtime-d1-do.md).
 //
 // The store (D1 on Workers) is the source of truth. Every change bumps the topic's version,
 // and the resulting fragment is published to the topic's Room Durable Object, which pushes it

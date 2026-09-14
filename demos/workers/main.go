@@ -1,5 +1,5 @@
 // Command workers is a demo of htmx 4 on Cloudflare Workers via workers-go v0.35.0,
-// built with TinyGo and no Node (plan: .plans/2026-09-13_1111_adopt-workers-go.md).
+// built with TinyGo and no Node (plan: .plans/done/2026-09-13_1111_adopt-workers-go.md).
 //
 // The same handlers run in two places:
 //

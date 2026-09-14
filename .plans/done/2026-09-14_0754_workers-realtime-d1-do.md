@@ -1,6 +1,6 @@
 # Realtime on Workers: D1 + Durable Objects + htmx 4
 
-**Status:** Phases 1–5 done; live at https://go-htmx4-workers-demo.gedw99.workers.dev/board · **Created:** 2026-09-14 07:54 · **Revised:** 2026-09-14 08:10 · Builds on `2026-09-13_1111_adopt-workers-go.md`
+**Status:** **Done** (phases 1–7: board, gsx rendering, presence; live at https://go-htmx4-workers-demo.gedw99.workers.dev/board) · **Created:** 2026-09-14 07:54 · **Revised:** 2026-09-14 08:10 · Builds on `2026-09-13_1111_adopt-workers-go.md`
 (done: `demos/workers`, live at https://go-htmx4-workers-demo.gedw99.workers.dev)
 
 ## Goal
@@ -166,7 +166,7 @@ hand-escaped strings in `board.go` / `board.html` can become gsx components.
       unchanged, script uploaded). Live `demo:workers:smoke-remote` 14/14 (2-socket push, pong, cache); two-tab browser
       check on https://go-htmx4-workers-demo.gedw99.workers.dev/board 9/9 (+1 push 231 ms, escaped note, form reset,
       version guard, no console errors).
-- [ ] Optional: gsxui components (card, button, input) for the board UI, with Tailwind via the standalone CLI.
+- [-] *Future idea, not pursued.* Optional: gsxui components (card, button, input) for the board UI, with Tailwind via the standalone CLI.
 
 ### Phase 7 (done + deployed 2026-09-14): presence per topic
 
@@ -189,7 +189,7 @@ The Room already knows its sockets, so it can push "N online" without a D1 write
       in 11.3 s, every socket sees **1000 online**, closing 500 → **500**, push to 1000/1000, late joiner cached; socket 0
       received **52 presence updates over the 11.6 s join (~4.5/s)**, i.e. the ≤ 5/s coalescing holds when joins trickle
       in; two-tab browser check 11/11 (2 online both, 1 online after tab B leaves, no console errors).
-- [ ] A second topic *type* (e.g. a shared list or poll) reusing Room + version guard, if still wanted after presence.
+- [-] *Future idea, not pursued.* A second topic *type* (e.g. a shared list or poll) reusing Room + version guard, if still wanted after presence.
 
 ## Risks
 

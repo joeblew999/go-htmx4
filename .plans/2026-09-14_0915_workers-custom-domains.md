@@ -1,6 +1,6 @@
 # Custom domains for the two Workers
 
-**Status:** proposed, not started · **Created:** 2026-09-14 09:15
+**Status:** **Parked** (2026-09-14: "forget custom domains for now"), not started · **Created:** 2026-09-14 09:15
 
 ## Goal
 

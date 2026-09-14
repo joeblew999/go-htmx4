@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# CI entrypoint (plan: .plans/2026-09-14_0915_ci-mise-check.md). Shell only, no Node.
+# CI entrypoint (plan: .plans/done/2026-09-14_0915_ci-mise-check.md). Shell only, no Node.
 #
 # Installs mise if it's missing (mise's standalone installer, pinned), the tools pinned in mise.toml, then runs
 # `mise run check`: demo:gsxui:test + demo:gsxui:workers:smoke + demo:workers:test. Runnable locally too.

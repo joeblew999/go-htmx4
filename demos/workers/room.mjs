@@ -3,7 +3,7 @@
 // the source of truth. "last" is only a cache so a (re)connecting browser gets the newest fragment
 // at once, without a D1 read.
 //
-// Designed for ~1,000 sockets per topic (plan: .plans/2026-09-14_0754_workers-realtime-d1-do.md):
+// Designed for ~1,000 sockets per topic (plan: .plans/done/2026-09-14_0754_workers-realtime-d1-do.md):
 // sockets are receive-only, pings are auto-answered without waking the object, and broadcasts are
 // coalesced to at most one per FLUSH_MS, keeping only the newest version.
 //

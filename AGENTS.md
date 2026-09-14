@@ -8,6 +8,8 @@
 - Keep plans current as work progresses: tick off completed steps and note decisions or
   changes of direction.
 - Commit plans alongside the code they describe.
+- When a plan is finished, `git mv` it into `.plans/done/` and update references to its path (README, tasks, code
+  comments). Mark leftover unchecked items `[-]` with a short reason (not pursued / superseded / moved).
 
 # Toolchain
 

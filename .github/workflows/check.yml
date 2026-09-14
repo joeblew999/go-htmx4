@@ -1,5 +1,5 @@
 # Runs `mise run check` (both demos, native Go + TinyGo under workerd) on every push and pull request to main.
-# Strict no-Node: shell `run:` steps only, no JavaScript actions (plan: .plans/2026-09-14_0915_ci-mise-check.md).
+# Strict no-Node: shell `run:` steps only, no JavaScript actions (plan: .plans/done/2026-09-14_0915_ci-mise-check.md).
 name: check
 
 on:

@@ -76,14 +76,14 @@ without them:
   [Static Assets Direct Upload](https://developers.cloudflare.com/workers/static-assets/direct-upload/), script upload,
   D1 and Durable Object migration APIs. Credentials come from fnox (`fnox exec -- …`).
 
-**TinyGo 0.42 caveats** (details in the [plan](.plans/2026-09-13_1111_adopt-workers-go.md)): its `net/http` has the
+**TinyGo 0.42 caveats** (details in the [plan](.plans/done/2026-09-13_1111_adopt-workers-go.md)): its `net/http` has the
 pre-Go 1.22 `ServeMux` (no `GET /path` patterns), and `html/template` compiles but panics at runtime. gsx + gsxui work
 (verified byte-identical output). `go test` runs on standard Go and can't see TinyGo runtime issues, so the demos' test
 tasks also curl the real TinyGo build under workerd.
 
 ## Live updates on Workers (shared board)
 
-Design and measurements: [workers-realtime plan](.plans/2026-09-14_0754_workers-realtime-d1-do.md).
+Design and measurements: [workers-realtime plan](.plans/done/2026-09-14_0754_workers-realtime-d1-do.md).
 
 ```
 browser ─ hx-ws:connect /live/{topic} ─▶ index.mjs ─▶ Room Durable Object (room.mjs, hibernatable WebSockets)
