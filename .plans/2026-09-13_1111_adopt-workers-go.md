@@ -1,6 +1,6 @@
 # Adopt workers-go (deploy to Cloudflare Workers)
 
-**Status:** ready, waiting for go on Phase 1 · **Created:** 2026-09-13 11:11 · **Revised:** 2026-09-13 12:50
+**Status:** Phases 1–4 done; live at https://go-htmx4-workers-demo.gedw99.workers.dev · open items in **Open questions** · **Created:** 2026-09-13 11:11 · **Revised:** 2026-09-14
 
 ## Goal
 
@@ -62,11 +62,18 @@ which go through wrangler.
 .upstream/workers-go/        # gitignored checkout @ v0.35.0 (their repo, untouched)
 .upstream/worker-tinygo/     # gitignored copy of _templates/cloudflare/worker-tinygo (what create-cloudflare would scaffold)
 demos/workers/               # our demo: its own Go module
-  main.go                    #   workers.Serve(handler), same file for workerd and `go run .` (template pattern)
-  config.capnp               #   workerd config: build/*.mjs + app.wasm modules, public/ as disk service
+  main.go                    #   handlers + workers.Serve(mux), shared by workerd and `go run .` (template pattern)
+  platform_js.go             #   //go:build js && wasm: cloudflare.* calls
+  platform_other.go          #   //go:build !js: os.Getenv etc. for `go run .`
+  page.html                  #   embedded page with {{target}}/{{env}} placeholders (no html/template under TinyGo)
+  main_test.go               #   httptest on standard Go (demo:workers:smoke covers the TinyGo runtime)
+  cmd/deploy/                #   Phase 3: stdlib Go Direct Upload tool (local-only, standard Go)
+  config.capnp               #   workerd config: assets-first → public/ disk service, else Go Worker (build/)
+  workerd/assets-first.mjs   #   local-only stand-in for Static Assets (runs inside workerd, not Node)
   public/                    #   static assets (htmx.min.js, css)
   build/                     #   gitignored: workers-assets-gen + tinygo output
 tasks/workers.toml           # mise tasks (upstream:workers-go:*, demo:workers:*)
+tasks/workerd/*.capnp        # tracked workerd configs for the upstream template and _examples/env
 ```
 
 ## Key constraints (they shape the design)
@@ -89,51 +96,62 @@ tasks/workers.toml           # mise tasks (upstream:workers-go:*, demo:workers:*
 
 ### Phase 1: Run workers-go's demo (upstream, Node-free)
 
-- [ ] mise wiring: add `workerd = "1.20260911.1"` and `fnox = "1.35.0"` to `[tools]`, add `tasks/workers.toml` to
+- [x] mise wiring: add `workerd = "1.20260911.1"` and `fnox = "1.35.0"` to `[tools]`, add `tasks/workers.toml` to
       `[task_config] includes`, then `mise install`. Confirm `workerd --version` runs (the release asset is a
-      single gzipped binary; check mise unpacks it).
-- [ ] `mise run upstream:workers-go:fetch`: `git clone --depth 1 --branch v0.35.0` into
+      single gzipped binary; check mise unpacks it). — `workerd 2026-09-11`, `fnox 1.35.0`
+- [x] `mise run upstream:workers-go:fetch`: `git clone --depth 1 --branch v0.35.0` into
       `.upstream/workers-go` and check it's at `b2086b4`. Copy `_templates/cloudflare/worker-tinygo` to
       `.upstream/worker-tinygo` (this is all `create-cloudflare --template` does). `.upstream/` is already
       gitignored.
-- [ ] `mise run upstream:workers-go:init` (template README "Initialize a project"): `go mod init` +
+- [x] `mise run upstream:workers-go:init` (template README "Initialize a project"): `go mod init` +
       `go get github.com/syumai/workers-go@v0.35.0` + `go mod tidy`. Confirm `go.mod` has exactly v0.35.0.
-- [ ] `mise run upstream:workers-go:build`: the template's `build` script, run directly:
+- [x] `mise run upstream:workers-go:build`: the template's `build` script, run directly:
       `go run github.com/syumai/workers-go/cmd/workers-assets-gen -mode=tinygo` then
-      `tinygo build -o ./build/app.wasm -target wasm -no-debug ./...`. Record raw and gzip sizes.
-- [ ] `mise run upstream:workers-go:run`: `go run .` on :9900. `curl /hello` → `Hello!`,
+      `tinygo build -o ./build/app.wasm -target wasm -no-debug ./...`. Record raw and gzip sizes. — 746 KB raw / 284 KB gzip
+- [x] `mise run upstream:workers-go:run`: `go run .` on :9900. `curl /hello` → `Hello!`,
       `curl -X POST -d "test message" /echo` → `test message` (template README "Testing dev server").
-- [ ] `mise run upstream:workers-go:serve`: `workerd serve config.capnp` on :8787. Config modules: `worker.mjs`
-      (esModule, main), `wasm_exec.js` + `runtime.mjs` (esModule), `app.wasm` (wasm), with module names
-      matching the relative imports. Same two curl checks.
-- [ ] Confirm constraint 1: a handler with a package-level counter returns 1 on every request under workerd
-      (and counts up under `go run .`).
-- [ ] Bindings under workerd: run `_examples/env` (its Makefile uses `-mode=go`; build it with the TinyGo
-      commands above instead) with a text binding and check what works without miniflare. Note which examples (`kv-counter`, `d1-blog-server`, `cache`, `cron`) can't run locally.
-- [ ] ⚠ **Optional, needs your OK:** deploy the template to `*.workers.dev` with the documented
+- [x] `mise run upstream:workers-go:serve`: `workerd serve` on **:8911** (8787 and 8797 are taken by shadcn-places'
+      wrangler dev on this machine). The config is **tracked** at
+      `tasks/workerd/worker-tinygo.capnp`; the task copies it next to `build/` in `.upstream/worker-tinygo/`,
+      because workerd resolves `embed` paths relative to the config file. Modules: `worker.mjs` (esModule, main),
+      `wasm_exec.js` + `runtime.mjs` (esModule), `app.wasm` (wasm), with names matching the relative imports.
+      `compatibilityDate = "2026-09-11"` (not newer than the workerd binary). Same two curl checks.
+- [x] Confirm constraint 1: add a `/count` handler with a package-level counter **to our copy** of the
+      template. It should return 1 on every request under workerd and count up under `go run .`.
+- [x] Bindings under workerd (**:8912**): `_examples/env` (its `go.mod` has `replace github.com/syumai/workers-go => ../../`,
+      so it builds from the v0.35.0 checkout). Its Makefile uses `-mode=go`, so build it with the TinyGo commands
+      above instead. Map its wrangler `[vars] MY_ENV` to a workerd `text` binding
+      (`tasks/workerd/env.capnp`) and expect `MY_ENV: my env value`. Build output in `.upstream/` is fine (same as
+      the gsxui plan); source files there stay untouched. Note which examples (`kv-counter`, `d1-blog-server`,
+      `cache`, `cron`) can't run locally.
+- [ ] ⚠ **Optional, needs your OK (not done):** deploy the template to `*.workers.dev` with the documented
       curl multipart upload, run as `fnox exec -- curl …` (`main_module: worker.mjs`; `application/javascript+module` parts for the .mjs/.js
       files, `application/wasm` for `app.wasm`). Look up the enable-workers.dev-subdomain call in the Workers API
       docs before this step.
-- [ ] Record findings below. **Stop and review with the user before Phase 2.**
+- [x] Record findings below. **Stop and review with the user before Phase 2.**
 
 ### Phase 2: Our demo (`demos/workers/`), local only
 
-- [ ] `demos/workers/go.mod` (Go 1.27). `go get github.com/syumai/workers-go@v0.35.0`.
-- [ ] `main.go`: stdlib `http.ServeMux` passed to `workers.Serve`. htmx 4 page plus fragment endpoints,
-      htmx 4 syntax only (same rules as the gsxui demo).
-- [ ] Platform split: everything under `cloudflare/…` imports `syscall/js` (e.g. `cloudflare.Getenv`), so it
+- [x] `demos/workers/go.mod` (Go 1.27). `go get github.com/syumai/workers-go@v0.35.0`.
+- [x] `main.go`: stdlib `http.ServeMux` passed to `workers.Serve`. htmx 4 page plus fragment endpoints,
+      htmx 4 syntax only (same rules as the gsxui demo). — **plain path patterns + in-handler method check**: TinyGo's
+      `net/http` has the pre-1.22 mux (see Findings)
+- [x] Platform split: everything under `cloudflare/…` imports `syscall/js` (e.g. `cloudflare.Getenv`), so it
       won't compile for `go run .`. Keep handlers platform-free and put platform calls in `platform_js.go`
       (`//go:build js && wasm`, `cloudflare.Getenv`) and `platform_other.go` (`//go:build !js`, `os.Getenv`).
-- [ ] Rendering under TinyGo: try `html/template` first. If TinyGo can't build it or it's too big, log it and fall
+- [x] Rendering under TinyGo: try `html/template` first. If TinyGo can't build it or it's too big, log it and fall
       back to string/`io.WriteString` fragments. (The gsx runtime under TinyGo is a later question, see Phase 5.)
-- [ ] Demo content that shows what's Workers-specific:
+      — `html/template` **builds but panics at runtime**; fell back to embedded `page.html` with `{{name}}` placeholders
+      + `html.EscapeString`
+- [x] Demo content that shows what's Workers-specific:
   - stateless request/response fragments (`hx-get` / `hx-post` → HTML fragment)
   - an env var binding read with `cloudflare.Getenv`, shown on the page
   - a "request counter" that visibly **resets** per request (constraint 1 as a teaching point)
   - static assets (`public/htmx.min.js`, CSS) served by workerd's disk service, not by Go
-- [ ] `config.capnp`: route `/` to the worker, with static files from `public/` served first. Mirror production
-      Static Assets behaviour as closely as workerd samples allow, and log any differences.
-- [ ] mise tasks (`tasks/workers.toml`):
+- [x] `config.capnp`: route `/` to the worker, with static files from `public/` served first. Mirror production
+      Static Assets behaviour as closely as workerd samples allow, and log any differences. — via
+      `workerd/assets-first.mjs` (see Findings)
+- [x] mise tasks (`tasks/workers.toml`): — plus `demo:workers:smoke` (below)
   - `demo:workers:build`: `workers-assets-gen -mode=tinygo` + `tinygo build -o build/app.wasm -target wasm
     -no-debug .`, then **fail if gzip size > 3 MB**. Build `.`, not the template's `./...`, so the Phase 3 deploy
     tool under `cmd/` isn't pulled into the wasm build.
@@ -141,37 +159,46 @@ tasks/workers.toml           # mise tasks (upstream:workers-go:*, demo:workers:*
   - `demo:workers:serve`: build + `workerd serve config.capnp`
   - `demo:workers:test`: `gofmt` check + `go vet` + `go test` (httptest, non-js) + `tinygo build` so the wasm
     target can't rot
-- [ ] `.gitignore`: `demos/workers/build/`
-- [ ] Verify with curl against both `go run .` and workerd. Browser check only with your OK.
+  - `demo:workers:smoke` (added): serve the TinyGo build on workerd and curl every route. `demo:workers:test` depends
+    on it, because `go test` on standard Go missed both TinyGo runtime bugs.
+- [x] `.gitignore`: `demos/workers/build/`
+- [x] Verify with curl against both `go run .` and workerd.
+- [ ] ⚠ Browser check (needs your OK): click through the three htmx interactions on :8913, no console errors.
 
-### Phase 3: Deploy (⚠ needs your OK, account and plan choice)
+### Phase 3: Deploy (OK'd 2026-09-13; name `go-htmx4-workers-demo`, no D1)
 
-- [ ] Secrets from fnox via mise: `demo:workers:token-check` =
-      `fnox exec -- curl -sS -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" …/user/tokens/verify` (same check
-      as the shared `cf:token-check`, without including that file). Deploy and D1 tasks run as
-      `fnox exec -- go run ./cmd/deploy …` / `fnox exec -- curl …`, reading `CLOUDFLARE_API_TOKEN` and
-      `CLOUDFLARE_ACCOUNT_ID` from the environment. The token check is the precondition for every Phase 3 task.
-- [ ] Read the account's Workers plan (free/paid) through the API with that token, and set the size gate
-      (3 MB / 10 MB) from it.
-- [ ] Deploy tool: a small **stdlib Go** program (`demos/workers/cmd/deploy`) that follows Direct Upload
+- [x] Secrets from fnox via mise: `demo:workers:token-check` =
+      `fnox exec -- sh -c 'curl -sS -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" …/user/tokens/verify'` (same
+      check as the shared `cf:token-check`, without including that file). The inner `sh -c '…'` with single quotes
+      matters: a bare `fnox exec -- curl … $CLOUDFLARE_API_TOKEN` expands the variable in the task shell **before**
+      fnox injects it, which sends an empty token (same reason `cf-do-locator` uses `fnox exec -- bash -c '…'`).
+      Deploy and D1 tasks run as `fnox exec -- go run ./cmd/deploy …` (reads the env inside Go) or
+      `fnox exec -- sh -c 'curl …'`. The token check is the precondition for every Phase 3 task.
+- [x] Read the account's Workers plan (free/paid) through the API with that token, and set the size gate
+      (3 MB / 10 MB) from it. — `GET /accounts/{id}/subscriptions` → **Workers Paid**; gate set to 10 MB
+- [x] Deploy tool: a small **stdlib Go** program (`demos/workers/cmd/deploy`) that follows Direct Upload
       step by step: build the manifest (hash + size per file in `public/`), POST the `assets-upload-session`,
       upload the buckets (base64 multipart, upload JWT), then PUT the script with modules + metadata (compat
       date, bindings, completion JWT). Use Go rather than curl because the manifest/bucket loop is multi-step
-      JSON.
-- [ ] `demo:workers:deploy` → smoke-test the `*.workers.dev` URL with curl.
-- [ ] Optional D1: create the database + apply `migrations/0001.sql` via the D1 REST API; add a D1 binding in
+      JSON. — also enables workers.dev (`POST …/scripts/{name}/subdomain`), refuses to overwrite an existing
+      script without `-allow-existing`, and has `-dry-run`
+- [x] `demo:workers:deploy` → smoke-test the `*.workers.dev` URL with curl. — `demo:workers:smoke-remote`, 9/9
+- [ ] Optional D1 (**skipped** for the first deploy, your call 2026-09-13; possible follow-up): create the database + apply `migrations/0001.sql` via the D1 REST API; add a D1 binding in
       metadata; D1 code behind `//go:build js && wasm` (the `cloudflare/d1` package is js-only), with a memory
       store for `go run .`. Deployed-only testing (constraint 4).
 
 ### Phase 4: Docs
 
-- [ ] README: Stack table (workers-go v0.35.0, workerd), Demos section with run/serve/deploy commands.
-- [ ] AGENTS.md: no wrangler/Node for Workers; `demos/workers` tasks; no package-level state in handlers
-      that's expected to persist; TinyGo is the Workers target.
+- [x] README: Stack table (workers-go v0.35.0, workerd), Demos section with run/serve/deploy commands. — also fnox row,
+      "Cloudflare Workers without Node" section with the TinyGo caveats; Hosting moved from Planned to In use
+- [x] AGENTS.md: no wrangler/Node for Workers; `demos/workers` tasks; no package-level state in handlers
+      that's expected to persist; TinyGo is the Workers target. — new "Demo (Cloudflare Workers)" section, incl. TinyGo
+      `ServeMux`/`html/template` gaps, platform split, fnox quoting, ports, deploy needs OK
 
 ### Phase 5 (later, separate go-ahead): gsxui demo on Workers
 
-- [ ] Check whether the gsx runtime + gsxui components build with TinyGo 0.42 and fit under 3 MB gzip.
+- [ ] Check whether the gsx runtime + gsxui components build with TinyGo 0.42 **and run under workerd** (smoke test,
+      not just a build: see the `html/template` finding) and fit under 10 MB gzip (Workers Paid).
       If yes, host `demos/gsxui` behind `workers.Serve` with `dist/` + `web/gsxui/` as static assets.
 
 ## Risks
@@ -192,10 +219,10 @@ tasks/workers.toml           # mise tasks (upstream:workers-go:*, demo:workers:*
 
 ## Open questions
 
-- Worker name? `*.workers.dev` or a custom domain? (Account settled: `CLOUDFLARE_ACCOUNT_ID` from fnox. The
-  free/paid plan is read from the API in Phase 3.)
-- Is Phase 1's optional upstream deploy wanted, or stay local until our demo?
-- Do we want D1 at all in the first demo, given it's deployed-only without Node?
+- Custom domain later, or stay on `go-htmx4-workers-demo.gedw99.workers.dev`?
+- Phase 1's optional upstream template deploy: still wanted, or skip now that our demo is live?
+- D1 counter as a follow-up? → superseded by `2026-09-14_0754_workers-realtime-d1-do.md` (D1 as truth + Durable
+  Object fan-out over hx-ws, decided 2026-09-14)
 
 ## References
 
@@ -209,6 +236,96 @@ tasks/workers.toml           # mise tasks (upstream:workers-go:*, demo:workers:*
 - In-house precedent (Go layout only): `../irgo/docs-templ/main_cloudflare.go`, `../irgo/cmd/irgo/app_cloudflare_build.go`
 
 ## Findings log
+
+### 2026-09-13 14:40: Phase 3 results (deployed)
+
+**Live:** https://go-htmx4-workers-demo.gedw99.workers.dev (account workers.dev subdomain `gedw99`, plan **Workers Paid**).
+`mise run demo:workers:deploy` = token check + TinyGo build + workerd smoke + go test, then
+`fnox exec -- go run ./cmd/deploy -name go-htmx4-workers-demo -allow-existing -var "DEMO_ENV=cloudflare (workers.dev)"`.
+
+- **Flow worked first time with the documented Direct Upload API**, no wrangler: `assets-upload-session` returned 2
+  buckets (1 file each) → 2 `assets/upload?base64=true` posts → completion JWT → multipart `PUT …/workers/scripts/{name}`
+  (metadata `main_module: worker.mjs`, `compatibility_date: 2026-09-11`, `plain_text` binding, `assets.jwt`; modules
+  `worker.mjs`/`wasm_exec.js`/`runtime.mjs` as `application/javascript+module`, `app.wasm` as `application/wasm`) →
+  `POST …/scripts/{name}/subdomain {"enabled":true,"previews_enabled":false}` → `GET …/workers/subdomain`. About 7 s.
+- **Asset hash:** `sha256(base64(content) + extension)`, first 32 hex (from the cloudflare-typescript example in the docs).
+  Cloudflare serves it back as the ETag (`"75c852f9…"` for `htmx.min.js`).
+- **Redeploy** of an unchanged build: the upload session returns no buckets ("assets unchanged"), script updated.
+  Without `-allow-existing` the tool refuses because the script exists (guard verified).
+- **Remote smoke (`demo:workers:smoke-remote`), 9/9:** `tinygo js/wasm`, `DEMO_ENV` = `cloudflare (workers.dev)`,
+  fragment, escaped POST, count `1 1` (reset per request), `htmx.min.js` 200 `text/javascript` (`cf-cache-status: HIT`),
+  `demo.css` 200 `text/css`, 405, 404.
+- **Latency** from this Mac: page about 65–110 ms end-to-end (network included; fresh Go runtime per request).
+- **Pre-checks were read-only:** 45 existing scripts in the account, none named `go-htmx4*`.
+- `assets-first.mjs` is not deployed: in production Static Assets answers file paths before the Worker, and the Go
+  `staticFiles()` on js returns 404 for anything that slips through (the `/nope.txt` check).
+- Not done: D1 (skipped), browser check, upstream template deploy.
+
+### 2026-09-13 14:10: Phase 2 results (local only, nothing deployed)
+
+**Our demo runs on workerd and under `go run .`.** `mise run demo:workers:serve` → http://localhost:8913,
+`mise run demo:workers:run` → http://localhost:9913, `mise run demo:workers:test` (build + smoke + gofmt + vet + test) passes.
+
+| Check (curl) | workerd :8913 | `go run .` :9913 |
+| --- | --- | --- |
+| page `target` / `env` | `tinygo js/wasm` / `workerd (local)` | `gc darwin/arm64` / `go run . (local)` |
+| `GET /fragments/now` | `<time …>` from `tinygo js/wasm` | same, from `gc darwin/arm64` |
+| `POST /greet` (Ada / `<script>` / empty) | `Hello, Ada.` / escaped / error fragment | same |
+| `POST /count` ×4 | `1 1 1 1` | `1 2 3 4` |
+| `/htmx.min.js`, `/demo.css` | 200, `text/javascript` / `text/css` (from `public/`, not Go) | 200 (Go file server) |
+| `/nope.txt`, `GET /greet` | 404, 405 `Allow: POST` | 404, 405 `Allow: POST` |
+| page latency (loopback) | about 4 ms (fresh Go runtime per request) | about 0.3 ms |
+
+- **wasm size:** 950,755 B raw / **360,048 B gzip** (12% of the 3 MB free limit). With `html/template` it was
+  1,803,209 / 635,937 B.
+- **TinyGo gap 1, routing:** TinyGo 0.42 ships its own `net/http` fork (`src/net/http/server.go`, "copied and
+  modified from Go 1.26.2") whose `ServeMux` is the **old map-based mux**: no `GET /path` method patterns, no `{$}`
+  (only a partial `{id}` placeholder hack). `//go:debug httpmuxgo121=0` and `godebug` in `go.mod` don't change it.
+  Symptom: every route returned Go's `404 page not found` on workerd while `go test` passed. Fix: plain path patterns
+  and an `allow(w, r, method)` check in each handler.
+- **TinyGo gap 2, `html/template`:** compiles, then panics at execute time with
+  `unimplemented: (reflect.Type).NumOut()`, surfacing as a 500 and "Worker's code had hung". Fix: embedded `page.html`
+  with `{{target}}` / `{{env}}` placeholders filled via `strings.NewReplacer` + `html.EscapeString`, and fragments as
+  escaped strings. **This is a warning for Phase 5:** anything reflection-heavy (template engines, maybe the gsx
+  runtime) needs a TinyGo runtime check, not just a build.
+- **Why `go test` wasn't enough:** handler tests run on standard Go. Hence `demo:workers:smoke`, which curls the real
+  TinyGo wasm under workerd. It checks target, binding, fragment, escaped POST, per-request reset, static-first, 405
+  and 404, and fails on `panic`/`uncaught` in the workerd log.
+- **Static Assets locally:** `workerd/assets-first.mjs` (~20 lines, modeled on workerd `samples/static-files-from-disk`)
+  serves a `public/` file if the last path segment has a dot and the file exists, otherwise forwards to the Go Worker.
+  That matches production's default (`run_worker_first = false`) for our routes. It's JavaScript run **inside
+  workerd**, not Node, and it's local-only: on Cloudflare, `public/` is uploaded as Static Assets. Known differences from
+  production: no `index.html` / `html_handling` rules, a tiny content-type map, no ETag/caching headers.
+- **`count`** is a package-level `int` on purpose, to show the reset. It isn't goroutine-safe under `go run .`; fine for
+  the demo, but not a pattern to copy.
+
+### 2026-09-13 13:40: Phase 1 results (local only, nothing deployed)
+
+**workers-go's template runs Node-free under both targets.** Tasks: `tasks/workers.toml`
+`upstream:workers-go:{fetch,init,build,run,serve,env}`; workerd configs tracked in `tasks/workerd/`.
+
+- **Toolchain:** mise installed `workerd@1.20260911.1` from `workerd-darwin-arm64.gz` (unpacked fine, reports
+  `workerd 2026-09-11`). fnox 1.35.0 pinned (not used yet: no Cloudflare calls in Phase 1).
+- **Pin:** checkout verified at `b2086b4` = tag `v0.35.0`. Template copy `go.mod`: `github.com/syumai/workers-go v0.35.0`,
+  `go 1.27.1`.
+- **TinyGo build** (`-mode=tinygo`, TinyGo 0.42.0): template `app.wasm` **763,700 B raw / 290,450 B gzip** (with the
+  `/count` probe), about 10% of the 3 MB free limit. `_examples/env`: 323,066 B gzip. No TinyGo build errors.
+- **`go run .`** (:9900): `/hello` → `Hello!`, `/echo` → `test message`, `/count` → `1 2 3 4 5`.
+- **workerd** (:8911): `/hello` → `Hello!`, `/echo` → `test message`, unknown path → Go's `404 page not found`.
+  `cloudflare:sockets` resolves, and no module errors in the log. Module names without `./` (`worker.mjs`, `wasm_exec.js`,
+  `runtime.mjs`, `app.wasm`) match the generated relative imports. About **2.5 ms per request** on loopback, including
+  the fresh Go runtime per request.
+- **Constraint 1 confirmed:** workerd `/count` → `1 1 1 1 1`. Package-level state resets on every request.
+- **Env binding:** `_examples/env` built with TinyGo (not its Makefile's `-mode=go`). The workerd `text` binding
+  `MY_ENV` → `cloudflare.Getenv` → `MY_ENV: my env value`. The upstream checkout's source is untouched (`git status` clean;
+  `build/` is ignored upstream).
+- **Ports:** 8787 and 8797 are held by `shadcn-places`' wrangler dev on this machine, so our workerd uses 8911 (template)
+  and 8912 (env). Phase 2 should pick its own fixed port too.
+- **Upstream examples that need more than plain workerd:** `durable-object-counter` (JS DO class), `queues`,
+  `r2-image-*`, `browser`, `cron` / `multiple-handlers` (cron triggers, which have no local scheduler without wrangler),
+  `d1-blog-server` (D1). `kv-counter`'s and `d1-blog-server`'s wrangler.toml don't declare their bindings; they're added
+  by hand. `service-bindings` should map to workerd services (not tried). None of these were run.
+- **Not done:** the optional upstream deploy (needs your OK).
 
 ### 2026-09-13 12:50: tooling audit for the Node-free rewrite (research only)
 

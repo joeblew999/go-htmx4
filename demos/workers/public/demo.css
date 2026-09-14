@@ -1,0 +1,12 @@
+:root { color-scheme: light dark; font-family: system-ui, sans-serif; }
+body { margin: 0; padding: 2rem 1rem; }
+main { max-width: 40rem; margin: 0 auto; }
+section { margin-block: 1.5rem; padding: 1rem; border: 1px solid color-mix(in srgb, currentColor 20%, transparent); border-radius: 0.5rem; }
+h2 { margin-top: 0; font-size: 1.1rem; }
+.meta, footer { opacity: 0.75; font-size: 0.9rem; }
+output { margin-left: 0.5rem; }
+.error { color: #c0392b; }
+.inline { display: inline-block; margin-right: 0.5rem; }
+.value output { font-size: 2.5rem; font-weight: 600; }
+.notes { padding-left: 1.25rem; }
+.notes time { opacity: 0.6; font-size: 0.85rem; }

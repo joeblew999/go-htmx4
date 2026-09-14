@@ -11,7 +11,7 @@
 
 # Toolchain
 
-- All tools are pinned in `mise.toml` (Go 1.27.1, TinyGo 0.42.0, binaryen, watchexec).
+- All tools are pinned in `mise.toml` (Go 1.27.1, TinyGo 0.42.0, binaryen, watchexec, workerd, fnox, …).
   Run `mise install` first; use `mise run <task>` rather than ad-hoc commands.
 - When bumping Go, update `mise.toml`, `go.mod` (`go` + `toolchain` lines) and the README
   Stack table together.
@@ -35,6 +35,43 @@
 - JS-valued attributes (`hx-on:*`, `hx-live`, `:text`, …) use gsx `` js`…` `` literals.
 - `.upstream/gsxui` is a gitignored upstream checkout (`mise run upstream:gsxui:serve`). Never modify it.
 
+# Demo (Cloudflare Workers)
+
+- **No Node, no wrangler.** No `npm create cloudflare`, `wrangler`, or miniflare. Run locally with `workerd`, deploy with
+  `demos/workers/cmd/deploy` (Cloudflare REST API). Don't include the joeblew999 `tool-wrangler.toml` / `tool-cf.toml`.
+- **workers-go `v0.35.0` exactly**, module path `github.com/syumai/workers-go` (never the old `github.com/syumai/workers`).
+- **TinyGo for everything that ships to Workers** (`workers-assets-gen -mode=tinygo`, `tinygo build -target wasm -no-debug .`).
+  Standard Go only for local-only code: `go run .`, `go test`/`go vet`, the deploy tool.
+- `demos/workers` is its own Go module. Tasks live in `tasks/workers.toml`: `mise run demo:workers:{serve,run,test,load,deploy,smoke-remote}`.
+  Always run `demo:workers:test` after changing handlers: it curls the TinyGo build under workerd, which `go test` can't do.
+- **TinyGo 0.42 gaps:** its `net/http` `ServeMux` is pre-Go 1.22, so register plain paths (`"/greet"`) and check the method
+  with `allow(w, r, method)`, never `"GET /x"` or `{$}`. `html/template` panics at runtime: use embedded HTML with
+  placeholders and `html.EscapeString`. Anything reflection-heavy needs a workerd smoke test, not just a build.
+- **No memory between requests:** each request gets a fresh Go runtime, so package-level state resets. Shared state needs a
+  Cloudflare binding.
+- `cloudflare/*` packages import `syscall/js`: call them from `platform_js.go` (`//go:build js && wasm`) with a
+  `platform_other.go` (`//go:build !js`) twin.
+- **Credentials only via fnox:** `fnox exec -- go run ./cmd/deploy …` or `fnox exec -- sh -c '…$CLOUDFLARE_API_TOKEN…'`
+  (single-quoted so the variable expands after fnox injects it). Never print tokens or add `.env` files.
+- **Deploys and other Cloudflare writes are outward-facing:** get an explicit OK first.
+- **Shared board (live updates):** D1 is the source of truth; `room.mjs` (one Durable Object per topic) only fans out.
+  - Every app write goes through a Go handler that writes D1 **then** publishes the whole `#board` fragment with its
+    `data-version`. Writes made straight to D1 (dashboard, REST) are not pushed.
+  - **`board.version` must never go backwards.** The Room drops publishes whose version isn't above its cache, so never
+    delete `board` rows or reset versions; to clear a topic, delete notes, zero `value` and bump `version`.
+  - D1 has no interactive transactions (`db.Begin` fails): use single statements with `RETURNING`.
+  - JS is allowed only for the Worker entry (`index.mjs`), Durable Object classes (`room.mjs`) and local-only workerd shims
+    (`workerd/`). Keep them logic-free; board logic stays in Go.
+  - Schema changes: add `demos/workers/migrations/NNNN_name.sql` (SQLite, idempotent). `cmd/deploy -migrations` applies it
+    to D1 once (tracked in `_migrations`); `workerd/local-d1.mjs` must import it for local runs.
+  - Durable Object classes change through `-migration-tag`/`-new-sqlite-class` in the deploy task; bump the tag for a new class.
+  - Run `mise run demo:workers:test` (smoke includes a 2-socket push via `cmd/wsload`) after any board change; use
+    `demo:workers:load` for the 1,000-socket check.
+- Ports: workerd 8913 / `go run .` 9913 (demo), 8911 / 8912 / 8914 / 8915 (upstream examples). 8787 and 8797 are often taken
+  by other projects' wrangler. Local Durable Object state lives in `demos/workers/.workerd-state/` (gitignored).
+- `.upstream/workers-go` is a gitignored upstream checkout; never modify it. `.upstream/worker-tinygo` is our scratch copy of
+  its template.
+
 # Project Structure
 
 - `main.go` - HTTP server, routes and handlers.
@@ -42,7 +79,10 @@
   returned by htmx endpoints.
 - `static/` - embedded static assets, including vendored `htmx.min.js` (htmx 4).
 - `demos/gsxui/` - gsx + gsxui + htmx 4 demo (`views/*.gsx`, `ui/` vendored by gsxui, `web/gsxui/` behaviours + CSS entry).
-- `tasks/` - mise task files included from `mise.toml`.
+- `demos/workers/` - htmx 4 on Cloudflare Workers demo (`main.go` + `board.go` handlers, `page.html`/`board.html`,
+  `store_{sql,mem}.go`, `platform_{js,other}.go`, `index.mjs` entry + `room.mjs` Durable Object, `migrations/`, `public/`
+  static assets, `config.capnp` + `workerd/` for local workerd, `cmd/deploy` (Direct Upload + D1 + DO), `cmd/wsload`).
+- `tasks/` - mise task files included from `mise.toml` (`tasks/workerd/*.capnp`: workerd configs for the upstream template).
 - `.plans/` - timestamped plans (see above).
 
 # Code Style

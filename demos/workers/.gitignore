@@ -1,0 +1,6 @@
+# workers-assets-gen + tinygo output (mise run demo:workers:build)
+/build/
+# Last deployed URL (mise run demo:workers:deploy)
+/.deploy-url
+# Durable Object SQLite state for local workerd (Room cache, LocalD1 board data)
+/.workerd-state/
