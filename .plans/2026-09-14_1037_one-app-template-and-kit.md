@@ -236,3 +236,12 @@ theme toggle across all pages.
   Stopping gsx dev leaves workerd running (it ignores SIGTERM); stop it by PID.
 - `mise run check` green (27 ✓), `mise run load`: 1,000/1,000 delivered, presence 1000 → 500, 50-write burst → 2
   broadcasts, late joiner cached. TinyGo 2,129,925 B raw / 681,284 B gzip.
+
+### Follow-ups after Phase 2 (2026-09-14 11:50)
+
+- [ ] **Live presence bug** on `go-htmx4-workers-demo` (1005 close echo): fixed in `worker/room.mjs`, not deployed. Either
+      hotfix-deploy the old Worker (⚠ OK) or leave it to the Phase 7 cutover.
+- [ ] Phase 3 (`kit/` packages) waits for go.
+- [ ] Six orphaned headless Chrome processes from 2026-09-13 (not from this session's work) still running; left alone.
+- [ ] Report upstream to gsx: generate/fmt/dev/`gsxui add` walk into nested Go modules with the outer `gsx.toml`.
+- [ ] `demo:gsxui` Worker `go-htmx4-gsxui-demo` is still live with the old demo; deleted in Phase 7 (⚠ OK).

@@ -11,6 +11,18 @@
 - When a plan is finished, `git mv` it into `.plans/done/` and update references to its path (README, tasks, code
   comments). Mark leftover unchecked items `[-]` with a short reason (not pursued / superseded / moved).
 
+# Reporting work: always show follow-ups
+
+- Every time you finish a piece of work (a phase, a task, a fix), end your report with a **Follow-ups** list. Never
+  leave it out, even when the list is short.
+- Include:
+  - what's next in the plan
+  - anything that needs the user's OK (deploys, Cloudflare or GitHub writes, tags), and why
+  - bugs or risks you found but didn't fix, especially ones that affect what's live
+  - checks you skipped or couldn't run
+  - leftovers to clean up (processes, resources, stale docs)
+- Put the same follow-ups in the plan too (unchecked items or Findings), so they survive the conversation.
+
 # Toolchain
 
 - All tools are pinned in `mise.toml` (Go 1.27.1, TinyGo 0.42.0, binaryen, Tailwind, gsx, gsxui, workerd, fnox).
