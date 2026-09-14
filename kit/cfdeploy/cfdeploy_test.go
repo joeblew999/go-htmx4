@@ -35,12 +35,15 @@ type fakeCF struct {
 	putMeta    map[string]any    // last script metadata
 	putParts   []part            // last script module parts
 	subdomain  bool
+	domains    map[string]string // custom domain hostname → Worker
+	domainPuts int
 }
 
 type part struct{ name, filename, contentType string }
 
 func newFakeCF(t *testing.T) (*fakeCF, *httptest.Server) {
-	f := &fakeCF{t: t, scripts: map[string]string{}, dbs: map[string]string{}, migrations: map[string]bool{}, uploaded: map[string]string{}}
+	f := &fakeCF{t: t, scripts: map[string]string{}, dbs: map[string]string{}, migrations: map[string]bool{}, uploaded: map[string]string{},
+		domains: map[string]string{"auth.example.com": "auth-worker"}}
 	srv := httptest.NewServer(http.HandlerFunc(f.serve))
 	t.Cleanup(srv.Close)
 	return f, srv
@@ -57,6 +60,18 @@ func (f *fakeCF) serve(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(map[string]any{"success": false, "errors": []any{map[string]any{"code": status, "message": msg}}})
 	}
 	auth := r.Header.Get("Authorization")
+	if r.URL.Path == "/zones" {
+		if auth != "Bearer tok" {
+			fail(401, "bad token")
+			return
+		}
+		var out []map[string]any
+		if r.URL.Query().Get("name") == "example.com" {
+			out = append(out, map[string]any{"id": "zone-example", "account": map[string]string{"id": "acc"}})
+		}
+		reply(out)
+		return
+	}
 	p := strings.TrimPrefix(r.URL.Path, "/accounts/acc")
 	if p == r.URL.Path {
 		fail(403, "wrong account")
@@ -169,6 +184,22 @@ func (f *fakeCF) serve(w http.ResponseWriter, r *http.Request) {
 		}
 		f.scripts[name] = tag
 		reply(nil)
+	case r.Method == "GET" && p == "/workers/domains":
+		var out []map[string]string
+		for host, svc := range f.domains {
+			out = append(out, map[string]string{"hostname": host, "service": svc})
+		}
+		reply(out)
+	case r.Method == "PUT" && p == "/workers/domains":
+		var body map[string]string
+		json.NewDecoder(r.Body).Decode(&body)
+		if body["zone_id"] != "zone-example" || body["environment"] != "production" || body["service"] == "" {
+			fail(400, fmt.Sprintf("bad custom domain body %v", body))
+			return
+		}
+		f.domains[body["hostname"]] = body["service"]
+		f.domainPuts++
+		reply(body)
 	case r.Method == "POST" && strings.HasSuffix(p, "/subdomain"):
 		f.subdomain = true
 		reply(nil)
@@ -308,6 +339,27 @@ func TestDeploy(t *testing.T) {
 	if a, _ := f.putMeta["assets"].(map[string]any); a["jwt"] != "session-jwt" {
 		t.Errorf("unchanged assets: jwt = %v, want the session JWT", a["jwt"])
 	}
+
+	// Custom domains: attached once, idempotent on redeploy, never taken from another Worker, zone looked up by parent.
+	cfg.Domains = []string{"app.example.com"}
+	if _, err := c.Deploy(context.Background(), cfg); err != nil {
+		t.Fatalf("deploy with a custom domain: %v", err)
+	}
+	if _, err := c.Deploy(context.Background(), cfg); err != nil {
+		t.Fatalf("redeploy with a custom domain: %v", err)
+	}
+	if f.domains["app.example.com"] != "app" || f.domainPuts != 1 {
+		t.Errorf("custom domain: attached to %q with %d PUTs, want app with 1", f.domains["app.example.com"], f.domainPuts)
+	}
+	cfg.Domains = []string{"auth.example.com"}
+	if _, err := c.Deploy(context.Background(), cfg); err == nil || !strings.Contains(err.Error(), `already attached to Worker "auth-worker"`) {
+		t.Errorf("taken hostname: err = %v", err)
+	}
+	cfg.Domains = []string{"app.elsewhere.org"}
+	if _, err := c.Deploy(context.Background(), cfg); err == nil || !strings.Contains(err.Error(), "no zone for app.elsewhere.org") {
+		t.Errorf("zone not in account: err = %v", err)
+	}
+	cfg.Domains = nil
 
 	cfg.MigrationTag = "v2"
 	if _, err := c.Deploy(context.Background(), cfg); err == nil || !strings.Contains(err.Error(), "explicit migration step") {

@@ -66,6 +66,11 @@ type Config struct {
 
 	RateLimits map[string]RateLimit // binding → Workers Rate Limiting settings
 
+	// Domains are Workers Custom Domains to attach (e.g. "app.example.com"): Cloudflare creates the DNS record and
+	// certificate. Each hostname's zone must be in the account, and the hostname must not already have a DNS record or
+	// belong to another Worker. The workers.dev URL stays enabled.
+	Domains []string
+
 	DurableObjects   map[string]string // binding → class name
 	MigrationTag     string            // Durable Object migration tag to reach (sent only if not yet applied)
 	NewSQLiteClasses []string          // classes created by MigrationTag
@@ -110,6 +115,11 @@ func NewPlan(cfg Config) (*Plan, error) {
 	}
 	if cfg.CompatibilityDate == "" {
 		return nil, errors.New("cfdeploy: CompatibilityDate is required")
+	}
+	for _, host := range cfg.Domains {
+		if strings.Count(host, ".") < 1 || strings.ContainsAny(host, "/:*") {
+			return nil, fmt.Errorf("cfdeploy: custom domain %q: want a hostname like app.example.com", host)
+		}
 	}
 	for name, rl := range cfg.RateLimits {
 		if rl.NamespaceID == "" || rl.Limit < 1 || (rl.Period != 10 && rl.Period != 60) {
@@ -252,6 +262,12 @@ func (c *Client) Deploy(ctx context.Context, cfg Config) (string, error) {
 		c.logf("✓ script uploaded (%d modules)", len(plan.Modules))
 	}
 
+	for _, host := range cfg.Domains {
+		if err := c.attachDomain(ctx, cfg.Name, host); err != nil {
+			return "", fmt.Errorf("cfdeploy: custom domain %s: %w", host, err)
+		}
+	}
+
 	if err := c.do(ctx, "POST", c.accountPath("/workers/scripts/"+cfg.Name+"/subdomain"), "",
 		cfapi.JSON(map[string]bool{"enabled": true, "previews_enabled": false}), nil); err != nil {
 		return "", fmt.Errorf("cfdeploy: enable workers.dev: %w", err)
@@ -279,6 +295,61 @@ func (c *Client) accountPath(p string) string { return c.api().AccountPath(p) }
 
 func (c *Client) do(ctx context.Context, method, apiPath, bearer string, body *cfapi.Body, out any) error {
 	return c.api().Do(ctx, method, apiPath, bearer, body, out)
+}
+
+// attachDomain attaches host to the Worker name as a Custom Domain (PUT …/workers/domains), unless it already is.
+// It refuses a hostname attached to another Worker rather than taking it over.
+func (c *Client) attachDomain(ctx context.Context, name, host string) error {
+	var domains []struct {
+		Hostname string `json:"hostname"`
+		Service  string `json:"service"`
+	}
+	if err := c.do(ctx, "GET", c.accountPath("/workers/domains"), "", nil, &domains); err != nil {
+		return err
+	}
+	for _, d := range domains {
+		if strings.EqualFold(d.Hostname, host) {
+			if d.Service != name {
+				return fmt.Errorf("already attached to Worker %q", d.Service)
+			}
+			c.logf("✓ custom domain %s (already attached)", host)
+			return nil
+		}
+	}
+	zoneID, err := c.zoneFor(ctx, host)
+	if err != nil {
+		return err
+	}
+	if err := c.do(ctx, "PUT", c.accountPath("/workers/domains"), "", cfapi.JSON(map[string]string{
+		"hostname": host, "service": name, "zone_id": zoneID, "environment": "production",
+	}), nil); err != nil {
+		return err
+	}
+	c.logf("✓ custom domain %s attached (Cloudflare creates the DNS record and certificate)", host)
+	return nil
+}
+
+// zoneFor finds the account's zone that host belongs to: the longest zone name that is host or a parent of it.
+func (c *Client) zoneFor(ctx context.Context, host string) (string, error) {
+	labels := strings.Split(strings.ToLower(host), ".")
+	for i := 0; i < len(labels)-1; i++ {
+		name := strings.Join(labels[i:], ".")
+		var zones []struct {
+			ID      string `json:"id"`
+			Account struct {
+				ID string `json:"id"`
+			} `json:"account"`
+		}
+		if err := c.do(ctx, "GET", "/zones?name="+url.QueryEscape(name), "", nil, &zones); err != nil {
+			return "", err
+		}
+		for _, z := range zones {
+			if z.Account.ID == c.AccountID {
+				return z.ID, nil
+			}
+		}
+	}
+	return "", fmt.Errorf("no zone for %s in this account", host)
 }
 
 // script reports whether the Worker exists and its most recent Durable Object migration tag.

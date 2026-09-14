@@ -70,6 +70,7 @@ func main() {
 	flag.Var(vars(cfg.D1), "d1", "D1 binding NAME=DATABASE_NAME or NAME=DATABASE_ID (repeatable)")
 	flag.Var(vars(cfg.DurableObjects), "do", "Durable Object binding NAME=CLASS (repeatable)")
 	flag.Var(rateLimits(cfg.RateLimits), "ratelimit", "rate limiting binding NAME=NAMESPACE_ID:LIMIT/PERIOD, e.g. WRITES=1001:60/10 (repeatable)")
+	flag.Var((*list)(&cfg.Domains), "domain", "Workers Custom Domain to attach, e.g. app.example.com (repeatable; zone must be in the account)")
 	flag.Var((*list)(&cfg.Modules), "module", "extra ES module next to -main, e.g. worker/room.mjs (repeatable)")
 	flag.Var((*list)(&cfg.NewSQLiteClasses), "new-sqlite-class", "Durable Object class created by -migration-tag (repeatable)")
 	dryRun := flag.Bool("dry-run", false, "print what would be uploaded; make no API calls")
@@ -79,8 +80,8 @@ func main() {
 	if err != nil {
 		log.Fatalf("deploy: %v (run mise run build)", err)
 	}
-	log.Printf("worker %q: %d modules (main %s), %d assets from %q, vars %v, d1 %v, do %v, ratelimit %v, migration %q %v",
-		cfg.Name, len(plan.Modules), plan.Modules[0].Name, len(plan.Assets), cfg.AssetsDir, cfg.Vars, cfg.D1, cfg.DurableObjects, cfg.RateLimits, cfg.MigrationTag, cfg.NewSQLiteClasses)
+	log.Printf("worker %q: %d modules (main %s), %d assets from %q, vars %v, d1 %v, do %v, ratelimit %v, domains %v, migration %q %v",
+		cfg.Name, len(plan.Modules), plan.Modules[0].Name, len(plan.Assets), cfg.AssetsDir, cfg.Vars, cfg.D1, cfg.DurableObjects, cfg.RateLimits, cfg.Domains, cfg.MigrationTag, cfg.NewSQLiteClasses)
 	if *dryRun {
 		for _, m := range plan.Modules {
 			log.Printf("  module %-22s ← %s", m.Name, m.Path)
