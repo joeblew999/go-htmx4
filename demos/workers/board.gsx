@@ -1,74 +1,142 @@
 package main
 
-// BoardPage is the shared board page. It connects to /live/{topic} with hx-ws; the Room Durable
-// Object pushes BoardFragment on every change.
+import (
+	"github.com/joeblew999/go-htmx4/demos/workers/ui"
+	"github.com/joeblew999/go-htmx4/demos/workers/ui/icon"
+)
+
+// BoardPage is the shared board page, composed from gsxui components. It connects to /live/{topic}
+// with hx-ws; the Room Durable Object pushes BoardFragment on every change and "N online" into
+// #presence.
 //
 // A deploy drops every socket at once (measured). hx-ws's defaults (500 ms ±30%) would bring 1,000
 // tabs back within ~0.3 s, over a Room's ~1,000 requests/s soft limit, so the htmx-config meta
 // spreads reconnects over 1–3 s.
 component BoardPage(topic string, b Board) {
-	<!DOCTYPE html>
-	<html lang="en">
-		<head>
-			<meta charset="utf-8"/>
-			<meta name="viewport" content="width=device-width, initial-scale=1"/>
-			<title>Shared board · htmx 4 on Workers</title>
-			<meta name="htmx-config" content="ws.reconnectDelay:2s ws.reconnectJitter:0.5"/>
-			<link rel="stylesheet" href="/demo.css"/>
-			<script src="/htmx.min.js"></script>
-			<script src="/hx-ws.js"></script>
-			<script>
-				// HTTP responses and hx-ws pushes both go through htmx.swap and can arrive out of order.
-				// Drop any swap whose board version is older than the one on screen.
-				document.addEventListener("htmx:before:swap", (event) => {
-					const incoming = /data-version="(\d+)"/.exec(event.detail.ctx.text ?? "");
-					const current = document.getElementById("board")?.dataset.version;
-					if (incoming && current && Number(incoming[1]) < Number(current)) event.preventDefault();
-				});
-			</script>
-		</head>
-		<body>
-			<main>
-				<h1>Shared board</h1>
-				<p class="meta"><span id="presence">connecting…</span></p>
-				<p class="meta">
-					Every tab on topic <code>{ topic }</code> sees changes live: Go writes to D1, then the topic's Durable Object
-					pushes the fragment to all tabs over hx-ws. <a href="/">← demo</a>
-				</p>
+	<Layout
+		title="Shared board"
+		path="/board"
+		htmxConfig="ws.reconnectDelay:2s ws.reconnectJitter:0.5"
+		head={boardHead()}
+	>
+		<div class="flex flex-col gap-2">
+			<h1 class="text-3xl font-semibold tracking-tight">Shared board</h1>
+			<p class="text-muted-foreground">
+				Go writes to D1, then the topic's Durable Object pushes the fragment to every open tab over hx-ws.
+			</p>
+		</div>
+		<ui.Card>
+			<ui.CardHeader>
+				<ui.CardTitle>Topic <code>{ topic }</code></ui.CardTitle>
+				<ui.CardDescription>Open this page in another tab and change something.</ui.CardDescription>
+				<ui.CardAction>
+					<ui.Badge variant="secondary">
+						<icon.Users/>
+						<span id="presence">connecting…</span>
+					</ui.Badge>
+				</ui.CardAction>
+			</ui.CardHeader>
+			<ui.CardContent>
 				<div hx-ws:connect={"/live/" + topic} hx-swap="none">
 					<BoardFragment b={b}/>
 				</div>
-				<section>
-					<h2>Change it</h2>
-					<form hx-post={"/board/add?topic=" + topic} hx-swap="none" class="inline">
-						<input type="hidden" name="delta" value="-1"/>
-						<button>−1</button>
-					</form>
-					<form hx-post={"/board/add?topic=" + topic} hx-swap="none" class="inline">
-						<input type="hidden" name="delta" value="1"/>
-						<button>+1</button>
-					</form>
-					<form hx-post={"/board/note?topic=" + topic} hx-swap="none" hx-on:htmx:after:request=js`this.reset()`>
-						<input name="body" maxlength="280" placeholder="Leave a note" autocomplete="off" required/>
-						<button>Post</button>
-					</form>
-				</section>
-			</main>
-		</body>
-	</html>
+			</ui.CardContent>
+			<ui.CardFooter class="flex flex-wrap items-center gap-3">
+				<ui.ButtonGroup>
+					<ui.Button
+						type="button"
+						variant="outline"
+						size="icon"
+						aria-label="Decrement"
+						hx-post={"/board/add?topic=" + topic + "&delta=-1"}
+						hx-swap="none"
+					>
+						<icon.Minus/>
+					</ui.Button>
+					<ui.Button
+						type="button"
+						variant="outline"
+						size="icon"
+						aria-label="Increment"
+						hx-post={"/board/add?topic=" + topic + "&delta=1"}
+						hx-swap="none"
+					>
+						<icon.Plus/>
+					</ui.Button>
+				</ui.ButtonGroup>
+				<form
+					hx-post={"/board/note?topic=" + topic}
+					hx-swap="none"
+					hx-on:htmx:after:request=js`this.reset()`
+					class="flex min-w-0 flex-1 gap-2"
+				>
+					<ui.Input
+						name="body"
+						maxlength="280"
+						placeholder="Leave a note"
+						autocomplete="off"
+						aria-label="Note"
+						required
+					/>
+					<ui.Button type="submit">
+						<icon.Send/> Post
+					</ui.Button>
+				</form>
+			</ui.CardFooter>
+		</ui.Card>
+	</Layout>
+}
+
+// boardHead is the board's extra <head> after htmx: hx-ws and the version guard.
+component boardHead() {
+	<script src="/hx-ws.js"></script>
+	<script>
+		// HTTP responses and hx-ws pushes both go through htmx.swap and can arrive out of order.
+		// Drop any swap whose board version is older than the one on screen.
+		document.addEventListener("htmx:before:swap", (event) => {
+			const incoming = /data-version="(\d+)"/.exec(event.detail.ctx.text ?? "");
+			const current = document.getElementById("board")?.dataset.version;
+			if (incoming && current && Number(incoming[1]) < Number(current)) event.preventDefault();
+		});
+	</script>
 }
 
 // BoardFragment is the #board element as an out-of-band swap: the initial page, the poster's
-// response and the hx-ws push all use it. Its data-version lets the page drop stale swaps, and the
-// Room drops stale publishes, so its shape is the wire format (see TestBoardFragmentWireFormat).
+// response and the hx-ws push all use it. The Room and the page's version guard rely on its
+// id="board", hx-swap-oob="true" and data-version (see TestBoardFragmentWireFormat).
 component BoardFragment(b Board) {
-	<section id="board" hx-swap-oob="true" data-version={b.Version}>
-		<p class="value"><output>{ b.Value }</output></p>
-		<ol class="notes">
-			{ for _, n := range b.Notes {
-				<li><time>{ n.CreatedAt }</time> { n.Body }</li>
-			} }
-		</ol>
-		<p class="meta">topic <code>{ b.Topic }</code> · version { b.Version }</p>
+	<section id="board" hx-swap-oob="true" data-version={b.Version} class="flex flex-col gap-6">
+		<div class="flex items-baseline gap-3">
+			<output class="text-6xl font-semibold tracking-tight tabular-nums">{ b.Value }</output>
+			<span class="text-sm text-muted-foreground">version { b.Version }</span>
+		</div>
+		{ if len(b.Notes) == 0 {
+			<ui.Empty>
+				<ui.EmptyHeader>
+					<ui.EmptyMedia variant="icon">
+						<icon.MessageSquare/>
+					</ui.EmptyMedia>
+					<ui.EmptyTitle>No notes yet</ui.EmptyTitle>
+					<ui.EmptyDescription>Leave one below. Every open tab sees it instantly.</ui.EmptyDescription>
+				</ui.EmptyHeader>
+			</ui.Empty>
+		} else {
+			<ui.ItemGroup>
+				{ for i, n := range b.Notes {
+					{ if i > 0 {
+						<ui.ItemSeparator/>
+					} }
+					<ui.Item size="sm">
+						<ui.ItemMedia variant="icon">
+							<icon.MessageSquare/>
+						</ui.ItemMedia>
+						<ui.ItemContent>
+							<ui.ItemTitle>{ n.Body }</ui.ItemTitle>
+							<ui.ItemDescription>{ n.CreatedAt }</ui.ItemDescription>
+						</ui.ItemContent>
+					</ui.Item>
+				} }
+			</ui.ItemGroup>
+		} }
 	</section>
 }

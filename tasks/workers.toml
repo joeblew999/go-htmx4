@@ -196,8 +196,28 @@ description = "go tool gsx generate (demos/workers)"
 dir = "{{config_root}}/demos/workers"
 run = "go tool gsx generate"
 
+# gsxui (npm-free mode): compile web/gsxui/index.css with the standalone Tailwind CLI, then assemble the
+# Static Assets directory with the same URL layout as demos/gsxui: / = public/ (htmx, hx-ws),
+# /gsxui/ = web/gsxui/ behaviours, /assets/ = compiled CSS + fonts (fonts.css url()s are relative).
+["demo:workers:assets"]
+description = "Tailwind (gsxui CSS) + assemble dist/site (Static Assets for workerd, go run . and deploy)"
+depends = ["demo:workers:vendor"]
+dir = "{{config_root}}/demos/workers"
+run = '''
+#!/usr/bin/env bash
+set -euo pipefail
+tailwindcss -i web/gsxui/index.css -o dist/gsxui.css --minify 2>&1 | grep -v "^≈\|^$" || true
+rm -rf dist/site
+mkdir -p dist/site/gsxui dist/site/assets
+cp public/*.js dist/site/
+cp -R web/gsxui/. dist/site/gsxui/
+cp dist/gsxui.css dist/site/assets/
+cp web/gsxui/fonts/*.woff2 dist/site/assets/
+echo "✓ dist/site: $(find dist/site -type f | wc -l | tr -d ' ') files, gsxui.css $(wc -c <dist/site/assets/gsxui.css | tr -d ' ')B"
+'''
+
 ["demo:workers:build"]
-depends = ["demo:workers:vendor", "demo:workers:generate"]
+depends = ["demo:workers:vendor", "demo:workers:generate", "demo:workers:assets"]
 description = "TinyGo build of demos/workers → build/ (fails if app.wasm gzip > 10 MB, Workers Paid)"
 dir = "{{config_root}}/demos/workers"
 run = '''
@@ -213,9 +233,15 @@ limit=10000000  # Workers Paid (account checked 2026-09-13): 10 MB compressed; f
 echo "✓ build/app.wasm raw=${raw}B gzip=${gz}B (limit ${limit}B)"
 '''
 
+# The gsx CLI's dev loop on Workers: gsx.toml [dev] builds the TinyGo worker + gsxui CSS and runs workerd.
+["demo:workers:dev"]
+description = "go tool gsx dev: save .gsx/.go → regenerate → TinyGo + CSS → workerd restart → http://localhost:8913"
+dir = "{{config_root}}/demos/workers"
+run = "go tool gsx dev --no-web"
+
 ["demo:workers:run"]
-description = "go run . (non-js fallback, public/ served by Go) → http://localhost:9913"
-depends = ["demo:workers:generate"]
+description = "go run . (non-js fallback, dist/site served by Go) → http://localhost:9913"
+depends = ["demo:workers:generate", "demo:workers:assets"]
 dir = "{{config_root}}/demos/workers"
 env = { PORT = "9913", DEMO_ENV = "go run . (local)" }
 run = "go run ."
@@ -247,12 +273,16 @@ check() { # name got want-substring
   if [[ "$2" == *"$3"* ]]; then echo "✓ $1"; else echo "✗ $1: got '${2:0:160}'"; fail=1; fi
 }
 page=$(curl -s "$base/")
-check "page runs on TinyGo wasm"  "$page" '<code id="target">tinygo js/wasm</code>'
-check "text binding DEMO_ENV"     "$page" '<code id="env">workerd (local)</code>'
+check "page runs on TinyGo wasm"  "$page" '<span id="target">tinygo js/wasm</span>'
+check "text binding DEMO_ENV"     "$page" '<span id="env">workerd (local)</span>'
 check "GET fragment"              "$(curl -s "$base/fragments/now")" '<time datetime='
 check "POST form, escaped"        "$(curl -s -X POST --data-urlencode 'name=<b>Ada' "$base/greet")" 'Hello, &lt;b&gt;Ada.'
 check "state resets per request"  "$(curl -s -X POST "$base/count")$(curl -s -X POST "$base/count")" '11'
 check "static file first"         "$(curl -s -o /dev/null -w '%{http_code} %{content_type}' "$base/htmx.min.js")" '200 text/javascript'
+check "gsxui css asset"           "$(curl -s -o /dev/null -w '%{http_code} %{content_type}' "$base/assets/gsxui.css")" '200 text/css'
+check "gsxui behaviours module"   "$(curl -s -o /dev/null -w '%{http_code} %{content_type}' "$base/gsxui/index.js")" '200 text/javascript'
+check "gsxui font asset"          "$(curl -s -o /dev/null -w '%{http_code} %{content_type}' "$base/assets/geist-latin-wght-normal.woff2")" '200 font/woff2'
+check "theme toggle in header"    "$(curl -s "$base/")" 'data-site-theme-toggle'
 check "405 on wrong method"       "$(curl -s -o /dev/null -w '%{http_code}' "$base/greet")" '405'
 check "404 for missing file"      "$(curl -s -o /dev/null -w '%{http_code}' "$base/nope.txt")" '404'
 # Shared board: Go (TinyGo) → database/sql d1 driver → LocalD1 → publish → Room DO → hx-ws.
@@ -333,7 +363,7 @@ run = '''
 #!/usr/bin/env bash
 set -euo pipefail
 fnox exec -- go run ./cmd/deploy -name go-htmx4-workers-demo -allow-existing \
-  -main index.mjs -module room.mjs \
+  -main index.mjs -module room.mjs -assets dist/site \
   -var "DEMO_ENV=cloudflare (workers.dev)" \
   -d1 DB=go-htmx4-workers-demo -d1-create -migrations migrations \
   -do ROOM=Room -migration-tag v1 -new-sqlite-class Room \
@@ -357,13 +387,15 @@ check() { # name got want-substring
   if [[ "$2" == *"$3"* ]]; then echo "✓ $1"; else echo "✗ $1: got '${2:0:160}'"; fail=1; fi
 }
 page=$(curl -s "$base/")
-check "page runs on TinyGo wasm"  "$page" '<code id="target">tinygo js/wasm</code>'
-check "plain_text binding"        "$page" '<code id="env">cloudflare (workers.dev)</code>'
+check "page runs on TinyGo wasm"  "$page" '<span id="target">tinygo js/wasm</span>'
+check "plain_text binding"        "$page" '<span id="env">cloudflare (workers.dev)</span>'
 check "GET fragment"              "$(curl -s "$base/fragments/now")" '<time datetime='
 check "POST form, escaped"        "$(curl -s -X POST --data-urlencode 'name=<b>Ada' "$base/greet")" 'Hello, &lt;b&gt;Ada.'
 check "state resets per request"  "$(curl -s -X POST "$base/count")$(curl -s -X POST "$base/count")" '11'
 check "static asset htmx"         "$(curl -s -o /dev/null -w '%{http_code} %{content_type}' "$base/htmx.min.js")" '200 '
-check "static asset css"          "$(curl -s -o /dev/null -w '%{http_code} %{content_type}' "$base/demo.css")" '200 text/css'
+check "static asset css"          "$(curl -s -o /dev/null -w '%{http_code} %{content_type}' "$base/assets/gsxui.css")" '200 text/css'
+check "gsxui behaviours module"   "$(curl -s -o /dev/null -w '%{http_code}' "$base/gsxui/index.js")" '200'
+check "theme toggle in header"    "$(curl -s "$base/")" 'data-site-theme-toggle'
 check "405 on wrong method"       "$(curl -s -o /dev/null -w '%{http_code}' "$base/greet")" '405'
 check "404 for missing file"      "$(curl -s -o /dev/null -w '%{http_code}' "$base/nope.txt")" '404'
 # Shared board: Go → D1 → Room DO → hx-ws.

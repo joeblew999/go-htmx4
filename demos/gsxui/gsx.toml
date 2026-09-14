@@ -6,5 +6,10 @@ url_presets = ["htmx"]
 names = ["hx-action"]
 
 # npm-free: no Vite front door (gsx CLI guide: gsx dev --no-web).
+# The backend port comes from GSXUI_DEV_PORT so one gsx.toml serves both dev loops (gsx Configuration
+# guide, [dev] upstream): 7777 for the native server (demo:gsxui:dev), 8918 for TinyGo on workerd
+# (demo:gsxui:workers:dev, which overrides build/run with gsx dev flags).
 [dev]
 no_web = true
+upstream = "http://127.0.0.1:${GSXUI_DEV_PORT}"
+health = "/healthz"

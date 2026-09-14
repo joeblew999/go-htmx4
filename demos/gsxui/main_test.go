@@ -19,6 +19,7 @@ func TestRoutes(t *testing.T) {
 			"gsxui + htmx 4", `src="/static/htmx.min.js"`, `src="/static/hx-live.js"`,
 			`src="/gsxui/index.js"`, `hx-boost:inherited="true"`, `id="gsxui-toaster"`,
 			`hx-post="/greet"`, `hx-on:click="data.count++"`,
+			`data-site-theme-toggle`, `localStorage.getItem("gsxui-theme")`,
 		}},
 		"about":                {method: "GET", path: "/about", want: []string{"About this demo", "hx-live"}},
 		"greet":                {method: "POST", path: "/greet", body: "name=Ada&flavour=gsxui", want: []string{"Hello, Ada.", `hx-swap-oob="beforeend:#gsxui-toaster"`, "data-gsxui-slot-toast"}},

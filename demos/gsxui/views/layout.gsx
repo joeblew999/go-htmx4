@@ -18,6 +18,7 @@ component Layout(title string, path string, children gsx.Node) {
 			<meta charset="utf-8"/>
 			<meta name="viewport" content="width=device-width, initial-scale=1"/>
 			<title>{ title } · gsxui + htmx 4</title>
+			<ThemeScript/>
 			<link rel="stylesheet" href="/assets/gsxui.css"/>
 			<script src="/static/htmx.min.js"></script>
 			<script src="/static/hx-live.js"></script>
@@ -33,6 +34,7 @@ component Layout(title string, path string, children gsx.Node) {
 					<a href="/" class="mr-auto font-semibold">go-htmx4 · gsxui demo</a>
 					<ui.Button variant={navVariant(path, "/")} size="sm" href="/">Home</ui.Button>
 					<ui.Button variant={navVariant(path, "/about")} size="sm" href="/about">About</ui.Button>
+					<ThemeToggle/>
 				</nav>
 			</header>
 			<main class="mx-auto flex max-w-3xl flex-col gap-6 p-4">{ children }</main>

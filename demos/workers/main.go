@@ -25,11 +25,8 @@ import (
 )
 
 // No html/template: under TinyGo 0.42 it compiles but panics at execute time with
-// "unimplemented: (reflect.Type).NumOut()". The page is embedded HTML with {{name}}
-// placeholders; every value is escaped with html.EscapeString before it goes in.
-//
-//go:embed page.html
-var pageHTML string
+// "unimplemented: (reflect.Type).NumOut()". Pages are gsx components (home.gsx, board.gsx) built from
+// gsxui; small fragments are escaped strings.
 
 // count is package-level state. On Workers every request gets a fresh Go runtime, so it
 // is always 1 there; under `go run .` it keeps counting.
@@ -53,10 +50,7 @@ func routes() http.Handler {
 			if env == "" {
 				env = "(DEMO_ENV not set)"
 			}
-			writeHTML(w, strings.NewReplacer(
-				"{{target}}", html.EscapeString(target()),
-				"{{env}}", html.EscapeString(env),
-			).Replace(pageHTML))
+			writeNode(w, HomePage(target(), env))
 		}
 	})
 	boardRoutes(mux)
@@ -77,7 +71,7 @@ func routes() http.Handler {
 		}
 		name := strings.TrimSpace(r.FormValue("name"))
 		if name == "" {
-			writeHTML(w, `<p class="error">Please enter a name.</p>`)
+			writeHTML(w, `<p class="text-destructive">Please enter a name.</p>`)
 			return
 		}
 		writeHTML(w, `<p>Hello, `+html.EscapeString(name)+`.</p>`)

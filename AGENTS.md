@@ -38,13 +38,17 @@
 - **htmx 4 syntax only:** explicit `:inherited`, `hx-ignore` (not `hx-disable`) to skip processing, `htmx:after:swap`-style
   event names, no `hx-ext` / `hx-vars` / `hx-params`. gsx's editor completions still suggest htmx 2 attributes; ignore them.
 - JS-valued attributes (`hx-on:*`, `hx-live`, `:text`, …) use gsx `` js`…` `` literals.
+- **GUI: nothing hand-written.** Every visual piece is a gsxui component (`gsxui add`), the gsxui theme/preset, or a pattern
+  copied from gsxui's own site (cite the upstream path). No custom CSS files. Both demos share the preset and the
+  `ThemeScript`/`ThemeToggle` theme toggle (`theme.gsx`).
 - `.upstream/gsxui` is a gitignored upstream checkout (`mise run upstream:gsxui:serve`). Never modify it.
 - **The gsxui demo also runs on Workers** (TinyGo, one app, two entrypoints): shared handlers in `main.go`,
   native server + embedded files in `platform_other.go`, `workers.Serve` in `platform_js.go`. The TinyGo rules from the
   Workers section apply here too: plain-path routes + `allow()`, never `GET /x` or `{$}`.
   - `render` buffers the HTML and sets `Content-Length`. Keep it: streamed (chunked) responses broke htmx history
     restore (Back) under local workerd.
-  - Tasks: `mise run demo:gsxui:workers:{build,serve,smoke,deploy,smoke-remote}` (workerd on :8918). `build/` and
+  - Tasks: `mise run demo:gsxui:workers:{dev,build,serve,smoke,deploy,smoke-remote}` (workerd on :8918). `dev` is `gsx dev`
+    with `-build`/`-run` flags; `gsx.toml`'s `upstream` port comes from `GSXUI_DEV_PORT` (7777 native, 8918 Workers). `build/` and
     `.deploy-url` are gitignored. Static Assets = `build/assets` (`/static`, `/gsxui`, `/assets`), assembled by a task.
   - Run `demo:gsxui:workers:smoke` after view or route changes; `go test` can't see TinyGo runtime issues.
 
@@ -55,7 +59,10 @@
 - **workers-go `v0.35.0` exactly**, module path `github.com/syumai/workers-go` (never the old `github.com/syumai/workers`).
 - **TinyGo for everything that ships to Workers** (`workers-assets-gen -mode=tinygo`, `tinygo build -target wasm -no-debug .`).
   Standard Go only for local-only code: `go run .`, `go test`/`go vet`, the deploy tool.
-- `demos/workers` is its own Go module. Tasks live in `tasks/workers.toml`: `mise run demo:workers:{serve,run,test,load,deploy,smoke-remote}`.
+- `demos/workers` is its own Go module. Tasks live in `tasks/workers.toml`: `mise run demo:workers:{dev,serve,run,test,load,deploy,smoke-remote}`.
+  `dev` is `gsx dev` driving the TinyGo build + workerd (`gsx.toml` `[dev]`). Static Assets are assembled into `dist/site`
+  (`demo:workers:assets`: gsxui CSS via standalone Tailwind, `/gsxui/` behaviours, fonts). `<meta name="htmx-config">` must
+  render before htmx's script (Layout's `htmxConfig`), or hx-ws ignores it.
   Always run `demo:workers:test` after changing handlers: it curls the TinyGo build under workerd, which `go test` can't do.
 - **TinyGo 0.42 gaps:** its `net/http` `ServeMux` is pre-Go 1.22, so register plain paths (`"/greet"`) and check the method
   with `allow(w, r, method)`, never `"GET /x"` or `{$}`. `html/template` panics at runtime: use embedded HTML with

@@ -4,6 +4,7 @@ import (
 	"html"
 	"net/http"
 	"net/http/httptest"
+	"regexp"
 	"strconv"
 	"strings"
 	"testing"
@@ -18,8 +19,9 @@ func TestRoutes(t *testing.T) {
 		want               []string
 	}{
 		"page": {method: "GET", path: "/", want: []string{
-			"htmx 4 on Cloudflare Workers", `src="/htmx.min.js"`, `href="/demo.css"`,
+			"htmx 4 on Cloudflare Workers", `src="/htmx.min.js"`, `href="/assets/gsxui.css"`, `src="/gsxui/index.js"`,
 			`hx-get="/fragments/now"`, `hx-post="/greet"`, `hx-post="/count"`, `id="target"`,
+			`data-site-theme-toggle`, `localStorage.getItem("gsxui-theme")`, `data-gsxui-slot-card`,
 		}},
 		"now":          {method: "GET", path: "/fragments/now", want: []string{"<time datetime=", "gc "}},
 		"greet":        {method: "POST", path: "/greet", body: "name=Ada", want: []string{"Hello, Ada."}},
@@ -27,7 +29,8 @@ func TestRoutes(t *testing.T) {
 		"greet empty":  {method: "POST", path: "/greet", body: "name=+", want: []string{"Please enter a name."}},
 		"healthz":      {method: "GET", path: "/healthz", want: []string{"ok"}},
 		"htmx":         {method: "GET", path: "/htmx.min.js", want: []string{"htmx"}},
-		"css":          {method: "GET", path: "/demo.css", want: []string{"color-scheme"}},
+		"css":          {method: "GET", path: "/assets/gsxui.css", want: []string{"--background"}},
+		"gsxui js":     {method: "GET", path: "/gsxui/index.js", want: []string{"gsxui"}},
 		"not found":    {method: "GET", path: "/nope.txt", status: http.StatusNotFound},
 		"wrong method": {method: "GET", path: "/greet", status: http.StatusMethodNotAllowed},
 		"post page":    {method: "POST", path: "/", status: http.StatusMethodNotAllowed},
@@ -64,7 +67,7 @@ func TestPagePlaceholdersFilled(t *testing.T) {
 	if strings.Contains(body, "{{") {
 		t.Errorf("unfilled placeholder in page")
 	}
-	if !strings.Contains(body, `<code id="env">&lt;i&gt;test&lt;/i&gt;</code>`) {
+	if !strings.Contains(body, `<span id="env">&lt;i&gt;test&lt;/i&gt;</span>`) {
 		t.Errorf("DEMO_ENV not escaped into page")
 	}
 }
@@ -110,18 +113,26 @@ func TestBoard(t *testing.T) {
 
 	expect(do("GET", "/board?topic=t-page", ""), http.StatusOK,
 		`hx-ws:connect="/live/t-page"`, `src="/hx-ws.js"`, `id="board"`, `data-version="0"`,
-		`hx-post="/board/add?topic=t-page"`, `htmx:before:swap`, `ws.reconnectDelay:2s ws.reconnectJitter:0.5`)
+		`hx-post="/board/add?topic=t-page&amp;delta=1"`, `htmx:before:swap`, `ws.reconnectDelay:2s ws.reconnectJitter:0.5`)
 	expect(do("GET", "/board", ""), http.StatusOK, `hx-ws:connect="/live/lobby"`)
 
-	expect(do("POST", "/board/add?topic=t-add", "delta=1"), http.StatusOK, `data-version="1"`, `<output>1</output>`, `hx-swap-oob="true"`)
-	expect(do("POST", "/board/add?topic=t-add", "delta=1"), http.StatusOK, `data-version="2"`, `<output>2</output>`)
-	expect(do("POST", "/board/add?topic=t-add", "delta=-1"), http.StatusOK, `data-version="3"`, `<output>1</output>`)
+	// htmx reads <meta name="htmx-config"> when its script loads, so the meta must come first, and
+	// hx-ws.js (which needs window.htmx) after.
+	page := do("GET", "/board", "").Body.String()
+	meta, htmx, ws := strings.Index(page, `name="htmx-config"`), strings.Index(page, `src="/htmx.min.js"`), strings.Index(page, `src="/hx-ws.js"`)
+	if meta < 0 || htmx < 0 || ws < 0 || !(meta < htmx && htmx < ws) {
+		t.Errorf("head order must be htmx-config meta (%d) < htmx.min.js (%d) < hx-ws.js (%d)", meta, htmx, ws)
+	}
+
+	expect(do("POST", "/board/add?topic=t-add", "delta=1"), http.StatusOK, `data-version="1"`, `>1</output>`, `hx-swap-oob="true"`)
+	expect(do("POST", "/board/add?topic=t-add", "delta=1"), http.StatusOK, `data-version="2"`, `>2</output>`)
+	expect(do("POST", "/board/add?topic=t-add", "delta=-1"), http.StatusOK, `data-version="3"`, `>1</output>`)
 
 	expect(do("POST", "/board/note?topic=t-note", "body=%3Cb%3Ehi"), http.StatusOK, `data-version="1"`, `&lt;b&gt;hi`)
 	for i := range maxNotes + 2 {
 		do("POST", "/board/note?topic=t-note", "body=n"+strconv.Itoa(i))
 	}
-	if got := strings.Count(do("GET", "/board?topic=t-note", "").Body.String(), "<li>"); got != maxNotes {
+	if got := len(regexp.MustCompile(`data-gsxui-slot-item[\s>]`).FindAllString(do("GET", "/board?topic=t-note", "").Body.String(), -1)); got != maxNotes {
 		t.Errorf("notes shown = %d, want %d", got, maxNotes)
 	}
 
@@ -133,34 +144,36 @@ func TestBoard(t *testing.T) {
 	expect(do("POST", "/board", ""), http.StatusMethodNotAllowed)
 }
 
-// legacyRenderBoard is the hand-written renderer the gsx BoardFragment replaced. The Room compares
-// versions and the page's guard parses data-version from these bytes, so the fragment must not change.
-func legacyRenderBoard(b Board) string {
-	var sb strings.Builder
-	version := strconv.FormatInt(b.Version, 10)
-	sb.WriteString(`<section id="board" hx-swap-oob="true" data-version="` + version + `">`)
-	sb.WriteString(`<p class="value"><output>` + strconv.FormatInt(b.Value, 10) + `</output></p>`)
-	sb.WriteString(`<ol class="notes">`)
-	for _, n := range b.Notes {
-		sb.WriteString(`<li><time>` + html.EscapeString(n.CreatedAt) + `</time> ` + html.EscapeString(n.Body) + `</li>`)
-	}
-	sb.WriteString(`</ol><p class="meta">topic <code>` + html.EscapeString(b.Topic) + `</code> · version ` + version + `</p></section>`)
-	return sb.String()
-}
-
+// The Room compares versions (X-Board-Version) and the page's guard parses data-version from the
+// pushed bytes, so BoardFragment must keep this shape even as its gsxui styling changes.
 func TestBoardFragmentWireFormat(t *testing.T) {
-	boards := []Board{
-		{Topic: "lobby"},
-		{Topic: "t-1", Value: -3, Version: 42, Notes: []Note{{ID: 2, Body: "second", CreatedAt: "2026-09-14 01:02:03"}}},
-		{Topic: "esc", Value: 7, Version: 9, Notes: []Note{
-			{ID: 3, Body: `<img src=x onerror="alert(1)"> & 'quotes' "double"`, CreatedAt: "2026-09-14 <b>"},
-			{ID: 2, Body: "unicode ✓ — ünïcödé 日本", CreatedAt: "2026-09-14 00:00:00"},
-			{ID: 1, Body: "  spaced  body  ", CreatedAt: ""},
-		}},
+	b := Board{Topic: "esc", Value: -3, Version: 42, Notes: []Note{
+		{ID: 2, Body: `<img src=x onerror="alert(1)"> & 'quotes'`, CreatedAt: "2026-09-14 <b>"},
+		{ID: 1, Body: "unicode ✓ 日本", CreatedAt: "2026-09-14 00:00:00"},
+	}}
+	got := renderBoard(b)
+	if !strings.HasPrefix(got, `<section id="board" hx-swap-oob="true" data-version="42"`) {
+		t.Errorf("fragment must start with id, hx-swap-oob and data-version; got %.120q", got)
 	}
-	for _, b := range boards {
-		if got, want := renderBoard(b), legacyRenderBoard(b); got != want {
-			t.Errorf("topic %s:\n got  %s\n want %s", b.Topic, got, want)
+	if m := regexp.MustCompile(`data-version="(\d+)"`).FindStringSubmatch(got); m == nil || m[1] != "42" {
+		t.Errorf("page guard regex can't read data-version from %.120q", got)
+	}
+	for _, want := range []string{
+		">-3</output>",
+		html.EscapeString(`<img src=x onerror="alert(1)"> & 'quotes'`),
+		html.EscapeString("2026-09-14 <b>"),
+		"unicode ✓ 日本",
+		"version 42",
+		"</section>",
+	} {
+		if !strings.Contains(got, want) {
+			t.Errorf("fragment missing %q", want)
 		}
+	}
+	if strings.Contains(got, "<img") {
+		t.Errorf("note body not escaped: %q", got)
+	}
+	if strings.Count(got, `id="board"`) != 1 {
+		t.Errorf("want exactly one #board element")
 	}
 }

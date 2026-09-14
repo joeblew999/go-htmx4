@@ -6,3 +6,5 @@
 /.workerd-state/
 # gsx generated code (gsx Getting started: do not edit or commit)
 *.x.go
+# Tailwind output + assembled Static Assets (mise run demo:workers:assets)
+/dist/

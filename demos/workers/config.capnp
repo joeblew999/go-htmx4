@@ -1,7 +1,7 @@
 # workerd config for demos/workers (mise run demo:workers:serve, run from demos/workers).
 #
 #   :8913 → assets-first (workerd/assets-first.mjs)
-#             ├─ file in public/ → disk service "public"            (stands in for Static Assets)
+#             ├─ file in dist/site/ → disk service "public"         (stands in for Static Assets)
 #             └─ everything else → "app": workerd/local-entry.mjs
 #                                    ├─ /live/{topic} WebSocket → Room DO (room.mjs, hibernation)
 #                                    └─ else → Go Worker (build/, TinyGo) with DB = LocalD1 shim
@@ -14,7 +14,7 @@ using Workerd = import "/workerd/workerd.capnp";
 const config :Workerd.Config = (
   services = [
     (name = "assets-first", worker = .assetsFirst),
-    (name = "public", disk = "public"),
+    (name = "public", disk = "dist/site"),
     (name = "app", worker = .app),
     # Durable Object SQLite files (Room cache + LocalD1 board data); survives rebuilds.
     (name = "do-storage", disk = (path = ".workerd-state", writable = true)),

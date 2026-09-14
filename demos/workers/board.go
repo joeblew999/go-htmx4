@@ -164,3 +164,11 @@ func writeNode(w http.ResponseWriter, n gsx.Node) {
 	w.Header().Set("Content-Length", strconv.Itoa(buf.Len()))
 	writeHTML(w, buf.String())
 }
+
+// navVariant highlights the current page's header button (as demos/gsxui's Layout does).
+func navVariant(path, href string) string {
+	if path == href {
+		return "secondary"
+	}
+	return "ghost"
+}

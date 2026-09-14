@@ -197,9 +197,10 @@ dir = "{{config_root}}/demos/gsxui"
 run = "./bin/gsxui-demo"
 
 ["demo:gsxui:dev"]
-description = "Tailwind --watch + go tool gsx dev --no-web (regenerate, rebuild, restart on save)"
+description = "Tailwind --watch + go tool gsx dev --no-web (regenerate, rebuild, restart on save) → http://localhost:7777"
 depends = ["demo:gsxui:vendor", "demo:gsxui:css"]
 dir = "{{config_root}}/demos/gsxui"
+env = { GSXUI_DEV_PORT = "7777" }
 run = '''
 #!/usr/bin/env bash
 set -euo pipefail
@@ -329,3 +330,11 @@ set -euo pipefail
 url=$(cat .deploy-url 2>/dev/null) || { echo "✗ no .deploy-url; run demo:gsxui:workers:deploy"; exit 1; }
 SMOKE_BASE="$url" mise run demo:gsxui:workers:smoke
 '''
+
+# The gsx CLI's dev loop for the Workers build: gsx dev regenerates on save, rebuilds the TinyGo worker +
+# assets and restarts workerd (:8918). One gsx.toml serves both loops via GSXUI_DEV_PORT.
+["demo:gsxui:workers:dev"]
+description = "go tool gsx dev on Workers: save .gsx/.go → regenerate → TinyGo + assets → workerd restart → http://localhost:8918"
+dir = "{{config_root}}/demos/gsxui"
+env = { GSXUI_DEV_PORT = "8918" }
+run = "go tool gsx dev --no-web -build 'mise run demo:gsxui:workers:build' -run 'workerd serve workers.capnp'"
