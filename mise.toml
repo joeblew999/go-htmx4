@@ -27,6 +27,9 @@ fnox = "1.35.0"
 [env]
 # Worker script and D1 database name (mise run deploy): https://$APP_NAME.<subdomain>.workers.dev
 APP_NAME = "go-htmx4"
+# Custom domain (Workers Custom Domain, zone in the same Cloudflare account); "" = workers.dev only. When set, deploy
+# attaches it and *.workers.dev 301s to it (host.go). mise run rename clears it.
+APP_DOMAIN = "go-htmx4.ubuntusoftware.net"
 # Locales the app ships (mise run i18n:generate); the first is the default and x-default.
 I18N_LOCALES = "en,en-IN,de,fr,es,pt-BR,pt-PT,ar,he,ja,zh-Hans,zh-Hant,hi,ru"
 

@@ -167,7 +167,7 @@ func (s *server) routes() http.Handler {
 		s.render(w, r, "stats", views.Stats(snapshot))
 	})
 	s.boardRoutes(mux)
-	return withLocale(noindexNonPages(mux))
+	return canonicalHost(withLocale(noindexNonPages(mux)))
 }
 
 // render counts the request, then writes n with httpx.Render (buffered, Content-Length: chunked

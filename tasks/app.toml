@@ -307,6 +307,8 @@ go mod edit -module "$module"
 (cd e2e && go mod edit -module "$module/e2e")
 # App name: config, pages, tests and local Durable Object keys.
 perl -pi -e "s/^APP_NAME = \"\\Q$old_name\\E\"/APP_NAME = \"$name\"/" mise.toml
+# The custom domain is the template owner's; a renamed copy has none until its owner sets APP_DOMAIN.
+perl -pi -e 's/^APP_DOMAIN = ".*"/APP_DOMAIN = ""/' mise.toml
 git ls-files -z -- views main.go main_test.go e2e tasks/app.toml workerd/config.capnp | xargs -0 perl -pi -e "s/\\b\\Q$old_name\\E\\b/$name/g"
 # Import blocks re-sort under the new path.
 go tool gsx fmt -w . >/dev/null
@@ -336,19 +338,24 @@ fnox exec -- sh -c '
 # (TinyGo build + workerd smoke + go test) and the token check first. The Worker and D1 names are
 # $APP_NAME (mise.toml [env]); updating an existing script of that name is allowed.
 ["deploy"]
-description = "Test, then deploy → https://$APP_NAME.<subdomain>.workers.dev"
+description = "Test, then deploy → https://$APP_DOMAIN (or https://$APP_NAME.<subdomain>.workers.dev without APP_DOMAIN)"
 depends = ["test", "token-check"]
 dir = "{{config_root}}"
 run = '''
 #!/usr/bin/env bash
 set -euo pipefail
-fnox exec -- go run ./cmd/deploy -name "$APP_NAME" -allow-existing \
+domain_flags=()
+[ -z "${APP_DOMAIN:-}" ] || domain_flags=(-domain "$APP_DOMAIN")
+url=$(fnox exec -- go run ./cmd/deploy -name "$APP_NAME" -allow-existing \
   -main worker/index.mjs -module worker/room.mjs -assets dist/site \
-  -var "APP_ENV=cloudflare (workers.dev)" \
+  -var "APP_ENV=cloudflare" -var "APP_DOMAIN=${APP_DOMAIN:-}" \
   -d1 DB="$APP_NAME" -d1-create -migrations migrations \
   -do ROOM=Room -migration-tag v1 -new-sqlite-class Room \
   -ratelimit WRITES=1001:60/10 \
-  | tee .deploy-url   # outside build/: workers-assets-gen wipes build/ on every build
+  "${domain_flags[@]}")
+echo "$url"
+# smoke-remote/e2e/load target the custom domain when there is one (workers.dev redirects to it).
+if [ -n "${APP_DOMAIN:-}" ]; then echo "https://$APP_DOMAIN"; else echo "$url"; fi > .deploy-url   # outside build/: workers-assets-gen wipes build/
 '''
 
 # ── smoke-remote ────────────────────────────────────────────────
@@ -369,7 +376,7 @@ check() { # name got want-substring
 }
 page=$(curl -s "$base/")
 check "page runs on TinyGo wasm"  "$page" '<span id="target" translate="no">tinygo js/wasm</span>'
-check "plain_text binding"        "$page" '<span id="env" translate="no">cloudflare (workers.dev)</span>'
+check "plain_text binding"        "$page" '<span id="env" translate="no">cloudflare</span>'
 check "home: boost + morph"       "$page" 'hx-boost:inherited="true"'
 check "about page"                "$(curl -s "$base/about")" 'About go-htmx4'
 check "POST form, escaped"        "$(curl -s -X POST --data-urlencode 'name=<b>Ada' "$base/greet")" 'Hello, &lt;b&gt;Ada.'

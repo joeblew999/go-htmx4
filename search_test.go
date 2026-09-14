@@ -64,8 +64,8 @@ func TestRobotsTxtOnlyAtRoot(t *testing.T) {
 		}
 	}
 	rec := httptest.NewRecorder()
-	h.ServeHTTP(rec, httptest.NewRequest("GET", "https://go-htmx4.example.workers.dev/robots.txt", nil))
-	if !strings.Contains(rec.Body.String(), "Sitemap: https://go-htmx4.example.workers.dev/sitemap.xml\n") {
+	h.ServeHTTP(rec, httptest.NewRequest("GET", "https://go-htmx4.example.net/robots.txt", nil))
+	if !strings.Contains(rec.Body.String(), "Sitemap: https://go-htmx4.example.net/sitemap.xml\n") {
 		t.Errorf("robots.txt sitemap line must use the request origin:\n%s", rec.Body.String())
 	}
 }
@@ -95,7 +95,7 @@ func TestOpenGraph(t *testing.T) {
 	} {
 		t.Run(tc.path, func(t *testing.T) {
 			rec := httptest.NewRecorder()
-			h.ServeHTTP(rec, httptest.NewRequest("GET", "https://go-htmx4.example.workers.dev"+tc.path, nil))
+			h.ServeHTTP(rec, httptest.NewRequest("GET", "https://go-htmx4.example.net"+tc.path, nil))
 			page := rec.Body.String()
 			canonical := regexp.MustCompile(`<link rel="canonical" href="([^"]*)"`).FindStringSubmatch(page)
 			title := regexp.MustCompile(`<title>([^<]*)</title>`).FindStringSubmatch(page)

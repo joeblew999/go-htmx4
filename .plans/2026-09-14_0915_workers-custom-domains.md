@@ -61,7 +61,7 @@ dashboard clicks and no wrangler. Make that the one URL search engines index, so
 
 ### Phase 2: attach (your zone OK given; after the shared deploy)
 
-- [ ] `APP_DOMAIN = "go-htmx4.ubuntusoftware.net"` in `mise.toml` `[env]` (`mise run rename` clears it: a renamed copy
+- [x] `APP_DOMAIN = "go-htmx4.ubuntusoftware.net"` in `mise.toml` `[env]` (`mise run rename` clears it: a renamed copy
       has no domain until its owner sets one). The `deploy` task passes `-domain "$APP_DOMAIN"` when it's set, and
       `.deploy-url` / smoke-remote use the custom host.
 - [ ] Deploy, wait for the certificate, then run `smoke-remote`, `LOAD_BASE` load (WebSockets over the custom host) and
@@ -69,9 +69,11 @@ dashboard clicks and no wrangler. Make that the one URL search engines index, so
 
 ### Phase 3: one indexed host (with search plan Phase 6)
 
-- [ ] A middleware (with `APP_DOMAIN` as a text binding): requests to any other host 301 to the same path on
+- [x] A middleware (with `APP_DOMAIN` as a text binding): requests to any other host 301 to the same path on
       `https://$APP_DOMAIN`, except `/healthz`, `/live/*` and non-GET/HEAD requests. Tests: redirect, exemptions, and no
-      redirect when `APP_DOMAIN` is empty (template default).
+      redirect when `APP_DOMAIN` is empty (template default). — `host.go` `canonicalHost`, outermost handler; only
+      `*.workers.dev` hosts redirect (never localhost, so `mise run run` with `APP_DOMAIN` in the env is unaffected);
+      `TestCanonicalHost`. `APP_ENV` on Cloudflare is now plain `cloudflare` (it was `cloudflare (workers.dev)`).
 - [ ] Canonical, hreflang, sitemap and robots.txt then naturally carry the custom host (they use the request origin).
 - [ ] Search Console: confirm the existing `ubuntusoftware.net` Domain property covers the host (or add a URL-prefix
       property). Submit `https://go-htmx4.ubuntusoftware.net/sitemap.xml`.
