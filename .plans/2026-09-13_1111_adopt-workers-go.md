@@ -25,7 +25,7 @@
   (npm package) or miniflare. Only Go and standalone binaries, pinned in `mise.toml`.
 - **Upstream tooling guides only.** Every step cites the workers-go, workerd or Cloudflare doc it comes from.
   Where upstream only documents a Node path, say so and use the closest Node-free step.
-- **Don't port the existing starter.** The root app (`main.go`, `templates/`) stays as it is.
+- **Don't port the existing starter.** The root app (`main.go`, `templates/`) stays as it is. *(2026-09-14: the root starter was removed; the repo is now just the two demos.)*
 - **Work on `main`.** No branches. **No Docker.**
 - **Nothing deploys without an explicit OK** (outward-facing).
 

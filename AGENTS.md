@@ -11,17 +11,17 @@
 
 # Toolchain
 
-- All tools are pinned in `mise.toml` (Go 1.27.1, TinyGo 0.42.0, binaryen, watchexec, workerd, fnox, …).
+- All tools are pinned in `mise.toml` (Go 1.27.1, TinyGo 0.42.0, binaryen, Tailwind, gsx, gsxui, workerd, fnox).
   Run `mise install` first; use `mise run <task>` rather than ad-hoc commands.
-- When bumping Go, update `mise.toml`, `go.mod` (`go` + `toolchain` lines) and the README
+- When bumping Go, update `mise.toml`, both demos' `go.mod` (`go` + `toolchain` lines) and the README
   Stack table together.
+- The repo root has no Go module or app: everything lives in `demos/gsxui` and `demos/workers` (each its own module).
 
 # Commands
 
-- Run: `mise run run` (serves on http://localhost:8080, override with `ADDR=:3000`)
-- Dev (auto-restart): `mise run dev`
-- Build: `mise run build` → `bin/go-htmx4`
-- Check (fmt + vet + test): `mise run check`
+- Test everything: `mise run check` (`demo:gsxui:test` + `demo:gsxui:workers:smoke` + `demo:workers:test`)
+- gsxui demo: `mise run demo:gsxui:{run,dev,test}` (native, :7777), `mise run demo:gsxui:workers:{serve,smoke,deploy}`
+- Workers demo: `mise run demo:workers:{serve,run,test,load,deploy,smoke-remote}`
 - List all tasks: `mise tasks`
 
 # Demos (gsx + gsxui)
@@ -82,10 +82,6 @@
 
 # Project Structure
 
-- `main.go` - HTTP server, routes and handlers.
-- `templates/` - page template plus named fragment templates (`{{define "name"}}`)
-  returned by htmx endpoints.
-- `static/` - embedded static assets, including vendored `htmx.min.js` (htmx 4).
 - `demos/gsxui/` - gsx + gsxui + htmx 4 demo (`views/*.gsx`, `ui/` vendored by gsxui, `web/gsxui/` behaviours + CSS entry).
 - `demos/workers/` - htmx 4 on Cloudflare Workers demo (`main.go` + `board.go` handlers, `page.html`/`board.html`,
   `store_{sql,mem}.go`, `platform_{js,other}.go`, `index.mjs` entry + `room.mjs` Durable Object, `migrations/`, `public/`
@@ -96,4 +92,5 @@
 # Code Style
 
 - Follow standard Go conventions (Effective Go); standard library only unless there is a clear need.
-- htmx endpoints return HTML fragments rendered via `render(w, "<template>", data)`.
+- htmx endpoints return HTML fragments: gsx components rendered via `s.render(...)` in `demos/gsxui`; escaped strings /
+  embedded HTML in `demos/workers` (no `html/template` under TinyGo).

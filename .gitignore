@@ -1,6 +1,4 @@
 # Binaries
-/go-htmx4
-/bin/
 *.exe
 *.test
 *.out
