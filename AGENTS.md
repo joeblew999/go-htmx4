@@ -19,7 +19,10 @@
 
 # Commands
 
-- Test everything: `mise run check` (`demo:gsxui:test` + `demo:gsxui:workers:smoke` + `demo:workers:test`)
+- Test everything: `mise run check` (`demo:gsxui:test` + `demo:gsxui:workers:smoke` + `demo:workers:test`). It must pass
+  before pushing; CI (`.github/workflows/check.yml` → `ci/check.sh`) runs the same on every push and PR.
+- CI is strict no-Node: shell `run:` steps only. Don't add `actions/checkout`, `jdx/mise-action` or any JavaScript action;
+  new tools go in `mise.toml` so `ci/check.sh` picks them up.
 - gsxui demo: `mise run demo:gsxui:{run,dev,test}` (native, :7777), `mise run demo:gsxui:workers:{serve,smoke,deploy}`
 - Workers demo: `mise run demo:workers:{serve,run,test,load,deploy,smoke-remote}`
 - List all tasks: `mise tasks`

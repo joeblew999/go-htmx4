@@ -1,5 +1,7 @@
 # go-htmx4
 
+[![check](https://github.com/joeblew999/go-htmx4/actions/workflows/check.yml/badge.svg)](https://github.com/joeblew999/go-htmx4/actions/workflows/check.yml)
+
 Server-rendered web apps with [Go](https://go.dev) and [htmx 4](https://four.htmx.org), in two demos:
 
 - **[`demos/gsxui`](demos/gsxui)**: gsx + gsxui components + htmx 4 + hx-live. Runs as a native Go server **and** on
@@ -20,7 +22,8 @@ mise run demo:workers:serve       # Workers demo on workerd → http://localhost
 mise run check                    # test both demos
 ```
 
-`mise tasks` lists everything.
+`mise tasks` lists everything. CI runs the same `mise run check` on every push and pull request
+([`ci/check.sh`](ci/check.sh), shell steps only, no JavaScript actions).
 
 ## Stack
 
