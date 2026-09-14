@@ -134,7 +134,7 @@
 - repo root - the app (`main.go` + `board.go` handlers, `views/` pages + fragments (`.gsx`, package `views`), `ui/` vendored by gsxui,
   `store_{sql,mem}.go`, `platform_{js,other}.go`, `worker/index.mjs` entry + `worker/room.mjs` Durable Object, `migrations/`, `static/` (vendored htmx + hx-ws),
   `web/gsxui/` (behaviours + CSS entry), `workerd/` (config.capnp + local-only shims), `cmd/deploy` + `cmd/wsload` (flag parsing over kit/)).
-- `kit/` - importable packages: `cfdeploy` (Cloudflare deploy), `cftail` (live logs), `wsload` (WebSocket checks), `live`
+- `kit/` - importable packages: `cfdeploy` (Cloudflare deploy), `cftail` (live logs), `searchconsole` (Search Console API), `wsload` (WebSocket checks), `live`
   (Room publish, topic rule), `ratelimit` (rate limiting binding), `httpx` (TinyGo-safe HTTP helpers), `i18n` (locales + CLDR formatting;
   `i18n/cldr` generated tables, `i18n/cldrgen` generator, `i18n/intltest` Intl conformance); `kit/internal/cfapi` is their shared API client.
 - `tasks/` - mise task files included from `mise.toml`.

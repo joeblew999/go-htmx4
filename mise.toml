@@ -41,7 +41,7 @@ CLOUDSDK_PYTHON = "python3"
 I18N_LOCALES = "en,en-IN,de,fr,es,pt-BR,pt-PT,ar,he,ja,zh-Hans,zh-Hant,hi,ru"
 
 [task_config]
-includes = ["tasks/app.toml", "tasks/upstream.toml", "tasks/i18n.toml"]
+includes = ["tasks/app.toml", "tasks/upstream.toml", "tasks/i18n.toml", "tasks/search.toml"]
 
 [tasks.check]
 description = "Test the app: TinyGo build + workerd smoke + gsx fmt/gofmt + go vet + go test"

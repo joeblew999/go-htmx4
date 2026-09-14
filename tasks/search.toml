@@ -1,0 +1,24 @@
+# tasks/search.toml — Google Search Console through its API (search plan: .plans/2026-09-14_0938_search-indexing-google-gemini.md).
+#
+#   mise run search:sites    # properties the service account can use (check it was added in Search Console)
+#   mise run search:submit   # submit https://$APP_DOMAIN/sitemap.xml
+#   mise run search:status   # sitemap status + Google's index status for every sitemap URL
+#
+# Credentials: GOOGLE_SEARCH_CONSOLE_KEY (service account search-console@go-htmx4-search.iam.gserviceaccount.com) from
+# fnox. The service account needs Full permission on the property (Search Console → Settings → Users and permissions).
+# No API exists for Test live URL or Request indexing: those stay in the Search Console UI.
+
+["search:sites"]
+description = "List the Search Console properties the service account can use"
+dir = "{{config_root}}"
+run = "fnox exec -- go run ./cmd/searchconsole sites"
+
+["search:submit"]
+description = "Submit https://$APP_DOMAIN/sitemap.xml to Search Console"
+dir = "{{config_root}}"
+run = "fnox exec -- go run ./cmd/searchconsole submit"
+
+["search:status"]
+description = "Search Console: sitemap status and Google's index status for every URL in the sitemap"
+dir = "{{config_root}}"
+run = "fnox exec -- go run ./cmd/searchconsole status"
