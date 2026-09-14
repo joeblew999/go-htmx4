@@ -1,0 +1,16 @@
+# tasks/i18n.toml — kit/i18n data and conformance (plan: .plans/2026-09-14_1106_full-i18n.md).
+#
+#   mise run i18n:generate   # CLDR tables for the shipped locales → kit/i18n/cldr (committed; network on first run)
+#   mise run i18n:golden     # record Intl's output (workerd = Chrome's V8/ICU) for kit/i18n/intltest cases
+#
+# `go test ./kit/i18n` (part of mise run check) compares kit/i18n with the golden file, byte for byte.
+
+["i18n:generate"]
+description = "Generate kit/i18n/cldr from cldr-json for the shipped locales (I18N_LOCALES)"
+dir = "{{config_root}}"
+run = "go run ./cmd/cldrgen -locales \"$I18N_LOCALES\" -out kit/i18n/cldr"
+
+["i18n:golden"]
+description = "Record Intl output for the kit/i18n conformance cases (local workerd) → kit/i18n/testdata/golden/workerd.json"
+dir = "{{config_root}}"
+run = "go run ./cmd/intloracle -out kit/i18n/testdata/golden/workerd.json"

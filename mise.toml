@@ -27,9 +27,11 @@ fnox = "1.35.0"
 [env]
 # Worker script and D1 database name (mise run deploy): https://$APP_NAME.<subdomain>.workers.dev
 APP_NAME = "go-htmx4"
+# Locales the app ships (mise run i18n:generate); the first is the default and x-default.
+I18N_LOCALES = "en,en-IN,de,fr,es,pt-BR,pt-PT,ar,he,ja,zh-Hans,zh-Hant,hi,ru"
 
 [task_config]
-includes = ["tasks/app.toml", "tasks/upstream.toml"]
+includes = ["tasks/app.toml", "tasks/upstream.toml", "tasks/i18n.toml"]
 
 [tasks.check]
 description = "Test the app: TinyGo build + workerd smoke + gsx fmt/gofmt + go vet + go test"
