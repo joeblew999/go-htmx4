@@ -12,7 +12,8 @@ Cloudflare Workers. One app at the repo root:
 - **Go compiled with TinyGo**, served by [workers-go](https://github.com/syumai/workers-go); the same handlers run under
   `go run .`.
 
-**Live:** https://go-htmx4.gedw99.workers.dev (board: [/board](https://go-htmx4.gedw99.workers.dev/board)).
+**Live:** https://go-htmx4.ubuntusoftware.net (board: [/board](https://go-htmx4.ubuntusoftware.net/board)). The Worker's
+`*.workers.dev` URL redirects there.
 
 No Node anywhere: no npm, no Vite, no wrangler. Every tool is pinned in [`mise.toml`](mise.toml).
 

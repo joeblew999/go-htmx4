@@ -81,6 +81,11 @@
   Standard Go only for local-only code: `go run .`, `go test`/`go vet`, the deploy tool.
 - Tasks live in `tasks/app.toml`: `mise run {dev,serve,run,test,smoke,load,deploy,smoke-remote}`. The Worker and D1 name is
   `APP_NAME` in `mise.toml` `[env]`.
+  `APP_DOMAIN` (same file) is the custom domain (go-htmx4.ubuntusoftware.net, zone ubuntusoftware.net): `mise run deploy`
+  attaches it as a Workers Custom Domain and passes it as a binding; `host.go` then 301s `*.workers.dev` GET/HEAD requests
+  to it (never `/healthz`, `/live/*` or form posts; never local hosts), so canonical, hreflang, og:url, sitemap and
+  robots.txt carry one host. The zone also hosts other projects (apex/www Pages site, remy, ifcsketch, auth): only ever
+  add `go-htmx4.*` records, and `cfdeploy` refuses hostnames attached to other Workers. `mise run rename` clears it.
   `dev` is `gsx dev` driving the TinyGo build + workerd (`gsx.toml` `[dev]`). Static Assets are assembled into `dist/site`
   (`mise run assets`: gsxui CSS via standalone Tailwind, `/gsxui/` behaviours, fonts). `<meta name="htmx-config">` must
   render before htmx's script (it does, in `views/layout.gsx`), or hx-ws ignores it.
