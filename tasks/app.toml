@@ -205,7 +205,9 @@ else
   echo "✗ wsload:"; cat build/wsload-smoke.log; fail=1
 fi
 # Last: over the write limit (60 per 10 s per client, workerd/local-entry.mjs) the board answers 429 + a toast.
-codes=$(for _ in $(seq 1 70); do curl -s -o /dev/null -w '%{http_code}\n' -X POST -d delta=1 "$base/board/add?topic=smoke-limit"; done | sort | uniq -c | tr '\n' ' ')
+# The 70 writes go out in parallel: one after another they took over 10 s on a CI runner, so the window reset and no
+# write was refused.
+codes=$(seq 1 70 | xargs -P 10 -I{} curl -s -o /dev/null -w '%{http_code}\n' -X POST -d delta=1 "$base/board/add?topic=smoke-limit" | sort | uniq -c | tr '\n' ' ')
 check "write limit → 429"         "$codes" ' 429'
 check "429 carries a toast"       "$(curl -s -X POST -d delta=1 "$base/board/add?topic=smoke-limit")" 'Slow down'
 if grep -qiE 'panic|uncaught' build/workerd-smoke.log; then echo "✗ errors in workerd log:"; cat build/workerd-smoke.log; fail=1; fi

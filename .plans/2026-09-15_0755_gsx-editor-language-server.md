@@ -54,5 +54,5 @@ module into `GOPATH/bin`. go.mod is the only gsx pin (the same version `go tool 
 ## Findings (follow-up pass)
 
 - CI on a07fad7 (2026-09-14) failed in the smoke's write-limit check (`write limit → 429: got 70 × 200`), unrelated
-  to this plan; the same smoke passes locally. Probably the CI runner is slow enough that 70 writes spread past the 10 s
-  window. Owner: the board/abuse-limit work, not this plan.
+  to this plan; the same smoke passes locally. The CI runner took 10.6 s for the 70 serial writes, past the 10 s window.
+  [x] Fixed 2026-09-15: the smoke sends the 70 writes in parallel (`xargs -P 10`); `mise run test` green locally.
