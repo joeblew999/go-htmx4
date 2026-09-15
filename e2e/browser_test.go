@@ -47,7 +47,10 @@ type tab struct {
 func newTab(t *testing.T, name string) *tab {
 	t.Helper()
 	// No QUIC: some networks break Chrome's HTTP/3 to Cloudflare (net::ERR_QUIC_PROTOCOL_ERROR); HTTP/2 tests the same app.
-	opts := append(chromedp.DefaultExecAllocatorOptions[:], chromedp.WindowSize(1100, 1000), chromedp.Flag("disable-quic", true))
+	// WSURLReadTimeout: chromedp waits 20 s for Chrome to start by default; the first cold start on a CI runner took longer
+	// ("websocket url timeout reached").
+	opts := append(chromedp.DefaultExecAllocatorOptions[:], chromedp.WindowSize(1100, 1000), chromedp.Flag("disable-quic", true),
+		chromedp.WSURLReadTimeout(90*time.Second))
 	if os.Getenv("CI") != "" {
 		opts = append(opts, chromedp.NoSandbox)
 	}
