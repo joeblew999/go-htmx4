@@ -18,7 +18,7 @@ dashboard clicks and no wrangler. Make that the one URL search engines index, so
 - **workers.dev:** stays enabled for `mise run smoke-remote`/e2e fallbacks, but **301s pages to the custom host** once it's
   attached. Otherwise canonical URLs (built from the request origin) would make both hosts self-canonical duplicates.
   `/healthz`, `/live/*` (WebSocket upgrades can't follow redirects) and non-GET requests are exempt. This joins the
-  [search plan](2026-09-14_0938_search-indexing-google-gemini.md)'s Phase 6.
+  [search plan](done/2026-09-14_0938_search-indexing-google-gemini.md)'s Phase 6.
 
 ## Ground rules
 

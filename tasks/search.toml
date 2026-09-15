@@ -1,4 +1,4 @@
-# tasks/search.toml — Google Search Console through its API (search plan: .plans/2026-09-14_0938_search-indexing-google-gemini.md).
+# tasks/search.toml — Google Search Console through its API (search plan: .plans/done/2026-09-14_0938_search-indexing-google-gemini.md).
 #
 #   mise run search:setup    # one-time: Google Cloud project + service account + key in fnox (gcloud, task-only)
 #   mise run search:sites    # properties the service account can use (check it was added in Search Console)

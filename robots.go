@@ -9,7 +9,7 @@ import (
 	"github.com/joeblew999/go-htmx4/kit/i18n/cldr"
 )
 
-// robotsTxt answers /robots.txt (search plan: .plans/2026-09-14_0938_search-indexing-google-gemini.md). One `*`
+// robotsTxt answers /robots.txt (search plan: .plans/done/2026-09-14_0938_search-indexing-google-gemini.md). One `*`
 // group allows everything: a named group (e.g. Googlebot) would make that crawler ignore `*`, and no Google-Extended
 // group means Gemini training and grounding are allowed. Content-Signal isn't read by Google but replaces Cloudflare's
 // default notice with the same intent for other crawlers. The sitemap URL uses the request's own origin, so it's

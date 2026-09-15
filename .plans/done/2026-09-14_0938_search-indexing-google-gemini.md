@@ -169,7 +169,7 @@ Cloudflare can block Google before a request ever reaches the Worker, so our tes
 - [x] `mise run deploy`, then `smoke-remote`: `/robots.txt` is ours (no Cloudflare notice, no prepended `Disallow`), and
       `/sitemap.xml` returns 200 once i18n Phase 8 has shipped. — 7d6915f deployed by go-htmx4-87 (smoke-remote 26/26,
       live e2e 11/11); again on the custom host with c117ad6 (26/26).
-- [ ] **Real-Google check (UI only, no API):** `/`, `/board` and `/de/` on `https://go-htmx4.ubuntusoftware.net` through Google's
+- [-] Not needed: Googlebot crawled and indexed 52 of 56 sitemap URLs within a day (2026-09-15, `mise run search:status`), so Google's fetcher gets the pages, not a Cloudflare challenge. If ever needed: `mise run search:google` opens Rich Results Test. Originally: **Real-Google check (UI only, no API):** `/`, `/board` and `/de/` on `https://go-htmx4.ubuntusoftware.net` through Google's
       [Rich Results Test](https://search.google.com/test/rich-results), which fetches from Google's machines. The rendered HTML
       must be our page, not a Cloudflare challenge.
 
@@ -185,9 +185,9 @@ Cloudflare can block Google before a request ever reaches the Worker, so our tes
 - [x] Submit `https://go-htmx4.ubuntusoftware.net/sitemap.xml` — submitted and downloaded (~2026-09-14 17:10): 56 URLs,
       0 errors, 0 warnings. URL Inspection by API: 46 "Discovered – currently not indexed", 10 "URL is unknown to Google",
       no canonical conflicts.
-- [ ] *Test live URL* and *Request indexing* have no API: in the Search Console UI for `/`, `/board`, `/de/` (the live
+- [-] Not needed: the submitted sitemap gets the remaining URLs crawled; Request indexing only speeds that up. If wanted: `mise run search:todo` opens Google's own inspection pages. Originally: *Test live URL* and *Request indexing* have no API: in the Search Console UI for `/`, `/board`, `/de/` (the live
       test is the real-Googlebot fetch that would show a Cloudflare block).
-- [ ] A week later (~2026-09-21): `mise run search:status` for index coverage, plus **Crawl stats → Host status** in the UI
+- [-] Moved to routine use, not a plan step: `mise run search:todo` (URLs not yet indexed) and `mise run search:google` (Crawl stats → Host status). Originally: A week later (~2026-09-21): `mise run search:status` for index coverage, plus **Crawl stats → Host status** in the UI
       (no API), which is where a Cloudflare block would show. Note results here.
 
 ### Phase 6: custom domain (done with the [custom-domains plan](2026-09-14_0915_workers-custom-domains.md))
@@ -199,7 +199,7 @@ Cloudflare can block Google before a request ever reaches the Worker, so our tes
 - [x] Zone security read (2026-09-14 18:25, `ubuntusoftware.net`): Bot Fight Mode off, block AI bots and crawler
       protection off, `ai_training`/`ai_search`/`ai_user` "disabled" (no blocking rule), managed robots.txt off
       (`policy_only`), security level low, Browser Integrity Check on (verified bots pass), no custom WAF or rate-limit
-      rules. Nothing blocks Googlebot as configured. [ ] Look at the zone's AI Crawl Control crawler table in the
+      rules. Nothing blocks Googlebot as configured. [-] Superseded: the zone's AI Crawl Control crawler table isn't needed, since Googlebot's 52 indexed pages show it gets through. Originally: look at the zone's AI Crawl Control crawler table in the
       dashboard after Google has crawled, to see Googlebot / Google-Agent requests let through.
 
 ### Phase 7: docs
@@ -263,10 +263,17 @@ Cloudflare can block Google before a request ever reaches the Worker, so our tes
       Rich Results Test, PageSpeed Insights). `jq` pinned in `mise.toml`. `mise run check` green.
 - [x] Deployed 912dc70 with your OK (2026-09-15): `smoke-remote` 26/26; `mise run search:audit` live: robots.txt and all
       56 sitemap URLs pass.
-- [ ] `mise run search:todo`: *Request indexing* for `/`, `/zh-hans/formats`, `/zh-hans/board` and *Test live URL* /
+- [-] Not needed (see Phase 5): Google crawls the 3 remaining URLs from the sitemap. Originally: `mise run search:todo`: *Request indexing* for `/`, `/zh-hans/formats`, `/zh-hans/board` and *Test live URL* /
       Rich Results Test for `/`, `/board`, `/de/` (UI only: the task opens the pages).
 - [x] `/en-in/about` decision: accept. Its text is the English page (en-IN only differs in formats), and Google folds
       same-language copies with the same content into one canonical while hreflang still serves `/en-in/` URLs to India
       (https://developers.google.com/search/docs/specialty/international/localized-versions). Not a defect to fix here.
 - [x] PageSpeed Insights API: anonymous daily quota was exhausted (HTTP 429); `search:google` opens the PageSpeed page
       instead of calling the API (an API key would be a GCP write).
+
+### Closed 2026-09-15
+
+Done: robots.txt, sitemap, noindex, Open Graph, snippet widths, custom domain, Search Console API tooling, live audit.
+Google's verdict at close: 52 of 56 sitemap URLs indexed; the rest are queued from the sitemap (`/en-in/about` folded
+into `/about` by design). Ongoing checks: `mise run search:audit` after deploys, `search:todo` and `search:google` any
+time.

@@ -152,7 +152,7 @@ browser ─ hx-post /board/add|note ─────▶ worker/index.mjs ─▶ G
   indexed, with why, opening their Search Console pages) and `search:google` (Google's own reports and live tests).
   Status on 2026-09-15: 52 of 56 sitemap URLs indexed.
 
-Plans: [search indexing](.plans/2026-09-14_0938_search-indexing-google-gemini.md),
+Plans: [search indexing](.plans/done/2026-09-14_0938_search-indexing-google-gemini.md),
 [custom domain](.plans/2026-09-14_0915_workers-custom-domains.md).
 
 ## Reusable packages (`kit/`)
