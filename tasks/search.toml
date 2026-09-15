@@ -100,5 +100,9 @@ else
   fnox set -g GOOGLE_SEARCH_CONSOLE_KEY --from-file "$key" -p keychain -d "Search Console API key ($sa)" >/dev/null
   echo "✓ key stored in fnox as GOOGLE_SEARCH_CONSOLE_KEY"
 fi
-echo "Next: Search Console → your property → Settings → Users and permissions → Add user $sa (Full), then mise run search:sites"
+if fnox exec -- go run ./cmd/searchconsole sites 2>/dev/null | grep -q "siteOwner\|siteFullUser"; then
+  echo "✓ $sa has Full access in Search Console (mise run search:sites)"
+else
+  echo "Next: Search Console → your property → Settings → Users and permissions → Add user $sa (Full), then mise run search:sites"
+fi
 '''
