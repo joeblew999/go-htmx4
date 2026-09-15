@@ -7,7 +7,7 @@
 # rarely has this project's mise tools, and the extension checks candidates outside the repo, where mise shims don't
 # resolve. So install into GOPATH/bin, at the gsx version go.mod pins (the one `go tool gsx` builds with). The
 # extension still runs `go env GOPATH` to find it, so VS Code needs some `go` on its PATH. Upstream fix requested in
-# https://github.com/gsxhq/vscode-gsx/issues/9 (plan: .plans/2026-09-15_0755_gsx-editor-language-server.md).
+# https://github.com/gsxhq/vscode-gsx/issues/9 (plan: .plans/done/2026-09-15_0755_gsx-editor-language-server.md).
 # A shell that exports its own GOPATH (an agent, a CI job) may differ from the editor's, so when GOPATH differs from Go's
 # default, install into both.
 

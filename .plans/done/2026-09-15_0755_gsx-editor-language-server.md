@@ -43,7 +43,7 @@ module into `GOPATH/bin`. go.mod is the only gsx pin (the same version `go tool 
   **gsx: Restart Language Server** in the old window left no log line and no process; cause not found.)
 - [x] Language features checked 2026-09-15 against `~/go/bin/gsx lsp` on `views/theme.gsx`: hover on `icon.SunMoon`
   returns its Go signature, definition on `ui.Button` jumps to `ui/button.gsx:11`, 0 diagnostics.
-- [ ] When vscode-gsx#9 ships: commit a `gsx.server.path` using `${workspaceFolder}` (or rely on workspace-folder
+- [-] Moved to https://github.com/gsxhq/vscode-gsx/issues/9 (waiting on upstream). When it ships: commit a `gsx.server.path` using `${workspaceFolder}` (or rely on workspace-folder
   discovery) and drop the GOPATH/bin install
 
 ## Known limits of the workaround
