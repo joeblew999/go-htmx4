@@ -1,0 +1,4 @@
+{
+  // gsx highlighting + language server. `mise install` puts the compiler it needs in GOPATH/bin (tasks/editor.toml).
+  "recommendations": ["gsxhq.gsx"]
+}

@@ -25,8 +25,11 @@
 
 # Toolchain
 
-- All tools are pinned in `mise.toml` (Go 1.27.1, TinyGo 0.42.0, binaryen, Tailwind, gsx, gsxui, workerd, fnox).
+- All tools are pinned in `mise.toml` (Go 1.27.1, TinyGo 0.42.0, binaryen, Tailwind, gsxui, workerd, fnox).
   Run `mise install` first; use `mise run <task>` rather than ad-hoc commands.
+- gsx is pinned only in `go.mod` (builds run `go tool gsx`). The VS Code extension's language server needs a `gsx` binary
+  it can find: `mise install`'s postinstall hook runs `editor:gsx` (`tasks/editor.toml`), which installs go.mod's version
+  into `GOPATH/bin`. `.vscode/` is committed: shared settings only, never machine-specific paths.
 - When bumping Go, update `mise.toml`, `go.mod` (`go` + `toolchain` lines) and the README Stack table together.
 - The app is the Go module at the repo root (`github.com/joeblew999/go-htmx4`). Plan:
   `.plans/done/2026-09-14_1037_one-app-template-and-kit.md` (released as v0.1.0).

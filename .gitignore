@@ -5,7 +5,6 @@
 
 # Editor / OS
 .idea/
-.vscode/
 .DS_Store
 
 # Upstream checkouts driven by mise tasks (tasks/upstream.toml)

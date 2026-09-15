@@ -35,10 +35,15 @@ reads a `.env` file.
 ```sh
 git clone https://github.com/joeblew999/go-htmx4.git
 cd go-htmx4
-mise install        # every pinned tool (Go, TinyGo, workerd, Tailwind, gsx, …)
+mise install        # every pinned tool (Go, TinyGo, workerd, Tailwind, gsxui, …) + gsx for the editor
 mise run dev        # gsx dev: save → regenerate → TinyGo → workerd restart → http://localhost:8913
 mise run check      # TinyGo build + workerd smoke + go test
 ```
+
+**VS Code:** install the recommended [gsx extension](https://marketplace.visualstudio.com/items?itemName=gsxhq.gsx)
+(`.vscode/extensions.json`). `mise install` puts go.mod's gsx in `GOPATH/bin`, where its language server looks
+(`mise run editor:gsx` reinstalls it); then run **gsx: Restart Language Server**. Don't use the extension's *Install gsx*
+prompt: it installs `@latest`, not the pinned version.
 
 | Task | What |
 | --- | --- |
