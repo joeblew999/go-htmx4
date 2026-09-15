@@ -46,5 +46,11 @@ module into `GOPATH/bin`. go.mod is the only gsx pin (the same version `go tool 
 
 - VS Code needs some `go` on its PATH (the extension runs `go env GOPATH`).
 - `GOPATH/bin/gsx` is shared by every project on the machine; a project pinning another gsx version overwrites it.
-- A `mise install` run with a different GOPATH (e.g. from Claude Code here) installs to that GOPATH's `bin`. Re-run
-  `env -u GOPATH mise run editor:gsx` from a normal shell if VS Code can't find the new version.
+- [x] Fixed 2026-09-15: a `mise install` run with an exported GOPATH (e.g. from Claude Code here) used to install only
+  into that GOPATH's `bin`. `editor:gsx` now also installs into Go's default GOPATH when they differ (verified from both).
+
+## Findings (follow-up pass)
+
+- CI on a07fad7 (2026-09-14) failed in the smoke's write-limit check (`write limit → 429: got 70 × 200`), unrelated
+  to this plan; the same smoke passes locally. Probably the CI runner is slow enough that 70 writes spread past the 10 s
+  window. Owner: the board/abuse-limit work, not this plan.
