@@ -344,6 +344,14 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Locale-aware formatting rendered by Go from Unicode CLDR, with the options and output of JavaScript's Intl.",
+					},
+				},
+			},
+			{
 				Key: "formats.direction",
 				Parts: []i18n.MsgPart{
 					{
@@ -674,6 +682,14 @@ var catalogs = []*i18n.Catalog{
 				Parts: []i18n.MsgPart{
 					{
 						Text: "Live updates",
+					},
+				},
+			},
+			{
+				Key: "home.description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Server-rendered gsx components with htmx 4, hx-live, D1 and Durable Objects for live updates. Go compiled with TinyGo. No Node, no bundler.",
 					},
 				},
 			},
@@ -1489,6 +1505,14 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Locale-aware formatting rendered by Go from Unicode CLDR, with the options and output of JavaScript's Intl.",
+					},
+				},
+			},
+			{
 				Key: "formats.direction",
 				Parts: []i18n.MsgPart{
 					{
@@ -1819,6 +1843,14 @@ var catalogs = []*i18n.Catalog{
 				Parts: []i18n.MsgPart{
 					{
 						Text: "Live updates",
+					},
+				},
+			},
+			{
+				Key: "home.description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Server-rendered gsx components with htmx 4, hx-live, D1 and Durable Objects for live updates. Go compiled with TinyGo. No Node, no bundler.",
 					},
 				},
 			},
@@ -2634,6 +2666,14 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Gebietsschemaabhängige Formatierung, von Go aus Unicode CLDR gerendert, mit denselben Optionen und Ausgaben wie Intl in JavaScript.",
+					},
+				},
+			},
+			{
 				Key: "formats.direction",
 				Parts: []i18n.MsgPart{
 					{
@@ -2964,6 +3004,14 @@ var catalogs = []*i18n.Catalog{
 				Parts: []i18n.MsgPart{
 					{
 						Text: "Live-Updates",
+					},
+				},
+			},
+			{
+				Key: "home.description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Serverseitig gerenderte gsx-Komponenten mit htmx 4, hx-live, D1 und Durable Objects für Live-Updates. Go kompiliert mit TinyGo. Kein Node, kein Bundler.",
 					},
 				},
 			},
@@ -3779,6 +3827,14 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Formatage adapté à la locale, rendu par Go à partir d'Unicode CLDR, avec les options et le résultat d'Intl en JavaScript.",
+					},
+				},
+			},
+			{
 				Key: "formats.direction",
 				Parts: []i18n.MsgPart{
 					{
@@ -4109,6 +4165,14 @@ var catalogs = []*i18n.Catalog{
 				Parts: []i18n.MsgPart{
 					{
 						Text: "Mises à jour en direct",
+					},
+				},
+			},
+			{
+				Key: "home.description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Composants gsx rendus côté serveur avec htmx 4, hx-live, D1 et Durable Objects pour le temps réel. Go compilé avec TinyGo. Sans Node ni bundler.",
 					},
 				},
 			},
@@ -4924,6 +4988,14 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Formato según la configuración regional, renderizado por Go a partir de Unicode CLDR, con las opciones y la salida de Intl de JavaScript.",
+					},
+				},
+			},
+			{
 				Key: "formats.direction",
 				Parts: []i18n.MsgPart{
 					{
@@ -5254,6 +5326,14 @@ var catalogs = []*i18n.Catalog{
 				Parts: []i18n.MsgPart{
 					{
 						Text: "Actualizaciones en vivo",
+					},
+				},
+			},
+			{
+				Key: "home.description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Componentes gsx renderizados en el servidor con htmx 4, hx-live, D1 y Durable Objects para actualizaciones en vivo. Go compilado con TinyGo. Sin Node.",
 					},
 				},
 			},
@@ -6069,6 +6149,14 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Formatação conforme a localidade, renderizada pelo Go a partir do Unicode CLDR, com as opções e a saída do Intl do JavaScript.",
+					},
+				},
+			},
+			{
 				Key: "formats.direction",
 				Parts: []i18n.MsgPart{
 					{
@@ -6399,6 +6487,14 @@ var catalogs = []*i18n.Catalog{
 				Parts: []i18n.MsgPart{
 					{
 						Text: "Atualizações em tempo real",
+					},
+				},
+			},
+			{
+				Key: "home.description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Componentes gsx renderizados no servidor com htmx 4, hx-live, D1 e Durable Objects para tempo real. Go compilado com TinyGo. Sem Node, sem bundler.",
 					},
 				},
 			},
@@ -7214,6 +7310,14 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Formatação adaptada ao idioma e à região, renderizada pelo Go a partir do Unicode CLDR, com as opções e o resultado do Intl do JavaScript.",
+					},
+				},
+			},
+			{
 				Key: "formats.direction",
 				Parts: []i18n.MsgPart{
 					{
@@ -7544,6 +7648,14 @@ var catalogs = []*i18n.Catalog{
 				Parts: []i18n.MsgPart{
 					{
 						Text: "Atualizações em tempo real",
+					},
+				},
+			},
+			{
+				Key: "home.description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Componentes gsx renderizados no servidor com htmx 4, hx-live, D1 e Durable Objects para tempo real. Go compilado com TinyGo. Sem Node, sem bundler.",
 					},
 				},
 			},
@@ -8356,6 +8468,14 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "تنسيق يراعي اللغة والمنطقة، تعرضه Go من بيانات Unicode CLDR، بخيارات Intl في JavaScript ومخرجاته.",
+					},
+				},
+			},
+			{
 				Key: "formats.direction",
 				Parts: []i18n.MsgPart{
 					{
@@ -8686,6 +8806,14 @@ var catalogs = []*i18n.Catalog{
 				Parts: []i18n.MsgPart{
 					{
 						Text: "تحديثات مباشرة",
+					},
+				},
+			},
+			{
+				Key: "home.description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "مكونات gsx تُعرض على الخادم مع htmx 4 وhx-live وD1 وDurable Objects للتحديثات المباشرة. تُصرَّف Go باستخدام TinyGo. بلا Node وبلا مُجمِّع حزم.",
 					},
 				},
 			},
@@ -9501,6 +9629,14 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "עיצוב מותאם לשפה ולאזור, שמרונדר ב-Go מנתוני Unicode CLDR, עם האפשרויות והפלט של Intl ב-JavaScript.",
+					},
+				},
+			},
+			{
 				Key: "formats.direction",
 				Parts: []i18n.MsgPart{
 					{
@@ -9831,6 +9967,14 @@ var catalogs = []*i18n.Catalog{
 				Parts: []i18n.MsgPart{
 					{
 						Text: "עדכונים חיים",
+					},
+				},
+			},
+			{
+				Key: "home.description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "רכיבי gsx שמרונדרים בשרת, htmx 4 לבקשות, hx-live למצב מקומי, D1 ו-Durable Objects לעדכונים חיים. Go מהודר עם TinyGo. בלי Node ובלי bundler.",
 					},
 				},
 			},
@@ -10646,6 +10790,14 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Unicode CLDR をもとに Go がレンダリングするロケール対応の書式設定。オプションと出力は JavaScript の Intl と同じです。",
+					},
+				},
+			},
+			{
 				Key: "formats.direction",
 				Parts: []i18n.MsgPart{
 					{
@@ -10973,6 +11125,14 @@ var catalogs = []*i18n.Catalog{
 				Parts: []i18n.MsgPart{
 					{
 						Text: "ライブ更新",
+					},
+				},
+			},
+			{
+				Key: "home.description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "サーバーでレンダリングする gsx コンポーネントと htmx 4、hx-live、D1、Durable Objects によるライブ更新。Go は TinyGo でコンパイル。Node 不要。",
 					},
 				},
 			},
@@ -11788,6 +11948,14 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "由 Go 基于 Unicode CLDR 渲染的区域感知格式，选项和输出与 JavaScript 的 Intl 一致。",
+					},
+				},
+			},
+			{
 				Key: "formats.direction",
 				Parts: []i18n.MsgPart{
 					{
@@ -12118,6 +12286,14 @@ var catalogs = []*i18n.Catalog{
 				Parts: []i18n.MsgPart{
 					{
 						Text: "实时更新",
+					},
+				},
+			},
+			{
+				Key: "home.description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "服务器端渲染的 gsx 组件，搭配 htmx 4、hx-live、D1 和 Durable Objects 实时更新。Go 由 TinyGo 编译，无需 Node。",
 					},
 				},
 			},
@@ -12933,6 +13109,14 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "由 Go 依據 Unicode CLDR 渲染的地區格式，選項與輸出和 JavaScript 的 Intl 一致。",
+					},
+				},
+			},
+			{
 				Key: "formats.direction",
 				Parts: []i18n.MsgPart{
 					{
@@ -13263,6 +13447,14 @@ var catalogs = []*i18n.Catalog{
 				Parts: []i18n.MsgPart{
 					{
 						Text: "即時更新",
+					},
+				},
+			},
+			{
+				Key: "home.description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "在伺服器端渲染的 gsx 元件，搭配 htmx 4、hx-live、D1 與 Durable Objects 即時更新。Go 以 TinyGo 編譯，不需要 Node。",
 					},
 				},
 			},
@@ -14078,6 +14270,14 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "लोकेल के अनुसार फ़ॉर्मैटिंग, जिसे Go, Unicode CLDR से रेंडर करता है, JavaScript के Intl जैसे विकल्पों और आउटपुट के साथ।",
+					},
+				},
+			},
+			{
 				Key: "formats.direction",
 				Parts: []i18n.MsgPart{
 					{
@@ -14405,6 +14605,14 @@ var catalogs = []*i18n.Catalog{
 				Parts: []i18n.MsgPart{
 					{
 						Text: "लाइव अपडेट",
+					},
+				},
+			},
+			{
+				Key: "home.description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "सर्वर पर रेंडर होने वाले gsx कॉम्पोनेंट, htmx 4, hx-live, और लाइव अपडेट के लिए D1 व Durable Objects। Go, TinyGo से कंपाइल होता है। न Node, न bundler।",
 					},
 				},
 			},
@@ -15263,6 +15471,14 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Форматирование с учётом локали: Go отрисовывает его по данным Unicode CLDR с теми же опциями и результатом, что и Intl в JavaScript.",
+					},
+				},
+			},
+			{
 				Key: "formats.direction",
 				Parts: []i18n.MsgPart{
 					{
@@ -15590,6 +15806,14 @@ var catalogs = []*i18n.Catalog{
 				Parts: []i18n.MsgPart{
 					{
 						Text: "Обновления в реальном времени",
+					},
+				},
+			},
+			{
+				Key: "home.description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Компоненты gsx с рендерингом на сервере: htmx 4, hx-live, D1 и Durable Objects для обновлений в реальном времени. Go компилирует TinyGo. Без Node.",
 					},
 				},
 			},
@@ -16647,6 +16871,20 @@ var pseudoCatalog = &i18n.Catalog{
 			},
 		},
 		{
+			Key: "formats.description",
+			Parts: []i18n.MsgPart{
+				{
+					Text: "⟦",
+				},
+				{
+					Text: "Ļóçáļé-áŵáŕé ƒóŕɱáţţíñĝ ŕéñðéŕéð ƀý Ĝó ƒŕóɱ Ûñíçóðé ÇĻĐŔ, ŵíţĥ ţĥé óþţíóñš áñð óúţþúţ óƒ ĴáṽáŠçŕíþţ'š Îñţļ.···································",
+				},
+				{
+					Text: "⟧",
+				},
+			},
+		},
+		{
 			Key: "formats.direction",
 			Parts: []i18n.MsgPart{
 				{
@@ -17202,6 +17440,20 @@ var pseudoCatalog = &i18n.Catalog{
 				},
 				{
 					Text: "Ļíṽé úþðáţéš····",
+				},
+				{
+					Text: "⟧",
+				},
+			},
+		},
+		{
+			Key: "home.description",
+			Parts: []i18n.MsgPart{
+				{
+					Text: "⟦",
+				},
+				{
+					Text: "Šéŕṽéŕ-ŕéñðéŕéð ĝšẋ çóɱþóñéñţš ŵíţĥ ĥţɱẋ 4, ĥẋ-ļíṽé, Đ1 áñð Đúŕáƀļé Öƀĵéçţš ƒóŕ ļíṽé úþðáţéš. Ĝó çóɱþíļéð ŵíţĥ ŢíñýĜó. Ñó Ñóðé, ñó ƀúñðļéŕ.···········································",
 				},
 				{
 					Text: "⟧",

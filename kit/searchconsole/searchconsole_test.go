@@ -123,3 +123,11 @@ func TestSearchConsole(t *testing.T) {
 		t.Errorf("bad token: %v", err)
 	}
 }
+
+func TestSnippetWidth(t *testing.T) {
+	for s, want := range map[string]int{"": 0, "Home": 4, "Café": 4, "ホーム": 6, "服务器，": 8, "gsx 组件": 8, "مكونات": 6} {
+		if got := searchconsole.SnippetWidth(s); got != want {
+			t.Errorf("SnippetWidth(%q) = %d, want %d", s, got, want)
+		}
+	}
+}

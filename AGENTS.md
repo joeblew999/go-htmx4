@@ -82,10 +82,14 @@
   one `*` group with no `Disallow` and no named Google groups (`TestRobotsTxt`); both answer only at the root.
 - Fragments go under `/fragments/`: `noindexNonPages` marks them, `/healthz` and every non-GET/HEAD request
   `X-Robots-Tag: noindex`. Don't add page routes under `/fragments/`, and don't add a robots `Disallow` for them.
-- New pages: pass a translated title and description to `Layout` (canonical, hreflang and Open Graph follow), add
-  them to `views.SitemapPages`, and keep `TestOpenGraph`, `TestCanonicalAndHreflang` and `TestSitemap` green.
-- Search Console: `mise run search:status` (API) for index coverage. *Test live URL*, *Request indexing* and Crawl stats
-  have no API and stay in the UI.
+- New pages: pass a translated title and a dedicated translated `description` key to `Layout` (not the visible intro;
+  canonical, hreflang and Open Graph follow), add them to `views.SitemapPages`, and keep `TestOpenGraph`,
+  `TestCanonicalAndHreflang`, `TestSitemap` and `TestSnippetWidths` green (title ≤ 60, description ≤ 160 wide, CJK
+  counts double: `kit/searchconsole.SnippetWidth`).
+- After a deploy: `mise run search:audit` must pass (live fetch of robots.txt and every sitemap URL as Googlebot).
+- Google's own view: `mise run search:status` (API: index coverage), `search:todo` (URLs not indexed, opens their
+  Search Console pages), `search:google` (site: search, Pages, Sitemaps, Crawl stats, Inspection, Rich Results Test,
+  PageSpeed). *Request indexing* and *Test live URL* have no API: `search:todo` opens them.
 
 # Cloudflare Workers
 

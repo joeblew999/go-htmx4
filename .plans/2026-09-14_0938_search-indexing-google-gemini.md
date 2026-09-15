@@ -245,3 +245,27 @@ Cloudflare can block Google before a request ever reaches the Worker, so our tes
 - [-] Phase 5: Search Console (superseded: `sc-domain:ubuntusoftware.net` covers the custom host; see Phase 5). Note: `ubuntusoftware.net` already has a `google-site-verification` TXT record, so you may
       already own a Domain property there; once the app moves to a subdomain of it (custom-domains plan) that property
       covers it. For `go-htmx4.gedw99.workers.dev` a URL-prefix property + HTML file (a root route) is still needed.
+
+### 2026-09-15: Google's verdict, live audit, snippet widths
+
+- **Index coverage (Search Console API, `mise run search:status`):** 52 of 56 sitemap URLs "Submitted and indexed".
+  Not yet: `/` and `/zh-hans/formats` "Discovered – currently not indexed" (never crawled), `/zh-hans/board` "URL is
+  unknown to Google", `/en-in/about` "Duplicate, Google chose different canonical" (Google picked `/about`).
+- **Live audit as Googlebot** (new `mise run search:audit`, `cmd/searchconsole audit`): robots.txt and all 56 URLs answer
+  200, indexable, self-canonical, `lang`, one `<h1>`, reciprocal hreflang with x-default. Only failure: meta descriptions
+  too long for a result on `/` (10 locales, 163–211) and `/formats` (5 locales), because both pages reused their visible
+  intro as the description.
+- [x] Fix: dedicated `home.description` and `formats.description` keys in all 13 full catalogs (`en-IN` inherits `en`),
+      ≤ 155 wide; views use them. `TestSnippetWidths` renders every sitemap URL and fails on a title > 60 or description
+      > 160 wide (`kit/searchconsole.SnippetWidth`, CJK counts double); mutation-checked (the old intros fail 11 pages).
+- [x] Tooling so Google's own view is one command: `search:todo` (URLs not indexed, why, opens their Search Console
+      inspection pages + Rich Results Test), `search:google` (site: search, Pages, Sitemaps, Crawl stats, Inspection,
+      Rich Results Test, PageSpeed Insights). `jq` pinned in `mise.toml`. `mise run check` green.
+- [ ] Deploy (⚠ needs OK), then `mise run search:audit` must pass live.
+- [ ] `mise run search:todo`: *Request indexing* for `/`, `/zh-hans/formats`, `/zh-hans/board` and *Test live URL* /
+      Rich Results Test for `/`, `/board`, `/de/` (UI only: the task opens the pages).
+- [x] `/en-in/about` decision: accept. Its text is the English page (en-IN only differs in formats), and Google folds
+      same-language copies with the same content into one canonical while hreflang still serves `/en-in/` URLs to India
+      (https://developers.google.com/search/docs/specialty/international/localized-versions). Not a defect to fix here.
+- [x] PageSpeed Insights API: anonymous daily quota was exhausted (HTTP 429); `search:google` opens the PageSpeed page
+      instead of calling the API (an API key would be a GCP write).

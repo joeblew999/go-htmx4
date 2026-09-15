@@ -15,6 +15,7 @@ preferences = "टाइम ज़ोन और घड़ी"
 title = "होम"
 heading = "Cloudflare Workers पर Go + htmx 4 + gsxui"
 intro = "सर्वर पर रेंडर होने वाले gsx कॉम्पोनेंट, अनुरोधों के लिए htmx 4, लोकल स्टेट के लिए hx-live, और लाइव अपडेट के लिए D1 और Durable Objects। Go को TinyGo से कंपाइल किया जाता है। न Node, न bundler।"
+description = "सर्वर पर रेंडर होने वाले gsx कॉम्पोनेंट, htmx 4, hx-live, और लाइव अपडेट के लिए D1 व Durable Objects। Go, TinyGo से कंपाइल होता है। न Node, न bundler।"
 served_by = "सर्व करने वाला"
 env = "env"
 
@@ -126,6 +127,7 @@ mise = "हर टूल का वर्ज़न पिन करता है
 [formats]
 title = "फ़ॉर्मैट"
 intro = "लोकेल के अनुसार फ़ॉर्मैटिंग, जिसे Go, Unicode CLDR से रेंडर करता है, JavaScript के Intl जैसे विकल्पों और आउटपुट के साथ। भाषा पेज के नीचे से बदलें।"
+description = "लोकेल के अनुसार फ़ॉर्मैटिंग, जिसे Go, Unicode CLDR से रेंडर करता है, JavaScript के Intl जैसे विकल्पों और आउटपुट के साथ।"
 input = "इनपुट"
 options = "विकल्प"
 result = "परिणाम"

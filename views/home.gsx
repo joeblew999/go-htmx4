@@ -9,7 +9,7 @@ import (
 // out-of-band toast, lazily loaded dialog and tab content, client-side state with hx-live, and the live
 // board.
 component HomePage(target string, env string, flavours []string, components []string) {
-	<Layout title={M(ctx).HomeTitle()} description={M(ctx).HomeIntro()} path="/">
+	<Layout title={M(ctx).HomeTitle()} description={M(ctx).HomeDescription()} path="/">
 		<div class="flex flex-col gap-2">
 			<h1 class="text-3xl font-semibold tracking-tight">{ M(ctx).HomeHeading() }</h1>
 			<p class="text-muted-foreground">{ M(ctx).HomeIntro() }</p>

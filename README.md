@@ -146,8 +146,11 @@ browser ─ hx-post /board/add|note ─────▶ worker/index.mjs ─▶ G
 - **Every page carries:** a translated `<title>` and description, a canonical URL, reciprocal `hreflang` + `x-default`,
   and Open Graph tags with `og:locale`.
 - **Not indexed:** fragments, `/healthz` and form posts send `X-Robots-Tag: noindex`.
-- **Search Console by API:** `mise run search:sites|submit|status` (sitemap submit, URL Inspection). Status on
-  2026-09-14: sitemap read (56 URLs, 0 errors), pages "discovered", not yet indexed.
+- **Checks:** `mise run search:audit` fetches robots.txt and every sitemap URL live as Googlebot (200, indexable,
+  self-canonical, `lang`, title and description that fit a result, one `<h1>`, reciprocal `hreflang`).
+- **What Google says:** `mise run search:status` (Search Console API: index coverage per URL), `search:todo` (URLs not
+  indexed, with why, opening their Search Console pages) and `search:google` (Google's own reports and live tests).
+  Status on 2026-09-15: 52 of 56 sitemap URLs indexed.
 
 Plans: [search indexing](.plans/2026-09-14_0938_search-indexing-google-gemini.md),
 [custom domain](.plans/2026-09-14_0915_workers-custom-domains.md).

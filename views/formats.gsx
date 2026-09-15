@@ -6,7 +6,7 @@ import "github.com/joeblew999/go-htmx4/ui"
 // output computed on the server (byte-identical to Intl, see kit/i18n's conformance test). Results carry
 // data-i18n="cldr": locale data in the page's language, not catalog messages (TestNoHardcodedText).
 component Formats() {
-	<Layout title={M(ctx).FormatsTitle()} description={M(ctx).FormatsIntro()} path="/formats">
+	<Layout title={M(ctx).FormatsTitle()} description={M(ctx).FormatsDescription()} path="/formats">
 		<div class="flex flex-col gap-2">
 			<h1 class="text-3xl font-semibold tracking-tight">{ M(ctx).FormatsTitle() }</h1>
 			<p class="text-muted-foreground">{ M(ctx).FormatsIntro() }</p>

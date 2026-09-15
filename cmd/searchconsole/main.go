@@ -3,10 +3,12 @@
 //	fnox exec -- go run ./cmd/searchconsole sites               # properties the service account can use
 //	fnox exec -- go run ./cmd/searchconsole submit              # submit <base>/sitemap.xml
 //	fnox exec -- go run ./cmd/searchconsole status              # sitemap status + index status of every sitemap URL
+//	fnox exec -- go run ./cmd/searchconsole [-open] todo        # URLs Google hasn't indexed, with Search Console links
+//	go run ./cmd/searchconsole audit                            # live fetch as Googlebot: robots.txt + every sitemap URL
 //
-// The key is GOOGLE_SEARCH_CONSOLE_KEY (a service account JSON key, from fnox). The property defaults to the Domain
-// property of APP_DOMAIN's registrable domain (sc-domain:ubuntusoftware.net) and the base URL to https://$APP_DOMAIN.
-// Test live URL and Request indexing have no API: use the Search Console UI for those.
+// The key is GOOGLE_SEARCH_CONSOLE_KEY (a service account JSON key, from fnox); audit needs none. The property defaults to
+// the Domain property of APP_DOMAIN's registrable domain (sc-domain:ubuntusoftware.net) and the base URL to
+// https://$APP_DOMAIN. Test live URL and Request indexing have no API: todo prints (and with -open opens) their pages.
 package main
 
 import (
@@ -28,14 +30,36 @@ func main() {
 	domain := os.Getenv("APP_DOMAIN")
 	site := flag.String("site", domainProperty(domain), "Search Console property (sc-domain:… or a URL prefix)")
 	base := flag.String("base", "https://"+domain, "the app's base URL (sitemap at <base>/sitemap.xml)")
+	open := flag.Bool("open", false, "todo: open the Search Console and Rich Results Test pages in the browser")
+	live := flag.String("live", "/,/board,/de/", "todo: paths to check with Google's live fetch (Rich Results Test)")
 	flag.Usage = func() {
-		fmt.Fprintln(os.Stderr, "usage: searchconsole [-site sc-domain:example.com] [-base https://app.example.com] sites|submit|status")
+		fmt.Fprintln(os.Stderr, "usage: searchconsole [-site sc-domain:example.com] [-base https://app.example.com] [-open] sites|submit|status|todo|audit")
 		flag.PrintDefaults()
 	}
 	flag.Parse()
 	if flag.NArg() != 1 || domain == "" && (*site == "" || *base == "https://") {
 		flag.Usage()
 		os.Exit(2)
+	}
+	ctx := context.Background()
+	httpc := &http.Client{Timeout: 60 * time.Second}
+	sitemap := strings.TrimRight(*base, "/") + "/sitemap.xml"
+	if flag.Arg(0) == "audit" {
+		urls, err := sitemapURLs(ctx, httpc, sitemap)
+		if err != nil {
+			fail(err)
+		}
+		problems := audit(ctx, httpc, *base, sitemap, urls)
+		for _, p := range problems {
+			fmt.Println("✗ " + p)
+		}
+		if len(problems) > 0 {
+			fmt.Printf("%d problem(s) across robots.txt and %d sitemap URLs (fetched as Googlebot)\n", len(problems), len(urls))
+			os.Exit(1)
+		}
+		fmt.Printf("✓ robots.txt and all %d sitemap URLs pass (fetched as Googlebot: 200, indexable, self-canonical, lang, "+
+			"title, description, one h1, reciprocal hreflang with x-default)\n", len(urls))
+		return
 	}
 	raw := os.Getenv("GOOGLE_SEARCH_CONSOLE_KEY")
 	if raw == "" {
@@ -45,14 +69,11 @@ func main() {
 	if err != nil {
 		fail(err)
 	}
-	ctx := context.Background()
-	httpc := &http.Client{Timeout: 60 * time.Second}
 	token, err := key.Token(ctx, httpc, searchconsole.Scope)
 	if err != nil {
 		fail(err)
 	}
 	c := &searchconsole.Client{HTTP: httpc, Token: token, Site: *site}
-	sitemap := strings.TrimRight(*base, "/") + "/sitemap.xml"
 
 	switch flag.Arg(0) {
 	case "sites":
@@ -73,6 +94,20 @@ func main() {
 		fmt.Printf("✓ submitted %s to %s\n", sitemap, *site)
 	case "status":
 		status(ctx, c, httpc, sitemap)
+	case "todo":
+		urls, err := sitemapURLs(ctx, httpc, sitemap)
+		if err != nil {
+			fail(err)
+		}
+		actions, liveLinks := todo(ctx, c, urls, livePages(*base, *live))
+		printTodo(actions, liveLinks)
+		if *open {
+			links := liveLinks
+			for _, a := range actions {
+				links = append(links, a.link)
+			}
+			openInBrowser(links)
+		}
 	default:
 		flag.Usage()
 		os.Exit(2)

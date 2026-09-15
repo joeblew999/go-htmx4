@@ -4,10 +4,13 @@
 #   mise run search:sites    # properties the service account can use (check it was added in Search Console)
 #   mise run search:submit   # submit https://$APP_DOMAIN/sitemap.xml
 #   mise run search:status   # sitemap status + Google's index status for every sitemap URL
+#   mise run search:audit    # live fetch as Googlebot: robots.txt + every sitemap URL (no credentials; fails on problems)
+#   mise run search:todo     # URLs Google hasn't indexed: why, and opens their Search Console + Rich Results Test pages
+#   mise run search:google   # opens Google's own view: site: search, Pages, Sitemaps, Crawl stats, Inspection, PageSpeed
 #
 # Credentials: GOOGLE_SEARCH_CONSOLE_KEY (service account search-console@go-htmx4-search.iam.gserviceaccount.com) from
 # fnox. The service account needs Full permission on the property (Search Console → Settings → Users and permissions).
-# No API exists for Test live URL or Request indexing: those stay in the Search Console UI.
+# No API exists for Test live URL or Request indexing: search:todo opens those pages (SEARCH_NO_BROWSER=1: print only).
 
 ["search:sites"]
 description = "List the Search Console properties the service account can use"
@@ -23,6 +26,43 @@ run = "fnox exec -- go run ./cmd/searchconsole submit"
 description = "Search Console: sitemap status and Google's index status for every URL in the sitemap"
 dir = "{{config_root}}"
 run = "fnox exec -- go run ./cmd/searchconsole status"
+
+["search:audit"]
+description = "Fetch robots.txt and every sitemap URL live as Googlebot: 200, indexable, self-canonical, lang, title, description, one h1, reciprocal hreflang"
+dir = "{{config_root}}"
+run = "go run ./cmd/searchconsole audit"
+
+["search:google"]
+description = "Open what Google itself says: site: search, Search Console Pages, Sitemaps, Crawl stats and URL Inspection, Rich Results Test, PageSpeed Insights"
+dir = "{{config_root}}"
+run = '''
+#!/usr/bin/env bash
+set -euo pipefail
+: "${APP_DOMAIN:?APP_DOMAIN is empty (mise.toml [env])}"
+enc() { jq -rn --arg v "$1" '$v|@uri'; }
+site="sc-domain:${APP_DOMAIN#*.}"
+home="https://$APP_DOMAIN/"
+links=(
+  "https://www.google.com/search?q=$(enc "site:$APP_DOMAIN")"
+  "https://search.google.com/search-console/index?resource_id=$(enc "$site")"
+  "https://search.google.com/search-console/sitemaps?resource_id=$(enc "$site")"
+  "https://search.google.com/search-console/settings/crawl-stats?resource_id=$(enc "$site")"
+  "https://search.google.com/search-console/inspect?resource_id=$(enc "$site")&id=$(enc "$home")"
+  "https://search.google.com/test/rich-results?url=$(enc "$home")"
+  "https://pagespeed.web.dev/analysis?url=$(enc "$home")"
+)
+for l in "${links[@]}"; do echo "$l"; [ -n "${SEARCH_NO_BROWSER:-}" ] || open "$l"; done
+'''
+
+["search:todo"]
+description = "List sitemap URLs Google hasn't indexed (with why) and open their Search Console and Rich Results Test pages"
+dir = "{{config_root}}"
+run = '''
+#!/usr/bin/env bash
+set -euo pipefail
+if [ -n "${SEARCH_NO_BROWSER:-}" ]; then exec fnox exec -- go run ./cmd/searchconsole todo; fi
+exec fnox exec -- go run ./cmd/searchconsole -open todo
+'''
 
 # One-time setup, already done for this repo (2026-09-14). Only this task needs gcloud: its tools are installed when it
 # runs, not by `mise install`. gcloud's installer needs Python >= 3.10 (macOS ships 3.9), hence the Python pin and

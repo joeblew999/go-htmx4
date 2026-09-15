@@ -6,11 +6,13 @@ import (
 	"html"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"regexp"
 	"strings"
 	"testing"
 
 	"github.com/joeblew999/go-htmx4/kit/i18n/cldr"
+	"github.com/joeblew999/go-htmx4/kit/searchconsole"
 )
 
 // Search plan Phase 1: every non-page response is noindex, every page (and the crawl files) isn't.
@@ -129,5 +131,36 @@ func TestOpenGraph(t *testing.T) {
 				t.Errorf("og:type = %q", got)
 			}
 		})
+	}
+}
+
+// Search plan: every sitemap page's title and meta description fit in a Google result without being cut
+// (widths from kit/searchconsole, the same limits `mise run search:audit` checks live).
+func TestSnippetWidths(t *testing.T) {
+	h := newServer().routes()
+	rec := get(t, h, "/sitemap.xml")
+	locs := regexp.MustCompile(`<loc>([^<]+)</loc>`).FindAllStringSubmatch(rec.Body.String(), -1)
+	if len(locs) == 0 {
+		t.Fatalf("sitemap has no <loc>: %s", rec.Body.String())
+	}
+	titleRe := regexp.MustCompile(`<title>([^<]*)</title>`)
+	descRe := regexp.MustCompile(`<meta name="description" content="([^"]*)"`)
+	for _, m := range locs {
+		u, err := url.Parse(m[1])
+		if err != nil {
+			t.Fatal(err)
+		}
+		page := get(t, h, u.RequestURI()).Body.String()
+		title, desc := titleRe.FindStringSubmatch(page), descRe.FindStringSubmatch(page)
+		if title == nil || desc == nil {
+			t.Errorf("%s: no title or meta description", u.RequestURI())
+			continue
+		}
+		if w := searchconsole.SnippetWidth(html.UnescapeString(title[1])); w > searchconsole.MaxTitleWidth {
+			t.Errorf("%s: title %d wide (max %d): %q", u.RequestURI(), w, searchconsole.MaxTitleWidth, title[1])
+		}
+		if w := searchconsole.SnippetWidth(html.UnescapeString(desc[1])); w > searchconsole.MaxDescriptionWidth {
+			t.Errorf("%s: description %d wide (max %d): %q", u.RequestURI(), w, searchconsole.MaxDescriptionWidth, desc[1])
+		}
 	}
 }
