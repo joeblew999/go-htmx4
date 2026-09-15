@@ -104,7 +104,9 @@ func main() {
 		if *open {
 			links := liveLinks
 			for _, a := range actions {
-				links = append(links, a.link)
+				if a.link != "" {
+					links = append(links, a.link)
+				}
 			}
 			openInBrowser(links)
 		}

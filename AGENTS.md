@@ -88,8 +88,7 @@
   counts double: `kit/searchconsole.SnippetWidth`).
 - After a deploy: `mise run search:audit` must pass (live fetch of robots.txt and every sitemap URL as Googlebot).
 - Google's own view: `mise run search:status` (API: index coverage), `search:todo` (URLs not indexed, opens their
-  Search Console pages), `search:google` (site: search, Pages, Sitemaps, Crawl stats, Inspection, Rich Results Test,
-  PageSpeed). *Request indexing* and *Test live URL* have no API: `search:todo` opens them.
+  Search Console pages), `search:google` (site: search, Pages, Sitemaps, Crawl stats, Rich Results Test, PageSpeed). *Request indexing* and *Test live URL* have no API: `search:todo` opens them.
 
 # Cloudflare Workers
 

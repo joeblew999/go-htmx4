@@ -101,14 +101,14 @@ func TestActionFor(t *testing.T) {
 	if !ok || !strings.Contains(a.what, "Request indexing") {
 		t.Errorf("discovered URL: got %+v", a)
 	}
+	const googleLink = "https://search.google.com/search-console/inspect?resource_id=sc-domain:example.com&id=abc123"
 	a, ok = actionFor(site, u, searchconsole.Inspection{CoverageState: "Duplicate, Google chose different canonical than user",
-		GoogleCanonical: "https://app.example.com/about"})
+		GoogleCanonical: "https://app.example.com/about", Link: googleLink})
 	if !ok || !strings.Contains(a.what, "Google indexes https://app.example.com/about instead") {
 		t.Errorf("duplicate URL: got %+v", a)
 	}
-	want := "https://search.google.com/search-console/inspect?resource_id=sc-domain%3Aexample.com&id=https%3A%2F%2Fapp.example.com%2Fen-in%2Fabout"
-	if a.link != want {
-		t.Errorf("link = %s, want %s", a.link, want)
+	if a.link != googleLink {
+		t.Errorf("link = %s, want Google's inspectionResultLink %s", a.link, googleLink)
 	}
 }
 

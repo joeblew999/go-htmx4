@@ -6,7 +6,7 @@
 #   mise run search:status   # sitemap status + Google's index status for every sitemap URL
 #   mise run search:audit    # live fetch as Googlebot: robots.txt + every sitemap URL (no credentials; fails on problems)
 #   mise run search:todo     # URLs Google hasn't indexed: why, and opens their Search Console + Rich Results Test pages
-#   mise run search:google   # opens Google's own view: site: search, Pages, Sitemaps, Crawl stats, Inspection, PageSpeed
+#   mise run search:google   # opens Google's own view: site: search, Pages, Sitemaps, Crawl stats, Rich Results, PageSpeed
 #
 # Credentials: GOOGLE_SEARCH_CONSOLE_KEY (service account search-console@go-htmx4-search.iam.gserviceaccount.com) from
 # fnox. The service account needs Full permission on the property (Search Console → Settings → Users and permissions).
@@ -33,7 +33,7 @@ dir = "{{config_root}}"
 run = "go run ./cmd/searchconsole audit"
 
 ["search:google"]
-description = "Open what Google itself says: site: search, Search Console Pages, Sitemaps, Crawl stats and URL Inspection, Rich Results Test, PageSpeed Insights"
+description = "Open what Google itself says: site: search, Search Console Pages, Sitemaps and Crawl stats, Rich Results Test, PageSpeed Insights (per-URL inspection: search:todo)"
 dir = "{{config_root}}"
 run = '''
 #!/usr/bin/env bash
@@ -44,10 +44,9 @@ site="sc-domain:${APP_DOMAIN#*.}"
 home="https://$APP_DOMAIN/"
 links=(
   "https://www.google.com/search?q=$(enc "site:$APP_DOMAIN")"
-  "https://search.google.com/search-console/index?resource_id=$(enc "$site")"
-  "https://search.google.com/search-console/sitemaps?resource_id=$(enc "$site")"
-  "https://search.google.com/search-console/settings/crawl-stats?resource_id=$(enc "$site")"
-  "https://search.google.com/search-console/inspect?resource_id=$(enc "$site")&id=$(enc "$home")"
+  "https://search.google.com/search-console/index?resource_id=$site"
+  "https://search.google.com/search-console/sitemaps?resource_id=$site"
+  "https://search.google.com/search-console/settings/crawl-stats?resource_id=$site"
   "https://search.google.com/test/rich-results?url=$(enc "$home")"
   "https://pagespeed.web.dev/analysis?url=$(enc "$home")"
 )

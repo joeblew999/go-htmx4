@@ -36,7 +36,7 @@ func todo(ctx context.Context, c *searchconsole.Client, urls, live []string) (ac
 	}
 	for i, u := range urls {
 		if errs[i] != nil {
-			actions = append(actions, action{u, "inspection failed", errs[i].Error(), inspectLink(c.Site, u)})
+			actions = append(actions, action{u, "inspection failed", errs[i].Error(), ""})
 			continue
 		}
 		if a, ok := actionFor(c.Site, u, results[i]); ok {
@@ -51,7 +51,7 @@ func todo(ctx context.Context, c *searchconsole.Client, urls, live []string) (ac
 
 // actionFor says what to do about a URL that isn't indexed as its own canonical page (ok=false: nothing to do).
 func actionFor(site, u string, in searchconsole.Inspection) (action, bool) {
-	link := inspectLink(site, u)
+	link := in.Link
 	if in.GoogleCanonical != "" && in.GoogleCanonical != u {
 		return action{u, in.CoverageState, "Google indexes " + in.GoogleCanonical + " instead: the content is (nearly) the same. " +
 			"Make this page's content differ (e.g. a regional copy with regional text), or accept it; hreflang still points " +
@@ -65,11 +65,6 @@ func actionFor(site, u string, in searchconsole.Inspection) (action, bool) {
 	default:
 		return action{u, in.CoverageState, "open the link → check the reason, fix, then Request indexing", link}, true
 	}
-}
-
-// inspectLink is the Search Console URL Inspection page for a URL (Test live URL, Request indexing).
-func inspectLink(site, u string) string {
-	return "https://search.google.com/search-console/inspect?resource_id=" + url.QueryEscape(site) + "&id=" + url.QueryEscape(u)
 }
 
 // openInBrowser opens links on macOS (open) or Linux (xdg-open); elsewhere the printed links are enough.
@@ -88,7 +83,11 @@ func printTodo(actions []action, liveLinks []string) {
 		fmt.Println("✓ every sitemap URL is indexed as its own canonical page")
 	}
 	for _, a := range actions {
-		fmt.Printf("✗ %s\n    %s\n    %s\n    %s\n", a.url, a.state, a.what, a.link)
+		link := a.link
+		if link == "" {
+			link = "(no link from Google: Search Console → URL inspection → paste the URL)"
+		}
+		fmt.Printf("✗ %s\n    %s\n    %s\n    %s\n", a.url, a.state, a.what, link)
 	}
 	fmt.Println("Live fetch by Google (Rich Results Test: the rendered HTML must be the page, not a challenge):")
 	for _, l := range liveLinks {

@@ -229,16 +229,21 @@ type Inspection struct {
 	GoogleCanonical string `json:"googleCanonical"`
 	UserCanonical   string `json:"userCanonical"`
 	CrawledAs       string `json:"crawledAs"`
+	// Link is Google's own Search Console page for this inspection (inspectionResultLink): Test live URL, Request indexing.
+	Link string `json:"-"`
 }
 
 // Inspect reports how Google indexed u (Google's index, not a live fetch). languageCode localizes the messages.
 func (c *Client) Inspect(ctx context.Context, u, languageCode string) (Inspection, error) {
 	var out struct {
 		InspectionResult struct {
-			IndexStatusResult Inspection `json:"indexStatusResult"`
+			InspectionResultLink string     `json:"inspectionResultLink"`
+			IndexStatusResult    Inspection `json:"indexStatusResult"`
 		} `json:"inspectionResult"`
 	}
 	body := map[string]string{"inspectionUrl": u, "siteUrl": c.Site, "languageCode": languageCode}
 	err := c.call(ctx, "POST", c.searchConsole()+"/urlInspection/index:inspect", body, &out)
-	return out.InspectionResult.IndexStatusResult, err
+	in := out.InspectionResult.IndexStatusResult
+	in.Link = out.InspectionResult.InspectionResultLink
+	return in, err
 }
