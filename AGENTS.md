@@ -86,11 +86,16 @@
   canonical, hreflang and Open Graph follow), add them to `views.SitemapPages`, and keep `TestOpenGraph`,
   `TestCanonicalAndHreflang`, `TestSitemap` and `TestSnippetWidths` green (title ≤ 60, description ≤ 160 wide, CJK
   counts double: `kit/searchconsole.SnippetWidth`).
-- After a deploy: `mise run search:audit` must pass (live fetch of robots.txt and every sitemap URL as Googlebot).
-- Google's own view: `mise run search:status` (API: index coverage), `search:todo` (per URL: indexed, waiting,
-  duplicate or problem; exits 1 and opens Search Console only for problems), `search:google` (prints links to Google's
-  reports), `search:inspect -- /path` (one URL; opens its page for Google's *Test live URL*). No batch tab
-  opening: `search:audit` is the automated live check. Order of use: `tasks/search.toml` header.
+- `mise run deploy` runs `search:audit` afterwards (`depends_post`): robots.txt and every sitemap URL fetched live as
+  Googlebot must pass.
+- Search tasks (`tasks/search.toml`, header lists them in order of use) connect through mise, not by hand: Search Console
+  tasks depend on the hidden `search:access` check, `search:submit` also on `search:audit`, and outward writes
+  (`search:submit`, `search:setup`) use `confirm` (agents pass `mise run --yes`). Exit codes are the contract (0 ok, 1
+  problems or no access); `--json` gives one JSON document on stdout for agents and CI. Don't scrape the text output.
+- No batch tab opening: `search:todo` opens Search Console only for real problems, `search:inspect /path` opens one URL
+  (Google's *Test live URL*), `search:google` only prints links.
+- Arrays in task scripts: macOS runs bash 3.2, where `"${args[@]}"` on an empty array fails under `set -u`; use
+  `${args[@]+"${args[@]}"}`.
 
 # Cloudflare Workers
 

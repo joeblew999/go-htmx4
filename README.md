@@ -149,9 +149,10 @@ browser ─ hx-post /board/add|note ─────▶ worker/index.mjs ─▶ G
 - **Checks:** `mise run search:audit` fetches robots.txt and every sitemap URL live as Googlebot (200, indexable,
   self-canonical, `lang`, title and description that fit a result, one `<h1>`, reciprocal `hreflang`).
 - **What Google says:** `mise run search:status` (Search Console API: index coverage per URL), `search:todo` (Google's
-  verdict per URL; fails and opens Search Console only for real problems), `search:inspect -- /de/` (one URL in detail,
+  verdict per URL; fails and opens Search Console only for real problems), `search:inspect /de/` (one URL in detail,
   opening its page for Google's *Test live URL*) and `search:google` (links to Google's reports). Order of use:
-  [`tasks/search.toml`](tasks/search.toml).
+  [`tasks/search.toml`](tasks/search.toml). `--json` on each gives one JSON document for scripts and agents, and
+  `mise run deploy` runs `search:audit` afterwards.
   Status on 2026-09-15: 52 of 56 sitemap URLs indexed.
 
 Plans: [search indexing](.plans/done/2026-09-14_0938_search-indexing-google-gemini.md),

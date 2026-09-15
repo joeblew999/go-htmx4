@@ -11,8 +11,11 @@ import (
 
 // finding is a sitemap URL Google hasn't indexed as its own page. Only problems need a person.
 type finding struct {
-	url, state, note, link string
-	problem                bool
+	URL     string `json:"url"`
+	State   string `json:"state"`
+	Note    string `json:"note"`
+	Link    string `json:"link,omitempty"`
+	Problem bool   `json:"problem"`
 }
 
 // todo inspects every sitemap URL in Google's index. It returns the number indexed and the rest as findings.
@@ -70,19 +73,19 @@ func classify(u string, in searchconsole.Inspection) (finding, bool) {
 func printTodo(total, indexed int, findings []finding) (problemLinks []string) {
 	fmt.Printf("✓ %d of %d sitemap URLs indexed as their own page\n", indexed, total)
 	for _, f := range findings {
-		if !f.problem {
-			fmt.Printf("· %s: %s: %s\n", f.url, f.state, f.note)
+		if !f.Problem {
+			fmt.Printf("· %s: %s: %s\n", f.URL, f.State, f.Note)
 		}
 	}
 	for _, f := range findings {
-		if f.problem {
-			link := f.link
+		if f.Problem {
+			link := f.Link
 			if link == "" {
 				link = "(no link from Google: Search Console → URL inspection → paste the URL)"
 			} else {
 				problemLinks = append(problemLinks, link)
 			}
-			fmt.Printf("✗ %s: %s\n    %s\n    %s\n", f.url, f.state, f.note, link)
+			fmt.Printf("✗ %s: %s\n    %s\n    %s\n", f.URL, f.State, f.Note, link)
 		}
 	}
 	return problemLinks

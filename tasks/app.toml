@@ -340,8 +340,10 @@ fnox exec -- sh -c '
 # (TinyGo build + workerd smoke + go test) and the token check first. The Worker and D1 names are
 # $APP_NAME (mise.toml [env]); updating an existing script of that name is allowed.
 ["deploy"]
-description = "Test, then deploy → https://$APP_DOMAIN (or https://$APP_NAME.<subdomain>.workers.dev without APP_DOMAIN)"
+description = "Test, then deploy → https://$APP_DOMAIN (or https://$APP_NAME.<subdomain>.workers.dev without APP_DOMAIN), then search:audit live"
 depends = ["test", "token-check"]
+# Google must be able to crawl what was just deployed (tasks/search.toml).
+depends_post = ["search:audit"]
 dir = "{{config_root}}"
 run = '''
 #!/usr/bin/env bash

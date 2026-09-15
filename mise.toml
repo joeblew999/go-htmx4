@@ -22,8 +22,10 @@ tinygo = "0.42.0"      # workers-go TinyGo builds need >= 0.42.0 (net/http on wa
 workerd = "1.20260911.1"
 # fnox: Cloudflare credentials from the keychain via `fnox exec -- …`.
 fnox = "1.35.0"
-# jq: URL-encodes the links `mise run search:google` opens.
+# jq: URL-encodes the links `mise run search:google` prints.
 jq = "1.8.1"
+# usage: shell completion for task arguments and flags (mise run search:inspect <TAB>, --json).
+usage = "6.8.0"
 
 [env]
 # Worker script and D1 database name (mise run deploy): https://$APP_NAME.<subdomain>.workers.dev

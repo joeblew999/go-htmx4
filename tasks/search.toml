@@ -1,38 +1,70 @@
 # tasks/search.toml — Google Search Console through its API (search plan: .plans/done/2026-09-14_0938_search-indexing-google-gemini.md).
 #
-# In order of use:
-#   Once:              mise run search:setup      # Google Cloud project + service account + key in fnox (gcloud, task-only)
-#                      mise run search:sites      # the service account can use the property (Full)
-#                      mise run search:submit     # submit https://$APP_DOMAIN/sitemap.xml (again when pages are added)
-#   After each deploy: mise run search:audit      # live fetch as Googlebot: robots.txt + every sitemap URL; must pass
+# In order of use (mise enforces the order with depends; `mise run` alone shows a picker):
+#   Once:              mise run search:setup      # Google Cloud project + service account + key in fnox (asks first)
+#                      mise run search:sites      # properties the service account can use; fails without Full access
+#                      mise run search:submit     # submit https://$APP_DOMAIN/sitemap.xml (asks first; runs audit first)
+#   After each deploy: mise run search:audit      # live fetch as Googlebot: robots.txt + every sitemap URL (deploy runs it)
 #   Google's verdict:  mise run search:todo       # per URL: indexed / waiting / duplicate / problem; fails + opens only problems
-#                      mise run search:inspect -- /de/   # one URL in detail; opens its page for Google's Test live URL
+#                      mise run search:inspect /de/      # one URL in detail; opens its page for Google's Test live URL
 #                      mise run search:status     # full table: every sitemap URL's coverage, last crawl, canonical
 #                      mise run search:google     # links to Google's own reports (site: search, Pages, Sitemaps, Crawl stats)
 #
+# --json (sites, status, audit, todo, inspect): one JSON document on stdout for agents, CI and jq; never opens a browser.
+# Exit codes connect the tasks: 0 ok, 1 problems or no access. --no-open (todo, inspect): print links only.
+#
 # Credentials: GOOGLE_SEARCH_CONSOLE_KEY (service account search-console@go-htmx4-search.iam.gserviceaccount.com) from
 # fnox. The service account needs Full permission on the property (Search Console → Settings → Users and permissions).
-# Request indexing has no API: search:todo opens Google's page only for URLs with a real problem (SEARCH_NO_BROWSER=1: never).
+# Request indexing has no API: search:todo opens Google's page only for URLs with a real problem.
 
-["search:sites"]
-description = "List the Search Console properties the service account can use"
+# Shared by every task that talks to Search Console: fails (exit 1) without the key or Full access. Silent so --json
+# output stays one document.
+["search:access"]
+hide = true
+silent = true
 dir = "{{config_root}}"
 run = "fnox exec -- go run ./cmd/searchconsole sites"
 
+["search:sites"]
+description = "List the Search Console properties the service account can use; fails without Full access"
+dir = "{{config_root}}"
+usage = 'flag "--json" help="JSON on stdout"'
+run = '''
+#!/usr/bin/env bash
+set -euo pipefail
+args=(); [ "${usage_json:-}" != true ] || args+=(-json)
+exec fnox exec -- go run ./cmd/searchconsole ${args[@]+"${args[@]}"} sites
+'''
+
 ["search:submit"]
-description = "Submit https://$APP_DOMAIN/sitemap.xml to Search Console"
+description = "Submit https://$APP_DOMAIN/sitemap.xml to Search Console (after access and a passing live audit)"
+depends = ["search:access", "search:audit"]
+confirm = "Submit the sitemap to Google Search Console?"
 dir = "{{config_root}}"
 run = "fnox exec -- go run ./cmd/searchconsole submit"
 
 ["search:status"]
 description = "Search Console: sitemap status and Google's index status for every URL in the sitemap"
+depends = ["search:access"]
 dir = "{{config_root}}"
-run = "fnox exec -- go run ./cmd/searchconsole status"
+usage = 'flag "--json" help="JSON on stdout"'
+run = '''
+#!/usr/bin/env bash
+set -euo pipefail
+args=(); [ "${usage_json:-}" != true ] || args+=(-json)
+exec fnox exec -- go run ./cmd/searchconsole ${args[@]+"${args[@]}"} status
+'''
 
 ["search:audit"]
 description = "Fetch robots.txt and every sitemap URL live as Googlebot: 200, indexable, self-canonical, lang, title, description, one h1, reciprocal hreflang"
 dir = "{{config_root}}"
-run = "go run ./cmd/searchconsole audit"
+usage = 'flag "--json" help="JSON on stdout"'
+run = '''
+#!/usr/bin/env bash
+set -euo pipefail
+args=(); [ "${usage_json:-}" != true ] || args+=(-json)
+exec go run ./cmd/searchconsole ${args[@]+"${args[@]}"} audit
+'''
 
 ["search:google"]
 description = "Print links to Google's own reports: site: search, Search Console Pages, Sitemaps, Crawl stats, PageSpeed Insights"
@@ -56,23 +88,33 @@ printf '%s\n' "${links[@]}"
 
 ["search:inspect"]
 description = "One URL: Google's verdict, last crawl and canonical; opens its Search Console page (Test live URL, Request indexing)"
+depends = ["search:access"]
 dir = "{{config_root}}"
-usage = 'arg "<page>" help="a path like /de/ or a full URL"'
+usage = '''
+arg "<page>" help="a path like /de/ or a full URL"
+flag "--json" help="JSON on stdout (never opens a browser)"
+flag "--no-open" help="print Google's link instead of opening it"
+'''
 run = '''
 #!/usr/bin/env bash
 set -euo pipefail
-if [ -n "${SEARCH_NO_BROWSER:-}" ]; then exec fnox exec -- go run ./cmd/searchconsole inspect "${usage_page}"; fi
-exec fnox exec -- go run ./cmd/searchconsole -open inspect "${usage_page}"
+args=(); [ "${usage_json:-}" != true ] || args+=(-json); [ "${usage_no_open:-}" = true ] || args+=(-open)
+exec fnox exec -- go run ./cmd/searchconsole ${args[@]+"${args[@]}"} inspect "${usage_page}"
 '''
 
 ["search:todo"]
 description = "Google's verdict for every sitemap URL (indexed, waiting, duplicate, problem); fails and opens Search Console only for problems"
+depends = ["search:access"]
 dir = "{{config_root}}"
+usage = '''
+flag "--json" help="JSON on stdout (never opens a browser)"
+flag "--no-open" help="print problem links instead of opening them"
+'''
 run = '''
 #!/usr/bin/env bash
 set -euo pipefail
-if [ -n "${SEARCH_NO_BROWSER:-}" ]; then exec fnox exec -- go run ./cmd/searchconsole todo; fi
-exec fnox exec -- go run ./cmd/searchconsole -open todo
+args=(); [ "${usage_json:-}" != true ] || args+=(-json); [ "${usage_no_open:-}" = true ] || args+=(-open)
+exec fnox exec -- go run ./cmd/searchconsole ${args[@]+"${args[@]}"} todo
 '''
 
 # One-time setup, already done for this repo (2026-09-14). Only this task needs gcloud: its tools are installed when it
@@ -82,6 +124,7 @@ exec fnox exec -- go run ./cmd/searchconsole -open todo
 # → Settings → Users and permissions (Full).
 ["search:setup"]
 description = "One-time: Google Cloud project, Search Console API, service account, key into fnox (needs gcloud auth login)"
+confirm = "Create or verify the Google Cloud project, Search Console API and service account?"
 dir = "{{config_root}}"
 tools = { "asdf:mise-plugins/mise-gcloud" = "584.0.0", python = "3.13.15" }
 env = { CLOUDSDK_PYTHON = "python3", SEARCH_PROJECT = "go-htmx4-search" }

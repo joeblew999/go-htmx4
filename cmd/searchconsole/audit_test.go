@@ -111,11 +111,11 @@ func TestClassify(t *testing.T) {
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			f, show := classify(u, tc.in)
-			if show != tc.show || f.problem != tc.problem {
-				t.Fatalf("classify = show %v problem %v, want show %v problem %v (%+v)", show, f.problem, tc.show, tc.problem, f)
+			if show != tc.show || f.Problem != tc.problem {
+				t.Fatalf("classify = show %v problem %v, want show %v problem %v (%+v)", show, f.Problem, tc.show, tc.problem, f)
 			}
-			if show && f.link != tc.in.Link {
-				t.Errorf("link = %q, want Google's %q", f.link, tc.in.Link)
+			if show && f.Link != tc.in.Link {
+				t.Errorf("link = %q, want Google's %q", f.Link, tc.in.Link)
 			}
 		})
 	}
