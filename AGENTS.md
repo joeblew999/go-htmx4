@@ -87,8 +87,10 @@
   `TestCanonicalAndHreflang`, `TestSitemap` and `TestSnippetWidths` green (title ≤ 60, description ≤ 160 wide, CJK
   counts double: `kit/searchconsole.SnippetWidth`).
 - After a deploy: `mise run search:audit` must pass (live fetch of robots.txt and every sitemap URL as Googlebot).
-- Google's own view: `mise run search:status` (API: index coverage), `search:todo` (URLs not indexed, opens their
-  Search Console pages), `search:google` (site: search, Pages, Sitemaps, Crawl stats, Rich Results Test, PageSpeed). *Request indexing* and *Test live URL* have no API: `search:todo` opens them.
+- Google's own view: `mise run search:status` (API: index coverage), `search:todo` (per URL: indexed, waiting,
+  duplicate or problem; exits 1 and opens Search Console only for problems), `search:google` (prints links to Google's
+  reports), `search:inspect -- /path` (one URL; opens its page for Google's *Test live URL*). No batch tab
+  opening: `search:audit` is the automated live check. Order of use: `tasks/search.toml` header.
 
 # Cloudflare Workers
 

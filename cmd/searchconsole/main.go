@@ -3,12 +3,13 @@
 //	fnox exec -- go run ./cmd/searchconsole sites               # properties the service account can use
 //	fnox exec -- go run ./cmd/searchconsole submit              # submit <base>/sitemap.xml
 //	fnox exec -- go run ./cmd/searchconsole status              # sitemap status + index status of every sitemap URL
-//	fnox exec -- go run ./cmd/searchconsole [-open] todo        # URLs Google hasn't indexed, with Search Console links
+//	fnox exec -- go run ./cmd/searchconsole [-open] todo        # what Google hasn't indexed; exit 1 (and -open) on problems
+//	fnox exec -- go run ./cmd/searchconsole [-open] inspect /de/ # one URL: Google's verdict + its Search Console page
 //	go run ./cmd/searchconsole audit                            # live fetch as Googlebot: robots.txt + every sitemap URL
 //
 // The key is GOOGLE_SEARCH_CONSOLE_KEY (a service account JSON key, from fnox); audit needs none. The property defaults to
 // the Domain property of APP_DOMAIN's registrable domain (sc-domain:ubuntusoftware.net) and the base URL to
-// https://$APP_DOMAIN. Test live URL and Request indexing have no API: todo prints (and with -open opens) their pages.
+// https://$APP_DOMAIN. Request indexing has no API: todo prints Google's link for each problem (-open opens only those).
 package main
 
 import (
@@ -30,14 +31,13 @@ func main() {
 	domain := os.Getenv("APP_DOMAIN")
 	site := flag.String("site", domainProperty(domain), "Search Console property (sc-domain:… or a URL prefix)")
 	base := flag.String("base", "https://"+domain, "the app's base URL (sitemap at <base>/sitemap.xml)")
-	open := flag.Bool("open", false, "todo: open the Search Console and Rich Results Test pages in the browser")
-	live := flag.String("live", "/,/board,/de/", "todo: paths to check with Google's live fetch (Rich Results Test)")
+	open := flag.Bool("open", false, "todo: open Google's Search Console page for each problem URL (none when there are no problems)")
 	flag.Usage = func() {
-		fmt.Fprintln(os.Stderr, "usage: searchconsole [-site sc-domain:example.com] [-base https://app.example.com] [-open] sites|submit|status|todo|audit")
+		fmt.Fprintln(os.Stderr, "usage: searchconsole [-site sc-domain:example.com] [-base https://app.example.com] [-open] sites|submit|status|todo|audit|inspect <path or URL>")
 		flag.PrintDefaults()
 	}
 	flag.Parse()
-	if flag.NArg() != 1 || domain == "" && (*site == "" || *base == "https://") {
+	if flag.NArg() != 1 && !(flag.NArg() == 2 && flag.Arg(0) == "inspect") || domain == "" && (*site == "" || *base == "https://") {
 		flag.Usage()
 		os.Exit(2)
 	}
@@ -94,21 +94,41 @@ func main() {
 		fmt.Printf("✓ submitted %s to %s\n", sitemap, *site)
 	case "status":
 		status(ctx, c, httpc, sitemap)
+	case "inspect":
+		u := flag.Arg(1)
+		if strings.HasPrefix(u, "/") {
+			u = strings.TrimRight(*base, "/") + u
+		}
+		in, err := c.Inspect(ctx, u, "en")
+		if err != nil {
+			fail(err)
+		}
+		fmt.Printf("%s\n  verdict    %s\n  coverage   %s\n  last crawl %s as %s (fetch %s, robots.txt %s)\n  canonical  Google: %s, yours: %s\n  %s\n",
+			u, in.Verdict, in.CoverageState, or(in.LastCrawlTime, "never"), or(in.CrawledAs, "-"), or(in.PageFetchState, "-"),
+			or(in.RobotsTxtState, "-"), or(in.GoogleCanonical, "-"), or(in.UserCanonical, "-"), in.Link)
+		fmt.Println("  On that page: TEST LIVE URL (Google fetches the page now), then REQUEST INDEXING if it isn't indexed.")
+		if *open && in.Link != "" {
+			openInBrowser([]string{in.Link})
+		}
 	case "todo":
 		urls, err := sitemapURLs(ctx, httpc, sitemap)
 		if err != nil {
 			fail(err)
 		}
-		actions, liveLinks := todo(ctx, c, urls, livePages(*base, *live))
-		printTodo(actions, liveLinks)
-		if *open {
-			links := liveLinks
-			for _, a := range actions {
-				if a.link != "" {
-					links = append(links, a.link)
-				}
+		indexed, findings := todo(ctx, c, urls)
+		links := printTodo(len(urls), indexed, findings)
+		problems := 0
+		for _, f := range findings {
+			if f.problem {
+				problems++
 			}
-			openInBrowser(links)
+		}
+		if problems > 0 {
+			if *open {
+				openInBrowser(links)
+			}
+			fmt.Printf("%d problem(s) Google reports\n", problems)
+			os.Exit(1)
 		}
 	default:
 		flag.Usage()

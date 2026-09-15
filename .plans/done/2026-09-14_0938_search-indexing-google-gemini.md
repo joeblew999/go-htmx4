@@ -169,7 +169,7 @@ Cloudflare can block Google before a request ever reaches the Worker, so our tes
 - [x] `mise run deploy`, then `smoke-remote`: `/robots.txt` is ours (no Cloudflare notice, no prepended `Disallow`), and
       `/sitemap.xml` returns 200 once i18n Phase 8 has shipped. — 7d6915f deployed by go-htmx4-87 (smoke-remote 26/26,
       live e2e 11/11); again on the custom host with c117ad6 (26/26).
-- [-] Not needed: Googlebot crawled and indexed 52 of 56 sitemap URLs within a day (2026-09-15, `mise run search:status`), so Google's fetcher gets the pages, not a Cloudflare challenge. If ever needed: `mise run search:google` opens Rich Results Test. Originally: **Real-Google check (UI only, no API):** `/`, `/board` and `/de/` on `https://go-htmx4.ubuntusoftware.net` through Google's
+- [-] Not needed: Googlebot crawled and indexed 52 of 56 sitemap URLs within a day (2026-09-15, `mise run search:status`), so Google's fetcher gets the pages, not a Cloudflare challenge. Originally: **Real-Google check (UI only, no API):** `/`, `/board` and `/de/` on `https://go-htmx4.ubuntusoftware.net` through Google's
       [Rich Results Test](https://search.google.com/test/rich-results), which fetches from Google's machines. The rendered HTML
       must be our page, not a Cloudflare challenge.
 
@@ -185,7 +185,7 @@ Cloudflare can block Google before a request ever reaches the Worker, so our tes
 - [x] Submit `https://go-htmx4.ubuntusoftware.net/sitemap.xml` — submitted and downloaded (~2026-09-14 17:10): 56 URLs,
       0 errors, 0 warnings. URL Inspection by API: 46 "Discovered – currently not indexed", 10 "URL is unknown to Google",
       no canonical conflicts.
-- [-] Not needed: the submitted sitemap gets the remaining URLs crawled; Request indexing only speeds that up. If wanted: `mise run search:todo` opens Google's own inspection pages. Originally: *Test live URL* and *Request indexing* have no API: in the Search Console UI for `/`, `/board`, `/de/` (the live
+- [-] Not needed: the submitted sitemap gets the remaining URLs crawled; Request indexing only speeds that up. `mise run search:todo` flags real problems (and opens only those). Originally: *Test live URL* and *Request indexing* have no API: in the Search Console UI for `/`, `/board`, `/de/` (the live
       test is the real-Googlebot fetch that would show a Cloudflare block).
 - [-] Moved to routine use, not a plan step: `mise run search:todo` (URLs not yet indexed) and `mise run search:google` (Crawl stats → Host status). Originally: A week later (~2026-09-21): `mise run search:status` for index coverage, plus **Crawl stats → Host status** in the UI
       (no API), which is where a Cloudflare block would show. Note results here.

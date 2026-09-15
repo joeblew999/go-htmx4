@@ -3,23 +3,20 @@ package main
 import (
 	"context"
 	"fmt"
-	"net/url"
 	"os/exec"
 	"runtime"
-	"strings"
 
 	"github.com/joeblew999/go-htmx4/kit/searchconsole"
 )
 
-// action is one URL Google hasn't indexed as its own page, with what to do about it.
-type action struct {
-	url, state, what, link string
+// finding is a sitemap URL Google hasn't indexed as its own page. Only problems need a person.
+type finding struct {
+	url, state, note, link string
+	problem                bool
 }
 
-// todo inspects every sitemap URL in Google's index and returns the ones that need a person in Search Console (Request
-// indexing has no API), plus Rich Results Test links for the live-fetch pages (Google fetching the page from its own
-// machines, which is where a Cloudflare block would show).
-func todo(ctx context.Context, c *searchconsole.Client, urls, live []string) (actions []action, liveLinks []string) {
+// todo inspects every sitemap URL in Google's index. It returns the number indexed and the rest as findings.
+func todo(ctx context.Context, c *searchconsole.Client, urls []string) (indexed int, findings []finding) {
 	results := make([]searchconsole.Inspection, len(urls))
 	errs := make([]error, len(urls))
 	sem := make(chan struct{}, 6)
@@ -36,35 +33,59 @@ func todo(ctx context.Context, c *searchconsole.Client, urls, live []string) (ac
 	}
 	for i, u := range urls {
 		if errs[i] != nil {
-			actions = append(actions, action{u, "inspection failed", errs[i].Error(), ""})
+			findings = append(findings, finding{u, "inspection failed", errs[i].Error(), "", true})
 			continue
 		}
-		if a, ok := actionFor(c.Site, u, results[i]); ok {
-			actions = append(actions, a)
+		if f, ok := classify(u, results[i]); ok {
+			findings = append(findings, f)
+		} else {
+			indexed++
 		}
 	}
-	for _, u := range live {
-		liveLinks = append(liveLinks, "https://search.google.com/test/rich-results?url="+url.QueryEscape(u))
-	}
-	return actions, liveLinks
+	return indexed, findings
 }
 
-// actionFor says what to do about a URL that isn't indexed as its own canonical page (ok=false: nothing to do).
-func actionFor(site, u string, in searchconsole.Inspection) (action, bool) {
-	link := in.Link
+// classify sorts one URL's inspection: ok=false means indexed as its own canonical page. Waiting for a crawl and a
+// same-content duplicate are expected; anything else Google reports (404, noindex, blocked, a FAIL verdict) is a problem.
+func classify(u string, in searchconsole.Inspection) (finding, bool) {
+	fail := in.Verdict == "FAIL"
 	if in.GoogleCanonical != "" && in.GoogleCanonical != u {
-		return action{u, in.CoverageState, "Google indexes " + in.GoogleCanonical + " instead: the content is (nearly) the same. " +
-			"Make this page's content differ (e.g. a regional copy with regional text), or accept it; hreflang still points " +
-			"users there", link}, true
+		return finding{u, in.CoverageState, "Google indexes " + in.GoogleCanonical + " instead (same content, e.g. a " +
+			"same-language regional copy; hreflang still sends those users here)", in.Link, fail}, true
 	}
 	switch in.CoverageState {
 	case "Submitted and indexed", "Indexed, not submitted in sitemap":
-		return action{}, false
-	case "Discovered - currently not indexed", "URL is unknown to Google", "Crawled - currently not indexed":
-		return action{u, in.CoverageState, "open the link → Request indexing", link}, true
-	default:
-		return action{u, in.CoverageState, "open the link → check the reason, fix, then Request indexing", link}, true
+		if !fail {
+			return finding{}, false
+		}
+	case "Discovered - currently not indexed", "URL is unknown to Google":
+		if !fail {
+			return finding{u, in.CoverageState, "waiting for Google to crawl it from the sitemap: nothing to do", in.Link, false}, true
+		}
 	}
+	return finding{u, in.CoverageState, "Google reports a problem: open the link, fix the cause, then Request indexing", in.Link, true}, true
+}
+
+// printTodo prints the summary and returns the problems' links.
+func printTodo(total, indexed int, findings []finding) (problemLinks []string) {
+	fmt.Printf("✓ %d of %d sitemap URLs indexed as their own page\n", indexed, total)
+	for _, f := range findings {
+		if !f.problem {
+			fmt.Printf("· %s: %s: %s\n", f.url, f.state, f.note)
+		}
+	}
+	for _, f := range findings {
+		if f.problem {
+			link := f.link
+			if link == "" {
+				link = "(no link from Google: Search Console → URL inspection → paste the URL)"
+			} else {
+				problemLinks = append(problemLinks, link)
+			}
+			fmt.Printf("✗ %s: %s\n    %s\n    %s\n", f.url, f.state, f.note, link)
+		}
+	}
+	return problemLinks
 }
 
 // openInBrowser opens links on macOS (open) or Linux (xdg-open); elsewhere the printed links are enough.
@@ -76,35 +97,4 @@ func openInBrowser(links []string) {
 	for _, l := range links {
 		_ = exec.Command(cmd, l).Run()
 	}
-}
-
-func printTodo(actions []action, liveLinks []string) {
-	if len(actions) == 0 {
-		fmt.Println("✓ every sitemap URL is indexed as its own canonical page")
-	}
-	for _, a := range actions {
-		link := a.link
-		if link == "" {
-			link = "(no link from Google: Search Console → URL inspection → paste the URL)"
-		}
-		fmt.Printf("✗ %s\n    %s\n    %s\n    %s\n", a.url, a.state, a.what, link)
-	}
-	fmt.Println("Live fetch by Google (Rich Results Test: the rendered HTML must be the page, not a challenge):")
-	for _, l := range liveLinks {
-		fmt.Println("    " + l)
-	}
-	if len(actions) > 0 {
-		fmt.Printf("%d URL(s) need Search Console (no API for Request indexing)\n", len(actions))
-	}
-}
-
-// livePages turns "/,/board,/de/" into absolute URLs on base.
-func livePages(base, paths string) []string {
-	var out []string
-	for p := range strings.SplitSeq(paths, ",") {
-		if p = strings.TrimSpace(p); p != "" {
-			out = append(out, strings.TrimRight(base, "/")+p)
-		}
-	}
-	return out
 }

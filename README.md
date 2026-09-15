@@ -148,8 +148,10 @@ browser ─ hx-post /board/add|note ─────▶ worker/index.mjs ─▶ G
 - **Not indexed:** fragments, `/healthz` and form posts send `X-Robots-Tag: noindex`.
 - **Checks:** `mise run search:audit` fetches robots.txt and every sitemap URL live as Googlebot (200, indexable,
   self-canonical, `lang`, title and description that fit a result, one `<h1>`, reciprocal `hreflang`).
-- **What Google says:** `mise run search:status` (Search Console API: index coverage per URL), `search:todo` (URLs not
-  indexed, with why, opening their Search Console pages) and `search:google` (Google's own reports and live tests).
+- **What Google says:** `mise run search:status` (Search Console API: index coverage per URL), `search:todo` (Google's
+  verdict per URL; fails and opens Search Console only for real problems), `search:inspect -- /de/` (one URL in detail,
+  opening its page for Google's *Test live URL*) and `search:google` (links to Google's reports). Order of use:
+  [`tasks/search.toml`](tasks/search.toml).
   Status on 2026-09-15: 52 of 56 sitemap URLs indexed.
 
 Plans: [search indexing](.plans/done/2026-09-14_0938_search-indexing-google-gemini.md),
