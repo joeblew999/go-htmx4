@@ -261,7 +261,8 @@ Cloudflare can block Google before a request ever reaches the Worker, so our tes
 - [x] Tooling so Google's own view is one command: `search:todo` (URLs not indexed, why, opens their Search Console
       inspection pages + Rich Results Test), `search:google` (site: search, Pages, Sitemaps, Crawl stats, Inspection,
       Rich Results Test, PageSpeed Insights). `jq` pinned in `mise.toml`. `mise run check` green.
-- [ ] Deploy (⚠ needs OK), then `mise run search:audit` must pass live.
+- [x] Deployed 912dc70 with your OK (2026-09-15): `smoke-remote` 26/26; `mise run search:audit` live: robots.txt and all
+      56 sitemap URLs pass.
 - [ ] `mise run search:todo`: *Request indexing* for `/`, `/zh-hans/formats`, `/zh-hans/board` and *Test live URL* /
       Rich Results Test for `/`, `/board`, `/de/` (UI only: the task opens the pages).
 - [x] `/en-in/about` decision: accept. Its text is the English page (en-IN only differs in formats), and Google folds
