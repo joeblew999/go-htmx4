@@ -5,8 +5,11 @@
 #   mise run check      # test everything (TinyGo under workerd + go test)
 #   mise tasks          # list everything
 
+[settings]
+# go.mod/go.work `toolchain` is the Go pin; this makes `mise install` honour it.
+idiomatic_version_file_enable_tools = ["go"]
+
 [tools]
-go = "1.27.1"
 tinygo = "0.42.0"      # workers-go TinyGo builds need >= 0.42.0 (net/http on wasm); supports Go <= 1.27
 # wasm-opt, required by `tinygo build -target wasm`. The aqua registry lags (121),
 # so pull the upstream release directly.
