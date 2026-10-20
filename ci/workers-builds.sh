@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Workers Builds (Cloudflare's GitHub app) runs this for every pushed branch except main
+# Workers Builds (Cloudflare's GitHub app) runs this for every pushed branch; main gets the preview "main" (staging)
 # (PR #6; `mise run cf:builds` sets the trigger up):
 #   build command:  ci/workers-builds.sh build    fetch the deploy tool CI published for this commit, then with it
 #                                                 the build (verified against its manifest). No compiling.
