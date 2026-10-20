@@ -52,7 +52,7 @@ component Layout(title string, description string, path string, children gsx.Nod
 			<script src="/static/htmx.min.js"></script>
 			<script src="/static/hx-live.js"></script>
 			<script src="/static/hx-ws.js"></script>
-			<script src="/static/intl.js" defer></script>
+			<script type="module" src="/static/intl.js"></script>
 			<VersionGuard/>
 			<script type="module" src="/gsxui/index.js"></script>
 		</head>

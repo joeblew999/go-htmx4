@@ -61,6 +61,8 @@ tailwindcss -i web/gsxui/index.css -o dist/gsxui.css --minify 2>&1 | grep -v "^�
 rm -rf dist/site
 mkdir -p dist/site/static dist/site/gsxui dist/site/assets
 cp static/*.js dist/site/static/
+# The browser imports the same Intl formatter the Worker runs (worker/intl.mjs).
+cp worker/intl.mjs dist/site/static/intl-core.mjs
 cp -R web/gsxui/. dist/site/gsxui/
 cp dist/gsxui.css dist/site/assets/
 cp web/gsxui/fonts/*.woff2 dist/site/assets/
@@ -177,6 +179,14 @@ check "404 for missing file"      "$(curl -s -o /dev/null -w '%{http_code}' "$ba
 check "locale page /de/"          "$(curl -s "$base/de/")" '<html lang="de" dir="ltr"'
 check "rtl page /ar/formats"      "$(curl -s "$base/ar/formats")" '<html lang="ar" dir="rtl"'
 check "Intl markup on TinyGo"     "$(curl -s "$base/de/formats")" '&#34;currency&#34;:&#34;EUR&#34;'
+# The server formats with the Worker's own V8 Intl (worker/intl.mjs via kit/i18n Format): pages arrive finished.
+nbsp=$(printf '\302\240')
+check "server Intl: numbers"      "$(curl -s "$base/hi/formats")" '१२,३४,५६७.८९१'
+check "server Intl: currency"     "$(curl -s "$base/de/formats")" "1.234,50${nbsp}€"
+check "server Intl: dates"        "$(curl -s "$base/de/formats")" 'Samstag, 4. Juli 2026'
+check "server Intl: zone names"   "$(curl -s "$base/formats")" '11:30 AM Eastern Time'
+check "server Intl: display name" "$(curl -s "$base/ja/formats")" '日本'
+check "intl-core.mjs from static/" "$(curl -s -o /dev/null -w '%{http_code}' "$base/static/intl-core.mjs")" '200'
 check "plural rules on TinyGo"    "$(curl -s "$base/ru/formats")" '2, 3, 4, 22, 23'
 check "intl.js from static/"      "$(curl -s -o /dev/null -w '%{http_code} %{content_type}' "$base/static/intl.js")" '200 text/javascript'
 check "localized hx-post"         "$(curl -s "$base/de/board?topic=smoke")" 'hx-post="/de/board/add?topic=smoke'
@@ -193,6 +203,7 @@ check "fragment noindex"          "$(curl -sI "$base/fragments/stats" | tr -d '\
 check "Open Graph url + locale"   "$(curl -s "$base/de/about")" "<meta property=\"og:url\" content=\"$base/de/about\"><meta property=\"og:locale\" content=\"de_DE\">"
 # Dates: the viewer's chosen zone and clock reach the browser as <html data-tz data-hc>.
 check "tz cookie on TinyGo"       "$(curl -s -b 'tz=America/Los_Angeles; hc=h23' "$base/formats")" 'data-tz="America/Los_Angeles" data-hc="h23"'
+check "server Intl: chosen zone"  "$(curl -s -b tz=America/Los_Angeles "$base/fragments/server-info")" 'PDT'
 pref=$(curl -s -o /dev/null -w '%{http_code} %{time_total}' "$base/de/fragments/preferences")
 check "preferences zone list"     "$pref" '200 '
 echo "· /de/fragments/preferences took ${pref#* }s"
@@ -365,7 +376,7 @@ set -euo pipefail
 domain_flags=()
 [ -z "${APP_DOMAIN:-}" ] || domain_flags=(-domain "$APP_DOMAIN")
 url=$(fnox exec -- go run ./cmd/deploy -name "$APP_NAME" -allow-existing \
-  -main worker/index.mjs -module worker/room.mjs -assets dist/site \
+  -main worker/index.mjs -module worker/room.mjs -module worker/intl.mjs -assets dist/site \
   -var "APP_ENV=cloudflare" -var "APP_DOMAIN=${APP_DOMAIN:-}" \
   -d1 DB="$APP_NAME" -d1-create -migrations migrations \
   -do ROOM=Room -migration-tag v1 -new-sqlite-class Room \
@@ -389,7 +400,7 @@ run = '''
 set -euo pipefail
 cf() { if [ -n "${CLOUDFLARE_API_TOKEN:-}" ] && [ -n "${CLOUDFLARE_ACCOUNT_ID:-}" ]; then "$@"; else fnox exec -- "$@"; fi; }
 url=$(cf ${DEPLOY_CMD:-go run ./cmd/deploy} -name "$APP_NAME-staging" -allow-existing \
-  -main worker/index.mjs -module worker/room.mjs -assets dist/site \
+  -main worker/index.mjs -module worker/room.mjs -module worker/intl.mjs -assets dist/site \
   -var "APP_ENV=staging" -var "APP_DOMAIN=" -var "APP_PREVIEW=1" \
   -d1 DB="$APP_NAME-staging" -d1-create -migrations migrations \
   -do ROOM=Room -migration-tag v1 -new-sqlite-class Room \
@@ -418,7 +429,7 @@ ann=(-annotation "workers/commit_sha=$(git rev-parse HEAD)")
   ann+=(-annotation "workers/pull_request_url=${GITHUB_SERVER_URL:-https://github.com}/$GITHUB_REPOSITORY/pull/$PREVIEW_PR")
 # DEPLOY_CMD: a prebuilt cmd/deploy (Workers Builds gets one from GitHub CI); default: compile it with go run.
 url=$(cf ${DEPLOY_CMD:-go run ./cmd/deploy} -name "$APP_NAME" -preview "$usage_name" \
-  -main worker/index.mjs -module worker/room.mjs -assets dist/site \
+  -main worker/index.mjs -module worker/room.mjs -module worker/intl.mjs -assets dist/site \
   -var "APP_ENV=preview $usage_name" -var "APP_DOMAIN=" -var "APP_PREVIEW=1" \
   -d1 DB="$APP_NAME-preview" -d1-create -migrations migrations \
   -do ROOM=Room -migration-tag v1 -new-sqlite-class Room \

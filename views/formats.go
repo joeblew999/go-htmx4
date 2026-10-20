@@ -25,6 +25,14 @@ type FormatRow struct {
 	Fallback string
 }
 
+// Text is the row's result: formatted on the server with the runtime's Intl (kit/i18n Format), else Fallback.
+func (r FormatRow) Text(ctx context.Context) string {
+	if r.Kind == "" {
+		return r.Fallback
+	}
+	return IntlText(ctx, i18n.Call{Kind: r.Kind, Value: r.Value, Opts: r.Opts, End: r.End, Unit: r.Unit}, r.Fallback)
+}
+
 // FormatSection groups rows under a heading.
 type FormatSection struct {
 	Title       string

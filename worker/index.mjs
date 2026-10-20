@@ -3,7 +3,11 @@
 // no WebSocket support, so upgrades can't pass through Go. Same shape as workers-go's
 // _examples/durable-object-counter/worker.mjs.
 
+import * as intl from "./intl.mjs";
 import goWorker from "./build/worker.mjs";
+
+// The app's Intl formatter, for Go (kit/i18n Format): the same code the browser runs (static/intl.js).
+globalThis.goIntl = intl;
 
 export { Room } from "./room.mjs";
 

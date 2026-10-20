@@ -39,6 +39,7 @@ const app :Workerd.Worker = (
     (name = "migrations/0001_board.sql", text = embed "../migrations/0001_board.sql"),
     (name = "index.mjs", esModule = embed "../worker/index.mjs"),
     (name = "room.mjs", esModule = embed "../worker/room.mjs"),
+    (name = "intl.mjs", esModule = embed "../worker/intl.mjs"),
     (name = "build/worker.mjs", esModule = embed "../build/worker.mjs"),
     (name = "build/wasm_exec.js", esModule = embed "../build/wasm_exec.js"),
     (name = "build/runtime.mjs", esModule = embed "../build/runtime.mjs"),

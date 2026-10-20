@@ -54,7 +54,7 @@ component Formats() {
 												data-i18n="cldr"
 											} }
 										>
-											{ r.Fallback }
+											{ r.Text(ctx) }
 										</bdi>
 									</ui.TableCell>
 								</ui.TableRow>

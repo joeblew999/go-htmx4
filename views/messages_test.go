@@ -44,8 +44,10 @@ func TestNum(t *testing.T) {
 func TestJSOptions(t *testing.T) {
 	for in, want := range map[string]string{
 		"": "{}",
-		`{"dateStyle":"full","timeStyle":"long"}`: `{dateStyle: "full", timeStyle: "long"}`,
-		`{"maximumFractionDigits":0}`:             `{maximumFractionDigits: 0}`,
+		`{"dateStyle":"full","timeStyle":"long"}`:                        `{dateStyle: "full", timeStyle: "long"}`,
+		`{"maximumFractionDigits":0}`:                                    `{maximumFractionDigits: 0}`,
+		`{"hour":"numeric","timeZone":"America/New_York","hour12":true}`: `{hour: "numeric", timeZone: "America/New_York", hour12: true}`,
+		`{"style":"currency","currency":"EUR","currencyDisplay":"name"}`: `{style: "currency", currency: "EUR", currencyDisplay: "name"}`,
 	} {
 		if got := jsOptions(in); got != want {
 			t.Errorf("jsOptions(%s) = %s, want %s", in, got, want)

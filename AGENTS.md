@@ -189,18 +189,24 @@
 
 # kit/i18n
 
-- **The browser formats; the server translates.** Dates, times, time zones, relative times, durations, currencies,
-  units and lists are formatted in the viewer's browser with its own `Intl` (`static/intl.js`): only the browser
-  knows the viewer's zone, and every browser already ships CLDR. The server writes the raw value, the Intl options
-  and a readable fallback (`views/intl.go`): `<time datetime data-intl="datetime" data-opts='{…}'>`,
-  `<data value data-intl="number">`, and the kinds listed at the top of `intl.js`.
-  - `data-opts` is a JSON object written as a literal in the views (no JSON encoder in the Worker).
-  - A translated message around a browser-formatted value uses `data-template` with `slot` as its argument.
-  - The viewer's chosen zone and clock reach `intl.js` as `<html data-tz data-hc>` ("" = the browser's own zone and
-    the language's clock), from the `tz`/`hc` cookies (`POST /preferences`). The connection's zone
-    (`connectionTimeZone`) only labels "Automatic (…)".
-  - intl.js formats on load, on every DOM change (one MutationObserver covers htmx swaps, hx-ws pushes and morphs) and
-    every 30 s for relative times. A value or option a browser's Intl rejects keeps the fallback.
+- **One Intl, run twice.** Dates, times, zones, relative times, durations, numbers, currencies, units, lists, plural
+  rules, display names, sorting, segmentation and locale info all go through `worker/intl.mjs` (`format(lang, kind,
+  value, opts, extra)`):
+  - on the server, Go calls it with the Worker's own V8 Intl (`kit/i18n` `Locale.Format`, views `IntlText`), so pages
+    arrive finished, and emails or PDFs can use the same call; there is no CLDR formatting data in the wasm;
+  - in the browser, `static/intl.js` imports the same module (assets copy it to `/static/intl-core.mjs`) and
+    re-formats only what the server couldn't know: the viewer's own zone and relative times as time passes. A browser
+    without full data for the page's language keeps the server's text.
+  - Markup carries the raw value and options: `<time datetime data-intl="datetime" data-opts='{…}'>`,
+    `<data value data-intl="number">`; `data-opts` is a JSON object literal in the views (no JSON encoder in the
+    Worker). A translated message around a value uses `data-template` with `slot` as its argument.
+  - Under `go run`/`go test` there is no JS runtime: the text is a plain fallback (`2026-07-04 15:30 UTC`). The smoke
+    test (workerd) checks the real server output, `mise run e2e` the browser's.
+  - **Round trip:** forms send canonical values back (decimal strings, UTC instants, ISO codes). Intl doesn't
+    parse; `parseNumber` (`intl.parseNumber` in the browser, `Locale.ParseNumber` on the server) reads a number
+    typed the language's way ("1.234,5") back to "1234.5".
+  - The viewer's chosen zone and clock (`tz`/`hc` cookies, `POST /preferences`) reach the browser as
+    `<html data-tz data-hc>`; the server formats in them, else in the connection's zone (`connectionTimeZone`).
 - **The server keeps what chooses wording**: `kit/i18n` is the shipped locales, the request's locale, messages, plural
   rules and plain numbers (`Num(ctx, n)`, `{n, number}`: the locale's digits and grouping). It compiles into the
   Worker; `kit/i18n/cldr` is its generated table (a few KB).

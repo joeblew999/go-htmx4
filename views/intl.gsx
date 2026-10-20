@@ -3,25 +3,33 @@ package views
 import (
 	"time"
 
+	"github.com/joeblew999/go-htmx4/kit/i18n"
+
 	"github.com/joeblew999/go-htmx4/ui"
 	"github.com/joeblew999/go-htmx4/ui/icon"
 )
 
-// LocalTime is an instant for the viewer: intl.js formats it with Intl.DateTimeFormat (opts, a JSON object of its
-// options) in the page's language and the viewer's time zone and clock. The UTC text is the fallback.
+// LocalTime is an instant for the viewer, Intl.DateTimeFormat with opts (a JSON object of its options) in the page's
+// language: the server's text uses the viewer's chosen zone or the connection's, the browser's its own.
 component LocalTime(t time.Time, opts string) {
-	<time datetime={isoInstant(t)} data-intl="datetime" data-opts={opts}>{ utcText(t) }</time>
+	<time datetime={isoInstant(t)} data-intl="datetime" data-opts={opts}>
+		{ IntlText(ctx, i18n.Call{Kind: "datetime", Value: isoInstant(t), Opts: opts}, utcText(t)) }
+	</time>
 }
 
 // RelativeTime is an instant relative to now ("3 minutes ago", Intl.RelativeTimeFormat, numeric "auto"), kept
 // fresh by intl.js; its tooltip is the date in the viewer's zone.
 component RelativeTime(iso string, fallback string) {
-	<time datetime={iso} title={fallback} data-intl="relative">{ fallback }</time>
+	<time datetime={iso} title={fallback} data-intl="relative">
+		{ IntlText(ctx, i18n.Call{Kind: "relative", Value: iso}, fallback) }
+	</time>
 }
 
 // Elapsed is a duration (Intl.DurationFormat, short style), e.g. "1 day, 2 hr, 5 min, 30 sec".
 component Elapsed(d time.Duration) {
-	<data value={durationJSON(d)} data-intl="duration">{ durationText(d) }</data>
+	<data value={durationJSON(d)} data-intl="duration">
+		{ IntlText(ctx, i18n.Call{Kind: "duration", Value: durationJSON(d)}, durationText(d)) }
+	</data>
 }
 
 // PreferencesDialog is the header's time zone and clock dialog. Its form loads when it opens, and the trigger swaps
@@ -73,7 +81,7 @@ component PreferencesForm(returnTo string, connectionZone string) {
 					</ui.NativeSelectOption>
 					{ if TimeZoneChosen(ctx) {
 						<ui.NativeSelectOption value={TimeZone(ctx)} selected={true} data-intl="zone" data-value={TimeZone(ctx)}>
-							{ TimeZone(ctx) }
+							{ IntlText(ctx, i18n.Call{Kind: "zone", Value: TimeZone(ctx)}, TimeZone(ctx)) }
 						</ui.NativeSelectOption>
 					} }
 				</ui.NativeSelect>
@@ -86,10 +94,10 @@ component PreferencesForm(returnTo string, connectionZone string) {
 						selected={HourCycle(ctx) == ""}
 						data-intl="datetime"
 						data-value="2026-01-01T13:05:00Z"
-						data-opts={`{"hour":"numeric","minute":"2-digit","timeZone":"UTC"}`}
+						data-opts={`{"hour":"numeric","minute":"2-digit","timeZone":"UTC","viewerClock":false}`}
 						data-template={M(ctx).PreferencesHourCycleAuto(slot)}
 					>
-						{ M(ctx).PreferencesHourCycleAuto("13:05") }
+						{ M(ctx).PreferencesHourCycleAuto(IntlText(ctx, i18n.Call{Kind: "datetime", Value: "2026-01-01T13:05:00Z", Opts: `{"hour":"numeric","minute":"2-digit","timeZone":"UTC","viewerClock":false}`}, "13:05")) }
 					</ui.NativeSelectOption>
 					<ui.NativeSelectOption
 						value="h12"
@@ -98,7 +106,7 @@ component PreferencesForm(returnTo string, connectionZone string) {
 						data-value="2026-01-01T13:05:00Z"
 						data-opts={`{"hour":"numeric","minute":"2-digit","hourCycle":"h12","timeZone":"UTC"}`}
 					>
-						1:05 PM
+						{ IntlText(ctx, i18n.Call{Kind: "datetime", Value: "2026-01-01T13:05:00Z", Opts: `{"hour":"numeric","minute":"2-digit","hourCycle":"h12","timeZone":"UTC"}`}, "1:05 PM") }
 					</ui.NativeSelectOption>
 					<ui.NativeSelectOption
 						value="h23"
@@ -107,7 +115,7 @@ component PreferencesForm(returnTo string, connectionZone string) {
 						data-value="2026-01-01T13:05:00Z"
 						data-opts={`{"hour":"numeric","minute":"2-digit","hourCycle":"h23","timeZone":"UTC"}`}
 					>
-						13:05
+						{ IntlText(ctx, i18n.Call{Kind: "datetime", Value: "2026-01-01T13:05:00Z", Opts: `{"hour":"numeric","minute":"2-digit","hourCycle":"h23","timeZone":"UTC"}`}, "13:05") }
 					</ui.NativeSelectOption>
 				</ui.NativeSelect>
 			</ui.Field>
