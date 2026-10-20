@@ -110,7 +110,10 @@
     list: (lang, v, o) => new Intl.ListFormat(lang, o).format(JSON.parse(v)),
     duration(lang, v, o) {
       if (!Intl.DurationFormat) throw new TypeError("no Intl.DurationFormat");
-      return new Intl.DurationFormat(lang, o).format(JSON.parse(v));
+      const d = JSON.parse(v);
+      const text = new Intl.DurationFormat(lang, o).format(d);
+      // Display "auto" hides zero units, so an all-zero duration would be "": show "0 sec" instead.
+      return text || new Intl.DurationFormat(lang, { ...o, secondsDisplay: "always" }).format(d);
     },
     week(lang, v) {
       const loc = new Intl.Locale(lang);
@@ -134,6 +137,7 @@
     } catch {
       return; // this browser can't: keep the server's fallback
     }
+    if (!text) return; // nothing to show: keep the fallback
     const tpl = el.dataset.template;
     if (tpl && tpl.includes(SLOT)) text = tpl.replace(SLOT, text);
     if (el.textContent !== text) el.textContent = text;
