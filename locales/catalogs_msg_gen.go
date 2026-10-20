@@ -306,6 +306,22 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.collation_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Intl.Collator: the same words sorted the way this language sorts them, with numeric, case and accent options.",
+					},
+				},
+			},
+			{
+				Key: "formats.collation_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Sorting",
+					},
+				},
+			},
+			{
 				Key: "formats.currency_description",
 				Parts: []i18n.MsgPart{
 					{
@@ -363,6 +379,22 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.display_names_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Intl.DisplayNames: languages, regions, scripts, currencies, calendars and date fields named in this page's language.",
+					},
+				},
+			},
+			{
+				Key: "formats.display_names_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Display names",
+					},
+				},
+			},
+			{
 				Key: "formats.durations_description",
 				Parts: []i18n.MsgPart{
 					{
@@ -407,6 +439,22 @@ var catalogs = []*i18n.Catalog{
 				Parts: []i18n.MsgPart{
 					{
 						Text: "Lists",
+					},
+				},
+			},
+			{
+				Key: "formats.locale_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Intl.Locale: this language's likely full form, calendars, collations, clocks, numbering systems, time zones, direction and week.",
+					},
+				},
+			},
+			{
+				Key: "formats.locale_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Locale",
 					},
 				},
 			},
@@ -460,7 +508,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.plurals_description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "CLDR plural categories with the first numbers that select them, computed on the server: they choose the wording of translated messages.",
+						Text: "CLDR plural categories: on the server, where they choose a translated message's wording, and in your browser (Intl.PluralRules).",
 					},
 				},
 			},
@@ -513,6 +561,38 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.segments_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Intl.Segmenter: characters as people see them, words (even without spaces) and sentences, with their count.",
+					},
+				},
+			},
+			{
+				Key: "formats.segments_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Segmentation",
+					},
+				},
+			},
+			{
+				Key: "formats.supported_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Intl.supportedValuesOf: what your browser's Intl knows, with a count and the first few.",
+					},
+				},
+			},
+			{
+				Key: "formats.supported_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Supported values",
+					},
+				},
+			},
+			{
 				Key: "formats.time_zone",
 				Parts: []i18n.MsgPart{
 					{
@@ -544,22 +624,6 @@ var catalogs = []*i18n.Catalog{
 				Parts: []i18n.MsgPart{
 					{
 						Text: "Units",
-					},
-				},
-			},
-			{
-				Key: "formats.week_description",
-				Parts: []i18n.MsgPart{
-					{
-						Text: "Intl.Locale getWeekInfo: CLDR weekData for the locale's region (1 = Monday … 7 = Sunday).",
-					},
-				},
-			},
-			{
-				Key: "formats.week_title",
-				Parts: []i18n.MsgPart{
-					{
-						Text: "Week",
 					},
 				},
 			},
@@ -1483,6 +1547,22 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.collation_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Intl.Collator: the same words sorted the way this language sorts them, with numeric, case and accent options.",
+					},
+				},
+			},
+			{
+				Key: "formats.collation_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Sorting",
+					},
+				},
+			},
+			{
 				Key: "formats.currency_description",
 				Parts: []i18n.MsgPart{
 					{
@@ -1540,6 +1620,22 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.display_names_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Intl.DisplayNames: languages, regions, scripts, currencies, calendars and date fields named in this page's language.",
+					},
+				},
+			},
+			{
+				Key: "formats.display_names_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Display names",
+					},
+				},
+			},
+			{
 				Key: "formats.durations_description",
 				Parts: []i18n.MsgPart{
 					{
@@ -1584,6 +1680,22 @@ var catalogs = []*i18n.Catalog{
 				Parts: []i18n.MsgPart{
 					{
 						Text: "Lists",
+					},
+				},
+			},
+			{
+				Key: "formats.locale_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Intl.Locale: this language's likely full form, calendars, collations, clocks, numbering systems, time zones, direction and week.",
+					},
+				},
+			},
+			{
+				Key: "formats.locale_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Locale",
 					},
 				},
 			},
@@ -1637,7 +1749,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.plurals_description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "CLDR plural categories with the first numbers that select them, computed on the server: they choose the wording of translated messages.",
+						Text: "CLDR plural categories: on the server, where they choose a translated message's wording, and in your browser (Intl.PluralRules).",
 					},
 				},
 			},
@@ -1690,6 +1802,38 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.segments_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Intl.Segmenter: characters as people see them, words (even without spaces) and sentences, with their count.",
+					},
+				},
+			},
+			{
+				Key: "formats.segments_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Segmentation",
+					},
+				},
+			},
+			{
+				Key: "formats.supported_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Intl.supportedValuesOf: what your browser's Intl knows, with a count and the first few.",
+					},
+				},
+			},
+			{
+				Key: "formats.supported_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Supported values",
+					},
+				},
+			},
+			{
 				Key: "formats.time_zone",
 				Parts: []i18n.MsgPart{
 					{
@@ -1721,22 +1865,6 @@ var catalogs = []*i18n.Catalog{
 				Parts: []i18n.MsgPart{
 					{
 						Text: "Units",
-					},
-				},
-			},
-			{
-				Key: "formats.week_description",
-				Parts: []i18n.MsgPart{
-					{
-						Text: "Intl.Locale getWeekInfo: CLDR weekData for the locale's region (1 = Monday … 7 = Sunday).",
-					},
-				},
-			},
-			{
-				Key: "formats.week_title",
-				Parts: []i18n.MsgPart{
-					{
-						Text: "Week",
 					},
 				},
 			},
@@ -2660,6 +2788,22 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.collation_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Intl.Collator: dieselben Wörter, so sortiert, wie diese Sprache sortiert, mit Optionen für Zahlen, Groß-/Kleinschreibung und Akzente.",
+					},
+				},
+			},
+			{
+				Key: "formats.collation_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Sortierung",
+					},
+				},
+			},
+			{
 				Key: "formats.currency_description",
 				Parts: []i18n.MsgPart{
 					{
@@ -2717,6 +2861,22 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.display_names_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Intl.DisplayNames: Sprachen, Regionen, Schriften, Währungen, Kalender und Datumsfelder, benannt in der Sprache dieser Seite.",
+					},
+				},
+			},
+			{
+				Key: "formats.display_names_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Anzeigenamen",
+					},
+				},
+			},
+			{
 				Key: "formats.durations_description",
 				Parts: []i18n.MsgPart{
 					{
@@ -2761,6 +2921,22 @@ var catalogs = []*i18n.Catalog{
 				Parts: []i18n.MsgPart{
 					{
 						Text: "Listen",
+					},
+				},
+			},
+			{
+				Key: "formats.locale_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Intl.Locale: die wahrscheinliche Vollform dieser Sprache, Kalender, Sortierfolgen, Uhren, Zahlensysteme, Zeitzonen, Schreibrichtung und Woche.",
+					},
+				},
+			},
+			{
+				Key: "formats.locale_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Gebietsschema",
 					},
 				},
 			},
@@ -2814,7 +2990,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.plurals_description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "CLDR-Pluralkategorien mit den ersten Zahlen, die sie auswählen, auf dem Server berechnet: Sie bestimmen den Wortlaut übersetzter Texte.",
+						Text: "CLDR-Pluralkategorien: auf dem Server, wo sie den Wortlaut übersetzter Texte bestimmen, und in Ihrem Browser (Intl.PluralRules).",
 					},
 				},
 			},
@@ -2867,6 +3043,38 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.segments_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Intl.Segmenter: Zeichen, wie Menschen sie sehen, Wörter (auch ohne Leerzeichen) und Sätze, mit ihrer Anzahl.",
+					},
+				},
+			},
+			{
+				Key: "formats.segments_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Segmentierung",
+					},
+				},
+			},
+			{
+				Key: "formats.supported_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Intl.supportedValuesOf: was das Intl Ihres Browsers kennt, mit Anzahl und den ersten Einträgen.",
+					},
+				},
+			},
+			{
+				Key: "formats.supported_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Unterstützte Werte",
+					},
+				},
+			},
+			{
 				Key: "formats.time_zone",
 				Parts: []i18n.MsgPart{
 					{
@@ -2898,22 +3106,6 @@ var catalogs = []*i18n.Catalog{
 				Parts: []i18n.MsgPart{
 					{
 						Text: "Einheiten",
-					},
-				},
-			},
-			{
-				Key: "formats.week_description",
-				Parts: []i18n.MsgPart{
-					{
-						Text: "Intl.Locale getWeekInfo: CLDR-weekData für die Region des Gebietsschemas (1 = Montag … 7 = Sonntag).",
-					},
-				},
-			},
-			{
-				Key: "formats.week_title",
-				Parts: []i18n.MsgPart{
-					{
-						Text: "Woche",
 					},
 				},
 			},
@@ -3837,6 +4029,22 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.collation_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Intl.Collator : les mêmes mots triés comme cette langue les trie, avec des options pour les nombres, la casse et les accents.",
+					},
+				},
+			},
+			{
+				Key: "formats.collation_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Tri",
+					},
+				},
+			},
+			{
 				Key: "formats.currency_description",
 				Parts: []i18n.MsgPart{
 					{
@@ -3894,6 +4102,22 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.display_names_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Intl.DisplayNames : langues, régions, écritures, devises, calendriers et champs de date, nommés dans la langue de cette page.",
+					},
+				},
+			},
+			{
+				Key: "formats.display_names_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Noms d'affichage",
+					},
+				},
+			},
+			{
 				Key: "formats.durations_description",
 				Parts: []i18n.MsgPart{
 					{
@@ -3938,6 +4162,22 @@ var catalogs = []*i18n.Catalog{
 				Parts: []i18n.MsgPart{
 					{
 						Text: "Listes",
+					},
+				},
+			},
+			{
+				Key: "formats.locale_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Intl.Locale : la forme complète probable de cette langue, ses calendriers, ordres de tri, horloges, systèmes de numération, fuseaux horaires, sens d'écriture et semaine.",
+					},
+				},
+			},
+			{
+				Key: "formats.locale_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Paramètres régionaux",
 					},
 				},
 			},
@@ -3991,7 +4231,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.plurals_description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "Catégories de pluriel CLDR avec les premiers nombres qui les sélectionnent, calculées sur le serveur : elles déterminent la formulation des messages traduits.",
+						Text: "Catégories de pluriel CLDR : sur le serveur, où elles déterminent la formulation des messages traduits, et dans votre navigateur (Intl.PluralRules).",
 					},
 				},
 			},
@@ -4044,6 +4284,38 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.segments_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Intl.Segmenter : les caractères tels qu'on les voit, les mots (même sans espaces) et les phrases, avec leur nombre.",
+					},
+				},
+			},
+			{
+				Key: "formats.segments_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Segmentation",
+					},
+				},
+			},
+			{
+				Key: "formats.supported_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Intl.supportedValuesOf : ce que connaît l'Intl de votre navigateur, avec un total et les premières valeurs.",
+					},
+				},
+			},
+			{
+				Key: "formats.supported_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Valeurs prises en charge",
+					},
+				},
+			},
+			{
 				Key: "formats.time_zone",
 				Parts: []i18n.MsgPart{
 					{
@@ -4075,22 +4347,6 @@ var catalogs = []*i18n.Catalog{
 				Parts: []i18n.MsgPart{
 					{
 						Text: "Unités",
-					},
-				},
-			},
-			{
-				Key: "formats.week_description",
-				Parts: []i18n.MsgPart{
-					{
-						Text: "Intl.Locale getWeekInfo\u00a0: weekData CLDR pour la région de la locale (1 = lundi … 7 = dimanche).",
-					},
-				},
-			},
-			{
-				Key: "formats.week_title",
-				Parts: []i18n.MsgPart{
-					{
-						Text: "Semaine",
 					},
 				},
 			},
@@ -5014,6 +5270,22 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.collation_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Intl.Collator: las mismas palabras ordenadas como las ordena este idioma, con opciones para números, mayúsculas y acentos.",
+					},
+				},
+			},
+			{
+				Key: "formats.collation_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Ordenación",
+					},
+				},
+			},
+			{
 				Key: "formats.currency_description",
 				Parts: []i18n.MsgPart{
 					{
@@ -5071,6 +5343,22 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.display_names_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Intl.DisplayNames: idiomas, regiones, sistemas de escritura, monedas, calendarios y campos de fecha, con sus nombres en el idioma de esta página.",
+					},
+				},
+			},
+			{
+				Key: "formats.display_names_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Nombres para mostrar",
+					},
+				},
+			},
+			{
 				Key: "formats.durations_description",
 				Parts: []i18n.MsgPart{
 					{
@@ -5115,6 +5403,22 @@ var catalogs = []*i18n.Catalog{
 				Parts: []i18n.MsgPart{
 					{
 						Text: "Listas",
+					},
+				},
+			},
+			{
+				Key: "formats.locale_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Intl.Locale: la forma completa probable de este idioma, sus calendarios, ordenaciones, relojes, sistemas de numeración, zonas horarias, dirección y semana.",
+					},
+				},
+			},
+			{
+				Key: "formats.locale_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Configuración regional",
 					},
 				},
 			},
@@ -5168,7 +5472,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.plurals_description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "Categorías de plural de CLDR con los primeros números que las seleccionan, calculadas en el servidor: determinan la redacción de los mensajes traducidos.",
+						Text: "Categorías de plural de CLDR: en el servidor, donde determinan la redacción de los mensajes traducidos, y en tu navegador (Intl.PluralRules).",
 					},
 				},
 			},
@@ -5221,6 +5525,38 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.segments_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Intl.Segmenter: caracteres tal como se ven, palabras (incluso sin espacios) y oraciones, con su recuento.",
+					},
+				},
+			},
+			{
+				Key: "formats.segments_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Segmentación",
+					},
+				},
+			},
+			{
+				Key: "formats.supported_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Intl.supportedValuesOf: lo que conoce el Intl de tu navegador, con un recuento y los primeros valores.",
+					},
+				},
+			},
+			{
+				Key: "formats.supported_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Valores admitidos",
+					},
+				},
+			},
+			{
 				Key: "formats.time_zone",
 				Parts: []i18n.MsgPart{
 					{
@@ -5252,22 +5588,6 @@ var catalogs = []*i18n.Catalog{
 				Parts: []i18n.MsgPart{
 					{
 						Text: "Unidades",
-					},
-				},
-			},
-			{
-				Key: "formats.week_description",
-				Parts: []i18n.MsgPart{
-					{
-						Text: "Intl.Locale getWeekInfo: weekData de CLDR para la región de la configuración regional (1 = lunes … 7 = domingo).",
-					},
-				},
-			},
-			{
-				Key: "formats.week_title",
-				Parts: []i18n.MsgPart{
-					{
-						Text: "Semana",
 					},
 				},
 			},
@@ -6191,6 +6511,22 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.collation_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Intl.Collator: as mesmas palavras ordenadas como este idioma ordena, com opções para números, maiúsculas e acentos.",
+					},
+				},
+			},
+			{
+				Key: "formats.collation_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Ordenação",
+					},
+				},
+			},
+			{
 				Key: "formats.currency_description",
 				Parts: []i18n.MsgPart{
 					{
@@ -6248,6 +6584,22 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.display_names_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Intl.DisplayNames: idiomas, regiões, sistemas de escrita, moedas, calendários e campos de data, nomeados no idioma desta página.",
+					},
+				},
+			},
+			{
+				Key: "formats.display_names_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Nomes de exibição",
+					},
+				},
+			},
+			{
 				Key: "formats.durations_description",
 				Parts: []i18n.MsgPart{
 					{
@@ -6292,6 +6644,22 @@ var catalogs = []*i18n.Catalog{
 				Parts: []i18n.MsgPart{
 					{
 						Text: "Listas",
+					},
+				},
+			},
+			{
+				Key: "formats.locale_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Intl.Locale: a forma completa provável deste idioma, calendários, ordenações, relógios, sistemas de numeração, fusos horários, direção e semana.",
+					},
+				},
+			},
+			{
+				Key: "formats.locale_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Localidade",
 					},
 				},
 			},
@@ -6345,7 +6713,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.plurals_description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "Categorias de plural do CLDR com os primeiros números que as selecionam, calculadas no servidor: elas definem o texto das mensagens traduzidas.",
+						Text: "Categorias de plural do CLDR: no servidor, onde definem o texto das mensagens traduzidas, e no seu navegador (Intl.PluralRules).",
 					},
 				},
 			},
@@ -6398,6 +6766,38 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.segments_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Intl.Segmenter: caracteres como as pessoas os veem, palavras (mesmo sem espaços) e frases, com a contagem.",
+					},
+				},
+			},
+			{
+				Key: "formats.segments_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Segmentação",
+					},
+				},
+			},
+			{
+				Key: "formats.supported_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Intl.supportedValuesOf: o que o Intl do seu navegador conhece, com a contagem e os primeiros valores.",
+					},
+				},
+			},
+			{
+				Key: "formats.supported_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Valores compatíveis",
+					},
+				},
+			},
+			{
 				Key: "formats.time_zone",
 				Parts: []i18n.MsgPart{
 					{
@@ -6429,22 +6829,6 @@ var catalogs = []*i18n.Catalog{
 				Parts: []i18n.MsgPart{
 					{
 						Text: "Unidades",
-					},
-				},
-			},
-			{
-				Key: "formats.week_description",
-				Parts: []i18n.MsgPart{
-					{
-						Text: "Intl.Locale getWeekInfo: weekData do CLDR para a região da localidade (1 = segunda-feira … 7 = domingo).",
-					},
-				},
-			},
-			{
-				Key: "formats.week_title",
-				Parts: []i18n.MsgPart{
-					{
-						Text: "Semana",
 					},
 				},
 			},
@@ -7368,6 +7752,22 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.collation_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Intl.Collator: as mesmas palavras ordenadas como este idioma ordena, com opções para números, maiúsculas e acentos.",
+					},
+				},
+			},
+			{
+				Key: "formats.collation_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Ordenação",
+					},
+				},
+			},
+			{
 				Key: "formats.currency_description",
 				Parts: []i18n.MsgPart{
 					{
@@ -7425,6 +7825,22 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.display_names_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Intl.DisplayNames: idiomas, regiões, sistemas de escrita, moedas, calendários e campos de data, com o nome no idioma desta página.",
+					},
+				},
+			},
+			{
+				Key: "formats.display_names_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Nomes de apresentação",
+					},
+				},
+			},
+			{
 				Key: "formats.durations_description",
 				Parts: []i18n.MsgPart{
 					{
@@ -7469,6 +7885,22 @@ var catalogs = []*i18n.Catalog{
 				Parts: []i18n.MsgPart{
 					{
 						Text: "Listas",
+					},
+				},
+			},
+			{
+				Key: "formats.locale_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Intl.Locale: a forma completa provável deste idioma, calendários, ordenações, relógios, sistemas de numeração, fusos horários, direção e semana.",
+					},
+				},
+			},
+			{
+				Key: "formats.locale_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Região",
 					},
 				},
 			},
@@ -7522,7 +7954,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.plurals_description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "Categorias de plural do CLDR com os primeiros números que as selecionam, calculadas no servidor: definem o texto das mensagens traduzidas.",
+						Text: "Categorias de plural do CLDR: no servidor, onde definem o texto das mensagens traduzidas, e no seu navegador (Intl.PluralRules).",
 					},
 				},
 			},
@@ -7575,6 +8007,38 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.segments_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Intl.Segmenter: carateres como as pessoas os veem, palavras (mesmo sem espaços) e frases, com a contagem.",
+					},
+				},
+			},
+			{
+				Key: "formats.segments_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Segmentação",
+					},
+				},
+			},
+			{
+				Key: "formats.supported_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Intl.supportedValuesOf: o que o Intl do seu navegador conhece, com a contagem e os primeiros valores.",
+					},
+				},
+			},
+			{
+				Key: "formats.supported_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Valores suportados",
+					},
+				},
+			},
+			{
 				Key: "formats.time_zone",
 				Parts: []i18n.MsgPart{
 					{
@@ -7606,22 +8070,6 @@ var catalogs = []*i18n.Catalog{
 				Parts: []i18n.MsgPart{
 					{
 						Text: "Unidades",
-					},
-				},
-			},
-			{
-				Key: "formats.week_description",
-				Parts: []i18n.MsgPart{
-					{
-						Text: "Intl.Locale getWeekInfo: weekData do CLDR para a região do idioma (1 = segunda-feira … 7 = domingo).",
-					},
-				},
-			},
-			{
-				Key: "formats.week_title",
-				Parts: []i18n.MsgPart{
-					{
-						Text: "Semana",
 					},
 				},
 			},
@@ -8542,6 +8990,22 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.collation_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Intl.Collator: الكلمات نفسها مرتبة كما ترتبها هذه اللغة، مع خيارات للأرقام وحالة الأحرف والعلامات.",
+					},
+				},
+			},
+			{
+				Key: "formats.collation_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "الترتيب",
+					},
+				},
+			},
+			{
 				Key: "formats.currency_description",
 				Parts: []i18n.MsgPart{
 					{
@@ -8599,6 +9063,22 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.display_names_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Intl.DisplayNames: اللغات والمناطق والأنظمة الكتابية والعملات والتقاويم وحقول التاريخ، بأسمائها بلغة هذه الصفحة.",
+					},
+				},
+			},
+			{
+				Key: "formats.display_names_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "أسماء العرض",
+					},
+				},
+			},
+			{
 				Key: "formats.durations_description",
 				Parts: []i18n.MsgPart{
 					{
@@ -8643,6 +9123,22 @@ var catalogs = []*i18n.Catalog{
 				Parts: []i18n.MsgPart{
 					{
 						Text: "القوائم",
+					},
+				},
+			},
+			{
+				Key: "formats.locale_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Intl.Locale: الصيغة الكاملة المرجّحة لهذه اللغة، وتقاويمها وترتيباتها وساعاتها وأنظمة أرقامها ومناطقها الزمنية واتجاه كتابتها وأسبوعها.",
+					},
+				},
+			},
+			{
+				Key: "formats.locale_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "اللغة والمنطقة",
 					},
 				},
 			},
@@ -8696,7 +9192,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.plurals_description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "فئات الجمع في CLDR مع أول الأرقام التي تختارها، تُحسب على الخادم: فهي تحدد صياغة الرسائل المترجمة.",
+						Text: "فئات الجمع في CLDR: على الخادم حيث تحدد صياغة الرسائل المترجمة، وفي متصفحك (Intl.PluralRules).",
 					},
 				},
 			},
@@ -8749,6 +9245,38 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.segments_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Intl.Segmenter: الحروف كما يراها الناس، والكلمات (حتى بلا مسافات) والجمل، مع عددها.",
+					},
+				},
+			},
+			{
+				Key: "formats.segments_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "التقسيم",
+					},
+				},
+			},
+			{
+				Key: "formats.supported_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Intl.supportedValuesOf: ما يعرفه Intl في متصفحك، مع العدد وأول القيم.",
+					},
+				},
+			},
+			{
+				Key: "formats.supported_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "القيم المدعومة",
+					},
+				},
+			},
+			{
 				Key: "formats.time_zone",
 				Parts: []i18n.MsgPart{
 					{
@@ -8780,22 +9308,6 @@ var catalogs = []*i18n.Catalog{
 				Parts: []i18n.MsgPart{
 					{
 						Text: "الوحدات",
-					},
-				},
-			},
-			{
-				Key: "formats.week_description",
-				Parts: []i18n.MsgPart{
-					{
-						Text: "getWeekInfo في Intl.Locale: بيانات weekData من CLDR لمنطقة اللغة (1 = الاثنين … 7 = الأحد).",
-					},
-				},
-			},
-			{
-				Key: "formats.week_title",
-				Parts: []i18n.MsgPart{
-					{
-						Text: "الأسبوع",
 					},
 				},
 			},
@@ -9719,6 +10231,22 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.collation_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Intl.Collator: אותן מילים ממוינות כפי שהשפה הזו ממיינת, עם אפשרויות למספרים, לאותיות רישיות ולסימנים.",
+					},
+				},
+			},
+			{
+				Key: "formats.collation_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "מיון",
+					},
+				},
+			},
+			{
 				Key: "formats.currency_description",
 				Parts: []i18n.MsgPart{
 					{
@@ -9776,6 +10304,22 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.display_names_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Intl.DisplayNames: שפות, אזורים, כתבים, מטבעות, לוחות שנה ושדות תאריך, בשמותיהם בשפת הדף הזה.",
+					},
+				},
+			},
+			{
+				Key: "formats.display_names_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "שמות תצוגה",
+					},
+				},
+			},
+			{
 				Key: "formats.durations_description",
 				Parts: []i18n.MsgPart{
 					{
@@ -9820,6 +10364,22 @@ var catalogs = []*i18n.Catalog{
 				Parts: []i18n.MsgPart{
 					{
 						Text: "רשימות",
+					},
+				},
+			},
+			{
+				Key: "formats.locale_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Intl.Locale: הצורה המלאה הסבירה של השפה הזו, לוחות השנה, סדרי המיון, השעונים, מערכות הספרות, אזורי הזמן, הכיוון והשבוע שלה.",
+					},
+				},
+			},
+			{
+				Key: "formats.locale_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "אזור ושפה",
 					},
 				},
 			},
@@ -9873,7 +10433,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.plurals_description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "קטגוריות הריבוי של CLDR עם המספרים הראשונים שבוחרים בהן, מחושבות בשרת: הן קובעות את נוסח ההודעות המתורגמות.",
+						Text: "קטגוריות הריבוי של CLDR: בשרת, שם הן קובעות את נוסח ההודעות המתורגמות, ובדפדפן שלך (Intl.PluralRules).",
 					},
 				},
 			},
@@ -9926,6 +10486,38 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.segments_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Intl.Segmenter: תווים כפי שאנשים רואים אותם, מילים (גם בלי רווחים) ומשפטים, עם הספירה שלהם.",
+					},
+				},
+			},
+			{
+				Key: "formats.segments_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "פילוח",
+					},
+				},
+			},
+			{
+				Key: "formats.supported_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Intl.supportedValuesOf: מה ש-Intl של הדפדפן שלך מכיר, עם ספירה והערכים הראשונים.",
+					},
+				},
+			},
+			{
+				Key: "formats.supported_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "ערכים נתמכים",
+					},
+				},
+			},
+			{
 				Key: "formats.time_zone",
 				Parts: []i18n.MsgPart{
 					{
@@ -9957,22 +10549,6 @@ var catalogs = []*i18n.Catalog{
 				Parts: []i18n.MsgPart{
 					{
 						Text: "יחידות",
-					},
-				},
-			},
-			{
-				Key: "formats.week_description",
-				Parts: []i18n.MsgPart{
-					{
-						Text: "Intl.Locale getWeekInfo: נתוני weekData מ-CLDR לאזור של השפה (1 = שני … 7 = ראשון).",
-					},
-				},
-			},
-			{
-				Key: "formats.week_title",
-				Parts: []i18n.MsgPart{
-					{
-						Text: "שבוע",
 					},
 				},
 			},
@@ -10896,6 +11472,22 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.collation_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Intl.Collator：同じ単語を、この言語の並べ替え順で並べます。数値、大文字小文字、アクセントのオプション付き。",
+					},
+				},
+			},
+			{
+				Key: "formats.collation_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "並べ替え",
+					},
+				},
+			},
+			{
 				Key: "formats.currency_description",
 				Parts: []i18n.MsgPart{
 					{
@@ -10953,6 +11545,22 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.display_names_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Intl.DisplayNames：言語、地域、文字体系、通貨、暦、日付フィールドを、このページの言語で表示します。",
+					},
+				},
+			},
+			{
+				Key: "formats.display_names_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "表示名",
+					},
+				},
+			},
+			{
 				Key: "formats.durations_description",
 				Parts: []i18n.MsgPart{
 					{
@@ -10997,6 +11605,22 @@ var catalogs = []*i18n.Catalog{
 				Parts: []i18n.MsgPart{
 					{
 						Text: "リスト",
+					},
+				},
+			},
+			{
+				Key: "formats.locale_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Intl.Locale：この言語の推定される完全な形、暦、照合順序、時計、数字体系、タイムゾーン、書字方向、週。",
+					},
+				},
+			},
+			{
+				Key: "formats.locale_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "ロケール",
 					},
 				},
 			},
@@ -11050,7 +11674,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.plurals_description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "CLDR の複数形カテゴリと、それぞれを選ぶ最初の数値。サーバーで計算します。翻訳済みメッセージの言い回しを決めるためです。",
+						Text: "CLDR の複数形カテゴリ。サーバーでは翻訳済みメッセージの言い回しを決め、ブラウザーでは Intl.PluralRules として使われます。",
 					},
 				},
 			},
@@ -11103,6 +11727,38 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.segments_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Intl.Segmenter：人が見る単位の文字、単語（スペースがなくても）、文を、その数とともに示します。",
+					},
+				},
+			},
+			{
+				Key: "formats.segments_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "分割",
+					},
+				},
+			},
+			{
+				Key: "formats.supported_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Intl.supportedValuesOf：お使いのブラウザーの Intl が知っている値の数と、最初のいくつか。",
+					},
+				},
+			},
+			{
+				Key: "formats.supported_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "対応している値",
+					},
+				},
+			},
+			{
 				Key: "formats.time_zone",
 				Parts: []i18n.MsgPart{
 					{
@@ -11134,22 +11790,6 @@ var catalogs = []*i18n.Catalog{
 				Parts: []i18n.MsgPart{
 					{
 						Text: "単位",
-					},
-				},
-			},
-			{
-				Key: "formats.week_description",
-				Parts: []i18n.MsgPart{
-					{
-						Text: "Intl.Locale の getWeekInfo：ロケールの地域に対応する CLDR の weekData（1 = 月曜日 … 7 = 日曜日）。",
-					},
-				},
-			},
-			{
-				Key: "formats.week_title",
-				Parts: []i18n.MsgPart{
-					{
-						Text: "週",
 					},
 				},
 			},
@@ -12070,6 +12710,22 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.collation_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Intl.Collator：同一组词按此语言的方式排序，可选择数字、大小写和重音规则。",
+					},
+				},
+			},
+			{
+				Key: "formats.collation_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "排序",
+					},
+				},
+			},
+			{
 				Key: "formats.currency_description",
 				Parts: []i18n.MsgPart{
 					{
@@ -12127,6 +12783,22 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.display_names_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Intl.DisplayNames：语言、地区、文字、货币、历法和日期字段，以本页语言显示名称。",
+					},
+				},
+			},
+			{
+				Key: "formats.display_names_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "显示名称",
+					},
+				},
+			},
+			{
 				Key: "formats.durations_description",
 				Parts: []i18n.MsgPart{
 					{
@@ -12171,6 +12843,22 @@ var catalogs = []*i18n.Catalog{
 				Parts: []i18n.MsgPart{
 					{
 						Text: "列表",
+					},
+				},
+			},
+			{
+				Key: "formats.locale_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Intl.Locale：此语言可能的完整形式、历法、排序规则、时钟、数字系统、时区、书写方向和星期。",
+					},
+				},
+			},
+			{
+				Key: "formats.locale_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "语言区域",
 					},
 				},
 			},
@@ -12224,7 +12912,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.plurals_description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "CLDR 复数类别及选中各类别的前几个数字，在服务器上计算：它们决定翻译消息的措辞。",
+						Text: "CLDR 复数类别：在服务器上决定翻译消息的措辞，在你的浏览器中则是 Intl.PluralRules。",
 					},
 				},
 			},
@@ -12277,6 +12965,38 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.segments_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Intl.Segmenter：按人们看到的方式切分字符、词（即使没有空格）和句子，并给出数量。",
+					},
+				},
+			},
+			{
+				Key: "formats.segments_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "分段",
+					},
+				},
+			},
+			{
+				Key: "formats.supported_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Intl.supportedValuesOf：你的浏览器的 Intl 所知道的值，附数量和前几项。",
+					},
+				},
+			},
+			{
+				Key: "formats.supported_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "支持的值",
+					},
+				},
+			},
+			{
 				Key: "formats.time_zone",
 				Parts: []i18n.MsgPart{
 					{
@@ -12308,22 +13028,6 @@ var catalogs = []*i18n.Catalog{
 				Parts: []i18n.MsgPart{
 					{
 						Text: "单位",
-					},
-				},
-			},
-			{
-				Key: "formats.week_description",
-				Parts: []i18n.MsgPart{
-					{
-						Text: "Intl.Locale getWeekInfo：该语言区域所在地区的 CLDR weekData（1 = 星期一 … 7 = 星期日）。",
-					},
-				},
-			},
-			{
-				Key: "formats.week_title",
-				Parts: []i18n.MsgPart{
-					{
-						Text: "周",
 					},
 				},
 			},
@@ -13247,6 +13951,22 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.collation_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Intl.Collator：同一組字詞依此語言的方式排序，可選擇數字、大小寫和重音規則。",
+					},
+				},
+			},
+			{
+				Key: "formats.collation_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "排序",
+					},
+				},
+			},
+			{
 				Key: "formats.currency_description",
 				Parts: []i18n.MsgPart{
 					{
@@ -13304,6 +14024,22 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.display_names_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Intl.DisplayNames：語言、地區、文字、貨幣、曆法和日期欄位，以本頁語言顯示名稱。",
+					},
+				},
+			},
+			{
+				Key: "formats.display_names_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "顯示名稱",
+					},
+				},
+			},
+			{
 				Key: "formats.durations_description",
 				Parts: []i18n.MsgPart{
 					{
@@ -13348,6 +14084,22 @@ var catalogs = []*i18n.Catalog{
 				Parts: []i18n.MsgPart{
 					{
 						Text: "清單",
+					},
+				},
+			},
+			{
+				Key: "formats.locale_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Intl.Locale：此語言可能的完整形式、曆法、排序規則、時鐘、數字系統、時區、書寫方向和星期。",
+					},
+				},
+			},
+			{
+				Key: "formats.locale_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "語言地區",
 					},
 				},
 			},
@@ -13401,7 +14153,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.plurals_description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "CLDR 複數類別及選中各類別的前幾個數字，在伺服器上計算：它們決定翻譯訊息的措辭。",
+						Text: "CLDR 複數類別：在伺服器上決定翻譯訊息的措辭，在你的瀏覽器中則是 Intl.PluralRules。",
 					},
 				},
 			},
@@ -13454,6 +14206,38 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.segments_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Intl.Segmenter：依人們看到的方式切分字元、字詞（即使沒有空格）和句子，並列出數量。",
+					},
+				},
+			},
+			{
+				Key: "formats.segments_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "分段",
+					},
+				},
+			},
+			{
+				Key: "formats.supported_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Intl.supportedValuesOf：你的瀏覽器的 Intl 所知道的值，附數量和前幾項。",
+					},
+				},
+			},
+			{
+				Key: "formats.supported_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "支援的值",
+					},
+				},
+			},
+			{
 				Key: "formats.time_zone",
 				Parts: []i18n.MsgPart{
 					{
@@ -13485,22 +14269,6 @@ var catalogs = []*i18n.Catalog{
 				Parts: []i18n.MsgPart{
 					{
 						Text: "單位",
-					},
-				},
-			},
-			{
-				Key: "formats.week_description",
-				Parts: []i18n.MsgPart{
-					{
-						Text: "Intl.Locale getWeekInfo：該地區設定所屬區域的 CLDR weekData（1 = 星期一 … 7 = 星期日）。",
-					},
-				},
-			},
-			{
-				Key: "formats.week_title",
-				Parts: []i18n.MsgPart{
-					{
-						Text: "週",
 					},
 				},
 			},
@@ -14424,6 +15192,22 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.collation_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Intl.Collator: वही शब्द, इस भाषा के क्रम में, संख्या, केस और मात्रा-चिह्नों के विकल्पों के साथ।",
+					},
+				},
+			},
+			{
+				Key: "formats.collation_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "क्रम",
+					},
+				},
+			},
+			{
 				Key: "formats.currency_description",
 				Parts: []i18n.MsgPart{
 					{
@@ -14481,6 +15265,22 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.display_names_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Intl.DisplayNames: भाषाएँ, क्षेत्र, लिपियाँ, मुद्राएँ, कैलेंडर और तारीख़ फ़ील्ड, इस पेज की भाषा में उनके नाम।",
+					},
+				},
+			},
+			{
+				Key: "formats.display_names_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "प्रदर्शन नाम",
+					},
+				},
+			},
+			{
 				Key: "formats.durations_description",
 				Parts: []i18n.MsgPart{
 					{
@@ -14525,6 +15325,22 @@ var catalogs = []*i18n.Catalog{
 				Parts: []i18n.MsgPart{
 					{
 						Text: "सूचियाँ",
+					},
+				},
+			},
+			{
+				Key: "formats.locale_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Intl.Locale: इस भाषा का संभावित पूरा रूप, कैलेंडर, क्रम-नियम, घड़ियाँ, अंक-प्रणालियाँ, टाइम ज़ोन, लिखने की दिशा और सप्ताह।",
+					},
+				},
+			},
+			{
+				Key: "formats.locale_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "लोकेल",
 					},
 				},
 			},
@@ -14578,7 +15394,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.plurals_description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "CLDR की बहुवचन श्रेणियाँ और उन्हें चुनने वाली पहली संख्याएँ, सर्वर पर गणना की गईं: ये अनुवादित संदेशों के शब्द तय करती हैं।",
+						Text: "CLDR की बहुवचन श्रेणियाँ: सर्वर पर, जहाँ ये अनुवादित संदेशों के शब्द तय करती हैं, और आपके ब्राउज़र में (Intl.PluralRules)।",
 					},
 				},
 			},
@@ -14631,6 +15447,38 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.segments_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Intl.Segmenter: अक्षर जैसे लोग देखते हैं, शब्द (बिना स्पेस के भी) और वाक्य, उनकी गिनती के साथ।",
+					},
+				},
+			},
+			{
+				Key: "formats.segments_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "विभाजन",
+					},
+				},
+			},
+			{
+				Key: "formats.supported_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Intl.supportedValuesOf: आपके ब्राउज़र का Intl क्या जानता है, गिनती और पहले कुछ मानों के साथ।",
+					},
+				},
+			},
+			{
+				Key: "formats.supported_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "समर्थित मान",
+					},
+				},
+			},
+			{
 				Key: "formats.time_zone",
 				Parts: []i18n.MsgPart{
 					{
@@ -14662,22 +15510,6 @@ var catalogs = []*i18n.Catalog{
 				Parts: []i18n.MsgPart{
 					{
 						Text: "इकाइयाँ",
-					},
-				},
-			},
-			{
-				Key: "formats.week_description",
-				Parts: []i18n.MsgPart{
-					{
-						Text: "Intl.Locale getWeekInfo: लोकेल के क्षेत्र के लिए CLDR weekData (1 = सोमवार … 7 = रविवार)।",
-					},
-				},
-			},
-			{
-				Key: "formats.week_title",
-				Parts: []i18n.MsgPart{
-					{
-						Text: "सप्ताह",
 					},
 				},
 			},
@@ -15641,6 +16473,22 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.collation_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Intl.Collator: те же слова, отсортированные так, как принято в этом языке, с параметрами для чисел, регистра и диакритики.",
+					},
+				},
+			},
+			{
+				Key: "formats.collation_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Сортировка",
+					},
+				},
+			},
+			{
 				Key: "formats.currency_description",
 				Parts: []i18n.MsgPart{
 					{
@@ -15698,6 +16546,22 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.display_names_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Intl.DisplayNames: языки, регионы, письменности, валюты, календари и поля дат с названиями на языке этой страницы.",
+					},
+				},
+			},
+			{
+				Key: "formats.display_names_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Отображаемые названия",
+					},
+				},
+			},
+			{
 				Key: "formats.durations_description",
 				Parts: []i18n.MsgPart{
 					{
@@ -15742,6 +16606,22 @@ var catalogs = []*i18n.Catalog{
 				Parts: []i18n.MsgPart{
 					{
 						Text: "Списки",
+					},
+				},
+			},
+			{
+				Key: "formats.locale_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Intl.Locale: вероятная полная форма этого языка, календари, правила сортировки, часы, системы счисления, часовые пояса, направление письма и неделя.",
+					},
+				},
+			},
+			{
+				Key: "formats.locale_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Локаль",
 					},
 				},
 			},
@@ -15795,7 +16675,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.plurals_description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "Категории множественного числа CLDR с первыми числами, которые их выбирают, вычисляются на сервере: они определяют формулировку переведённых сообщений.",
+						Text: "Категории множественного числа CLDR: на сервере, где они определяют формулировку переведённых сообщений, и в вашем браузере (Intl.PluralRules).",
 					},
 				},
 			},
@@ -15848,6 +16728,38 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.segments_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Intl.Segmenter: символы такими, какими их видят люди, слова (даже без пробелов) и предложения, с их количеством.",
+					},
+				},
+			},
+			{
+				Key: "formats.segments_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Сегментация",
+					},
+				},
+			},
+			{
+				Key: "formats.supported_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Intl.supportedValuesOf: что знает Intl вашего браузера, с количеством и первыми значениями.",
+					},
+				},
+			},
+			{
+				Key: "formats.supported_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Поддерживаемые значения",
+					},
+				},
+			},
+			{
 				Key: "formats.time_zone",
 				Parts: []i18n.MsgPart{
 					{
@@ -15879,22 +16791,6 @@ var catalogs = []*i18n.Catalog{
 				Parts: []i18n.MsgPart{
 					{
 						Text: "Единицы измерения",
-					},
-				},
-			},
-			{
-				Key: "formats.week_description",
-				Parts: []i18n.MsgPart{
-					{
-						Text: "Intl.Locale getWeekInfo: weekData из CLDR для региона локали (1 = понедельник … 7 = воскресенье).",
-					},
-				},
-			},
-			{
-				Key: "formats.week_title",
-				Parts: []i18n.MsgPart{
-					{
-						Text: "Неделя",
 					},
 				},
 			},
@@ -17033,6 +17929,34 @@ var pseudoCatalog = &i18n.Catalog{
 			},
 		},
 		{
+			Key: "formats.collation_description",
+			Parts: []i18n.MsgPart{
+				{
+					Text: "⟦",
+				},
+				{
+					Text: "Îñţļ.Çóļļáţóŕ: ţĥé šáɱé ŵóŕðš šóŕţéð ţĥé ŵáý ţĥíš ļáñĝúáĝé šóŕţš ţĥéɱ, ŵíţĥ ñúɱéŕíç, çášé áñð áççéñţ óþţíóñš.···································",
+				},
+				{
+					Text: "⟧",
+				},
+			},
+		},
+		{
+			Key: "formats.collation_title",
+			Parts: []i18n.MsgPart{
+				{
+					Text: "⟦",
+				},
+				{
+					Text: "Šóŕţíñĝ··",
+				},
+				{
+					Text: "⟧",
+				},
+			},
+		},
+		{
 			Key: "formats.currency_description",
 			Parts: []i18n.MsgPart{
 				{
@@ -17126,6 +18050,34 @@ var pseudoCatalog = &i18n.Catalog{
 			},
 		},
 		{
+			Key: "formats.display_names_description",
+			Parts: []i18n.MsgPart{
+				{
+					Text: "⟦",
+				},
+				{
+					Text: "Îñţļ.ĐíšþļáýÑáɱéš: ļáñĝúáĝéš, ŕéĝíóñš, šçŕíþţš, çúŕŕéñçíéš, çáļéñðáŕš áñð ðáţé ƒíéļðš ñáɱéð íñ ţĥíš þáĝé'š ļáñĝúáĝé.······································",
+				},
+				{
+					Text: "⟧",
+				},
+			},
+		},
+		{
+			Key: "formats.display_names_title",
+			Parts: []i18n.MsgPart{
+				{
+					Text: "⟦",
+				},
+				{
+					Text: "Đíšþļáý ñáɱéš····",
+				},
+				{
+					Text: "⟧",
+				},
+			},
+		},
+		{
 			Key: "formats.durations_description",
 			Parts: []i18n.MsgPart{
 				{
@@ -17203,6 +18155,34 @@ var pseudoCatalog = &i18n.Catalog{
 				},
 				{
 					Text: "Ļíšţš··",
+				},
+				{
+					Text: "⟧",
+				},
+			},
+		},
+		{
+			Key: "formats.locale_description",
+			Parts: []i18n.MsgPart{
+				{
+					Text: "⟦",
+				},
+				{
+					Text: "Îñţļ.Ļóçáļé: ţĥíš ļáñĝúáĝé'š ļíķéļý ƒúļļ ƒóŕɱ, çáļéñðáŕš, çóļļáţíóñš, çļóçķš, ñúɱƀéŕíñĝ šýšţéɱš, ţíɱé žóñéš, ðíŕéçţíóñ áñð ŵééķ.·········································",
+				},
+				{
+					Text: "⟧",
+				},
+			},
+		},
+		{
+			Key: "formats.locale_title",
+			Parts: []i18n.MsgPart{
+				{
+					Text: "⟦",
+				},
+				{
+					Text: "Ļóçáļé··",
 				},
 				{
 					Text: "⟧",
@@ -17292,7 +18272,7 @@ var pseudoCatalog = &i18n.Catalog{
 					Text: "⟦",
 				},
 				{
-					Text: "ÇĻĐŔ þļúŕáļ çáţéĝóŕíéš ŵíţĥ ţĥé ƒíŕšţ ñúɱƀéŕš ţĥáţ šéļéçţ ţĥéɱ, çóɱþúţéð óñ ţĥé šéŕṽéŕ: ţĥéý çĥóóšé ţĥé ŵóŕðíñĝ óƒ ţŕáñšļáţéð ɱéššáĝéš.············································",
+					Text: "ÇĻĐŔ þļúŕáļ çáţéĝóŕíéš: óñ ţĥé šéŕṽéŕ, ŵĥéŕé ţĥéý çĥóóšé á ţŕáñšļáţéð ɱéššáĝé'š ŵóŕðíñĝ, áñð íñ ýóúŕ ƀŕóŵšéŕ (Îñţļ.ÞļúŕáļŔúļéš).·········································",
 				},
 				{
 					Text: "⟧",
@@ -17384,6 +18364,62 @@ var pseudoCatalog = &i18n.Catalog{
 			},
 		},
 		{
+			Key: "formats.segments_description",
+			Parts: []i18n.MsgPart{
+				{
+					Text: "⟦",
+				},
+				{
+					Text: "Îñţļ.Šéĝɱéñţéŕ: çĥáŕáçţéŕš áš þéóþļé šéé ţĥéɱ, ŵóŕðš (éṽéñ ŵíţĥóúţ šþáçéš) áñð šéñţéñçéš, ŵíţĥ ţĥéíŕ çóúñţ.··································",
+				},
+				{
+					Text: "⟧",
+				},
+			},
+		},
+		{
+			Key: "formats.segments_title",
+			Parts: []i18n.MsgPart{
+				{
+					Text: "⟦",
+				},
+				{
+					Text: "Šéĝɱéñţáţíóñ····",
+				},
+				{
+					Text: "⟧",
+				},
+			},
+		},
+		{
+			Key: "formats.supported_description",
+			Parts: []i18n.MsgPart{
+				{
+					Text: "⟦",
+				},
+				{
+					Text: "Îñţļ.šúþþóŕţéðṼáļúéšÖƒ: ŵĥáţ ýóúŕ ƀŕóŵšéŕ'š Îñţļ ķñóŵš, ŵíţĥ á çóúñţ áñð ţĥé ƒíŕšţ ƒéŵ.····························",
+				},
+				{
+					Text: "⟧",
+				},
+			},
+		},
+		{
+			Key: "formats.supported_title",
+			Parts: []i18n.MsgPart{
+				{
+					Text: "⟦",
+				},
+				{
+					Text: "Šúþþóŕţéð ṽáļúéš······",
+				},
+				{
+					Text: "⟧",
+				},
+			},
+		},
+		{
 			Key: "formats.time_zone",
 			Parts: []i18n.MsgPart{
 				{
@@ -17436,34 +18472,6 @@ var pseudoCatalog = &i18n.Catalog{
 				},
 				{
 					Text: "Ûñíţš··",
-				},
-				{
-					Text: "⟧",
-				},
-			},
-		},
-		{
-			Key: "formats.week_description",
-			Parts: []i18n.MsgPart{
-				{
-					Text: "⟦",
-				},
-				{
-					Text: "Îñţļ.Ļóçáļé ĝéţŴééķÎñƒó: ÇĻĐŔ ŵééķĐáţá ƒóŕ ţĥé ļóçáļé'š ŕéĝíóñ (1 = Ṁóñðáý … 7 = Šúñðáý).·························",
-				},
-				{
-					Text: "⟧",
-				},
-			},
-		},
-		{
-			Key: "formats.week_title",
-			Parts: []i18n.MsgPart{
-				{
-					Text: "⟦",
-				},
-				{
-					Text: "Ŵééķ·",
 				},
 				{
 					Text: "⟧",

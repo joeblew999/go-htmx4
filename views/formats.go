@@ -61,7 +61,8 @@ func FormatSections(ctx context.Context) []FormatSection {
 	loc := Loc(ctx)
 	m := M(ctx)
 	return []FormatSection{numbers(loc, m), currency(loc, m), dates(loc, m), zones(ctx, m), ranges(m), units(m),
-		relativeTimes(m), lists(loc, m), durations(m), plurals(loc, m), week(m)}
+		relativeTimes(m), lists(loc, m), durations(m), plurals(loc, m), displayNames(m), collation(m), segments(m),
+		localeInfo(m), supported(m)}
 }
 
 func numbers(loc *i18n.Locale, m locales.Messages) FormatSection {
@@ -81,6 +82,16 @@ func numbers(loc *i18n.Locale, m locales.Messages) FormatSection {
 	if native := loc.Data.Numbers.NativeSystem; native != "" {
 		add("1234567.891", `{"numberingSystem":"`+native+`"}`)
 	}
+	rng := func(start, end, opts string) {
+		r := intlRow(start+" – "+end, "number-range", start, opts, start+"–"+end)
+		r.Options = "formatRange · " + r.Options
+		r.End = end
+		sec.Rows = append(sec.Rows, r)
+	}
+	rng("3", "5", `{"style":"unit","unit":"kilogram"}`)
+	rng("1000", "1500", `{"style":"currency","currency":"`+cmpOr(loc.Data.Currency, "USD")+`","maximumFractionDigits":0}`)
+	rng("1200000", "1500000", `{"notation":"compact"}`)
+	rng("2.9", "3.1", `{"maximumFractionDigits":0}`)
 	return sec
 }
 
@@ -238,13 +249,90 @@ func plurals(loc *i18n.Locale, m locales.Messages) FormatSection {
 			})
 		}
 	}
+	// The same rules in the browser: Intl.PluralRules select and selectRange.
+	pr := func(label, v, end, opts string) {
+		r := intlRow(label, "plural", v, opts, "—")
+		r.End = end
+		if end != "" {
+			r.Options = "selectRange · " + r.Options
+		} else {
+			r.Options = "select · " + r.Options
+		}
+		sec.Rows = append(sec.Rows, r)
+	}
+	pr("1", "1", "", "")
+	pr("2", "2", "", "")
+	pr("5", "5", "", "")
+	pr("1.5", "1.5", "", "")
+	pr("22", "22", "", `{"type":"ordinal"}`)
+	pr("1 – 5", "1", "5", "")
 	return sec
 }
 
-func week(m locales.Messages) FormatSection {
-	sec := FormatSection{Title: m.FormatsWeekTitle(), Description: m.FormatsWeekDescription()}
-	for _, field := range []string{"firstDay", "weekend"} {
-		sec.Rows = append(sec.Rows, FormatRow{Label: field, Options: "getWeekInfo()", Kind: "week", Value: field, Fallback: "—"})
+func displayNames(m locales.Messages) FormatSection {
+	sec := FormatSection{Title: m.FormatsDisplayNamesTitle(), Description: m.FormatsDisplayNamesDescription()}
+	add := func(code, typ, more string) {
+		opts := `{"type":"` + typ + `"` + more + `}`
+		sec.Rows = append(sec.Rows, intlRow(code, "display-name", code, opts, code))
+	}
+	add("de", "language", "")
+	add("zh-Hant", "language", "")
+	add("en-GB", "language", `,"languageDisplay":"standard"`)
+	add("JP", "region", "")
+	add("BR", "region", "")
+	add("Cyrl", "script", "")
+	add("EUR", "currency", "")
+	add("JPY", "currency", "")
+	add("islamic", "calendar", "")
+	add("weekday", "dateTimeField", "")
+	return sec
+}
+
+func collation(m locales.Messages) FormatSection {
+	sec := FormatSection{Title: m.FormatsCollationTitle(), Description: m.FormatsCollationDescription()}
+	const words = `["Zebra","äpfel","apfel","Ähre","zoo","ch","cz","ñandú","nube","10","9","résumé","resume"]`
+	label := "Zebra, äpfel, apfel, Ähre, zoo, ch, cz, ñandú, nube, 10, 9, résumé, resume"
+	add := func(opts string) {
+		sec.Rows = append(sec.Rows, intlRow(label, "collate", words, opts, label))
+	}
+	add("")
+	add(`{"numeric":true}`)
+	add(`{"caseFirst":"upper"}`)
+	add(`{"sensitivity":"base"}`)
+	add(`{"collation":"phonebk"}`)
+	return sec
+}
+
+func segments(m locales.Messages) FormatSection {
+	sec := FormatSection{Title: m.FormatsSegmentsTitle(), Description: m.FormatsSegmentsDescription()}
+	add := func(text, opts string) {
+		sec.Rows = append(sec.Rows, intlRow(text, "segment", text, opts, text))
+	}
+	add("👨‍👩‍👧 née ok", `{"granularity":"grapheme"}`)
+	add("Hello, world! It's 3.14 o'clock.", `{"granularity":"word"}`)
+	add("今日は良い天気ですね。", `{"granularity":"word"}`)
+	add("สวัสดีครับ ยินดีต้อนรับ", `{"granularity":"word"}`)
+	add("Dr. Smith arrived. He sat down! Did it work?", `{"granularity":"sentence"}`)
+	return sec
+}
+
+func localeInfo(m locales.Messages) FormatSection {
+	sec := FormatSection{Title: m.FormatsLocaleTitle(), Description: m.FormatsLocaleDescription()}
+	for _, f := range []struct{ field, call string }{
+		{"maximize", "maximize()"}, {"minimize", "minimize()"}, {"calendars", "getCalendars()"},
+		{"collations", "getCollations()"}, {"hourCycles", "getHourCycles()"}, {"numberingSystems", "getNumberingSystems()"},
+		{"timeZones", "getTimeZones()"}, {"direction", "getTextInfo().direction"}, {"firstDay", "getWeekInfo().firstDay"},
+		{"weekend", "getWeekInfo().weekend"},
+	} {
+		sec.Rows = append(sec.Rows, FormatRow{Label: f.field, Options: f.call, Kind: "locale", Value: f.field, Fallback: "—"})
+	}
+	return sec
+}
+
+func supported(m locales.Messages) FormatSection {
+	sec := FormatSection{Title: m.FormatsSupportedTitle(), Description: m.FormatsSupportedDescription()}
+	for _, key := range []string{"calendar", "collation", "currency", "numberingSystem", "timeZone", "unit"} {
+		sec.Rows = append(sec.Rows, FormatRow{Label: key, Options: `supportedValuesOf("` + key + `")`, Kind: "supported", Value: key, Fallback: "—"})
 	}
 	return sec
 }

@@ -5,15 +5,25 @@
 //   <time datetime="…" data-intl="datetime" data-opts='{"dateStyle":"full"}'>2026-07-04 15:30 UTC</time>
 //
 // data-intl kinds (the value is data-value, else datetime, else value; data-opts is a JSON object of options):
-//   datetime   Intl.DateTimeFormat                  value: an instant
-//   range      Intl.DateTimeFormat formatRange      value: the start, data-end: the end
-//   relative   Intl.RelativeTimeFormat              value: an instant, relative to now (refreshed every 30 s);
-//                                                   or a number with data-unit ("day", "hour"…)
-//   number     Intl.NumberFormat                    value: a decimal string
-//   list       Intl.ListFormat                      value: a JSON array of strings
-//   duration   Intl.DurationFormat                  value: a JSON object ({"days":1,"hours":2,…})
-//   week       Intl.Locale getWeekInfo              value: "firstDay" or "weekend"
-//   zone       a time zone's name                   value: an IANA id
+//   datetime       Intl.DateTimeFormat                 value: an instant
+//   range          Intl.DateTimeFormat formatRange     value: the start, data-end: the end
+//   relative       Intl.RelativeTimeFormat             value: an instant, relative to now (refreshed every 30 s);
+//                                                      or a number with data-unit ("day", "hour"…)
+//   number         Intl.NumberFormat                   value: a decimal string
+//   number-range   Intl.NumberFormat formatRange       value: the start, data-end: the end
+//   plural         Intl.PluralRules select             value: a number (with data-end: selectRange)
+//   list           Intl.ListFormat                     value: a JSON array of strings
+//   duration       Intl.DurationFormat                 value: a JSON object ({"days":1,"hours":2,…})
+//   display-name   Intl.DisplayNames                   value: a code; opts.type: language, region, script,
+//                                                      currency, calendar, dateTimeField
+//   collate        Intl.Collator                       value: a JSON array of strings, shown sorted
+//   segment        Intl.Segmenter                      value: text; shows the count and the segments
+//   locale         Intl.Locale                         value: maximize, minimize, calendars, collations,
+//                                                      hourCycles, numberingSystems, timeZones, direction,
+//                                                      firstDay, weekend
+//   supported      Intl.supportedValuesOf              value: calendar, collation, currency, numberingSystem,
+//                                                      timeZone, unit; shows the count and the first few
+//   zone           a time zone's name                  value: an IANA id
 //   browser-zone   the browser's own time zone id
 //
 // data-template, if set, is a translated message with the result's place marked by U+E000 (views/intl.go slot).
@@ -115,12 +125,45 @@
       // Display "auto" hides zero units, so an all-zero duration would be "": show "0 sec" instead.
       return text || new Intl.DurationFormat(lang, { ...o, secondsDisplay: "always" }).format(d);
     },
-    week(lang, v) {
+    "number-range": (lang, v, o, el) => new Intl.NumberFormat(lang, o).formatRange(v, el.dataset.end),
+    plural(lang, v, o, el) {
+      const pr = new Intl.PluralRules(lang, o);
+      return el.dataset.end ? pr.selectRange(Number(v), Number(el.dataset.end)) : pr.select(Number(v));
+    },
+    "display-name": (lang, v, o) => new Intl.DisplayNames(lang, { type: "language", ...o }).of(v),
+    collate: (lang, v, o) => JSON.parse(v).sort(new Intl.Collator(lang, o).compare).join(" · "),
+    segment(lang, v, o) {
+      const parts = [...new Intl.Segmenter(lang, o).segment(v)].filter((s) => s.isWordLike ?? s.segment.trim() !== "");
+      return parts.length + " · " + parts.map((s) => s.segment.trim()).join(" | ");
+    },
+    locale(lang, v) {
       const loc = new Intl.Locale(lang);
-      const info = loc.getWeekInfo?.() ?? loc.weekInfo;
-      if (!info) throw new TypeError("no week info");
-      const x = info[v];
-      return Array.isArray(x) ? x.join(", ") : String(x);
+      const get = (name) => {
+        const m = loc["get" + name[0].toUpperCase() + name.slice(1)];
+        const x = typeof m === "function" ? m.call(loc) : loc[name];
+        if (x === undefined) throw new TypeError("no " + name);
+        return x;
+      };
+      switch (v) {
+        case "maximize":
+        case "minimize":
+          return loc[v]().toString();
+        case "direction":
+          return get("textInfo").direction;
+        case "firstDay":
+        case "weekend":
+        case "minimalDays": {
+          const x = get("weekInfo")[v];
+          if (x === undefined) throw new TypeError("no " + v);
+          return Array.isArray(x) ? x.join(", ") : String(x);
+        }
+        default:
+          return get(v).join(", ");
+      }
+    },
+    supported(lang, v) {
+      const all = Intl.supportedValuesOf(v);
+      return all.length + " · " + all.slice(0, 6).join(", ") + (all.length > 6 ? ", …" : "");
     },
     zone: (lang, v) => zoneName(lang, v),
     "browser-zone": () => browserZone(),

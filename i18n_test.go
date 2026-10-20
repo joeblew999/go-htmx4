@@ -214,7 +214,7 @@ func TestLogicalClasses(t *testing.T) {
 func TestFormatsPage(t *testing.T) {
 	h := newServer().routes()
 	for path, wants := range map[string][]string{
-		"/formats":    {`data-intl="number" data-value="1234567.891"`, `data-opts="{&#34;style&#34;:&#34;currency&#34;,&#34;currency&#34;:&#34;USD&#34;}"`, `data-intl="datetime" data-value="2026-07-04T15:30:45.123Z"`, `data-intl="range"`, `data-end="2026-07-04T17:00:45.123Z"`, `data-intl="relative" data-value="-1" data-opts="{&#34;numeric&#34;:&#34;auto&#34;}" data-unit="day"`, `data-intl="list"`, `data-intl="duration"`, `data-intl="week"`, "cardinal · one", "ordinal · few", "2026-07-04 15:30 UTC"},
+		"/formats":    {`data-intl="number" data-value="1234567.891"`, `data-opts="{&#34;style&#34;:&#34;currency&#34;,&#34;currency&#34;:&#34;USD&#34;}"`, `data-intl="datetime" data-value="2026-07-04T15:30:45.123Z"`, `data-intl="range"`, `data-end="2026-07-04T17:00:45.123Z"`, `data-intl="relative" data-value="-1" data-opts="{&#34;numeric&#34;:&#34;auto&#34;}" data-unit="day"`, `data-intl="list"`, `data-intl="duration"`, `data-intl="number-range"`, `data-intl="plural"`, `data-intl="display-name"`, `data-intl="collate"`, `data-intl="segment"`, `data-intl="locale" data-value="maximize"`, `data-intl="supported" data-value="unit"`, "cardinal · one", "ordinal · few", "2026-07-04 15:30 UTC"},
 		"/de/formats": {`&#34;currency&#34;:&#34;EUR&#34;`, "cardinal · one"},
 		"/hi/formats": {`&#34;currency&#34;:&#34;INR&#34;`, `{&#34;numberingSystem&#34;:&#34;deva&#34;}`},
 		"/ar/formats": {`&#34;currency&#34;:&#34;EGP&#34;`, "cardinal · zero", "cardinal · two", "cardinal · few", "cardinal · many"},
