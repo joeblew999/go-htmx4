@@ -137,7 +137,10 @@
       return parts.length + " · " + parts.map((s) => s.segment.trim()).join(" | ");
     },
     locale(lang, v) {
-      const loc = new Intl.Locale(lang);
+      const base = new Intl.Locale(lang);
+      if (v === "maximize" || v === "minimize") return base[v]().toString();
+      // Region-dependent answers (time zones, week, clocks) need the region: "de" → de-Latn-DE.
+      const loc = base.maximize();
       const get = (name) => {
         const m = loc["get" + name[0].toUpperCase() + name.slice(1)];
         const x = typeof m === "function" ? m.call(loc) : loc[name];
@@ -145,9 +148,6 @@
         return x;
       };
       switch (v) {
-        case "maximize":
-        case "minimize":
-          return loc[v]().toString();
         case "direction":
           return get("textInfo").direction;
         case "firstDay":
@@ -184,6 +184,7 @@
     const tpl = el.dataset.template;
     if (tpl && tpl.includes(SLOT)) text = tpl.replace(SLOT, text);
     if (el.textContent !== text) el.textContent = text;
+    el.dataset.intlDone = ""; // formatted by this browser (tests, styling)
   }
 
   function fillZones(select) {

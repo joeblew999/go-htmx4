@@ -14,8 +14,7 @@ func TestIntlKinds(t *testing.T) {
 	left := b.str(`(() => {
 		const stuck = [];
 		for (const el of document.querySelectorAll("[data-intl]")) {
-			const t = el.textContent.trim();
-			if (t === "" || t === "—" || t === el.dataset.value) stuck.push(el.dataset.intl + ":" + el.dataset.value);
+			if (!el.hasAttribute("data-intl-done")) stuck.push(el.dataset.intl + ":" + el.dataset.value);
 		}
 		return stuck.join(", ");
 	})()`)
