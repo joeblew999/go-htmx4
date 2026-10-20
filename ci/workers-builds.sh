@@ -30,7 +30,14 @@ build)
   tool="https://github.com/$APP_REPO/releases/download/preview-builds/deploy-$sha"
   if [ "${PREVIEW_BUILD:-}" != compile ] && [ -n "$sha" ]; then
     for _ in $(seq 1 48); do   # 8 minutes; CI normally publishes in ~3
-      if curl -fsSL -o deploy.tmp "$tool"; then chmod +x deploy.tmp && mkdir -p bin && mv deploy.tmp bin/deploy; break; fi
+      if curl -fsSL -o deploy.tmp "$tool" 2>/dev/null; then chmod +x deploy.tmp && mkdir -p bin && mv deploy.tmp bin/deploy; break; fi
+      # A newer push cancels CI for this commit, so its build never comes: stop instead of compiling a stale commit.
+      head=$(git ls-remote "https://github.com/$APP_REPO" "refs/heads/${WORKERS_CI_BRANCH:-}" 2>/dev/null | cut -f1)
+      if [ -n "$head" ] && [ "$head" != "$sha" ]; then
+        echo "· ${WORKERS_CI_BRANCH} moved on to ${head:0:7}: ${sha:0:7} is superseded, nothing to deploy"
+        touch .superseded
+        exit 0
+      fi
       sleep 10
     done
   fi
@@ -44,6 +51,7 @@ build)
   fi
   ;;
 deploy)
+  [ ! -e .superseded ] || { echo "· superseded by a newer push: no deploy"; exit 0; }
   branch=${WORKERS_CI_BRANCH:?WORKERS_CI_BRANCH is not set (Workers Builds sets it)}
   if [ -x bin/deploy ]; then deploy=(bin/deploy); else mise install go; deploy=(mise exec -- go run ./cmd/deploy); fi
   slug=$("${deploy[@]}" -name "$APP_NAME" -slug "$branch")
