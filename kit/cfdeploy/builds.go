@@ -29,10 +29,10 @@ type BuildsConfig struct {
 
 	// The preview trigger: every branch except ProductionBranch runs BuildCommand then DeployCommand, with Vars as
 	// build variables. PathExcludes skips pushes that only change matching paths.
-	ProductionBranch           string // default "main"
+	ProductionBranch            string // default "main"
 	BuildCommand, DeployCommand string
-	Vars                       map[string]string
-	PathExcludes               []string
+	Vars                        map[string]string
+	PathExcludes                []string
 }
 
 // PreviewTriggerName is the name of the trigger ConfigureBuilds manages.
@@ -110,7 +110,7 @@ func (c *Client) ConfigureBuilds(ctx context.Context, cfg BuildsConfig) (string,
 	if len(triggers) == 0 {
 		// A Worker without a build configuration gets one: the production trigger only echoes.
 		echo := map[string]any{
-			"build_command": "echo 'production deploys are not run by Workers Builds (mise run deploy)'",
+			"build_command":  "echo 'production deploys are not run by Workers Builds (mise run deploy)'",
 			"deploy_command": "echo 'no production deploy'", "build_token_uuid": token, "root_directory": "/",
 		}
 		if err := c.do(ctx, "POST", c.accountPath("/builds/workers"), "", cfapi.JSON(map[string]any{

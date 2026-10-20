@@ -112,8 +112,12 @@ func TestUnpackRejects(t *testing.T) {
 		"no manifest":       {"build/app.wasm": []byte("wasm")},
 		"path leaving root": {"../escape": []byte("x"), previewbuild.ManifestName: manifest(map[string]string{"../escape": sum("x")})},
 	} {
-		if _, err := previewbuild.Unpack(bytes.NewReader(handPack(t, files)), t.TempDir(), "abc"); err == nil {
+		dir := t.TempDir()
+		if _, err := previewbuild.Unpack(bytes.NewReader(handPack(t, files)), dir, "abc"); err == nil {
 			t.Errorf("%s: accepted", name)
+		}
+		if left, _ := os.ReadDir(dir); len(left) != 0 {
+			t.Errorf("%s: a rejected build left files behind: %v", name, left)
 		}
 	}
 	ok := map[string][]byte{"build/app.wasm": []byte("wasm"), previewbuild.ManifestName: manifest(map[string]string{"build/app.wasm": sum("wasm")})}

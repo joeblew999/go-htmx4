@@ -114,8 +114,32 @@ func writeFile(tw *tar.Writer, name string, b []byte, mode os.FileMode) error {
 }
 
 // Unpack extracts a packed build into root and verifies it: the manifest names commit, every file is listed in
-// it with a matching sha256, and every listed file is present. Paths can't leave root.
+// it with a matching sha256, and every listed file is present. Paths can't leave root. It extracts into a
+// temporary directory first and moves the files into root only once everything verified, so a rejected build
+// leaves root untouched.
 func Unpack(r io.Reader, root, commit string) (Manifest, error) {
+	tmp, err := os.MkdirTemp(root, ".previewbuild-")
+	if err != nil {
+		return Manifest{}, err
+	}
+	defer os.RemoveAll(tmp)
+	m, err := unpack(r, tmp, commit)
+	if err != nil {
+		return m, err
+	}
+	for f := range m.Files {
+		dst := filepath.Join(root, filepath.FromSlash(f))
+		if err := os.MkdirAll(filepath.Dir(dst), 0o755); err != nil {
+			return m, err
+		}
+		if err := os.Rename(filepath.Join(tmp, filepath.FromSlash(f)), dst); err != nil {
+			return m, err
+		}
+	}
+	return m, nil
+}
+
+func unpack(r io.Reader, root, commit string) (Manifest, error) {
 	gz, err := gzip.NewReader(r)
 	if err != nil {
 		return Manifest{}, fmt.Errorf("previewbuild: not a gzip build: %w", err)
