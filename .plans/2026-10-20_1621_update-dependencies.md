@@ -45,6 +45,14 @@ CI runs (`ci/check.sh`: `mise run check` then `mise run e2e`).
    in the last two weeks and the API still moving per release. Rewriting the e2e suite against it is its own change,
    once it settles. `ExecPath` (for `E2E_CHROME`) exists in v0.16.
 
+7. **Faster build and CI, in the same change.** `test` runs `smoke` (TinyGo build + workerd) and a new `test:go`
+   (gsx fmt, gofmt, vet, kit/ import check, go test: no wasm needed) in parallel instead of one after the other.
+   `build` has `sources`/`outputs`, so it's skipped when no Go file, module file or `mise.toml` changed: CI's `e2e`
+   reuses `check`'s build instead of building TinyGo a second time. `i18n:messages` is skipped the same way.
+   Left alone: Tailwind (0.5 s; a wrong input list would serve stale CSS), `gsx generate` (already skips unchanged
+   files; its output depends on Go types, which a file list can't track), caching between CI runs (needs
+   `actions/cache`, a JavaScript action; CI is no-Node).
+
 ## Steps
 
 - [ ] Baseline: `mise run check` on the old pins

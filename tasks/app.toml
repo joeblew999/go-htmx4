@@ -71,6 +71,11 @@ echo "✓ dist/site: $(find dist/site -type f | wc -l | tr -d ' ') files, gsxui.
 depends = ["vendor", "generate", "assets"]
 description = "TinyGo build → build/ (fails if app.wasm gzip > 10 MB, Workers Paid)"
 dir = "{{config_root}}"
+# Skipped when no input changed since the last build, so `check` then `e2e` (CI, ci/check.sh) builds once. Inputs:
+# every Go file (the generated *.x.go included), the module files, and mise.toml (a Go/TinyGo/workers-go pin change
+# must rebuild). Nothing else feeds the wasm: Static Assets are dist/site, served beside it.
+sources = ["**/*.go", "go.mod", "go.sum", "mise.toml"]
+outputs = ["build/app.wasm", "build/worker.mjs", "build/runtime.mjs", "build/wasm_exec.js"]
 run = '''
 #!/usr/bin/env bash
 set -euo pipefail
@@ -272,7 +277,13 @@ if grep -q "connected 1000/1001" <<<"$full"; then echo "✓ room refuses socket 
 
 ["test"]
 description = "TinyGo build + workerd smoke test + gsx fmt/gofmt check + go vet + kit/ import check + go test"
-depends = ["smoke"]
+# smoke (TinyGo build + workerd) and test:go (no wasm needed) run in parallel.
+depends = ["smoke", "test:go"]
+run = "echo '✓ test: smoke + test:go'"
+
+["test:go"]
+description = "gsx fmt/gofmt check + go vet + kit/ import check + go test (standard Go; runs beside the TinyGo build)"
+depends = ["generate"]
 dir = "{{config_root}}"
 run = '''
 #!/usr/bin/env bash

@@ -38,6 +38,8 @@
 # Commands
 
 - Test everything: `mise run check` (= `mise run test`: TinyGo build + workerd smoke + gsx fmt/gofmt + go vet + go test).
+  `test` runs `smoke` and `test:go` in parallel. `build` and `i18n:messages` have `sources`/`outputs` and are skipped
+  when nothing they read changed: a new input to the wasm (an embedded file, a new tool pin file) goes in `sources`.
   It must pass before pushing; CI (`.github/workflows/check.yml` → `ci/check.sh`) runs the same on every push and PR.
 - CI is strict no-Node: shell `run:` steps only. Don't add `actions/checkout`, `jdx/mise-action` or any JavaScript action;
   new tools go in `mise.toml` so `ci/check.sh` picks them up.
