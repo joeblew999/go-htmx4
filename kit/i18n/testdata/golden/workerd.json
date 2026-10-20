@@ -1,5 +1,5 @@
 {
- "runtime": "workerd 2026-09-11",
+ "runtime": "workerd 2026-10-19",
  "meta": {
   "intlDefault": "en-US",
   "userAgent": "Cloudflare-Workers"

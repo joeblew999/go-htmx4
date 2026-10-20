@@ -22,11 +22,17 @@ run = "go run ./cmd/intloracle -out kit/i18n/testdata/golden/workerd.json"
 
 ["i18n:messages"]
 description = "Generate locales/*_msg_gen.go from the UI message catalogs locales/*.toml (I18N_LOCALES, en first)"
+# Skipped when the catalogs, the generator and the locale list (mise.toml) are unchanged since the last run.
+sources = ["locales/*.toml", "cmd/msggen/**/*.go", "kit/i18n/msggen/**/*.go", "mise.toml"]
+outputs = ["locales/*_msg_gen.go"]
 dir = "{{config_root}}"
 run = "go run ./cmd/msggen -dir locales -out locales -locales \"$I18N_LOCALES\""
 
 ["i18n:verify"]
 description = "Prove kit/i18n's committed reference data comes from the pinned sources (network on first run; see kit/i18n/README.md)"
+# generate: TestReferencePins compiles the app package, whose views/*.x.go are generated (not committed); a fresh
+# checkout (CI) has none.
+depends = ["generate"]
 dir = "{{config_root}}"
 run = '''
 #!/usr/bin/env bash

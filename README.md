@@ -65,20 +65,21 @@ prompt: it installs `@latest`, not the pinned version.
 
 | Layer | Technology | Version | Notes |
 | --- | --- | --- | --- |
-| Language | [Go](https://go.dev) | 1.27.1 | Standard Go for tests, `go run .` and tooling |
+| Language | [Go](https://go.dev) | 1.27.2 | Standard Go for tests, `go run .` and tooling |
 | Interactivity | [htmx](https://four.htmx.org) | 4.0.0 | Vendored in `static/` with hx-live and hx-ws |
 | Toolchain & tasks | [mise](https://mise.jdx.dev) | — | Pins every tool; `mise tasks` lists tasks |
-| Templates | [gsx](https://gsxhq.github.io): JSX-style, type-checked Go templates | v0.1.0 | `go tool gsx` |
-| UI components | [gsxui](https://ui.gsxhq.dev): shadcn/ui for gsx, npm-free mode | `c7fd6a8` | Vendored with `gsxui add` |
+| Templates | [gsx](https://gsxhq.github.io): JSX-style, type-checked Go templates | v0.4.0 | `go tool gsx` |
+| UI components | [gsxui](https://ui.gsxhq.dev): shadcn/ui for gsx, npm-free mode | `915241b` | Vendored with `gsxui add` |
 | Client state | [hx-live](https://four.htmx.org/extensions/hx-live/) | 4.0.0 | htmx 4 extension |
 | CSS | [Tailwind CSS standalone CLI](https://tailwindcss.com/docs/installation/tailwind-cli) | 4.3.3 | Single binary, no npm |
-| Hosting | [Cloudflare Workers](https://workers.cloudflare.com) via [workers-go](https://github.com/syumai/workers-go) | v0.35.0 | Go compiled to wasm |
-| Wasm compiler | [TinyGo](https://tinygo.org) | 0.42.0 | Required for everything that ships to Workers |
-| Wasm optimiser | [binaryen](https://github.com/WebAssembly/binaryen) `wasm-opt` | 132 | Required by TinyGo wasm targets |
-| Local Workers runtime | [workerd](https://github.com/cloudflare/workerd) | 1.20260911.1 | Standalone binary; replaces `wrangler dev` |
+| Hosting | [Cloudflare Workers](https://workers.cloudflare.com) via [workers-go](https://github.com/syumai/workers-go) | v0.36.0 | Go compiled to wasm |
+| Wasm compiler | [TinyGo](https://tinygo.org) | 0.43.0 | Required for everything that ships to Workers |
+| Wasm optimiser | [binaryen](https://github.com/WebAssembly/binaryen) `wasm-opt` | 133 | Required by TinyGo wasm targets |
+| Local Workers runtime | [workerd](https://github.com/cloudflare/workerd) | 1.20261019.1 | Standalone binary; replaces `wrangler dev` |
 | Database | [Cloudflare D1](https://developers.cloudflare.com/d1/) via workers-go's `database/sql` driver | — | Source of truth for the shared board |
 | Live updates | [Durable Objects](https://developers.cloudflare.com/durable-objects/) (WebSocket Hibernation) + htmx 4 [`hx-ws`](https://four.htmx.org/extensions/hx-ws) | 4.0.0 | One `Room` per topic pushes fragments to every tab |
-| Secrets | [fnox](https://github.com/jdx/fnox) | 1.35.0 | Cloudflare token + account id from the keychain |
+| E2E browser | [Chrome for Testing](https://googlechromelabs.github.io/chrome-for-testing/) `chrome-headless-shell` | 155.0.8059.84 | Pinned in mise for `mise run e2e`, same browser on every machine |
+| Secrets | [fnox](https://github.com/jdx/fnox) | 1.40.0 | Cloudflare token + account id from the keychain |
 
 Plans, decisions and measurements live in [`.plans/`](.plans/). Licensed under [MIT](LICENSE).
 
@@ -89,7 +90,7 @@ Read-only checkouts in gitignored `.upstream/`, reproduced without Node.
 | Upstream | Run | URL |
 | --- | --- | --- |
 | **gsxui's own demo** (showcase site, all component examples, theme editor), served by its Go harness. The app's UI patterns are copied from here. | `mise run upstream:gsxui:serve` | http://127.0.0.1:7799 |
-| **workers-go v0.35.0** source | `mise run upstream:workers-go:fetch` | |
+| **workers-go v0.36.0** source | `mise run upstream:workers-go:fetch` | |
 
 ## Cloudflare Workers without Node
 
@@ -103,7 +104,7 @@ without them:
   [Static Assets Direct Upload](https://developers.cloudflare.com/workers/static-assets/direct-upload/), script upload,
   D1 and Durable Object migration APIs. Credentials come from fnox (`fnox exec -- …`).
 
-**TinyGo 0.42 caveats** (details in the [plan](.plans/done/2026-09-13_1111_adopt-workers-go.md)): its `net/http` has the
+**TinyGo 0.43 caveats** (details in the [plan](.plans/done/2026-09-13_1111_adopt-workers-go.md)): its `net/http` has the
 pre-Go 1.22 `ServeMux` (no `GET /path` patterns), and `html/template` compiles but panics at runtime. gsx + gsxui work
 (verified byte-identical output). `go test` runs on standard Go and can't see TinyGo runtime issues, so the app's test
 tasks also curl the real TinyGo build under workerd.

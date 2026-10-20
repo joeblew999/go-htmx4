@@ -3,7 +3,7 @@
 #
 # Installs mise if it's missing (mise's standalone installer, pinned), the tools pinned in mise.toml, then runs
 # `mise run check` (TinyGo on workerd + gsx fmt + go vet + go test), then `mise run e2e` (headless Chrome against local
-# workerd; GitHub's Ubuntu runner image ships Google Chrome). Runnable locally too.
+# workerd, with the chrome-headless-shell pinned in mise.toml). Runnable locally too: same command, same tools.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
@@ -11,7 +11,7 @@ export MISE_YES=1
 export MISE_TRUSTED_CONFIG_PATHS="$PWD"
 
 if ! command -v mise >/dev/null 2>&1; then
-  echo "→ installing mise ${MISE_VERSION:=v2026.9.5}"
+  echo "→ installing mise ${MISE_VERSION:=v2026.10.14}"
   curl -fsSL https://mise.run | MISE_VERSION="$MISE_VERSION" MISE_QUIET=1 sh
   export PATH="$HOME/.local/bin:$PATH"
 fi

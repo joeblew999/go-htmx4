@@ -12,7 +12,7 @@ cd "$(dirname "$0")/.."
 export MISE_YES=1
 export MISE_TRUSTED_CONFIG_PATHS="$PWD"
 if ! command -v mise >/dev/null 2>&1; then
-  echo "→ installing mise ${MISE_VERSION:=v2026.9.5}"
+  echo "→ installing mise ${MISE_VERSION:=v2026.10.14}"
   curl -fsSL https://mise.run | MISE_VERSION="$MISE_VERSION" MISE_QUIET=1 sh
   export PATH="$HOME/.local/bin:$PATH"
 fi

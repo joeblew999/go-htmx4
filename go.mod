@@ -2,14 +2,14 @@ module github.com/joeblew999/go-htmx4
 
 go 1.27
 
-toolchain go1.27.1
+toolchain go1.27.2
 
 require (
 	github.com/BurntSushi/toml v1.6.0
-	github.com/gsxhq/gsx v0.1.0
+	github.com/gsxhq/gsx v0.4.0
 	github.com/jackielii/tailwind-merge-go v0.0.0-20260726184505-8a911ed0cf9a
-	github.com/syumai/workers-go v0.35.0
-	golang.org/x/net v0.59.0
+	github.com/syumai/workers-go v0.36.0
+	golang.org/x/net v0.61.0
 )
 
 require (
@@ -20,7 +20,7 @@ require (
 	golang.org/x/exp/typeparams v0.0.0-20260611194520-c48552f49976 // indirect
 	golang.org/x/mod v0.37.0 // indirect
 	golang.org/x/sync v0.21.0 // indirect
-	golang.org/x/sys v0.48.0 // indirect
+	golang.org/x/sys v0.49.0 // indirect
 	golang.org/x/tools v0.46.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 )

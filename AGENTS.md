@@ -25,7 +25,8 @@
 
 # Toolchain
 
-- All tools are pinned in `mise.toml` (Go 1.27.1, TinyGo 0.42.0, binaryen, Tailwind, gsxui, workerd, fnox).
+- All tools are pinned in `mise.toml` (Go 1.27.2, TinyGo 0.43.0, binaryen, Tailwind, gsxui, workerd, fnox, and
+  `chrome-headless-shell` for e2e: `mise run e2e` passes it as `E2E_CHROME`). Never rely on a browser installed by hand.
   Run `mise install` first; use `mise run <task>` rather than ad-hoc commands.
 - gsx is pinned only in `go.mod` (builds run `go tool gsx`). The VS Code extension's language server needs a `gsx` binary
   it can find: `mise install`'s postinstall hook runs `editor:gsx` (`tasks/editor.toml`), which installs go.mod's version
@@ -37,6 +38,8 @@
 # Commands
 
 - Test everything: `mise run check` (= `mise run test`: TinyGo build + workerd smoke + gsx fmt/gofmt + go vet + go test).
+  `test` runs `smoke` and `test:go` in parallel. `build` and `i18n:messages` have `sources`/`outputs` and are skipped
+  when nothing they read changed: a new input to the wasm (an embedded file, a new tool pin file) goes in `sources`.
   It must pass before pushing; CI (`.github/workflows/check.yml` → `ci/check.sh`) runs the same on every push and PR.
 - CI is strict no-Node: shell `run:` steps only. Don't add `actions/checkout`, `jdx/mise-action` or any JavaScript action;
   new tools go in `mise.toml` so `ci/check.sh` picks them up.
@@ -101,7 +104,7 @@
 
 - **No Node, no wrangler.** No `npm create cloudflare`, `wrangler`, or miniflare. Run locally with `workerd`, deploy with
   `cmd/deploy` (Cloudflare REST API). Don't include the joeblew999 `tool-wrangler.toml` / `tool-cf.toml`.
-- **workers-go `v0.35.0` exactly**, module path `github.com/syumai/workers-go` (never the old `github.com/syumai/workers`).
+- **workers-go `v0.36.0` exactly**, module path `github.com/syumai/workers-go` (never the old `github.com/syumai/workers`).
 - **TinyGo for everything that ships to Workers** (`workers-assets-gen -mode=tinygo`, `tinygo build -target wasm -no-debug .`).
   Standard Go only for local-only code: `go run .`, `go test`/`go vet`, the deploy tool.
 - Tasks live in `tasks/app.toml`: `mise run {dev,serve,run,test,smoke,load,deploy,smoke-remote}`. The Worker and D1 name is
@@ -115,7 +118,7 @@
   (`mise run assets`: gsxui CSS via standalone Tailwind, `/gsxui/` behaviours, fonts). `<meta name="htmx-config">` must
   render before htmx's script (it does, in `views/layout.gsx`), or hx-ws ignores it.
   Always run `mise run test` after changing handlers: it curls the TinyGo build under workerd, which `go test` can't do.
-- **TinyGo 0.42 gaps:** its `net/http` `ServeMux` is pre-Go 1.22, so register plain paths (`"/greet"`) and check the method
+- **TinyGo 0.43 gaps:** its `net/http` `ServeMux` is pre-Go 1.22, so register plain paths (`"/greet"`) and check the method
   with `allow(w, r, method)` (`kit/httpx.Allow`), never `"GET /x"` or `{$}`. `html/template` panics at runtime: render
   markup with gsx (`s.render`), never string-built HTML. Anything reflection-heavy needs a workerd smoke test, not just a build.
 - **No memory between requests:** each request gets a fresh Go runtime, so package-level state resets. Shared state needs a

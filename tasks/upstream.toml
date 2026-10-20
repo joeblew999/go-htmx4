@@ -7,7 +7,7 @@
 #   mise run upstream:gsxui:serve    # fetch + generate + deps + css, then serve
 #                                    # → http://127.0.0.1:7799/
 #
-# upstream:workers-go:fetch  checkout of workers-go v0.35.0 (source reference).
+# upstream:workers-go:fetch  checkout of workers-go v0.36.0 (source reference).
 
 # ── upstream:gsxui:fetch ─────────────────────────────────────────────────────
 ["upstream:gsxui:fetch"]
@@ -16,7 +16,7 @@ dir = "{{config_root}}"
 run = '''
 #!/usr/bin/env bash
 set -euo pipefail
-rev=c7fd6a82e7ce8b7fb03940fcb3de8da06b833340
+rev=915241be8a48acac1286f4f6df524deb5af7b6fa
 dir=.upstream/gsxui
 if [ ! -d "$dir/.git" ]; then
   mkdir -p "$dir"
@@ -129,14 +129,14 @@ dir = "{{config_root}}/.upstream/gsxui"
 run = "go run ./jstest/harness -root ."
 
 # ── upstream:workers-go:fetch ────────────────────────────────────────────────
-# Check out the v0.35.0 tag into .upstream/workers-go, a read-only reference for its source.
+# Check out the v0.36.0 tag into .upstream/workers-go, a read-only reference for its source.
 ["upstream:workers-go:fetch"]
-description = "Check out syumai/workers-go v0.35.0 into .upstream/workers-go (read-only source reference)"
+description = "Check out syumai/workers-go v0.36.0 into .upstream/workers-go (read-only source reference)"
 dir = "{{config_root}}"
 run = '''
 #!/usr/bin/env bash
 set -euo pipefail
-tag=v0.35.0
+tag=v0.36.0
 rev=b2086b413f689acbb2fdc64bef89363d008f26fb
 dir=.upstream/workers-go
 if [ ! -d "$dir/.git" ]; then

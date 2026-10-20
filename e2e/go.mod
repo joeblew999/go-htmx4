@@ -2,7 +2,7 @@ module github.com/joeblew999/go-htmx4/e2e
 
 go 1.27
 
-toolchain go1.27.1
+toolchain go1.27.2
 
 require (
 	github.com/chromedp/cdproto v0.0.0-20260714215040-dc233986426f

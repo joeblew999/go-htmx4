@@ -54,6 +54,11 @@ func newTab(t *testing.T, name string) *tab {
 	if os.Getenv("CI") != "" {
 		opts = append(opts, chromedp.NoSandbox)
 	}
+	// E2E_CHROME: the Chrome pinned in mise.toml (`mise run e2e` sets it), so every machine tests the same browser.
+	// Unset (plain `go test`), chromedp finds an installed Chrome.
+	if exe := os.Getenv("E2E_CHROME"); exe != "" {
+		opts = append(opts, chromedp.ExecPath(exe))
+	}
 	alloc, cancelAlloc := chromedp.NewExecAllocator(context.Background(), opts...)
 	ctx, cancelCtx := chromedp.NewContext(alloc)
 	ctx, cancelTimeout := context.WithTimeout(ctx, 2*time.Minute)
