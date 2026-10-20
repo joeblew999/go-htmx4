@@ -15,7 +15,7 @@ runs=${BENCH_RUNS:-3}
 # -every keeps board writes under the app's write limit (60 per 10 s); waiting costs no CPU.
 bench() { ci/with-workerd.sh bench go tool workerbench -n "$n" -runs "$runs" -every 170ms "$@" "${requests[@]}"; }
 
-if [ "${1:-}" != variants ]; then
+if [ "${1:-}" != variants ] && [ "${1:-}" != render ]; then
   [ -e build/.prod ] || { echo "✗ no production build: mise run build"; exit 1; }
   bench -label "this build"
   exit 0
@@ -24,14 +24,18 @@ fi
 # Each variant is the current code built with WORKERBUILD_FLAGS (ci/wasm-build.sh); the last is what ships.
 names=("A runtime per request, TinyGo as it ships" "B A + TinyGo patched (tinygo#5800), 8 MB heap" "C runtimes reused, TinyGo as it ships" "D what ships: runtimes reused + TinyGo patched")
 flags=("-reuse=false -patches=false -heap=0" "-reuse=false" "-patches=false" "")
-out=$(mktemp -d)
+# ci/bench.sh render DIR writes docs/benchmarks.md again from a run's results (DIR/N.json) without measuring.
+if [ "$1" = render ]; then out=$2; else
+out=build/bench
+rm -rf "$out" && mkdir -p "$out"
 for i in "${!names[@]}"; do
   echo "── ${names[$i]} (workerbuild ${flags[$i]:-defaults})"
   WORKER_COMPILER=tinygo WORKERBUILD_FLAGS="${flags[$i]}" ci/wasm-build.sh
   bench -label "${names[$i]}" -json | sed -n '/^{/,$p' >"$out/$i.json"
-  jq -r '.requests[] | "  \(.request): \(.median) ms (runs \(.runs | map(tostring) | join(", ")))"' "$out/$i.json"
+  jq -r '.requests[] | "  \(.request): \(.median*10|round/10) ms (runs \(.runs | map(.*10|round/10|tostring) | join(", ")))"' "$out/$i.json"
 done
 ci/wasm-build.sh >/dev/null # leave build/ as it ships
+fi
 
 {
   echo "# Benchmarks"
@@ -47,13 +51,13 @@ ci/wasm-build.sh >/dev/null # leave build/ as it ships
   printf '|---|'; jq -r '.requests[] | "---|"' "$out/0.json" | tr -d '\n'; echo
   for i in "${!names[@]}"; do
     printf '| %s (`%s`) |' "${names[$i]}" "${flags[$i]:-defaults}"
-    jq -r '.requests[] | " \(.median) |"' "$out/$i.json" | tr -d '\n'; echo
+    jq -r '.requests[] | " \(.median*10|round/10) |"' "$out/$i.json" | tr -d '\n'; echo
   done
   echo
   echo "Every run of every cell, to see how much a number moves:"
   echo
   for i in "${!names[@]}"; do
-    echo "- ${names[$i]}: $(jq -r '[.requests[] | "\(.request) \(.runs | map(tostring) | join("/"))"] | join("; ")' "$out/$i.json")"
+    echo "- ${names[$i]}: $(jq -r '[.requests[] | "\(.request) \(.runs | map(.*10|round/10|tostring) | join("/"))"] | join("; ")' "$out/$i.json")"
   done
 } >docs/benchmarks.md
 echo "✓ docs/benchmarks.md"
