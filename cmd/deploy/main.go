@@ -86,7 +86,7 @@ func main() {
 	deletePreview := flag.String("delete-preview", "", "delete this Worker Preview of -name and exit")
 	annotations := vars{}
 	flag.Var(annotations, "annotation", "preview deployment annotation KEY=VALUE, e.g. workers/pull_request_number=7 (repeatable)")
-	// The preview pipeline (kit/previewbuild, plan .plans/2026-10-20_1746_previews-done-properly.md):
+	// The preview pipeline (kit/previewbuild, issue #7):
 	repo := flag.String("repo", os.Getenv("APP_REPO"), "GitHub owner/name for the preview-build modes (default $APP_REPO)")
 	publishBuild := flag.String("publish-build", "", "CI: publish this commit's build (build/, -assets, this binary) to the preview-builds pre-release (GITHUB_TOKEN)")
 	fetchBuild := flag.String("fetch-build", "", "fetch and verify this commit's build from the preview-builds pre-release into the current directory (exit 3 if it never appears)")

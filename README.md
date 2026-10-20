@@ -91,7 +91,7 @@ secrets in GitHub. If CI's build never appears, Cloudflare compiles it itself (a
 | E2E browser | [Chrome for Testing](https://googlechromelabs.github.io/chrome-for-testing/) `chrome-headless-shell` | 155.0.8059.84 | Pinned in mise for `mise run e2e`, same browser on every machine |
 | Secrets | [fnox](https://github.com/jdx/fnox) | 1.40.0 | Cloudflare token + account id from the keychain |
 
-Plans, decisions and measurements live in [`.plans/`](.plans/). Licensed under [MIT](LICENSE).
+Plans, open work and follow-ups are [GitHub issues](https://github.com/joeblew999/go-htmx4/issues). Licensed under [MIT](LICENSE).
 
 ## Upstream references
 
@@ -114,14 +114,12 @@ without them:
   [Static Assets Direct Upload](https://developers.cloudflare.com/workers/static-assets/direct-upload/), script upload,
   D1 and Durable Object migration APIs. Credentials come from fnox (`fnox exec -- …`).
 
-**TinyGo 0.43 caveats** (details in the [plan](.plans/done/2026-09-13_1111_adopt-workers-go.md)): its `net/http` has the
+**TinyGo 0.43 caveats**: its `net/http` has the
 pre-Go 1.22 `ServeMux` (no `GET /path` patterns), and `html/template` compiles but panics at runtime. gsx + gsxui work
 (verified byte-identical output). `go test` runs on standard Go and can't see TinyGo runtime issues, so the app's test
 tasks also curl the real TinyGo build under workerd.
 
 ## Live updates on Workers (shared board)
-
-Design and measurements: [workers-realtime plan](.plans/done/2026-09-14_0754_workers-realtime-d1-do.md).
 
 ```
 browser ─ hx-ws:connect /live/{topic} ─▶ worker/index.mjs ─▶ Room Durable Object (worker/room.mjs, hibernatable WebSockets)
@@ -166,8 +164,6 @@ browser ─ hx-post /board/add|note ─────▶ worker/index.mjs ─▶ G
   `mise run deploy` runs `search:audit` afterwards.
   Status on 2026-09-15: 52 of 56 sitemap URLs indexed.
 
-Plans: [search indexing](.plans/done/2026-09-14_0938_search-indexing-google-gemini.md),
-[custom domain](.plans/done/2026-09-14_0915_workers-custom-domains.md).
 
 ## Reusable packages (`kit/`)
 
@@ -208,5 +204,4 @@ The Room and Worker entry are JavaScript (`worker/room.mjs`, `worker/index.mjs`)
 ├── tasks/
 │   ├── app.toml         # dev, serve, run, test, smoke, load, deploy, smoke-remote, …
 │   └── upstream.toml    # upstream:gsxui:*, upstream:workers-go:fetch
-└── .plans/              # timestamped plans with findings
 ```

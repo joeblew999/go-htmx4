@@ -18,13 +18,13 @@ tinygo = "0.43.0"      # workers-go TinyGo builds need >= 0.42.0 (net/http on wa
 # wasm-opt, required by `tinygo build -target wasm`. The aqua registry lags (121),
 # so pull the upstream release directly.
 "github:WebAssembly/binaryen" = "version_133"
-# gsx / gsxui toolchain (see .plans/done/2026-09-13_1109_adopt-gsxui.md). No Node anywhere.
+# gsx / gsxui toolchain. No Node anywhere.
 # Tailwind standalone CLI — the npm-free path in https://ui.gsxhq.dev/docs/npm-free.
 "github:tailwindlabs/tailwindcss" = "v4.3.3"
 # gsxui has no tags yet: pin the commit (README: go install .../cmd/gsxui).
 "go:github.com/gsxhq/gsxui/cmd/gsxui" = "915241b"
 # gsx itself is pinned in go.mod: builds use `go tool gsx` (gsx Status guide); the editor copy comes from `editor:gsx`.
-# Cloudflare Workers toolchain (see .plans/done/2026-09-13_1111_adopt-workers-go.md). No Node, no wrangler.
+# Cloudflare Workers toolchain. No Node, no wrangler.
 # workerd: the standalone Workers runtime (what `wrangler dev` runs). Pin a release that has binaries.
 workerd = "1.20261019.1"
 # fnox: Cloudflare credentials from the keychain via `fnox exec -- …`.

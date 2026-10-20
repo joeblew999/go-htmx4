@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# CI entrypoint (plan: .plans/done/2026-09-14_0915_ci-mise-check.md). Shell only, no Node.
+# CI entrypoint. Shell only, no Node.
 #
 # Installs mise if it's missing (mise's standalone installer, pinned), the tools pinned in mise.toml, then runs
 # `mise run check` (TinyGo on workerd + gsx fmt + go vet + go test), then `mise run e2e` (headless Chrome against local
@@ -22,8 +22,7 @@ mise install
 echo "✓ mise install in $(( $(date +%s) - start ))s"
 
 # GitHub Actions: build first and publish it for this commit's Cloudflare preview straight away (in parallel with
-# the tests below), so Cloudflare deploys this build instead of compiling it again (kit/previewbuild; plan
-# .plans/2026-10-20_1746_previews-done-properly.md). The deploy tool goes along (static linux/amd64): Cloudflare
+# the tests below), so Cloudflare deploys this build instead of compiling it again (kit/previewbuild; issue #7). The deploy tool goes along (static linux/amd64): Cloudflare
 # runs it to fetch, verify and deploy. A failing commit still gets a preview; this check stays red.
 if [ -n "${GITHUB_ACTIONS:-}" ] && [ -n "${GITHUB_SHA:-}" ]; then
   start=$(date +%s)

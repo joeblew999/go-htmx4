@@ -1,4 +1,4 @@
-# tasks/app.toml — the app's tasks (plans: .plans/done/2026-09-13_1111_adopt-workers-go.md and later).
+# tasks/app.toml — the app's tasks.
 #
 # workers-go v0.36.0, TinyGo for everything that ships to Workers, no Node (no npm, no wrangler). Standard Go
 # only for local-only code: `go run .`, go test/vet, cmd/deploy, cmd/wsload. Tools come from mise.toml.
@@ -378,7 +378,7 @@ if [ -n "${APP_DOMAIN:-}" ]; then echo "https://$APP_DOMAIN"; else echo "$url"; 
 '''
 
 # ── preview ─────────────────────────────────────────────────────
-# A Worker Preview of $APP_NAME (plan: .plans/2026-10-20_1746_previews-done-properly.md): its own URL, code and Durable
+# A Worker Preview of $APP_NAME (issue #7): its own URL, code and Durable
 # Object storage, the shared preview D1 ($APP_NAME-preview), no custom domain (so host.go never redirects it) and
 # APP_PREVIEW=1 (every response noindex). Workers Builds runs it for every pushed branch (name = the branch).
 # Credentials: CLOUDFLARE_API_TOKEN/CLOUDFLARE_ACCOUNT_ID from the environment (Workers Builds' build token) or fnox.
@@ -420,7 +420,7 @@ cf ${DEPLOY_CMD:-go run ./cmd/deploy} -name "$APP_NAME" -delete-preview "$usage_
 
 # ── cf:builds ───────────────────────────────────────────────────
 # Workers Builds (Cloudflare's GitHub app) as code: the repository connection and the "$APP_NAME branch previews"
-# trigger running ci/workers-builds.sh, idempotent (plan: .plans/2026-10-20_1746_previews-done-properly.md). The one
+# trigger running ci/workers-builds.sh, idempotent (issue #7). The one
 # manual step: create the build token "$APP_NAME build token" in the dashboard once (the API can't). Until then
 # it uses FALLBACK_BUILD_TOKEN if set.
 ["cf:builds"]
@@ -432,7 +432,7 @@ set -euo pipefail
 cf() { if [ -n "${CLOUDFLARE_API_TOKEN:-}" ] && [ -n "${CLOUDFLARE_ACCOUNT_ID:-}" ]; then "$@"; else fnox exec -- "$@"; fi; }
 cf sh -c 'exec go run ./cmd/deploy -name "$APP_NAME" -repo "$APP_REPO" -configure-builds \
   -build-token "$APP_NAME build token" -fallback-build-token "${FALLBACK_BUILD_TOKEN:-}" \
-  -build-var "CLOUDFLARE_ACCOUNT_ID=$CLOUDFLARE_ACCOUNT_ID" -path-exclude "*.md" -path-exclude ".plans/*"'
+  -build-var "CLOUDFLARE_ACCOUNT_ID=$CLOUDFLARE_ACCOUNT_ID" -path-exclude "*.md"'
 '''
 
 # ── smoke-remote ────────────────────────────────────────────────
