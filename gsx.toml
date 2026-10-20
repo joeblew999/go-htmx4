@@ -17,7 +17,7 @@ names = ["hx-action", "hx-ws:connect"]
 #   mise run dev:native   -build/-run flags: go build → the native server on :9913 (seconds per save, no live push)
 [dev]
 no_web = true
-build = ["mise", "run", "build"]
+build = ["mise", "run", "build:dev"]
 run = ["sh", "-c", "mkdir -p .workerd-state && exec workerd serve workerd/config.capnp"]
 upstream = "http://127.0.0.1:${APP_DEV_PORT}"
 health = "/healthz"

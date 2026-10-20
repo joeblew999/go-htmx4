@@ -71,29 +71,32 @@ echo "✓ dist/site: $(find dist/site -type f | wc -l | tr -d ' ') files, gsxui.
 
 ["build"]
 depends = ["vendor", "generate", "assets"]
-description = "TinyGo build → build/ (fails if app.wasm gzip > 10 MB, Workers Paid)"
+description = "Production TinyGo build → build/ (optimized for size; deploy, staging, CI and the tests use it)"
 dir = "{{config_root}}"
-# Skipped when no input changed since the last build, so `check` then `e2e` (CI, ci/check.sh) builds once. Inputs:
-# every Go file (the generated *.x.go included), the module files, and mise.toml (a Go/TinyGo/workers-go pin change
-# must rebuild). Nothing else feeds the wasm: Static Assets are dist/site, served beside it.
+# Skipped when no input changed since the last production build, so `check` then `e2e` (CI, ci/check.sh) builds once.
+# Inputs: every Go file (the generated *.x.go included), the module files, and mise.toml (a Go/TinyGo/workers-go pin
+# change must rebuild). Nothing else feeds the wasm: Static Assets are dist/site, served beside it. build/.prod marks a
+# production build; build:dev removes it, so a debug wasm is never skipped into a deploy.
 sources = ["**/*.go", "go.mod", "go.sum", "mise.toml"]
-outputs = ["build/app.wasm", "build/worker.mjs", "build/runtime.mjs", "build/wasm_exec.js"]
-run = '''
-#!/usr/bin/env bash
-set -euo pipefail
-go run github.com/syumai/workers-go/cmd/workers-assets-gen -mode=tinygo
-# `.`, not the template's `./...`: keep local-only tools under cmd/ out of the wasm.
-tinygo build -o build/app.wasm -target wasm -no-debug .
-raw=$(wc -c <build/app.wasm | tr -d ' ')
-gz=$(gzip -9 -c build/app.wasm | wc -c | tr -d ' ')
-limit=10000000  # Workers Paid (account checked 2026-09-13): 10 MB compressed; free plan is 3 MB
-[ "$gz" -le "$limit" ] || { echo "✗ app.wasm gzip ${gz}B exceeds ${limit}B"; exit 1; }
-echo "✓ build/app.wasm raw=${raw}B gzip=${gz}B (limit ${limit}B)"
-'''
+outputs = ["build/app.wasm", "build/worker.mjs", "build/runtime.mjs", "build/wasm_exec.js", "build/.prod"]
+env = { TINYGO_PROFILE = "prod" }
+run = "ci/tinygo-build.sh"
 
-# The gsx CLI's dev loops (gsx.toml [dev]). dev: TinyGo worker + workerd, the real runtime (Durable Objects, D1
-# shim, live pushes), ~25 s per save. dev:native: go build + the native server, seconds per save, memory store and
-# no pushes; Tailwind --watch rebuilds the CSS straight into dist/site.
+["build:dev"]
+depends = ["vendor", "generate", "assets"]
+description = "Debug TinyGo build → build/ (unoptimized: ~20% faster, larger wasm; mise run dev uses it, never deployed)"
+dir = "{{config_root}}"
+sources = ["**/*.go", "go.mod", "go.sum", "mise.toml"]
+outputs = ["build/app.wasm", "build/worker.mjs", "build/runtime.mjs", "build/wasm_exec.js", "build/.dev"]
+env = { TINYGO_PROFILE = "dev" }
+run = "ci/tinygo-build.sh"
+
+# The gsx CLI's dev loops (gsx.toml [dev]). Which one:
+#   dev:native  GUI, layout and text work: go build + the native server, seconds per save (memory store, no live
+#               pushes, no Worker Intl: the browser's intl.js formats the page).
+#   dev         Worker-only work (server Intl, Durable Objects, D1): build:dev + workerd, the real runtime; a TinyGo
+#               build per Go save (about a minute on a laptop, ~90 s on a 2-CPU machine).
+# JS and CSS edits (static/, worker/intl.mjs, web/gsxui) need no Go build: mise run assets, then reload.
 ["dev"]
 description = "gsx dev → TinyGo + CSS → workerd restart on every .gsx/.go save → http://localhost:8913"
 env = { APP_DEV_PORT = "8913" }

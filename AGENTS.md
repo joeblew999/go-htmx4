@@ -43,9 +43,13 @@
   `check`. Run it after UI, board or JS changes. Its write-limit test uses up the local write budget, so it runs last.
 - `mise run rename -- <module path> <app name>` turns the template into a new project; keep it working when you add
   files that mention the module path or the app name (it's verified by renaming a scratch clone and running `check`).
-- Dev loops: `dev:native` (~1 s per save, `go run`-style server, no Durable Objects: use for UI work) and `dev` (~25 s,
-  TinyGo on workerd: use for anything touching the board, D1, the Room or TinyGo behaviour). Both are `gsx dev`; the
-  backend port comes from `APP_DEV_PORT`. Stopping `gsx dev` can leave workerd running: stop it by PID.
+- Dev loops: `dev:native` (~1 s per save, `go run`-style server, no Durable Objects, no Worker Intl: use for UI work)
+  and `dev` (`build:dev` + workerd, a TinyGo build per Go save: use for anything touching the board, D1, the Room,
+  the server's Intl or TinyGo behaviour). Both are `gsx dev`; the backend port comes from `APP_DEV_PORT`. Stopping
+  `gsx dev` can leave workerd running: stop it by PID. JS/CSS-only edits need no Go build: `mise run assets`, reload.
+- Builds: `build` is production (`-opt=z`, size-checked; deploy, staging, CI and the tests), `build:dev` is debug
+  (`-opt=0`, ~20% faster, never deployed). Both run `ci/tinygo-build.sh`; most of the time is TinyGo's asyncify pass,
+  so CPU cores matter more than the profile.
 - List all tasks: `mise tasks`
 
 # UI (gsx + gsxui + htmx 4)
