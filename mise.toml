@@ -48,7 +48,8 @@ macos-x64 = { url = "https://storage.googleapis.com/chrome-for-testing-public/{{
 # compiler: builds in seconds, a ~3x bigger wasm). Every request starts a fresh Go runtime, so the bigger wasm costs
 # every request: measured on Workers 2026-10-20, go was ~50–90 ms slower at the median, ~160–200 ms at p90. Users pay
 # that, CI pays the TinyGo build: tinygo. mise run dev always uses go.
-WORKER_COMPILER = "tinygo"
+# Set WORKER_COMPILER in the environment to override it for one run: WORKER_COMPILER=go ci/check.sh
+WORKER_COMPILER = "{{ get_env(name='WORKER_COMPILER', default='tinygo') }}"
 # Worker script and D1 database name (mise run deploy): https://$APP_NAME.<subdomain>.workers.dev
 APP_NAME = "go-htmx4"
 # Custom domain (Workers Custom Domain, zone in the same Cloudflare account); "" = workers.dev only. When set, deploy
