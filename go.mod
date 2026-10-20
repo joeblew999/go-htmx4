@@ -8,7 +8,7 @@ require (
 	github.com/BurntSushi/toml v1.6.0
 	github.com/gsxhq/gsx v0.4.0
 	github.com/jackielii/tailwind-merge-go v0.0.0-20260726184505-8a911ed0cf9a
-	github.com/joeblew999/charter/go/lib v0.9.2-0.20261020161627-04e5b07a20f7
+	github.com/joeblew999/charter/go/lib v0.9.2-0.20261020164039-01f6db643745
 	github.com/syumai/workers-go v0.36.0
 	golang.org/x/net v0.61.0
 )
