@@ -1,15 +1,19 @@
 // Worker entry (deployed). WebSocket upgrades on /live/{topic} go straight to that topic's Room
-// Durable Object; everything else goes to the Go Worker (TinyGo build in build/). workers-go has
-// no WebSocket support, so upgrades can't pass through Go. Same shape as workers-go's
-// _examples/durable-object-counter/worker.mjs.
+// Durable Object; everything else goes to the Go Worker (build/), run by charter's go.mjs, which keeps
+// Go runtimes alive between requests and starts two while the module loads (charter go/lib/worker;
+// copied into build/ by the build, from the version go.mod requires).
 
 import * as intl from "./intl.mjs";
-import goWorker from "./build/worker.mjs";
+import { goWorker } from "./build/go.mjs";
 
 // The app's Intl formatter, for Go (kit/i18n Format): the same code the browser runs (static/intl.js).
 globalThis.goIntl = intl;
 
 export { Room } from "./room.mjs";
+
+const go = goWorker();
+// Two runtimes, each warmed with a request that touches no binding.
+await go.warm({ paths: ["/healthz"] });
 
 // Same rules as kit/live (TopicPattern, LocalePattern); TestWorkerJSMatchesKitLive checks.
 const TOPIC = /^[a-z0-9-]{1,32}$/;
@@ -28,6 +32,6 @@ export default {
       }
       return env.ROOM.get(env.ROOM.idFromName(topic)).fetch(request);
     }
-    return goWorker.fetch(request, env, ctx);
+    return go.fetch(request, env, ctx);
   },
 };

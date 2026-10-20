@@ -1408,7 +1408,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "server_info.workers_note",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "Cloudflare Workers: every request starts a fresh Go runtime, so uptime, requests and stats start over.",
+						Text: "Cloudflare Workers: a Go runtime serves many requests and is replaced when its memory fills, so uptime, requests and stats are those of the runtime that answered.",
 					},
 				},
 			},
@@ -2817,7 +2817,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "server_info.workers_note",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "Cloudflare Workers: every request starts a fresh Go runtime, so uptime, requests and stats start over.",
+						Text: "Cloudflare Workers: a Go runtime serves many requests and is replaced when its memory fills, so uptime, requests and stats are those of the runtime that answered.",
 					},
 				},
 			},
@@ -4226,7 +4226,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "server_info.workers_note",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "Cloudflare Workers: Jede Anfrage startet eine neue Go-Laufzeitumgebung, daher beginnen Betriebszeit, Anfragen und Statistik von vorn.",
+						Text: "Cloudflare Workers: Eine Go-Laufzeitumgebung beantwortet viele Anfragen und wird ersetzt, wenn ihr Speicher voll ist; Betriebszeit, Anfragen und Statistik gehören zu der Laufzeitumgebung, die geantwortet hat.",
 					},
 				},
 			},
@@ -5635,7 +5635,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "server_info.workers_note",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "Cloudflare Workers\u00a0: chaque requête démarre un nouveau runtime Go, donc le temps de fonctionnement, les requêtes et les statistiques repartent de zéro.",
+						Text: "Cloudflare Workers : un runtime Go répond à de nombreuses requêtes et est remplacé quand sa mémoire est pleine, donc le temps de fonctionnement, les requêtes et les statistiques sont ceux du runtime qui a répondu.",
 					},
 				},
 			},
@@ -7044,7 +7044,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "server_info.workers_note",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "Cloudflare Workers: cada petición arranca un runtime de Go nuevo, así que el tiempo activo, las peticiones y las estadísticas vuelven a empezar de cero.",
+						Text: "Cloudflare Workers: un runtime de Go atiende muchas peticiones y se reemplaza cuando se llena su memoria, así que el tiempo activo, las peticiones y las estadísticas son las del runtime que respondió.",
 					},
 				},
 			},
@@ -8453,7 +8453,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "server_info.workers_note",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "Cloudflare Workers: cada requisição inicia um novo runtime Go, então o tempo ativo, as requisições e as estatísticas recomeçam do zero.",
+						Text: "Cloudflare Workers: um runtime Go atende muitas requisições e é substituído quando sua memória enche, então o tempo ativo, as requisições e as estatísticas são do runtime que respondeu.",
 					},
 				},
 			},
@@ -9862,7 +9862,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "server_info.workers_note",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "Cloudflare Workers: cada pedido inicia um novo runtime Go, por isso o tempo ativo, os pedidos e as estatísticas recomeçam do zero.",
+						Text: "Cloudflare Workers: um runtime Go atende muitos pedidos e é substituído quando a sua memória enche, por isso o tempo ativo, os pedidos e as estatísticas são do runtime que respondeu.",
 					},
 				},
 			},
@@ -11268,7 +11268,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "server_info.workers_note",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "Cloudflare Workers: يبدأ كل طلب بيئة تشغيل Go جديدة، لذا تبدأ مدة التشغيل والطلبات والإحصاءات من جديد.",
+						Text: "Cloudflare Workers: تخدم بيئة تشغيل Go طلبات كثيرة وتُستبدل عندما تمتلئ ذاكرتها، لذا فإن مدة التشغيل والطلبات والإحصاءات هي لبيئة التشغيل التي أجابت.",
 					},
 				},
 			},
@@ -12677,7 +12677,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "server_info.workers_note",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "Cloudflare Workers: כל בקשה מפעילה סביבת ריצה חדשה של Go, ולכן זמן הפעילות, מספר הבקשות והסטטיסטיקה מתאפסים.",
+						Text: "Cloudflare Workers: סביבת ריצה של Go משרתת בקשות רבות ומוחלפת כשהזיכרון שלה מתמלא, ולכן זמן הפעילות, מספר הבקשות והסטטיסטיקה הם של סביבת הריצה שענתה.",
 					},
 				},
 			},
@@ -14083,7 +14083,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "server_info.workers_note",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "Cloudflare Workers ではリクエストごとに新しい Go ランタイムが起動するため、稼働時間、リクエスト数、統計はリセットされます。",
+						Text: "Cloudflare Workers では 1 つの Go ランタイムが多くのリクエストに応答し、メモリがいっぱいになると入れ替わります。稼働時間、リクエスト数、統計は応答したランタイムのものです。",
 					},
 				},
 			},
@@ -15492,7 +15492,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "server_info.workers_note",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "Cloudflare Workers：每个请求都会启动一个全新的 Go 运行时，因此运行时间、请求数和统计数据都会重新开始。",
+						Text: "Cloudflare Workers：一个 Go 运行时会处理许多请求，内存用满时会被替换，因此运行时间、请求数和统计数据都属于作出响应的那个运行时。",
 					},
 				},
 			},
@@ -16901,7 +16901,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "server_info.workers_note",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "Cloudflare Workers：每個請求都會啟動全新的 Go 執行環境，因此運作時間、請求數與統計資料都會重新計算。",
+						Text: "Cloudflare Workers：一個 Go 執行環境會處理許多請求，記憶體用滿時會被替換，因此運作時間、請求數與統計資料都屬於作出回應的那個執行環境。",
 					},
 				},
 			},
@@ -18307,7 +18307,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "server_info.workers_note",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "Cloudflare Workers: हर अनुरोध एक नया Go रनटाइम शुरू करता है, इसलिए अपटाइम, अनुरोध और आँकड़े फिर से शुरू होते हैं।",
+						Text: "Cloudflare Workers: एक Go रनटाइम कई अनुरोधों का जवाब देता है और मेमोरी भरने पर बदल दिया जाता है, इसलिए अपटाइम, अनुरोध और आँकड़े उसी रनटाइम के हैं जिसने जवाब दिया।",
 					},
 				},
 			},
@@ -19756,7 +19756,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "server_info.workers_note",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "Cloudflare Workers: каждый запрос запускает новую среду выполнения Go, поэтому время работы, число запросов и статистика обнуляются.",
+						Text: "Cloudflare Workers: одна среда выполнения Go обслуживает много запросов и заменяется, когда заполняется её память, поэтому время работы, число запросов и статистика относятся к среде, которая ответила.",
 					},
 				},
 			},
@@ -22172,7 +22172,7 @@ var pseudoCatalog = &i18n.Catalog{
 					Text: "⟦",
 				},
 				{
-					Text: "Çļóúðƒļáŕé Ŵóŕķéŕš: éṽéŕý ŕéǫúéšţ šţáŕţš á ƒŕéšĥ Ĝó ŕúñţíɱé, šó úþţíɱé, ŕéǫúéšţš áñð šţáţš šţáŕţ óṽéŕ.·································",
+					Text: "Çļóúðƒļáŕé Ŵóŕķéŕš: á Ĝó ŕúñţíɱé šéŕṽéš ɱáñý ŕéǫúéšţš áñð íš ŕéþļáçéð ŵĥéñ íţš ɱéɱóŕý ƒíļļš, šó úþţíɱé, ŕéǫúéšţš áñð šţáţš áŕé ţĥóšé óƒ ţĥé ŕúñţíɱé ţĥáţ áñšŵéŕéð.····················································",
 				},
 				{
 					Text: "⟧",

@@ -114,7 +114,7 @@ func TestPages(t *testing.T) {
 	has(t, "DELETE /greet", do(t, "DELETE", "/greet", "").body, "Cleared")
 	info := get(t, "/fragments/server-info").body
 	has(t, "server-info names the compiler", info, compiler)
-	has(t, "state resets per request", info+get(t, "/fragments/server-info").body, "fresh Go runtime")
+	has(t, "server-info says a runtime serves many requests", info, "serves many requests")
 	has(t, "stats fragment", get(t, "/fragments/stats").body, "<ul")
 	if r := get(t, "/greet"); r.status != 405 {
 		t.Errorf("✗ 405 on wrong method: got %d", r.status)

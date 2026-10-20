@@ -27,12 +27,12 @@ import (
 	"time"
 
 	"github.com/gsxhq/gsx"
+	"github.com/joeblew999/charter/go/lib/transport"
 	"github.com/joeblew999/go-htmx4/kit/httpx"
 	"github.com/joeblew999/go-htmx4/kit/i18n"
 	"github.com/joeblew999/go-htmx4/kit/i18n/cldr"
 	"github.com/joeblew999/go-htmx4/locales"
 	"github.com/joeblew999/go-htmx4/views"
-	"github.com/syumai/workers-go"
 )
 
 var (
@@ -55,11 +55,12 @@ var (
 )
 
 func main() {
-	workers.Serve(newServer().routes())
+	transport.Run(newServer().routes())
 }
 
-// server holds per-process state for the server-info and stats fragments. On Workers every request
-// starts a fresh Go runtime, so it starts over each time; under `go run .` it keeps counting.
+// server holds per-process state for the server-info and stats fragments. On Workers it is that of the
+// Go runtime that answered (charter's go.mjs keeps runtimes between requests, and starts new ones);
+// under `go run .` it keeps counting.
 type server struct {
 	started  time.Time
 	requests atomic.Int64

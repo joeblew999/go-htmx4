@@ -839,7 +839,7 @@ func (m Messages) ServerInfoUptime() string {
 	return m.format(166)
 }
 
-// ServerInfoWorkersNote is "server_info.workers_note": Cloudflare Workers: every request starts a fresh Go runtime, so uptime, requests and stats start over.
+// ServerInfoWorkersNote is "server_info.workers_note": Cloudflare Workers: a Go runtime serves many requests and is replaced when its memory fills, so uptime, requests and stats are those of the runtime that answered.
 func (m Messages) ServerInfoWorkersNote() string {
 	return m.format(167)
 }

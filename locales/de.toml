@@ -78,7 +78,7 @@ uptime = "Betriebszeit"
 requests = "Anfragen"
 rendered = "Gerendert"
 note = "Hinweis"
-workers_note = "Cloudflare Workers: Jede Anfrage startet eine neue Go-Laufzeitumgebung, daher beginnen Betriebszeit, Anfragen und Statistik von vorn."
+workers_note = "Cloudflare Workers: Eine Go-Laufzeitumgebung beantwortet viele Anfragen und wird ersetzt, wenn ihr Speicher voll ist; Betriebszeit, Anfragen und Statistik gehören zu der Laufzeitumgebung, die geantwortet hat."
 
 [board]
 title = "Gemeinsame Pinnwand"

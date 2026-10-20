@@ -13,6 +13,7 @@ import (
 	"slices"
 	"strconv"
 	"strings"
+	"sync"
 
 	"github.com/gsxhq/gsx"
 )
@@ -28,11 +29,18 @@ func Allow(w http.ResponseWriter, r *http.Request, methods ...string) bool {
 	return false
 }
 
+// pages are the buffers pages render into, kept between requests. A page is 50–170 KB: one buffer
+// grown from empty for each copies it over and over (the home page allocated 560 KB, mostly that).
+// WriteHTML hands the bytes to the ResponseWriter before the buffer goes back.
+var pages = sync.Pool{New: func() any { return bytes.NewBuffer(make([]byte, 0, 256<<10)) }}
+
 // Render renders n into a buffer and writes it as HTML with a Content-Length. If rendering fails it
 // replies 500 instead and returns the error, so a half-rendered page is never sent.
 func Render(w http.ResponseWriter, r *http.Request, n gsx.Node) error {
-	var buf bytes.Buffer
-	if err := n.Render(r.Context(), &buf); err != nil {
+	buf := pages.Get().(*bytes.Buffer)
+	buf.Reset()
+	defer pages.Put(buf)
+	if err := n.Render(r.Context(), buf); err != nil {
 		http.Error(w, "render failed", http.StatusInternalServerError)
 		return err
 	}

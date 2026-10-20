@@ -78,7 +78,7 @@ uptime = "稼働時間"
 requests = "リクエスト数"
 rendered = "レンダリング時刻"
 note = "注記"
-workers_note = "Cloudflare Workers ではリクエストごとに新しい Go ランタイムが起動するため、稼働時間、リクエスト数、統計はリセットされます。"
+workers_note = "Cloudflare Workers では 1 つの Go ランタイムが多くのリクエストに応答し、メモリがいっぱいになると入れ替わります。稼働時間、リクエスト数、統計は応答したランタイムのものです。"
 
 [board]
 title = "共有ボード"

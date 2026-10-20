@@ -78,7 +78,7 @@ dir = "{{config_root}}"
 # change must rebuild). Nothing else feeds the wasm: Static Assets are dist/site, served beside it. build/.prod marks a
 # production build; build:dev removes it, so a debug wasm is never skipped into a deploy.
 sources = ["**/*.go", "go.mod", "go.sum", "mise.toml"]
-outputs = ["build/app.wasm", "build/worker.mjs", "build/runtime.mjs", "build/wasm_exec.js", "build/.prod"]
+outputs = ["build/app.wasm", "build/go.mjs", "build/worker.mjs", "build/runtime.mjs", "build/wasm_exec.js", "build/.prod"]
 env = { WASM_PROFILE = "prod" }
 run = "ci/wasm-build.sh"
 
@@ -87,7 +87,7 @@ depends = ["vendor", "generate", "assets"]
 description = "Dev build → build/: standard Go to wasm, seconds after an edit (mise run dev uses it; never deployed)"
 dir = "{{config_root}}"
 sources = ["**/*.go", "go.mod", "go.sum", "mise.toml"]
-outputs = ["build/app.wasm", "build/worker.mjs", "build/runtime.mjs", "build/wasm_exec.js", "build/.dev"]
+outputs = ["build/app.wasm", "build/go.mjs", "build/worker.mjs", "build/runtime.mjs", "build/wasm_exec.js", "build/.dev"]
 env = { WASM_PROFILE = "dev" }
 run = "ci/wasm-build.sh"
 

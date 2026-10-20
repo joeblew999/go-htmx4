@@ -78,7 +78,7 @@ uptime = "Tempo ativo"
 requests = "Requisições"
 rendered = "Renderizado"
 note = "Observação"
-workers_note = "Cloudflare Workers: cada requisição inicia um novo runtime Go, então o tempo ativo, as requisições e as estatísticas recomeçam do zero."
+workers_note = "Cloudflare Workers: um runtime Go atende muitas requisições e é substituído quando sua memória enche, então o tempo ativo, as requisições e as estatísticas são do runtime que respondeu."
 
 [board]
 title = "Quadro compartilhado"

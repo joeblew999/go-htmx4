@@ -1,6 +1,6 @@
 module github.com/joeblew999/go-htmx4
 
-go 1.27
+go 1.27.1
 
 toolchain go1.27.2
 
@@ -8,11 +8,13 @@ require (
 	github.com/BurntSushi/toml v1.6.0
 	github.com/gsxhq/gsx v0.4.0
 	github.com/jackielii/tailwind-merge-go v0.0.0-20260726184505-8a911ed0cf9a
+	github.com/joeblew999/charter/go/lib v0.9.2-0.20261020164039-01f6db643745
 	github.com/syumai/workers-go v0.36.0
 	golang.org/x/net v0.61.0
 )
 
 require (
+	github.com/coder/websocket v1.8.15 // indirect
 	github.com/editorconfig/editorconfig-core-go/v2 v2.6.4 // indirect
 	github.com/fsnotify/fsnotify v1.10.1 // indirect
 	github.com/tdewolff/minify/v2 v2.24.13 // indirect
@@ -25,4 +27,7 @@ require (
 	gopkg.in/ini.v1 v1.67.0 // indirect
 )
 
-tool github.com/gsxhq/gsx/cmd/gsx
+tool (
+	github.com/gsxhq/gsx/cmd/gsx
+	github.com/joeblew999/charter/go/lib/cmd/workerbuild
+)

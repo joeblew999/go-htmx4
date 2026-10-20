@@ -78,7 +78,7 @@ uptime = "Temps de fonctionnement"
 requests = "Requêtes"
 rendered = "Rendu"
 note = "Remarque"
-workers_note = "Cloudflare Workers : chaque requête démarre un nouveau runtime Go, donc le temps de fonctionnement, les requêtes et les statistiques repartent de zéro."
+workers_note = "Cloudflare Workers : un runtime Go répond à de nombreuses requêtes et est remplacé quand sa mémoire est pleine, donc le temps de fonctionnement, les requêtes et les statistiques sont ceux du runtime qui a répondu."
 
 [board]
 title = "Tableau partagé"

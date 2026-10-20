@@ -94,7 +94,7 @@ Read-only checkouts in gitignored `.upstream/`, reproduced without Node.
 workers-go's docs use `npm create cloudflare` and wrangler. `tasks/app.toml` does the same steps
 without them:
 
-- **Build:** `workers-assets-gen -mode=tinygo` + `tinygo build -target wasm` (the template's own build script).
+- **Build:** charter's `go tool workerbuild` (TinyGo, tuned for Workers, cached), from `ci/wasm-build.sh`.
 - **Run locally:** `workerd serve`, the runtime `wrangler dev` uses. `workerd/assets-first.mjs` stands in for
   Static Assets (it runs inside workerd, not Node).
 - **Deploy:** [`cmd/deploy`](cmd/deploy), a stdlib Go client for Cloudflare's
