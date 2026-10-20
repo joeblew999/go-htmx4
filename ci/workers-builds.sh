@@ -42,7 +42,8 @@ build)
   if [ -n "$fetched" ]; then
     tar -xzf build.tar.gz && rm build.tar.gz
     echo "✓ build for $sha from GitHub CI: $(wc -c <build/app.wasm | tr -d ' ')B wasm, $(find dist/site -type f | wc -l | tr -d ' ') assets"
-    mise install go   # the deploy tool (go run ./cmd/deploy)
+    # A prebuilt deploy tool comes with newer builds; without one (or if it won't run), compile it with Go.
+    if [ -x bin/deploy ] && bin/deploy -h >/dev/null 2>&1; then echo "✓ prebuilt deploy tool"; else mise install go; fi
   else
     echo "· no GitHub CI build for ${sha:-this commit}${PREVIEW_BUILD:+ (PREVIEW_BUILD=$PREVIEW_BUILD)}: compiling here instead"
     mise install go tinygo github:WebAssembly/binaryen github:tailwindlabs/tailwindcss
@@ -51,6 +52,7 @@ build)
   ;;
 deploy)
   branch=${WORKERS_CI_BRANCH:?WORKERS_CI_BRANCH is not set (Workers Builds sets it)}
+  if [ -x bin/deploy ] && bin/deploy -h >/dev/null 2>&1; then export DEPLOY_CMD=./bin/deploy; fi
   mise run --skip-deps preview "$branch"
   echo "✓ preview for branch $branch: $(cat .preview-url)"
   ;;
