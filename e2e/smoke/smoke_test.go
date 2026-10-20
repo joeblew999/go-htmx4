@@ -24,6 +24,8 @@ import (
 var (
 	base  = strings.TrimSuffix(os.Getenv("SMOKE_BASE"), "/")
 	local = os.Getenv("SMOKE_LOCAL") == "1"
+	// compiler is the Go compiler the Worker was built with (mise.toml WORKER_COMPILER: tinygo, or go → "gc").
+	compiler = map[string]string{"": "tinygo", "tinygo": "tinygo", "go": "gc"}[os.Getenv("WORKER_COMPILER")]
 	// No redirects followed: some checks are about the redirect itself.
 	client = &http.Client{Timeout: 20 * time.Second, CheckRedirect: func(*http.Request, []*http.Request) error { return http.ErrUseLastResponse }}
 )
@@ -97,7 +99,8 @@ func TestMain(m *testing.M) {
 
 func TestPages(t *testing.T) {
 	page := get(t, "/").body
-	has(t, "page runs on TinyGo wasm", page, `<span id="target" translate="no">tinygo js/wasm</span>`)
+	// runtime.Compiler of the build being checked: "tinygo", or "gc" for WORKER_COMPILER=go.
+	has(t, "page runs on "+compiler+" wasm", page, `<span id="target" translate="no">`+compiler+` js/wasm</span>`)
 	if local {
 		has(t, "text binding APP_ENV", page, `<span id="env" translate="no">workerd (local)</span>`)
 	}
@@ -110,7 +113,7 @@ func TestPages(t *testing.T) {
 	has(t, "POST form empty", post(t, "/greet", "name=").body, "Please enter a name.")
 	has(t, "DELETE /greet", do(t, "DELETE", "/greet", "").body, "Cleared")
 	info := get(t, "/fragments/server-info").body
-	has(t, "server-info on TinyGo", info, "tinygo")
+	has(t, "server-info names the compiler", info, compiler)
 	has(t, "state resets per request", info+get(t, "/fragments/server-info").body, "fresh Go runtime")
 	has(t, "stats fragment", get(t, "/fragments/stats").body, "<ul")
 	if r := get(t, "/greet"); r.status != 405 {

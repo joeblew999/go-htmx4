@@ -44,6 +44,11 @@ macos-arm64 = { url = "https://storage.googleapis.com/chrome-for-testing-public/
 macos-x64 = { url = "https://storage.googleapis.com/chrome-for-testing-public/{{ version }}/mac-x64/chrome-headless-shell-mac-x64.zip", strip_components = 1, bin_path = "." }
 
 [env]
+# The production wasm's compiler (ci/wasm-build.sh): "tinygo" (smallest wasm, ~1–2 min builds) or "go" (the standard
+# compiler: builds in seconds, a ~3x bigger wasm). Every request starts a fresh Go runtime, so the bigger wasm costs
+# every request: measured on Workers 2026-10-20, go was ~50–90 ms slower at the median, ~160–200 ms at p90. Users pay
+# that, CI pays the TinyGo build: tinygo. mise run dev always uses go.
+WORKER_COMPILER = "tinygo"
 # Worker script and D1 database name (mise run deploy): https://$APP_NAME.<subdomain>.workers.dev
 APP_NAME = "go-htmx4"
 # Custom domain (Workers Custom Domain, zone in the same Cloudflare account); "" = workers.dev only. When set, deploy

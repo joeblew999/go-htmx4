@@ -7,13 +7,14 @@ Every command is a mise task: `mise run <task>`; `mise tasks` lists them. Which 
 
 - **Develop:** `dev:native` for UI and text (plain Go, seconds per save); `dev` for the real Worker runtime (board,
   D1, Durable Objects, the server's Intl) with the fast `build:dev`.
-- **Build:** `build` is production (TinyGo: what ships, and what the tests use); `build:dev` is the standard-Go build
-  `dev` uses, seconds after an edit, never deployed.
+- **Build:** `build` is production (what ships and what the tests use), compiled by `WORKER_COMPILER` in mise.toml:
+  `tinygo` (smallest wasm, ~1–2 min builds) or `go` (seconds, a bigger wasm). `build:dev` is always standard Go,
+  for `dev`.
 - **Test:** `check` before pushing (CI runs the same, `ci/check.sh`), then `e2e` for anything in the browser.
   `smoke-remote` runs the smoke checks against the deployed Worker.
 - **Ship:** every pushed branch gets a preview and `main` deploys staging, both automatically (Workers Builds).
-  Production: `release v1.3` (or a v* tag from GitHub's Releases page) → CI tests it → Workers Builds deploys it, with
-  no Cloudflare credentials anywhere but Cloudflare. `deploy` does it by hand from a machine with fnox credentials.
+  Production: `release v1.3` (or a v* tag from GitHub's Releases page) → CI tests it and tags it → Workers Builds
+  deploys it, with no Cloudflare credentials anywhere but Cloudflare. `deploy` does it by hand from a machine with fnox credentials.
   All of them go through `ci/deploy.sh`.
 
 ## Tasks
@@ -32,7 +33,7 @@ Tailwind (gsxui CSS) + assemble dist/site (Static Assets for workerd, go run . a
 
 - **Usage:** `build`
 
-Production build → build/: TinyGo, small wasm, ~1–2 min (deploy, staging, CI and the tests use it)
+Production build → build/ with WORKER_COMPILER (mise.toml: tinygo or go), size-checked (deploy, staging, CI and the tests use it)
 
 ### `build:dev`
 
@@ -156,13 +157,13 @@ Delete a Worker Preview (e.g. pr-7) with its Durable Object storage
 
 ### `release`
 
-Release main to production: tag origin/main (e.g. v1.3) and push the tag; CI tests it, Workers Builds deploys it
+Release main to production (e.g. v1.3): CI tests it, tags it, Workers Builds deploys it; no Cloudflare credentials needed
 
 
 - **Usage:** `release <version>`
 
 ### Arguments
-- **`<version>`** — the tag, e.g. v1.3
+- **`<version>`** — the release, e.g. v1.3
 
 ### `rename`
 

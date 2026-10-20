@@ -139,8 +139,9 @@ README: change a task's description. The rules:
   and `-prune-previews` deletes previews of deleted branches. Fallback: compile on Cloudflare. Logic lives in
   `kit/previewbuild` and `kit/cfdeploy` (tested with fake GitHub and Cloudflare APIs); keep the scripts thin.
   The `main` trigger runs the same commands: main deploys staging, its own Worker `$APP_NAME-staging` (`mise run staging`: no domain, noindex, own D1).
-- **Production releases** (`mise run release v1.3`, or a v* tag from GitHub's Releases page): CI tests the tagged
-  commit, checks it's on `main`, then moves the `production` branch to it with its `GITHUB_TOKEN`; the branch
+- **Production releases** (`mise run release v1.3`, which pushes a `release/v1.3` branch, or a v* tag from GitHub's
+  Releases page): CI tests the commit, checks it's on `main`, tags it (for a release branch, then deletes the branch),
+  then moves the `production` branch to it with its `GITHUB_TOKEN`; the branch
   trigger fires for it like any branch, and `ci/workers-builds.sh` deploys production for that branch name with
   Cloudflare's build token (Cloudflare limits a Worker to two triggers, so there's no third). No Cloudflare
   credential is in GitHub or on a laptop. Roll back by tagging an older commit of main. Never push to `production`
