@@ -519,6 +519,9 @@ func (c *Client) putScript(ctx context.Context, cfg Config, modules []Module, d1
 		"main_module":        modules[0].Name,
 		"compatibility_date": cfg.CompatibilityDate,
 		"bindings":           bindings(cfg, d1IDs),
+		// Workers Logs: every request's logs and CPU time, in the dashboard and the observability
+		// API. An upload without it turns logging off, so every deploy says so.
+		"observability": map[string]any{"enabled": true, "head_sampling_rate": 1},
 	}
 	if doMigration != nil {
 		meta["migrations"] = doMigration

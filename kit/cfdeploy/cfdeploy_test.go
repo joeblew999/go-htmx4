@@ -411,6 +411,7 @@ func TestDeploy(t *testing.T) {
 	meta, _ := json.Marshal(f.putMeta)
 	for _, want := range []string{
 		`"main_module":"index.mjs"`, `"compatibility_date":"2026-09-11"`,
+		`"observability":{"enabled":true,"head_sampling_rate":1}`,
 		`{"name":"APP_ENV","text":"cloudflare","type":"plain_text"}`,
 		`{"id":"` + f.dbs["app"] + `","name":"DB","type":"d1"}`,
 		`{"class_name":"Room","name":"ROOM","type":"durable_object_namespace"}`,
