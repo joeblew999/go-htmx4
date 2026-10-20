@@ -69,7 +69,7 @@ GitHub CI ([`ci/check.sh`](ci/check.sh)) builds the commit, publishes the build 
 [`ci/workers-builds.sh`](ci/workers-builds.sh)) downloads them, verifies the build against its manifest and deploys
 `https://<branch>-$APP_NAME.$CF_SUBDOMAIN.workers.dev` in seconds, then deletes previews of deleted branches. No
 secrets in GitHub. If CI's build never appears, Cloudflare compiles it itself (also `PREVIEW_BUILD=compile`).
-`main` gets one too, the staging preview `https://main-$APP_NAME.$CF_SUBDOMAIN.workers.dev`: exactly what's merged.
+`main` gets one too, named staging: `https://staging-$APP_NAME.$CF_SUBDOMAIN.workers.dev`, exactly what's merged.
 `mise run cf:builds` sets up the Cloudflare side; production deploys stay manual (`mise run deploy`).
 
 ## Stack

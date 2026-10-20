@@ -93,6 +93,8 @@ func main() {
 	wait := flag.Duration("wait", 8*time.Minute, "how long -fetch-build waits for CI to publish")
 	slug := flag.String("slug", "", "print the preview name for this branch and exit")
 	prunePreviews := flag.Bool("prune-previews", false, "delete -name's previews whose branch no longer exists on GitHub")
+	var keepPreviews list
+	flag.Var(&keepPreviews, "keep-preview", "-prune-previews: never delete this preview, e.g. staging (repeatable)")
 	commentPR := flag.String("comment-pr", "", "CI: post the preview URL (-url) on this branch's open pull request (GITHUB_TOKEN)")
 	commentURL := flag.String("url", "", "preview URL for -comment-pr")
 	configureBuilds := flag.Bool("configure-builds", false, "make -name's Workers Builds setup match the flags below (needs Cloudflare credentials)")
@@ -150,6 +152,9 @@ func main() {
 		branches, err := remoteBranches(*repo)
 		check(err)
 		live := map[string]bool{}
+		for _, k := range keepPreviews {
+			live[k] = true
+		}
 		for _, b := range branches {
 			live[previewbuild.Slug(b, cfg.Name)] = true
 		}
