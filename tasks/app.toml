@@ -376,8 +376,8 @@ if [ -n "${APP_DOMAIN:-}" ]; then echo "https://$APP_DOMAIN"; else echo "$url"; 
 # ── preview ─────────────────────────────────────────────────────
 # A Worker Preview of $APP_NAME (plan: .plans/2026-10-20_1641_cloudflare-pr-previews.md): its own URL, code and Durable
 # Object storage, the shared preview D1 ($APP_NAME-preview), no custom domain (so host.go never redirects it) and
-# APP_PREVIEW=1 (every response noindex). CI (.github/workflows/preview.yml) runs it for every pull request as pr-<n>.
-# Credentials: CLOUDFLARE_API_TOKEN/CLOUDFLARE_ACCOUNT_ID from the environment (CI secrets) or fnox (locally).
+# APP_PREVIEW=1 (every response noindex). Workers Builds runs it for every pushed branch (name = the branch).
+# Credentials: CLOUDFLARE_API_TOKEN/CLOUDFLARE_ACCOUNT_ID from the environment (Workers Builds' build token) or fnox.
 ["preview"]
 description = "Deploy a Worker Preview (e.g. pr-7) → its URL on stdout and in .preview-url; tested first"
 depends = ["test"]

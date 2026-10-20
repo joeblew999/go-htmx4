@@ -128,11 +128,14 @@
 - **Credentials only via fnox:** `fnox exec -- go run ./cmd/deploy …` or `fnox exec -- sh -c '…$CLOUDFLARE_API_TOKEN…'`
   (single-quoted so the variable expands after fnox injects it). Never print tokens or add `.env` files.
 - **Deploys and other Cloudflare writes are outward-facing:** get an explicit OK first.
-- **Worker Previews** (`mise run preview <name>`, `ci/preview.sh`, plan `.plans/2026-10-20_1641_cloudflare-pr-previews.md`):
+- **Worker Previews** (`mise run preview <name>`, run by Workers Builds for every pushed branch, plan `.plans/2026-10-20_1641_cloudflare-pr-previews.md`):
   `kit/cfdeploy.DeployPreview`/`DeletePreview` over the Previews REST API. Previews get `APP_DOMAIN=` (no redirect),
   `APP_PREVIEW=1` (every response noindex: `TestPreviewNoindex`), the shared `$APP_NAME-preview` D1 and their own
   Durable Object storage. A new binding goes into both `deploy` and `preview` in `tasks/app.toml`. Production deploys
-  keep previews enabled. Per-PR previews are pre-approved; production deploys still need an OK.
+  keep previews enabled. Branch previews are pre-approved; production deploys still need an OK.
+  Workers Builds runs `ci/workers-builds.sh build` and `… deploy` for every branch except `main` (trigger "go-htmx4
+  branch previews", set on Cloudflare); the `main` trigger only echoes (no production auto-deploy). The script
+  ignores the build image's global mise config, so only `mise.toml` decides the tools.
 - **Shared board (live updates):** D1 is the source of truth; `worker/room.mjs` (one Durable Object per topic) only fans out.
   - Every app write goes through a Go handler that writes D1 **then** publishes the whole `#board` fragment with its
     `data-version`. Writes made straight to D1 (dashboard, REST) are not pushed.
