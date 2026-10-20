@@ -14,13 +14,13 @@ type Request struct {
 	// hreflang alternates and sitemaps must not be relative.
 	Origin string
 
-	// TimeZone is the viewer's time zone as [Data.TimeZone] resolves it ("Europe/Berlin", "UTC"); "" means UTC.
+	// TimeZone is the viewer's IANA time zone ("Europe/Berlin"), "" for unknown: the browser formats dates in it.
 	TimeZone string
 	// TimeZoneChosen is true when TimeZone is the viewer's explicit choice rather than a guess (e.g. from
 	// the connection), so browser code must not replace it with the browser's zone.
 	TimeZoneChosen bool
-	// HourCycle is the viewer's explicit 12/24-hour choice; HourCycleDefault keeps the locale's.
-	HourCycle HourCycle
+	// HourCycle is the viewer's explicit clock, "h12" or "h23"; "" keeps the locale's.
+	HourCycle string
 }
 
 // WithRequest returns ctx carrying r. Middleware calls it once per request; gsx components read it

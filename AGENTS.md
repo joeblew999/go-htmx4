@@ -32,21 +32,26 @@
 
 # Commands
 
-- Test everything: `mise run check` (= `mise run test`: TinyGo build + workerd smoke + gsx fmt/gofmt + go vet + go test).
-  `test` runs `smoke` and `test:go` in parallel. `build` and `i18n:messages` have `sources`/`outputs` and are skipped
-  when nothing they read changed: a new input to the wasm (an embedded file, a new tool pin file) goes in `sources`.
-  It must pass before pushing; CI (`.github/workflows/check.yml` → `ci/check.sh`) runs the same on every push and PR.
+Every command is a mise task, listed with when to use it in [docs/commands.md](docs/commands.md), generated from the
+task descriptions (`mise run docs:commands`; `test:go` fails when it's stale). Don't hand-list commands here or in the
+README: change a task's description. The rules:
+
+- Before pushing: `mise run check` (`gsx fmt`/gofmt/vet/go test, the production TinyGo build, the workerd smoke test
+  in `e2e/smoke`), then `mise run e2e` after UI, board or JS changes. CI (`.github/workflows/check.yml` →
+  `ci/check.sh`) runs the same on every push and PR. `build` and `i18n:messages` have `sources`/`outputs` and are
+  skipped when nothing they read changed: a new input to the wasm (an embedded file, a new tool pin file) goes in
+  `sources`.
 - CI is strict no-Node: shell `run:` steps only. Don't add `actions/checkout`, `jdx/mise-action` or any JavaScript action;
   new tools go in `mise.toml` so `ci/check.sh` picks them up.
-- The app: `mise run {dev,dev:native,serve,run,test,smoke,load,e2e,deploy,smoke-remote,tail}` (tasks in `tasks/app.toml`).
-- `mise run e2e` (e2e/, its own Go module) drives headless Chrome against local workerd or `E2E_BASE`; CI runs it after
-  `check`. Run it after UI, board or JS changes. Its write-limit test uses up the local write budget, so it runs last.
+- Shell lives in `ci/`, one script per job: `wasm-build.sh` (both builds), `with-workerd.sh` (runs a command against
+  local workerd and always stops it: smoke, e2e, load), `deploy.sh` (production, staging, previews: modules, assets
+  and bindings in one place; a new `worker/*.mjs` ships with no edits), `check.sh` (CI), `workers-builds.sh`
+  (Cloudflare's builds). Tasks call them; checks are Go tests (`e2e/smoke`, `e2e`), not curl in bash.
+- Dev loops: `dev:native` for UI work (seconds, no Worker runtime), `dev` for the real runtime (`build:dev`, seconds per
+  save). Stopping `gsx dev` can leave workerd running: `with-workerd.sh` refuses to start then; stop it by PID.
+  JS/CSS-only edits need no Go build: `mise run assets`, reload.
 - `mise run rename -- <module path> <app name>` turns the template into a new project; keep it working when you add
   files that mention the module path or the app name (it's verified by renaming a scratch clone and running `check`).
-- Dev loops: `dev:native` (~1 s per save, `go run`-style server, no Durable Objects: use for UI work) and `dev` (~25 s,
-  TinyGo on workerd: use for anything touching the board, D1, the Room or TinyGo behaviour). Both are `gsx dev`; the
-  backend port comes from `APP_DEV_PORT`. Stopping `gsx dev` can leave workerd running: stop it by PID.
-- List all tasks: `mise tasks`
 
 # UI (gsx + gsxui + htmx 4)
 
@@ -125,7 +130,7 @@
 - **Worker Previews** (`mise run preview <name>`, run by Workers Builds for every pushed branch, PR #6):
   `kit/cfdeploy.DeployPreview`/`DeletePreview` over the Previews REST API. Previews get `APP_DOMAIN=` (no redirect),
   `APP_PREVIEW=1` (every response noindex: `TestPreviewNoindex`), the shared `$APP_NAME-preview` D1 and their own
-  Durable Object storage. A new binding goes into both `deploy` and `preview` in `tasks/app.toml`. Production deploys
+  Durable Object storage. Bindings for every deploy kind live in one place, `ci/deploy.sh`. Production deploys
   keep previews enabled. Branch previews are pre-approved; production deploys still need an OK.
   One build per commit: CI (`ci/check.sh`) runs `mise run build`, then `bin/deploy -publish-build` puts the build
   (with a `preview-build.json` manifest) and the deploy tool on the `preview-builds` pre-release and
@@ -133,8 +138,13 @@
   by `mise run cf:builds`) fetches the tool, `-fetch-build` verifies before extracting, deploys `<branch slug>`
   and `-prune-previews` deletes previews of deleted branches. Fallback: compile on Cloudflare. Logic lives in
   `kit/previewbuild` and `kit/cfdeploy` (tested with fake GitHub and Cloudflare APIs); keep the scripts thin.
-  The `main` trigger runs the same commands: main deploys staging, its own Worker `$APP_NAME-staging` (`mise run staging`: no domain, noindex, own D1). Production is
-  never deployed by Workers Builds (`mise run deploy`).
+  The `main` trigger runs the same commands: main deploys staging, its own Worker `$APP_NAME-staging` (`mise run staging`: no domain, noindex, own D1).
+- **Production releases** (`mise run release v1.3`, or a v* tag from GitHub's Releases page): CI tests the tagged
+  commit, checks it's on `main`, then moves the `production` branch to it with its `GITHUB_TOKEN`; the branch
+  trigger fires for it like any branch, and `ci/workers-builds.sh` deploys production for that branch name with
+  Cloudflare's build token (Cloudflare limits a Worker to two triggers, so there's no third). No Cloudflare
+  credential is in GitHub or on a laptop. Roll back by tagging an older commit of main. Never push to `production`
+  by hand; `mise run deploy` (fnox credentials) stays as the manual path. A release is a production deploy: OK first.
 - **Shared board (live updates):** D1 is the source of truth; `worker/room.mjs` (one Durable Object per topic) only fans out.
   - Every app write goes through a Go handler that writes D1 **then** publishes the whole `#board` fragment with its
     `data-version`. Writes made straight to D1 (dashboard, REST) are not pushed.
@@ -167,11 +177,12 @@
 # Project Structure
 
 - repo root - the app (`main.go` + `board.go` handlers, `views/` pages + fragments (`.gsx`, package `views`), `ui/` vendored by gsxui,
-  `store_{sql,mem}.go`, `platform_{js,other}.go`, `worker/index.mjs` entry + `worker/room.mjs` Durable Object, `migrations/`, `static/` (vendored htmx + hx-ws),
+  `store_{sql,mem}.go`, `platform_{js,other}.go`, `worker/index.mjs` entry + `worker/room.mjs` Durable Object, `migrations/`, `static/` (vendored htmx + hx-ws, `intl.js`),
   `web/gsxui/` (behaviours + CSS entry), `workerd/` (config.capnp + local-only shims), `cmd/deploy` + `cmd/wsload` (flag parsing over kit/)).
 - `kit/` - importable packages: `cfdeploy` (Cloudflare deploy), `cftail` (live logs), `searchconsole` (Search Console API), `wsload` (WebSocket checks), `live`
-  (Room publish, topic rule), `ratelimit` (rate limiting binding), `httpx` (TinyGo-safe HTTP helpers), `i18n` (locales + CLDR formatting;
-  `i18n/cldr` generated tables, `i18n/cldrgen` generator, `i18n/intltest` Intl conformance); `kit/internal/cfapi` is their shared API client.
+  (Room publish, topic rule), `ratelimit` (rate limiting binding), `httpx` (TinyGo-safe HTTP helpers), `i18n` (locales, messages, plural rules;
+  `i18n/cldr` generated table, `i18n/msggen` message generator, `i18n/legacy` the earlier server-side Intl as its own
+  module); `kit/internal/cfapi` is their shared API client.
 - `tasks/` - mise task files included from `mise.toml`.
 
 # kit/ (importable packages)
@@ -188,22 +199,35 @@
 
 # kit/i18n
 
-- Formatting is CLDR-exact Go with Intl's option names and output, computed on the server. The client's `Intl` may only
-  enhance viewer-local text, and only with the page's `lang`.
-- `kit/i18n` (runtime) and `kit/i18n/cldr` (generated tables) compile into the Worker: sorted slices, no maps or init funcs.
-- Never hand-edit `kit/i18n/cldr/*_cldr.go`. The locale list is `I18N_LOCALES` in `mise.toml`; `mise run i18n:generate`
-  (`cmd/cldrgen`) rewrites the tables from pinned cldr-json (+ CLDR XML for root/number-system symbols).
-- **Reference data** (sources, pins, cache, moving a pin): [kit/i18n/README.md](kit/i18n/README.md).
-  - Every upstream input is pinned in `kit/i18n/cldrgen/sources.go` or `mise.toml`: cldr-json, CLDR XML, the
-    Chromium ICU commit of the pinned workerd, and workerd. `TestReferencePins` keeps them consistent.
-  - Chrome-specific data comes from the pinned Chromium ICU files, never from memory.
-  - `mise run i18n:verify` must pass before committing a pin, generator or case change.
-  - A `known` conformance entry needs `knownEvidence`, unless the feature is unimplemented.
-- Conformance is byte-for-byte against Intl. `mise run i18n:golden` (`cmd/intloracle`) records workerd's output for
-  `kit/i18n/intltest` cases in `kit/i18n/testdata/golden/workerd.json`, and `TestConformance` must stay green. Add cases
-  there before adding features. An accepted difference goes in `known` with a checkable reason.
-- `kit/i18n/cldrgen`, `kit/i18n/intltest` and their cmds are local tooling (standard Go). The local-only JS is
-  `intltest/intl.mjs`, which evaluates cases in workerd (`oracle.mjs`) and in real browsers (`mise run i18n:browsers`).
+- **One Intl, run twice.** Dates, times, zones, relative times, durations, numbers, currencies, units, lists, plural
+  rules, display names, sorting, segmentation and locale info all go through `worker/intl.mjs` (`format(lang, kind,
+  value, opts, extra)`):
+  - on the server, Go calls it with the Worker's own V8 Intl (`kit/i18n` `Locale.Format`, views `IntlText`), so pages
+    arrive finished, and emails or PDFs can use the same call; there is no CLDR formatting data in the wasm;
+  - in the browser, `static/intl.js` imports the same module (assets copy it to `/static/intl-core.mjs`) and
+    re-formats only what the server couldn't know: the viewer's own zone and relative times as time passes. A browser
+    without full data for the page's language keeps the server's text.
+  - Markup carries the raw value and options: `<time datetime data-intl="datetime" data-opts='{…}'>`,
+    `<data value data-intl="number">`; `data-opts` is a JSON object literal in the views (no JSON encoder in the
+    Worker). A translated message around a value uses `data-template` with `slot` as its argument.
+  - Under `go run`/`go test` there is no JS runtime: the text is a plain fallback (`2026-07-04 15:30 UTC`). The smoke
+    test (workerd) checks the real server output, `mise run e2e` the browser's.
+  - **Round trip:** forms send canonical values back (decimal strings, UTC instants, ISO codes). Intl doesn't
+    parse; `parseNumber` (`intl.parseNumber` in the browser, `Locale.ParseNumber` on the server) reads a number
+    typed the language's way ("1.234,5") back to "1234.5".
+  - The viewer's chosen zone and clock (`tz`/`hc` cookies, `POST /preferences`) reach the browser as
+    `<html data-tz data-hc>`; the server formats in them, else in the connection's zone (`connectionTimeZone`).
+- **The server keeps what chooses wording**: `kit/i18n` is the shipped locales, the request's locale, messages, plural
+  rules and plain numbers (`Num(ctx, n)`, `{n, number}`: the locale's digits and grouping). It compiles into the
+  Worker; `kit/i18n/cldr` is its generated table (a few KB).
+  - Never hand-edit `kit/i18n/cldr/data_cldr.go`. The locale list is `I18N_LOCALES` in `mise.toml`;
+    `mise run i18n:generate` regenerates it (and `kit/i18n/testdata/numbers.json`, which `TestFormatNumberGolden`
+    checks plain numbers against) with `kit/i18n/legacy`'s generator.
+  - Messages may use `{n, number}` and `{n, number, integer}` only; msggen rejects richer styles (they're the
+    browser's job).
+- **`kit/i18n/legacy`** is the earlier server-side Intl implementation (CLDR-exact formatting, conformance goldens,
+  browser drift checks), kept untouched as its own Go module: out of the build, out of `mise run check`.
+  `mise run i18n:legacy` runs its tests; its [README](kit/i18n/legacy/README.md) covers its reference data.
 - **Locale URLs in the app** (`i18n.go`):
   - The default locale (`en`) is unprefixed; every other locale is `/<lowercase id>/…`.
   - `/en/…` and mixed-case prefixes 301 to the canonical URL.
@@ -213,12 +237,13 @@
   `/live/` don't. `TestLocalizedURLs` checks every page in every locale.
 - Views use logical Tailwind classes only (`ms-`/`me-`/`ps-`/`pe-`/`start-`/`end-`/`text-start`/`text-end`), so
   `dir="rtl"` mirrors. `TestLogicalClasses` fails on physical ones.
-- **UI text** comes from `locales/*.toml` (ICU MessageFormat 1: `{name}`, `{n, number[, style]}`, plural with `=N`
+- **UI text** comes from `locales/*.toml` (ICU MessageFormat 1: `{name}`, `{n, number[, integer]}`, plural with `=N`
   and `offset:`, selectordinal, select; flattened dotted keys). `en.toml` is the source.
   - Views use `M(ctx).Key(args)`, handlers use `locales.For(r.Context())`. No literal user-facing text in `views/` or
     handlers.
-  - Brand names, code and machine values carry `translate="no"`, and kit/i18n output carries `data-i18n="cldr"`.
-    `TestNoHardcodedText` renders everything with en-XA pseudo messages and fails on any other ASCII word.
+  - Brand names, code and machine values carry `translate="no"`; browser-formatted values (`data-intl`) and
+    server-computed locale data (`data-i18n="cldr"`) are exempt too. `TestNoHardcodedText` renders everything with
+    en-XA pseudo messages and fails on any other ASCII word.
   - User text inside a message is wrapped with `Isolate(Loc(ctx).Dir(), s)`; user text in its own element gets
     `dir="auto"`.
   - Never hand-edit `locales/*_msg_gen.go`: `mise run i18n:messages` (part of `mise run generate`) regenerates it,
@@ -236,18 +261,9 @@
     must be added to `pageKey`.
   - A new indexable page goes into `views.SitemapPages`.
   - `TestCanonicalAndHreflang` and `TestSitemap` check reciprocity against the pages.
-- **Dates** are never formatted with `time.Format` for readers.
-  - Views render an instant with `<LocalTime t={…} opts={i18n.DateTimeOptions{…}}/>` (or `FormatDateTime` /
-    `FormatDateRange`). Both use the request's locale and the viewer's time zone and hour cycle.
-  - Preference precedence: `tz`/`hc` cookies (`POST /preferences`), then Cloudflare's `request.cf.timezone`
-    (`connectionTimeZone`), then UTC.
-  - Fragments pushed to every viewer (the board) can't use a viewer's zone: relative time, plus a UTC tooltip.
-  - `static/relative-time.js` is the one browser-`Intl` exception (plan decision 6). It re-formats
-    `<time data-relative-time>` and, when the zone wasn't chosen, `<time data-local-time>` in the browser's zone.
-    It only does so after calibrating: the browser must reproduce the server's exact wording. Safari and Firefox
-    `Intl` differ from Chrome (`mise run i18n:browsers`).
-- Option combinations the app uses need workerd oracle cases (`kit/i18n/intltest`). V8 has quirks such as ja
-  `dateStyle: "full"` with `hourCycle: "h12"` giving "2026/5/10日曜日", and kit/i18n matches them byte for byte.
+- **Dates** are never formatted with `time.Format` for readers: views use `<LocalTime t={…} opts={`{"dateStyle":"full"}`}/>`,
+  `<RelativeTime …/>` and `<Elapsed d={…}/>` (`views/intl.gsx`), whose UTC/plain text is only the fallback.
+  Fragments pushed to every viewer (the board) work the same way: each browser words them for its viewer.
 
 # Code Style
 

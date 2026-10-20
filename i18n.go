@@ -24,24 +24,23 @@ import (
 // localeCookie remembers the locale of the last full page a browser viewed.
 const localeCookie = "locale"
 
-// Date and time preferences (plan decision 5): the viewer's explicit choice (these cookies, set by POST
-// /preferences) > Cloudflare's guess from the connection (request.cf.timezone) > UTC.
+// Date and time preferences: the viewer's explicit choice (these cookies, set by POST /preferences, passed to the
+// browser as <html data-tz data-hc>) > the browser's own zone and the language's clock (static/intl.js).
 const (
 	timeZoneCookie  = "tz" // an Intl time zone id
 	hourCycleCookie = "hc" // "h12" or "h23"
 )
 
-// preferences resolves the viewer's time zone and hour cycle for i18n.Request.
-func preferences(r *http.Request) (tz string, chosen bool, hc i18n.HourCycle) {
+// preferences resolves the viewer's time zone and clock for i18n.Request. The browser formats dates (static/intl.js)
+// in the chosen zone, else its own; the connection's zone is only the server's guess, shown as "Automatic (…)".
+func preferences(r *http.Request) (tz string, chosen bool, hc string) {
 	if c, err := r.Cookie(hourCycleCookie); err == nil && (c.Value == "h12" || c.Value == "h23") {
-		hc, _ = i18n.ParseHourCycle(c.Value)
+		hc = c.Value
 	}
-	if c, err := r.Cookie(timeZoneCookie); err == nil {
-		if id, ok := cldr.Data.TimeZone(c.Value); ok {
-			return id, true, hc
-		}
+	if c, err := r.Cookie(timeZoneCookie); err == nil && views.ValidTimeZone(c.Value) {
+		return c.Value, true, hc
 	}
-	if id, ok := cldr.Data.TimeZone(connectionTimeZone(r)); ok {
+	if id := connectionTimeZone(r); views.ValidTimeZone(id) {
 		return id, false, hc
 	}
 	return "UTC", false, hc
@@ -96,7 +95,7 @@ func withLocale(next http.Handler) http.Handler {
 				}
 			}
 		}
-		loc, _ := data.Locale(i18n.MustParseTag(ld.ID))
+		loc := &i18n.Locale{Data: ld}
 		if r.Method == http.MethodGet && !isHTMX(r) && isPage(path) {
 			remember(w, r, ld)
 		}
@@ -128,13 +127,9 @@ func savePreferences(w http.ResponseWriter, r *http.Request) {
 		http.SetCookie(w, c)
 	}
 	tz := r.FormValue("tz")
-	if tz != "" {
-		id, ok := cldr.Data.TimeZone(tz)
-		if !ok {
-			http.Error(w, "unknown time zone", http.StatusBadRequest)
-			return
-		}
-		tz = id
+	if tz != "" && !views.ValidTimeZone(tz) {
+		http.Error(w, "unknown time zone", http.StatusBadRequest)
+		return
 	}
 	hc := r.FormValue("hc")
 	if hc != "" && hc != "h12" && hc != "h23" {
@@ -168,12 +163,7 @@ func localeByPrefix(seg string) *i18n.LocaleData {
 	if seg == "" || len(seg) > 16 {
 		return nil
 	}
-	for _, ld := range cldr.Data.Locales {
-		if strings.EqualFold(ld.ID, seg) {
-			return ld
-		}
-	}
-	return nil
+	return cldr.Data.Find(seg)
 }
 
 func remember(w http.ResponseWriter, r *http.Request, ld *i18n.LocaleData) {

@@ -115,7 +115,7 @@ func Generate(cfg Config) error {
 	}
 	var cats []catalogOut
 	for _, id := range cfg.Locales {
-		loc, ok := cfg.Data.Locale(i18n.MustParseTag(id))
+		loc, ok := cfg.Data.Locale(id)
 		if !ok || loc.Data.ID != id {
 			return fmt.Errorf("msggen: locale %s is not in the CLDR data set", id)
 		}

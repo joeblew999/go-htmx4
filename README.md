@@ -36,8 +36,8 @@ reads a `.env` file.
 git clone https://github.com/joeblew999/go-htmx4.git
 cd go-htmx4
 mise install        # every pinned tool (Go, TinyGo, workerd, Tailwind, gsxui, …) + gsx for the editor
-mise run dev        # gsx dev: save → regenerate → TinyGo → workerd restart → http://localhost:8913
-mise run check      # TinyGo build + workerd smoke + go test
+mise run dev        # save → regenerate → standard-Go wasm (seconds) → workerd restart → http://localhost:8913
+mise run check      # production TinyGo build + workerd smoke + go test
 ```
 
 **VS Code:** install the recommended [gsx extension](https://marketplace.visualstudio.com/items?itemName=gsxhq.gsx)
@@ -45,22 +45,7 @@ mise run check      # TinyGo build + workerd smoke + go test
 (`mise run editor:gsx` reinstalls it); then run **gsx: Restart Language Server**. Don't use the extension's *Install gsx*
 prompt: it installs `@latest`, not the pinned version.
 
-| Task | What |
-| --- | --- |
-| `mise run dev` | `gsx dev` drives the TinyGo build and workerd, restarting on every `.gsx`/`.go` save (~25 s; the real runtime: Durable Objects, D1 shim, pushes) → http://localhost:8913 |
-| `mise run serve` | Build once, serve on workerd (static files first, D1 shim, Room DO) → http://localhost:8913 |
-| `mise run dev:native` | `gsx dev` on the native server + Tailwind `--watch`: a save is served in ~1 s (memory store, no live push) → http://localhost:9913 |
-| `mise run run` | `go run .` (standard Go, memory store, no live push) → http://localhost:9913 |
-| `mise run test` / `check` | TinyGo build, workerd smoke (curls every route + a 2-socket push), gsx fmt, gofmt, vet, go test |
-| `mise run load` | 1,000 WebSockets on one topic + a 50-write burst + the 1,001st socket refused (local, or `LOAD_BASE=https://…`) |
-| `mise run e2e` | Headless Chrome ([`e2e/`](e2e), chromedp): pages, the live board in two browsers, boosted nav ↔ presence, write limit (local, or `E2E_BASE=https://…`) |
-| `mise run deploy` | Test, then deploy to `https://$APP_NAME.<subdomain>.workers.dev` (credentials via fnox) |
-| `mise run smoke-remote` | Curl every route of the deployed Worker |
-| `mise run tail` | Live logs of the deployed Worker (requests, console output, exceptions), no wrangler |
-| `mise run preview <name>` | Deploy a [Worker Preview](https://developers.cloudflare.com/workers/previews/) (own URL and Durable Object storage, preview D1, noindex); Workers Builds does it for every pushed branch |
-| `mise run staging` | Deploy staging, the Worker `$APP_NAME-staging` (Workers Builds does it on every merge to main) |
-| `mise run cf:builds` | Set up Workers Builds previews for the repo (idempotent; needs a build token made once in the dashboard) |
-| `mise run preview:delete <name>` | Delete a Worker Preview |
+**Every command, and which to use when: [docs/commands.md](docs/commands.md)** (generated from the tasks).
 
 `mise tasks` lists everything. CI runs `mise run check` and `mise run e2e` on every push and pull request
 ([`ci/check.sh`](ci/check.sh), shell steps only, no JavaScript actions).
@@ -172,8 +157,9 @@ browser ─ hx-post /board/add|note ─────▶ worker/index.mjs ─▶ G
 Importable from other repos with `go get github.com/joeblew999/go-htmx4/kit/…`. They don't import the app (checked by
 `mise run test`) and are tested without Cloudflare (fake API, fake Room).
 
-`kit/i18n` is generated from pinned Unicode CLDR data and checked against Chrome's `Intl`. Where that reference data
-comes from and how to update it: [kit/i18n/README.md](kit/i18n/README.md).
+`kit/i18n` is the server half of internationalization: locales, translated messages, plural rules and plain numbers.
+Dates, times, currencies and units are formatted in the viewer's browser by its own `Intl` (`static/intl.js`). The
+earlier server-side `Intl` implementation is kept, out of the build, in [kit/i18n/legacy](kit/i18n/legacy/README.md).
 
 | Package | What |
 | --- | --- |

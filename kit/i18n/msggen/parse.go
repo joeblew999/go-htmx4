@@ -184,6 +184,11 @@ func (p *msgParser) argument(depth int, inPlural bool) (node, error) {
 		if p.i >= len(p.s) || p.s[p.i] != '}' {
 			return node{}, fmt.Errorf("argument %s: unclosed number", name)
 		}
+		if style != "" && style != "integer" {
+			// The server formats plain numbers only; currency, percent, units and compact belong to the browser
+			// (static/intl.js, <data data-intl="number">), which has the full Intl.
+			return node{}, fmt.Errorf("argument %s: number style %q: only the default and \"integer\" are supported", name, style)
+		}
 		p.i++
 		return node{kind: i18n.MsgNumber, arg: name, style: style}, nil
 	case "plural", "selectordinal", "select":

@@ -144,7 +144,7 @@ func (s *server) routes() http.Handler {
 			return
 		}
 		connection := "UTC"
-		if id, ok := cldr.Data.TimeZone(connectionTimeZone(r)); ok {
+		if id := connectionTimeZone(r); views.ValidTimeZone(id) {
 			connection = id
 		}
 		s.render(w, r, "preferences", views.PreferencesForm(safeReturn(cmp.Or(r.Header.Get("HX-Current-URL"), r.Referer())), connection))
@@ -153,6 +153,20 @@ func (s *server) routes() http.Handler {
 		if allow(w, r, http.MethodPost) {
 			savePreferences(w, r)
 		}
+	})
+	// The /formats round trip: a number typed the reader's way and some text, read back and formatted with the
+	// Worker's Intl. Inputs are capped: they're formatted several times each.
+	mux.HandleFunc("/formats/try", func(w http.ResponseWriter, r *http.Request) {
+		if !allow(w, r, http.MethodPost) {
+			return
+		}
+		number := strings.TrimSpace(r.FormValue("number"))
+		text := strings.TrimSpace(r.FormValue("text"))
+		if len(number) > 64 || len(text) > 500 {
+			http.Error(w, "too long", http.StatusRequestEntityTooLarge)
+			return
+		}
+		s.render(w, r, "formats-try", views.TryResultView(views.RoundTrip(r.Context(), number, text)))
 	})
 	mux.HandleFunc("/fragments/stats", func(w http.ResponseWriter, r *http.Request) {
 		if !allow(w, r, http.MethodGet) {

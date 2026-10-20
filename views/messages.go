@@ -3,9 +3,7 @@ package views
 import (
 	"context"
 	"strconv"
-	"time"
 
-	"github.com/joeblew999/go-htmx4/kit/i18n"
 	"github.com/joeblew999/go-htmx4/locales"
 	uii18n "github.com/joeblew999/go-htmx4/ui/i18n"
 )
@@ -23,30 +21,6 @@ func M(ctx context.Context) locales.Messages {
 		return locales.Pseudo(Loc(ctx))
 	}
 	return locales.ForLocale(Loc(ctx))
-}
-
-// Num formats an integer in the request locale (digits, grouping).
-func Num(ctx context.Context, v int64) string {
-	return Loc(ctx).MustNumberFormat(i18n.NumberOptions{}).FormatInt(v)
-}
-
-// Elapsed formats a duration in whole seconds in the request locale (Intl.DurationFormat, short style), e.g.
-// "1 day, 2 hr, 5 min, 30 sec", and "0 sec" under a second.
-func Elapsed(ctx context.Context, d time.Duration) string {
-	s := int64(d / time.Second)
-	dur := i18n.Duration{i18n.DurDays: s / 86400, i18n.DurHours: s / 3600 % 24, i18n.DurMinutes: s / 60 % 60, i18n.DurSeconds: s % 60}
-	var o i18n.DurationOptions
-	if s == 0 {
-		o.Display[i18n.DurSeconds] = i18n.DisplayAlways // display "auto" hides zero units: "" for a zero duration
-	}
-	f, err := Loc(ctx).DurationFormat(o)
-	if err == nil {
-		var out string
-		if out, err = f.Format(dur); err == nil {
-			return out
-		}
-	}
-	return d.Round(time.Second).String()
 }
 
 // itoa is for attribute values that must stay ASCII digits (data-version, ids).

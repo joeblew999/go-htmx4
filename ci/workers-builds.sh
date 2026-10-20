@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-# Workers Builds (Cloudflare's GitHub app) runs this for every pushed branch; main deploys staging instead
-# (PR #6; `mise run cf:builds` sets the trigger up):
+# Workers Builds (Cloudflare's GitHub app) runs this for every pushed branch: a branch deploys its preview, main
+# deploys staging, and production (moved there by CI when a v* tag is pushed: ci/check.sh) deploys production.
+# `mise run cf:builds` sets the triggers up:
 #   build command:  ci/workers-builds.sh build    fetch the deploy tool CI published for this commit, then with it
 #                                                 the build (verified against its manifest). No compiling.
 #   deploy command: ci/workers-builds.sh deploy   deploy the preview <branch slug>, then delete previews of
@@ -54,6 +55,13 @@ deploy)
   [ ! -e .superseded ] || { echo "· superseded by a newer push: no deploy"; exit 0; }
   branch=${WORKERS_CI_BRANCH:?WORKERS_CI_BRANCH is not set (Workers Builds sets it)}
   if [ -x bin/deploy ]; then deploy=(bin/deploy); else mise install go; deploy=(mise exec -- go run ./cmd/deploy); fi
+  # production: CI moved it to a tagged commit that passed check + e2e and is on main. Credentials stay here, at
+  # Cloudflare (the build token); GitHub never holds them.
+  if [ "$branch" = production ]; then
+    DEPLOY_CMD="${deploy[*]}" ci/deploy.sh production
+    echo "✓ production: $(cat .deploy-url)"
+    exit 0
+  fi
   # main is staging: its own Worker, https://$APP_NAME-staging.<subdomain>.workers.dev, exactly what's merged.
   if [ "$branch" = main ]; then
     DEPLOY_CMD="${deploy[*]}" mise run --skip-deps staging

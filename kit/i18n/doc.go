@@ -1,25 +1,13 @@
-// Package i18n is internationalization for Go on Cloudflare Workers (TinyGo) and standard Go: locale
-// negotiation and CLDR-exact formatting with the options and output of JavaScript's Intl, computed on
-// the server so every page is complete for users, crawlers and AI fetchers alike.
+// Package i18n is the server half of the app's internationalization: which locales ship, the request's locale,
+// and translated messages (ICU MessageFormat, generated into typed accessors by kit/i18n/msggen) with their
+// plural rules and the numbers inside them.
 //
-// Data comes from Unicode CLDR as generated Go tables for exactly the locales an app ships
-// (kit/i18n/cldrgen, `go run ./cmd/cldrgen`); [cldr.Data] is a ready set of 14 locales. No reflection,
-// no runtime JSON, no maps in the tables: TinyGo lays them out at compile time.
+// Everything else (dates, times, time zones, relative times, durations, currencies, units, lists) is
+// formatted in the browser with its own Intl by static/intl.js: the server writes the raw value and a readable
+// fallback, e.g. <time datetime="…" data-intl="datetime">, and the viewer's browser words it in the page's
+// language and the viewer's own time zone.
 //
-// Locales:
-//
-//	loc := cldr.Data.Match(r.Header.Get("Accept-Language")) // or Data.Locale(tag)
-//	loc.Lang(), loc.Dir()                                  // <html lang dir>
-//
-// Numbers ([Locale.NumberFormat], Intl.NumberFormat's options): decimal, percent and currency styles;
-// symbol, narrow symbol, code and name currency displays; accounting; standard, compact, scientific and
-// engineering notation; significant and fraction digits with rounding priority, increments and all nine
-// rounding modes; sign display; grouping; numbering systems (-u-nu). Money is exact: use [Minor].
-//
-// Plurals: cardinal, ordinal and ranges ([PluralRules], [LocaleData.SelectRange]).
-//
-// Conformance: kit/i18n/intltest records what Intl (workerd, identical to Chrome) outputs for thousands
-// of cases, and the tests require the same output from this package, byte for byte.
-//
-// [cldr.Data]: https://pkg.go.dev/github.com/joeblew999/go-htmx4/kit/i18n/cldr#Data
+// The earlier server-side Intl implementation (CLDR tables, conformance goldens, browser drift checks) is kept,
+// untouched and out of the build, as its own module in kit/i18n/legacy (`mise run i18n:legacy` tests it). Its
+// generator also writes this package's locale table: `mise run i18n:generate`.
 package i18n

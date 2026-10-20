@@ -11,12 +11,26 @@ import (
 	"github.com/joeblew999/go-htmx4/locales"
 )
 
-// FormatRow is one example on the /formats page: what is formatted, the Intl-style options, and the result
-// in the request's locale.
+// FormatRow is one example on the /formats page: what is formatted, the Intl options, and the result. Kind is the
+// data-intl kind intl.js formats in the browser (Value, Opts, End and Unit are its input, Fallback the text until it
+// does); "" is a result computed on the server (plural rules, which pick messages' wording), shown as Fallback.
 type FormatRow struct {
-	Label   string
-	Options string // ECMA-402 options, as shown to the reader
-	Value   string
+	Label    string
+	Options  string // the Intl call's options, as shown to the reader
+	Kind     string
+	Value    string
+	Opts     string // JSON
+	End      string // range: the end instant
+	Unit     string // relative: the unit of Value
+	Fallback string
+}
+
+// Text is the row's result: formatted on the server with the runtime's Intl (kit/i18n Format), else Fallback.
+func (r FormatRow) Text(ctx context.Context) string {
+	if r.Kind == "" {
+		return r.Fallback
+	}
+	return IntlText(ctx, i18n.Call{Kind: r.Kind, Value: r.Value, Opts: r.Opts, End: r.End, Unit: r.Unit}, r.Fallback)
 }
 
 // FormatSection groups rows under a heading.
@@ -38,236 +52,370 @@ func Facts(ctx context.Context) LocaleFacts {
 	return LocaleFacts{
 		ID: d.ID, NativeName: d.NativeName, Dir: loc.Dir(), Maximal: d.Maximal,
 		NumberingSystem: d.Numbers.DefaultSystem, NativeSystem: d.Numbers.NativeSystem,
-		Currency: localCurrency(loc), CLDR: "CLDR " + cldr.Data.CLDRVersion + " (cldr-json " + cldr.Data.CLDRJSONVersion + ")",
+		Currency: cmpOr(d.Currency, "USD"), CLDR: "CLDR " + cldr.Data.CLDRVersion + " (cldr-json " + cldr.Data.CLDRJSONVersion + ")",
 	}
-}
-
-// localCurrency is the currency of the locale's (maximized) region, e.g. INR for hi, TWD for zh-Hant.
-func localCurrency(loc *i18n.Locale) string {
-	region := i18n.MustParseTag(loc.Data.Maximal).Region
-	return cmpOr(cldr.Data.RegionCurrencyCode(region), "USD")
-}
-
-// NumberSections are the number, currency and plural examples for the request's locale.
-func NumberSections(ctx context.Context) []FormatSection {
-	loc := Loc(ctx)
-	cur := localCurrency(loc)
-	row := func(label, opts string, o i18n.NumberOptions, input string) FormatRow {
-		f, err := loc.NumberFormat(o)
-		if err != nil {
-			return FormatRow{label, opts, "error: " + err.Error()}
-		}
-		return FormatRow{label, opts, f.FormatString(input)}
-	}
-	m := M(ctx)
-	numbers := FormatSection{Title: m.FormatsNumbersTitle(), Description: m.FormatsNumbersDescription()}
-	numbers.Rows = []FormatRow{
-		row("1234567.891", "{}", i18n.NumberOptions{}, "1234567.891"),
-		row("-0.256", `{style: "percent", maximumFractionDigits: 1}`, i18n.NumberOptions{Style: i18n.StylePercent, MaximumFractionDigits: i18n.N(1)}, "-0.256"),
-		row("1234567", `{notation: "compact"}`, i18n.NumberOptions{Notation: i18n.NotationCompact}, "1234567"),
-		row("1234567", `{notation: "compact", compactDisplay: "long"}`, i18n.NumberOptions{Notation: i18n.NotationCompact, CompactDisplay: i18n.Long}, "1234567"),
-		row("0.000123", `{notation: "scientific"}`, i18n.NumberOptions{Notation: i18n.NotationScientific}, "0.000123"),
-		row("1234567.891", `{notation: "engineering"}`, i18n.NumberOptions{Notation: i18n.NotationEngineering}, "1234567.891"),
-		row("1234.5678", `{maximumSignificantDigits: 3}`, i18n.NumberOptions{MaximumSignificantDigits: i18n.N(3)}, "1234.5678"),
-		row("2.5", `{maximumFractionDigits: 0, roundingMode: "halfEven"}`, i18n.NumberOptions{MaximumFractionDigits: i18n.N(0), RoundingMode: i18n.HalfEven}, "2.5"),
-		row("0", `{signDisplay: "exceptZero"}`, i18n.NumberOptions{SignDisplay: i18n.SignExceptZero}, "0"),
-		row("42", `{signDisplay: "always"}`, i18n.NumberOptions{SignDisplay: i18n.SignAlways}, "42"),
-		row("7", `{minimumIntegerDigits: 3}`, i18n.NumberOptions{MinimumIntegerDigits: 3}, "7"),
-	}
-	if native := loc.Data.Numbers.NativeSystem; native != "" {
-		numbers.Rows = append(numbers.Rows, row("1234567.891", `{numberingSystem: "`+native+`"}`, i18n.NumberOptions{NumberingSystem: native}, "1234567.891"))
-	}
-
-	money := FormatSection{Title: m.FormatsCurrencyTitle(), Description: m.FormatsCurrencyDescription(cur)}
-	c := func(o i18n.NumberOptions) i18n.NumberOptions { o.Style = i18n.StyleCurrency; return o }
-	money.Rows = []FormatRow{
-		row("1234.5 "+cur, `{style: "currency", currency: "`+cur+`"}`, c(i18n.NumberOptions{Currency: cur}), "1234.5"),
-		row("-1234.5 "+cur, `{…, currencySign: "accounting"}`, c(i18n.NumberOptions{Currency: cur, Accounting: true}), "-1234.5"),
-		row("1 "+cur, `{…, currencyDisplay: "name"}`, c(i18n.NumberOptions{Currency: cur, CurrencyDisplay: i18n.CurrencyName}), "1"),
-		row("1234.5 "+cur, `{…, currencyDisplay: "name"}`, c(i18n.NumberOptions{Currency: cur, CurrencyDisplay: i18n.CurrencyName}), "1234.5"),
-		row("1234.5 "+cur, `{…, currencyDisplay: "code"}`, c(i18n.NumberOptions{Currency: cur, CurrencyDisplay: i18n.CurrencyCode}), "1234.5"),
-		row("1234567 "+cur, `{…, notation: "compact"}`, c(i18n.NumberOptions{Currency: cur, Notation: i18n.NotationCompact}), "1234567"),
-		row("9.99 USD", `{style: "currency", currency: "USD", currencyDisplay: "narrowSymbol"}`, c(i18n.NumberOptions{Currency: "USD", CurrencyDisplay: i18n.CurrencyNarrowSymbol}), "9.99"),
-		row("1234.5 JPY", `{style: "currency", currency: "JPY"}`, c(i18n.NumberOptions{Currency: "JPY"}), "1234.5"),
-		row("1234.5 BHD", `{style: "currency", currency: "BHD"}`, c(i18n.NumberOptions{Currency: "BHD"}), "1234.5"),
-	}
-
-	plurals := FormatSection{Title: m.FormatsPluralsTitle(), Description: m.FormatsPluralsDescription()}
-	for _, typ := range []struct {
-		name  string
-		rules i18n.PluralRules
-	}{{"cardinal", loc.Data.Cardinal}, {"ordinal", loc.Data.Ordinal}} {
-		for _, cat := range typ.rules.Categories() {
-			plurals.Rows = append(plurals.Rows, FormatRow{
-				Label:   typ.name + " · " + cat.String(),
-				Options: `{type: "` + typ.name + `"}`,
-				Value:   strings.Join(pluralSamples(typ.rules, cat, typ.name == "cardinal"), ", "),
-			})
-		}
-	}
-	return []FormatSection{numbers, money, dates(ctx, m), zones(ctx, m), ranges(ctx, m), units(loc, m), relativeTimes(loc, m), lists(loc, m), durations(loc, m), plurals, week(loc, m)}
 }
 
 // sampleInstant is the instant the date sections format (a fixed one, so the page is stable for crawlers).
 var sampleInstant = time.Date(2026, 7, 4, 15, 30, 45, 123e6, time.UTC)
 
-// jsOptions shows date options as the JavaScript object literal they stand for, e.g. {dateStyle: "full"}.
-func jsOptions(o i18n.DateTimeOptions, zone string) string {
-	s := strings.TrimSuffix(strings.TrimPrefix(o.IntlJSON(), "{"), "}")
-	var parts []string
-	if s != "" {
-		for _, kv := range strings.Split(s, ",") {
-			k, v, _ := strings.Cut(kv, ":")
-			parts = append(parts, strings.Trim(k, `"`)+": "+v)
-		}
-	}
-	if zone != "" {
-		parts = append(parts, `timeZone: "`+zone+`"`)
-	}
-	return "{" + strings.Join(parts, ", ") + "}"
+// intlRow is a row intl.js formats: kind, its value, and options as a JSON object ("" = none).
+func intlRow(label, kind, value, opts, fallback string) FormatRow {
+	return FormatRow{Label: label, Options: jsOptions(opts), Kind: kind, Value: value, Opts: opts, Fallback: fallback}
 }
 
-func dates(ctx context.Context, m locales.Messages) FormatSection {
-	sec := FormatSection{Title: m.FormatsDatesTitle(), Description: m.FormatsDatesDescription()}
-	label := isoInstant(sampleInstant)
-	add := func(o i18n.DateTimeOptions) {
-		sec.Rows = append(sec.Rows, FormatRow{label, jsOptions(viewerOptions(ctx, o), TimeZone(ctx)), FormatDateTime(ctx, sampleInstant, o)})
+// IntlAPI is one Intl API on the /formats page: its name (code, not translated), an anchor, and its examples in
+// groups.
+type IntlAPI struct {
+	ID, Name string
+	Groups   []FormatSection
+}
+
+// IntlAPIs are every Intl API with examples for the request's locale, in page order.
+func IntlAPIs(ctx context.Context) []IntlAPI {
+	loc := Loc(ctx)
+	m := M(ctx)
+	return []IntlAPI{
+		{"datetimeformat", "Intl.DateTimeFormat", []FormatSection{dates(loc, m), zones(ctx, m), ranges(m)}},
+		{"relativetimeformat", "Intl.RelativeTimeFormat", []FormatSection{relativeTimes(m)}},
+		{"numberformat", "Intl.NumberFormat", []FormatSection{numbers(loc, m), currency(loc, m), units(m)}},
+		{"pluralrules", "Intl.PluralRules", []FormatSection{plurals(loc, m)}},
+		{"listformat", "Intl.ListFormat", []FormatSection{lists(loc, m)}},
+		{"durationformat", "Intl.DurationFormat", []FormatSection{durations(m)}},
+		{"displaynames", "Intl.DisplayNames", []FormatSection{displayNames(m)}},
+		{"collator", "Intl.Collator", []FormatSection{collation(m)}},
+		{"segmenter", "Intl.Segmenter", []FormatSection{segments(m)}},
+		{"locale", "Intl.Locale", []FormatSection{localeInfo(m)}},
+		{"supportedvaluesof", "Intl.supportedValuesOf", []FormatSection{supported(m)}},
 	}
-	add(i18n.DateTimeOptions{DateStyle: i18n.FullStyle})
-	add(i18n.DateTimeOptions{DateStyle: i18n.LongStyle, TimeStyle: i18n.ShortStyle})
-	add(i18n.DateTimeOptions{DateStyle: i18n.MediumStyle, TimeStyle: i18n.MediumStyle})
-	add(i18n.DateTimeOptions{DateStyle: i18n.ShortStyle, TimeStyle: i18n.FullStyle})
-	add(i18n.DateTimeOptions{Weekday: i18n.FieldLong, Month: i18n.FieldLong, Day: i18n.FieldNumeric})
-	add(i18n.DateTimeOptions{Year: i18n.FieldNumeric, Month: i18n.FieldShort})
-	add(i18n.DateTimeOptions{Hour: i18n.FieldNumeric, Minute: i18n.FieldTwoDigit, Hour12: i18n.B(true)})
-	add(i18n.DateTimeOptions{Hour: i18n.FieldNumeric, Minute: i18n.FieldTwoDigit, HourCycle: i18n.H23})
-	add(i18n.DateTimeOptions{Hour: i18n.FieldNumeric, DayPeriod: i18n.FieldLong})
-	add(i18n.DateTimeOptions{Era: i18n.FieldLong, Year: i18n.FieldNumeric})
-	add(i18n.DateTimeOptions{Minute: i18n.FieldTwoDigit, Second: i18n.FieldTwoDigit, FractionalSecondDigits: 3})
-	if native := Loc(ctx).Data.Numbers.NativeSystem; native != "" {
-		o := i18n.DateTimeOptions{DateStyle: i18n.MediumStyle, NumberingSystem: native}
-		sec.Rows = append(sec.Rows, FormatRow{label, strings.TrimSuffix(jsOptions(viewerOptions(ctx, o), TimeZone(ctx)), "}") + `, numberingSystem: "` + native + `"}`, FormatDateTime(ctx, sampleInstant, o)})
+}
+
+// TryRow is one result of the round trip: the Intl call, shown as its options, and the Worker's text.
+type TryRow struct {
+	Label, Text string
+}
+
+// TryResult is the round trip's answer (POST /formats/try): number, typed the language's way, read back to a plain
+// decimal with the Worker's Intl and formatted again several ways; text counted and sorted the language's way.
+type TryResult struct {
+	Number, Parsed string
+	NumberOK       bool // the number was read back
+	NoRuntime      bool // no JS runtime (go run): nothing to parse or format with
+	NumberRows     []TryRow
+	Text           string
+	TextRows       []TryRow
+}
+
+// RoundTrip computes TryResult for the request's locale.
+func RoundTrip(ctx context.Context, number, text string) TryResult {
+	loc := Loc(ctx)
+	m := M(ctx)
+	_, runtime := loc.Format(i18n.Call{Kind: "number", Value: "1"}, "", "")
+	res := TryResult{Number: number, Text: text, NoRuntime: !runtime}
+	if !runtime {
+		return res
+	}
+	if number != "" {
+		res.Parsed, res.NumberOK = loc.ParseNumber(number)
+	}
+	if res.NumberOK {
+		cur := cmpOr(loc.Data.Currency, "USD")
+		for _, o := range []string{"", `{"style":"currency","currency":"` + cur + `"}`, `{"notation":"compact","compactDisplay":"long"}`,
+			`{"style":"percent"}`, `{"notation":"scientific"}`} {
+			res.NumberRows = append(res.NumberRows, TryRow{"NumberFormat " + jsOptions(o), IntlText(ctx, i18n.Call{Kind: "number", Value: res.Parsed, Opts: o}, "")})
+		}
+		for _, o := range []string{"", `{"type":"ordinal"}`} {
+			res.NumberRows = append(res.NumberRows, TryRow{"PluralRules " + jsOptions(o), IntlText(ctx, i18n.Call{Kind: "plural", Value: res.Parsed, Opts: o}, "")})
+		}
+	}
+	if text != "" {
+		for _, r := range []struct{ label, kind, opts string }{
+			{m.FormatsTryGraphemes(), "count", `{"granularity":"grapheme"}`},
+			{m.FormatsTryWords(), "count", `{"granularity":"word"}`},
+			{m.FormatsTrySentences(), "count", `{"granularity":"sentence"}`},
+			{m.FormatsTrySorted(), "sort-words", ""},
+		} {
+			res.TextRows = append(res.TextRows, TryRow{r.label, IntlText(ctx, i18n.Call{Kind: r.kind, Value: text, Opts: r.opts}, "")})
+		}
+	}
+	return res
+}
+
+// TrySample is the round trip's starting number, in the language's own format ("1.234.567,891" in German).
+func TrySample(ctx context.Context) string {
+	return IntlText(ctx, i18n.Call{Kind: "number", Value: "1234567.891"}, "1234567.891")
+}
+
+func numbers(loc *i18n.Locale, m locales.Messages) FormatSection {
+	sec := FormatSection{Title: m.FormatsNumbersTitle(), Description: m.FormatsNumbersDescription()}
+	add := func(in, opts string) { sec.Rows = append(sec.Rows, intlRow(in, "number", in, opts, in)) }
+	add("1234567.891", "")
+	add("-0.256", `{"style":"percent","maximumFractionDigits":1}`)
+	add("1234567", `{"notation":"compact"}`)
+	add("1234567", `{"notation":"compact","compactDisplay":"long"}`)
+	add("0.000123", `{"notation":"scientific"}`)
+	add("1234567.891", `{"notation":"engineering"}`)
+	add("1234.5678", `{"maximumSignificantDigits":3}`)
+	add("2.5", `{"maximumFractionDigits":0,"roundingMode":"halfEven"}`)
+	add("0", `{"signDisplay":"exceptZero"}`)
+	add("42", `{"signDisplay":"always"}`)
+	add("7", `{"minimumIntegerDigits":3}`)
+	if native := loc.Data.Numbers.NativeSystem; native != "" {
+		add("1234567.891", `{"numberingSystem":"`+native+`"}`)
+	}
+	rng := func(start, end, opts string) {
+		r := intlRow(start+" – "+end, "number-range", start, opts, start+"–"+end)
+		r.Options = "formatRange · " + r.Options
+		r.End = end
+		sec.Rows = append(sec.Rows, r)
+	}
+	rng("3", "5", `{"style":"unit","unit":"kilogram"}`)
+	rng("1000", "1500", `{"style":"currency","currency":"`+cmpOr(loc.Data.Currency, "USD")+`","maximumFractionDigits":0}`)
+	rng("1200000", "1500000", `{"notation":"compact"}`)
+	rng("2.9", "3.1", `{"maximumFractionDigits":0}`)
+	return sec
+}
+
+func currency(loc *i18n.Locale, m locales.Messages) FormatSection {
+	cur := cmpOr(loc.Data.Currency, "USD")
+	sec := FormatSection{Title: m.FormatsCurrencyTitle(), Description: m.FormatsCurrencyDescription(cur)}
+	add := func(in, code, more string) {
+		opts := `{"style":"currency","currency":"` + code + `"` + more + `}`
+		sec.Rows = append(sec.Rows, intlRow(in+" "+code, "number", in, opts, in+" "+code))
+	}
+	add("1234.5", cur, "")
+	add("-1234.5", cur, `,"currencySign":"accounting"`)
+	add("1", cur, `,"currencyDisplay":"name"`)
+	add("1234.5", cur, `,"currencyDisplay":"name"`)
+	add("1234.5", cur, `,"currencyDisplay":"code"`)
+	add("1234567", cur, `,"notation":"compact"`)
+	add("9.99", "USD", `,"currencyDisplay":"narrowSymbol"`)
+	add("1234.5", "JPY", "")
+	add("1234.5", "BHD", "")
+	return sec
+}
+
+func dates(loc *i18n.Locale, m locales.Messages) FormatSection {
+	sec := FormatSection{Title: m.FormatsDatesTitle(), Description: m.FormatsDatesDescription()}
+	iso := isoInstant(sampleInstant)
+	add := func(opts string) {
+		sec.Rows = append(sec.Rows, intlRow(iso, "datetime", iso, opts, utcText(sampleInstant)))
+	}
+	add(`{"dateStyle":"full"}`)
+	add(`{"dateStyle":"long","timeStyle":"short"}`)
+	add(`{"dateStyle":"medium","timeStyle":"medium"}`)
+	add(`{"dateStyle":"short","timeStyle":"full"}`)
+	add(`{"weekday":"long","month":"long","day":"numeric"}`)
+	add(`{"year":"numeric","month":"short"}`)
+	add(`{"hour":"numeric","minute":"2-digit","hour12":true}`)
+	add(`{"hour":"numeric","minute":"2-digit","hourCycle":"h23"}`)
+	add(`{"hour":"numeric","dayPeriod":"long"}`)
+	add(`{"era":"long","year":"numeric"}`)
+	add(`{"minute":"2-digit","second":"2-digit","fractionalSecondDigits":3}`)
+	if native := loc.Data.Numbers.NativeSystem; native != "" {
+		add(`{"dateStyle":"medium","numberingSystem":"` + native + `"}`)
 	}
 	return sec
 }
 
 func zones(ctx context.Context, m locales.Messages) FormatSection {
 	sec := FormatSection{Title: m.FormatsZonesTitle(), Description: m.FormatsZonesDescription()}
-	add := func(zone string, name i18n.ZoneName) {
-		o := i18n.DateTimeOptions{Hour: i18n.FieldNumeric, Minute: i18n.FieldTwoDigit, TimeZoneName: name, TimeZone: zone}
-		sec.Rows = append(sec.Rows, FormatRow{zone, jsOptions(viewerOptions(ctx, o), ""), FormatDateTime(ctx, sampleInstant, o)})
+	iso := isoInstant(sampleInstant)
+	add := func(zone, name string) {
+		opts := `{"hour":"numeric","minute":"2-digit","timeZoneName":"` + name + `","timeZone":"` + zone + `"}`
+		sec.Rows = append(sec.Rows, intlRow(zone, "datetime", iso, opts, utcText(sampleInstant)))
 	}
-	add(TimeZone(ctx), i18n.ZoneLong)
-	add("Asia/Tokyo", i18n.ZoneShort)
-	add("America/New_York", i18n.ZoneLongGeneric)
-	add("America/Los_Angeles", i18n.ZoneShortGeneric)
-	add("Asia/Kolkata", i18n.ZoneShortOffset)
-	add("Australia/Lord_Howe", i18n.ZoneLongOffset)
-	add("Europe/London", i18n.ZoneLong)
-	add("Pacific/Chatham", i18n.ZoneLong)
+	add("Asia/Tokyo", "short")
+	add("America/New_York", "longGeneric")
+	add("America/Los_Angeles", "shortGeneric")
+	add("Asia/Kolkata", "shortOffset")
+	add("Australia/Lord_Howe", "longOffset")
+	add("Europe/London", "long")
+	add("Pacific/Chatham", "long")
 	return sec
 }
 
-func ranges(ctx context.Context, m locales.Messages) FormatSection {
+func ranges(m locales.Messages) FormatSection {
 	sec := FormatSection{Title: m.FormatsRangesTitle(), Description: m.FormatsRangesDescription()}
-	add := func(end time.Time, o i18n.DateTimeOptions) {
+	add := func(end time.Time, opts string) {
 		label := isoInstant(sampleInstant) + " – " + isoInstant(end)
-		sec.Rows = append(sec.Rows, FormatRow{label, jsOptions(viewerOptions(ctx, o), TimeZone(ctx)), FormatDateRange(ctx, sampleInstant, end, o)})
+		r := intlRow(label, "range", isoInstant(sampleInstant), opts, utcText(sampleInstant)+" – "+utcText(end))
+		r.End = isoInstant(end)
+		sec.Rows = append(sec.Rows, r)
 	}
-	add(sampleInstant.Add(90*time.Minute), i18n.DateTimeOptions{Hour: i18n.FieldNumeric, Minute: i18n.FieldTwoDigit})
-	add(sampleInstant.Add(90*time.Minute), i18n.DateTimeOptions{DateStyle: i18n.LongStyle, TimeStyle: i18n.ShortStyle})
-	add(sampleInstant.AddDate(0, 0, 5), i18n.DateTimeOptions{DateStyle: i18n.MediumStyle})
-	add(sampleInstant.AddDate(0, 1, 16), i18n.DateTimeOptions{Month: i18n.FieldLong, Day: i18n.FieldNumeric})
-	add(sampleInstant.AddDate(0, 6, 11), i18n.DateTimeOptions{Year: i18n.FieldNumeric, Month: i18n.FieldShort, Day: i18n.FieldNumeric})
+	add(sampleInstant.Add(90*time.Minute), `{"hour":"numeric","minute":"2-digit"}`)
+	add(sampleInstant.Add(90*time.Minute), `{"dateStyle":"long","timeStyle":"short"}`)
+	add(sampleInstant.AddDate(0, 0, 5), `{"dateStyle":"medium"}`)
+	add(sampleInstant.AddDate(0, 1, 16), `{"month":"long","day":"numeric"}`)
+	add(sampleInstant.AddDate(0, 6, 11), `{"year":"numeric","month":"short","day":"numeric"}`)
 	return sec
 }
 
-func units(loc *i18n.Locale, m locales.Messages) FormatSection {
+func units(m locales.Messages) FormatSection {
 	sec := FormatSection{Title: m.FormatsUnitsTitle(), Description: m.FormatsUnitsDescription()}
-	add := func(label, opts string, o i18n.NumberOptions, in string) {
-		o.Style = i18n.StyleUnit
-		f, err := loc.NumberFormat(o)
-		if err != nil {
-			sec.Rows = append(sec.Rows, FormatRow{label, opts, "error: " + err.Error()})
-			return
-		}
-		sec.Rows = append(sec.Rows, FormatRow{label, opts, f.FormatString(in)})
+	add := func(in, unit, more string) {
+		opts := `{"style":"unit","unit":"` + unit + `"` + more + `}`
+		sec.Rows = append(sec.Rows, intlRow(in+" "+unit, "number", in, opts, in+" "+unit))
 	}
-	add("1 kilometer", `{style: "unit", unit: "kilometer", unitDisplay: "long"}`, i18n.NumberOptions{Unit: "kilometer", UnitDisplay: i18n.Long}, "1")
-	add("2.5 kilometer", `{…, unitDisplay: "long"}`, i18n.NumberOptions{Unit: "kilometer", UnitDisplay: i18n.Long}, "2.5")
-	add("88 kilometer-per-hour", `{unit: "kilometer-per-hour"}`, i18n.NumberOptions{Unit: "kilometer-per-hour"}, "88")
-	add("21.5 celsius", `{unit: "celsius"}`, i18n.NumberOptions{Unit: "celsius"}, "21.5")
-	add("512 megabyte", `{unit: "megabyte", unitDisplay: "narrow"}`, i18n.NumberOptions{Unit: "megabyte", UnitDisplay: i18n.Narrow}, "512")
-	add("3 liter-per-kilometer", `{unit: "liter-per-kilometer", unitDisplay: "long"}`, i18n.NumberOptions{Unit: "liter-per-kilometer", UnitDisplay: i18n.Long}, "3")
-	add("1234567 meter", `{unit: "meter", notation: "compact", unitDisplay: "long"}`, i18n.NumberOptions{Unit: "meter", Notation: i18n.NotationCompact, UnitDisplay: i18n.Long}, "1234567")
+	add("1", "kilometer", `,"unitDisplay":"long"`)
+	add("2.5", "kilometer", `,"unitDisplay":"long"`)
+	add("88", "kilometer-per-hour", "")
+	add("21.5", "celsius", "")
+	add("512", "megabyte", `,"unitDisplay":"narrow"`)
+	add("3", "liter-per-kilometer", `,"unitDisplay":"long"`)
+	add("1234567", "meter", `,"notation":"compact","unitDisplay":"long"`)
 	return sec
 }
 
-func relativeTimes(loc *i18n.Locale, m locales.Messages) FormatSection {
+func relativeTimes(m locales.Messages) FormatSection {
 	sec := FormatSection{Title: m.FormatsRelativeTitle(), Description: m.FormatsRelativeDescription()}
-	add := func(label, opts string, o i18n.RelativeTimeOptions, v float64, u i18n.RelUnit) {
-		s, err := loc.RelativeTimeFormat(o).Format(v, u)
-		if err != nil {
-			s = "error: " + err.Error()
-		}
-		sec.Rows = append(sec.Rows, FormatRow{label, opts, s})
+	add := func(v, unit, opts string) {
+		r := intlRow(v+" "+unit, "relative", v, opts, v+" "+unit)
+		r.Unit = unit
+		sec.Rows = append(sec.Rows, r)
 	}
-	add("-1 day", `{numeric: "auto"}`, i18n.RelativeTimeOptions{NumericAuto: true}, -1, i18n.RelDay)
-	add("2 day", `{numeric: "auto"}`, i18n.RelativeTimeOptions{NumericAuto: true}, 2, i18n.RelDay)
-	add("-3 hour", `{}`, i18n.RelativeTimeOptions{}, -3, i18n.RelHour)
-	add("5 minute", `{style: "short"}`, i18n.RelativeTimeOptions{Style: i18n.TextShort}, 5, i18n.RelMinute)
-	add("-1.5 week", `{style: "narrow"}`, i18n.RelativeTimeOptions{Style: i18n.TextNarrow}, -1.5, i18n.RelWeek)
-	add("1 quarter", `{numeric: "auto"}`, i18n.RelativeTimeOptions{NumericAuto: true}, 1, i18n.RelQuarter)
-	add("-10 year", `{}`, i18n.RelativeTimeOptions{}, -10, i18n.RelYear)
+	add("-1", "day", `{"numeric":"auto"}`)
+	add("2", "day", `{"numeric":"auto"}`)
+	add("-3", "hour", "")
+	add("5", "minute", `{"style":"short"}`)
+	add("-1.5", "week", `{"style":"narrow"}`)
+	add("1", "quarter", `{"numeric":"auto"}`)
+	add("-10", "year", "")
 	return sec
 }
 
 func lists(loc *i18n.Locale, m locales.Messages) FormatSection {
 	sec := FormatSection{Title: m.FormatsListsTitle(), Description: m.FormatsListsDescription()}
 	items := []string{loc.Data.NativeName, "Go", "htmx", "Cloudflare"}
-	add := func(opts string, o i18n.ListOptions, n int) {
-		sec.Rows = append(sec.Rows, FormatRow{strings.Join(items[:n], " · "), opts, loc.ListFormat(o).Format(items[:n])})
+	add := func(opts string, n int) {
+		quoted := make([]string, n)
+		for i, it := range items[:n] {
+			quoted[i] = strconv.Quote(it)
+		}
+		value := "[" + strings.Join(quoted, ",") + "]"
+		sec.Rows = append(sec.Rows, intlRow(strings.Join(items[:n], " · "), "list", value, opts, strings.Join(items[:n], ", ")))
 	}
-	add(`{type: "conjunction"}`, i18n.ListOptions{}, 3)
-	add(`{type: "disjunction"}`, i18n.ListOptions{Type: i18n.ListDisjunction}, 3)
-	add(`{type: "unit", style: "narrow"}`, i18n.ListOptions{Type: i18n.ListUnit, Style: i18n.TextNarrow}, 4)
-	add(`{style: "short"}`, i18n.ListOptions{Style: i18n.TextShort}, 2)
+	add(`{"type":"conjunction"}`, 3)
+	add(`{"type":"disjunction"}`, 3)
+	add(`{"type":"unit","style":"narrow"}`, 4)
+	add(`{"style":"short"}`, 2)
 	return sec
 }
 
-func durations(loc *i18n.Locale, m locales.Messages) FormatSection {
+func durations(m locales.Messages) FormatSection {
 	sec := FormatSection{Title: m.FormatsDurationsTitle(), Description: m.FormatsDurationsDescription()}
-	d := i18n.Duration{i18n.DurDays: 1, i18n.DurHours: 2, i18n.DurMinutes: 5, i18n.DurSeconds: 30, i18n.DurMilliseconds: 250}
-	add := func(opts string, o i18n.DurationOptions) {
-		f, err := loc.DurationFormat(o)
-		s := ""
-		if err == nil {
-			s, err = f.Format(d)
-		}
-		if err != nil {
-			s = "error: " + err.Error()
-		}
-		sec.Rows = append(sec.Rows, FormatRow{"1d 2h 5m 30.25s", opts, s})
+	const d = `{"days":1,"hours":2,"minutes":5,"seconds":30,"milliseconds":250}`
+	add := func(opts string) {
+		sec.Rows = append(sec.Rows, intlRow("1d 2h 5m 30.25s", "duration", d, opts, "1d 2h 5m 30.25s"))
 	}
-	add(`{}`, i18n.DurationOptions{})
-	add(`{style: "long"}`, i18n.DurationOptions{Style: i18n.DurationLong})
-	add(`{style: "narrow"}`, i18n.DurationOptions{Style: i18n.DurationNarrow})
-	add(`{style: "digital", fractionalDigits: 2}`, i18n.DurationOptions{Style: i18n.DurationDigital, FractionalDigits: i18n.N(2)})
+	add("")
+	add(`{"style":"long"}`)
+	add(`{"style":"narrow"}`)
+	add(`{"style":"digital","fractionalDigits":2}`)
 	return sec
 }
 
-func week(loc *i18n.Locale, m locales.Messages) FormatSection {
-	wi := loc.WeekInfo()
-	days := make([]string, len(wi.Weekend))
-	for i, d := range wi.Weekend {
-		days[i] = strconv.Itoa(d)
+// plurals are computed on the server: they are the rules that pick a translated message's wording.
+func plurals(loc *i18n.Locale, m locales.Messages) FormatSection {
+	sec := FormatSection{Title: m.FormatsPluralsTitle(), Description: m.FormatsPluralsDescription()}
+	for _, typ := range []struct {
+		name  string
+		rules i18n.PluralRules
+	}{{"cardinal", loc.Data.Cardinal}, {"ordinal", loc.Data.Ordinal}} {
+		for _, cat := range typ.rules.Categories() {
+			sec.Rows = append(sec.Rows, FormatRow{
+				Label:    typ.name + " · " + cat.String(),
+				Options:  `{type: "` + typ.name + `"}`,
+				Fallback: strings.Join(pluralSamples(typ.rules, cat, typ.name == "cardinal"), ", "),
+			})
+		}
 	}
-	return FormatSection{Title: m.FormatsWeekTitle(), Description: m.FormatsWeekDescription(),
-		Rows: []FormatRow{
-			{"firstDay", "getWeekInfo()", strconv.Itoa(wi.FirstDay)},
-			{"weekend", "getWeekInfo()", strings.Join(days, ", ")},
-			{"minimalDays", "CLDR weekData", strconv.Itoa(wi.MinimalDays)},
-		}}
+	// The same rules in the browser: Intl.PluralRules select and selectRange.
+	pr := func(label, v, end, opts string) {
+		r := intlRow(label, "plural", v, opts, "—")
+		r.End = end
+		if end != "" {
+			r.Options = "selectRange · " + r.Options
+		} else {
+			r.Options = "select · " + r.Options
+		}
+		sec.Rows = append(sec.Rows, r)
+	}
+	pr("1", "1", "", "")
+	pr("2", "2", "", "")
+	pr("5", "5", "", "")
+	pr("1.5", "1.5", "", "")
+	pr("22", "22", "", `{"type":"ordinal"}`)
+	pr("1 – 5", "1", "5", "")
+	return sec
+}
+
+func displayNames(m locales.Messages) FormatSection {
+	sec := FormatSection{Title: m.FormatsDisplayNamesTitle(), Description: m.FormatsDisplayNamesDescription()}
+	add := func(code, typ, more string) {
+		opts := `{"type":"` + typ + `"` + more + `}`
+		sec.Rows = append(sec.Rows, intlRow(code, "display-name", code, opts, code))
+	}
+	add("de", "language", "")
+	add("zh-Hant", "language", "")
+	add("en-GB", "language", `,"languageDisplay":"standard"`)
+	add("JP", "region", "")
+	add("BR", "region", "")
+	add("Cyrl", "script", "")
+	add("EUR", "currency", "")
+	add("JPY", "currency", "")
+	add("islamic", "calendar", "")
+	add("weekday", "dateTimeField", "")
+	return sec
+}
+
+func collation(m locales.Messages) FormatSection {
+	sec := FormatSection{Title: m.FormatsCollationTitle(), Description: m.FormatsCollationDescription()}
+	const words = `["Zebra","äpfel","apfel","Ähre","zoo","ch","cz","ñandú","nube","10","9","résumé","resume"]`
+	label := "Zebra, äpfel, apfel, Ähre, zoo, ch, cz, ñandú, nube, 10, 9, résumé, resume"
+	add := func(opts string) {
+		sec.Rows = append(sec.Rows, intlRow(label, "collate", words, opts, label))
+	}
+	add("")
+	add(`{"numeric":true}`)
+	add(`{"caseFirst":"upper"}`)
+	add(`{"sensitivity":"base"}`)
+	add(`{"collation":"phonebk"}`)
+	return sec
+}
+
+func segments(m locales.Messages) FormatSection {
+	sec := FormatSection{Title: m.FormatsSegmentsTitle(), Description: m.FormatsSegmentsDescription()}
+	add := func(text, opts string) {
+		sec.Rows = append(sec.Rows, intlRow(text, "segment", text, opts, text))
+	}
+	add("👨‍👩‍👧 née ok", `{"granularity":"grapheme"}`)
+	add("Hello, world! It's 3.14 o'clock.", `{"granularity":"word"}`)
+	add("今日は良い天気ですね。", `{"granularity":"word"}`)
+	add("สวัสดีครับ ยินดีต้อนรับ", `{"granularity":"word"}`)
+	add("Dr. Smith arrived. He sat down! Did it work?", `{"granularity":"sentence"}`)
+	return sec
+}
+
+func localeInfo(m locales.Messages) FormatSection {
+	sec := FormatSection{Title: m.FormatsLocaleTitle(), Description: m.FormatsLocaleDescription()}
+	for _, f := range []struct{ field, call string }{
+		{"maximize", "maximize()"}, {"minimize", "minimize()"}, {"calendars", "getCalendars()"},
+		{"collations", "getCollations()"}, {"hourCycles", "getHourCycles()"}, {"numberingSystems", "getNumberingSystems()"},
+		{"timeZones", "getTimeZones()"}, {"direction", "getTextInfo().direction"}, {"firstDay", "getWeekInfo().firstDay"},
+		{"weekend", "getWeekInfo().weekend"},
+	} {
+		sec.Rows = append(sec.Rows, FormatRow{Label: f.field, Options: f.call, Kind: "locale", Value: f.field, Fallback: "—"})
+	}
+	return sec
+}
+
+func supported(m locales.Messages) FormatSection {
+	sec := FormatSection{Title: m.FormatsSupportedTitle(), Description: m.FormatsSupportedDescription()}
+	for _, key := range []string{"calendar", "collation", "currency", "numberingSystem", "timeZone", "unit"} {
+		sec.Rows = append(sec.Rows, FormatRow{Label: key, Options: `supportedValuesOf("` + key + `")`, Kind: "supported", Value: key, Fallback: "—"})
+	}
+	return sec
 }
 
 // pluralSamples returns up to six numbers selecting cat: integers first, then (for cardinals) one-decimal values.
