@@ -6,6 +6,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -43,6 +44,38 @@ func (c *Client) AccountPath(p string) string { return "/accounts/" + c.AccountI
 type apiError struct {
 	Code    int    `json:"code"`
 	Message string `json:"message"`
+}
+
+// Error is a failed API call: the HTTP status and Cloudflare's error list (empty for a non-JSON response).
+type Error struct {
+	Method, Path string
+	Status       int
+	Errors       []apiError
+}
+
+func (e *Error) Error() string {
+	if e.Errors == nil {
+		return fmt.Sprintf("%s %s: HTTP %d, non-JSON response", e.Method, e.Path, e.Status)
+	}
+	return fmt.Sprintf("%s %s: HTTP %d: %v", e.Method, e.Path, e.Status, e.Errors)
+}
+
+// IsNotFound reports whether err is an API answer that the resource doesn't exist: HTTP 404, or a Workers
+// "not found" error code (10007 script, 10025 preview or deployment).
+func IsNotFound(err error) bool {
+	var e *Error
+	if !errors.As(err, &e) {
+		return false
+	}
+	if e.Status == http.StatusNotFound {
+		return true
+	}
+	for _, x := range e.Errors {
+		if x.Code == 10007 || x.Code == 10025 {
+			return true
+		}
+	}
+	return false
 }
 
 // Do calls method apiPath and decodes the envelope's result into out (if non-nil). bearer overrides the
@@ -83,10 +116,10 @@ func (c *Client) Do(ctx context.Context, method, apiPath, bearer string, body *B
 	}
 	raw, _ := io.ReadAll(resp.Body)
 	if err := json.Unmarshal(raw, &env); err != nil {
-		return fmt.Errorf("%s %s: HTTP %d, non-JSON response", method, apiPath, resp.StatusCode)
+		return &Error{Method: method, Path: apiPath, Status: resp.StatusCode}
 	}
 	if !env.Success {
-		return fmt.Errorf("%s %s: HTTP %d: %v", method, apiPath, resp.StatusCode, env.Errors)
+		return &Error{Method: method, Path: apiPath, Status: resp.StatusCode, Errors: env.Errors}
 	}
 	if out != nil && len(env.Result) > 0 && string(env.Result) != "null" {
 		return json.Unmarshal(env.Result, out)

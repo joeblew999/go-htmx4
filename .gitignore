@@ -20,5 +20,6 @@
 /dist/
 # Last deployed URL (mise run deploy)
 /.deploy-url
+/.preview-url
 # Durable Object SQLite state for local workerd (Room cache, LocalD1 board data)
 /.workerd-state/

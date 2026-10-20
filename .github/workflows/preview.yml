@@ -1,0 +1,49 @@
+# A Cloudflare Worker Preview for every pull request: deployed on open and on every push, URL commented on the PR,
+# e2e run against it, deleted when the PR closes (ci/preview.sh; plan: .plans/2026-10-20_1641_cloudflare-pr-previews.md).
+# Strict no-Node: shell `run:` steps only, no JavaScript actions (like check.yml).
+# Needs repository secrets CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID; without them the job says so and passes.
+name: preview
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, closed]
+
+permissions:
+  contents: read
+  pull-requests: write # the preview URL comment
+
+concurrency:
+  group: preview-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      # mise downloads tool releases from GitHub; gh comments on the PR.
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      PR: ${{ github.event.pull_request.number }}
+      ACTION: ${{ github.event.action == 'closed' && 'delete' || 'deploy' }}
+    steps:
+      - name: Check out with git (no actions/checkout)
+        if: github.event.action != 'closed'
+        run: |
+          git init -q .
+          git fetch -q --depth 1 "https://github.com/${GITHUB_REPOSITORY}.git" "${{ github.event.pull_request.head.sha }}"
+          git checkout -q --detach FETCH_HEAD
+          git log --oneline -1
+
+      - name: Check out main for the cleanup (the PR's branch may be gone)
+        if: github.event.action == 'closed'
+        run: |
+          git init -q .
+          git fetch -q --depth 1 "https://github.com/${GITHUB_REPOSITORY}.git" main
+          git checkout -q --detach FETCH_HEAD
+
+      - name: Preview pr-${{ github.event.pull_request.number }} (${{ github.event.action }})
+        run: ci/preview.sh "$ACTION" "$PR"

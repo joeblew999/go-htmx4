@@ -373,6 +373,46 @@ echo "$url"
 if [ -n "${APP_DOMAIN:-}" ]; then echo "https://$APP_DOMAIN"; else echo "$url"; fi > .deploy-url   # outside build/: workers-assets-gen wipes build/
 '''
 
+# ── preview ─────────────────────────────────────────────────────
+# A Worker Preview of $APP_NAME (plan: .plans/2026-10-20_1641_cloudflare-pr-previews.md): its own URL, code and Durable
+# Object storage, the shared preview D1 ($APP_NAME-preview), no custom domain (so host.go never redirects it) and
+# APP_PREVIEW=1 (every response noindex). CI (.github/workflows/preview.yml) runs it for every pull request as pr-<n>.
+# Credentials: CLOUDFLARE_API_TOKEN/CLOUDFLARE_ACCOUNT_ID from the environment (CI secrets) or fnox (locally).
+["preview"]
+description = "Deploy a Worker Preview (e.g. pr-7) → its URL on stdout and in .preview-url; tested first"
+depends = ["test"]
+dir = "{{config_root}}"
+usage = 'arg "<name>" help="preview name, e.g. pr-7"'
+run = '''
+#!/usr/bin/env bash
+set -euo pipefail
+cf() { if [ -n "${CLOUDFLARE_API_TOKEN:-}" ] && [ -n "${CLOUDFLARE_ACCOUNT_ID:-}" ]; then "$@"; else fnox exec -- "$@"; fi; }
+ann=(-annotation "workers/commit_sha=$(git rev-parse HEAD)")
+[ -z "${PREVIEW_PR:-}" ] || ann+=(-annotation "workers/pull_request_number=$PREVIEW_PR")
+[ -z "${GITHUB_REPOSITORY:-}" ] || ann+=(-annotation "workers/repository_url=${GITHUB_SERVER_URL:-https://github.com}/$GITHUB_REPOSITORY")
+[ -z "${GITHUB_REPOSITORY:-}" ] || [ -z "${PREVIEW_PR:-}" ] ||
+  ann+=(-annotation "workers/pull_request_url=${GITHUB_SERVER_URL:-https://github.com}/$GITHUB_REPOSITORY/pull/$PREVIEW_PR")
+url=$(cf go run ./cmd/deploy -name "$APP_NAME" -preview "$usage_name" \
+  -main worker/index.mjs -module worker/room.mjs -assets dist/site \
+  -var "APP_ENV=preview $usage_name" -var "APP_DOMAIN=" -var "APP_PREVIEW=1" \
+  -d1 DB="$APP_NAME-preview" -d1-create -migrations migrations \
+  -do ROOM=Room -migration-tag v1 -new-sqlite-class Room \
+  -ratelimit WRITES=1001:60/10 \
+  "${ann[@]}")
+echo "$url" | tee .preview-url   # outside build/: workers-assets-gen wipes build/
+'''
+
+["preview:delete"]
+description = "Delete a Worker Preview (e.g. pr-7) with its Durable Object storage"
+dir = "{{config_root}}"
+usage = 'arg "<name>" help="preview name, e.g. pr-7"'
+run = '''
+#!/usr/bin/env bash
+set -euo pipefail
+cf() { if [ -n "${CLOUDFLARE_API_TOKEN:-}" ] && [ -n "${CLOUDFLARE_ACCOUNT_ID:-}" ]; then "$@"; else fnox exec -- "$@"; fi; }
+cf go run ./cmd/deploy -name "$APP_NAME" -delete-preview "$usage_name"
+'''
+
 # ── smoke-remote ────────────────────────────────────────────────
 # Same checks as smoke, against the deployed URL (from .deploy-url, written by deploy).
 ["smoke-remote"]

@@ -12,6 +12,7 @@ import (
 	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"os"
 	"path/filepath"
 	"slices"
@@ -35,15 +36,27 @@ type fakeCF struct {
 	putMeta    map[string]any    // last script metadata
 	putParts   []part            // last script module parts
 	subdomain  bool
+	subBody    map[string]bool   // last workers.dev subdomain settings
 	domains    map[string]string // custom domain hostname → Worker
 	domainPuts int
+
+	previews map[string]*fakePreview // name → preview (of Worker "app")
+}
+
+type fakePreview struct {
+	ID, Name   string
+	Tag        string         // Durable Object migration tag of its latest deployment
+	Meta       map[string]any // last deployment metadata
+	Parts      []part         // last deployment module parts
+	Deploys    int
+	DeletedTag string
 }
 
 type part struct{ name, filename, contentType string }
 
 func newFakeCF(t *testing.T) (*fakeCF, *httptest.Server) {
 	f := &fakeCF{t: t, scripts: map[string]string{}, dbs: map[string]string{}, migrations: map[string]bool{}, uploaded: map[string]string{},
-		domains: map[string]string{"auth.example.com": "auth-worker"}}
+		domains: map[string]string{"auth.example.com": "auth-worker"}, previews: map[string]*fakePreview{}}
 	srv := httptest.NewServer(http.HandlerFunc(f.serve))
 	t.Cleanup(srv.Close)
 	return f, srv
@@ -202,11 +215,94 @@ func (f *fakeCF) serve(w http.ResponseWriter, r *http.Request) {
 		reply(body)
 	case r.Method == "POST" && strings.HasSuffix(p, "/subdomain"):
 		f.subdomain = true
+		json.NewDecoder(r.Body).Decode(&f.subBody)
 		reply(nil)
+	case strings.HasPrefix(p, "/workers/workers/app/previews"):
+		f.servePreview(w, r, strings.TrimPrefix(p, "/workers/workers/app/previews"), reply, fail)
 	case r.Method == "GET" && p == "/workers/subdomain":
 		reply(map[string]string{"subdomain": "acme"})
 	default:
 		fail(404, r.Method+" "+p)
+	}
+}
+
+// servePreview implements the Worker Previews API for Worker "app" (rest is the path after …/previews).
+func (f *fakeCF) servePreview(w http.ResponseWriter, r *http.Request, rest string, reply func(any), fail func(int, string)) {
+	if _, ok := f.scripts["app"]; !ok {
+		fail(404, "no worker app")
+		return
+	}
+	notFound := func() {
+		w.WriteHeader(404)
+		json.NewEncoder(w).Encode(map[string]any{"success": false, "errors": []any{map[string]any{"code": 10025, "message": "preview not found"}}})
+	}
+	find := func(ref string) *fakePreview {
+		ref, _ = url.PathUnescape(ref)
+		for _, pv := range f.previews {
+			if pv.ID == ref || pv.Name == ref {
+				return pv
+			}
+		}
+		return nil
+	}
+	urls := func(pv *fakePreview) []string { return []string{"https://" + pv.Name + "-app.acme.workers.dev"} }
+	ref, sub, _ := strings.Cut(strings.TrimPrefix(rest, "/"), "/")
+	switch {
+	case r.Method == "POST" && rest == "":
+		var body struct{ Name string }
+		json.NewDecoder(r.Body).Decode(&body)
+		pv := &fakePreview{ID: fmt.Sprintf("%032d", len(f.previews)+1), Name: body.Name}
+		f.previews[body.Name] = pv
+		reply(map[string]any{"id": pv.ID, "name": pv.Name}) // urls come with a later read
+	case r.Method == "GET" && sub == "":
+		if pv := find(ref); pv != nil {
+			reply(map[string]any{"id": pv.ID, "name": pv.Name, "urls": urls(pv)})
+			return
+		}
+		notFound()
+	case r.Method == "DELETE" && sub == "":
+		pv := find(ref)
+		if pv == nil {
+			notFound()
+			return
+		}
+		delete(f.previews, pv.Name)
+		reply(nil)
+	case r.Method == "GET" && sub == "deployments/latest":
+		pv := find(ref)
+		if pv == nil || pv.Deploys == 0 {
+			notFound()
+			return
+		}
+		reply(map[string]any{"migration_tag": pv.Tag})
+	case r.Method == "POST" && sub == "deployments":
+		pv := find(ref)
+		if pv == nil {
+			notFound()
+			return
+		}
+		mr := f.multipart(r)
+		pv.Meta, pv.Parts = nil, nil
+		for {
+			pt, err := mr.NextPart()
+			if err == io.EOF {
+				break
+			}
+			b, _ := io.ReadAll(pt)
+			if pt.FormName() == "metadata" {
+				json.Unmarshal(b, &pv.Meta)
+				continue
+			}
+			_, disp, _ := mime.ParseMediaType(pt.Header.Get("Content-Disposition"))
+			pv.Parts = append(pv.Parts, part{pt.FormName(), disp["filename"], pt.Header.Get("Content-Type")})
+		}
+		if m, ok := pv.Meta["migrations"].(map[string]any); ok {
+			pv.Tag = m["new_tag"].(string)
+		}
+		pv.Deploys++
+		reply(map[string]any{"urls": []string{fmt.Sprintf("https://%08d-app.acme.workers.dev", pv.Deploys)}})
+	default:
+		fail(404, r.Method+" previews"+rest)
 	}
 }
 
@@ -446,4 +542,93 @@ func ExampleClient_Deploy() {
 		AllowExisting:     true,
 	})
 	fmt.Println(url, err)
+}
+
+func TestDeployPreview(t *testing.T) {
+	f, srv := newFakeCF(t)
+	dir := project(t)
+	c := &cfdeploy.Client{Token: "tok", AccountID: "acc", BaseURL: srv.URL}
+	ctx := context.Background()
+
+	cfg := config(dir)
+	cfg.D1 = map[string]string{"DB": "app-preview"}
+	cfg.Vars = map[string]string{"APP_ENV": "preview", "APP_PREVIEW": "1"}
+	if _, err := c.DeployPreview(ctx, cfg, "pr-7", nil); err == nil || !strings.Contains(err.Error(), "deploy production once") {
+		t.Fatalf("preview before production: got %v", err)
+	}
+	if _, err := c.Deploy(ctx, config(dir)); err != nil {
+		t.Fatal(err)
+	}
+	if !f.subBody["previews_enabled"] {
+		t.Errorf("production deploy turned previews off: %v", f.subBody)
+	}
+	f.subBody = nil
+
+	ann := map[string]string{"workers/pull_request_number": "7", "workers/commit_sha": "abc123"}
+	res, err := c.DeployPreview(ctx, cfg, "pr-7", ann)
+	if err != nil {
+		t.Fatal(err)
+	}
+	pv := f.previews["pr-7"]
+	if pv == nil || res.ID != pv.ID {
+		t.Fatalf("preview pr-7 not created: %+v, fake %+v", res, f.previews)
+	}
+	if want := "https://pr-7-app.acme.workers.dev"; res.URL() != want || len(res.URLs) != 2 {
+		t.Errorf("urls = %v, want %s first then the deployment's", res.URLs, want)
+	}
+	if !f.subBody["previews_enabled"] || !f.subBody["enabled"] {
+		t.Errorf("previews not enabled: %v", f.subBody)
+	}
+	if _, ok := f.dbs["app-preview"]; !ok {
+		t.Errorf("preview database not created: %v", f.dbs)
+	}
+	if got := pv.Meta["migrations"]; got == nil {
+		t.Errorf("first preview deployment must create the Durable Object classes: meta %v", pv.Meta)
+	}
+	if a, _ := pv.Meta["annotations"].(map[string]any); a["workers/pull_request_number"] != "7" {
+		t.Errorf("annotations = %v", pv.Meta["annotations"])
+	}
+	if a, _ := pv.Meta["assets"].(map[string]any); a["jwt"] == nil {
+		t.Errorf("no assets jwt: %v", pv.Meta)
+	}
+	var names []string
+	for _, p := range pv.Parts {
+		if p.name != "files" {
+			t.Errorf("module part %s has form name %q, want files", p.filename, p.name)
+		}
+		names = append(names, p.filename)
+	}
+	if pv.Meta["main_module"] != "index.mjs" || !slices.Contains(names, "build/app.wasm") || !slices.Contains(names, "room.mjs") {
+		t.Errorf("main %v, modules %v", pv.Meta["main_module"], names)
+	}
+	var vars []string
+	for _, b := range pv.Meta["bindings"].([]any) {
+		m := b.(map[string]any)
+		vars = append(vars, fmt.Sprint(m["type"], ":", m["name"]))
+	}
+	for _, want := range []string{"plain_text:APP_PREVIEW", "d1:DB", "durable_object_namespace:ROOM", "ratelimit:WRITES"} {
+		if !slices.Contains(vars, want) {
+			t.Errorf("binding %s missing: %v", want, vars)
+		}
+	}
+
+	// A second push: same preview, no migration again.
+	if _, err := c.DeployPreview(ctx, cfg, "pr-7", ann); err != nil {
+		t.Fatal(err)
+	}
+	if pv.Deploys != 2 || len(f.previews) != 1 || pv.Meta["migrations"] != nil {
+		t.Errorf("redeploy: deploys %d, previews %d, migrations %v", pv.Deploys, len(f.previews), pv.Meta["migrations"])
+	}
+
+	if _, err := c.DeployPreview(ctx, cfg, "-bad name", nil); err == nil {
+		t.Error("bad preview name accepted")
+	}
+
+	gone, err := c.DeletePreview(ctx, "app", "pr-7")
+	if err != nil || !gone || len(f.previews) != 0 {
+		t.Fatalf("delete: %v %v, previews %v", gone, err, f.previews)
+	}
+	if gone, err := c.DeletePreview(ctx, "app", "pr-7"); err != nil || gone {
+		t.Errorf("deleting a missing preview: %v %v", gone, err)
+	}
 }
