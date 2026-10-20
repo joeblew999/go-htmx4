@@ -87,6 +87,15 @@ if [ -n "${GITHUB_ACTIONS:-}" ] && [ -n "${GITHUB_SHA:-}" ]; then
 fi
 phase "smoke (workerd)" mise run --skip-deps smoke
 phase "e2e (Chrome)" mise run --skip-deps e2e
+# CPU per request of this build on workerd (charter's workerbench), into the run's summary: a slower page shows on
+# every PR. One short run: CI's machines vary, so it is for spotting a jump, not for the numbers in docs/benchmarks.md.
+bench_summary() {
+  BENCH_N=30 BENCH_RUNS=1 mise run --skip-deps bench | tee build/bench.txt
+  if [ -n "${GITHUB_STEP_SUMMARY:-}" ]; then
+    { echo; echo "CPU per request on workerd (ms, mise run bench):"; echo; echo '```'; grep -E "median|CPU per request" build/bench.txt; echo '```'; } >>"$GITHUB_STEP_SUMMARY"
+  fi
+}
+phase "bench (workerd CPU)" bench_summary
 
 # A release: a pushed v* tag (GitHub's Releases page, git push), or a pushed release/v* branch (mise run release: works
 # where only branches can be pushed). Only a commit that's on main, and only after everything above passed. For a

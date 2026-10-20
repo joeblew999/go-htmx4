@@ -157,6 +157,20 @@ e2e() { E2E_BASE=$1 E2E_CHROME="$(mise which chrome-headless-shell)" go test -C 
 if [ -n "${E2E_BASE:-}" ]; then echo "→ $E2E_BASE"; e2e "$E2E_BASE"; else export -f e2e; ci/with-workerd.sh e2e bash -c 'e2e "$BASE"'; fi
 '''
 
+# CPU per request on local workerd (charter's go tool workerbench): what Cloudflare bills a Worker for, measured
+# without Cloudflare. CI runs `bench` and puts the table in its summary.
+["bench"]
+description = "CPU per request of the production build on local workerd, per page, repeated runs (charter's workerbench)"
+depends = ["build"]
+dir = "{{config_root}}"
+run = "ci/bench.sh"
+
+["bench:variants"]
+description = "Build the current code with each of charter's optimisations off in turn, measure each, write docs/benchmarks.md"
+depends = ["vendor", "generate", "assets"]
+dir = "{{config_root}}"
+run = "ci/bench.sh variants"
+
 # Design size: 1,000 WebSockets on one topic, then a burst of 50 concurrent writes (coalescing).
 # Starts its own workerd on :8913 unless LOAD_BASE points somewhere else (e.g. the deployed URL).
 ["load"]
