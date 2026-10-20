@@ -95,7 +95,7 @@ echo "✓ build/app.wasm raw=${raw}B gzip=${gz}B (limit ${limit}B)"
 ["dev"]
 description = "gsx dev → TinyGo + CSS → workerd restart on every .gsx/.go save → http://localhost:8913"
 env = { APP_DEV_PORT = "8913" }
-run = "go tool gsx dev --no-web"
+run = "go tool gsx dev"
 
 ["dev:native"]
 description = "gsx dev → go build → native server restart on every save (seconds; no Durable Objects) → http://localhost:9913"
@@ -107,7 +107,7 @@ set -euo pipefail
 tailwindcss -i web/gsxui/index.css -o dist/site/assets/gsxui.css --watch=always 2>/dev/null &
 css=$!
 trap 'kill $css 2>/dev/null' EXIT
-go tool gsx dev --no-web -build 'go build -o bin/app .' -run 'bin/app'
+go tool gsx dev -build 'go build -o bin/app .' -run 'bin/app'
 '''
 
 # Live logs of the deployed Worker (kit/cftail): requests, console output, exceptions. Ctrl-C deletes the tail.
