@@ -104,8 +104,13 @@ func TestConfigureBuilds(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if f.config == nil || !strings.Contains(f.config["production_settings"].(map[string]any)["deploy_command"].(string), "echo") {
-		t.Fatalf("build configuration %v", f.config)
+	if f.config == nil {
+		t.Fatal("no build configuration created")
+	}
+	for tid, tr := range f.triggers { // the main trigger deploys the main preview (staging) with the same commands
+		if tid != id && (tr["deploy_command"] != "ci/workers-builds.sh deploy" || f.vars[tid] == nil) {
+			t.Errorf("main trigger %s: %v vars %v", tid, tr, f.vars[tid])
+		}
 	}
 	tr := f.triggers[id]
 	if tr["trigger_name"] != "app branch previews" || tr["build_token_uuid"] != "tok-other" || tr["repo_connection_uuid"] != "conn-1" {

@@ -50,7 +50,8 @@ type buildTrigger struct {
 }
 
 // ConfigureBuilds makes the Worker's Workers Builds setup match cfg and returns the preview trigger's id. The
-// production branch keeps a trigger that only echoes: production deploys are not run by Workers Builds.
+// production branch's trigger runs the same commands, so it deploys a preview named after that branch: staging,
+// e.g. https://main-<worker>.<subdomain>.workers.dev. Production itself is never deployed by Workers Builds.
 func (c *Client) ConfigureBuilds(ctx context.Context, cfg BuildsConfig) (string, error) {
 	if cfg.Worker == "" || cfg.Owner == "" || cfg.Repo == "" || cfg.OwnerID == "" || cfg.RepoID == "" ||
 		cfg.BuildCommand == "" || cfg.DeployCommand == "" {
@@ -108,10 +109,9 @@ func (c *Client) ConfigureBuilds(ctx context.Context, cfg BuildsConfig) (string,
 		return "", fmt.Errorf("cfdeploy: builds: list triggers: %w", err)
 	}
 	if len(triggers) == 0 {
-		// A Worker without a build configuration gets one: the production trigger only echoes.
+		// A Worker without a build configuration gets one; its production-branch trigger is set below.
 		echo := map[string]any{
-			"build_command":  "echo 'production deploys are not run by Workers Builds (mise run deploy)'",
-			"deploy_command": "echo 'no production deploy'", "build_token_uuid": token, "root_directory": "/",
+			"build_command": cfg.BuildCommand, "deploy_command": cfg.DeployCommand, "build_token_uuid": token, "root_directory": "/",
 		}
 		if err := c.do(ctx, "POST", c.accountPath("/builds/workers"), "", cfapi.JSON(map[string]any{
 			"script_tag": tag, "previews_enabled": false, "production_settings": echo, "previews_base_config": echo,
@@ -120,7 +120,7 @@ func (c *Client) ConfigureBuilds(ctx context.Context, cfg BuildsConfig) (string,
 		}), nil); err != nil {
 			return "", fmt.Errorf("cfdeploy: builds: create build configuration: %w", err)
 		}
-		c.logf("✓ build configuration created (production trigger only echoes)")
+		c.logf("✓ build configuration created")
 		if err := c.do(ctx, "GET", c.accountPath("/builds/workers/"+tag+"/triggers"), "", nil, &triggers); err != nil {
 			return "", fmt.Errorf("cfdeploy: builds: list triggers: %w", err)
 		}
@@ -156,13 +156,29 @@ func (c *Client) ConfigureBuilds(ctx context.Context, cfg BuildsConfig) (string,
 		}
 		c.logf("✓ trigger %q updated", cfg.PreviewTriggerName())
 	}
+	// The production branch's trigger: the same build and deploy, so it keeps a staging preview of that branch.
+	ids := []string{id}
+	for _, t := range triggers {
+		if t.Name != cfg.PreviewTriggerName() && slices.Contains(t.BranchIncludes, prod) {
+			if err := c.do(ctx, "PATCH", c.accountPath("/builds/triggers/"+t.UUID), "", cfapi.JSON(map[string]any{
+				"build_command": cfg.BuildCommand, "deploy_command": cfg.DeployCommand, "build_token_uuid": token,
+				"path_excludes": excludes, "build_caching_enabled": true,
+			}), nil); err != nil {
+				return "", fmt.Errorf("cfdeploy: builds: update %s trigger: %w", prod, err)
+			}
+			c.logf("✓ %s trigger deploys the %s preview (staging)", prod, prod)
+			ids = append(ids, t.UUID)
+		}
+	}
 	if len(cfg.Vars) > 0 {
 		vars := map[string]any{}
 		for _, k := range slices.Sorted(maps.Keys(cfg.Vars)) {
 			vars[k] = map[string]any{"value": cfg.Vars[k], "is_secret": false}
 		}
-		if err := c.do(ctx, "PATCH", c.accountPath("/builds/triggers/"+id+"/environment_variables"), "", cfapi.JSON(vars), nil); err != nil {
-			return "", fmt.Errorf("cfdeploy: builds: build variables: %w", err)
+		for _, tid := range ids {
+			if err := c.do(ctx, "PATCH", c.accountPath("/builds/triggers/"+tid+"/environment_variables"), "", cfapi.JSON(vars), nil); err != nil {
+				return "", fmt.Errorf("cfdeploy: builds: build variables: %w", err)
+			}
 		}
 		c.logf("✓ build variables %v", slices.Sorted(maps.Keys(cfg.Vars)))
 	}
