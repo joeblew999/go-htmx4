@@ -23,7 +23,9 @@ mise config ls
 
 case "${1:-}" in
 build)
-  mise install
+  # Only what `mise run build` uses (Workers Builds can't cache mise's tools, so every build downloads them):
+  # not workerd, Chrome, fnox, jq, usage, or the gsxui CLI (it compiles from source and is only for `gsxui add`).
+  mise install go tinygo github:WebAssembly/binaryen github:tailwindlabs/tailwindcss
   mise run build
   ;;
 deploy)
