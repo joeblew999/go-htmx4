@@ -16,7 +16,8 @@ pr=${2:?usage: ci/preview.sh deploy|delete <pr-number>}
 name="pr-$pr"
 
 if [ -n "${CI:-}" ] && { [ -z "${CLOUDFLARE_API_TOKEN:-}" ] || [ -z "${CLOUDFLARE_ACCOUNT_ID:-}" ]; }; then
-  echo "· no Cloudflare credentials (repository secrets CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID): no preview"
+  # A warning annotation, shown on the PR's checks: a quiet pass would hide that previews aren't running.
+  echo "::warning title=No Cloudflare preview::Repository secrets CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID are missing, so this PR has no preview."
   exit 0
 fi
 
