@@ -53,7 +53,7 @@ type Config struct {
 	CompatibilityDate string // compatibility_date (required)
 	AllowExisting     bool   // update the Worker if a script with this name already exists
 
-	// MainModule is the entry module, which imports ./build/worker.mjs (e.g. "worker/index.mjs"); "" makes
+	// MainModule is the entry module, which imports from ./build/ (e.g. "worker/index.mjs"); "" makes
 	// build/worker.mjs the entry. JS modules are named by file name ("worker/index.mjs" → "index.mjs"), so
 	// their relative imports (./room.mjs, ./build/worker.mjs) resolve as they do locally.
 	MainModule string
@@ -148,6 +148,13 @@ func NewPlan(cfg Config) (*Plan, error) {
 		}
 		for _, f := range BuildFiles {
 			p.Modules = append(p.Modules, Module{"build/" + f, filepath.Join(buildDir, f)})
+		}
+		// Every other module the build wrote (charter's go.mjs, tinygo-clock.mjs, websocket.mjs, …).
+		extra, _ := filepath.Glob(filepath.Join(buildDir, "*.mjs"))
+		for _, path := range extra {
+			if f := filepath.Base(path); !slices.Contains(BuildFiles, f) {
+				p.Modules = append(p.Modules, Module{"build/" + f, path})
+			}
 		}
 	}
 	for _, m := range p.Modules {

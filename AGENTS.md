@@ -105,8 +105,14 @@ README: change a task's description. The rules:
 - **No Node, no wrangler.** No `npm create cloudflare`, `wrangler`, or miniflare. Run locally with `workerd`, deploy with
   `cmd/deploy` (Cloudflare REST API). Don't include the joeblew999 `tool-wrangler.toml` / `tool-cf.toml`.
 - **workers-go `v0.36.0` exactly**, module path `github.com/syumai/workers-go` (never the old `github.com/syumai/workers`).
-- **TinyGo for everything that ships to Workers** (`workers-assets-gen -mode=tinygo`, `tinygo build -target wasm -no-debug .`).
-  Standard Go only for local-only code: `go run .`, `go test`/`go vet`, the deploy tool.
+- **TinyGo for everything that ships to Workers, built by charter's `go tool workerbuild`**
+  (github.com/joeblew999/charter/go/lib, pinned in go.mod): TinyGo with the runtime patch for tinygo#5800, an 8 MB heap,
+  128 KB stacks, `-opt=z`, charter's Worker glue copied into `build/`, and a cache that gives back an unchanged build in
+  under a second. Standard Go only for local-only code and `build:dev`: `go run .`, `go test`/`go vet`, the deploy tool.
+- **charter's runtime** (`transport.Run` in `main.go`, `build/go.mjs` in `worker/index.mjs`): Go runtimes are kept between
+  requests and two are started while the Worker loads. Cloudflare's request data is `transport.CFOf(r)` (time zone,
+  country, …); workers-go's `fetch.NewIncomingProperties` panics under it. Measured on Workers, CPU per request:
+  charter's docs/self/benchmarks.md.
 - Tasks live in `tasks/app.toml`: `mise run {dev,serve,run,test,smoke,load,deploy,smoke-remote}`. The Worker and D1 name is
   `APP_NAME` in `mise.toml` `[env]`.
   `APP_DOMAIN` (same file) is the custom domain (go-htmx4.ubuntusoftware.net, zone ubuntusoftware.net): `mise run deploy`
@@ -121,8 +127,9 @@ README: change a task's description. The rules:
 - **TinyGo 0.43 gaps:** its `net/http` `ServeMux` is pre-Go 1.22, so register plain paths (`"/greet"`) and check the method
   with `allow(w, r, method)` (`kit/httpx.Allow`), never `"GET /x"` or `{$}`. `html/template` panics at runtime: render
   markup with gsx (`s.render`), never string-built HTML. Anything reflection-heavy needs a workerd smoke test, not just a build.
-- **No memory between requests:** each request gets a fresh Go runtime, so package-level state resets. Shared state needs a
-  Cloudflare binding.
+- **Memory between requests is a cache, never state:** a Go runtime serves many requests, but any one may be new (another
+  isolate, a full heap, a deploy). Keep only what is the same for every request in package variables (the page buffers,
+  merged classes); shared state needs a Cloudflare binding.
 - `cloudflare/*` packages import `syscall/js`: call them from `platform_js.go` (`//go:build js && wasm`) with a
   `platform_other.go` (`//go:build !js`) twin.
 - **Credentials only via fnox:** `fnox exec -- go run ./cmd/deploy …` or `fnox exec -- sh -c '…$CLOUDFLARE_API_TOKEN…'`

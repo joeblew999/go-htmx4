@@ -78,7 +78,7 @@ uptime = "運作時間"
 requests = "請求數"
 rendered = "渲染時間"
 note = "說明"
-workers_note = "Cloudflare Workers：每個請求都會啟動全新的 Go 執行環境，因此運作時間、請求數與統計資料都會重新計算。"
+workers_note = "Cloudflare Workers：一個 Go 執行環境會處理許多請求，記憶體用滿時會被替換，因此運作時間、請求數與統計資料都屬於作出回應的那個執行環境。"
 
 [board]
 title = "共用看板"

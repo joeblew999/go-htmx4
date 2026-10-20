@@ -81,7 +81,7 @@ uptime = "Uptime"
 requests = "Requests"
 rendered = "Rendered"
 note = "Note"
-workers_note = "Cloudflare Workers: every request starts a fresh Go runtime, so uptime, requests and stats start over."
+workers_note = "Cloudflare Workers: a Go runtime serves many requests and is replaced when its memory fills, so uptime, requests and stats are those of the runtime that answered."
 
 [board]
 title = "Shared board"

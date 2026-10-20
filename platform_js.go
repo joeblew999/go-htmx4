@@ -6,14 +6,14 @@ import (
 	"database/sql"
 	"net/http"
 
+	"github.com/joeblew999/charter/go/lib/transport"
 	"github.com/joeblew999/go-htmx4/kit/live"
 	"github.com/syumai/workers-go/cloudflare"
 	_ "github.com/syumai/workers-go/cloudflare/d1" // registers the "d1" database/sql driver
-	"github.com/syumai/workers-go/cloudflare/fetch"
 )
 
-// platformNote is shown in the server-info fragment: nothing survives between requests.
-const platformNote = "Cloudflare Workers: every request starts a fresh Go runtime, so uptime, requests and stats start over."
+// platformNote is shown in the server-info fragment: what a Go runtime on Workers keeps between requests.
+const platformNote = "Cloudflare Workers: a Go runtime serves many requests and is replaced when its memory fills, so uptime, requests and stats are those of the runtime that answered."
 
 // livePush: Workers have the Room Durable Object, so the board page connects over hx-ws.
 var livePush = true
@@ -23,13 +23,7 @@ func getenv(name string) string { return cloudflare.Getenv(name) }
 
 // connectionTimeZone is Cloudflare's guess of the viewer's IANA time zone from their IP (request.cf.timezone);
 // "" when the runtime has no cf object (local workerd).
-func connectionTimeZone(r *http.Request) string {
-	p, err := fetch.NewIncomingProperties(r.Context())
-	if err != nil || p.Timezone == "<undefined>" {
-		return ""
-	}
-	return p.Timezone
-}
+func connectionTimeZone(r *http.Request) string { return transport.CFOf(r).Timezone }
 
 // staticFiles: on Workers, dist/site is served by Static Assets before the Worker runs, so a
 // request that reaches Go here is a real 404.
