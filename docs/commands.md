@@ -11,7 +11,10 @@ Every command is a mise task: `mise run <task>`; `mise tasks` lists them. Which 
   `dev` uses, seconds after an edit, never deployed.
 - **Test:** `check` before pushing (CI runs the same, `ci/check.sh`), then `e2e` for anything in the browser.
   `smoke-remote` runs the smoke checks against the deployed Worker.
-- **Ship:** `preview <name>`, `staging`, `deploy` (production). All of them go through `ci/deploy.sh`.
+- **Ship:** every pushed branch gets a preview and `main` deploys staging, both automatically (Workers Builds).
+  Production: `release v1.3` (or a v* tag from GitHub's Releases page) → CI tests it → Workers Builds deploys it, with
+  no Cloudflare credentials anywhere but Cloudflare. `deploy` does it by hand from a machine with fnox credentials.
+  All of them go through `ci/deploy.sh`.
 
 ## Tasks
 
@@ -43,7 +46,7 @@ Dev build → build/: standard Go to wasm, seconds after an edit (mise run dev u
 
 - **Usage:** `cf:builds`
 
-Set up Workers Builds previews for $APP_REPO (repo connection, trigger, variables); idempotent
+Set up Workers Builds for $APP_REPO: every branch deploys (previews; production from the production branch), main deploys staging; idempotent
 
 ### `check`
 
@@ -150,6 +153,16 @@ Delete a Worker Preview (e.g. pr-7) with its Durable Object storage
 
 ### Arguments
 - **`<name>`** — preview name, e.g. pr-7
+
+### `release`
+
+Release main to production: tag origin/main (e.g. v1.3) and push the tag; CI tests it, Workers Builds deploys it
+
+
+- **Usage:** `release <version>`
+
+### Arguments
+- **`<version>`** — the tag, e.g. v1.3
 
 ### `rename`
 

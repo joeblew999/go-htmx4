@@ -130,7 +130,7 @@ README: change a task's description. The rules:
 - **Worker Previews** (`mise run preview <name>`, run by Workers Builds for every pushed branch, PR #6):
   `kit/cfdeploy.DeployPreview`/`DeletePreview` over the Previews REST API. Previews get `APP_DOMAIN=` (no redirect),
   `APP_PREVIEW=1` (every response noindex: `TestPreviewNoindex`), the shared `$APP_NAME-preview` D1 and their own
-  Durable Object storage. A new binding goes into both `deploy` and `preview` in `tasks/app.toml`. Production deploys
+  Durable Object storage. Bindings for every deploy kind live in one place, `ci/deploy.sh`. Production deploys
   keep previews enabled. Branch previews are pre-approved; production deploys still need an OK.
   One build per commit: CI (`ci/check.sh`) runs `mise run build`, then `bin/deploy -publish-build` puts the build
   (with a `preview-build.json` manifest) and the deploy tool on the `preview-builds` pre-release and
@@ -138,8 +138,13 @@ README: change a task's description. The rules:
   by `mise run cf:builds`) fetches the tool, `-fetch-build` verifies before extracting, deploys `<branch slug>`
   and `-prune-previews` deletes previews of deleted branches. Fallback: compile on Cloudflare. Logic lives in
   `kit/previewbuild` and `kit/cfdeploy` (tested with fake GitHub and Cloudflare APIs); keep the scripts thin.
-  The `main` trigger runs the same commands: main deploys staging, its own Worker `$APP_NAME-staging` (`mise run staging`: no domain, noindex, own D1). Production is
-  never deployed by Workers Builds (`mise run deploy`).
+  The `main` trigger runs the same commands: main deploys staging, its own Worker `$APP_NAME-staging` (`mise run staging`: no domain, noindex, own D1).
+- **Production releases** (`mise run release v1.3`, or a v* tag from GitHub's Releases page): CI tests the tagged
+  commit, checks it's on `main`, then moves the `production` branch to it with its `GITHUB_TOKEN`; the branch
+  trigger fires for it like any branch, and `ci/workers-builds.sh` deploys production for that branch name with
+  Cloudflare's build token (Cloudflare limits a Worker to two triggers, so there's no third). No Cloudflare
+  credential is in GitHub or on a laptop. Roll back by tagging an older commit of main. Never push to `production`
+  by hand; `mise run deploy` (fnox credentials) stays as the manual path. A release is a production deploy: OK first.
 - **Shared board (live updates):** D1 is the source of truth; `worker/room.mjs` (one Durable Object per topic) only fans out.
   - Every app write goes through a Go handler that writes D1 **then** publishes the whole `#board` fragment with its
     `data-version`. Writes made straight to D1 (dashboard, REST) are not pushed.

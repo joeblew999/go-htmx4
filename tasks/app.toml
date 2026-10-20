@@ -305,13 +305,33 @@ dir = "{{config_root}}"
 usage = 'arg "<name>" help="preview name, e.g. pr-7"'
 run = 'ci/deploy.sh delete-preview "$usage_name"'
 
+# ── release ─────────────────────────────────────────────────────
+# Production without anyone's machine holding Cloudflare credentials: a v* tag on a commit that's on main. CI
+# (ci/check.sh) tests it, then moves the production branch to it, and Workers Builds' branch trigger deploys production
+# with its own build token (ci/workers-builds.sh sees the branch → ci/deploy.sh production). A tag from GitHub's Releases page does the same. Roll
+# back by tagging an older commit of main.
+["release"]
+description = "Release main to production: tag origin/main (e.g. v1.3) and push the tag; CI tests it, Workers Builds deploys it"
+dir = "{{config_root}}"
+usage = 'arg "<version>" help="the tag, e.g. v1.3"'
+run = '''
+#!/usr/bin/env bash
+set -euo pipefail
+tag=$usage_version
+[[ $tag == v* ]] || { echo "✗ $tag: release tags start with v (v1.3)"; exit 1; }
+git fetch -q origin main
+git tag -a "$tag" -m "Release $tag" origin/main
+git push origin "$tag"
+echo "✓ $tag → $(git rev-parse --short origin/main): CI tests it, then Workers Builds deploys production (https://${APP_DOMAIN:-$APP_NAME.<subdomain>.workers.dev})"
+'''
+
 # ── cf:builds ───────────────────────────────────────────────────
 # Workers Builds (Cloudflare's GitHub app) as code: the repository connection and the "$APP_NAME branch previews"
 # trigger running ci/workers-builds.sh, idempotent (PR #6). The one
 # manual step: create the build token "$APP_NAME build token" in the dashboard once (the API can't). Until then
 # it uses FALLBACK_BUILD_TOKEN if set.
 ["cf:builds"]
-description = "Set up Workers Builds previews for $APP_REPO (repo connection, trigger, variables); idempotent"
+description = "Set up Workers Builds for $APP_REPO: every branch deploys (previews; production from the production branch), main deploys staging; idempotent"
 dir = "{{config_root}}"
 run = '''
 #!/usr/bin/env bash

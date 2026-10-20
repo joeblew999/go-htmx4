@@ -11,7 +11,10 @@ Every command is a mise task: `mise run <task>`; `mise tasks` lists them. Which 
   `dev` uses, seconds after an edit, never deployed.
 - **Test:** `check` before pushing (CI runs the same, `ci/check.sh`), then `e2e` for anything in the browser.
   `smoke-remote` runs the smoke checks against the deployed Worker.
-- **Ship:** `preview <name>`, `staging`, `deploy` (production). All of them go through `ci/deploy.sh`.
+- **Ship:** every pushed branch gets a preview and `main` deploys staging, both automatically (Workers Builds).
+  Production: `release v1.3` (or a v* tag from GitHub's Releases page) → CI tests it → Workers Builds deploys it, with
+  no Cloudflare credentials anywhere but Cloudflare. `deploy` does it by hand from a machine with fnox credentials.
+  All of them go through `ci/deploy.sh`.
 
 ## Tasks
 
