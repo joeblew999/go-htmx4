@@ -50,8 +50,8 @@ type buildTrigger struct {
 }
 
 // ConfigureBuilds makes the Worker's Workers Builds setup match cfg and returns the preview trigger's id. The
-// production branch's trigger runs the same commands, so it deploys a staging preview (ci/workers-builds.sh names
-// it "staging": https://staging-<worker>.<subdomain>.workers.dev). Production itself is never deployed by Workers Builds.
+// production branch's trigger runs the same commands; for that branch ci/workers-builds.sh deploys staging, its own
+// Worker <worker>-staging. Production itself is never deployed by Workers Builds.
 func (c *Client) ConfigureBuilds(ctx context.Context, cfg BuildsConfig) (string, error) {
 	if cfg.Worker == "" || cfg.Owner == "" || cfg.Repo == "" || cfg.OwnerID == "" || cfg.RepoID == "" ||
 		cfg.BuildCommand == "" || cfg.DeployCommand == "" {
