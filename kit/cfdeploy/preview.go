@@ -100,12 +100,17 @@ func (c *Client) DeployPreview(ctx context.Context, cfg Config, name string, ann
 	if err != nil {
 		return PreviewResult{}, fmt.Errorf("cfdeploy: preview %s: %w", name, err)
 	}
+	// Workers Logs, as production has: a preview's own setting, off unless set.
+	logs := map[string]any{"enabled": true, "head_sampling_rate": 1}
 	if !found {
-		if err := c.do(ctx, "POST", base, "", cfapi.JSON(map[string]string{"name": name}), &pv); err != nil {
+		if err := c.do(ctx, "POST", base, "", cfapi.JSON(map[string]any{"name": name, "observability": logs}), &pv); err != nil {
 			return PreviewResult{}, fmt.Errorf("cfdeploy: create preview %s: %w", name, err)
 		}
 		c.logf("✓ preview %s created (%s)", name, pv.ID)
 	} else {
+		if err := c.do(ctx, "PATCH", base+"/"+pv.ID, "", cfapi.JSON(map[string]any{"observability": logs}), nil); err != nil {
+			c.logf("· preview %s: Workers Logs not switched on: %v", name, err)
+		}
 		c.logf("✓ preview %s (%s)", name, pv.ID)
 	}
 	if pv.ID == "" {
