@@ -1,5 +1,7 @@
 # 2026-10-20_1641_cloudflare-pr-previews.md
 
+**Status:** superseded (2026-10-20) by `.plans/2026-10-20_1746_previews-done-properly.md`: previews are built once by GitHub CI and deployed by Workers Builds, with no secrets in GitHub; the GitHub-secrets design below was dropped.
+
 Every pull request gets its own live copy of the app on Cloudflare, with its URL posted on the PR, updated on every
 push and deleted when the PR closes. Same no-Node, no-wrangler rule as production: `kit/cfdeploy` talks to the REST
 API, and a `mise run preview` task runs the same way locally and in CI.
@@ -57,10 +59,10 @@ URLs come back in `preview.urls` (stable per PR) and `deployment.urls` (per comm
 
 ## Needs Gerard (can't be done from this sandbox)
 
-- [ ] GitHub Actions secrets `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`. The sandbox can't write repository
+- [-] (superseded) GitHub Actions secrets `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`. The sandbox can't write repository
       settings or secrets, and has no Cloudflare credentials. From any machine with fnox and gh:
       `fnox exec -- sh -c 'gh secret set CLOUDFLARE_API_TOKEN -R joeblew999/go-htmx4 -b "$CLOUDFLARE_API_TOKEN"; gh secret set CLOUDFLARE_ACCOUNT_ID -R joeblew999/go-htmx4 -b "$CLOUDFLARE_ACCOUNT_ID"'`
-- [ ] The first preview deploy is a Cloudflare write (AGENTS.md: outward-facing, needs his OK). Asking for this
+- [-] (superseded) The first preview deploy is a Cloudflare write (AGENTS.md: outward-facing, needs his OK). Asking for this
       plan is that OK for previews; production deploys still need it each time.
 
 ## Steps
@@ -71,8 +73,8 @@ URLs come back in `preview.urls` (stable per PR) and `deployment.urls` (per comm
 - [x] `APP_PREVIEW` noindex, with tests (`host.go` needed no change: previews get `APP_DOMAIN=`)
 - [x] Tasks `preview`, `preview:delete` in `tasks/app.toml`; shared preview D1 + migrations
 - [x] `.github/workflows/preview.yml` + `ci/preview.sh` (runnable locally)
-- [ ] `mise run check` + `mise run e2e` locally
-- [ ] Once secrets exist: open a test PR, check the comment, the URL, e2e against it, and cleanup on close
+- [-] (superseded) `mise run check` + `mise run e2e` locally
+- [-] (superseded) Once secrets exist: open a test PR, check the comment, the URL, e2e against it, and cleanup on close
 - [x] README and AGENTS.md updated
 
 ## Findings

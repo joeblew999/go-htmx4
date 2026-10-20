@@ -1,5 +1,7 @@
 # gsx language server in VS Code for everyone who clones the repo
 
+**Status:** done (closed 2026-10-20): every item is done; `mise install`'s postinstall hook (`editor:gsx`) installs go.mod's gsx (now v0.4.0) where the extension looks.
+
 Goal: the VS Code gsx extension (`gsxhq.gsx`) starts `gsx lsp` on a fresh clone after `mise install`, with no
 per-machine settings. `.vscode/` is committed.
 

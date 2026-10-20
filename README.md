@@ -167,7 +167,7 @@ browser ─ hx-post /board/add|note ─────▶ worker/index.mjs ─▶ G
   Status on 2026-09-15: 52 of 56 sitemap URLs indexed.
 
 Plans: [search indexing](.plans/done/2026-09-14_0938_search-indexing-google-gemini.md),
-[custom domain](.plans/2026-09-14_0915_workers-custom-domains.md).
+[custom domain](.plans/done/2026-09-14_0915_workers-custom-domains.md).
 
 ## Reusable packages (`kit/`)
 

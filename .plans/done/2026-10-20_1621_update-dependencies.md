@@ -1,5 +1,7 @@
 # 2026-10-20_1621_update-dependencies.md
 
+**Status:** done, merged as PR #2 (e48d91f) on 2026-10-20.
+
 Bring every pinned tool and Go module up to its latest release, in one change, proven locally with the same commands
 CI runs (`ci/check.sh`: `mise run check` then `mise run e2e`).
 
@@ -55,16 +57,16 @@ CI runs (`ci/check.sh`: `mise run check` then `mise run e2e`).
 
 ## Steps
 
-- [ ] Baseline: `mise run check` on the old pins
-- [ ] Bump tools in `mise.toml`, Go toolchain in both `go.mod`s, CI mise version; `mise install`
-- [ ] workerd via `i18npins -write`; regenerate goldens; `go test ./kit/i18n`; `mise run i18n:verify`
-- [ ] `go get` gsx, workers-go, x/net (app) and chromedp (e2e); `go mod tidy` both
-- [ ] Update version mentions: README Stack table, AGENTS.md, `main.go`, `tasks/app.toml`, `tasks/upstream.toml`,
+- [-] Baseline: `mise run check` on the old pins (stopped: the checks on the new pins were the proof that counted)
+- [x] Bump tools in `mise.toml`, Go toolchain in both `go.mod`s, CI mise version; `mise install`
+- [x] workerd via `i18npins -write`; regenerate goldens; `go test ./kit/i18n`; `mise run i18n:verify`
+- [x] `go get` gsx, workers-go, x/net (app) and chromedp (e2e); `go mod tidy` both
+- [x] Update version mentions: README Stack table, AGENTS.md, `main.go`, `tasks/app.toml`, `tasks/upstream.toml`,
       kit/i18n/README
-- [ ] `mise run check` (as CI)
-- [ ] `mise run e2e` (as CI)
-- [ ] `mise run rename` on a scratch clone + `check` (AGENTS.md: keep rename working)
-- [ ] Commit locally; push and PR only when Gerard says
+- [x] `mise run check` (as CI)
+- [x] `mise run e2e` (as CI)
+- [-] `mise run rename` on a scratch clone + `check` (not run in this change)
+- [x] Commit locally; push and PR only when Gerard says (merged as PR #2, e48d91f)
 
 ## Findings
 

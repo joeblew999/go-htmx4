@@ -1,6 +1,6 @@
 # Custom domain for the app: go-htmx4.ubuntusoftware.net
 
-**Status:** live on https://go-htmx4.ubuntusoftware.net (2026-09-14 18:30); Search Console left · **Created:** 2026-09-14 09:15
+**Status:** done (closed 2026-10-20) · live on https://go-htmx4.ubuntusoftware.net (2026-09-14 18:30); Search Console left · **Created:** 2026-09-14 09:15
 
 ## Goal
 
@@ -74,7 +74,7 @@ dashboard clicks and no wrangler. Make that the one URL search engines index, so
       `*.workers.dev` hosts redirect (never localhost, so `mise run run` with `APP_DOMAIN` in the env is unaffected);
       `TestCanonicalHost`. `APP_ENV` on Cloudflare is now plain `cloudflare` (it was `cloudflare (workers.dev)`).
 - [x] Canonical, hreflang, sitemap and robots.txt then naturally carry the custom host (they use the request origin).
-- [ ] Search Console: confirm the existing `ubuntusoftware.net` Domain property covers the host (or add a URL-prefix
+- [-] (2026-10-20: not needed: the search-indexing plan covered it; 52 of 56 URLs indexed) Search Console: confirm the existing `ubuntusoftware.net` Domain property covers the host (or add a URL-prefix
       property). Submit `https://go-htmx4.ubuntusoftware.net/sitemap.xml`.
 
 ### Phase 4: docs

@@ -128,7 +128,7 @@
 - **Credentials only via fnox:** `fnox exec -- go run ./cmd/deploy …` or `fnox exec -- sh -c '…$CLOUDFLARE_API_TOKEN…'`
   (single-quoted so the variable expands after fnox injects it). Never print tokens or add `.env` files.
 - **Deploys and other Cloudflare writes are outward-facing:** get an explicit OK first.
-- **Worker Previews** (`mise run preview <name>`, run by Workers Builds for every pushed branch, plan `.plans/2026-10-20_1641_cloudflare-pr-previews.md`):
+- **Worker Previews** (`mise run preview <name>`, run by Workers Builds for every pushed branch, plan `.plans/2026-10-20_1746_previews-done-properly.md`):
   `kit/cfdeploy.DeployPreview`/`DeletePreview` over the Previews REST API. Previews get `APP_DOMAIN=` (no redirect),
   `APP_PREVIEW=1` (every response noindex: `TestPreviewNoindex`), the shared `$APP_NAME-preview` D1 and their own
   Durable Object storage. A new binding goes into both `deploy` and `preview` in `tasks/app.toml`. Production deploys
