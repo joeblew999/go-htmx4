@@ -27,6 +27,22 @@ Every command is a mise task: `mise run <task>`; `mise tasks` lists them. Which 
 
 Tailwind (gsxui CSS) + assemble dist/site (Static Assets for workerd, go run . and deploy)
 
+### `bench`
+
+- Depends: build
+
+- **Usage:** `bench`
+
+CPU per request of the production build on local workerd, per page, repeated runs (charter's workerbench)
+
+### `bench:variants`
+
+- Depends: vendor, generate, assets
+
+- **Usage:** `bench:variants`
+
+Build the current code with each of charter's optimisations off in turn, measure each, write docs/benchmarks.md
+
 ### `build`
 
 - Depends: vendor, generate, assets

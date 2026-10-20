@@ -6,37 +6,20 @@
 #   mise run build:dev  the standard Go compiler, always: seconds after an edit. mise run dev uses it; never deployed.
 #
 # WORKER_COMPILER (mise.toml [env]):
-#   tinygo  charter's build (go tool workerbuild, github.com/joeblew999/charter/go/lib/cmd/workerbuild): TinyGo with
-#           the runtime patch for tinygo#5800, an 8 MB heap, 128 KB stacks, -opt=z, and charter's Worker glue
-#           (go.mjs: Go runtimes kept between requests) copied into build/. ~1–3 min for a new build; an unchanged
-#           one comes from charter's cache in under a second.
-#   go      GOOS=js GOARCH=wasm: seconds after an edit (Go caches per package; real goroutines need no asyncify), a
-#           bigger wasm (~3 MB gzipped). charter's go.mjs is TinyGo's, so build/go.mjs here is a stand-in with
-#           its interface over workers-go's own entry: a Go runtime per request, as before.
+#   tinygo  charter's go tool workerbuild: TinyGo patched for tinygo#5800, an 8 MB heap, 128 KB stacks, -opt=z, and
+#           charter's Worker glue (go.mjs: Go runtimes kept between requests) in build/. An unchanged build comes
+#           from charter's cache in under a second. WORKERBUILD_FLAGS adds flags (mise run bench:variants turns
+#           each optimisation off in turn: -reuse=false, -patches=false, -heap=0).
+#   go      go tool workerbuild -compiler=go: the standard compiler, seconds per build, a bigger Wasm and a Go runtime
+#           per request. mise run dev uses it; never deployed.
 set -euo pipefail
 profile=${WASM_PROFILE:-prod}
 compiler=${WORKER_COMPILER:-tinygo}
 [ "$profile" = dev ] && compiler=go
 rm -f build/.prod build/.dev
 case $compiler in
-  tinygo)
-    go tool workerbuild
-    ;;
-  go)
-    go run github.com/syumai/workers-go/cmd/workers-assets-gen -mode=go
-    GOOS=js GOARCH=wasm go build -trimpath -ldflags=-s -o build/app.wasm .
-    # The modules worker/index.mjs and workerd/config.capnp name, then go.mjs as the stand-in.
-    lib=$(go list -m -f '{{.Dir}}' github.com/joeblew999/charter/go/lib)
-    cp "$lib"/worker/*.mjs build/ && chmod u+w build/*.mjs
-    cat >build/go.mjs <<'JS'
-// Stand-in for charter's go.mjs in the standard-Go dev build (ci/wasm-build.sh): its interface over
-// workers-go's own entry, which starts a Go runtime per request.
-import worker from "./worker.mjs";
-export function goWorker() {
-	return { fetch: (request, env, ctx) => worker.fetch(request, env, ctx), warm: async () => {} };
-}
-JS
-    ;;
+  tinygo) go tool workerbuild ${WORKERBUILD_FLAGS:-} ;;
+  go) go tool workerbuild -compiler=go ;;
   *) echo "✗ WORKER_COMPILER=$compiler: tinygo or go"; exit 1 ;;
 esac
 raw=$(wc -c <build/app.wasm | tr -d ' ')
