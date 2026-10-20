@@ -2,6 +2,7 @@ package ui
 
 import (
 	"github.com/gsxhq/gsx"
+	"github.com/joeblew999/go-htmx4/ui/i18n"
 	"github.com/joeblew999/go-htmx4/ui/icon"
 )
 
@@ -121,7 +122,7 @@ component Toast(toastType string, title string, description string, action strin
 			class={
 				"absolute -top-1.5 -end-1.5 flex size-5 items-center justify-center rounded-full border border-border bg-background text-foreground shadow-sm"
 			}
-			aria-label="Close"
+			aria-label={i18n.T("Close")}
 			data-gsxui-slot-toast-close
 		>
 			<icon.X class={ "size-3" } data-gsxui-slot-toast-close-icon/>

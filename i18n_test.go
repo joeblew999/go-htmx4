@@ -265,13 +265,6 @@ func TestNoteRelativeTime(t *testing.T) {
 	}
 }
 
-// gsxuiHardcoded are English labels inside vendored gsxui components with no way to pass a translation
-// (plan decision 10: an upstream gsxui issue); nothing else may reach the page without a catalog.
-var gsxuiHardcoded = map[string]bool{
-	"Notifications": true, // ui/toaster.gsx section aria-label
-	"Close":         true, // ui/toast.gsx close button aria-label
-}
-
 // TestNoHardcodedText renders pages and fragments with en-XA pseudo-localized messages and fails on any
 // plain-ASCII word left in visible text or in placeholder/aria-label/title: such text doesn't come from
 // locales/*.toml. Brand and technical values opt out with translate="no" (or <code>, <time>); kit/i18n
@@ -302,14 +295,14 @@ func TestNoHardcodedText(t *testing.T) {
 				if !skip {
 					for _, a := range n.Attr {
 						meta := n.Data == "meta" && a.Key == "content" && attr(n, "name") == "description"
-						if (a.Key == "placeholder" || a.Key == "aria-label" || a.Key == "title" || a.Key == "alt" || meta) && word.MatchString(pseudo.ReplaceAllString(a.Val, "")) && !gsxuiHardcoded[a.Val] {
+						if (a.Key == "placeholder" || a.Key == "aria-label" || a.Key == "title" || a.Key == "alt" || meta) && word.MatchString(pseudo.ReplaceAllString(a.Val, "")) {
 							t.Errorf("%s: <%s %s=%q> isn't from a catalog", name, n.Data, a.Key, a.Val)
 						}
 					}
 				}
 			}
 			if n.Type == nethtml.TextNode && !skip {
-				if w := word.FindString(pseudo.ReplaceAllString(n.Data, "")); w != "" && !gsxuiHardcoded[strings.TrimSpace(n.Data)] {
+				if w := word.FindString(pseudo.ReplaceAllString(n.Data, "")); w != "" {
 					t.Errorf("%s: text %q isn't from a catalog", name, strings.TrimSpace(n.Data))
 				}
 			}

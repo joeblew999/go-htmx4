@@ -167,3 +167,7 @@ hour_cycle = "Формат времени"
 hour_cycle_auto = "По умолчанию для языка ({example})"
 save = "Сохранить"
 loading = "Загрузка…"
+
+[gsxui]
+close = "Закрыть"
+notifications = "Уведомления"

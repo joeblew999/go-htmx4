@@ -167,3 +167,7 @@ hour_cycle = "घड़ी"
 hour_cycle_auto = "भाषा का डिफ़ॉल्ट ({example})"
 save = "सेव करें"
 loading = "लोड हो रहा है…"
+
+[gsxui]
+close = "बंद करें"
+notifications = "सूचनाएँ"

@@ -7,7 +7,11 @@ import (
 
 	"github.com/joeblew999/go-htmx4/kit/i18n"
 	"github.com/joeblew999/go-htmx4/locales"
+	uii18n "github.com/joeblew999/go-htmx4/ui/i18n"
 )
+
+// gsxui components' own text (ui/i18n.Translate) reads the same messages as the views.
+func init() { uii18n.Messages = M }
 
 // PseudoMessages makes M return en-XA pseudo-localized messages (accented, bracketed, longer). Tests set it to
 // find UI text that doesn't come from locales/*.toml.

@@ -167,3 +167,7 @@ hour_cycle = "نظام الساعة"
 hour_cycle_auto = "الافتراضي للغة ({example})"
 save = "حفظ"
 loading = "جارٍ التحميل…"
+
+[gsxui]
+close = "إغلاق"
+notifications = "الإشعارات"

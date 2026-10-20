@@ -1,6 +1,9 @@
 package ui
 
-import "github.com/gsxhq/gsx"
+import (
+	"github.com/gsxhq/gsx"
+	"github.com/joeblew999/go-htmx4/ui/i18n"
+)
 
 // Toaster is the always-present, positioned toast region. Mount it ONCE per
 // page (typically the root layout, same convention as shadcn's <Toaster/> in
@@ -8,7 +11,7 @@ import "github.com/gsxhq/gsx"
 // other five sonner positions are a ledgered gap (docs/jsx-parity.md
 // ## sonner).
 //
-// The <section> is the aria landmark ("Notifications"). The <ol> is the
+// The <section> is the aria landmark, labelled Notifications through T. The <ol> is the
 // mount point ui/toaster.js observes: every toast <li> — whether inserted by
 // the imperative toast() API, cloned from a template by the declarative
 // trigger, or appended by the server (a full-page-load flash rendered inline,
@@ -17,7 +20,10 @@ import "github.com/gsxhq/gsx"
 // timer / dismiss lifecycle. It carries a stable id="gsxui-toaster" (caller-
 // overridable via attrs) so server OOB/partial appends have a fixed target,
 // and pointer events pass through the empty gutter (each toast re-enables
-// pointer events on itself through live lifecycle state).
+// pointer events on itself through live lifecycle state). Under htmx 4 an
+// OOB-only response leaves the request's main target untouched — a flash-only
+// response does not clear it (the swapEmpty modifier or the
+// allowEmptySwapAfterOOB config restore the htmx 2 behaviour).
 //
 // After the <ol> come six inert <template>s, one per type — the same idiom as
 // a server flash viewport's per-severity templates. ui/toaster.js clones the
@@ -27,7 +33,7 @@ import "github.com/gsxhq/gsx"
 // duplicated in JS. Their placeholder texts are always overwritten or removed
 // on clone.
 component Toaster(attrs gsx.Attrs) {
-	<section aria-label="Notifications" tabindex="-1">
+	<section aria-label={i18n.T("Notifications")} tabindex="-1">
 		<ol
 			id="gsxui-toaster"
 			class={ "[--gsxui-toast-offset:1.5rem] flex flex-col gap-2 p-6" }
