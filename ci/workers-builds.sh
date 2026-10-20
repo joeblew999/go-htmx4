@@ -10,7 +10,7 @@ cd "$(dirname "$0")/.."
 # Only this repo's mise.toml. The build image has mise config of its own (node, ruby, python, hugo, …) in the
 # global/system config, in the clone's parent directory (/opt/buildhome) and in MISE_*_VERSION variables; `mise
 # install` would install all of it too (and its hugo pin fails with current mise).
-empty=$(mktemp)
+empty=$(mktemp --suffix .toml)
 export MISE_GLOBAL_CONFIG_FILE="$empty" MISE_SYSTEM_CONFIG_FILE="$empty" MISE_CEILING_PATHS="$(dirname "$PWD")"
 for v in $(env | grep -oE '^MISE_[A-Z0-9_]+_VERSION' || true); do unset "$v"; done
 export MISE_YES=1 MISE_TRUSTED_CONFIG_PATHS="$PWD" PATH="$HOME/.local/bin:$PATH"
