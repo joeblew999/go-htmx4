@@ -55,6 +55,8 @@ mise --version
 # On CI, only the tools CI runs: not fnox (credentials), usage (shell completion) or the gsxui CLI (refreshing
 # components; compiling it took ~27 s per run). Locally, everything mise.toml pins. The editor hook skips itself on CI.
 if [ -n "${CI:-}" ]; then
+  # And don't let `mise run` install the rest before each task (its default): that compiled the gsxui CLI anyway.
+  export MISE_TASK_RUN_AUTO_INSTALL=false
   phase "mise install (CI tools)" mise install go tinygo github:WebAssembly/binaryen github:tailwindlabs/tailwindcss \
     workerd http:chrome-headless-shell jq
 else
