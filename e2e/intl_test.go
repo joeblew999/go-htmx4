@@ -5,9 +5,9 @@ import (
 	"time"
 )
 
-// TestIntlKinds: every data-intl kind on /de/formats is formatted by Chrome's Intl in German (none left at its
+// testIntlKinds: every data-intl kind on /de/formats is formatted by Chrome's Intl in German (none left at its
 // fallback), and a few results are the German wording.
-func TestIntlKinds(t *testing.T) {
+func testIntlKinds(t *testing.T) {
 	b := newTab(t, "browser")
 	b.open("/de/formats")
 	b.waitJS(5*time.Second, `document.readyState === "complete"`)

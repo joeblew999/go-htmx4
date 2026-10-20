@@ -9,10 +9,10 @@ import (
 	"github.com/chromedp/chromedp"
 )
 
-// TestNoOverflow: translated text (German, Russian, French and Portuguese run long; Arabic is RTL; Hindi and Japanese
+// testNoOverflow: translated text (German, Russian, French and Portuguese run long; Arabic is RTL; Hindi and Japanese
 // use other scripts) never makes a page scroll sideways, on a phone and on a desktop. Wide tables scroll inside their
 // own container, which is allowed.
-func TestNoOverflow(t *testing.T) {
+func testNoOverflow(t *testing.T) {
 	b := newTab(t, "browser")
 	for _, size := range [][2]int64{{390, 844}, {1100, 1000}} {
 		b.run(chromedp.EmulateViewport(size[0], size[1]))
@@ -43,9 +43,9 @@ func TestNoOverflow(t *testing.T) {
 	b.noProblems()
 }
 
-// TestArabicDigitsAndMirroring: /ar/formats is right-to-left, and the browser's Intl shows the native
+// testArabicDigitsAndMirroring: /ar/formats is right-to-left, and the browser's Intl shows the native
 // Arabic-Indic digits row next to CLDR's default Latin digits.
-func TestArabicDigitsAndMirroring(t *testing.T) {
+func testArabicDigitsAndMirroring(t *testing.T) {
 	b := newTab(t, "browser")
 	b.open("/ar/formats")
 	check(t, "Arabic page is rtl", b.is(`document.documentElement.dir === "rtl" && getComputedStyle(document.querySelector("main")).direction === "rtl"`))
@@ -59,8 +59,8 @@ func TestArabicDigitsAndMirroring(t *testing.T) {
 	b.noProblems()
 }
 
-// TestLocaleSwitchKeepsPreferences: the time zone chosen in one language applies after switching language, and back.
-func TestLocaleSwitchKeepsPreferences(t *testing.T) {
+// testLocaleSwitchKeepsPreferences: the time zone chosen in one language applies after switching language, and back.
+func testLocaleSwitchKeepsPreferences(t *testing.T) {
 	b := newTab(t, "browser")
 	b.open("/de/formats")
 	b.waitJS(5*time.Second, `document.readyState === "complete" && typeof htmx === "object"`)
@@ -86,9 +86,9 @@ func TestLocaleSwitchKeepsPreferences(t *testing.T) {
 	b.noProblems()
 }
 
-// TestMixedLocalePush: one topic, a German and an Arabic browser. A write in either pushes each browser the board in
+// testMixedLocalePush: one topic, a German and an Arabic browser. A write in either pushes each browser the board in
 // its own language (the Room keeps a fragment per locale), and relative times tick in the page's language.
-func TestMixedLocalePush(t *testing.T) {
+func testMixedLocalePush(t *testing.T) {
 	top := topic("e2e-locales")
 	de, ar := newTab(t, "de"), newTab(t, "ar")
 	de.run(chromedp.Navigate(base+"/de/board?topic="+top), chromedp.WaitVisible("#board", chromedp.ByQuery))

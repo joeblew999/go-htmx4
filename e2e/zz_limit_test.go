@@ -7,11 +7,11 @@ import (
 	"github.com/chromedp/chromedp"
 )
 
-// TestWriteLimit uses up this client's write budget with parallel writes, then clicks Increment through htmx
+// testWriteLimit uses up this client's write budget with parallel writes, then clicks Increment through htmx
 // once the limiter answers 429: the click must get 429, show a "Slow down" toast and leave the board alone.
 // Parallel fetches, not clicks: htmx won't start a request from a button while its previous one is in flight,
-// so clicks can't outrun a real network. It uses up the budget, so it runs last (file name order).
-func TestWriteLimit(t *testing.T) {
+// so clicks can't outrun a real network. It uses up the budget, so TestE2E runs it alone, after the rest (e2e_test.go).
+func testWriteLimit(t *testing.T) {
 	b := newTab(t, "browser")
 	b.allow4xx = true
 	top := topic("e2e-limit")

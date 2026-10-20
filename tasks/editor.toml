@@ -17,6 +17,8 @@ dir = "{{config_root}}"
 run = '''
 #!/usr/bin/env bash
 set -euo pipefail
+# CI has no editor (and compiling gsx costs ~10 s per run).
+[ -z "${CI:-}" ] || { echo "· CI: no editor, skipping"; exit 0; }
 bins=("$(go env GOPATH | cut -d: -f1)/bin")
 default="$(env -u GOPATH go env GOPATH | cut -d: -f1)/bin"
 [ "$default" = "${bins[0]}" ] || bins+=("$default")
