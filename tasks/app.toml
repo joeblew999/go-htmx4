@@ -186,7 +186,7 @@ check "server Intl: currency"     "$(curl -s "$base/de/formats")" "1.234,50${nbs
 check "server Intl: dates"        "$(curl -s "$base/de/formats")" 'Samstag, 4. Juli 2026'
 check "server Intl: zone names"   "$(curl -s "$base/formats")" '11:30 AM Eastern Time'
 check "server Intl: display name" "$(curl -s "$base/ja/formats")" '日本'
-check "intl-core.mjs from static/" "$(curl -s -o /dev/null -w '%{http_code}' "$base/static/intl-core.mjs")" '200'
+check "intl-core.mjs is a module" "$(curl -s -o /dev/null -w '%{http_code} %{content_type}' "$base/static/intl-core.mjs")" '200 text/javascript'
 check "plural rules on TinyGo"    "$(curl -s "$base/ru/formats")" '2, 3, 4, 22, 23'
 check "intl.js from static/"      "$(curl -s -o /dev/null -w '%{http_code} %{content_type}' "$base/static/intl.js")" '200 text/javascript'
 check "localized hx-post"         "$(curl -s "$base/de/board?topic=smoke")" 'hx-post="/de/board/add?topic=smoke'
