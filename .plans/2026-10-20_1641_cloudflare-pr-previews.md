@@ -65,16 +65,26 @@ URLs come back in `preview.urls` (stable per PR) and `deployment.urls` (per comm
 
 ## Steps
 
-- [ ] `kit/cfdeploy`: preview create/get/delete, preview deployment (reusing the module and assets upload code),
+- [x] `kit/cfdeploy`: preview create/get/delete, preview deployment (reusing the module and assets upload code),
       tests against the `httptest` fake API (never real Cloudflare)
-- [ ] `cmd/deploy -preview <name>` / `-delete-preview <name>`: flags only, logic in kit/
-- [ ] `host.go` + `APP_PREVIEW` noindex, with tests
-- [ ] Tasks `preview`, `preview:delete` in `tasks/app.toml`; shared preview D1 + migrations
-- [ ] `.github/workflows/preview.yml` + `ci/preview.sh` (runnable locally)
+- [x] `cmd/deploy -preview <name>` / `-delete-preview <name>`: flags only, logic in kit/
+- [x] `APP_PREVIEW` noindex, with tests (`host.go` needed no change: previews get `APP_DOMAIN=`)
+- [x] Tasks `preview`, `preview:delete` in `tasks/app.toml`; shared preview D1 + migrations
+- [x] `.github/workflows/preview.yml` + `ci/preview.sh` (runnable locally)
 - [ ] `mise run check` + `mise run e2e` locally
 - [ ] Once secrets exist: open a test PR, check the comment, the URL, e2e against it, and cleanup on close
-- [ ] README (Search/Cloudflare sections) and AGENTS.md updated
+- [x] README and AGENTS.md updated
 
 ## Findings
 
-(filled in as the work runs)
+- **Production deploys switched previews off.** `Deploy` sent `previews_enabled: false` on every run; it now sends
+  `true`, and `DeployPreview` turns them on too. The Worker had them off (`subdomain.previews_enabled: false`).
+- **The API checked live** through the Cloudflare connector (2026-10-20), with a throwaway preview `claude-probe`,
+  deleted afterwards: lookup by name works, create takes `{name}`, a missing preview is HTTP 404 code 10025, a
+  preview with no deployment answers `deployments/latest` with HTTP 404 code 10222, delete by name works.
+  `cfapi.IsNotFound` treats any 404 as not found.
+- **Not yet proven live: the deployment upload itself** (the 6 MB module upload). The connector can't create API
+  tokens (its OAuth scope has no API Tokens permission) and can't upload local files, so the first real
+  deployment happens in CI once the secrets exist, or with `mise run preview pr-test` on a machine with fnox.
+- **CI doesn't re-test:** `check.yml` tests every PR, so `ci/preview.sh` runs `mise run build` then
+  `mise run --skip-deps preview`, then e2e against the preview URL. Without the secrets it says so and passes.

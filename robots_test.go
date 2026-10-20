@@ -3,6 +3,7 @@
 package main
 
 import (
+	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
@@ -33,5 +34,26 @@ func TestRobotsTxt(t *testing.T) {
 	robotsTxt(rec, httptest.NewRequest("POST", "/robots.txt", nil))
 	if rec.Code != 405 {
 		t.Errorf("POST /robots.txt: status %d, want 405", rec.Code)
+	}
+}
+
+// TestPreviewNoindex: on a Worker Preview (APP_PREVIEW) every response is noindex, pages included; on
+// production pages stay indexable.
+func TestPreviewNoindex(t *testing.T) {
+	h := noindexNonPages(http.HandlerFunc(func(http.ResponseWriter, *http.Request) {}))
+	for _, tc := range []struct {
+		preview, path, want string
+	}{
+		{"", "/about", ""},
+		{"", "/fragments/stats", "noindex"},
+		{"1", "/about", "noindex"},
+		{"1", "/sitemap.xml", "noindex"},
+	} {
+		t.Setenv("APP_PREVIEW", tc.preview)
+		rec := httptest.NewRecorder()
+		h.ServeHTTP(rec, httptest.NewRequest("GET", tc.path, nil))
+		if got := rec.Header().Get("X-Robots-Tag"); got != tc.want {
+			t.Errorf("APP_PREVIEW=%q %s: X-Robots-Tag %q, want %q", tc.preview, tc.path, got, tc.want)
+		}
 	}
 }

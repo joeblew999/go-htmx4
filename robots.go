@@ -37,10 +37,12 @@ func robotsTxt(w http.ResponseWriter, r *http.Request) {
 // under /fragments/, the health check, and every request that isn't GET or HEAD (form posts, now and future). One
 // rule around the mux instead of per-handler wrapping, so a new fragment or POST route can't forget it. It runs
 // inside withLocale, so /de/fragments/… is matched on its unprefixed path. Pages (every /board topic included),
-// /robots.txt and /sitemap.xml stay indexable.
+// /robots.txt and /sitemap.xml stay indexable, except on a Worker Preview (APP_PREVIEW set by `mise run preview`),
+// where nothing is: a preview must never compete with production in search results.
 func noindexNonPages(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if (r.Method != http.MethodGet && r.Method != http.MethodHead) || strings.HasPrefix(r.URL.Path, "/fragments/") || r.URL.Path == "/healthz" {
+		if getenv("APP_PREVIEW") != "" || (r.Method != http.MethodGet && r.Method != http.MethodHead) ||
+			strings.HasPrefix(r.URL.Path, "/fragments/") || r.URL.Path == "/healthz" {
 			w.Header().Set("X-Robots-Tag", "noindex")
 		}
 		h.ServeHTTP(w, r)

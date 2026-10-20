@@ -269,7 +269,7 @@ func (c *Client) Deploy(ctx context.Context, cfg Config) (string, error) {
 	}
 
 	if err := c.do(ctx, "POST", c.accountPath("/workers/scripts/"+cfg.Name+"/subdomain"), "",
-		cfapi.JSON(map[string]bool{"enabled": true, "previews_enabled": false}), nil); err != nil {
+		cfapi.JSON(map[string]bool{"enabled": true, "previews_enabled": true}), nil); err != nil {
 		return "", fmt.Errorf("cfdeploy: enable workers.dev: %w", err)
 	}
 	var sub struct {
@@ -515,6 +515,26 @@ func (c *Client) uploadAssets(ctx context.Context, name string, plan *Plan) (str
 
 // putScript runs step 3: the multipart script upload with its metadata part.
 func (c *Client) putScript(ctx context.Context, cfg Config, modules []Module, d1IDs map[string]string, doMigration map[string]any, assetsJWT string) error {
+	meta := map[string]any{
+		"main_module":        modules[0].Name,
+		"compatibility_date": cfg.CompatibilityDate,
+		"bindings":           bindings(cfg, d1IDs),
+	}
+	if doMigration != nil {
+		meta["migrations"] = doMigration
+	}
+	if assetsJWT != "" {
+		meta["assets"] = map[string]string{"jwt": assetsJWT}
+	}
+	body, err := scriptBody(meta, modules, func(m Module) string { return m.Name })
+	if err != nil {
+		return err
+	}
+	return c.do(ctx, "PUT", c.accountPath("/workers/scripts/"+cfg.Name), "", body, nil)
+}
+
+// bindings are cfg's bindings in the script upload format (production and previews alike).
+func bindings(cfg Config, d1IDs map[string]string) []map[string]any {
 	bindings := []map[string]any{}
 	for _, k := range slices.Sorted(maps.Keys(cfg.Vars)) {
 		bindings = append(bindings, map[string]any{"type": "plain_text", "name": k, "text": cfg.Vars[k]})
@@ -530,22 +550,18 @@ func (c *Client) putScript(ctx context.Context, cfg Config, modules []Module, d1
 		bindings = append(bindings, map[string]any{"type": "ratelimit", "name": k, "namespace_id": rl.NamespaceID,
 			"simple": map[string]int{"limit": rl.Limit, "period": rl.Period}})
 	}
-	meta := map[string]any{
-		"main_module":        modules[0].Name,
-		"compatibility_date": cfg.CompatibilityDate,
-		"bindings":           bindings,
-	}
-	if doMigration != nil {
-		meta["migrations"] = doMigration
-	}
-	if assetsJWT != "" {
-		meta["assets"] = map[string]string{"jwt": assetsJWT}
-	}
+	return bindings
+}
+
+// scriptBody is a multipart upload: the metadata part, then one part per module whose form field is
+// field(m) (a script upload names each part after its module; a preview deployment names them all "files")
+// and whose filename is the module name.
+func scriptBody(meta map[string]any, modules []Module, field func(Module) string) (*cfapi.Body, error) {
 	metadata, err := json.Marshal(meta)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	body, err := multipartBody(func(mw *multipart.Writer) error {
+	return multipartBody(func(mw *multipart.Writer) error {
 		if err := writePart(mw, "metadata", "", "application/json", metadata); err != nil {
 			return err
 		}
@@ -554,16 +570,12 @@ func (c *Client) putScript(ctx context.Context, cfg Config, modules []Module, d1
 			if err != nil {
 				return err
 			}
-			if err := writePart(mw, m.Name, m.Name, m.ContentType(), b); err != nil {
+			if err := writePart(mw, field(m), m.Name, m.ContentType(), b); err != nil {
 				return err
 			}
 		}
 		return nil
 	})
-	if err != nil {
-		return err
-	}
-	return c.do(ctx, "PUT", c.accountPath("/workers/scripts/"+cfg.Name), "", body, nil)
 }
 
 func multipartBody(fill func(*multipart.Writer) error) (*cfapi.Body, error) {

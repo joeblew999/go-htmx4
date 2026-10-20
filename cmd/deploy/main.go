@@ -2,7 +2,8 @@
 // for kit/cfdeploy, which documents the steps.
 //
 // Credentials come from CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID; `mise run deploy` injects them
-// with `fnox exec`. It prints the Worker's workers.dev URL on stdout and progress on stderr.
+// with `fnox exec`. It prints the Worker's workers.dev URL (or, with -preview, the preview's URL) on stdout and
+// progress on stderr. -preview NAME deploys a Worker Preview instead of production; -delete-preview NAME removes one.
 package main
 
 import (
@@ -74,7 +75,22 @@ func main() {
 	flag.Var((*list)(&cfg.Modules), "module", "extra ES module next to -main, e.g. worker/room.mjs (repeatable)")
 	flag.Var((*list)(&cfg.NewSQLiteClasses), "new-sqlite-class", "Durable Object class created by -migration-tag (repeatable)")
 	dryRun := flag.Bool("dry-run", false, "print what would be uploaded; make no API calls")
+	previewName := flag.String("preview", "", "deploy as this Worker Preview of -name (e.g. pr-7) instead of production; prints its URL")
+	deletePreview := flag.String("delete-preview", "", "delete this Worker Preview of -name and exit")
+	annotations := vars{}
+	flag.Var(annotations, "annotation", "preview deployment annotation KEY=VALUE, e.g. workers/pull_request_number=7 (repeatable)")
 	flag.Parse()
+
+	if *deletePreview != "" {
+		gone, err := client().DeletePreview(context.Background(), cfg.Name, *deletePreview)
+		if err != nil {
+			log.Fatalf("deploy: %v", err)
+		}
+		if !gone {
+			log.Printf("preview %s of %s: none to delete", *deletePreview, cfg.Name)
+		}
+		return
+	}
 
 	plan, err := cfdeploy.NewPlan(cfg)
 	if err != nil {
@@ -92,6 +108,27 @@ func main() {
 		return
 	}
 
+	c := client()
+	if *previewName != "" {
+		res, err := c.DeployPreview(context.Background(), cfg, *previewName, annotations)
+		if err != nil {
+			log.Fatalf("deploy: %v", err)
+		}
+		for _, u := range res.URLs[min(1, len(res.URLs)):] {
+			log.Printf("  deployment URL %s", u)
+		}
+		fmt.Println(res.URL())
+		return
+	}
+	url, err := c.Deploy(context.Background(), cfg)
+	if err != nil {
+		log.Fatalf("deploy: %v", err)
+	}
+	fmt.Println(url)
+}
+
+// client is the API client, with credentials from CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID.
+func client() *cfdeploy.Client {
 	c := &cfdeploy.Client{
 		Token:     os.Getenv("CLOUDFLARE_API_TOKEN"),
 		AccountID: os.Getenv("CLOUDFLARE_ACCOUNT_ID"),
@@ -101,9 +138,5 @@ func main() {
 	if c.Token == "" || c.AccountID == "" {
 		log.Fatal("deploy: CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID must be set (use fnox exec)")
 	}
-	url, err := c.Deploy(context.Background(), cfg)
-	if err != nil {
-		log.Fatalf("deploy: %v", err)
-	}
-	fmt.Println(url)
+	return c
 }
