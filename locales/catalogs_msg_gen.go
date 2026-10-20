@@ -662,6 +662,22 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "gsxui.close",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Close",
+					},
+				},
+			},
+			{
+				Key: "gsxui.notifications",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Notifications",
+					},
+				},
+			},
+			{
 				Key: "home.board.description",
 				Parts: []i18n.MsgPart{
 					{
@@ -1819,6 +1835,22 @@ var catalogs = []*i18n.Catalog{
 				Parts: []i18n.MsgPart{
 					{
 						Text: "Greeting rendered",
+					},
+				},
+			},
+			{
+				Key: "gsxui.close",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Close",
+					},
+				},
+			},
+			{
+				Key: "gsxui.notifications",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Notifications",
 					},
 				},
 			},
@@ -2984,6 +3016,22 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "gsxui.close",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Schließen",
+					},
+				},
+			},
+			{
+				Key: "gsxui.notifications",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Benachrichtigungen",
+					},
+				},
+			},
+			{
 				Key: "home.board.description",
 				Parts: []i18n.MsgPart{
 					{
@@ -4141,6 +4189,22 @@ var catalogs = []*i18n.Catalog{
 				Parts: []i18n.MsgPart{
 					{
 						Text: "Salutation rendue",
+					},
+				},
+			},
+			{
+				Key: "gsxui.close",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Fermer",
+					},
+				},
+			},
+			{
+				Key: "gsxui.notifications",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Notifications",
 					},
 				},
 			},
@@ -5306,6 +5370,22 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "gsxui.close",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Cerrar",
+					},
+				},
+			},
+			{
+				Key: "gsxui.notifications",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Notificaciones",
+					},
+				},
+			},
+			{
 				Key: "home.board.description",
 				Parts: []i18n.MsgPart{
 					{
@@ -6463,6 +6543,22 @@ var catalogs = []*i18n.Catalog{
 				Parts: []i18n.MsgPart{
 					{
 						Text: "Saudação renderizada",
+					},
+				},
+			},
+			{
+				Key: "gsxui.close",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Fechar",
+					},
+				},
+			},
+			{
+				Key: "gsxui.notifications",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Notificações",
 					},
 				},
 			},
@@ -7628,6 +7724,22 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "gsxui.close",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Fechar",
+					},
+				},
+			},
+			{
+				Key: "gsxui.notifications",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Notificações",
+					},
+				},
+			},
+			{
 				Key: "home.board.description",
 				Parts: []i18n.MsgPart{
 					{
@@ -8782,6 +8894,22 @@ var catalogs = []*i18n.Catalog{
 				Parts: []i18n.MsgPart{
 					{
 						Text: "تم عرض التحية",
+					},
+				},
+			},
+			{
+				Key: "gsxui.close",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "إغلاق",
+					},
+				},
+			},
+			{
+				Key: "gsxui.notifications",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "الإشعارات",
 					},
 				},
 			},
@@ -9947,6 +10075,22 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "gsxui.close",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "סגירה",
+					},
+				},
+			},
+			{
+				Key: "gsxui.notifications",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "התראות",
+					},
+				},
+			},
+			{
 				Key: "home.board.description",
 				Parts: []i18n.MsgPart{
 					{
@@ -11101,6 +11245,22 @@ var catalogs = []*i18n.Catalog{
 				Parts: []i18n.MsgPart{
 					{
 						Text: "あいさつをレンダリングしました",
+					},
+				},
+			},
+			{
+				Key: "gsxui.close",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "閉じる",
+					},
+				},
+			},
+			{
+				Key: "gsxui.notifications",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "通知",
 					},
 				},
 			},
@@ -12266,6 +12426,22 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "gsxui.close",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "关闭",
+					},
+				},
+			},
+			{
+				Key: "gsxui.notifications",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "通知",
+					},
+				},
+			},
+			{
 				Key: "home.board.description",
 				Parts: []i18n.MsgPart{
 					{
@@ -13427,6 +13603,22 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "gsxui.close",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "關閉",
+					},
+				},
+			},
+			{
+				Key: "gsxui.notifications",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "通知",
+					},
+				},
+			},
+			{
 				Key: "home.board.description",
 				Parts: []i18n.MsgPart{
 					{
@@ -14581,6 +14773,22 @@ var catalogs = []*i18n.Catalog{
 				Parts: []i18n.MsgPart{
 					{
 						Text: "अभिवादन रेंडर हुआ",
+					},
+				},
+			},
+			{
+				Key: "gsxui.close",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "बंद करें",
+					},
+				},
+			},
+			{
+				Key: "gsxui.notifications",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "सूचनाएँ",
 					},
 				},
 			},
@@ -15782,6 +15990,22 @@ var catalogs = []*i18n.Catalog{
 				Parts: []i18n.MsgPart{
 					{
 						Text: "Приветствие отрисовано",
+					},
+				},
+			},
+			{
+				Key: "gsxui.close",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Закрыть",
+					},
+				},
+			},
+			{
+				Key: "gsxui.notifications",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Уведомления",
 					},
 				},
 			},
@@ -17398,6 +17622,34 @@ var pseudoCatalog = &i18n.Catalog{
 				},
 				{
 					Text: "Ĝŕééţíñĝ ŕéñðéŕéð······",
+				},
+				{
+					Text: "⟧",
+				},
+			},
+		},
+		{
+			Key: "gsxui.close",
+			Parts: []i18n.MsgPart{
+				{
+					Text: "⟦",
+				},
+				{
+					Text: "Çļóšé··",
+				},
+				{
+					Text: "⟧",
+				},
+			},
+		},
+		{
+			Key: "gsxui.notifications",
+			Parts: []i18n.MsgPart{
+				{
+					Text: "⟦",
+				},
+				{
+					Text: "Ñóţíƒíçáţíóñš·····",
 				},
 				{
 					Text: "⟧",

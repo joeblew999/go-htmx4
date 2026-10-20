@@ -167,3 +167,7 @@ hour_cycle = "時刻表示"
 hour_cycle_auto = "言語の既定（{example}）"
 save = "保存"
 loading = "読み込み中…"
+
+[gsxui]
+close = "閉じる"
+notifications = "通知"

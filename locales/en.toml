@@ -170,3 +170,8 @@ hour_cycle = "Clock"
 hour_cycle_auto = "Language default ({example})"
 save = "Save"
 loading = "Loading…"
+
+# gsxui components' own text (ui/i18n.Translate)
+[gsxui]
+close = "Close"
+notifications = "Notifications"

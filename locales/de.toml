@@ -167,3 +167,7 @@ hour_cycle = "Uhrzeitformat"
 hour_cycle_auto = "Standard der Sprache ({example})"
 save = "Speichern"
 loading = "Wird geladen…"
+
+[gsxui]
+close = "Schließen"
+notifications = "Benachrichtigungen"

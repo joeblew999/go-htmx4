@@ -4,6 +4,10 @@ class_merger = "github.com/joeblew999/go-htmx4/ui/merge.Merge"
 # gsx's htmx preset predates htmx 4: add hx-action, and hx-ws:connect, which also carries a URL.
 url_presets = ["htmx"]
 
+# gsxui components write their own text ("Close", "Notifications") as ui/i18n.T; translate it from the catalogs.
+[renderers]
+"github.com/joeblew999/go-htmx4/ui/i18n.T" = "github.com/joeblew999/go-htmx4/ui/i18n.Translate"
+
 [url_attrs]
 names = ["hx-action", "hx-ws:connect"]
 

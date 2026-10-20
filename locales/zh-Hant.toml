@@ -167,3 +167,7 @@ hour_cycle = "小時制"
 hour_cycle_auto = "語言預設（{example}）"
 save = "儲存"
 loading = "載入中…"
+
+[gsxui]
+close = "關閉"
+notifications = "通知"
