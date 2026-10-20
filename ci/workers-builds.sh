@@ -13,7 +13,8 @@ cd "$(dirname "$0")/.."
 empty=$(mktemp --suffix .toml)
 export MISE_GLOBAL_CONFIG_FILE="$empty" MISE_SYSTEM_CONFIG_FILE="$empty" MISE_CEILING_PATHS="$(dirname "$PWD")"
 for v in $(env | grep -oE '^MISE_[A-Z0-9_]+_VERSION' || true); do unset "$v"; done
-export MISE_YES=1 MISE_TRUSTED_CONFIG_PATHS="$PWD" PATH="$HOME/.local/bin:$PATH"
+# MISE_TASK_RUN_AUTO_INSTALL=false: `mise run` would otherwise install every tool in mise.toml first.
+export MISE_YES=1 MISE_TRUSTED_CONFIG_PATHS="$PWD" MISE_TASK_RUN_AUTO_INSTALL=false PATH="$HOME/.local/bin:$PATH"
 
 if ! command -v mise >/dev/null 2>&1; then
   curl -fsSL https://mise.run | MISE_VERSION="${MISE_VERSION:-v2026.10.14}" MISE_QUIET=1 sh
