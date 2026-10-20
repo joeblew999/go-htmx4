@@ -173,8 +173,7 @@ func renderBoard(ctx context.Context, b Board) string {
 func renderBoardLocales(ctx context.Context, b Board) live.Localized {
 	out := live.Localized{Default: views.LocaleKey(cldr.Data.Locales[0]), Fragments: map[string]string{}}
 	for _, ld := range cldr.Data.Locales {
-		loc, _ := cldr.Data.Locale(i18n.MustParseTag(ld.ID))
-		lctx := i18n.WithRequest(ctx, i18n.Request{Locale: loc, Path: "/board"})
+		lctx := i18n.WithRequest(ctx, i18n.Request{Locale: &i18n.Locale{Data: ld}, Path: "/board"})
 		out.Fragments[views.LocaleKey(ld)] = renderBoard(lctx, b)
 	}
 	return out

@@ -184,7 +184,7 @@ func (m Messages) BoardVersion(version float64) string {
 	return m.format(35, i18n.FloatArg(version))
 }
 
-// FormatsCurrencyDescription is "formats.currency_description": Money is exact (integer minor units), with CLDR currency digits. Local currency: {currency}.
+// FormatsCurrencyDescription is "formats.currency_description": Intl.NumberFormat style "currency", from exact decimal strings. Local currency: {currency}.
 func (m Messages) FormatsCurrencyDescription(currency string) string {
 	return m.format(36, i18n.StrArg(currency))
 }
@@ -204,7 +204,7 @@ func (m Messages) FormatsDatesTitle() string {
 	return m.format(39)
 }
 
-// FormatsDescription is "formats.description": Locale-aware formatting rendered by Go from Unicode CLDR, with the options and output of JavaScript's Intl.
+// FormatsDescription is "formats.description": Locale-aware formatting by your browser's own Intl: numbers, currencies, dates, time zones, units, lists and plural rules in every language the site ships.
 func (m Messages) FormatsDescription() string {
 	return m.format(40)
 }
@@ -214,7 +214,7 @@ func (m Messages) FormatsDirection(dir string) string {
 	return m.format(41, i18n.StrArg(dir))
 }
 
-// FormatsDurationsDescription is "formats.durations_description": Intl.DurationFormat, with Chrome's output for numeric units.
+// FormatsDurationsDescription is "formats.durations_description": Intl.DurationFormat, in browsers that have it.
 func (m Messages) FormatsDurationsDescription() string {
 	return m.format(42)
 }
@@ -229,7 +229,7 @@ func (m Messages) FormatsInput() string {
 	return m.format(44)
 }
 
-// FormatsIntro is "formats.intro": Locale-aware formatting rendered by Go from Unicode CLDR, with the options and output of JavaScript's Intl. Switch language at the bottom of the page.
+// FormatsIntro is "formats.intro": Locale-aware formatting by your browser's own Intl, in this page's language and your time zone: each row is an Intl call and its options. Switch language at the bottom of the page.
 func (m Messages) FormatsIntro() string {
 	return m.format(45)
 }
@@ -254,7 +254,7 @@ func (m Messages) FormatsNumbering(system string) string {
 	return m.format(49, i18n.StrArg(system))
 }
 
-// FormatsNumbersDescription is "formats.numbers_description": Intl.NumberFormat options, formatted on the server from CLDR data.
+// FormatsNumbersDescription is "formats.numbers_description": Intl.NumberFormat options, formatted by your browser.
 func (m Messages) FormatsNumbersDescription() string {
 	return m.format(50)
 }
@@ -269,7 +269,7 @@ func (m Messages) FormatsOptions() string {
 	return m.format(52)
 }
 
-// FormatsPluralsDescription is "formats.plurals_description": CLDR plural categories with the first numbers that select them.
+// FormatsPluralsDescription is "formats.plurals_description": CLDR plural categories with the first numbers that select them, computed on the server: they choose the wording of translated messages.
 func (m Messages) FormatsPluralsDescription() string {
 	return m.format(53)
 }
@@ -629,7 +629,7 @@ func (m Messages) PageTitle(title string) string {
 	return m.format(124, i18n.StrArg(title))
 }
 
-// PreferencesDescription is "preferences.description": Dates and times on every page use these settings. Automatic uses your connection's time zone, and your browser corrects it when it differs.
+// PreferencesDescription is "preferences.description": Dates and times on every page use these settings. Automatic uses your browser's time zone.
 func (m Messages) PreferencesDescription() string {
 	return m.format(125)
 }

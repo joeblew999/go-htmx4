@@ -172,12 +172,13 @@ check "hx-live.js from static/"   "$(curl -s -o /dev/null -w '%{http_code} %{con
 check "theme toggle in header"    "$(curl -s "$base/")" 'data-site-theme-toggle'
 check "405 on wrong method"       "$(curl -s -o /dev/null -w '%{http_code}' "$base/greet")" '405'
 check "404 for missing file"      "$(curl -s -o /dev/null -w '%{http_code}' "$base/nope.txt")" '404'
-# Locales (kit/i18n on TinyGo): prefixed URLs, <html lang dir>, CLDR formatting byte-identical to Intl.
-nbsp=$(printf '\302\240')
-check "locale page /de/"          "$(curl -s "$base/de/")" '<html lang="de" dir="ltr">'
-check "rtl page /ar/formats"      "$(curl -s "$base/ar/formats")" '<html lang="ar" dir="rtl">'
-check "CLDR numbers on TinyGo"    "$(curl -s "$base/hi/formats")" '१२,३४,५६७.८९१'
-check "CLDR currency on TinyGo"   "$(curl -s "$base/de/formats")" "1.234,50${nbsp}€"
+# Locales (kit/i18n on TinyGo): prefixed URLs, <html lang dir>; values the browser formats (static/intl.js) go out
+# raw with their Intl options, and plural rules (they pick messages' wording) run on the server.
+check "locale page /de/"          "$(curl -s "$base/de/")" '<html lang="de" dir="ltr"'
+check "rtl page /ar/formats"      "$(curl -s "$base/ar/formats")" '<html lang="ar" dir="rtl"'
+check "Intl markup on TinyGo"     "$(curl -s "$base/de/formats")" '&#34;currency&#34;:&#34;EUR&#34;'
+check "plural rules on TinyGo"    "$(curl -s "$base/ru/formats")" '2, 3, 4, 22, 23'
+check "intl.js from static/"      "$(curl -s -o /dev/null -w '%{http_code} %{content_type}' "$base/static/intl.js")" '200 text/javascript'
 check "localized hx-post"         "$(curl -s "$base/de/board?topic=smoke")" 'hx-post="/de/board/add?topic=smoke'
 # UI messages (locales/*.toml → locales/*_msg_gen.go): a translated page, an ICU plural, and no noindex.
 check "UI catalog on TinyGo"      "$(curl -s "$base/de/")" 'Go + htmx 4 + gsxui auf Cloudflare Workers'
@@ -190,10 +191,8 @@ check "sitemap with alternates"   "$(curl -s "$base/sitemap.xml")" "<xhtml:link 
 check "robots.txt is ours"        "$(curl -s "$base/robots.txt")" "Sitemap: $base/sitemap.xml"
 check "fragment noindex"          "$(curl -sI "$base/fragments/stats" | tr -d '\r' | grep -i '^x-robots-tag' || true)" 'noindex'
 check "Open Graph url + locale"   "$(curl -s "$base/de/about")" "<meta property=\"og:url\" content=\"$base/de/about\"><meta property=\"og:locale\" content=\"de_DE\">"
-# Dates (kit/i18n DateTimeFormat + time/tzdata on TinyGo): a style, a named zone, the viewer's zone cookie.
-check "DateTimeFormat on TinyGo"  "$(curl -s "$base/de/formats")" 'Samstag, 4. Juli 2026'
-check "named zone on TinyGo"      "$(curl -s "$base/formats")" '11:30 AM Eastern Time'
-check "tz cookie on TinyGo"       "$(curl -s -b tz=America/Los_Angeles "$base/fragments/server-info")" ' PDT</time>'
+# Dates: the viewer's chosen zone and clock reach the browser as <html data-tz data-hc>.
+check "tz cookie on TinyGo"       "$(curl -s -b 'tz=America/Los_Angeles; hc=h23' "$base/formats")" 'data-tz="America/Los_Angeles" data-hc="h23"'
 pref=$(curl -s -o /dev/null -w '%{http_code} %{time_total}' "$base/de/fragments/preferences")
 check "preferences zone list"     "$pref" '200 '
 echo "· /de/fragments/preferences took ${pref#* }s"

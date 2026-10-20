@@ -1,7 +1,6 @@
 package e2e
 
 import (
-	"strings"
 	"testing"
 	"time"
 
@@ -9,45 +8,46 @@ import (
 	"github.com/chromedp/chromedp"
 )
 
-// TestViewerTimeZone: dates follow the viewer. Local workerd has no Cloudflare cf, so the server's automatic zone
-// is UTC; a browser in Tokyo re-formats those times itself (static/relative-time.js). Choosing a zone in the
-// header dialog stores it, the page re-renders in it, and the browser leaves chosen times alone.
+// TestViewerTimeZone: dates follow the viewer. The browser formats them with its own Intl (static/intl.js) in its own
+// zone; choosing a zone and clock in the header dialog stores them, and every page formats in them from then on.
 func TestViewerTimeZone(t *testing.T) {
 	b := newTab(t, "browser")
 	b.run(emulation.SetTimezoneOverride("Asia/Tokyo"))
 	b.open("/")
 	b.waitJS(5*time.Second, `document.readyState === "complete" && typeof htmx === "object"`)
 
-	// Automatic zone: the server renders UTC, the browser corrects it to Tokyo.
+	// No choice: the browser's own zone.
 	b.clickText("button", "Show server info")
-	ok := b.waitJS(5*time.Second, `document.querySelector("#server-info time")?.getAttribute("data-time-zone") === "Asia/Tokyo"`)
+	ok := b.waitJS(5*time.Second, `(document.querySelector("#server-info time")?.textContent ?? "").includes("GMT+9")`)
 	text := b.str(`document.querySelector("#server-info time")?.textContent ?? ""`)
-	check(t, "browser re-formats an automatic time in its own zone", ok && strings.Contains(text, "GMT+9"), " ", text)
+	check(t, "the browser formats a time in its own zone", ok, " ", text)
+	check(t, "durations are formatted too", b.waitJS(5*time.Second, `/\bsec\b/.test(document.querySelector("#server-info data[data-intl=duration]")?.textContent ?? "")`),
+		" ", b.str(`document.querySelector("#server-info data[data-intl=duration]")?.textContent ?? ""`))
 	b.run(chromedp.KeyEvent("\x1b"))
 
-	// Calibration: the browser corrects a time only when it reproduces the server's text in the server's zone.
-	guard := b.str(`(() => {
-		const opts = '{"dateStyle":"full","timeStyle":"long"}', at = "2026-07-04T15:30:45Z";
-		const make = (text) => {
-			const el = document.createElement("time");
-			el.setAttribute("datetime", at);
-			el.setAttribute("data-local-time", opts);
-			el.setAttribute("data-time-zone", "UTC");
-			el.textContent = text;
-			document.body.append(el);
-			return el;
-		};
-		const same = make(new Intl.DateTimeFormat("en", { dateStyle: "full", timeStyle: "long", timeZone: "UTC" }).format(Date.parse(at)));
-		const other = make("Saturday the 4th of July, 3:30 in the afternoon");
-		relativeTime.update();
-		return JSON.stringify({ same: same.textContent, other: other.textContent });
-	})()`)
-	check(t, "calibrated: matching server text is corrected to Tokyo, foreign wording left alone",
-		strings.Contains(guard, `"same":"Sunday, July 5, 2026 at 12:30:45 AM GMT+9"`) && strings.Contains(guard, `"other":"Saturday the 4th of July, 3:30 in the afternoon"`), " ", guard)
+	b.open("/formats")
+	check(t, "the formats page is in Tokyo time", b.waitJS(5*time.Second, `document.body.textContent.includes("Sunday, July 5, 2026")`))
 
-	// Choose America/Los_Angeles and a 24-hour clock in the header dialog.
+	// A value this browser's Intl rejects keeps the server's fallback.
+	kept := b.str(`(() => {
+		const el = document.createElement("time");
+		el.setAttribute("datetime", "2026-07-04T15:30:45Z");
+		el.dataset.intl = "datetime";
+		el.dataset.opts = '{"dateStyle":"bogus"}';
+		el.textContent = "2026-07-04 15:30 UTC";
+		document.body.append(el);
+		intl.update(el);
+		return el.textContent;
+	})()`)
+	check(t, "rejected options keep the fallback", kept == "2026-07-04 15:30 UTC", " ", kept)
+
+	// Choose America/Los_Angeles and a 24-hour clock in the header dialog. The zone list is the browser's own.
+	b.open("/")
+	b.waitJS(5*time.Second, `document.readyState === "complete" && typeof htmx === "object"`)
 	b.eval(`document.querySelector('header button[hx-get$="/fragments/preferences"]').click()`, nil)
-	check(t, "preferences dialog loads the zone list", b.waitJS(5*time.Second, `document.querySelectorAll("#pref-tz option").length > 400`))
+	check(t, "preferences dialog lists the browser's zones", b.waitJS(5*time.Second, `document.querySelectorAll("#pref-tz option").length > 300`))
+	check(t, "zones are named", b.is(`[...document.querySelectorAll("#pref-tz option")].some(o => o.value === "Europe/Berlin" && o.textContent.includes("Central European"))`))
+	check(t, "automatic names the browser's zone", b.is(`document.querySelector('#pref-tz option[value=""]').textContent.includes("Asia/Tokyo")`))
 	b.eval(`(() => {
 		document.getElementById("pref-tz").value = "America/Los_Angeles";
 		document.getElementById("pref-hc").value = "h23";
@@ -57,16 +57,13 @@ func TestViewerTimeZone(t *testing.T) {
 	check(t, "saving stores the zone and closes the dialog", ok, " ", b.str(`document.cookie`))
 
 	b.open("/formats")
-	body := b.str(`document.body.textContent`)
-	check(t, "pages render in the chosen zone and clock", strings.Contains(body, "time zone America/Los_Angeles") && strings.Contains(body, "08:30 Pacific Daylight Time"))
+	check(t, "pages format in the chosen zone and clock", b.waitJS(5*time.Second, `document.body.textContent.includes("08:30:45 Pacific Daylight Time")`))
 
 	b.open("/")
 	b.waitJS(5*time.Second, `document.readyState === "complete" && typeof htmx === "object"`)
 	b.clickText("button", "Show server info")
-	b.waitJS(5*time.Second, `!!document.querySelector("#server-info time")`)
-	time.Sleep(300 * time.Millisecond) // give the browser script a chance to (wrongly) re-format
-	text = b.str(`document.querySelector("#server-info time").textContent`)
-	check(t, "a chosen zone isn't replaced by the browser's", strings.Contains(text, "PDT") && !b.is(`document.querySelector("#server-info time").hasAttribute("data-local-time")`), " ", text)
+	ok = b.waitJS(5*time.Second, `(document.querySelector("#server-info time")?.textContent ?? "").includes("PDT")`)
+	check(t, "a chosen zone beats the browser's", ok, " ", b.str(`document.querySelector("#server-info time")?.textContent ?? ""`))
 
 	b.noProblems()
 }

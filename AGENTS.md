@@ -167,11 +167,12 @@
 # Project Structure
 
 - repo root - the app (`main.go` + `board.go` handlers, `views/` pages + fragments (`.gsx`, package `views`), `ui/` vendored by gsxui,
-  `store_{sql,mem}.go`, `platform_{js,other}.go`, `worker/index.mjs` entry + `worker/room.mjs` Durable Object, `migrations/`, `static/` (vendored htmx + hx-ws),
+  `store_{sql,mem}.go`, `platform_{js,other}.go`, `worker/index.mjs` entry + `worker/room.mjs` Durable Object, `migrations/`, `static/` (vendored htmx + hx-ws, `intl.js`),
   `web/gsxui/` (behaviours + CSS entry), `workerd/` (config.capnp + local-only shims), `cmd/deploy` + `cmd/wsload` (flag parsing over kit/)).
 - `kit/` - importable packages: `cfdeploy` (Cloudflare deploy), `cftail` (live logs), `searchconsole` (Search Console API), `wsload` (WebSocket checks), `live`
-  (Room publish, topic rule), `ratelimit` (rate limiting binding), `httpx` (TinyGo-safe HTTP helpers), `i18n` (locales + CLDR formatting;
-  `i18n/cldr` generated tables, `i18n/cldrgen` generator, `i18n/intltest` Intl conformance); `kit/internal/cfapi` is their shared API client.
+  (Room publish, topic rule), `ratelimit` (rate limiting binding), `httpx` (TinyGo-safe HTTP helpers), `i18n` (locales, messages, plural rules;
+  `i18n/cldr` generated table, `i18n/msggen` message generator, `i18n/legacy` the earlier server-side Intl as its own
+  module); `kit/internal/cfapi` is their shared API client.
 - `tasks/` - mise task files included from `mise.toml`.
 
 # kit/ (importable packages)
@@ -188,22 +189,29 @@
 
 # kit/i18n
 
-- Formatting is CLDR-exact Go with Intl's option names and output, computed on the server. The client's `Intl` may only
-  enhance viewer-local text, and only with the page's `lang`.
-- `kit/i18n` (runtime) and `kit/i18n/cldr` (generated tables) compile into the Worker: sorted slices, no maps or init funcs.
-- Never hand-edit `kit/i18n/cldr/*_cldr.go`. The locale list is `I18N_LOCALES` in `mise.toml`; `mise run i18n:generate`
-  (`cmd/cldrgen`) rewrites the tables from pinned cldr-json (+ CLDR XML for root/number-system symbols).
-- **Reference data** (sources, pins, cache, moving a pin): [kit/i18n/README.md](kit/i18n/README.md).
-  - Every upstream input is pinned in `kit/i18n/cldrgen/sources.go` or `mise.toml`: cldr-json, CLDR XML, the
-    Chromium ICU commit of the pinned workerd, and workerd. `TestReferencePins` keeps them consistent.
-  - Chrome-specific data comes from the pinned Chromium ICU files, never from memory.
-  - `mise run i18n:verify` must pass before committing a pin, generator or case change.
-  - A `known` conformance entry needs `knownEvidence`, unless the feature is unimplemented.
-- Conformance is byte-for-byte against Intl. `mise run i18n:golden` (`cmd/intloracle`) records workerd's output for
-  `kit/i18n/intltest` cases in `kit/i18n/testdata/golden/workerd.json`, and `TestConformance` must stay green. Add cases
-  there before adding features. An accepted difference goes in `known` with a checkable reason.
-- `kit/i18n/cldrgen`, `kit/i18n/intltest` and their cmds are local tooling (standard Go). The local-only JS is
-  `intltest/intl.mjs`, which evaluates cases in workerd (`oracle.mjs`) and in real browsers (`mise run i18n:browsers`).
+- **The browser formats; the server translates.** Dates, times, time zones, relative times, durations, currencies,
+  units and lists are formatted in the viewer's browser with its own `Intl` (`static/intl.js`): only the browser
+  knows the viewer's zone, and every browser already ships CLDR. The server writes the raw value, the Intl options
+  and a readable fallback (`views/intl.go`): `<time datetime data-intl="datetime" data-opts='{…}'>`,
+  `<data value data-intl="number">`, and the kinds listed at the top of `intl.js`.
+  - `data-opts` is a JSON object written as a literal in the views (no JSON encoder in the Worker).
+  - A translated message around a browser-formatted value uses `data-template` with `slot` as its argument.
+  - The viewer's chosen zone and clock reach `intl.js` as `<html data-tz data-hc>` ("" = the browser's own zone and
+    the language's clock), from the `tz`/`hc` cookies (`POST /preferences`). The connection's zone
+    (`connectionTimeZone`) only labels "Automatic (…)".
+  - intl.js formats on load, on every DOM change (one MutationObserver covers htmx swaps, hx-ws pushes and morphs) and
+    every 30 s for relative times. A value or option a browser's Intl rejects keeps the fallback.
+- **The server keeps what chooses wording**: `kit/i18n` is the shipped locales, the request's locale, messages, plural
+  rules and plain numbers (`Num(ctx, n)`, `{n, number}`: the locale's digits and grouping). It compiles into the
+  Worker; `kit/i18n/cldr` is its generated table (a few KB).
+  - Never hand-edit `kit/i18n/cldr/data_cldr.go`. The locale list is `I18N_LOCALES` in `mise.toml`;
+    `mise run i18n:generate` regenerates it (and `kit/i18n/testdata/numbers.json`, which `TestFormatNumberGolden`
+    checks plain numbers against) with `kit/i18n/legacy`'s generator.
+  - Messages may use `{n, number}` and `{n, number, integer}` only; msggen rejects richer styles (they're the
+    browser's job).
+- **`kit/i18n/legacy`** is the earlier server-side Intl implementation (CLDR-exact formatting, conformance goldens,
+  browser drift checks), kept untouched as its own Go module: out of the build, out of `mise run check`.
+  `mise run i18n:legacy` runs its tests; its [README](kit/i18n/legacy/README.md) covers its reference data.
 - **Locale URLs in the app** (`i18n.go`):
   - The default locale (`en`) is unprefixed; every other locale is `/<lowercase id>/…`.
   - `/en/…` and mixed-case prefixes 301 to the canonical URL.
@@ -213,12 +221,13 @@
   `/live/` don't. `TestLocalizedURLs` checks every page in every locale.
 - Views use logical Tailwind classes only (`ms-`/`me-`/`ps-`/`pe-`/`start-`/`end-`/`text-start`/`text-end`), so
   `dir="rtl"` mirrors. `TestLogicalClasses` fails on physical ones.
-- **UI text** comes from `locales/*.toml` (ICU MessageFormat 1: `{name}`, `{n, number[, style]}`, plural with `=N`
+- **UI text** comes from `locales/*.toml` (ICU MessageFormat 1: `{name}`, `{n, number[, integer]}`, plural with `=N`
   and `offset:`, selectordinal, select; flattened dotted keys). `en.toml` is the source.
   - Views use `M(ctx).Key(args)`, handlers use `locales.For(r.Context())`. No literal user-facing text in `views/` or
     handlers.
-  - Brand names, code and machine values carry `translate="no"`, and kit/i18n output carries `data-i18n="cldr"`.
-    `TestNoHardcodedText` renders everything with en-XA pseudo messages and fails on any other ASCII word.
+  - Brand names, code and machine values carry `translate="no"`; browser-formatted values (`data-intl`) and
+    server-computed locale data (`data-i18n="cldr"`) are exempt too. `TestNoHardcodedText` renders everything with
+    en-XA pseudo messages and fails on any other ASCII word.
   - User text inside a message is wrapped with `Isolate(Loc(ctx).Dir(), s)`; user text in its own element gets
     `dir="auto"`.
   - Never hand-edit `locales/*_msg_gen.go`: `mise run i18n:messages` (part of `mise run generate`) regenerates it,
@@ -236,18 +245,9 @@
     must be added to `pageKey`.
   - A new indexable page goes into `views.SitemapPages`.
   - `TestCanonicalAndHreflang` and `TestSitemap` check reciprocity against the pages.
-- **Dates** are never formatted with `time.Format` for readers.
-  - Views render an instant with `<LocalTime t={…} opts={i18n.DateTimeOptions{…}}/>` (or `FormatDateTime` /
-    `FormatDateRange`). Both use the request's locale and the viewer's time zone and hour cycle.
-  - Preference precedence: `tz`/`hc` cookies (`POST /preferences`), then Cloudflare's `request.cf.timezone`
-    (`connectionTimeZone`), then UTC.
-  - Fragments pushed to every viewer (the board) can't use a viewer's zone: relative time, plus a UTC tooltip.
-  - `static/relative-time.js` is the one browser-`Intl` exception (plan decision 6). It re-formats
-    `<time data-relative-time>` and, when the zone wasn't chosen, `<time data-local-time>` in the browser's zone.
-    It only does so after calibrating: the browser must reproduce the server's exact wording. Safari and Firefox
-    `Intl` differ from Chrome (`mise run i18n:browsers`).
-- Option combinations the app uses need workerd oracle cases (`kit/i18n/intltest`). V8 has quirks such as ja
-  `dateStyle: "full"` with `hourCycle: "h12"` giving "2026/5/10日曜日", and kit/i18n matches them byte for byte.
+- **Dates** are never formatted with `time.Format` for readers: views use `<LocalTime t={…} opts={`{"dateStyle":"full"}`}/>`,
+  `<RelativeTime …/>` and `<Elapsed d={…}/>` (`views/intl.gsx`), whose UTC/plain text is only the fallback.
+  Fragments pushed to every viewer (the board) work the same way: each browser words them for its viewer.
 
 # Code Style
 

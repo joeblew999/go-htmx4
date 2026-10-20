@@ -43,13 +43,13 @@ func TestNoOverflow(t *testing.T) {
 	b.noProblems()
 }
 
-// TestArabicDigitsAndMirroring: /ar/formats is right-to-left and shows the native Arabic-Indic digits row next to
-// CLDR's default Latin digits.
+// TestArabicDigitsAndMirroring: /ar/formats is right-to-left, and the browser's Intl shows the native
+// Arabic-Indic digits row next to CLDR's default Latin digits.
 func TestArabicDigitsAndMirroring(t *testing.T) {
 	b := newTab(t, "browser")
 	b.open("/ar/formats")
 	check(t, "Arabic page is rtl", b.is(`document.documentElement.dir === "rtl" && getComputedStyle(document.querySelector("main")).direction === "rtl"`))
-	check(t, "native Arabic-Indic digits (numberingSystem arab)", b.is(`document.body.textContent.includes("١٬٢٣٤٬٥٦٧٫٨٩١")`))
+	check(t, "native Arabic-Indic digits (numberingSystem arab)", b.waitJS(5*time.Second, `document.body.textContent.includes("١٬٢٣٤٬٥٦٧٫٨٩١")`))
 	check(t, "CLDR default digits for ar are Latin", b.is(`document.body.textContent.includes("1,234,567.891")`))
 	check(t, "table results align to the logical end", b.is(`(() => {
 		const cell = document.querySelector("tbody td:last-child");
@@ -65,24 +65,24 @@ func TestLocaleSwitchKeepsPreferences(t *testing.T) {
 	b.open("/de/formats")
 	b.waitJS(5*time.Second, `document.readyState === "complete" && typeof htmx === "object"`)
 	b.eval(`document.querySelector('header button[hx-get$="/fragments/preferences"]').click()`, nil)
-	check(t, "German preferences dialog loads", b.waitJS(5*time.Second, `document.querySelectorAll("#pref-tz option").length > 400`))
+	check(t, "German preferences dialog loads", b.waitJS(5*time.Second, `document.querySelectorAll("#pref-tz option").length > 300`))
 	b.eval(`(() => {
-		document.getElementById("pref-tz").value = "Asia/Calcutta";
+		document.getElementById("pref-tz").value = "Asia/Tokyo";
 		document.querySelector("#preferences button[type=submit]").click();
 	})()`, nil)
-	check(t, "zone saved from the German page", b.waitJS(8*time.Second, `document.cookie.includes("tz=Asia/Calcutta") && location.pathname === "/de/formats"`))
+	check(t, "zone saved from the German page", b.waitJS(8*time.Second, `document.cookie.includes("tz=Asia/Tokyo") && location.pathname === "/de/formats"`))
 
 	b.eval(`document.querySelector('#languages a[hreflang="ar"]').click()`, nil)
-	ok := b.waitJS(8*time.Second, `location.pathname === "/ar/formats" && document.documentElement.lang === "ar" && document.body.textContent.includes("Asia/Calcutta")`)
+	ok := b.waitJS(8*time.Second, `location.pathname === "/ar/formats" && document.documentElement.lang === "ar" && document.documentElement.dataset.tz === "Asia/Tokyo"`)
 	check(t, "switching to Arabic keeps the zone", ok)
 	b.waitJS(5*time.Second, `document.readyState === "complete" && typeof htmx === "object"`)
 	b.eval(`document.querySelector('header button[hx-get$="/fragments/preferences"]').click()`, nil)
-	check(t, "Arabic dialog shows the chosen zone", b.waitJS(5*time.Second, `document.getElementById("pref-tz")?.value === "Asia/Calcutta"`))
+	check(t, "Arabic dialog shows the chosen zone", b.waitJS(5*time.Second, `document.getElementById("pref-tz")?.value === "Asia/Tokyo"`))
 
 	b.eval(`document.querySelector('#languages a[hreflang="en"]').click()`, nil)
 	b.waitJS(8*time.Second, `location.pathname === "/" && document.documentElement.lang === "en"`)
 	b.open("/formats")
-	check(t, "back in English, still the chosen zone", b.is(`document.body.textContent.includes("time zone Asia/Calcutta")`))
+	check(t, "back in English, still the chosen zone", b.is(`document.documentElement.dataset.tz === "Asia/Tokyo" && document.body.textContent.includes("time zone Asia/Tokyo")`))
 	b.noProblems()
 }
 
@@ -109,33 +109,14 @@ func TestMixedLocalePush(t *testing.T) {
 	}))
 	check(t, "user text isolated with dir=auto", de.is(`[...document.querySelectorAll("#board [dir=auto]")].some(e => e.textContent.includes("مرحبا"))`))
 
-	// Relative time ticks in the page's language: pretend the note is 5 minutes old.
-	tick := de.str(`(() => {
-		const el = document.querySelector("#board time[data-relative-time]");
-		el.setAttribute("datetime", new Date(Date.now() - 5 * 60 * 1000).toISOString());
-		relativeTime.update();
-		return el.textContent;
-	})()`)
-	check(t, "German relative time ticks", tick == "vor 5 Minuten", " ", tick)
-	tick = ar.str(`(() => {
-		const el = document.querySelector("#board time[data-relative-time]");
-		el.setAttribute("datetime", new Date(Date.now() - 5 * 60 * 1000).toISOString());
-		relativeTime.update();
-		return el.textContent;
-	})()`)
-	check(t, "Arabic relative time ticks", tick == "قبل 5 دقائق", " ", tick)
-
-	// Calibration: server text this browser can't produce means its data differs, so the script leaves the page alone.
-	guarded := de.str(`(() => {
-		const fake = document.createElement("time");
-		fake.setAttribute("datetime", new Date(Date.now() - 3 * 60 * 1000).toISOString());
-		fake.setAttribute("data-relative-time", "");
-		fake.textContent = "wording this browser never produces";
-		document.body.append(fake);
-		relativeTime.update();
-		return fake.textContent;
-	})()`)
-	check(t, "script keeps server wording the browser can't reproduce", guarded == "wording this browser never produces", " ", guarded)
+	// Relative times are worded by each browser in its page's language, and follow the instant: pretend the note is
+	// 5 minutes old (intl.js reformats on the attribute change).
+	const age = `document.querySelector("#board time[data-intl=relative]").setAttribute("datetime", new Date(Date.now() - 5 * 60 * 1000).toISOString())`
+	de.eval(age, nil)
+	ar.eval(age, nil)
+	rel := `document.querySelector("#board time[data-intl=relative]")?.textContent ?? ""`
+	check(t, "German relative time", de.waitJS(5*time.Second, rel+` === "vor 5 Minuten"`), " ", de.str(rel))
+	check(t, "Arabic relative time", ar.waitJS(5*time.Second, rel+` === "قبل 5 دقائق"`), " ", ar.str(rel))
 	de.noProblems()
 	ar.noProblems()
 }

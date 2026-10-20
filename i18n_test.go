@@ -13,10 +13,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/joeblew999/go-htmx4/kit/i18n"
 	"github.com/joeblew999/go-htmx4/kit/i18n/cldr"
-	"github.com/joeblew999/go-htmx4/kit/i18n/cldrgen"
-	"github.com/joeblew999/go-htmx4/kit/i18n/intltest"
 	"github.com/joeblew999/go-htmx4/locales"
 	"github.com/joeblew999/go-htmx4/views"
 	nethtml "golang.org/x/net/html"
@@ -42,12 +39,12 @@ func TestLocaleRouting(t *testing.T) {
 		want     []string // body substrings
 		language string   // Content-Language
 	}{
-		{path: "/", status: 200, want: []string{`<html lang="en" dir="ltr">`}, language: "en"},
-		{path: "/de/", status: 200, want: []string{`<html lang="de" dir="ltr">`, `href="/de/board"`}, language: "de"},
-		{path: "/ar/formats", status: 200, want: []string{`<html lang="ar" dir="rtl">`}, language: "ar"},
-		{path: "/he/about", status: 200, want: []string{`<html lang="he" dir="rtl">`}, language: "he"},
-		{path: "/pt-br/about", status: 200, want: []string{`<html lang="pt-BR" dir="ltr">`}, language: "pt-BR"},
-		{path: "/zh-hant/formats", status: 200, want: []string{`<html lang="zh-Hant" dir="ltr">`, "繁體中文"}, language: "zh-Hant"},
+		{path: "/", status: 200, want: []string{`<html lang="en" dir="ltr" `}, language: "en"},
+		{path: "/de/", status: 200, want: []string{`<html lang="de" dir="ltr" `, `href="/de/board"`}, language: "de"},
+		{path: "/ar/formats", status: 200, want: []string{`<html lang="ar" dir="rtl" `}, language: "ar"},
+		{path: "/he/about", status: 200, want: []string{`<html lang="he" dir="rtl" `}, language: "he"},
+		{path: "/pt-br/about", status: 200, want: []string{`<html lang="pt-BR" dir="ltr" `}, language: "pt-BR"},
+		{path: "/zh-hant/formats", status: 200, want: []string{`<html lang="zh-Hant" dir="ltr" `, "繁體中文"}, language: "zh-Hant"},
 		{path: "/de", status: 301, location: "/de/"},
 		{path: "/DE/about?x=1", status: 301, location: "/de/about?x=1"},
 		{path: "/pt-BR/", status: 301, location: "/pt-br/"},
@@ -211,15 +208,18 @@ func TestLogicalClasses(t *testing.T) {
 	}
 }
 
+// TestFormatsPage: the examples reach the browser as raw values with their Intl options (static/intl.js formats
+// them), the currency is the locale's own, and the plural rules (server-side: they pick messages' wording) show
+// the locale's categories.
 func TestFormatsPage(t *testing.T) {
 	h := newServer().routes()
 	for path, wants := range map[string][]string{
-		"/formats":       {"1,234,567.891", "$1,234.50", "1.2M"},
-		"/de/formats":    {"1.234.567,891", "1,2\u00a0Mio.", "1.234,50 €"},
-		"/hi/formats":    {"12,34,567.891", "12 लाख", "₹1,234.50", "१२,३४,५६७.८९१"},
-		"/ar/formats":    {"‏1,234.50 ج.م.‏", "1.2 مليون"},
-		"/ja/formats":    {"￥1,235", "123万"},
-		"/en-in/formats": {"12,34,567.891", "₹12L"},
+		"/formats":    {`data-intl="number" data-value="1234567.891"`, `data-opts="{&#34;style&#34;:&#34;currency&#34;,&#34;currency&#34;:&#34;USD&#34;}"`, `data-intl="datetime" data-value="2026-07-04T15:30:45.123Z"`, `data-intl="range"`, `data-end="2026-07-04T17:00:45.123Z"`, `data-intl="relative" data-value="-1" data-opts="{&#34;numeric&#34;:&#34;auto&#34;}" data-unit="day"`, `data-intl="list"`, `data-intl="duration"`, `data-intl="week"`, "cardinal · one", "ordinal · few", "2026-07-04 15:30 UTC"},
+		"/de/formats": {`&#34;currency&#34;:&#34;EUR&#34;`, "cardinal · one"},
+		"/hi/formats": {`&#34;currency&#34;:&#34;INR&#34;`, `{&#34;numberingSystem&#34;:&#34;deva&#34;}`},
+		"/ar/formats": {`&#34;currency&#34;:&#34;EGP&#34;`, "cardinal · zero", "cardinal · two", "cardinal · few", "cardinal · many"},
+		"/ru/formats": {"cardinal · few", "2, 3, 4, 22, 23"},
+		"/ja/formats": {`&#34;currency&#34;:&#34;JPY&#34;`},
 	} {
 		body := get(t, h, path).Body.String()
 		for _, w := range wants {
@@ -230,45 +230,27 @@ func TestFormatsPage(t *testing.T) {
 	}
 }
 
-// TestRelativeTimeJSMatchesGo keeps the browser's unit thresholds equal to kit/i18n's, so the text the
-// browser refreshes is the text the server rendered.
-func TestRelativeTimeJSMatchesGo(t *testing.T) {
-	js, err := os.ReadFile("static/relative-time.js")
-	if err != nil {
-		t.Fatal(err)
-	}
-	for name, want := range map[string]string{
-		"SECONDS_MAX": "45", "MINUTES_MAX": "45 * 60", "HOURS_MAX": "22 * 3600", "DAYS_MAX": "26 * 86400", "MONTHS_MAX": "320 * 86400",
-	} {
-		if !regexp.MustCompile(`\b` + name + ` = ` + regexp.QuoteMeta(want) + `\b`).Match(js) {
-			t.Errorf("static/relative-time.js: %s is not %s (kit/i18n Relative*Max)", name, want)
-		}
-	}
-	for want, got := range map[int]int{45: i18n.RelativeSecondsMax, 45 * 60: i18n.RelativeMinutesMax, 22 * 3600: i18n.RelativeHoursMax, 26 * 86400: i18n.RelativeDaysMax, 320 * 86400: i18n.RelativeMonthsMax} {
-		if want != got {
-			t.Errorf("kit/i18n threshold %d changed to %d: update static/relative-time.js too", want, got)
-		}
-	}
-}
-
+// TestNoteRelativeTime: a note's time reaches the browser as an instant with a UTC fallback; static/intl.js words it
+// ("vor 2 Minuten") in the page's language.
 func TestNoteRelativeTime(t *testing.T) {
 	h := newServer().routes()
 	post := httptest.NewRequest("POST", "/de/board/note?topic=reltime", strings.NewReader("body=hallo"))
 	post.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	h.ServeHTTP(httptest.NewRecorder(), post)
 	page := get(t, h, "/de/board?topic=reltime").Body.String()
-	if !regexp.MustCompile(`<time datetime="20\d\d-\d\d-\d\dT\d\d:\d\d:\d\dZ" title="\d+\. [^"]+ 20\d\d, \d\d:\d\d UTC" data-relative-time>(jetzt|vor \d+ Sekunden?)</time>`).MatchString(page) {
-		t.Errorf("German board page lacks a German relative <time> with a UTC tooltip for the note")
+	if !regexp.MustCompile(`<time datetime="20\d\d-\d\d-\d\dT\d\d:\d\d:\d\dZ" title="20\d\d-\d\d-\d\d \d\d:\d\d UTC" data-intl="relative">20\d\d-\d\d-\d\d \d\d:\d\d UTC</time>`).MatchString(page) {
+		t.Errorf("board page lacks the note's <time data-intl=relative> with its UTC fallback")
 	}
-	if !strings.Contains(page, `src="/static/relative-time.js"`) {
-		t.Errorf("layout lacks static/relative-time.js")
+	if !strings.Contains(page, `src="/static/intl.js"`) {
+		t.Errorf("layout lacks static/intl.js")
 	}
 }
 
 // TestNoHardcodedText renders pages and fragments with en-XA pseudo-localized messages and fails on any
 // plain-ASCII word left in visible text or in placeholder/aria-label/title: such text doesn't come from
-// locales/*.toml. Brand and technical values opt out with translate="no" (or <code>, <time>); kit/i18n
-// output in the page's language with data-i18n="cldr". <template> is client-side markup (gsxui toaster).
+// locales/*.toml. Brand and technical values opt out with translate="no" (or <code>, <time>); values the browser
+// formats (data-intl: their text is a fallback until static/intl.js replaces it) and server-computed locale data
+// (data-i18n="cldr") are skipped too. <template> is client-side markup (gsxui toaster).
 func TestNoHardcodedText(t *testing.T) {
 	views.PseudoMessages = true
 	defer func() { views.PseudoMessages = false }()
@@ -288,7 +270,7 @@ func TestNoHardcodedText(t *testing.T) {
 					skip = true
 				}
 				for _, a := range n.Attr {
-					if a.Key == "translate" && a.Val == "no" || a.Key == "data-i18n" && a.Val == "cldr" {
+					if a.Key == "translate" && a.Val == "no" || a.Key == "data-i18n" && a.Val == "cldr" || a.Key == "data-intl" {
 						skip = true
 					}
 				}
@@ -331,8 +313,9 @@ func TestNoHardcodedText(t *testing.T) {
 	}
 }
 
-// TestTimeZonePreferences: dates render in the viewer's time zone and hour cycle. Precedence is the tz/hc
-// cookies, then the connection's zone (Cloudflare's cf.timezone; a header under go run .), then UTC.
+// TestTimeZonePreferences: the viewer's chosen zone and clock (the tz/hc cookies) reach static/intl.js as
+// <html data-tz data-hc>; without a choice they're empty and the browser uses its own zone. The connection's zone
+// (Cloudflare's cf.timezone; a header under go run .) only labels "Automatic (…)" in the form.
 func TestTimeZonePreferences(t *testing.T) {
 	h := newServer().routes()
 	page := func(path, connection string, cookies ...*http.Cookie) string {
@@ -355,34 +338,14 @@ func TestTimeZonePreferences(t *testing.T) {
 			}
 		}
 	}
-	lacks := func(name, body string, nots ...string) {
-		t.Helper()
-		for _, w := range nots {
-			if strings.Contains(body, w) {
-				t.Errorf("%s has %q", name, w)
-			}
-		}
-	}
-	// The sample instant is 2026-07-04T15:30:45.123Z.
-	has("UTC /formats", page("/formats", ""), "Saturday, July 4, 2026", `timeZone: &#34;UTC&#34;`, "3:30 PM Coordinated Universal Time", "time zone UTC")
-	has("de /formats", page("/de/formats", ""), "Samstag, 4. Juli 2026", "15:30 Koordinierte Weltzeit")
-	has("Tokyo connection", page("/formats", "Asia/Tokyo"), "Sunday, July 5, 2026", "time zone Asia/Tokyo")
-	info := page("/fragments/server-info", "Asia/Tokyo")
-	has("server-info, guessed zone", info, `data-local-time="{&#34;dateStyle&#34;:&#34;full&#34;,&#34;timeStyle&#34;:&#34;long&#34;}"`, `data-time-zone="Asia/Tokyo"`, "GMT+9")
-
 	la := &http.Cookie{Name: "tz", Value: "America/Los_Angeles"}
-	has("tz cookie beats the connection", page("/formats", "Asia/Tokyo", la), "Saturday, July 4, 2026", "8:30 AM", "time zone America/Los_Angeles")
-	chosen := page("/fragments/server-info", "Asia/Tokyo", la)
-	has("server-info, chosen zone", chosen, "PDT")
-	lacks("server-info, chosen zone", chosen, "data-local-time", "data-time-zone")
-	has("hc cookie", page("/formats", "", &http.Cookie{Name: "hc", Value: "h23"}), "15:30 Coordinated Universal Time", `hourCycle: &#34;h23&#34;`)
-	has("bad cookies fall back", page("/formats", "Mars/Olympus", &http.Cookie{Name: "tz", Value: "nope"}, &http.Cookie{Name: "hc", Value: "h99"}), "3:30 PM Coordinated Universal Time")
+	has("no choice", page("/formats", "Asia/Tokyo"), `data-tz="" data-hc=""`)
+	has("chosen", page("/formats", "Asia/Tokyo", la, &http.Cookie{Name: "hc", Value: "h23"}), `data-tz="America/Los_Angeles" data-hc="h23"`)
+	has("bad cookies are ignored", page("/formats", "", &http.Cookie{Name: "tz", Value: "../nope"}, &http.Cookie{Name: "hc", Value: "h99"}), `data-tz="" data-hc=""`)
+	has("server-info", page("/fragments/server-info", ""), `data-intl="datetime" data-opts="{&#34;dateStyle&#34;:&#34;full&#34;,&#34;timeStyle&#34;:&#34;long&#34;}"`, `data-intl="duration"`)
 
-	form := page("/de/fragments/preferences", "Asia/Tokyo", &http.Cookie{Name: "tz", Value: "europe/berlin"}, &http.Cookie{Name: "hc", Value: "h12"})
-	has("preferences form", form, `action="/de/preferences"`, `<option value="Europe/Berlin" selected`, "Mitteleuropäische Zeit", "Automatisch (Asia/Tokyo)", `<option value="h12" selected`)
-	if n := strings.Count(form, "<option value="); n < 400 {
-		t.Errorf("preferences form has %d options, want every zone", n)
-	}
+	form := page("/de/fragments/preferences", "Asia/Tokyo", &http.Cookie{Name: "tz", Value: "Europe/Berlin"}, &http.Cookie{Name: "hc", Value: "h12"})
+	has("preferences form", form, `action="/de/preferences"`, `data-intl-zones`, `<option value="Europe/Berlin" selected`, "Automatisch (Asia/Tokyo)", "data-template=\"Automatisch (\ue000)\"", `<option value="h12" selected`)
 
 	post := func(body string) *httptest.ResponseRecorder {
 		req := httptest.NewRequest("POST", "/de/preferences", strings.NewReader(body))
@@ -391,12 +354,12 @@ func TestTimeZonePreferences(t *testing.T) {
 		h.ServeHTTP(rec, req)
 		return rec
 	}
-	rec := post("tz=asia%2Fkolkata&hc=h12&return=%2Fde%2Fformats")
+	rec := post("tz=Asia%2FKolkata&hc=h12&return=%2Fde%2Fformats")
 	cookies := map[string]*http.Cookie{}
 	for _, c := range rec.Result().Cookies() {
 		cookies[c.Name] = c
 	}
-	if rec.Code != http.StatusSeeOther || rec.Header().Get("Location") != "/de/formats" || cookies["tz"] == nil || cookies["tz"].Value != "Asia/Calcutta" || cookies["hc"] == nil || cookies["hc"].Value != "h12" {
+	if rec.Code != http.StatusSeeOther || rec.Header().Get("Location") != "/de/formats" || cookies["tz"] == nil || cookies["tz"].Value != "Asia/Kolkata" || cookies["hc"] == nil || cookies["hc"].Value != "h12" {
 		t.Errorf("POST /preferences = %d → %q, cookies %v", rec.Code, rec.Header().Get("Location"), cookies)
 	}
 	rec = post("tz=&hc=&return=%2F")
@@ -405,7 +368,7 @@ func TestTimeZonePreferences(t *testing.T) {
 			t.Errorf("automatic: cookie %s not cleared (MaxAge %d)", c.Name, c.MaxAge)
 		}
 	}
-	for body, want := range map[string]int{"tz=Mars%2FOlympus": 400, "hc=h99": 400} {
+	for body, want := range map[string]int{"tz=..%2Fetc": 400, "tz=%3Cscript%3E": 400, "hc=h99": 400} {
 		if got := post(body).Code; got != want {
 			t.Errorf("POST /preferences %s = %d, want %d", body, got, want)
 		}
@@ -417,27 +380,12 @@ func TestTimeZonePreferences(t *testing.T) {
 	}
 }
 
-// TestReferencePins keeps the reference data's version pins in step (kit/i18n/README.md, "Reference data"): mise's
-// workerd is the one the goldens were recorded with, the tables come from the pinned cldr-json, and mise's
-// I18N_LOCALES is the locale set the tables were generated for.
-func TestReferencePins(t *testing.T) {
+// TestLocalesMatchMise: kit/i18n/cldr ships the locales mise.toml's I18N_LOCALES names, in that order
+// (mise run i18n:generate regenerates it).
+func TestLocalesMatchMise(t *testing.T) {
 	mise, err := os.ReadFile("mise.toml")
 	if err != nil {
 		t.Fatal(err)
-	}
-	if m := regexp.MustCompile(`(?m)^workerd = "([^"]+)"`).FindSubmatch(mise); m == nil || string(m[1]) != cldrgen.Workerd {
-		t.Errorf("mise.toml workerd = %q, cldrgen.Workerd = %q: change both, then mise run i18n:golden", m, cldrgen.Workerd)
-	}
-	g, err := intltest.Load("kit/i18n/testdata/golden/workerd.json")
-	if err != nil {
-		t.Fatal(err)
-	}
-	v := cldrgen.Workerd // 1.YYYYMMDD.n → the golden's "workerd YYYY-MM-DD"
-	if want := "workerd " + v[2:6] + "-" + v[6:8] + "-" + v[8:10]; g.Runtime != want {
-		t.Errorf("golden recorded with %q, cldrgen.Workerd is %s: mise run i18n:golden", g.Runtime, v)
-	}
-	if cldr.Data.CLDRJSONVersion != cldrgen.DefaultTag {
-		t.Errorf("kit/i18n/cldr is from cldr-json %s, cldrgen.DefaultTag is %s: mise run i18n:generate", cldr.Data.CLDRJSONVersion, cldrgen.DefaultTag)
 	}
 	m := regexp.MustCompile(`(?m)^I18N_LOCALES = "([^"]+)"`).FindSubmatch(mise)
 	var ids []string
@@ -446,9 +394,6 @@ func TestReferencePins(t *testing.T) {
 	}
 	if m == nil || string(m[1]) != strings.Join(ids, ",") {
 		t.Errorf("mise.toml I18N_LOCALES = %q, kit/i18n/cldr has %s: mise run i18n:generate", m, strings.Join(ids, ","))
-	}
-	if got := strings.Join(intltest.Locales, ","); got != strings.Join(ids, ",") {
-		t.Errorf("kit/i18n/intltest Locales = %s, kit/i18n/cldr has %s: update it, then mise run i18n:golden", got, strings.Join(ids, ","))
 	}
 }
 

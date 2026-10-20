@@ -220,18 +220,3 @@ func (rel Relation) eval(o Operands) bool {
 	}
 	return in != rel.Not
 }
-
-// SelectRange returns the plural category of a range from start to end (Intl.PluralRules selectRange):
-// the locale's pluralRanges entry; Other when the locale has range data but no entry for the pair (as
-// ICU does); end's category when the locale has no range data at all.
-func (l *LocaleData) SelectRange(start, end PluralCat) PluralCat {
-	if len(l.Ranges) == 0 {
-		return end
-	}
-	for _, r := range l.Ranges {
-		if r.Start == start && r.End == end {
-			return r.Result
-		}
-	}
-	return Other
-}

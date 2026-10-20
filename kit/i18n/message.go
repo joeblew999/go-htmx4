@@ -8,7 +8,7 @@ import (
 
 // Messages: ICU MessageFormat 1 (the syntax translators and their tools know), parsed at generate time
 // (kit/i18n/msggen) into static trees of MsgPart, formatted here with the locale's plural rules and
-// number formats. No parser runs in the Worker.
+// digits and separators. No parser runs in the Worker.
 
 // MsgKind is the kind of a message part.
 type MsgKind uint8
@@ -29,7 +29,7 @@ type MsgPart struct {
 	Kind   MsgKind
 	Text   string // MsgText: the text
 	Arg    int8   // argument index
-	Style  string // MsgNumber: "", "integer", "percent" or a skeleton "::currency/EUR", "::compact-short"…
+	Style  string // MsgNumber: "" or "integer"
 	Offset int32  // MsgPlural offset
 	Cases  []MsgCase
 }
@@ -163,55 +163,16 @@ func arg(args []MsgArgValue, i int8) MsgArgValue {
 	return MsgArgValue{}
 }
 
-func (l *Locale) defaultNumber(d Decimal) string {
-	return l.MustNumberFormat(NumberOptions{}).Format(d)
-}
+// defaultNumber is a number argument in the locale's default format: at most 3 fraction digits.
+func (l *Locale) defaultNumber(d Decimal) string { return l.FormatNumber(d, 3) }
 
-// styledNumber formats {n, number, style}: "integer", "percent", or an ICU number skeleton subset
-// ("::currency/EUR", "::percent", "::compact-short", "::compact-long", "::precision-integer",
-// "::unit/kilometer", "::group-off", space-separated).
+// styledNumber formats {n, number, style}. The server only formats "integer" and the default; richer styles
+// (currency, percent, units, compact) are the browser's job (static/intl.js), so msggen rejects them.
 func (l *Locale) styledNumber(d Decimal, style string) string {
-	var o NumberOptions
-	switch style {
-	case "":
-	case "integer":
-		o.MaximumFractionDigits = N(0)
-	case "percent":
-		o.Style = StylePercent
-	default:
-		for _, tok := range strings.Fields(strings.TrimPrefix(style, "::")) {
-			name, value, _ := strings.Cut(tok, "/")
-			switch name {
-			case "currency":
-				o.Style, o.Currency = StyleCurrency, value
-			case "percent":
-				o.Style = StylePercent
-			case "compact-short":
-				o.Notation = NotationCompact
-			case "compact-long":
-				o.Notation, o.CompactDisplay = NotationCompact, Long
-			case "precision-integer":
-				o.MaximumFractionDigits = N(0)
-			case "unit":
-				o.Style, o.Unit = StyleUnit, value
-			case "unit-width-full-name":
-				o.UnitDisplay, o.CurrencyDisplay = Long, CurrencyName
-			case "unit-width-narrow":
-				o.UnitDisplay, o.CurrencyDisplay = Narrow, CurrencyNarrowSymbol
-			case "group-off":
-				o.UseGrouping = GroupingOff
-			case "sign-always":
-				o.SignDisplay = SignAlways
-			case "sign-except-zero":
-				o.SignDisplay = SignExceptZero
-			}
-		}
+	if style == "integer" {
+		return l.FormatNumber(d, 0)
 	}
-	f, err := l.NumberFormat(o)
-	if err != nil {
-		return d.String()
-	}
-	return f.Format(d)
+	return l.defaultNumber(d)
 }
 
 // addInt returns d + n (for plural offsets, which are small integers).

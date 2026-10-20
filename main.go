@@ -144,7 +144,7 @@ func (s *server) routes() http.Handler {
 			return
 		}
 		connection := "UTC"
-		if id, ok := cldr.Data.TimeZone(connectionTimeZone(r)); ok {
+		if id := connectionTimeZone(r); views.ValidTimeZone(id) {
 			connection = id
 		}
 		s.render(w, r, "preferences", views.PreferencesForm(safeReturn(cmp.Or(r.Header.Get("HX-Current-URL"), r.Referer())), connection))

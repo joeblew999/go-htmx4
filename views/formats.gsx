@@ -2,9 +2,9 @@ package views
 
 import "github.com/joeblew999/go-htmx4/ui"
 
-// Formats shows kit/i18n formatting in the request's locale: the same options JavaScript's Intl takes, with
-// output computed on the server (byte-identical to Intl, see kit/i18n's conformance test). Results carry
-// data-i18n="cldr": locale data in the page's language, not catalog messages (TestNoHardcodedText).
+// Formats shows Intl formatting in the request's locale: each row is an Intl call with its options, formatted by the
+// viewer's own browser (static/intl.js) in the page's language and the viewer's time zone. The plural rules are the
+// exception, computed on the server, since they choose the wording of translated messages.
 component Formats() {
 	<Layout title={M(ctx).FormatsTitle()} description={M(ctx).FormatsDescription()} path="/formats">
 		<div class="flex flex-col gap-2">
@@ -12,7 +12,7 @@ component Formats() {
 			<p class="text-muted-foreground">{ M(ctx).FormatsIntro() }</p>
 		</div>
 		<LocaleCard facts={Facts(ctx)}/>
-		{ for _, sec := range NumberSections(ctx) {
+		{ for _, sec := range FormatSections(ctx) {
 			<ui.Card>
 				<ui.CardHeader>
 					<ui.CardTitle>{ sec.Title }</ui.CardTitle>
@@ -37,7 +37,25 @@ component Formats() {
 										<code dir="ltr" class="text-xs text-muted-foreground">{ r.Options }</code>
 									</ui.TableCell>
 									<ui.TableCell class="text-end tabular-nums">
-										<bdi data-i18n="cldr">{ r.Value }</bdi>
+										<bdi
+											{ if r.Kind != "" {
+												data-intl={r.Kind}
+												data-value={r.Value}
+												{ if r.Opts != "" {
+													data-opts={r.Opts}
+												} }
+												{ if r.End != "" {
+													data-end={r.End}
+												} }
+												{ if r.Unit != "" {
+													data-unit={r.Unit}
+												} }
+											} else {
+												data-i18n="cldr"
+											} }
+										>
+											{ r.Fallback }
+										</bdi>
 									</ui.TableCell>
 								</ui.TableRow>
 							} }

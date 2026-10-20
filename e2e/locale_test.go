@@ -9,8 +9,8 @@ import (
 )
 
 // TestLocales: locale URLs in a real browser. The language list switches with a full page load (new <html lang
-// dir>), boosted navigation stays inside the locale's prefix, RTL mirrors the layout, the formats page shows
-// CLDR output, and the bare "/" follows the remembered locale.
+// dir>), boosted navigation stays inside the locale's prefix, RTL mirrors the layout, the formats page is worded by
+// the browser in the page's language, and the bare "/" follows the remembered locale.
 func TestLocales(t *testing.T) {
 	b := newTab(t, "browser")
 	b.run(chromedp.Navigate(base+"/formats"), chromedp.WaitReady("#languages", chromedp.ByQuery))
@@ -23,7 +23,7 @@ func TestLocales(t *testing.T) {
 	check(t, "language link loads /ar/formats with lang=ar", ok && b.is(fmt.Sprintf(`window.__marker !== %d`, marker)))
 	check(t, "dir=rtl mirrors the layout", b.is(`document.documentElement.dir === "rtl" && getComputedStyle(document.querySelector("header nav")).direction === "rtl"`))
 	check(t, "brand sits on the right in RTL", b.is(`(() => { const a = document.querySelector("header nav > a").getBoundingClientRect(), n = document.querySelector("header nav").getBoundingClientRect(); return a.right > n.right - 40; })()`))
-	check(t, "CLDR formatting in the page", b.is(`document.body.textContent.includes("1.2 مليون")`))
+	check(t, "the browser's Intl formats the page in Arabic", b.waitJS(5*time.Second, `document.body.textContent.includes("1.2 مليون")`))
 	check(t, "current language marked", b.is(`document.querySelector('#languages a[aria-current="page"]').getAttribute("hreflang") === "ar"`))
 
 	// Boosted nav inside the locale keeps the prefix and the RTL document (once htmx has processed the page).

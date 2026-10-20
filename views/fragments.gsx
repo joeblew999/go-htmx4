@@ -3,7 +3,6 @@ package views
 import (
 	"strings"
 
-	"github.com/joeblew999/go-htmx4/kit/i18n"
 	"github.com/joeblew999/go-htmx4/ui"
 )
 
@@ -58,12 +57,12 @@ component ServerInfoView(info ServerInfo) {
 		<dt class="font-medium text-foreground">{ M(ctx).ServerInfoGo() }</dt>
 		<dd translate="no">{ info.GoVersion }</dd>
 		<dt class="font-medium text-foreground">{ M(ctx).ServerInfoUptime() }</dt>
-		<dd data-i18n="cldr">{ Elapsed(ctx, info.Uptime) }</dd>
+		<dd><Elapsed d={info.Uptime}/></dd>
 		<dt class="font-medium text-foreground">{ M(ctx).ServerInfoRequests() }</dt>
 		<dd>{ Num(ctx, info.Requests) }</dd>
 		<dt class="font-medium text-foreground">{ M(ctx).ServerInfoRendered() }</dt>
 		<dd>
-			<LocalTime t={info.Now} opts={i18n.DateTimeOptions{DateStyle: i18n.FullStyle, TimeStyle: i18n.LongStyle}}/>
+			<LocalTime t={info.Now} opts={`{"dateStyle":"full","timeStyle":"long"}`}/>
 		</dd>
 		{ if info.Note != "" {
 			<dt class="font-medium text-foreground">{ M(ctx).ServerInfoNote() }</dt>

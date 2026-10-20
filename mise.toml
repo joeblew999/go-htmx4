@@ -6,7 +6,7 @@
 #   mise tasks          # list everything
 
 # The oldest mise that handles these pins (http: backend platforms, packslip tools). CI installs this version too
-# (MISE_VERSION in ci/check.sh and ci/i18n-verify.sh); bump all three together.
+# (MISE_VERSION in ci/check.sh); bump both together.
 min_version = "2026.10.14"
 
 [settings]

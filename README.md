@@ -172,8 +172,9 @@ browser ─ hx-post /board/add|note ─────▶ worker/index.mjs ─▶ G
 Importable from other repos with `go get github.com/joeblew999/go-htmx4/kit/…`. They don't import the app (checked by
 `mise run test`) and are tested without Cloudflare (fake API, fake Room).
 
-`kit/i18n` is generated from pinned Unicode CLDR data and checked against Chrome's `Intl`. Where that reference data
-comes from and how to update it: [kit/i18n/README.md](kit/i18n/README.md).
+`kit/i18n` is the server half of internationalization: locales, translated messages, plural rules and plain numbers.
+Dates, times, currencies and units are formatted in the viewer's browser by its own `Intl` (`static/intl.js`). The
+earlier server-side `Intl` implementation is kept, out of the build, in [kit/i18n/legacy](kit/i18n/legacy/README.md).
 
 | Package | What |
 | --- | --- |

@@ -23,9 +23,11 @@ func TestParseAndFormat(t *testing.T) {
 		{"en", "'{n}' is quoted, don't", nil, "{n} is quoted, don't"},
 		{"de", "{n, number}", args{"n": num(1234.5)}, "1.234,5"},
 		{"en", "{n, number, integer}", args{"n": num(2.5)}, "3"},
-		{"en", "{n, number, percent}", args{"n": num(0.25)}, "25%"},
-		{"de", "{n, number, ::currency/EUR}", args{"n": num(1234.5)}, "1.234,50\u00a0€"},
-		{"en", "{n, number, ::compact-short}", args{"n": num(1234567)}, "1.2M"},
+		{"en-IN", "{n, number}", args{"n": num(1234567)}, "12,34,567"},
+		{"es", "{n, number}", args{"n": num(1234)}, "1234"},
+		{"es", "{n, number}", args{"n": num(12345)}, "12.345"},
+		{"ar", "{n, number}", args{"n": num(-1234.5)}, "\u200e-1,234.5"},
+		{"en", "{n, number}", args{"n": num(0.12345)}, "0.123"},
 		{"en", "{n, plural, =0 {none} one {# item} other {# items}}", args{"n": num(0)}, "none"},
 		{"en", "{n, plural, =0 {none} one {# item} other {# items}}", args{"n": num(1)}, "1 item"},
 		{"en", "{n, plural, =0 {none} one {# item} other {# items}}", args{"n": num(1234)}, "1,234 items"},
@@ -65,6 +67,8 @@ func TestParseErrors(t *testing.T) {
 		"{n, plural, one {# file}}",
 		"{n, when}",
 		"{n, date}",
+		"{n, number, percent}",
+		"{n, number, ::currency/EUR}",
 	} {
 		if _, err := parse(src); err == nil {
 			t.Errorf("parse(%q) succeeded, want an error", src)

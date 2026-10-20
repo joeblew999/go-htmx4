@@ -19,13 +19,15 @@ import (
 // own hx-* requests keep their default swaps. The nav wraps: translated labels don't fit one row on a phone
 // (e2e TestNoOverflow).
 //
-// <html lang dir> come from the request's locale (views/i18n.go), and every UI string from locales/*.toml (M). The
+// <html lang dir> come from the request's locale (views/i18n.go), and every UI string from locales/*.toml (M).
+// <html data-tz data-hc> are the viewer's chosen time zone and clock ("" = the browser's own and the language's), for
+// static/intl.js, which formats dates, times and rich numbers in the browser. The
 // head carries a translated description, the canonical URL, the page in every locale and Open Graph (views/seo.go). The
 // language links sit in the footer, outside the boosted nav: switching locale must be a full page load, since a
 // boosted swap keeps the old <html lang dir>.
 component Layout(title string, description string, path string, children gsx.Node) {
 	<!DOCTYPE html>
-	<html lang={Loc(ctx).Lang()} dir={Loc(ctx).Dir()}>
+	<html lang={Loc(ctx).Lang()} dir={Loc(ctx).Dir()} data-tz={ChosenTimeZone(ctx)} data-hc={HourCycle(ctx)}>
 		<head>
 			<meta charset="utf-8"/>
 			<meta name="viewport" content="width=device-width, initial-scale=1"/>
@@ -50,7 +52,7 @@ component Layout(title string, description string, path string, children gsx.Nod
 			<script src="/static/htmx.min.js"></script>
 			<script src="/static/hx-live.js"></script>
 			<script src="/static/hx-ws.js"></script>
-			<script src="/static/relative-time.js" defer></script>
+			<script src="/static/intl.js" defer></script>
 			<VersionGuard/>
 			<script type="module" src="/gsxui/index.js"></script>
 		</head>

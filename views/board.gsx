@@ -138,9 +138,7 @@ component boardBody(b Board) {
 					<ui.ItemContent>
 						<ui.ItemTitle dir="auto">{ n.Body }</ui.ItemTitle>
 						<ui.ItemDescription>
-							<time datetime={NoteISO(n.CreatedAt)} title={NoteUTC(ctx, n.CreatedAt)} data-relative-time>
-								{ RelativeSince(ctx, n.CreatedAt) }
-							</time>
+							<RelativeTime iso={NoteISO(n.CreatedAt)} fallback={NoteUTC(n.CreatedAt)}/>
 						</ui.ItemDescription>
 					</ui.ItemContent>
 				</ui.Item>

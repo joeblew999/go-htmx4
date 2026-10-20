@@ -309,7 +309,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.currency_description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "Money is exact (integer minor units), with CLDR currency digits. Local currency: ",
+						Text: "Intl.NumberFormat style \"currency\", from exact decimal strings. Local currency: ",
 					},
 					{
 						Kind: i18n.MsgKind(1),
@@ -347,7 +347,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "Locale-aware formatting rendered by Go from Unicode CLDR, with the options and output of JavaScript's Intl.",
+						Text: "Locale-aware formatting by your browser's own Intl: numbers, currencies, dates, time zones, units, lists and plural rules in every language the site ships.",
 					},
 				},
 			},
@@ -366,7 +366,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.durations_description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "Intl.DurationFormat, with Chrome's output for numeric units.",
+						Text: "Intl.DurationFormat, in browsers that have it.",
 					},
 				},
 			},
@@ -390,7 +390,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.intro",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "Locale-aware formatting rendered by Go from Unicode CLDR, with the options and output of JavaScript's Intl. Switch language at the bottom of the page.",
+						Text: "Locale-aware formatting by your browser's own Intl, in this page's language and your time zone: each row is an Intl call and its options. Switch language at the bottom of the page.",
 					},
 				},
 			},
@@ -436,7 +436,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.numbers_description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "Intl.NumberFormat options, formatted on the server from CLDR data.",
+						Text: "Intl.NumberFormat options, formatted by your browser.",
 					},
 				},
 			},
@@ -460,7 +460,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.plurals_description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "CLDR plural categories with the first numbers that select them.",
+						Text: "CLDR plural categories with the first numbers that select them, computed on the server: they choose the wording of translated messages.",
 					},
 				},
 			},
@@ -1060,7 +1060,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "preferences.description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "Dates and times on every page use these settings. Automatic uses your connection's time zone, and your browser corrects it when it differs.",
+						Text: "Dates and times on every page use these settings. Automatic uses your browser's time zone.",
 					},
 				},
 			},
@@ -1486,7 +1486,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.currency_description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "Money is exact (integer minor units), with CLDR currency digits. Local currency: ",
+						Text: "Intl.NumberFormat style \"currency\", from exact decimal strings. Local currency: ",
 					},
 					{
 						Kind: i18n.MsgKind(1),
@@ -1524,7 +1524,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "Locale-aware formatting rendered by Go from Unicode CLDR, with the options and output of JavaScript's Intl.",
+						Text: "Locale-aware formatting by your browser's own Intl: numbers, currencies, dates, time zones, units, lists and plural rules in every language the site ships.",
 					},
 				},
 			},
@@ -1543,7 +1543,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.durations_description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "Intl.DurationFormat, with Chrome's output for numeric units.",
+						Text: "Intl.DurationFormat, in browsers that have it.",
 					},
 				},
 			},
@@ -1567,7 +1567,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.intro",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "Locale-aware formatting rendered by Go from Unicode CLDR, with the options and output of JavaScript's Intl. Switch language at the bottom of the page.",
+						Text: "Locale-aware formatting by your browser's own Intl, in this page's language and your time zone: each row is an Intl call and its options. Switch language at the bottom of the page.",
 					},
 				},
 			},
@@ -1613,7 +1613,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.numbers_description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "Intl.NumberFormat options, formatted on the server from CLDR data.",
+						Text: "Intl.NumberFormat options, formatted by your browser.",
 					},
 				},
 			},
@@ -1637,7 +1637,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.plurals_description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "CLDR plural categories with the first numbers that select them.",
+						Text: "CLDR plural categories with the first numbers that select them, computed on the server: they choose the wording of translated messages.",
 					},
 				},
 			},
@@ -2237,7 +2237,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "preferences.description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "Dates and times on every page use these settings. Automatic uses your connection's time zone, and your browser corrects it when it differs.",
+						Text: "Dates and times on every page use these settings. Automatic uses your browser's time zone.",
 					},
 				},
 			},
@@ -2663,7 +2663,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.currency_description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "Geldbeträge sind exakt (ganzzahlige kleinste Einheiten), mit den CLDR-Nachkommastellen der Währung. Landeswährung: ",
+						Text: "Intl.NumberFormat mit Stil „currency“, aus exakten Dezimalzeichenfolgen. Landeswährung: ",
 					},
 					{
 						Kind: i18n.MsgKind(1),
@@ -2701,7 +2701,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "Gebietsschemaabhängige Formatierung, von Go aus Unicode CLDR gerendert, mit denselben Optionen und Ausgaben wie Intl in JavaScript.",
+						Text: "Gebietsschemabewusste Formatierung mit dem Intl Ihres Browsers: Zahlen, Währungen, Datumsangaben, Zeitzonen, Einheiten, Listen und Pluralregeln in jeder Sprache der Website.",
 					},
 				},
 			},
@@ -2720,7 +2720,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.durations_description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "Intl.DurationFormat, mit der Ausgabe von Chrome für numerische Einheiten.",
+						Text: "Intl.DurationFormat, in Browsern, die es unterstützen.",
 					},
 				},
 			},
@@ -2744,7 +2744,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.intro",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "Gebietsschemaabhängige Formatierung, von Go aus Unicode CLDR gerendert, mit denselben Optionen und Ausgaben wie Intl in JavaScript. Die Sprache lässt sich unten auf der Seite wechseln.",
+						Text: "Gebietsschemabewusste Formatierung mit dem Intl Ihres eigenen Browsers, in der Sprache dieser Seite und Ihrer Zeitzone: Jede Zeile ist ein Intl-Aufruf mit seinen Optionen. Die Sprache wechseln Sie unten auf der Seite.",
 					},
 				},
 			},
@@ -2790,7 +2790,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.numbers_description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "Optionen von Intl.NumberFormat, auf dem Server aus CLDR-Daten formatiert.",
+						Text: "Intl.NumberFormat-Optionen, formatiert von Ihrem Browser.",
 					},
 				},
 			},
@@ -2814,7 +2814,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.plurals_description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "CLDR-Pluralkategorien mit den ersten Zahlen, die sie auswählen.",
+						Text: "CLDR-Pluralkategorien mit den ersten Zahlen, die sie auswählen, auf dem Server berechnet: Sie bestimmen den Wortlaut übersetzter Texte.",
 					},
 				},
 			},
@@ -3414,7 +3414,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "preferences.description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "Datums- und Zeitangaben auf allen Seiten verwenden diese Einstellungen. „Automatisch“ verwendet die Zeitzone der Verbindung, und der Browser korrigiert sie, wenn sie abweicht.",
+						Text: "Datums- und Zeitangaben auf allen Seiten verwenden diese Einstellungen. „Automatisch“ verwendet die Zeitzone Ihres Browsers.",
 					},
 				},
 			},
@@ -3840,7 +3840,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.currency_description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "Les montants sont exacts (unités mineures entières), avec les décimales de devise CLDR. Devise locale\u00a0: ",
+						Text: "Intl.NumberFormat avec le style « currency », à partir de chaînes décimales exactes. Devise locale : ",
 					},
 					{
 						Kind: i18n.MsgKind(1),
@@ -3878,7 +3878,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "Formatage adapté à la locale, rendu par Go à partir d'Unicode CLDR, avec les options et le résultat d'Intl en JavaScript.",
+						Text: "Mise en forme adaptée aux paramètres régionaux par l'Intl de votre navigateur : nombres, devises, dates, fuseaux horaires, unités, listes et règles de pluriel dans chaque langue du site.",
 					},
 				},
 			},
@@ -3897,7 +3897,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.durations_description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "Intl.DurationFormat, avec le résultat de Chrome pour les unités numériques.",
+						Text: "Intl.DurationFormat, dans les navigateurs qui le prennent en charge.",
 					},
 				},
 			},
@@ -3921,7 +3921,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.intro",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "Formatage adapté à la locale, rendu par Go à partir d'Unicode CLDR, avec les options et le résultat d'Intl en JavaScript. Changez de langue en bas de la page.",
+						Text: "Mise en forme adaptée aux paramètres régionaux par l'Intl de votre propre navigateur, dans la langue de cette page et votre fuseau horaire : chaque ligne est un appel Intl avec ses options. Changez de langue en bas de la page.",
 					},
 				},
 			},
@@ -3967,7 +3967,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.numbers_description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "Options d'Intl.NumberFormat, formatées sur le serveur à partir des données CLDR.",
+						Text: "Options d'Intl.NumberFormat, mises en forme par votre navigateur.",
 					},
 				},
 			},
@@ -3991,7 +3991,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.plurals_description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "Catégories de pluriel CLDR avec les premiers nombres qui les sélectionnent.",
+						Text: "Catégories de pluriel CLDR avec les premiers nombres qui les sélectionnent, calculées sur le serveur : elles déterminent la formulation des messages traduits.",
 					},
 				},
 			},
@@ -4591,7 +4591,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "preferences.description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "Les dates et heures de toutes les pages utilisent ces réglages. «\u00a0Automatique\u00a0» utilise le fuseau horaire de votre connexion, et votre navigateur le corrige s’il est différent.",
+						Text: "Les dates et heures de toutes les pages utilisent ces réglages. « Automatique » utilise le fuseau horaire de votre navigateur.",
 					},
 				},
 			},
@@ -5017,7 +5017,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.currency_description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "El dinero es exacto (unidades menores enteras), con los decimales de moneda de CLDR. Moneda local: ",
+						Text: "Intl.NumberFormat con estilo «currency», a partir de cadenas decimales exactas. Moneda local: ",
 					},
 					{
 						Kind: i18n.MsgKind(1),
@@ -5055,7 +5055,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "Formato según la configuración regional, renderizado por Go a partir de Unicode CLDR, con las opciones y la salida de Intl de JavaScript.",
+						Text: "Formato según la configuración regional con el Intl de tu navegador: números, monedas, fechas, zonas horarias, unidades, listas y reglas de plural en todos los idiomas del sitio.",
 					},
 				},
 			},
@@ -5074,7 +5074,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.durations_description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "Intl.DurationFormat, con la salida de Chrome para unidades numéricas.",
+						Text: "Intl.DurationFormat, en los navegadores que lo admiten.",
 					},
 				},
 			},
@@ -5098,7 +5098,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.intro",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "Formato según la configuración regional, renderizado por Go a partir de Unicode CLDR, con las opciones y la salida de Intl de JavaScript. Cambia el idioma al pie de la página.",
+						Text: "Formato según la configuración regional con el Intl de tu propio navegador, en el idioma de esta página y tu zona horaria: cada fila es una llamada a Intl con sus opciones. Cambia de idioma al pie de la página.",
 					},
 				},
 			},
@@ -5144,7 +5144,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.numbers_description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "Opciones de Intl.NumberFormat, formateadas en el servidor con datos de CLDR.",
+						Text: "Opciones de Intl.NumberFormat, formateadas por tu navegador.",
 					},
 				},
 			},
@@ -5168,7 +5168,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.plurals_description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "Categorías de plural de CLDR con los primeros números que las seleccionan.",
+						Text: "Categorías de plural de CLDR con los primeros números que las seleccionan, calculadas en el servidor: determinan la redacción de los mensajes traducidos.",
 					},
 				},
 			},
@@ -5768,7 +5768,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "preferences.description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "Las fechas y horas de todas las páginas usan estos ajustes. «Automática» usa la zona horaria de tu conexión, y tu navegador la corrige si no coincide.",
+						Text: "Las fechas y horas de todas las páginas usan estos ajustes. «Automática» usa la zona horaria de tu navegador.",
 					},
 				},
 			},
@@ -6194,7 +6194,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.currency_description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "Valores monetários são exatos (unidades menores inteiras), com as casas decimais de moeda do CLDR. Moeda local: ",
+						Text: "Intl.NumberFormat com estilo \"currency\", a partir de strings decimais exatas. Moeda local: ",
 					},
 					{
 						Kind: i18n.MsgKind(1),
@@ -6232,7 +6232,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "Formatação conforme a localidade, renderizada pelo Go a partir do Unicode CLDR, com as opções e a saída do Intl do JavaScript.",
+						Text: "Formatação sensível à localidade feita pelo Intl do seu navegador: números, moedas, datas, fusos horários, unidades, listas e regras de plural em todos os idiomas do site.",
 					},
 				},
 			},
@@ -6251,7 +6251,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.durations_description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "Intl.DurationFormat, com a saída do Chrome para unidades numéricas.",
+						Text: "Intl.DurationFormat, nos navegadores que oferecem suporte.",
 					},
 				},
 			},
@@ -6275,7 +6275,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.intro",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "Formatação conforme a localidade, renderizada pelo Go a partir do Unicode CLDR, com as opções e a saída do Intl do JavaScript. Troque o idioma no rodapé da página.",
+						Text: "Formatação sensível à localidade feita pelo Intl do seu próprio navegador, no idioma desta página e no seu fuso horário: cada linha é uma chamada do Intl com suas opções. Troque de idioma no fim da página.",
 					},
 				},
 			},
@@ -6321,7 +6321,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.numbers_description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "Opções do Intl.NumberFormat, formatadas no servidor a partir de dados do CLDR.",
+						Text: "Opções do Intl.NumberFormat, formatadas pelo seu navegador.",
 					},
 				},
 			},
@@ -6345,7 +6345,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.plurals_description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "Categorias de plural do CLDR com os primeiros números que as selecionam.",
+						Text: "Categorias de plural do CLDR com os primeiros números que as selecionam, calculadas no servidor: elas definem o texto das mensagens traduzidas.",
 					},
 				},
 			},
@@ -6945,7 +6945,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "preferences.description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "Datas e horas em todas as páginas usam estas configurações. \"Automático\" usa o fuso horário da sua conexão, e o seu navegador o corrige quando for diferente.",
+						Text: "Datas e horas em todas as páginas usam estas configurações. \"Automático\" usa o fuso horário do seu navegador.",
 					},
 				},
 			},
@@ -7371,7 +7371,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.currency_description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "Os valores monetários são exatos (subunidades inteiras), com as casas decimais da moeda do CLDR. Moeda local: ",
+						Text: "Intl.NumberFormat com estilo \"currency\", a partir de cadeias decimais exatas. Moeda local: ",
 					},
 					{
 						Kind: i18n.MsgKind(1),
@@ -7409,7 +7409,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "Formatação adaptada ao idioma e à região, renderizada pelo Go a partir do Unicode CLDR, com as opções e o resultado do Intl do JavaScript.",
+						Text: "Formatação sensível à região feita pelo Intl do seu navegador: números, moedas, datas, fusos horários, unidades, listas e regras de plural em todos os idiomas do site.",
 					},
 				},
 			},
@@ -7428,7 +7428,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.durations_description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "Intl.DurationFormat, com o resultado do Chrome para unidades numéricas.",
+						Text: "Intl.DurationFormat, nos navegadores que o suportam.",
 					},
 				},
 			},
@@ -7452,7 +7452,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.intro",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "Formatação adaptada ao idioma e à região, renderizada pelo Go a partir do Unicode CLDR, com as opções e o resultado do Intl do JavaScript. Mude de idioma no final da página.",
+						Text: "Formatação sensível à região feita pelo Intl do seu próprio navegador, no idioma desta página e no seu fuso horário: cada linha é uma chamada do Intl com as respetivas opções. Mude de idioma no fundo da página.",
 					},
 				},
 			},
@@ -7498,7 +7498,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.numbers_description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "Opções do Intl.NumberFormat, formatadas no servidor a partir de dados do CLDR.",
+						Text: "Opções do Intl.NumberFormat, formatadas pelo seu navegador.",
 					},
 				},
 			},
@@ -7522,7 +7522,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.plurals_description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "Categorias de plural do CLDR com os primeiros números que as selecionam.",
+						Text: "Categorias de plural do CLDR com os primeiros números que as selecionam, calculadas no servidor: definem o texto das mensagens traduzidas.",
 					},
 				},
 			},
@@ -8122,7 +8122,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "preferences.description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "As datas e horas em todas as páginas usam estas definições. \"Automático\" usa o fuso horário da sua ligação e o seu navegador corrige-o quando é diferente.",
+						Text: "As datas e horas em todas as páginas usam estas definições. \"Automático\" usa o fuso horário do seu navegador.",
 					},
 				},
 			},
@@ -8545,7 +8545,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.currency_description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "المبالغ دقيقة (بوحدات فرعية صحيحة)، مع عدد خانات كل عملة وفق CLDR. العملة المحلية: ",
+						Text: "Intl.NumberFormat بنمط \u200e\"currency\"\u200e، انطلاقًا من سلاسل عشرية دقيقة. العملة المحلية: ",
 					},
 					{
 						Kind: i18n.MsgKind(1),
@@ -8583,7 +8583,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "تنسيق يراعي اللغة والمنطقة، تعرضه Go من بيانات Unicode CLDR، بخيارات Intl في JavaScript ومخرجاته.",
+						Text: "تنسيق يراعي اللغة والمنطقة باستخدام Intl في متصفحك: الأرقام والعملات والتواريخ والمناطق الزمنية والوحدات والقوائم وقواعد الجمع بكل لغات الموقع.",
 					},
 				},
 			},
@@ -8602,7 +8602,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.durations_description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "Intl.DurationFormat، مع مخرجات Chrome للوحدات الرقمية.",
+						Text: "Intl.DurationFormat، في المتصفحات التي تدعمه.",
 					},
 				},
 			},
@@ -8626,7 +8626,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.intro",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "تنسيق يراعي اللغة والمنطقة، تعرضه Go من بيانات Unicode CLDR، بخيارات Intl في JavaScript ومخرجاته. غيّر اللغة من أسفل الصفحة.",
+						Text: "تنسيق يراعي اللغة والمنطقة باستخدام Intl في متصفحك نفسه، بلغة هذه الصفحة وبمنطقتك الزمنية: كل صف استدعاء لـ Intl مع خياراته. غيّر اللغة من أسفل الصفحة.",
 					},
 				},
 			},
@@ -8672,7 +8672,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.numbers_description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "خيارات Intl.NumberFormat، مُنسَّقة على الخادم من بيانات CLDR.",
+						Text: "خيارات Intl.NumberFormat، ينسّقها متصفحك.",
 					},
 				},
 			},
@@ -8696,7 +8696,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.plurals_description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "فئات الجمع في CLDR مع أول الأعداد التي تنتمي إلى كل فئة.",
+						Text: "فئات الجمع في CLDR مع أول الأرقام التي تختارها، تُحسب على الخادم: فهي تحدد صياغة الرسائل المترجمة.",
 					},
 				},
 			},
@@ -9296,7 +9296,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "preferences.description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "تُطبَّق هذه الإعدادات على التواريخ والأوقات في كل الصفحات. يستخدم الخيار «تلقائي» المنطقة الزمنية لاتصالك، ويصحّحها متصفحك إذا اختلفت.",
+						Text: "تُطبَّق هذه الإعدادات على التواريخ والأوقات في كل الصفحات. يستخدم الخيار «تلقائي» المنطقة الزمنية لمتصفحك.",
 					},
 				},
 			},
@@ -9722,7 +9722,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.currency_description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "סכומים מדויקים (ביחידות משנה שלמות), עם מספר הספרות של כל מטבע לפי CLDR. המטבע המקומי: ",
+						Text: "Intl.NumberFormat בסגנון \"currency\", ממחרוזות עשרוניות מדויקות. המטבע המקומי: ",
 					},
 					{
 						Kind: i18n.MsgKind(1),
@@ -9760,7 +9760,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "עיצוב מותאם לשפה ולאזור, שמרונדר ב-Go מנתוני Unicode CLDR, עם האפשרויות והפלט של Intl ב-JavaScript.",
+						Text: "עיצוב לפי שפה ואזור באמצעות ה-Intl של הדפדפן שלך: מספרים, מטבעות, תאריכים, אזורי זמן, יחידות, רשימות וכללי ריבוי בכל שפות האתר.",
 					},
 				},
 			},
@@ -9779,7 +9779,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.durations_description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "Intl.DurationFormat, עם הפלט של Chrome ליחידות מספריות.",
+						Text: "Intl.DurationFormat, בדפדפנים שתומכים בו.",
 					},
 				},
 			},
@@ -9803,7 +9803,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.intro",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "עיצוב מותאם לשפה ולאזור, שמרונדר ב-Go מנתוני Unicode CLDR, עם האפשרויות והפלט של Intl ב-JavaScript. אפשר להחליף שפה בתחתית הדף.",
+						Text: "עיצוב לפי שפה ואזור באמצעות ה-Intl של הדפדפן שלך, בשפת הדף הזה ובאזור הזמן שלך: כל שורה היא קריאה ל-Intl עם האפשרויות שלה. אפשר להחליף שפה בתחתית הדף.",
 					},
 				},
 			},
@@ -9849,7 +9849,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.numbers_description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "אפשרויות Intl.NumberFormat, בעיצוב בשרת מנתוני CLDR.",
+						Text: "אפשרויות של Intl.NumberFormat, מעוצבות בדפדפן שלך.",
 					},
 				},
 			},
@@ -9873,7 +9873,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.plurals_description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "קטגוריות הריבוי של CLDR עם המספרים הראשונים שנופלים בכל אחת מהן.",
+						Text: "קטגוריות הריבוי של CLDR עם המספרים הראשונים שבוחרים בהן, מחושבות בשרת: הן קובעות את נוסח ההודעות המתורגמות.",
 					},
 				},
 			},
@@ -10473,7 +10473,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "preferences.description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "תאריכים ושעות בכל הדפים מוצגים לפי ההגדרות האלה. האפשרות \"אוטומטי\" משתמשת באזור הזמן של החיבור שלך, והדפדפן מתקן אותו אם הוא שונה.",
+						Text: "תאריכים ושעות בכל הדפים מוצגים לפי ההגדרות האלה. האפשרות \"אוטומטי\" משתמשת באזור הזמן של הדפדפן שלך.",
 					},
 				},
 			},
@@ -10899,7 +10899,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.currency_description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "金額は正確に扱われ（整数の補助単位）、CLDR の通貨桁数を使用します。現地通貨：",
+						Text: "スタイル「currency」の Intl.NumberFormat。正確な 10 進文字列から書式設定します。現地通貨：",
 					},
 					{
 						Kind: i18n.MsgKind(1),
@@ -10937,7 +10937,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "Unicode CLDR をもとに Go がレンダリングするロケール対応の書式設定。オプションと出力は JavaScript の Intl と同じです。",
+						Text: "お使いのブラウザーの Intl による、ロケールに応じた書式設定：数値、通貨、日付、タイムゾーン、単位、リスト、複数形ルールを、サイトのすべての言語で。",
 					},
 				},
 			},
@@ -10956,7 +10956,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.durations_description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "Intl.DurationFormat。数値単位は Chrome の出力に合わせています。",
+						Text: "Intl.DurationFormat（対応しているブラウザーのみ）。",
 					},
 				},
 			},
@@ -10980,7 +10980,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.intro",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "Unicode CLDR をもとに Go がレンダリングするロケール対応の書式設定です。オプションと出力は JavaScript の Intl と同じです。言語はページ下部で切り替えられます。",
+						Text: "お使いのブラウザー自身の Intl による、ロケールに応じた書式設定です。このページの言語とあなたのタイムゾーンで表示します。各行は Intl の呼び出しとそのオプションです。言語はページ下部で切り替えられます。",
 					},
 				},
 			},
@@ -11026,7 +11026,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.numbers_description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "Intl.NumberFormat のオプションを、CLDR データからサーバー側で書式化します。",
+						Text: "Intl.NumberFormat のオプション。ブラウザーが書式設定します。",
 					},
 				},
 			},
@@ -11050,7 +11050,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.plurals_description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "CLDR の複数形カテゴリと、それぞれが選ばれる最初の数値。",
+						Text: "CLDR の複数形カテゴリと、それぞれを選ぶ最初の数値。サーバーで計算します。翻訳済みメッセージの言い回しを決めるためです。",
 					},
 				},
 			},
@@ -11647,7 +11647,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "preferences.description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "すべてのページの日付と時刻にこの設定が使われます。「自動」では接続元のタイムゾーンを使い、異なる場合はブラウザーが修正します。",
+						Text: "すべてのページの日付と時刻にこの設定が使われます。「自動」ではブラウザーのタイムゾーンを使います。",
 					},
 				},
 			},
@@ -12073,7 +12073,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.currency_description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "金额精确无误（以整数最小单位表示），并采用 CLDR 的货币小数位数。本地货币：",
+						Text: "样式为“currency”的 Intl.NumberFormat，基于精确的十进制字符串。本地货币：",
 					},
 					{
 						Kind: i18n.MsgKind(1),
@@ -12111,7 +12111,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "由 Go 基于 Unicode CLDR 渲染的区域感知格式，选项和输出与 JavaScript 的 Intl 一致。",
+						Text: "由你浏览器的 Intl 按语言区域进行格式化：数字、货币、日期、时区、单位、列表和复数规则，覆盖本站的每种语言。",
 					},
 				},
 			},
@@ -12130,7 +12130,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.durations_description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "Intl.DurationFormat，数字单位采用 Chrome 的输出。",
+						Text: "Intl.DurationFormat，仅限支持它的浏览器。",
 					},
 				},
 			},
@@ -12154,7 +12154,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.intro",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "由 Go 基于 Unicode CLDR 渲染的区域感知格式，选项和输出与 JavaScript 的 Intl 一致。可在页面底部切换语言。",
+						Text: "由你浏览器自带的 Intl 按语言区域进行格式化，使用本页的语言和你的时区：每一行都是一次 Intl 调用及其选项。可在页面底部切换语言。",
 					},
 				},
 			},
@@ -12200,7 +12200,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.numbers_description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "Intl.NumberFormat 选项，由服务器根据 CLDR 数据格式化。",
+						Text: "Intl.NumberFormat 选项，由你的浏览器格式化。",
 					},
 				},
 			},
@@ -12224,7 +12224,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.plurals_description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "CLDR 复数类别，以及选中各类别的前几个数字。",
+						Text: "CLDR 复数类别及选中各类别的前几个数字，在服务器上计算：它们决定翻译消息的措辞。",
 					},
 				},
 			},
@@ -12824,7 +12824,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "preferences.description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "所有页面上的日期和时间都使用这些设置。“自动”使用你的网络连接所在的时区，如有不同，浏览器会加以更正。",
+						Text: "所有页面上的日期和时间都使用这些设置。“自动”使用你的浏览器所在的时区。",
 					},
 				},
 			},
@@ -13250,7 +13250,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.currency_description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "金額精確無誤（以整數最小單位表示），並採用 CLDR 的貨幣小數位數。當地貨幣：",
+						Text: "樣式為「currency」的 Intl.NumberFormat，以精確的十進位字串為準。當地貨幣：",
 					},
 					{
 						Kind: i18n.MsgKind(1),
@@ -13288,7 +13288,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "由 Go 依據 Unicode CLDR 渲染的地區格式，選項與輸出和 JavaScript 的 Intl 一致。",
+						Text: "由你瀏覽器的 Intl 依語言地區進行格式化：數字、貨幣、日期、時區、單位、清單與複數規則，涵蓋本站的每種語言。",
 					},
 				},
 			},
@@ -13307,7 +13307,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.durations_description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "Intl.DurationFormat，數字單位採用 Chrome 的輸出。",
+						Text: "Intl.DurationFormat，僅限支援它的瀏覽器。",
 					},
 				},
 			},
@@ -13331,7 +13331,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.intro",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "由 Go 依據 Unicode CLDR 渲染的地區格式，選項與輸出和 JavaScript 的 Intl 一致。可在頁面底部切換語言。",
+						Text: "由你瀏覽器內建的 Intl 依語言地區進行格式化，使用本頁的語言和你的時區：每一列都是一次 Intl 呼叫及其選項。可在頁面底部切換語言。",
 					},
 				},
 			},
@@ -13377,7 +13377,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.numbers_description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "Intl.NumberFormat 選項，由伺服器依據 CLDR 資料格式化。",
+						Text: "Intl.NumberFormat 選項，由你的瀏覽器格式化。",
 					},
 				},
 			},
@@ -13401,7 +13401,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.plurals_description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "CLDR 複數類別，以及選中各類別的前幾個數字。",
+						Text: "CLDR 複數類別及選中各類別的前幾個數字，在伺服器上計算：它們決定翻譯訊息的措辭。",
 					},
 				},
 			},
@@ -14001,7 +14001,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "preferences.description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "所有頁面上的日期與時間都會套用這些設定。「自動」會使用你的網路連線所在的時區，若不一致，瀏覽器會加以修正。",
+						Text: "所有頁面上的日期與時間都會套用這些設定。「自動」會使用你的瀏覽器所在的時區。",
 					},
 				},
 			},
@@ -14427,7 +14427,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.currency_description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "रकम सटीक रहती है (छोटी इकाइयों के पूर्णांक में), CLDR के मुद्रा अंकों के साथ। स्थानीय मुद्रा: ",
+						Text: "\"currency\" स्टाइल वाला Intl.NumberFormat, सटीक दशमलव स्ट्रिंग से। स्थानीय मुद्रा: ",
 					},
 					{
 						Kind: i18n.MsgKind(1),
@@ -14465,7 +14465,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "लोकेल के अनुसार फ़ॉर्मैटिंग, जिसे Go, Unicode CLDR से रेंडर करता है, JavaScript के Intl जैसे विकल्पों और आउटपुट के साथ।",
+						Text: "आपके ब्राउज़र के Intl से लोकेल के अनुसार फ़ॉर्मैटिंग: संख्याएँ, मुद्राएँ, तारीख़ें, टाइम ज़ोन, इकाइयाँ, सूचियाँ और बहुवचन नियम, साइट की हर भाषा में।",
 					},
 				},
 			},
@@ -14484,7 +14484,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.durations_description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "Intl.DurationFormat, संख्यात्मक इकाइयों के लिए Chrome के आउटपुट के साथ।",
+						Text: "Intl.DurationFormat, उन ब्राउज़र में जो इसे सपोर्ट करते हैं।",
 					},
 				},
 			},
@@ -14508,7 +14508,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.intro",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "लोकेल के अनुसार फ़ॉर्मैटिंग, जिसे Go, Unicode CLDR से रेंडर करता है, JavaScript के Intl जैसे विकल्पों और आउटपुट के साथ। भाषा पेज के नीचे से बदलें।",
+						Text: "आपके अपने ब्राउज़र के Intl से लोकेल के अनुसार फ़ॉर्मैटिंग, इस पेज की भाषा और आपके टाइम ज़ोन में: हर पंक्ति एक Intl कॉल और उसके विकल्प है। भाषा पेज के नीचे बदलें।",
 					},
 				},
 			},
@@ -14554,7 +14554,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.numbers_description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "Intl.NumberFormat के विकल्प, CLDR डेटा से सर्वर पर फ़ॉर्मैट किए गए।",
+						Text: "Intl.NumberFormat के विकल्प, आपके ब्राउज़र द्वारा फ़ॉर्मैट किए गए।",
 					},
 				},
 			},
@@ -14578,7 +14578,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.plurals_description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "CLDR बहुवचन श्रेणियाँ और उन्हें चुनने वाली पहली संख्याएँ।",
+						Text: "CLDR की बहुवचन श्रेणियाँ और उन्हें चुनने वाली पहली संख्याएँ, सर्वर पर गणना की गईं: ये अनुवादित संदेशों के शब्द तय करती हैं।",
 					},
 				},
 			},
@@ -15175,7 +15175,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "preferences.description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "हर पेज पर तारीख़ और समय इन्हीं सेटिंग्स के अनुसार दिखते हैं। \"अपने-आप\" विकल्प आपके कनेक्शन का टाइम ज़ोन इस्तेमाल करता है, और अलग होने पर आपका ब्राउज़र उसे ठीक कर देता है।",
+						Text: "हर पेज पर तारीख़ और समय इन्हीं सेटिंग्स के अनुसार दिखते हैं। \"अपने-आप\" विकल्प आपके ब्राउज़र का टाइम ज़ोन इस्तेमाल करता है।",
 					},
 				},
 			},
@@ -15644,7 +15644,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.currency_description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "Суммы точные (в целых младших единицах), число знаков после запятой — по данным CLDR для валюты. Местная валюта: ",
+						Text: "Intl.NumberFormat со стилем «currency» из точных десятичных строк. Местная валюта: ",
 					},
 					{
 						Kind: i18n.MsgKind(1),
@@ -15682,7 +15682,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "Форматирование с учётом локали: Go отрисовывает его по данным Unicode CLDR с теми же опциями и результатом, что и Intl в JavaScript.",
+						Text: "Форматирование с учётом языка и региона средствами Intl вашего браузера: числа, валюты, даты, часовые пояса, единицы, списки и правила множественного числа на всех языках сайта.",
 					},
 				},
 			},
@@ -15701,7 +15701,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.durations_description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "Intl.DurationFormat с выводом Chrome для числовых единиц.",
+						Text: "Intl.DurationFormat — в браузерах, которые его поддерживают.",
 					},
 				},
 			},
@@ -15725,7 +15725,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.intro",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "Форматирование с учётом локали: Go отрисовывает его по данным Unicode CLDR с теми же опциями и результатом, что и Intl в JavaScript. Язык можно сменить внизу страницы.",
+						Text: "Форматирование с учётом языка и региона средствами Intl вашего браузера, на языке этой страницы и в вашем часовом поясе: каждая строка — вызов Intl с его параметрами. Язык можно сменить внизу страницы.",
 					},
 				},
 			},
@@ -15771,7 +15771,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.numbers_description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "Опции Intl.NumberFormat, форматирование на сервере по данным CLDR.",
+						Text: "Параметры Intl.NumberFormat, форматирует ваш браузер.",
 					},
 				},
 			},
@@ -15795,7 +15795,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.plurals_description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "Категории множественного числа CLDR и первые числа, которые к ним относятся.",
+						Text: "Категории множественного числа CLDR с первыми числами, которые их выбирают, вычисляются на сервере: они определяют формулировку переведённых сообщений.",
 					},
 				},
 			},
@@ -16392,7 +16392,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "preferences.description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "Эти настройки применяются к датам и времени на всех страницах. Вариант «Автоматически» использует часовой пояс вашего подключения, а браузер исправляет его, если он отличается.",
+						Text: "Эти настройки применяются к датам и времени на всех страницах. Вариант «Автоматически» использует часовой пояс вашего браузера.",
 					},
 				},
 			},
@@ -17039,7 +17039,7 @@ var pseudoCatalog = &i18n.Catalog{
 					Text: "⟦",
 				},
 				{
-					Text: "Ṁóñéý íš éẋáçţ (íñţéĝéŕ ɱíñóŕ úñíţš), ŵíţĥ ÇĻĐŔ çúŕŕéñçý ðíĝíţš. Ļóçáļ çúŕŕéñçý: ·························",
+					Text: "Îñţļ.ÑúɱƀéŕƑóŕɱáţ šţýļé \"çúŕŕéñçý\", ƒŕóɱ éẋáçţ ðéçíɱáļ šţŕíñĝš. Ļóçáļ çúŕŕéñçý: ··························",
 				},
 				{
 					Kind: i18n.MsgKind(1),
@@ -17101,7 +17101,7 @@ var pseudoCatalog = &i18n.Catalog{
 					Text: "⟦",
 				},
 				{
-					Text: "Ļóçáļé-áŵáŕé ƒóŕɱáţţíñĝ ŕéñðéŕéð ƀý Ĝó ƒŕóɱ Ûñíçóðé ÇĻĐŔ, ŵíţĥ ţĥé óþţíóñš áñð óúţþúţ óƒ ĴáṽáŠçŕíþţ'š Îñţļ.···································",
+					Text: "Ļóçáļé-áŵáŕé ƒóŕɱáţţíñĝ ƀý ýóúŕ ƀŕóŵšéŕ'š óŵñ Îñţļ: ñúɱƀéŕš, çúŕŕéñçíéš, ðáţéš, ţíɱé žóñéš, úñíţš, ļíšţš áñð þļúŕáļ ŕúļéš íñ éṽéŕý ļáñĝúáĝé ţĥé šíţé šĥíþš.·················································",
 				},
 				{
 					Text: "⟧",
@@ -17132,7 +17132,7 @@ var pseudoCatalog = &i18n.Catalog{
 					Text: "⟦",
 				},
 				{
-					Text: "Îñţļ.ĐúŕáţíóñƑóŕɱáţ, ŵíţĥ Çĥŕóɱé'š óúţþúţ ƒóŕ ñúɱéŕíç úñíţš.····················",
+					Text: "Îñţļ.ĐúŕáţíóñƑóŕɱáţ, íñ ƀŕóŵšéŕš ţĥáţ ĥáṽé íţ.···············",
 				},
 				{
 					Text: "⟧",
@@ -17174,7 +17174,7 @@ var pseudoCatalog = &i18n.Catalog{
 					Text: "⟦",
 				},
 				{
-					Text: "Ļóçáļé-áŵáŕé ƒóŕɱáţţíñĝ ŕéñðéŕéð ƀý Ĝó ƒŕóɱ Ûñíçóðé ÇĻĐŔ, ŵíţĥ ţĥé óþţíóñš áñð óúţþúţ óƒ ĴáṽáŠçŕíþţ'š Îñţļ. Šŵíţçĥ ļáñĝúáĝé áţ ţĥé ƀóţţóɱ óƒ ţĥé þáĝé.················································",
+					Text: "Ļóçáļé-áŵáŕé ƒóŕɱáţţíñĝ ƀý ýóúŕ ƀŕóŵšéŕ'š óŵñ Îñţļ, íñ ţĥíš þáĝé'š ļáñĝúáĝé áñð ýóúŕ ţíɱé žóñé: éáçĥ ŕóŵ íš áñ Îñţļ çáļļ áñð íţš óþţíóñš. Šŵíţçĥ ļáñĝúáĝé áţ ţĥé ƀóţţóɱ óƒ ţĥé þáĝé.························································",
 				},
 				{
 					Text: "⟧",
@@ -17250,7 +17250,7 @@ var pseudoCatalog = &i18n.Catalog{
 					Text: "⟦",
 				},
 				{
-					Text: "Îñţļ.ÑúɱƀéŕƑóŕɱáţ óþţíóñš, ƒóŕɱáţţéð óñ ţĥé šéŕṽéŕ ƒŕóɱ ÇĻĐŔ ðáţá.······················",
+					Text: "Îñţļ.ÑúɱƀéŕƑóŕɱáţ óþţíóñš, ƒóŕɱáţţéð ƀý ýóúŕ ƀŕóŵšéŕ.··················",
 				},
 				{
 					Text: "⟧",
@@ -17292,7 +17292,7 @@ var pseudoCatalog = &i18n.Catalog{
 					Text: "⟦",
 				},
 				{
-					Text: "ÇĻĐŔ þļúŕáļ çáţéĝóŕíéš ŵíţĥ ţĥé ƒíŕšţ ñúɱƀéŕš ţĥáţ šéļéçţ ţĥéɱ.·····················",
+					Text: "ÇĻĐŔ þļúŕáļ çáţéĝóŕíéš ŵíţĥ ţĥé ƒíŕšţ ñúɱƀéŕš ţĥáţ šéļéçţ ţĥéɱ, çóɱþúţéð óñ ţĥé šéŕṽéŕ: ţĥéý çĥóóšé ţĥé ŵóŕðíñĝ óƒ ţŕáñšļáţéð ɱéššáĝéš.············································",
 				},
 				{
 					Text: "⟧",
@@ -18324,7 +18324,7 @@ var pseudoCatalog = &i18n.Catalog{
 					Text: "⟦",
 				},
 				{
-					Text: "Đáţéš áñð ţíɱéš óñ éṽéŕý þáĝé úšé ţĥéšé šéţţíñĝš. Åúţóɱáţíç úšéš ýóúŕ çóññéçţíóñ'š ţíɱé žóñé, áñð ýóúŕ ƀŕóŵšéŕ çóŕŕéçţš íţ ŵĥéñ íţ ðíƒƒéŕš.·············································",
+					Text: "Đáţéš áñð ţíɱéš óñ éṽéŕý þáĝé úšé ţĥéšé šéţţíñĝš. Åúţóɱáţíç úšéš ýóúŕ ƀŕóŵšéŕ'š ţíɱé žóñé.·····························",
 				},
 				{
 					Text: "⟧",

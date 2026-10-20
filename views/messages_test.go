@@ -11,18 +11,53 @@ import (
 
 func TestElapsed(t *testing.T) {
 	for _, tc := range []struct {
-		locale string
-		d      time.Duration
-		want   string
+		d          time.Duration
+		json, text string
 	}{
-		{"en", 0, "0 sec"},
-		{"en", 900 * time.Millisecond, "0 sec"},
-		{"en", 26*time.Hour + 5*time.Minute + 30*time.Second, "1 day, 2 hr, 5 min, 30 sec"},
-		{"de", 90 * time.Second, "1 Min., 30 Sek."},
+		{0, `{"days":0,"hours":0,"minutes":0,"seconds":0}`, "0s"},
+		{900 * time.Millisecond, `{"days":0,"hours":0,"minutes":0,"seconds":0}`, "0s"},
+		{26*time.Hour + 5*time.Minute + 30*time.Second, `{"days":1,"hours":2,"minutes":5,"seconds":30}`, "1d 2h 5m 30s"},
+		{90 * time.Second, `{"days":0,"hours":0,"minutes":1,"seconds":30}`, "1m 30s"},
 	} {
+		if got := durationJSON(tc.d); got != tc.json {
+			t.Errorf("durationJSON(%v) = %s, want %s", tc.d, got, tc.json)
+		}
+		if got := durationText(tc.d); got != tc.text {
+			t.Errorf("durationText(%v) = %q, want %q", tc.d, got, tc.text)
+		}
+	}
+}
+
+func TestNum(t *testing.T) {
+	for _, tc := range []struct {
+		locale string
+		v      int64
+		want   string
+	}{{"en", 1234567, "1,234,567"}, {"de", -1234, "-1.234"}, {"en-IN", 1234567, "12,34,567"}, {"es", 1234, "1234"}} {
 		ctx := i18n.WithRequest(context.Background(), i18n.Request{Locale: cldr.Data.MustLocale(tc.locale)})
-		if got := Elapsed(ctx, tc.d); got != tc.want {
-			t.Errorf("Elapsed(%s, %v) = %q, want %q", tc.locale, tc.d, got, tc.want)
+		if got := Num(ctx, tc.v); got != tc.want {
+			t.Errorf("Num(%s, %d) = %q, want %q", tc.locale, tc.v, got, tc.want)
+		}
+	}
+}
+
+func TestJSOptions(t *testing.T) {
+	for in, want := range map[string]string{
+		"": "{}",
+		`{"dateStyle":"full","timeStyle":"long"}`: `{dateStyle: "full", timeStyle: "long"}`,
+		`{"maximumFractionDigits":0}`:             `{maximumFractionDigits: 0}`,
+	} {
+		if got := jsOptions(in); got != want {
+			t.Errorf("jsOptions(%s) = %s, want %s", in, got, want)
+		}
+	}
+}
+
+func TestValidTimeZone(t *testing.T) {
+	for id, want := range map[string]bool{"Europe/Berlin": true, "America/Argentina/Buenos_Aires": true, "UTC": true, "Etc/GMT+5": true,
+		"": false, "../etc/passwd": false, "Europe/Berlin\"": false, "<script>": false, "a/b/c/d": false} {
+		if got := ValidTimeZone(id); got != want {
+			t.Errorf("ValidTimeZone(%q) = %v, want %v", id, got, want)
 		}
 	}
 }
