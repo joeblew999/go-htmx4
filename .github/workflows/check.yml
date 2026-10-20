@@ -10,6 +10,7 @@ on:
 
 permissions:
   contents: write # upload the build to the "preview-builds" pre-release
+  pull-requests: write # the preview URL comment
 
 concurrency:
   group: check-${{ github.ref }}

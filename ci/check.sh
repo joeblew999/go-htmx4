@@ -21,25 +21,27 @@ start=$(date +%s)
 mise install
 echo "✓ mise install in $(( $(date +%s) - start ))s"
 
+# GitHub Actions: build first and publish it for this commit's Cloudflare preview straight away (in parallel with
+# the tests below), so Cloudflare deploys this build instead of compiling it again (kit/previewbuild; plan
+# .plans/2026-10-20_1746_previews-done-properly.md). The deploy tool goes along (static linux/amd64): Cloudflare
+# runs it to fetch, verify and deploy. A failing commit still gets a preview; this check stays red.
+if [ -n "${GITHUB_ACTIONS:-}" ] && [ -n "${GITHUB_SHA:-}" ]; then
+  start=$(date +%s)
+  mise run build
+  eval "$(mise env -s bash)"   # APP_NAME, APP_REPO, CF_SUBDOMAIN
+  CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -o bin/deploy ./cmd/deploy
+  bin/deploy -name "$APP_NAME" -assets dist/site -repo "$GITHUB_REPOSITORY" -publish-build "$GITHUB_SHA"
+  if [ -n "${CF_SUBDOMAIN:-}" ] && [ "${GITHUB_REF_NAME:-main}" != main ]; then
+    slug=$(bin/deploy -name "$APP_NAME" -slug "$GITHUB_REF_NAME")
+    bin/deploy -repo "$GITHUB_REPOSITORY" -comment-pr "$GITHUB_REF_NAME" \
+      -url "https://$slug-$APP_NAME.$CF_SUBDOMAIN.workers.dev" || echo "· PR comment failed (the preview still deploys)"
+  fi
+  echo "✓ build published in $(( $(date +%s) - start ))s"
+fi
+
 start=$(date +%s)
 mise run check
 echo "✓ mise run check in $(( $(date +%s) - start ))s"
-
-# Publish this commit's build for its Cloudflare preview (ci/workers-builds.sh fetches it), so Cloudflare deploys
-# what was just tested instead of compiling it again. Only in GitHub Actions; keeps the newest 40 builds.
-if [ -n "${GITHUB_ACTIONS:-}" ] && [ -n "${GITHUB_SHA:-}" ]; then
-  export GH_REPO="$GITHUB_REPOSITORY"   # the checkout has no git remote for gh to read
-  # The deploy tool too (static linux/amd64), so Cloudflare needn't install Go just to compile it.
-  CGO_ENABLED=0 GOOS=linux GOARCH=amd64 mise exec -- go build -trimpath -o bin/deploy ./cmd/deploy
-  tar -czf "/tmp/$GITHUB_SHA.tar.gz" build/worker.mjs build/wasm_exec.js build/runtime.mjs build/app.wasm dist/site bin/deploy
-  gh release view preview-builds >/dev/null 2>&1 ||
-    gh release create preview-builds --prerelease --title "Preview builds" \
-      --notes "Build output per commit for Cloudflare previews (ci/check.sh, ci/workers-builds.sh). Not a release." >/dev/null
-  gh release upload preview-builds "/tmp/$GITHUB_SHA.tar.gz" --clobber
-  echo "✓ build published: preview-builds/$GITHUB_SHA.tar.gz"
-  gh release view preview-builds --json assets --jq '.assets | sort_by(.createdAt) | reverse | .[40:] | .[].name' |
-    while read -r old; do gh release delete-asset preview-builds "$old" --yes; done
-fi
 
 start=$(date +%s)
 mise run e2e
