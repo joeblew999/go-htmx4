@@ -12,7 +12,7 @@ import (
 
 // Workers Builds (Cloudflare's GitHub app) as code: ConfigureBuilds makes the Worker's build setup match a
 // BuildsConfig, creating or updating what's there, so it lives in the repo instead of in someone's dashboard
-// clicks (issue #7). The calls are the Builds REST API's.
+// clicks (PR #6). The calls are the Builds REST API's.
 
 // BuildsConfig is the Workers Builds setup for one Worker and one GitHub repository.
 type BuildsConfig struct {

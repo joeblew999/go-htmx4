@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Workers Builds (Cloudflare's GitHub app) runs this for every pushed branch except main
-# (issue #7; `mise run cf:builds` sets the trigger up):
+# (PR #6; `mise run cf:builds` sets the trigger up):
 #   build command:  ci/workers-builds.sh build    fetch the deploy tool CI published for this commit, then with it
 #                                                 the build (verified against its manifest). No compiling.
 #   deploy command: ci/workers-builds.sh deploy   deploy the preview <branch slug>, then delete previews of

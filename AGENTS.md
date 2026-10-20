@@ -123,7 +123,7 @@
 - **Credentials only via fnox:** `fnox exec -- go run ./cmd/deploy …` or `fnox exec -- sh -c '…$CLOUDFLARE_API_TOKEN…'`
   (single-quoted so the variable expands after fnox injects it). Never print tokens or add `.env` files.
 - **Deploys and other Cloudflare writes are outward-facing:** get an explicit OK first.
-- **Worker Previews** (`mise run preview <name>`, run by Workers Builds for every pushed branch, issue #7):
+- **Worker Previews** (`mise run preview <name>`, run by Workers Builds for every pushed branch, PR #6):
   `kit/cfdeploy.DeployPreview`/`DeletePreview` over the Previews REST API. Previews get `APP_DOMAIN=` (no redirect),
   `APP_PREVIEW=1` (every response noindex: `TestPreviewNoindex`), the shared `$APP_NAME-preview` D1 and their own
   Durable Object storage. A new binding goes into both `deploy` and `preview` in `tasks/app.toml`. Production deploys
@@ -186,7 +186,7 @@
 - The topic rule and version header live in `kit/live`; `TestWorkerJSMatchesKitLive` checks `worker/index.mjs` and
   `worker/room.mjs` use the same.
 
-# kit/i18n (what's left: issue #8)
+# kit/i18n
 
 - Formatting is CLDR-exact Go with Intl's option names and output, computed on the server. The client's `Intl` may only
   enhance viewer-local text, and only with the page's `lang`.

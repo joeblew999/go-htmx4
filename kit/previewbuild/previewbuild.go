@@ -1,5 +1,5 @@
 // Package previewbuild hands a commit's build from CI to the Worker Preview deploy, so it is compiled once
-// (issue #7):
+// (PR #6):
 //
 //  1. CI packs the build (Pack: the files plus a preview-build.json manifest of their sha256) and publishes it as
 //     the asset <sha>.tar.gz of a pre-release (GitHub.Publish, keeping the newest N).

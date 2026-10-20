@@ -22,7 +22,7 @@ mise install
 echo "✓ mise install in $(( $(date +%s) - start ))s"
 
 # GitHub Actions: build first and publish it for this commit's Cloudflare preview straight away (in parallel with
-# the tests below), so Cloudflare deploys this build instead of compiling it again (kit/previewbuild; issue #7). The deploy tool goes along (static linux/amd64): Cloudflare
+# the tests below), so Cloudflare deploys this build instead of compiling it again (kit/previewbuild; PR #6). The deploy tool goes along (static linux/amd64): Cloudflare
 # runs it to fetch, verify and deploy. A failing commit still gets a preview; this check stays red.
 if [ -n "${GITHUB_ACTIONS:-}" ] && [ -n "${GITHUB_SHA:-}" ]; then
   start=$(date +%s)
