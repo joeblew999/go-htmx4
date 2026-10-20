@@ -32,25 +32,26 @@
 
 # Commands
 
-- Test everything: `mise run check` (= `mise run test`: TinyGo build + workerd smoke + gsx fmt/gofmt + go vet + go test).
-  `test` runs `smoke` and `test:go` in parallel. `build` and `i18n:messages` have `sources`/`outputs` and are skipped
-  when nothing they read changed: a new input to the wasm (an embedded file, a new tool pin file) goes in `sources`.
-  It must pass before pushing; CI (`.github/workflows/check.yml` → `ci/check.sh`) runs the same on every push and PR.
+Every command is a mise task, listed with when to use it in [docs/commands.md](docs/commands.md), generated from the
+task descriptions (`mise run docs:commands`; `test:go` fails when it's stale). Don't hand-list commands here or in the
+README: change a task's description. The rules:
+
+- Before pushing: `mise run check` (`gsx fmt`/gofmt/vet/go test, the production TinyGo build, the workerd smoke test
+  in `e2e/smoke`), then `mise run e2e` after UI, board or JS changes. CI (`.github/workflows/check.yml` →
+  `ci/check.sh`) runs the same on every push and PR. `build` and `i18n:messages` have `sources`/`outputs` and are
+  skipped when nothing they read changed: a new input to the wasm (an embedded file, a new tool pin file) goes in
+  `sources`.
 - CI is strict no-Node: shell `run:` steps only. Don't add `actions/checkout`, `jdx/mise-action` or any JavaScript action;
   new tools go in `mise.toml` so `ci/check.sh` picks them up.
-- The app: `mise run {dev,dev:native,serve,run,test,smoke,load,e2e,deploy,smoke-remote,tail}` (tasks in `tasks/app.toml`).
-- `mise run e2e` (e2e/, its own Go module) drives headless Chrome against local workerd or `E2E_BASE`; CI runs it after
-  `check`. Run it after UI, board or JS changes. Its write-limit test uses up the local write budget, so it runs last.
+- Shell lives in `ci/`, one script per job: `wasm-build.sh` (both builds), `with-workerd.sh` (runs a command against
+  local workerd and always stops it: smoke, e2e, load), `deploy.sh` (production, staging, previews: modules, assets
+  and bindings in one place; a new `worker/*.mjs` ships with no edits), `check.sh` (CI), `workers-builds.sh`
+  (Cloudflare's builds). Tasks call them; checks are Go tests (`e2e/smoke`, `e2e`), not curl in bash.
+- Dev loops: `dev:native` for UI work (seconds, no Worker runtime), `dev` for the real runtime (`build:dev`, seconds per
+  save). Stopping `gsx dev` can leave workerd running: `with-workerd.sh` refuses to start then; stop it by PID.
+  JS/CSS-only edits need no Go build: `mise run assets`, reload.
 - `mise run rename -- <module path> <app name>` turns the template into a new project; keep it working when you add
   files that mention the module path or the app name (it's verified by renaming a scratch clone and running `check`).
-- Dev loops: `dev:native` (~1 s per save, `go run`-style server, no Durable Objects, no Worker Intl) and `dev`
-  (`build:dev` + workerd, the real runtime, seconds per save: use it for anything touching the board, D1, the Room or
-  the server's Intl). Both are `gsx dev`; the backend port comes from `APP_DEV_PORT`. Stopping `gsx dev` can leave
-  workerd running: stop it by PID. JS/CSS-only edits need no Go build: `mise run assets`, reload.
-- Builds (`ci/wasm-build.sh`): `build` is production, TinyGo (small wasm, size-checked, ~1–2 min; deploy, staging,
-  CI and the tests). `build:dev` is the standard Go compiler to wasm (seconds after an edit, larger wasm, never
-  deployed). Check TinyGo-specific behaviour with `mise run check` before pushing: the tests use the production build.
-- List all tasks: `mise tasks`
 
 # UI (gsx + gsxui + htmx 4)
 
