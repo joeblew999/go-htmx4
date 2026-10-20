@@ -8,9 +8,9 @@ import (
 	"github.com/chromedp/chromedp"
 )
 
-// TestViewerTimeZone: dates follow the viewer. The browser formats them with its own Intl (static/intl.js) in its own
+// testViewerTimeZone: dates follow the viewer. The browser formats them with its own Intl (static/intl.js) in its own
 // zone; choosing a zone and clock in the header dialog stores them, and every page formats in them from then on.
-func TestViewerTimeZone(t *testing.T) {
+func testViewerTimeZone(t *testing.T) {
 	b := newTab(t, "browser")
 	b.run(emulation.SetTimezoneOverride("Asia/Tokyo"))
 	b.open("/")

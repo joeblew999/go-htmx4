@@ -9,8 +9,8 @@ import (
 	"github.com/chromedp/chromedp"
 )
 
-// TestBoardTwoBrowsers: D1 write in one browser → Room push to the other; presence, escaping, version guard.
-func TestBoardTwoBrowsers(t *testing.T) {
+// testBoardTwoBrowsers: D1 write in one browser → Room push to the other; presence, escaping, version guard.
+func testBoardTwoBrowsers(t *testing.T) {
 	top := topic("e2e-board")
 	a, b := newTab(t, "A"), newTab(t, "B")
 	for _, tb := range []*tab{a, b} {
@@ -62,8 +62,8 @@ func TestBoardTwoBrowsers(t *testing.T) {
 	b.noProblems()
 }
 
-// TestBoostBoard: boosted navigation into /board opens the socket, away closes it (presence), Back reconnects.
-func TestBoostBoard(t *testing.T) {
+// testBoostBoard: boosted navigation into /board opens the socket, away closes it (presence), Back reconnects.
+func testBoostBoard(t *testing.T) {
 	a, b := newTab(t, "A"), newTab(t, "B")
 	a.run(chromedp.Navigate(base+"/board"), chromedp.WaitVisible("#board", chromedp.ByQuery))
 	waitFor(3*time.Second, func() bool { var k int; _, err := fmt.Sscanf(a.presence(), "%d", &k); return err == nil })
@@ -105,9 +105,9 @@ func TestBoostBoard(t *testing.T) {
 	b.noProblems()
 }
 
-// TestBareClosePresence: a browser socket closed without a status code (1005) must complete its close and
+// testBareClosePresence: a browser socket closed without a status code (1005) must complete its close and
 // drop out of presence (worker/room.mjs answers 1005 with 1000).
-func TestBareClosePresence(t *testing.T) {
+func testBareClosePresence(t *testing.T) {
 	b := newTab(t, "browser")
 	b.open("/about")
 	res := b.str(fmt.Sprintf(`(async () => {

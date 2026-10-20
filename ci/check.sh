@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # CI entrypoint. Shell only, no Node.
 #
-# Installs mise if it's missing (mise's standalone installer, pinned), the tools pinned in mise.toml, then runs
-# `mise run check` (TinyGo on workerd + gsx fmt + go vet + go test), then `mise run e2e` (headless Chrome against local
-# workerd, with the chrome-headless-shell pinned in mise.toml). Runnable locally too: same command, same tools.
+# Installs mise if it's missing (mise's standalone installer, pinned) and the tools, then runs what `mise run check`
+# and `mise run e2e` run, without repeating a step: the production build beside the Go tests, the workerd smoke test,
+# then headless Chrome (the chrome-headless-shell pinned in mise.toml). Runnable locally too: same command, same tools.
 #
 # On GitHub it also publishes the build for Cloudflare's preview of this commit, and for a pushed v* tag it releases:
 # once everything passed, it moves the production branch to the tagged commit and Workers Builds deploys production
@@ -52,15 +52,23 @@ if ! command -v mise >/dev/null 2>&1; then
 fi
 mise --version
 
-phase "mise install (tools)" mise install
+# On CI, only the tools CI runs: not fnox (credentials), usage (shell completion) or the gsxui CLI (refreshing
+# components; compiling it took ~27 s per run). Locally, everything mise.toml pins. The editor hook skips itself on CI.
+if [ -n "${CI:-}" ]; then
+  # And don't let `mise run` install the rest before each task (its default): that compiled the gsxui CLI anyway.
+  export MISE_TASK_RUN_AUTO_INSTALL=false
+  phase "mise install (CI tools)" mise install go tinygo github:WebAssembly/binaryen github:tailwindlabs/tailwindcss \
+    workerd http:chrome-headless-shell jq
+else
+  phase "mise install (tools)" mise install
+fi
 
 # GitHub Actions: build first and publish it for this commit's Cloudflare preview straight away (in parallel with
 # the tests below), so Cloudflare deploys this build instead of compiling it again (kit/previewbuild; PR #6). The
 # deploy tool goes along (static linux/amd64): Cloudflare runs it to fetch, verify and deploy. A failing commit still
 # gets a preview; this check stays red.
 publish() {
-  mise run build
-  eval "$(mise env -s bash)" # APP_NAME, APP_REPO, CF_SUBDOMAIN
+  eval "$(mise env -s bash)" # APP_NAME, APP_REPO, CF_SUBDOMAIN, WORKER_COMPILER
   CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -o bin/deploy ./cmd/deploy
   bin/deploy -name "$APP_NAME" -assets dist/site -repo "$GITHUB_REPOSITORY" -publish-build "$GITHUB_SHA"
   if [ -n "${CF_SUBDOMAIN:-}" ] && [ "${GITHUB_REF_TYPE:-branch}" = branch ] && [ "${GITHUB_REF_NAME:-main}" != main ] &&
@@ -70,12 +78,15 @@ publish() {
       -url "https://$slug-$APP_NAME.$CF_SUBDOMAIN.workers.dev" || echo "· PR comment failed (the preview still deploys)"
   fi
 }
+# The production build and the Go tests (formatting, vet, go test) run side by side: the build is mostly one core of
+# TinyGo. Then the smoke test on workerd (= mise run check, whose build and tests have just run), then Chrome.
+compiler=$(mise env -s bash | sed -n 's/^export WORKER_COMPILER=//p' | tr -d "'\"")
+phase "build (${compiler:-tinygo}) + Go tests" mise run build ::: test:go
 if [ -n "${GITHUB_ACTIONS:-}" ] && [ -n "${GITHUB_SHA:-}" ]; then
-  phase "build (TinyGo) + publish" publish
+  phase "publish the build" publish
 fi
-
-phase "mise run check" mise run check
-phase "mise run e2e (Chrome)" mise run e2e
+phase "smoke (workerd)" mise run --skip-deps smoke
+phase "e2e (Chrome)" mise run --skip-deps e2e
 
 # A release: a pushed v* tag (GitHub's Releases page, git push), or a pushed release/v* branch (mise run release: works
 # where only branches can be pushed). Only a commit that's on main, and only after everything above passed. For a

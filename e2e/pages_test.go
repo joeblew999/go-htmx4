@@ -9,8 +9,8 @@ import (
 	"github.com/chromedp/chromedp"
 )
 
-// TestPages: the home page's gsxui components driven by htmx 4 and hx-live, boosted navigation, the theme.
-func TestPages(t *testing.T) {
+// testPages: the home page's gsxui components driven by htmx 4 and hx-live, boosted navigation, the theme.
+func testPages(t *testing.T) {
 	b := newTab(t, "browser")
 	b.run(chromedp.Navigate(base+"/"), chromedp.WaitReady("#greeting", chromedp.ByQuery))
 	marker := b.num(`window.__marker = Math.floor(Math.random() * 1e9)`)

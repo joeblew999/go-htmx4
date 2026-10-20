@@ -8,10 +8,10 @@ import (
 	"github.com/chromedp/chromedp"
 )
 
-// TestLocales: locale URLs in a real browser. The language list switches with a full page load (new <html lang
+// testLocales: locale URLs in a real browser. The language list switches with a full page load (new <html lang
 // dir>), boosted navigation stays inside the locale's prefix, RTL mirrors the layout, the formats page is worded by
 // the browser in the page's language, and the bare "/" follows the remembered locale.
-func TestLocales(t *testing.T) {
+func testLocales(t *testing.T) {
 	b := newTab(t, "browser")
 	b.run(chromedp.Navigate(base+"/formats"), chromedp.WaitReady("#languages", chromedp.ByQuery))
 	marker := b.num(`window.__marker = Math.floor(Math.random() * 1e9)`)

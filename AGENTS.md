@@ -36,9 +36,10 @@ Every command is a mise task, listed with when to use it in [docs/commands.md](d
 task descriptions (`mise run docs:commands`; `test:go` fails when it's stale). Don't hand-list commands here or in the
 README: change a task's description. The rules:
 
-- Before pushing: `mise run check` (`gsx fmt`/gofmt/vet/go test, the production TinyGo build, the workerd smoke test
-  in `e2e/smoke`), then `mise run e2e` after UI, board or JS changes. CI (`.github/workflows/check.yml` →
-  `ci/check.sh`) runs the same on every push and PR. `build` and `i18n:messages` have `sources`/`outputs` and are
+- Before pushing: `ci/check.sh`, exactly what CI runs (or `mise run check`, then `mise run e2e` after UI, board or JS
+  changes). CI (`.github/workflows/check.yml` →
+  `ci/check.sh`) runs the same on every push and PR: the build beside the Go tests, smoke, then Chrome, and prints
+  where the time went (also on the run's summary page). On CI it installs only the tools CI runs. `build` and `i18n:messages` have `sources`/`outputs` and are
   skipped when nothing they read changed: a new input to the wasm (an embedded file, a new tool pin file) goes in
   `sources`.
 - CI is strict no-Node: shell `run:` steps only. Don't add `actions/checkout`, `jdx/mise-action` or any JavaScript action;
@@ -165,7 +166,8 @@ README: change a task's description. The rules:
     (`-ratelimit WRITES=1001:60/10`, `tasks/app.toml`) and the local stand-in (`workerd/local-entry.mjs`); every board
     write handler calls `s.limited` before writing. Notes are pruned to `keepNotes` (50) per topic in the same request.
     `worker/room.mjs` `MAX_SOCKETS` (1,000) refuses further sockets with 503; `mise run load` checks it. The smoke's
-    429 check runs last because it uses up the local write budget.
+    and e2e's 429 checks use up the local write budget: e2e's `TestE2E` runs every other check in parallel first, then
+    the write limit alone (`e2e/e2e_test.go`); add new browser checks to its list.
   - Schema changes: add `migrations/NNNN_name.sql` (SQLite, idempotent). `cmd/deploy -migrations` applies it
     to D1 once (tracked in `_migrations`); `workerd/local-d1.mjs` must import it for local runs.
   - Durable Object classes change through `-migration-tag`/`-new-sqlite-class` in the deploy task; bump the tag for a new class.
