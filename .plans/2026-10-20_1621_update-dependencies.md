@@ -20,7 +20,7 @@ CI runs (`ci/check.sh`: `mise run check` then `mise run e2e`).
 | gsx | v0.1.0 | v0.4.0 | `go.mod`, README, AGENTS.md |
 | workers-go | v0.35.0 | v0.36.0 | `go.mod`, `tasks/upstream.toml`, `main.go`, `tasks/app.toml`, README, AGENTS.md |
 | golang.org/x/net | v0.59.0 | v0.61.0 | `go.mod` |
-| chromedp (e2e) | v0.16.0 | v0.21.0 | `e2e/go.mod` (cdproto follows chromedp) |
+| chromedp (e2e) | v0.16.0 | — (held) | v0.17–v0.21 rewrote the API (decision 6) |
 | Tailwind | 4.3.3 | — | already latest |
 | htmx | 4.0.0 | — | already latest stable (only v4.0.0 tagged; betas are older) |
 
@@ -39,6 +39,11 @@ CI runs (`ci/check.sh`: `mise run check` then `mise run e2e`).
 4. **Go 1.27.2** also matters for tzdata: the i18n plan notes 1.27.1 is wrong for Inuvik from 2026-11-01.
 5. **gsxui:** only the CLI pin moves. Vendored components in `ui/` are not re-added (that's a UI change, not a
    dependency bump); `gsxui.json` hashes stay valid.
+
+6. **chromedp stays on v0.16.0.** v0.17–v0.21 is a ground-up rewrite (generic `Action[T]`, `Run` returns values,
+   `Events` iterators instead of `ListenTarget`, typed cdproto; an 11-part `docs/MIGRATION.md`), with v0.20/v0.21 out
+   in the last two weeks and the API still moving per release. Rewriting the e2e suite against it is its own change,
+   once it settles. `ExecPath` (for `E2E_CHROME`) exists in v0.16.
 
 ## Steps
 
@@ -72,3 +77,11 @@ CI runs (`ci/check.sh`: `mise run check` then `mise run e2e`).
   - `i18n-verify.yml` also runs (the PR touches `mise.toml`). `ci/i18n-verify.sh` pinned mise separately at v2026.9.5:
     now v2026.10.14 like `check.sh`, and `min_version` in `mise.toml` makes an older mise (a Mac) stop with a clear
     message. `i18npins -latest -strict` passes: 1.20261019.1 is the newest workerd.
+- **`i18n:verify` never generated the views** (pre-existing bug, first triggered by this PR touching `mise.toml`): its
+  last step, `go test -run TestReferencePins .`, compiles the app package, whose `views/*.x.go` aren't committed. A
+  fresh checkout (CI) failed with `undefined: views.BoardPage`; locally they were left over from `check`. Fixed with
+  `depends = ["generate"]`, proven in a fresh clone (fails before, passes after). Everything it verifies passed on
+  GitHub, which also confirmed workerd 1.20261020.1 (released today) uses the same Chromium ICU.
+- **chromedp v0.21 broke e2e at compile time** (`cannot use generic type chromedp.Action[T any] without
+  instantiation`). Missed at first because a `| tail` hid the exit code of the local run; caught on reading the log.
+  Held back (decision 6).

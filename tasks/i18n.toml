@@ -27,6 +27,9 @@ run = "go run ./cmd/msggen -dir locales -out locales -locales \"$I18N_LOCALES\""
 
 ["i18n:verify"]
 description = "Prove kit/i18n's committed reference data comes from the pinned sources (network on first run; see kit/i18n/README.md)"
+# generate: TestReferencePins compiles the app package, whose views/*.x.go are generated (not committed); a fresh
+# checkout (CI) has none.
+depends = ["generate"]
 dir = "{{config_root}}"
 run = '''
 #!/usr/bin/env bash
