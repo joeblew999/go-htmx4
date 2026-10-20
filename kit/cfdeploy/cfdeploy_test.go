@@ -254,6 +254,12 @@ func (f *fakeCF) servePreview(w http.ResponseWriter, r *http.Request, rest strin
 		pv := &fakePreview{ID: fmt.Sprintf("%032d", len(f.previews)+1), Name: body.Name}
 		f.previews[body.Name] = pv
 		reply(map[string]any{"id": pv.ID, "name": pv.Name}) // urls come with a later read
+	case r.Method == "GET" && rest == "":
+		var out []map[string]any
+		for _, pv := range f.previews {
+			out = append(out, map[string]any{"id": pv.ID, "name": pv.Name})
+		}
+		reply(out)
 	case r.Method == "GET" && sub == "":
 		if pv := find(ref); pv != nil {
 			reply(map[string]any{"id": pv.ID, "name": pv.Name, "urls": urls(pv)})
@@ -630,5 +636,22 @@ func TestDeployPreview(t *testing.T) {
 	}
 	if gone, err := c.DeletePreview(ctx, "app", "pr-7"); err != nil || gone {
 		t.Errorf("deleting a missing preview: %v %v", gone, err)
+	}
+}
+
+func TestPrunePreviews(t *testing.T) {
+	f, srv := newFakeCF(t)
+	f.scripts["app"] = ""
+	for i, n := range []string{"main-feature", "merged-branch", "keep-me"} {
+		f.previews[n] = &fakePreview{ID: fmt.Sprintf("%032d", i+1), Name: n}
+	}
+	c := &cfdeploy.Client{Token: "tok", AccountID: "acc", BaseURL: srv.URL}
+	live := map[string]bool{"main-feature": true, "keep-me": true}
+	deleted, err := c.PrunePreviews(context.Background(), "app", func(n string) bool { return live[n] })
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !slices.Equal(deleted, []string{"merged-branch"}) || len(f.previews) != 2 {
+		t.Errorf("deleted %v, left %v", deleted, f.previews)
 	}
 }

@@ -204,3 +204,27 @@ func (c *Client) optional(ctx context.Context, apiPath string, out any) (bool, e
 	}
 	return false, err
 }
+
+// PrunePreviews deletes the previews of the Worker worker whose names keep doesn't accept (e.g. branches that no
+// longer exist), with their Durable Object storage, and returns the deleted names.
+func (c *Client) PrunePreviews(ctx context.Context, worker string, keep func(name string) bool) ([]string, error) {
+	if c.Token == "" || c.AccountID == "" {
+		return nil, errors.New("cfdeploy: Token and AccountID are required")
+	}
+	var pvs []preview
+	if err := c.do(ctx, "GET", c.accountPath("/workers/workers/"+worker+"/previews"), "", nil, &pvs); err != nil {
+		return nil, fmt.Errorf("cfdeploy: list previews: %w", err)
+	}
+	var deleted []string
+	for _, pv := range pvs {
+		if keep(pv.Name) {
+			continue
+		}
+		if err := c.do(ctx, "DELETE", c.accountPath("/workers/workers/"+worker+"/previews/"+pv.ID), "", nil, nil); err != nil {
+			return deleted, fmt.Errorf("cfdeploy: delete preview %s: %w", pv.Name, err)
+		}
+		c.logf("✓ preview %s deleted (branch gone)", pv.Name)
+		deleted = append(deleted, pv.Name)
+	}
+	return deleted, nil
+}
