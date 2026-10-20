@@ -306,6 +306,14 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.browser",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Your browser",
+					},
+				},
+			},
+			{
 				Key: "formats.collation_description",
 				Parts: []i18n.MsgPart{
 					{
@@ -411,6 +419,54 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.how_browser",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "The same code runs in your browser and changes only what the server can't know: your time zone and time passing.",
+					},
+				},
+			},
+			{
+				Key: "formats.how_browser_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Refreshed in your browser",
+					},
+				},
+			},
+			{
+				Key: "formats.how_roundtrip",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Forms send canonical values back. A number typed your way is read back with the same Intl.",
+					},
+				},
+			},
+			{
+				Key: "formats.how_roundtrip_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Sent back as plain values",
+					},
+				},
+			},
+			{
+				Key: "formats.how_server",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Cloudflare's V8 Intl formats every value before the page leaves the server: finished for readers, crawlers, emails and PDFs.",
+					},
+				},
+			},
+			{
+				Key: "formats.how_server_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Formatted on the Worker",
+					},
+				},
+			},
+			{
 				Key: "formats.input",
 				Parts: []i18n.MsgPart{
 					{
@@ -497,6 +553,14 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.on_this_page",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "On this page",
+					},
+				},
+			},
+			{
 				Key: "formats.options",
 				Parts: []i18n.MsgPart{
 					{
@@ -577,6 +641,14 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.server",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Worker (V8)",
+					},
+				},
+			},
+			{
 				Key: "formats.supported_description",
 				Parts: []i18n.MsgPart{
 					{
@@ -608,6 +680,102 @@ var catalogs = []*i18n.Catalog{
 				Parts: []i18n.MsgPart{
 					{
 						Text: "Formats",
+					},
+				},
+			},
+			{
+				Key: "formats.try_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Type a number the way you write it, and any text. The Worker reads them back and formats them with its Intl.",
+					},
+				},
+			},
+			{
+				Key: "formats.try_graphemes",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Characters",
+					},
+				},
+			},
+			{
+				Key: "formats.try_no_runtime",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "This needs the Worker's Intl: run the app under workerd (mise run dev).",
+					},
+				},
+			},
+			{
+				Key: "formats.try_not_number",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "That isn't a number in this language.",
+					},
+				},
+			},
+			{
+				Key: "formats.try_number",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "A number, written your way",
+					},
+				},
+			},
+			{
+				Key: "formats.try_parsed",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Read back as",
+					},
+				},
+			},
+			{
+				Key: "formats.try_sentences",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Sentences",
+					},
+				},
+			},
+			{
+				Key: "formats.try_sorted",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Words, sorted",
+					},
+				},
+			},
+			{
+				Key: "formats.try_submit",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Format on the server",
+					},
+				},
+			},
+			{
+				Key: "formats.try_text",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Some text",
+					},
+				},
+			},
+			{
+				Key: "formats.try_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Try it",
+					},
+				},
+			},
+			{
+				Key: "formats.try_words",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Words",
 					},
 				},
 			},
@@ -1547,6 +1715,14 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.browser",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Your browser",
+					},
+				},
+			},
+			{
 				Key: "formats.collation_description",
 				Parts: []i18n.MsgPart{
 					{
@@ -1652,6 +1828,54 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.how_browser",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "The same code runs in your browser and changes only what the server can't know: your time zone and time passing.",
+					},
+				},
+			},
+			{
+				Key: "formats.how_browser_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Refreshed in your browser",
+					},
+				},
+			},
+			{
+				Key: "formats.how_roundtrip",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Forms send canonical values back. A number typed your way is read back with the same Intl.",
+					},
+				},
+			},
+			{
+				Key: "formats.how_roundtrip_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Sent back as plain values",
+					},
+				},
+			},
+			{
+				Key: "formats.how_server",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Cloudflare's V8 Intl formats every value before the page leaves the server: finished for readers, crawlers, emails and PDFs.",
+					},
+				},
+			},
+			{
+				Key: "formats.how_server_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Formatted on the Worker",
+					},
+				},
+			},
+			{
 				Key: "formats.input",
 				Parts: []i18n.MsgPart{
 					{
@@ -1738,6 +1962,14 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.on_this_page",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "On this page",
+					},
+				},
+			},
+			{
 				Key: "formats.options",
 				Parts: []i18n.MsgPart{
 					{
@@ -1818,6 +2050,14 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.server",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Worker (V8)",
+					},
+				},
+			},
+			{
 				Key: "formats.supported_description",
 				Parts: []i18n.MsgPart{
 					{
@@ -1849,6 +2089,102 @@ var catalogs = []*i18n.Catalog{
 				Parts: []i18n.MsgPart{
 					{
 						Text: "Formats",
+					},
+				},
+			},
+			{
+				Key: "formats.try_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Type a number the way you write it, and any text. The Worker reads them back and formats them with its Intl.",
+					},
+				},
+			},
+			{
+				Key: "formats.try_graphemes",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Characters",
+					},
+				},
+			},
+			{
+				Key: "formats.try_no_runtime",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "This needs the Worker's Intl: run the app under workerd (mise run dev).",
+					},
+				},
+			},
+			{
+				Key: "formats.try_not_number",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "That isn't a number in this language.",
+					},
+				},
+			},
+			{
+				Key: "formats.try_number",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "A number, written your way",
+					},
+				},
+			},
+			{
+				Key: "formats.try_parsed",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Read back as",
+					},
+				},
+			},
+			{
+				Key: "formats.try_sentences",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Sentences",
+					},
+				},
+			},
+			{
+				Key: "formats.try_sorted",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Words, sorted",
+					},
+				},
+			},
+			{
+				Key: "formats.try_submit",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Format on the server",
+					},
+				},
+			},
+			{
+				Key: "formats.try_text",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Some text",
+					},
+				},
+			},
+			{
+				Key: "formats.try_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Try it",
+					},
+				},
+			},
+			{
+				Key: "formats.try_words",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Words",
 					},
 				},
 			},
@@ -2788,6 +3124,14 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.browser",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Ihr Browser",
+					},
+				},
+			},
+			{
 				Key: "formats.collation_description",
 				Parts: []i18n.MsgPart{
 					{
@@ -2893,6 +3237,54 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.how_browser",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Derselbe Code läuft in Ihrem Browser und ändert nur, was der Server nicht wissen kann: Ihre Zeitzone und die vergehende Zeit.",
+					},
+				},
+			},
+			{
+				Key: "formats.how_browser_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "In Ihrem Browser aktualisiert",
+					},
+				},
+			},
+			{
+				Key: "formats.how_roundtrip",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Formulare senden kanonische Werte zurück. Eine Zahl in Ihrer Schreibweise wird mit demselben Intl zurückgelesen.",
+					},
+				},
+			},
+			{
+				Key: "formats.how_roundtrip_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Als einfache Werte zurückgesendet",
+					},
+				},
+			},
+			{
+				Key: "formats.how_server",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Das V8-Intl von Cloudflare formatiert jeden Wert, bevor die Seite den Server verlässt: fertig für Leser, Crawler, E-Mails und PDFs.",
+					},
+				},
+			},
+			{
+				Key: "formats.how_server_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Auf dem Worker formatiert",
+					},
+				},
+			},
+			{
 				Key: "formats.input",
 				Parts: []i18n.MsgPart{
 					{
@@ -2979,6 +3371,14 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.on_this_page",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Auf dieser Seite",
+					},
+				},
+			},
+			{
 				Key: "formats.options",
 				Parts: []i18n.MsgPart{
 					{
@@ -3059,6 +3459,14 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.server",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Worker (V8)",
+					},
+				},
+			},
+			{
 				Key: "formats.supported_description",
 				Parts: []i18n.MsgPart{
 					{
@@ -3090,6 +3498,102 @@ var catalogs = []*i18n.Catalog{
 				Parts: []i18n.MsgPart{
 					{
 						Text: "Formate",
+					},
+				},
+			},
+			{
+				Key: "formats.try_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Geben Sie eine Zahl so ein, wie Sie sie schreiben, und beliebigen Text. Der Worker liest beides zurück und formatiert es mit seinem Intl.",
+					},
+				},
+			},
+			{
+				Key: "formats.try_graphemes",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Zeichen",
+					},
+				},
+			},
+			{
+				Key: "formats.try_no_runtime",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Dafür braucht es das Intl des Workers: Starten Sie die App unter workerd (mise run dev).",
+					},
+				},
+			},
+			{
+				Key: "formats.try_not_number",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Das ist in dieser Sprache keine Zahl.",
+					},
+				},
+			},
+			{
+				Key: "formats.try_number",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Eine Zahl in Ihrer Schreibweise",
+					},
+				},
+			},
+			{
+				Key: "formats.try_parsed",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Zurückgelesen als",
+					},
+				},
+			},
+			{
+				Key: "formats.try_sentences",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Sätze",
+					},
+				},
+			},
+			{
+				Key: "formats.try_sorted",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Wörter, sortiert",
+					},
+				},
+			},
+			{
+				Key: "formats.try_submit",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Auf dem Server formatieren",
+					},
+				},
+			},
+			{
+				Key: "formats.try_text",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Ein Text",
+					},
+				},
+			},
+			{
+				Key: "formats.try_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Ausprobieren",
+					},
+				},
+			},
+			{
+				Key: "formats.try_words",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Wörter",
 					},
 				},
 			},
@@ -4029,6 +4533,14 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.browser",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Votre navigateur",
+					},
+				},
+			},
+			{
 				Key: "formats.collation_description",
 				Parts: []i18n.MsgPart{
 					{
@@ -4134,6 +4646,54 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.how_browser",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Le même code s'exécute dans votre navigateur et ne change que ce que le serveur ne peut pas savoir : votre fuseau horaire et le temps qui passe.",
+					},
+				},
+			},
+			{
+				Key: "formats.how_browser_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Actualisé dans votre navigateur",
+					},
+				},
+			},
+			{
+				Key: "formats.how_roundtrip",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Les formulaires renvoient des valeurs canoniques. Un nombre saisi à votre façon est relu avec le même Intl.",
+					},
+				},
+			},
+			{
+				Key: "formats.how_roundtrip_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Renvoyé en valeurs simples",
+					},
+				},
+			},
+			{
+				Key: "formats.how_server",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "L'Intl de V8 chez Cloudflare met en forme chaque valeur avant que la page ne quitte le serveur : prête pour les lecteurs, les robots, les e-mails et les PDF.",
+					},
+				},
+			},
+			{
+				Key: "formats.how_server_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Mis en forme sur le Worker",
+					},
+				},
+			},
+			{
 				Key: "formats.input",
 				Parts: []i18n.MsgPart{
 					{
@@ -4220,6 +4780,14 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.on_this_page",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Sur cette page",
+					},
+				},
+			},
+			{
 				Key: "formats.options",
 				Parts: []i18n.MsgPart{
 					{
@@ -4300,6 +4868,14 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.server",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Worker (V8)",
+					},
+				},
+			},
+			{
 				Key: "formats.supported_description",
 				Parts: []i18n.MsgPart{
 					{
@@ -4331,6 +4907,102 @@ var catalogs = []*i18n.Catalog{
 				Parts: []i18n.MsgPart{
 					{
 						Text: "Formats",
+					},
+				},
+			},
+			{
+				Key: "formats.try_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Saisissez un nombre comme vous l'écrivez, et un texte. Le Worker les relit et les met en forme avec son Intl.",
+					},
+				},
+			},
+			{
+				Key: "formats.try_graphemes",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Caractères",
+					},
+				},
+			},
+			{
+				Key: "formats.try_no_runtime",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Il faut l'Intl du Worker : lancez l'application sous workerd (mise run dev).",
+					},
+				},
+			},
+			{
+				Key: "formats.try_not_number",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Ce n'est pas un nombre dans cette langue.",
+					},
+				},
+			},
+			{
+				Key: "formats.try_number",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Un nombre, écrit à votre façon",
+					},
+				},
+			},
+			{
+				Key: "formats.try_parsed",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Relu comme",
+					},
+				},
+			},
+			{
+				Key: "formats.try_sentences",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Phrases",
+					},
+				},
+			},
+			{
+				Key: "formats.try_sorted",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Mots, triés",
+					},
+				},
+			},
+			{
+				Key: "formats.try_submit",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Mettre en forme sur le serveur",
+					},
+				},
+			},
+			{
+				Key: "formats.try_text",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Un texte",
+					},
+				},
+			},
+			{
+				Key: "formats.try_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Essayer",
+					},
+				},
+			},
+			{
+				Key: "formats.try_words",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Mots",
 					},
 				},
 			},
@@ -5270,6 +5942,14 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.browser",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Tu navegador",
+					},
+				},
+			},
+			{
 				Key: "formats.collation_description",
 				Parts: []i18n.MsgPart{
 					{
@@ -5375,6 +6055,54 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.how_browser",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "El mismo código se ejecuta en tu navegador y solo cambia lo que el servidor no puede saber: tu zona horaria y el paso del tiempo.",
+					},
+				},
+			},
+			{
+				Key: "formats.how_browser_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Actualizado en tu navegador",
+					},
+				},
+			},
+			{
+				Key: "formats.how_roundtrip",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Los formularios envían valores canónicos. Un número escrito a tu manera se vuelve a leer con el mismo Intl.",
+					},
+				},
+			},
+			{
+				Key: "formats.how_roundtrip_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Devuelto como valores simples",
+					},
+				},
+			},
+			{
+				Key: "formats.how_server",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "El Intl de V8 de Cloudflare formatea cada valor antes de que la página salga del servidor: listo para lectores, rastreadores, correos y PDF.",
+					},
+				},
+			},
+			{
+				Key: "formats.how_server_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Formateado en el Worker",
+					},
+				},
+			},
+			{
 				Key: "formats.input",
 				Parts: []i18n.MsgPart{
 					{
@@ -5461,6 +6189,14 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.on_this_page",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "En esta página",
+					},
+				},
+			},
+			{
 				Key: "formats.options",
 				Parts: []i18n.MsgPart{
 					{
@@ -5541,6 +6277,14 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.server",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Worker (V8)",
+					},
+				},
+			},
+			{
 				Key: "formats.supported_description",
 				Parts: []i18n.MsgPart{
 					{
@@ -5572,6 +6316,102 @@ var catalogs = []*i18n.Catalog{
 				Parts: []i18n.MsgPart{
 					{
 						Text: "Formatos",
+					},
+				},
+			},
+			{
+				Key: "formats.try_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Escribe un número como lo escribes tú y cualquier texto. El Worker los vuelve a leer y los formatea con su Intl.",
+					},
+				},
+			},
+			{
+				Key: "formats.try_graphemes",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Caracteres",
+					},
+				},
+			},
+			{
+				Key: "formats.try_no_runtime",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Esto necesita el Intl del Worker: ejecuta la aplicación con workerd (mise run dev).",
+					},
+				},
+			},
+			{
+				Key: "formats.try_not_number",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Eso no es un número en este idioma.",
+					},
+				},
+			},
+			{
+				Key: "formats.try_number",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Un número, escrito a tu manera",
+					},
+				},
+			},
+			{
+				Key: "formats.try_parsed",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Leído como",
+					},
+				},
+			},
+			{
+				Key: "formats.try_sentences",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Oraciones",
+					},
+				},
+			},
+			{
+				Key: "formats.try_sorted",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Palabras, ordenadas",
+					},
+				},
+			},
+			{
+				Key: "formats.try_submit",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Formatear en el servidor",
+					},
+				},
+			},
+			{
+				Key: "formats.try_text",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Un texto",
+					},
+				},
+			},
+			{
+				Key: "formats.try_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Pruébalo",
+					},
+				},
+			},
+			{
+				Key: "formats.try_words",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Palabras",
 					},
 				},
 			},
@@ -6511,6 +7351,14 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.browser",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Seu navegador",
+					},
+				},
+			},
+			{
 				Key: "formats.collation_description",
 				Parts: []i18n.MsgPart{
 					{
@@ -6616,6 +7464,54 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.how_browser",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "O mesmo código roda no seu navegador e só muda o que o servidor não tem como saber: seu fuso horário e a passagem do tempo.",
+					},
+				},
+			},
+			{
+				Key: "formats.how_browser_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Atualizado no seu navegador",
+					},
+				},
+			},
+			{
+				Key: "formats.how_roundtrip",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Formulários enviam valores canônicos. Um número digitado do seu jeito é lido de volta com o mesmo Intl.",
+					},
+				},
+			},
+			{
+				Key: "formats.how_roundtrip_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Enviado de volta como valores simples",
+					},
+				},
+			},
+			{
+				Key: "formats.how_server",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "O Intl do V8 da Cloudflare formata cada valor antes de a página sair do servidor: pronto para leitores, rastreadores, e-mails e PDFs.",
+					},
+				},
+			},
+			{
+				Key: "formats.how_server_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Formatado no Worker",
+					},
+				},
+			},
+			{
 				Key: "formats.input",
 				Parts: []i18n.MsgPart{
 					{
@@ -6702,6 +7598,14 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.on_this_page",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Nesta página",
+					},
+				},
+			},
+			{
 				Key: "formats.options",
 				Parts: []i18n.MsgPart{
 					{
@@ -6782,6 +7686,14 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.server",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Worker (V8)",
+					},
+				},
+			},
+			{
 				Key: "formats.supported_description",
 				Parts: []i18n.MsgPart{
 					{
@@ -6813,6 +7725,102 @@ var catalogs = []*i18n.Catalog{
 				Parts: []i18n.MsgPart{
 					{
 						Text: "Formatos",
+					},
+				},
+			},
+			{
+				Key: "formats.try_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Digite um número do jeito que você escreve e qualquer texto. O Worker lê os dois de volta e os formata com seu Intl.",
+					},
+				},
+			},
+			{
+				Key: "formats.try_graphemes",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Caracteres",
+					},
+				},
+			},
+			{
+				Key: "formats.try_no_runtime",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Isso precisa do Intl do Worker: rode o app no workerd (mise run dev).",
+					},
+				},
+			},
+			{
+				Key: "formats.try_not_number",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Isso não é um número neste idioma.",
+					},
+				},
+			},
+			{
+				Key: "formats.try_number",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Um número, escrito do seu jeito",
+					},
+				},
+			},
+			{
+				Key: "formats.try_parsed",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Lido como",
+					},
+				},
+			},
+			{
+				Key: "formats.try_sentences",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Frases",
+					},
+				},
+			},
+			{
+				Key: "formats.try_sorted",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Palavras, ordenadas",
+					},
+				},
+			},
+			{
+				Key: "formats.try_submit",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Formatar no servidor",
+					},
+				},
+			},
+			{
+				Key: "formats.try_text",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Um texto",
+					},
+				},
+			},
+			{
+				Key: "formats.try_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Experimente",
+					},
+				},
+			},
+			{
+				Key: "formats.try_words",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Palavras",
 					},
 				},
 			},
@@ -7752,6 +8760,14 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.browser",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "O seu navegador",
+					},
+				},
+			},
+			{
 				Key: "formats.collation_description",
 				Parts: []i18n.MsgPart{
 					{
@@ -7857,6 +8873,54 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.how_browser",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "O mesmo código corre no seu navegador e só altera o que o servidor não pode saber: o seu fuso horário e o passar do tempo.",
+					},
+				},
+			},
+			{
+				Key: "formats.how_browser_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Atualizado no seu navegador",
+					},
+				},
+			},
+			{
+				Key: "formats.how_roundtrip",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Os formulários enviam valores canónicos. Um número escrito à sua maneira é relido com o mesmo Intl.",
+					},
+				},
+			},
+			{
+				Key: "formats.how_roundtrip_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Devolvido como valores simples",
+					},
+				},
+			},
+			{
+				Key: "formats.how_server",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "O Intl do V8 da Cloudflare formata cada valor antes de a página sair do servidor: pronto para leitores, rastreadores, e-mails e PDF.",
+					},
+				},
+			},
+			{
+				Key: "formats.how_server_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Formatado no Worker",
+					},
+				},
+			},
+			{
 				Key: "formats.input",
 				Parts: []i18n.MsgPart{
 					{
@@ -7943,6 +9007,14 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.on_this_page",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Nesta página",
+					},
+				},
+			},
+			{
 				Key: "formats.options",
 				Parts: []i18n.MsgPart{
 					{
@@ -8023,6 +9095,14 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.server",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Worker (V8)",
+					},
+				},
+			},
+			{
 				Key: "formats.supported_description",
 				Parts: []i18n.MsgPart{
 					{
@@ -8054,6 +9134,102 @@ var catalogs = []*i18n.Catalog{
 				Parts: []i18n.MsgPart{
 					{
 						Text: "Formatos",
+					},
+				},
+			},
+			{
+				Key: "formats.try_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Escreva um número como o escreve e qualquer texto. O Worker relê-os e formata-os com o seu Intl.",
+					},
+				},
+			},
+			{
+				Key: "formats.try_graphemes",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Carateres",
+					},
+				},
+			},
+			{
+				Key: "formats.try_no_runtime",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Isto precisa do Intl do Worker: execute a aplicação no workerd (mise run dev).",
+					},
+				},
+			},
+			{
+				Key: "formats.try_not_number",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Isso não é um número neste idioma.",
+					},
+				},
+			},
+			{
+				Key: "formats.try_number",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Um número, escrito à sua maneira",
+					},
+				},
+			},
+			{
+				Key: "formats.try_parsed",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Relido como",
+					},
+				},
+			},
+			{
+				Key: "formats.try_sentences",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Frases",
+					},
+				},
+			},
+			{
+				Key: "formats.try_sorted",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Palavras, ordenadas",
+					},
+				},
+			},
+			{
+				Key: "formats.try_submit",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Formatar no servidor",
+					},
+				},
+			},
+			{
+				Key: "formats.try_text",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Um texto",
+					},
+				},
+			},
+			{
+				Key: "formats.try_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Experimente",
+					},
+				},
+			},
+			{
+				Key: "formats.try_words",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Palavras",
 					},
 				},
 			},
@@ -8990,6 +10166,14 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.browser",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "متصفحك",
+					},
+				},
+			},
+			{
 				Key: "formats.collation_description",
 				Parts: []i18n.MsgPart{
 					{
@@ -9095,6 +10279,54 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.how_browser",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "تعمل الشيفرة نفسها في متصفحك ولا تغيّر إلا ما لا يستطيع الخادم معرفته: منطقتك الزمنية ومرور الوقت.",
+					},
+				},
+			},
+			{
+				Key: "formats.how_browser_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "مُحدَّث في متصفحك",
+					},
+				},
+			},
+			{
+				Key: "formats.how_roundtrip",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "تُرسل النماذج قيمًا قياسية. يُقرأ الرقم المكتوب بطريقتك بالـ Intl نفسه.",
+					},
+				},
+			},
+			{
+				Key: "formats.how_roundtrip_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "يُعاد كقيم بسيطة",
+					},
+				},
+			},
+			{
+				Key: "formats.how_server",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "يُنسِّق Intl في V8 لدى Cloudflare كل قيمة قبل أن تغادر الصفحة الخادم: جاهزة للقرّاء وبرامج الزحف والبريد وملفات PDF.",
+					},
+				},
+			},
+			{
+				Key: "formats.how_server_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "منسَّق على Worker",
+					},
+				},
+			},
+			{
 				Key: "formats.input",
 				Parts: []i18n.MsgPart{
 					{
@@ -9181,6 +10413,14 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.on_this_page",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "في هذه الصفحة",
+					},
+				},
+			},
+			{
 				Key: "formats.options",
 				Parts: []i18n.MsgPart{
 					{
@@ -9261,6 +10501,14 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.server",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Worker (V8)",
+					},
+				},
+			},
+			{
 				Key: "formats.supported_description",
 				Parts: []i18n.MsgPart{
 					{
@@ -9292,6 +10540,102 @@ var catalogs = []*i18n.Catalog{
 				Parts: []i18n.MsgPart{
 					{
 						Text: "التنسيقات",
+					},
+				},
+			},
+			{
+				Key: "formats.try_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "اكتب رقمًا بالطريقة التي تكتبه بها، وأي نص. يقرأهما Worker ويُنسِّقهما بالـ Intl الخاص به.",
+					},
+				},
+			},
+			{
+				Key: "formats.try_graphemes",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "الحروف",
+					},
+				},
+			},
+			{
+				Key: "formats.try_no_runtime",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "يحتاج هذا إلى Intl الخاص بـ Worker: شغّل التطبيق تحت workerd \u200f(mise run dev).",
+					},
+				},
+			},
+			{
+				Key: "formats.try_not_number",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "هذا ليس رقمًا في هذه اللغة.",
+					},
+				},
+			},
+			{
+				Key: "formats.try_number",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "رقم مكتوب بطريقتك",
+					},
+				},
+			},
+			{
+				Key: "formats.try_parsed",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "قُرئ بوصفه",
+					},
+				},
+			},
+			{
+				Key: "formats.try_sentences",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "الجمل",
+					},
+				},
+			},
+			{
+				Key: "formats.try_sorted",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "الكلمات مرتبة",
+					},
+				},
+			},
+			{
+				Key: "formats.try_submit",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "نسِّق على الخادم",
+					},
+				},
+			},
+			{
+				Key: "formats.try_text",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "نص",
+					},
+				},
+			},
+			{
+				Key: "formats.try_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "جرّبه",
+					},
+				},
+			},
+			{
+				Key: "formats.try_words",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "الكلمات",
 					},
 				},
 			},
@@ -10231,6 +11575,14 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.browser",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "הדפדפן שלך",
+					},
+				},
+			},
+			{
 				Key: "formats.collation_description",
 				Parts: []i18n.MsgPart{
 					{
@@ -10336,6 +11688,54 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.how_browser",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "אותו קוד רץ בדפדפן שלך ומשנה רק את מה שהשרת לא יכול לדעת: אזור הזמן שלך והזמן שעובר.",
+					},
+				},
+			},
+			{
+				Key: "formats.how_browser_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "מתעדכן בדפדפן שלך",
+					},
+				},
+			},
+			{
+				Key: "formats.how_roundtrip",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "טפסים שולחים ערכים קנוניים. מספר שהוקלד בדרך שלך נקרא בחזרה עם אותו Intl.",
+					},
+				},
+			},
+			{
+				Key: "formats.how_roundtrip_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "נשלח בחזרה כערכים פשוטים",
+					},
+				},
+			},
+			{
+				Key: "formats.how_server",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "ה-Intl של V8 ב-Cloudflare מעצב כל ערך לפני שהדף יוצא מהשרת: מוכן לקוראים, לסורקים, למיילים ול-PDF.",
+					},
+				},
+			},
+			{
+				Key: "formats.how_server_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "מעוצב ב-Worker",
+					},
+				},
+			},
+			{
 				Key: "formats.input",
 				Parts: []i18n.MsgPart{
 					{
@@ -10422,6 +11822,14 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.on_this_page",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "בדף הזה",
+					},
+				},
+			},
+			{
 				Key: "formats.options",
 				Parts: []i18n.MsgPart{
 					{
@@ -10502,6 +11910,14 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.server",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Worker (V8)",
+					},
+				},
+			},
+			{
 				Key: "formats.supported_description",
 				Parts: []i18n.MsgPart{
 					{
@@ -10533,6 +11949,102 @@ var catalogs = []*i18n.Catalog{
 				Parts: []i18n.MsgPart{
 					{
 						Text: "פורמטים",
+					},
+				},
+			},
+			{
+				Key: "formats.try_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "הקלידו מספר כמו שאתם כותבים אותו, וכל טקסט. ה-Worker קורא אותם בחזרה ומעצב אותם עם ה-Intl שלו.",
+					},
+				},
+			},
+			{
+				Key: "formats.try_graphemes",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "תווים",
+					},
+				},
+			},
+			{
+				Key: "formats.try_no_runtime",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "לשם כך צריך את ה-Intl של ה-Worker: הריצו את האפליקציה תחת workerd \u200f(mise run dev).",
+					},
+				},
+			},
+			{
+				Key: "formats.try_not_number",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "זה לא מספר בשפה הזו.",
+					},
+				},
+			},
+			{
+				Key: "formats.try_number",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "מספר, כתוב בדרך שלך",
+					},
+				},
+			},
+			{
+				Key: "formats.try_parsed",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "נקרא בחזרה כ-",
+					},
+				},
+			},
+			{
+				Key: "formats.try_sentences",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "משפטים",
+					},
+				},
+			},
+			{
+				Key: "formats.try_sorted",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "מילים, ממוינות",
+					},
+				},
+			},
+			{
+				Key: "formats.try_submit",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "עיצוב בשרת",
+					},
+				},
+			},
+			{
+				Key: "formats.try_text",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "טקסט",
+					},
+				},
+			},
+			{
+				Key: "formats.try_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "נסו בעצמכם",
+					},
+				},
+			},
+			{
+				Key: "formats.try_words",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "מילים",
 					},
 				},
 			},
@@ -11472,6 +12984,14 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.browser",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "あなたのブラウザー",
+					},
+				},
+			},
+			{
 				Key: "formats.collation_description",
 				Parts: []i18n.MsgPart{
 					{
@@ -11577,6 +13097,54 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.how_browser",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "同じコードがブラウザーでも動き、サーバーにはわからないことだけを変えます：あなたのタイムゾーンと時間の経過です。",
+					},
+				},
+			},
+			{
+				Key: "formats.how_browser_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "ブラウザーで更新",
+					},
+				},
+			},
+			{
+				Key: "formats.how_roundtrip",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "フォームは正規の値を送り返します。あなたの書き方で入力した数値は、同じ Intl で読み戻されます。",
+					},
+				},
+			},
+			{
+				Key: "formats.how_roundtrip_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "そのままの値で送り返す",
+					},
+				},
+			},
+			{
+				Key: "formats.how_server",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Cloudflare の V8 の Intl が、ページがサーバーを離れる前にすべての値を書式設定します。読者にも、クローラーにも、メールや PDF にもそのまま使えます。",
+					},
+				},
+			},
+			{
+				Key: "formats.how_server_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Worker で書式設定",
+					},
+				},
+			},
+			{
 				Key: "formats.input",
 				Parts: []i18n.MsgPart{
 					{
@@ -11663,6 +13231,14 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.on_this_page",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "このページの内容",
+					},
+				},
+			},
+			{
 				Key: "formats.options",
 				Parts: []i18n.MsgPart{
 					{
@@ -11743,6 +13319,14 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.server",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Worker（V8）",
+					},
+				},
+			},
+			{
 				Key: "formats.supported_description",
 				Parts: []i18n.MsgPart{
 					{
@@ -11774,6 +13358,102 @@ var catalogs = []*i18n.Catalog{
 				Parts: []i18n.MsgPart{
 					{
 						Text: "書式",
+					},
+				},
+			},
+			{
+				Key: "formats.try_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "いつもの書き方で数値を、そして好きなテキストを入力してください。Worker がそれを読み戻し、Intl で書式設定します。",
+					},
+				},
+			},
+			{
+				Key: "formats.try_graphemes",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "文字",
+					},
+				},
+			},
+			{
+				Key: "formats.try_no_runtime",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Worker の Intl が必要です：アプリを workerd で実行してください（mise run dev）。",
+					},
+				},
+			},
+			{
+				Key: "formats.try_not_number",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "この言語では数値ではありません。",
+					},
+				},
+			},
+			{
+				Key: "formats.try_number",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "あなたの書き方の数値",
+					},
+				},
+			},
+			{
+				Key: "formats.try_parsed",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "読み戻した値",
+					},
+				},
+			},
+			{
+				Key: "formats.try_sentences",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "文",
+					},
+				},
+			},
+			{
+				Key: "formats.try_sorted",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "並べ替えた単語",
+					},
+				},
+			},
+			{
+				Key: "formats.try_submit",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "サーバーで書式設定",
+					},
+				},
+			},
+			{
+				Key: "formats.try_text",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "テキスト",
+					},
+				},
+			},
+			{
+				Key: "formats.try_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "試してみる",
+					},
+				},
+			},
+			{
+				Key: "formats.try_words",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "単語",
 					},
 				},
 			},
@@ -12710,6 +14390,14 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.browser",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "你的浏览器",
+					},
+				},
+			},
+			{
 				Key: "formats.collation_description",
 				Parts: []i18n.MsgPart{
 					{
@@ -12815,6 +14503,54 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.how_browser",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "同一段代码也在你的浏览器中运行，只改动服务器无法知道的内容：你的时区和时间的流逝。",
+					},
+				},
+			},
+			{
+				Key: "formats.how_browser_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "在你的浏览器中刷新",
+					},
+				},
+			},
+			{
+				Key: "formats.how_roundtrip",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "表单发回规范值。按你的习惯输入的数字，会用同一个 Intl 读回。",
+					},
+				},
+			},
+			{
+				Key: "formats.how_roundtrip_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "以普通值发回",
+					},
+				},
+			},
+			{
+				Key: "formats.how_server",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Cloudflare 的 V8 Intl 在页面离开服务器之前格式化每个值：对读者、爬虫、电子邮件和 PDF 都已就绪。",
+					},
+				},
+			},
+			{
+				Key: "formats.how_server_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "在 Worker 上格式化",
+					},
+				},
+			},
+			{
 				Key: "formats.input",
 				Parts: []i18n.MsgPart{
 					{
@@ -12901,6 +14637,14 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.on_this_page",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "本页内容",
+					},
+				},
+			},
+			{
 				Key: "formats.options",
 				Parts: []i18n.MsgPart{
 					{
@@ -12981,6 +14725,14 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.server",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Worker（V8）",
+					},
+				},
+			},
+			{
 				Key: "formats.supported_description",
 				Parts: []i18n.MsgPart{
 					{
@@ -13012,6 +14764,102 @@ var catalogs = []*i18n.Catalog{
 				Parts: []i18n.MsgPart{
 					{
 						Text: "格式",
+					},
+				},
+			},
+			{
+				Key: "formats.try_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "按你的写法输入一个数字，再输入任意文本。Worker 会读回它们，并用自己的 Intl 格式化。",
+					},
+				},
+			},
+			{
+				Key: "formats.try_graphemes",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "字符",
+					},
+				},
+			},
+			{
+				Key: "formats.try_no_runtime",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "这需要 Worker 的 Intl：请在 workerd 下运行应用（mise run dev）。",
+					},
+				},
+			},
+			{
+				Key: "formats.try_not_number",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "在此语言中，这不是数字。",
+					},
+				},
+			},
+			{
+				Key: "formats.try_number",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "按你的写法输入的数字",
+					},
+				},
+			},
+			{
+				Key: "formats.try_parsed",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "读回为",
+					},
+				},
+			},
+			{
+				Key: "formats.try_sentences",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "句子",
+					},
+				},
+			},
+			{
+				Key: "formats.try_sorted",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "排序后的词",
+					},
+				},
+			},
+			{
+				Key: "formats.try_submit",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "在服务器上格式化",
+					},
+				},
+			},
+			{
+				Key: "formats.try_text",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "一段文本",
+					},
+				},
+			},
+			{
+				Key: "formats.try_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "试一试",
+					},
+				},
+			},
+			{
+				Key: "formats.try_words",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "词",
 					},
 				},
 			},
@@ -13951,6 +15799,14 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.browser",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "你的瀏覽器",
+					},
+				},
+			},
+			{
 				Key: "formats.collation_description",
 				Parts: []i18n.MsgPart{
 					{
@@ -14056,6 +15912,54 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.how_browser",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "同一段程式碼也在你的瀏覽器中執行，只改動伺服器無法得知的內容：你的時區和時間的流逝。",
+					},
+				},
+			},
+			{
+				Key: "formats.how_browser_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "在你的瀏覽器中更新",
+					},
+				},
+			},
+			{
+				Key: "formats.how_roundtrip",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "表單傳回規範值。依你的習慣輸入的數字，會用同一個 Intl 讀回。",
+					},
+				},
+			},
+			{
+				Key: "formats.how_roundtrip_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "以一般值傳回",
+					},
+				},
+			},
+			{
+				Key: "formats.how_server",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Cloudflare 的 V8 Intl 會在頁面離開伺服器之前格式化每個值：對讀者、爬蟲、電子郵件和 PDF 都已就緒。",
+					},
+				},
+			},
+			{
+				Key: "formats.how_server_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "在 Worker 上格式化",
+					},
+				},
+			},
+			{
 				Key: "formats.input",
 				Parts: []i18n.MsgPart{
 					{
@@ -14142,6 +16046,14 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.on_this_page",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "本頁內容",
+					},
+				},
+			},
+			{
 				Key: "formats.options",
 				Parts: []i18n.MsgPart{
 					{
@@ -14222,6 +16134,14 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.server",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Worker（V8）",
+					},
+				},
+			},
+			{
 				Key: "formats.supported_description",
 				Parts: []i18n.MsgPart{
 					{
@@ -14253,6 +16173,102 @@ var catalogs = []*i18n.Catalog{
 				Parts: []i18n.MsgPart{
 					{
 						Text: "格式",
+					},
+				},
+			},
+			{
+				Key: "formats.try_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "依你的寫法輸入一個數字，再輸入任意文字。Worker 會讀回它們，並用自己的 Intl 格式化。",
+					},
+				},
+			},
+			{
+				Key: "formats.try_graphemes",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "字元",
+					},
+				},
+			},
+			{
+				Key: "formats.try_no_runtime",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "這需要 Worker 的 Intl：請在 workerd 下執行應用程式（mise run dev）。",
+					},
+				},
+			},
+			{
+				Key: "formats.try_not_number",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "在此語言中，這不是數字。",
+					},
+				},
+			},
+			{
+				Key: "formats.try_number",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "依你的寫法輸入的數字",
+					},
+				},
+			},
+			{
+				Key: "formats.try_parsed",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "讀回為",
+					},
+				},
+			},
+			{
+				Key: "formats.try_sentences",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "句子",
+					},
+				},
+			},
+			{
+				Key: "formats.try_sorted",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "排序後的字詞",
+					},
+				},
+			},
+			{
+				Key: "formats.try_submit",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "在伺服器上格式化",
+					},
+				},
+			},
+			{
+				Key: "formats.try_text",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "一段文字",
+					},
+				},
+			},
+			{
+				Key: "formats.try_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "試試看",
+					},
+				},
+			},
+			{
+				Key: "formats.try_words",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "字詞",
 					},
 				},
 			},
@@ -15192,6 +17208,14 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.browser",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "आपका ब्राउज़र",
+					},
+				},
+			},
+			{
 				Key: "formats.collation_description",
 				Parts: []i18n.MsgPart{
 					{
@@ -15297,6 +17321,54 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.how_browser",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "यही कोड आपके ब्राउज़र में चलता है और सिर्फ़ वही बदलता है जो सर्वर नहीं जान सकता: आपका टाइम ज़ोन और बीतता समय।",
+					},
+				},
+			},
+			{
+				Key: "formats.how_browser_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "आपके ब्राउज़र में ताज़ा किया गया",
+					},
+				},
+			},
+			{
+				Key: "formats.how_roundtrip",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "फ़ॉर्म मानक मान वापस भेजते हैं। आपके तरीक़े से टाइप की गई संख्या उसी Intl से वापस पढ़ी जाती है।",
+					},
+				},
+			},
+			{
+				Key: "formats.how_roundtrip_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "सादे मानों के रूप में वापस भेजा गया",
+					},
+				},
+			},
+			{
+				Key: "formats.how_server",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Cloudflare का V8 Intl पेज के सर्वर से निकलने से पहले हर मान फ़ॉर्मैट करता है: पाठकों, क्रॉलर, ईमेल और PDF के लिए तैयार।",
+					},
+				},
+			},
+			{
+				Key: "formats.how_server_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Worker पर फ़ॉर्मैट किया गया",
+					},
+				},
+			},
+			{
 				Key: "formats.input",
 				Parts: []i18n.MsgPart{
 					{
@@ -15383,6 +17455,14 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.on_this_page",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "इस पेज पर",
+					},
+				},
+			},
+			{
 				Key: "formats.options",
 				Parts: []i18n.MsgPart{
 					{
@@ -15463,6 +17543,14 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.server",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Worker (V8)",
+					},
+				},
+			},
+			{
 				Key: "formats.supported_description",
 				Parts: []i18n.MsgPart{
 					{
@@ -15494,6 +17582,102 @@ var catalogs = []*i18n.Catalog{
 				Parts: []i18n.MsgPart{
 					{
 						Text: "फ़ॉर्मैट",
+					},
+				},
+			},
+			{
+				Key: "formats.try_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "कोई संख्या वैसे टाइप करें जैसे आप लिखते हैं, और कोई भी टेक्स्ट। Worker उन्हें वापस पढ़कर अपने Intl से फ़ॉर्मैट करता है।",
+					},
+				},
+			},
+			{
+				Key: "formats.try_graphemes",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "अक्षर",
+					},
+				},
+			},
+			{
+				Key: "formats.try_no_runtime",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "इसके लिए Worker का Intl चाहिए: ऐप को workerd में चलाएँ (mise run dev)।",
+					},
+				},
+			},
+			{
+				Key: "formats.try_not_number",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "इस भाषा में यह संख्या नहीं है।",
+					},
+				},
+			},
+			{
+				Key: "formats.try_number",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "आपके तरीक़े से लिखी संख्या",
+					},
+				},
+			},
+			{
+				Key: "formats.try_parsed",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "वापस पढ़ा गया",
+					},
+				},
+			},
+			{
+				Key: "formats.try_sentences",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "वाक्य",
+					},
+				},
+			},
+			{
+				Key: "formats.try_sorted",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "शब्द, क्रम में",
+					},
+				},
+			},
+			{
+				Key: "formats.try_submit",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "सर्वर पर फ़ॉर्मैट करें",
+					},
+				},
+			},
+			{
+				Key: "formats.try_text",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "कोई टेक्स्ट",
+					},
+				},
+			},
+			{
+				Key: "formats.try_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "आज़माएँ",
+					},
+				},
+			},
+			{
+				Key: "formats.try_words",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "शब्द",
 					},
 				},
 			},
@@ -16473,6 +18657,14 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.browser",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Ваш браузер",
+					},
+				},
+			},
+			{
 				Key: "formats.collation_description",
 				Parts: []i18n.MsgPart{
 					{
@@ -16578,6 +18770,54 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.how_browser",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Тот же код работает в вашем браузере и меняет только то, чего сервер знать не может: ваш часовой пояс и течение времени.",
+					},
+				},
+			},
+			{
+				Key: "formats.how_browser_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Обновляется в вашем браузере",
+					},
+				},
+			},
+			{
+				Key: "formats.how_roundtrip",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Формы отправляют канонические значения. Число, введённое по-вашему, считывается обратно тем же Intl.",
+					},
+				},
+			},
+			{
+				Key: "formats.how_roundtrip_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Возвращается простыми значениями",
+					},
+				},
+			},
+			{
+				Key: "formats.how_server",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Intl из V8 в Cloudflare форматирует каждое значение до того, как страница покинет сервер: готово для читателей, поисковых роботов, писем и PDF.",
+					},
+				},
+			},
+			{
+				Key: "formats.how_server_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Отформатировано на Worker",
+					},
+				},
+			},
+			{
 				Key: "formats.input",
 				Parts: []i18n.MsgPart{
 					{
@@ -16664,6 +18904,14 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.on_this_page",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "На этой странице",
+					},
+				},
+			},
+			{
 				Key: "formats.options",
 				Parts: []i18n.MsgPart{
 					{
@@ -16744,6 +18992,14 @@ var catalogs = []*i18n.Catalog{
 				},
 			},
 			{
+				Key: "formats.server",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Worker (V8)",
+					},
+				},
+			},
+			{
 				Key: "formats.supported_description",
 				Parts: []i18n.MsgPart{
 					{
@@ -16775,6 +19031,102 @@ var catalogs = []*i18n.Catalog{
 				Parts: []i18n.MsgPart{
 					{
 						Text: "Форматы",
+					},
+				},
+			},
+			{
+				Key: "formats.try_description",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Введите число так, как вы его пишете, и любой текст. Worker считает их обратно и отформатирует своим Intl.",
+					},
+				},
+			},
+			{
+				Key: "formats.try_graphemes",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Символы",
+					},
+				},
+			},
+			{
+				Key: "formats.try_no_runtime",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Для этого нужен Intl Worker: запустите приложение под workerd (mise run dev).",
+					},
+				},
+			},
+			{
+				Key: "formats.try_not_number",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "В этом языке это не число.",
+					},
+				},
+			},
+			{
+				Key: "formats.try_number",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Число, записанное по-вашему",
+					},
+				},
+			},
+			{
+				Key: "formats.try_parsed",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Считано как",
+					},
+				},
+			},
+			{
+				Key: "formats.try_sentences",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Предложения",
+					},
+				},
+			},
+			{
+				Key: "formats.try_sorted",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Слова по алфавиту",
+					},
+				},
+			},
+			{
+				Key: "formats.try_submit",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Отформатировать на сервере",
+					},
+				},
+			},
+			{
+				Key: "formats.try_text",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Текст",
+					},
+				},
+			},
+			{
+				Key: "formats.try_title",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Попробуйте",
+					},
+				},
+			},
+			{
+				Key: "formats.try_words",
+				Parts: []i18n.MsgPart{
+					{
+						Text: "Слова",
 					},
 				},
 			},
@@ -17929,6 +20281,20 @@ var pseudoCatalog = &i18n.Catalog{
 			},
 		},
 		{
+			Key: "formats.browser",
+			Parts: []i18n.MsgPart{
+				{
+					Text: "⟦",
+				},
+				{
+					Text: "Ýóúŕ ƀŕóŵšéŕ····",
+				},
+				{
+					Text: "⟧",
+				},
+			},
+		},
+		{
 			Key: "formats.collation_description",
 			Parts: []i18n.MsgPart{
 				{
@@ -18106,6 +20472,90 @@ var pseudoCatalog = &i18n.Catalog{
 			},
 		},
 		{
+			Key: "formats.how_browser",
+			Parts: []i18n.MsgPart{
+				{
+					Text: "⟦",
+				},
+				{
+					Text: "Ţĥé šáɱé çóðé ŕúñš íñ ýóúŕ ƀŕóŵšéŕ áñð çĥáñĝéš óñļý ŵĥáţ ţĥé šéŕṽéŕ çáñ'ţ ķñóŵ: ýóúŕ ţíɱé žóñé áñð ţíɱé þáššíñĝ.···································",
+				},
+				{
+					Text: "⟧",
+				},
+			},
+		},
+		{
+			Key: "formats.how_browser_title",
+			Parts: []i18n.MsgPart{
+				{
+					Text: "⟦",
+				},
+				{
+					Text: "Ŕéƒŕéšĥéð íñ ýóúŕ ƀŕóŵšéŕ········",
+				},
+				{
+					Text: "⟧",
+				},
+			},
+		},
+		{
+			Key: "formats.how_roundtrip",
+			Parts: []i18n.MsgPart{
+				{
+					Text: "⟦",
+				},
+				{
+					Text: "Ƒóŕɱš šéñð çáñóñíçáļ ṽáļúéš ƀáçķ. Å ñúɱƀéŕ ţýþéð ýóúŕ ŵáý íš ŕéáð ƀáçķ ŵíţĥ ţĥé šáɱé Îñţļ.····························",
+				},
+				{
+					Text: "⟧",
+				},
+			},
+		},
+		{
+			Key: "formats.how_roundtrip_title",
+			Parts: []i18n.MsgPart{
+				{
+					Text: "⟦",
+				},
+				{
+					Text: "Šéñţ ƀáçķ áš þļáíñ ṽáļúéš········",
+				},
+				{
+					Text: "⟧",
+				},
+			},
+		},
+		{
+			Key: "formats.how_server",
+			Parts: []i18n.MsgPart{
+				{
+					Text: "⟦",
+				},
+				{
+					Text: "Çļóúðƒļáŕé'š Ṽ8 Îñţļ ƒóŕɱáţš éṽéŕý ṽáļúé ƀéƒóŕé ţĥé þáĝé ļéáṽéš ţĥé šéŕṽéŕ: ƒíñíšĥéð ƒóŕ ŕéáðéŕš, çŕáŵļéŕš, éɱáíļš áñð ÞĐƑš.········································",
+				},
+				{
+					Text: "⟧",
+				},
+			},
+		},
+		{
+			Key: "formats.how_server_title",
+			Parts: []i18n.MsgPart{
+				{
+					Text: "⟦",
+				},
+				{
+					Text: "Ƒóŕɱáţţéð óñ ţĥé Ŵóŕķéŕ········",
+				},
+				{
+					Text: "⟧",
+				},
+			},
+		},
+		{
 			Key: "formats.input",
 			Parts: []i18n.MsgPart{
 				{
@@ -18245,6 +20695,20 @@ var pseudoCatalog = &i18n.Catalog{
 				},
 				{
 					Text: "Ñúɱƀéŕš··",
+				},
+				{
+					Text: "⟧",
+				},
+			},
+		},
+		{
+			Key: "formats.on_this_page",
+			Parts: []i18n.MsgPart{
+				{
+					Text: "⟦",
+				},
+				{
+					Text: "Öñ ţĥíš þáĝé····",
 				},
 				{
 					Text: "⟧",
@@ -18392,6 +20856,20 @@ var pseudoCatalog = &i18n.Catalog{
 			},
 		},
 		{
+			Key: "formats.server",
+			Parts: []i18n.MsgPart{
+				{
+					Text: "⟦",
+				},
+				{
+					Text: "Ŵóŕķéŕ (Ṽ8)··",
+				},
+				{
+					Text: "⟧",
+				},
+			},
+		},
+		{
 			Key: "formats.supported_description",
 			Parts: []i18n.MsgPart{
 				{
@@ -18444,6 +20922,174 @@ var pseudoCatalog = &i18n.Catalog{
 				},
 				{
 					Text: "Ƒóŕɱáţš··",
+				},
+				{
+					Text: "⟧",
+				},
+			},
+		},
+		{
+			Key: "formats.try_description",
+			Parts: []i18n.MsgPart{
+				{
+					Text: "⟦",
+				},
+				{
+					Text: "Ţýþé á ñúɱƀéŕ ţĥé ŵáý ýóú ŵŕíţé íţ, áñð áñý ţéẋţ. Ţĥé Ŵóŕķéŕ ŕéáðš ţĥéɱ ƀáçķ áñð ƒóŕɱáţš ţĥéɱ ŵíţĥ íţš Îñţļ.·································",
+				},
+				{
+					Text: "⟧",
+				},
+			},
+		},
+		{
+			Key: "formats.try_graphemes",
+			Parts: []i18n.MsgPart{
+				{
+					Text: "⟦",
+				},
+				{
+					Text: "Çĥáŕáçţéŕš····",
+				},
+				{
+					Text: "⟧",
+				},
+			},
+		},
+		{
+			Key: "formats.try_no_runtime",
+			Parts: []i18n.MsgPart{
+				{
+					Text: "⟦",
+				},
+				{
+					Text: "Ţĥíš ñééðš ţĥé Ŵóŕķéŕ'š Îñţļ: ŕúñ ţĥé áþþ úñðéŕ ŵóŕķéŕð (ɱíšé ŕúñ ðéṽ).·····················",
+				},
+				{
+					Text: "⟧",
+				},
+			},
+		},
+		{
+			Key: "formats.try_not_number",
+			Parts: []i18n.MsgPart{
+				{
+					Text: "⟦",
+				},
+				{
+					Text: "Ţĥáţ íšñ'ţ á ñúɱƀéŕ íñ ţĥíš ļáñĝúáĝé.···········",
+				},
+				{
+					Text: "⟧",
+				},
+			},
+		},
+		{
+			Key: "formats.try_number",
+			Parts: []i18n.MsgPart{
+				{
+					Text: "⟦",
+				},
+				{
+					Text: "Å ñúɱƀéŕ, ŵŕíţţéñ ýóúŕ ŵáý········",
+				},
+				{
+					Text: "⟧",
+				},
+			},
+		},
+		{
+			Key: "formats.try_parsed",
+			Parts: []i18n.MsgPart{
+				{
+					Text: "⟦",
+				},
+				{
+					Text: "Ŕéáð ƀáçķ áš····",
+				},
+				{
+					Text: "⟧",
+				},
+			},
+		},
+		{
+			Key: "formats.try_sentences",
+			Parts: []i18n.MsgPart{
+				{
+					Text: "⟦",
+				},
+				{
+					Text: "Šéñţéñçéš···",
+				},
+				{
+					Text: "⟧",
+				},
+			},
+		},
+		{
+			Key: "formats.try_sorted",
+			Parts: []i18n.MsgPart{
+				{
+					Text: "⟦",
+				},
+				{
+					Text: "Ŵóŕðš, šóŕţéð····",
+				},
+				{
+					Text: "⟧",
+				},
+			},
+		},
+		{
+			Key: "formats.try_submit",
+			Parts: []i18n.MsgPart{
+				{
+					Text: "⟦",
+				},
+				{
+					Text: "Ƒóŕɱáţ óñ ţĥé šéŕṽéŕ······",
+				},
+				{
+					Text: "⟧",
+				},
+			},
+		},
+		{
+			Key: "formats.try_text",
+			Parts: []i18n.MsgPart{
+				{
+					Text: "⟦",
+				},
+				{
+					Text: "Šóɱé ţéẋţ···",
+				},
+				{
+					Text: "⟧",
+				},
+			},
+		},
+		{
+			Key: "formats.try_title",
+			Parts: []i18n.MsgPart{
+				{
+					Text: "⟦",
+				},
+				{
+					Text: "Ţŕý íţ··",
+				},
+				{
+					Text: "⟧",
+				},
+			},
+		},
+		{
+			Key: "formats.try_words",
+			Parts: []i18n.MsgPart{
+				{
+					Text: "⟦",
+				},
+				{
+					Text: "Ŵóŕðš··",
 				},
 				{
 					Text: "⟧",

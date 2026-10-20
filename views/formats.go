@@ -64,13 +64,86 @@ func intlRow(label, kind, value, opts, fallback string) FormatRow {
 	return FormatRow{Label: label, Options: jsOptions(opts), Kind: kind, Value: value, Opts: opts, Fallback: fallback}
 }
 
-// FormatSections are the examples for the request's locale, in page order.
-func FormatSections(ctx context.Context) []FormatSection {
+// IntlAPI is one Intl API on the /formats page: its name (code, not translated), an anchor, and its examples in
+// groups.
+type IntlAPI struct {
+	ID, Name string
+	Groups   []FormatSection
+}
+
+// IntlAPIs are every Intl API with examples for the request's locale, in page order.
+func IntlAPIs(ctx context.Context) []IntlAPI {
 	loc := Loc(ctx)
 	m := M(ctx)
-	return []FormatSection{numbers(loc, m), currency(loc, m), dates(loc, m), zones(ctx, m), ranges(m), units(m),
-		relativeTimes(m), lists(loc, m), durations(m), plurals(loc, m), displayNames(m), collation(m), segments(m),
-		localeInfo(m), supported(m)}
+	return []IntlAPI{
+		{"datetimeformat", "Intl.DateTimeFormat", []FormatSection{dates(loc, m), zones(ctx, m), ranges(m)}},
+		{"relativetimeformat", "Intl.RelativeTimeFormat", []FormatSection{relativeTimes(m)}},
+		{"numberformat", "Intl.NumberFormat", []FormatSection{numbers(loc, m), currency(loc, m), units(m)}},
+		{"pluralrules", "Intl.PluralRules", []FormatSection{plurals(loc, m)}},
+		{"listformat", "Intl.ListFormat", []FormatSection{lists(loc, m)}},
+		{"durationformat", "Intl.DurationFormat", []FormatSection{durations(m)}},
+		{"displaynames", "Intl.DisplayNames", []FormatSection{displayNames(m)}},
+		{"collator", "Intl.Collator", []FormatSection{collation(m)}},
+		{"segmenter", "Intl.Segmenter", []FormatSection{segments(m)}},
+		{"locale", "Intl.Locale", []FormatSection{localeInfo(m)}},
+		{"supportedvaluesof", "Intl.supportedValuesOf", []FormatSection{supported(m)}},
+	}
+}
+
+// TryRow is one result of the round trip: the Intl call, shown as its options, and the Worker's text.
+type TryRow struct {
+	Label, Text string
+}
+
+// TryResult is the round trip's answer (POST /formats/try): number, typed the language's way, read back to a plain
+// decimal with the Worker's Intl and formatted again several ways; text counted and sorted the language's way.
+type TryResult struct {
+	Number, Parsed string
+	NumberOK       bool // the number was read back
+	NoRuntime      bool // no JS runtime (go run): nothing to parse or format with
+	NumberRows     []TryRow
+	Text           string
+	TextRows       []TryRow
+}
+
+// RoundTrip computes TryResult for the request's locale.
+func RoundTrip(ctx context.Context, number, text string) TryResult {
+	loc := Loc(ctx)
+	m := M(ctx)
+	_, runtime := loc.Format(i18n.Call{Kind: "number", Value: "1"}, "", "")
+	res := TryResult{Number: number, Text: text, NoRuntime: !runtime}
+	if !runtime {
+		return res
+	}
+	if number != "" {
+		res.Parsed, res.NumberOK = loc.ParseNumber(number)
+	}
+	if res.NumberOK {
+		cur := cmpOr(loc.Data.Currency, "USD")
+		for _, o := range []string{"", `{"style":"currency","currency":"` + cur + `"}`, `{"notation":"compact","compactDisplay":"long"}`,
+			`{"style":"percent"}`, `{"notation":"scientific"}`} {
+			res.NumberRows = append(res.NumberRows, TryRow{"NumberFormat " + jsOptions(o), IntlText(ctx, i18n.Call{Kind: "number", Value: res.Parsed, Opts: o}, "")})
+		}
+		for _, o := range []string{"", `{"type":"ordinal"}`} {
+			res.NumberRows = append(res.NumberRows, TryRow{"PluralRules " + jsOptions(o), IntlText(ctx, i18n.Call{Kind: "plural", Value: res.Parsed, Opts: o}, "")})
+		}
+	}
+	if text != "" {
+		for _, r := range []struct{ label, kind, opts string }{
+			{m.FormatsTryGraphemes(), "count", `{"granularity":"grapheme"}`},
+			{m.FormatsTryWords(), "count", `{"granularity":"word"}`},
+			{m.FormatsTrySentences(), "count", `{"granularity":"sentence"}`},
+			{m.FormatsTrySorted(), "sort-words", ""},
+		} {
+			res.TextRows = append(res.TextRows, TryRow{r.label, IntlText(ctx, i18n.Call{Kind: r.kind, Value: text, Opts: r.opts}, "")})
+		}
+	}
+	return res
+}
+
+// TrySample is the round trip's starting number, in the language's own format ("1.234.567,891" in German).
+func TrySample(ctx context.Context) string {
+	return IntlText(ctx, i18n.Call{Kind: "number", Value: "1234567.891"}, "1234567.891")
 }
 
 func numbers(loc *i18n.Locale, m locales.Messages) FormatSection {

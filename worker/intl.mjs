@@ -21,6 +21,8 @@
 //                                                      calendar, dateTimeField
 //   collate        Intl.Collator                       a JSON array of strings, shown sorted
 //   segment        Intl.Segmenter                      text; shows the count and the segments
+//   count          Intl.Segmenter                      text; the number of graphemes, words or sentences
+//   sort-words     Intl.Segmenter + Intl.Collator      text; its words, sorted
 //   locale         Intl.Locale                         maximize, minimize, calendars, collations, hourCycles,
 //                                                      numberingSystems, timeZones, direction, firstDay, weekend
 //   supported      Intl.supportedValuesOf              calendar, collation, currency, numberingSystem, timeZone,
@@ -94,6 +96,19 @@ const kinds = {
     const parts = [...new Intl.Segmenter(lang, o).segment(v)].filter((s) => s.isWordLike ?? s.segment.trim() !== "");
     return parts.length + " · " + parts.map((s) => s.segment.trim()).join(" | ");
   },
+  // How many segments v has (opts.granularity: grapheme, word, sentence; words count only word-like ones).
+  count(lang, v, o) {
+    const segs = [...new Intl.Segmenter(lang, o).segment(v)];
+    const n = (o.granularity === "word" ? segs.filter((s) => s.isWordLike) : segs.filter((s) => s.segment.trim() !== "")).length;
+    return new Intl.NumberFormat(lang).format(n);
+  },
+  // The words of v (Intl.Segmenter), sorted the language's way (Intl.Collator with opts).
+  "sort-words": (lang, v, o) =>
+    [...new Intl.Segmenter(lang, { granularity: "word" }).segment(v)]
+      .filter((s) => s.isWordLike)
+      .map((s) => s.segment)
+      .sort(new Intl.Collator(lang, o).compare)
+      .join(" · "),
   locale(lang, v) {
     const base = new Intl.Locale(lang);
     if (v === "maximize" || v === "minimize") return base[v]().toString();
