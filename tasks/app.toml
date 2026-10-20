@@ -392,7 +392,8 @@ ann=(-annotation "workers/commit_sha=$(git rev-parse HEAD)")
 [ -z "${GITHUB_REPOSITORY:-}" ] || ann+=(-annotation "workers/repository_url=${GITHUB_SERVER_URL:-https://github.com}/$GITHUB_REPOSITORY")
 [ -z "${GITHUB_REPOSITORY:-}" ] || [ -z "${PREVIEW_PR:-}" ] ||
   ann+=(-annotation "workers/pull_request_url=${GITHUB_SERVER_URL:-https://github.com}/$GITHUB_REPOSITORY/pull/$PREVIEW_PR")
-url=$(cf go run ./cmd/deploy -name "$APP_NAME" -preview "$usage_name" \
+# DEPLOY_CMD: a prebuilt cmd/deploy (Workers Builds gets one from GitHub CI); default: compile it with go run.
+url=$(cf ${DEPLOY_CMD:-go run ./cmd/deploy} -name "$APP_NAME" -preview "$usage_name" \
   -main worker/index.mjs -module worker/room.mjs -assets dist/site \
   -var "APP_ENV=preview $usage_name" -var "APP_DOMAIN=" -var "APP_PREVIEW=1" \
   -d1 DB="$APP_NAME-preview" -d1-create -migrations migrations \
@@ -410,7 +411,7 @@ run = '''
 #!/usr/bin/env bash
 set -euo pipefail
 cf() { if [ -n "${CLOUDFLARE_API_TOKEN:-}" ] && [ -n "${CLOUDFLARE_ACCOUNT_ID:-}" ]; then "$@"; else fnox exec -- "$@"; fi; }
-cf go run ./cmd/deploy -name "$APP_NAME" -delete-preview "$usage_name"
+cf ${DEPLOY_CMD:-go run ./cmd/deploy} -name "$APP_NAME" -delete-preview "$usage_name"
 '''
 
 # ── smoke-remote ────────────────────────────────────────────────

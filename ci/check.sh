@@ -25,6 +25,22 @@ start=$(date +%s)
 mise run check
 echo "✓ mise run check in $(( $(date +%s) - start ))s"
 
+# Publish this commit's build for its Cloudflare preview (ci/workers-builds.sh fetches it), so Cloudflare deploys
+# what was just tested instead of compiling it again. Only in GitHub Actions; keeps the newest 40 builds.
+if [ -n "${GITHUB_ACTIONS:-}" ] && [ -n "${GITHUB_SHA:-}" ]; then
+  export GH_REPO="$GITHUB_REPOSITORY"   # the checkout has no git remote for gh to read
+  # The deploy tool too (static linux/amd64), so Cloudflare needn't install Go just to compile it.
+  CGO_ENABLED=0 GOOS=linux GOARCH=amd64 mise exec -- go build -trimpath -o bin/deploy ./cmd/deploy
+  tar -czf "/tmp/$GITHUB_SHA.tar.gz" build/worker.mjs build/wasm_exec.js build/runtime.mjs build/app.wasm dist/site bin/deploy
+  gh release view preview-builds >/dev/null 2>&1 ||
+    gh release create preview-builds --prerelease --title "Preview builds" \
+      --notes "Build output per commit for Cloudflare previews (ci/check.sh, ci/workers-builds.sh). Not a release." >/dev/null
+  gh release upload preview-builds "/tmp/$GITHUB_SHA.tar.gz" --clobber
+  echo "✓ build published: preview-builds/$GITHUB_SHA.tar.gz"
+  gh release view preview-builds --json assets --jq '.assets | sort_by(.createdAt) | reverse | .[40:] | .[].name' |
+    while read -r old; do gh release delete-asset preview-builds "$old" --yes; done
+fi
+
 start=$(date +%s)
 mise run e2e
 echo "✓ mise run e2e in $(( $(date +%s) - start ))s"
