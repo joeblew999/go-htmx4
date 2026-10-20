@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 # Workers Builds (Cloudflare's GitHub app) runs this for every pushed branch except main:
-#   build command:  ci/workers-builds.sh build    (mise + the pinned tools, then the TinyGo build and assets)
+#   build command:  ci/workers-builds.sh build    (fetch the build GitHub CI made and tested for this commit)
 #   deploy command: ci/workers-builds.sh deploy   (mise run preview <branch>: a Worker Preview, URL in the log)
-# Workers Builds provides CLOUDFLARE_API_TOKEN (its build token) and the branch in WORKERS_CI_BRANCH;
+# Cloudflare compiles nothing: GitHub CI (ci/check.sh) builds once and publishes build/ + dist/site as
+# preview-builds/<commit>.tar.gz on this public repo's "preview-builds" pre-release. No secrets in GitHub.
+# Workers Builds provides CLOUDFLARE_API_TOKEN (its build token), WORKERS_CI_BRANCH and WORKERS_CI_COMMIT_SHA;
 # CLOUDFLARE_ACCOUNT_ID is a build variable. Plan: .plans/2026-10-20_1641_cloudflare-pr-previews.md
 set -euo pipefail
 cd "$(dirname "$0")/.."
@@ -24,10 +26,17 @@ mise config ls
 
 case "${1:-}" in
 build)
-  # Only what `mise run build` uses (Workers Builds can't cache mise's tools, so every build downloads them):
-  # not workerd, Chrome, fnox, jq, usage, or the gsxui CLI (it compiles from source and is only for `gsxui add`).
-  mise install go tinygo github:WebAssembly/binaryen github:tailwindlabs/tailwindcss
-  mise run build
+  sha=${WORKERS_CI_COMMIT_SHA:?WORKERS_CI_COMMIT_SHA is not set (Workers Builds sets it)}
+  url="https://github.com/${PREVIEW_BUILDS_REPO:-joeblew999/go-htmx4}/releases/download/preview-builds/$sha.tar.gz"
+  # GitHub CI builds and tests this commit in ~3 minutes; wait for it (a failed check publishes nothing).
+  for i in $(seq 1 90); do
+    if curl -fsSL -o build.tar.gz "$url"; then break; fi
+    [ "$i" = 90 ] && { echo "✗ no build for $sha after 15 minutes: did GitHub CI (check) fail?"; exit 1; }
+    sleep 10
+  done
+  tar -xzf build.tar.gz && rm build.tar.gz
+  echo "✓ build for $sha from GitHub CI: $(wc -c <build/app.wasm | tr -d ' ')B wasm, $(find dist/site -type f | wc -l | tr -d ' ') assets"
+  mise install go   # the deploy tool (go run ./cmd/deploy)
   ;;
 deploy)
   branch=${WORKERS_CI_BRANCH:?WORKERS_CI_BRANCH is not set (Workers Builds sets it)}

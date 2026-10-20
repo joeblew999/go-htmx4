@@ -3,14 +3,13 @@
 # Strict no-Node: shell `run:` steps only, no JavaScript actions (plan: .plans/done/2026-09-14_0915_ci-mise-check.md).
 name: check
 
+# Every branch push (a PR's checks are its head branch's push run). The build is also published for Cloudflare's
+# preview of that commit (ci/check.sh → release "preview-builds"; ci/workers-builds.sh deploys it, compiling nothing).
 on:
   push:
-    branches: [main]
-  pull_request:
-    branches: [main]
 
 permissions:
-  contents: read
+  contents: write # upload the build to the "preview-builds" pre-release
 
 concurrency:
   group: check-${{ github.ref }}
@@ -23,6 +22,7 @@ jobs:
     env:
       # mise downloads tool releases from GitHub; the token avoids API rate limits. Nothing is deployed.
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - name: Check out with git (no actions/checkout)
         run: |
