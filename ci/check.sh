@@ -64,7 +64,7 @@ publish() {
   CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -o bin/deploy ./cmd/deploy
   bin/deploy -name "$APP_NAME" -assets dist/site -repo "$GITHUB_REPOSITORY" -publish-build "$GITHUB_SHA"
   if [ -n "${CF_SUBDOMAIN:-}" ] && [ "${GITHUB_REF_TYPE:-branch}" = branch ] && [ "${GITHUB_REF_NAME:-main}" != main ] &&
-    [ "${GITHUB_REF_NAME:-}" != production ]; then
+    [ "${GITHUB_REF_NAME:-}" != production ] && [[ "${GITHUB_REF_NAME:-}" != release/* ]]; then
     slug=$(bin/deploy -name "$APP_NAME" -slug "$GITHUB_REF_NAME")
     bin/deploy -repo "$GITHUB_REPOSITORY" -comment-pr "$GITHUB_REF_NAME" \
       -url "https://$slug-$APP_NAME.$CF_SUBDOMAIN.workers.dev" || echo "· PR comment failed (the preview still deploys)"
@@ -77,18 +77,30 @@ fi
 phase "mise run check" mise run check
 phase "mise run e2e (Chrome)" mise run e2e
 
-# A pushed v* tag releases: only a commit that's on main, and only after everything above passed.
+# A release: a pushed v* tag (GitHub's Releases page, git push), or a pushed release/v* branch (mise run release: works
+# where only branches can be pushed). Only a commit that's on main, and only after everything above passed. For a
+# release branch CI makes the tag itself, then deletes the branch.
 release() {
-  local tag=$GITHUB_REF_NAME status
-  status=$(curl -fsS -H "Authorization: Bearer $GITHUB_TOKEN" \
-    "https://api.github.com/repos/$GITHUB_REPOSITORY/compare/$GITHUB_SHA...main" | mise exec -- jq -r .status)
+  local version=$1 status api="https://api.github.com/repos/$GITHUB_REPOSITORY" auth=(-H "Authorization: Bearer $GITHUB_TOKEN")
+  status=$(curl -fsS "${auth[@]}" "$api/compare/$GITHUB_SHA...main" | mise exec -- jq -r .status)
   case $status in
-    identical | ahead) ;; # the tagged commit is main, or main is ahead of it: it was merged
-    *) echo "✗ $tag (${GITHUB_SHA:0:7}) isn't on main ($status): not released"; return 1 ;;
+    identical | ahead) ;; # the commit is main, or main is ahead of it: it was merged
+    *) echo "✗ $version (${GITHUB_SHA:0:7}) isn't on main ($status): not released"; return 1 ;;
   esac
+  if [ "${GITHUB_REF_TYPE:-}" = branch ]; then
+    curl -fsS "${auth[@]}" -X POST "$api/git/refs" -d "{\"ref\":\"refs/tags/$version\",\"sha\":\"$GITHUB_SHA\"}" >/dev/null ||
+      { echo "✗ couldn't create tag $version (it may exist already)"; return 1; }
+    echo "✓ tag $version → ${GITHUB_SHA:0:7}"
+  fi
   git push --force "https://x-access-token:$GITHUB_TOKEN@github.com/$GITHUB_REPOSITORY.git" "$GITHUB_SHA:refs/heads/production"
-  echo "✓ $tag: production → ${GITHUB_SHA:0:7}; Workers Builds deploys it (Cloudflare dashboard → Workers → Builds)"
+  echo "✓ $version: production → ${GITHUB_SHA:0:7}; Workers Builds deploys it (Cloudflare dashboard → Workers → Builds)"
+  if [ "${GITHUB_REF_TYPE:-}" = branch ]; then
+    curl -fsS "${auth[@]}" -X DELETE "$api/git/refs/heads/$GITHUB_REF_NAME" >/dev/null || true
+  fi
 }
-if [ -n "${GITHUB_ACTIONS:-}" ] && [ "${GITHUB_REF_TYPE:-}" = tag ] && [[ "${GITHUB_REF_NAME:-}" == v* ]]; then
-  phase "release $GITHUB_REF_NAME" release
+if [ -n "${GITHUB_ACTIONS:-}" ]; then
+  case "${GITHUB_REF_TYPE:-}:${GITHUB_REF_NAME:-}" in
+    tag:v*) phase "release $GITHUB_REF_NAME" release "$GITHUB_REF_NAME" ;;
+    branch:release/v*) phase "release ${GITHUB_REF_NAME#release/}" release "${GITHUB_REF_NAME#release/}" ;;
+  esac
 fi

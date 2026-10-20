@@ -71,7 +71,7 @@ echo "✓ dist/site: $(find dist/site -type f | wc -l | tr -d ' ') files, gsxui.
 
 ["build"]
 depends = ["vendor", "generate", "assets"]
-description = "Production build → build/: TinyGo, small wasm, ~1–2 min (deploy, staging, CI and the tests use it)"
+description = "Production build → build/ with WORKER_COMPILER (mise.toml: tinygo or go), size-checked (deploy, staging, CI and the tests use it)"
 dir = "{{config_root}}"
 # Skipped when no input changed since the last production build, so `check` then `e2e` (CI, ci/check.sh) builds once.
 # Inputs: every Go file (the generated *.x.go included), the module files, and mise.toml (a Go/TinyGo/workers-go pin
@@ -306,23 +306,24 @@ usage = 'arg "<name>" help="preview name, e.g. pr-7"'
 run = 'ci/deploy.sh delete-preview "$usage_name"'
 
 # ── release ─────────────────────────────────────────────────────
-# Production without anyone's machine holding Cloudflare credentials: a v* tag on a commit that's on main. CI
-# (ci/check.sh) tests it, then moves the production branch to it, and Workers Builds' branch trigger deploys production
+# Production without anyone's machine holding Cloudflare credentials: a v* tag (GitHub's Releases page) or a
+# release/v* branch (mise run release) on a commit that's on main. CI (ci/check.sh) tests it, then moves the production
+# branch to it, and Workers Builds' branch trigger deploys production
 # with its own build token (ci/workers-builds.sh sees the branch → ci/deploy.sh production). A tag from GitHub's Releases page does the same. Roll
 # back by tagging an older commit of main.
 ["release"]
-description = "Release main to production: tag origin/main (e.g. v1.3) and push the tag; CI tests it, Workers Builds deploys it"
+description = "Release main to production (e.g. v1.3): CI tests it, tags it, Workers Builds deploys it; no Cloudflare credentials needed"
 dir = "{{config_root}}"
-usage = 'arg "<version>" help="the tag, e.g. v1.3"'
+usage = 'arg "<version>" help="the release, e.g. v1.3"'
 run = '''
 #!/usr/bin/env bash
 set -euo pipefail
-tag=$usage_version
-[[ $tag == v* ]] || { echo "✗ $tag: release tags start with v (v1.3)"; exit 1; }
+v=$usage_version
+[[ $v == v* ]] || { echo "✗ $v: releases start with v (v1.3)"; exit 1; }
 git fetch -q origin main
-git tag -a "$tag" -m "Release $tag" origin/main
-git push origin "$tag"
-echo "✓ $tag → $(git rev-parse --short origin/main): CI tests it, then Workers Builds deploys production (https://${APP_DOMAIN:-$APP_NAME.<subdomain>.workers.dev})"
+# A release/v* branch, not a tag: some places (Claude's cloud sandbox) can push branches but not tags. CI makes the tag.
+git push origin "origin/main:refs/heads/release/$v"
+echo "✓ release/$v → $(git rev-parse --short origin/main): CI tests it, tags $v, Workers Builds deploys production"
 '''
 
 # ── cf:builds ───────────────────────────────────────────────────
