@@ -1,6 +1,6 @@
 # Runs `mise run check` (TinyGo under workerd + go test) and `mise run e2e` (headless Chrome) on every push and pull
 # request to main.
-# Strict no-Node: shell `run:` steps only, no JavaScript actions (plan: .plans/done/2026-09-14_0915_ci-mise-check.md).
+# Strict no-Node: shell `run:` steps only, no JavaScript actions.
 name: check
 
 # Every branch push (a PR's checks are its head branch's push run). The build is also published for Cloudflare's
@@ -10,6 +10,7 @@ on:
 
 permissions:
   contents: write # upload the build to the "preview-builds" pre-release
+  pull-requests: write # the preview URL comment
 
 concurrency:
   group: check-${{ github.ref }}

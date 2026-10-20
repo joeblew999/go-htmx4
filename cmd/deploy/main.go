@@ -7,17 +7,24 @@
 package main
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
+	"os/exec"
 	"strings"
 	"time"
 
 	"github.com/joeblew999/go-htmx4/kit/cfdeploy"
+	"github.com/joeblew999/go-htmx4/kit/previewbuild"
 )
+
+// previewTag is the pre-release that carries CI's builds for previews.
+const previewTag = "preview-builds"
 
 type list []string
 
@@ -79,7 +86,88 @@ func main() {
 	deletePreview := flag.String("delete-preview", "", "delete this Worker Preview of -name and exit")
 	annotations := vars{}
 	flag.Var(annotations, "annotation", "preview deployment annotation KEY=VALUE, e.g. workers/pull_request_number=7 (repeatable)")
+	// The preview pipeline (kit/previewbuild, PR #6):
+	repo := flag.String("repo", os.Getenv("APP_REPO"), "GitHub owner/name for the preview-build modes (default $APP_REPO)")
+	publishBuild := flag.String("publish-build", "", "CI: publish this commit's build (build/, -assets, this binary) to the preview-builds pre-release (GITHUB_TOKEN)")
+	fetchBuild := flag.String("fetch-build", "", "fetch and verify this commit's build from the preview-builds pre-release into the current directory (exit 3 if it never appears)")
+	wait := flag.Duration("wait", 8*time.Minute, "how long -fetch-build waits for CI to publish")
+	slug := flag.String("slug", "", "print the preview name for this branch and exit")
+	prunePreviews := flag.Bool("prune-previews", false, "delete -name's previews whose branch no longer exists on GitHub")
+	commentPR := flag.String("comment-pr", "", "CI: post the preview URL (-url) on this branch's open pull request (GITHUB_TOKEN)")
+	commentURL := flag.String("url", "", "preview URL for -comment-pr")
+	configureBuilds := flag.Bool("configure-builds", false, "make -name's Workers Builds setup match the flags below (needs Cloudflare credentials)")
+	bc := cfdeploy.BuildsConfig{Vars: vars{}}
+	flag.StringVar(&bc.BuildToken, "build-token", "", "-configure-builds: Workers Builds token name (make it once in the dashboard)")
+	flag.StringVar(&bc.FallbackBuildToken, "fallback-build-token", "", "-configure-builds: token name to use until -build-token exists")
+	flag.StringVar(&bc.BuildCommand, "build-command", "ci/workers-builds.sh build", "-configure-builds: preview build command")
+	flag.StringVar(&bc.DeployCommand, "deploy-command", "ci/workers-builds.sh deploy", "-configure-builds: preview deploy command")
+	flag.Var(vars(bc.Vars), "build-var", "-configure-builds: build variable KEY=VALUE (repeatable)")
+	flag.Var((*list)(&bc.PathExcludes), "path-exclude", "-configure-builds: don't build pushes that only change these paths (repeatable)")
 	flag.Parse()
+
+	ctx := context.Background()
+	gh := &previewbuild.GitHub{Repo: *repo, Token: os.Getenv("GITHUB_TOKEN"), Logf: log.Printf, HTTP: &http.Client{Timeout: 2 * time.Minute}}
+	switch {
+	case *slug != "":
+		fmt.Println(previewbuild.Slug(*slug, cfg.Name))
+		return
+	case *publishBuild != "":
+		need(*repo != "" && gh.Token != "", "-publish-build needs -repo (or APP_REPO) and GITHUB_TOKEN")
+		paths := []string{cfg.BuildDir}
+		if cfg.AssetsDir != "" {
+			paths = append(paths, cfg.AssetsDir)
+		}
+		data, err := previewbuild.Pack(".", *publishBuild, paths...)
+		check(err)
+		check(gh.Publish(ctx, previewTag, *publishBuild+".tar.gz", data, 80))
+		self, err := os.Executable()
+		check(err)
+		bin, err := os.ReadFile(self)
+		check(err)
+		check(gh.Publish(ctx, previewTag, "deploy-"+*publishBuild, bin, 80))
+		return
+	case *fetchBuild != "":
+		need(*repo != "", "-fetch-build needs -repo (or APP_REPO)")
+		data, ok, err := gh.Fetch(ctx, previewTag, *fetchBuild+".tar.gz", *wait, 10*time.Second)
+		check(err)
+		if !ok {
+			log.Printf("✗ no build for %s after %s", *fetchBuild, *wait)
+			os.Exit(3)
+		}
+		m, err := previewbuild.Unpack(bytes.NewReader(data), ".", *fetchBuild)
+		check(err)
+		log.Printf("✓ build for %s: %d files, verified", *fetchBuild, len(m.Files))
+		return
+	case *commentPR != "":
+		need(*repo != "" && gh.Token != "" && *commentURL != "", "-comment-pr needs -repo, GITHUB_TOKEN and -url")
+		_, err := gh.CommentPR(ctx, *commentPR, "<!-- worker-preview -->",
+			"**Preview:** "+*commentURL+"\n\nDeployed by Workers Builds a few seconds after this commit's build is published; "+
+				"its check goes green when it's live. Own Durable Object storage, shared preview D1, not indexed.")
+		check(err)
+		return
+	case *prunePreviews:
+		need(*repo != "", "-prune-previews needs -repo (or APP_REPO)")
+		branches, err := remoteBranches(*repo)
+		check(err)
+		live := map[string]bool{}
+		for _, b := range branches {
+			live[previewbuild.Slug(b, cfg.Name)] = true
+		}
+		_, err = client().PrunePreviews(ctx, cfg.Name, func(n string) bool { return live[n] })
+		check(err)
+		return
+	case *configureBuilds:
+		need(*repo != "", "-configure-builds needs -repo (or APP_REPO)")
+		bc.Worker = cfg.Name
+		bc.Owner, bc.Repo, _ = strings.Cut(*repo, "/")
+		ids, err := repoIDs(*repo)
+		check(err)
+		bc.OwnerID, bc.RepoID = ids[0], ids[1]
+		id, err := client().ConfigureBuilds(ctx, bc)
+		check(err)
+		log.Printf("✓ Workers Builds for %s: preview trigger %s", cfg.Name, id)
+		return
+	}
 
 	if *deletePreview != "" {
 		gone, err := client().DeletePreview(context.Background(), cfg.Name, *deletePreview)
@@ -139,4 +227,53 @@ func client() *cfdeploy.Client {
 		log.Fatal("deploy: CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID must be set (use fnox exec)")
 	}
 	return c
+}
+
+func need(ok bool, msg string) {
+	if !ok {
+		log.Fatal("deploy: " + msg)
+	}
+}
+
+func check(err error) {
+	if err != nil {
+		log.Fatalf("deploy: %v", err)
+	}
+}
+
+// remoteBranches lists the public repo's branches with git (no API rate limit, no token).
+func remoteBranches(repo string) ([]string, error) {
+	out, err := exec.Command("git", "ls-remote", "--heads", "https://github.com/"+repo).Output()
+	if err != nil {
+		return nil, fmt.Errorf("git ls-remote %s: %w", repo, err)
+	}
+	var branches []string
+	for _, line := range strings.Split(strings.TrimSpace(string(out)), "\n") {
+		if _, ref, ok := strings.Cut(line, "\trefs/heads/"); ok {
+			branches = append(branches, ref)
+		}
+	}
+	if len(branches) == 0 {
+		return nil, fmt.Errorf("git ls-remote %s: no branches (refusing to prune everything)", repo)
+	}
+	return branches, nil
+}
+
+// repoIDs returns the GitHub owner and repository ids (public API, no token).
+func repoIDs(repo string) ([2]string, error) {
+	resp, err := http.Get("https://api.github.com/repos/" + repo)
+	if err != nil {
+		return [2]string{}, err
+	}
+	defer resp.Body.Close()
+	var r struct {
+		ID    int64 `json:"id"`
+		Owner struct {
+			ID int64 `json:"id"`
+		} `json:"owner"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&r); err != nil || r.ID == 0 {
+		return [2]string{}, fmt.Errorf("github repo %s: %v (HTTP %d)", repo, err, resp.StatusCode)
+	}
+	return [2]string{fmt.Sprint(r.Owner.ID), fmt.Sprint(r.ID)}, nil
 }

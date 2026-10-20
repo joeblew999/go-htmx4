@@ -58,13 +58,18 @@ prompt: it installs `@latest`, not the pinned version.
 | `mise run smoke-remote` | Curl every route of the deployed Worker |
 | `mise run tail` | Live logs of the deployed Worker (requests, console output, exceptions), no wrangler |
 | `mise run preview <name>` | Deploy a [Worker Preview](https://developers.cloudflare.com/workers/previews/) (own URL and Durable Object storage, preview D1, noindex); Workers Builds does it for every pushed branch |
+| `mise run cf:builds` | Set up Workers Builds previews for the repo (idempotent; needs a build token made once in the dashboard) |
 | `mise run preview:delete <name>` | Delete a Worker Preview |
 
 `mise tasks` lists everything. CI runs `mise run check` and `mise run e2e` on every push and pull request
 ([`ci/check.sh`](ci/check.sh), shell steps only, no JavaScript actions).
-Every branch gets a Cloudflare Worker Preview through **Workers Builds** (Cloudflare's GitHub app): Cloudflare builds
-the pushed branch (`mise install`, `mise run build`) and deploys it with `mise run preview <branch>`. No secrets in
-GitHub; production deploys stay manual (`mise run deploy`).
+Every branch gets a Cloudflare [Worker Preview](https://developers.cloudflare.com/workers/previews/), built once:
+GitHub CI ([`ci/check.sh`](ci/check.sh)) builds the commit, publishes the build and the deploy tool to the
+`preview-builds` pre-release and posts the preview URL on the PR; Workers Builds (Cloudflare's GitHub app,
+[`ci/workers-builds.sh`](ci/workers-builds.sh)) downloads them, verifies the build against its manifest and deploys
+`https://<branch>-$APP_NAME.$CF_SUBDOMAIN.workers.dev` in seconds, then deletes previews of deleted branches. No
+secrets in GitHub. If CI's build never appears, Cloudflare compiles it itself (also `PREVIEW_BUILD=compile`).
+`mise run cf:builds` sets up the Cloudflare side; production deploys stay manual (`mise run deploy`).
 
 ## Stack
 
@@ -86,7 +91,7 @@ GitHub; production deploys stay manual (`mise run deploy`).
 | E2E browser | [Chrome for Testing](https://googlechromelabs.github.io/chrome-for-testing/) `chrome-headless-shell` | 155.0.8059.84 | Pinned in mise for `mise run e2e`, same browser on every machine |
 | Secrets | [fnox](https://github.com/jdx/fnox) | 1.40.0 | Cloudflare token + account id from the keychain |
 
-Plans, decisions and measurements live in [`.plans/`](.plans/). Licensed under [MIT](LICENSE).
+Plans, open work and follow-ups are [GitHub issues](https://github.com/joeblew999/go-htmx4/issues). Licensed under [MIT](LICENSE).
 
 ## Upstream references
 
@@ -109,14 +114,12 @@ without them:
   [Static Assets Direct Upload](https://developers.cloudflare.com/workers/static-assets/direct-upload/), script upload,
   D1 and Durable Object migration APIs. Credentials come from fnox (`fnox exec -- …`).
 
-**TinyGo 0.43 caveats** (details in the [plan](.plans/done/2026-09-13_1111_adopt-workers-go.md)): its `net/http` has the
+**TinyGo 0.43 caveats**: its `net/http` has the
 pre-Go 1.22 `ServeMux` (no `GET /path` patterns), and `html/template` compiles but panics at runtime. gsx + gsxui work
 (verified byte-identical output). `go test` runs on standard Go and can't see TinyGo runtime issues, so the app's test
 tasks also curl the real TinyGo build under workerd.
 
 ## Live updates on Workers (shared board)
-
-Design and measurements: [workers-realtime plan](.plans/done/2026-09-14_0754_workers-realtime-d1-do.md).
 
 ```
 browser ─ hx-ws:connect /live/{topic} ─▶ worker/index.mjs ─▶ Room Durable Object (worker/room.mjs, hibernatable WebSockets)
@@ -161,8 +164,6 @@ browser ─ hx-post /board/add|note ─────▶ worker/index.mjs ─▶ G
   `mise run deploy` runs `search:audit` afterwards.
   Status on 2026-09-15: 52 of 56 sitemap URLs indexed.
 
-Plans: [search indexing](.plans/done/2026-09-14_0938_search-indexing-google-gemini.md),
-[custom domain](.plans/2026-09-14_0915_workers-custom-domains.md).
 
 ## Reusable packages (`kit/`)
 
@@ -203,5 +204,4 @@ The Room and Worker entry are JavaScript (`worker/room.mjs`, `worker/index.mjs`)
 ├── tasks/
 │   ├── app.toml         # dev, serve, run, test, smoke, load, deploy, smoke-remote, …
 │   └── upstream.toml    # upstream:gsxui:*, upstream:workers-go:fetch
-└── .plans/              # timestamped plans with findings
 ```

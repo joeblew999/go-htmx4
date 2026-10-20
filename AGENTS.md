@@ -1,15 +1,11 @@
-# Plans
+# Plans and follow-ups: GitHub issues
 
-- Write all plans to the `.plans/` folder in the repository root — never anywhere else.
-- Prefix every plan file name with a date-time stamp so they sort chronologically:
-  `YYYY-MM-DD_HHMM_short-kebab-slug.md` (local time), e.g. `2026-09-13_1105_add-auth.md`.
-- Before starting non-trivial work, check `.plans/` for an existing plan on the same topic
-  and update it rather than creating a duplicate.
-- Keep plans current as work progresses: tick off completed steps and note decisions or
-  changes of direction.
-- Commit plans alongside the code they describe.
-- When a plan is finished, `git mv` it into `.plans/done/` and update references to its path (README, tasks, code
-  comments). Mark leftover unchecked items `[-]` with a short reason (not pursued / superseded / moved).
+- Plans, open work and follow-ups are GitHub issues on joeblew999/go-htmx4 (Claude has the GitHub connector). No plan
+  files in the repo.
+- Before starting non-trivial work, look for an existing issue on the topic and update it rather than opening a
+  duplicate. Write the plan, decisions and ramifications in the issue (or its PR), keep its checklist current, and
+  reference it from commits, PRs and code comments as `#N`.
+- Close an issue when its PR merges (`Closes #N` in the PR) or say why it's not planned.
 
 # Reporting work: always show follow-ups
 
@@ -21,7 +17,7 @@
   - bugs or risks you found but didn't fix, especially ones that affect what's live
   - checks you skipped or couldn't run
   - leftovers to clean up (processes, resources, stale docs)
-- Put the same follow-ups in the plan too (unchecked items or Findings), so they survive the conversation.
+- Put the same follow-ups in the issue (checklist items or a comment), so they survive the conversation.
 
 # Toolchain
 
@@ -32,8 +28,7 @@
   it can find: `mise install`'s postinstall hook runs `editor:gsx` (`tasks/editor.toml`), which installs go.mod's version
   into `GOPATH/bin`. `.vscode/` is committed: shared settings only, never machine-specific paths.
 - When bumping Go, update `mise.toml`, `go.mod` (`go` + `toolchain` lines) and the README Stack table together.
-- The app is the Go module at the repo root (`github.com/joeblew999/go-htmx4`). Plan:
-  `.plans/done/2026-09-14_1037_one-app-template-and-kit.md` (released as v0.1.0).
+- The app is the Go module at the repo root (`github.com/joeblew999/go-htmx4`). Released as v0.1.0.
 
 # Commands
 
@@ -128,14 +123,18 @@
 - **Credentials only via fnox:** `fnox exec -- go run ./cmd/deploy …` or `fnox exec -- sh -c '…$CLOUDFLARE_API_TOKEN…'`
   (single-quoted so the variable expands after fnox injects it). Never print tokens or add `.env` files.
 - **Deploys and other Cloudflare writes are outward-facing:** get an explicit OK first.
-- **Worker Previews** (`mise run preview <name>`, run by Workers Builds for every pushed branch, plan `.plans/2026-10-20_1641_cloudflare-pr-previews.md`):
+- **Worker Previews** (`mise run preview <name>`, run by Workers Builds for every pushed branch, PR #6):
   `kit/cfdeploy.DeployPreview`/`DeletePreview` over the Previews REST API. Previews get `APP_DOMAIN=` (no redirect),
   `APP_PREVIEW=1` (every response noindex: `TestPreviewNoindex`), the shared `$APP_NAME-preview` D1 and their own
   Durable Object storage. A new binding goes into both `deploy` and `preview` in `tasks/app.toml`. Production deploys
   keep previews enabled. Branch previews are pre-approved; production deploys still need an OK.
-  Workers Builds runs `ci/workers-builds.sh build` and `… deploy` for every branch except `main` (trigger "go-htmx4
-  branch previews", set on Cloudflare); the `main` trigger only echoes (no production auto-deploy). The script
-  ignores the build image's global mise config, so only `mise.toml` decides the tools.
+  One build per commit: CI (`ci/check.sh`) runs `mise run build`, then `bin/deploy -publish-build` puts the build
+  (with a `preview-build.json` manifest) and the deploy tool on the `preview-builds` pre-release and
+  `-comment-pr` posts the URL. Workers Builds (`ci/workers-builds.sh`, trigger "$APP_NAME branch previews", set up
+  by `mise run cf:builds`) fetches the tool, `-fetch-build` verifies before extracting, deploys `<branch slug>`
+  and `-prune-previews` deletes previews of deleted branches. Fallback: compile on Cloudflare. Logic lives in
+  `kit/previewbuild` and `kit/cfdeploy` (tested with fake GitHub and Cloudflare APIs); keep the scripts thin.
+  The `main` trigger only echoes (no production auto-deploy).
 - **Shared board (live updates):** D1 is the source of truth; `worker/room.mjs` (one Durable Object per topic) only fans out.
   - Every app write goes through a Go handler that writes D1 **then** publishes the whole `#board` fragment with its
     `data-version`. Writes made straight to D1 (dashboard, REST) are not pushed.
@@ -174,7 +173,6 @@
   (Room publish, topic rule), `ratelimit` (rate limiting binding), `httpx` (TinyGo-safe HTTP helpers), `i18n` (locales + CLDR formatting;
   `i18n/cldr` generated tables, `i18n/cldrgen` generator, `i18n/intltest` Intl conformance); `kit/internal/cfapi` is their shared API client.
 - `tasks/` - mise task files included from `mise.toml`.
-- `.plans/` - timestamped plans (see above).
 
 # kit/ (importable packages)
 
@@ -188,7 +186,7 @@
 - The topic rule and version header live in `kit/live`; `TestWorkerJSMatchesKitLive` checks `worker/index.mjs` and
   `worker/room.mjs` use the same.
 
-# kit/i18n (plan: `.plans/2026-09-14_1106_full-i18n.md`)
+# kit/i18n
 
 - Formatting is CLDR-exact Go with Intl's option names and output, computed on the server. The client's `Intl` may only
   enhance viewer-local text, and only with the page's `lang`.

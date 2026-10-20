@@ -3,11 +3,11 @@
 // the source of truth. "last" is only a cache so a (re)connecting browser gets the newest fragment
 // at once, without a D1 read.
 //
-// Locales (plan: .plans/2026-09-14_1106_full-i18n.md, Phase 6): Go publishes one fragment per locale
+// Locales: Go publishes one fragment per locale
 // ({default, fragments}); each socket is tagged with its page's ?locale= and gets that locale's fragment
 // (or the default's). Presence is a bare count, so the page renders its label in its own language.
 //
-// Designed for ~1,000 sockets per topic (plan: .plans/done/2026-09-14_0754_workers-realtime-d1-do.md):
+// Designed for ~1,000 sockets per topic:
 // sockets are receive-only, pings are auto-answered without waking the object, and broadcasts are
 // coalesced to at most one per FLUSH_MS, keeping only the newest version.
 //

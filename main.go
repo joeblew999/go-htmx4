@@ -1,5 +1,5 @@
 // Command go-htmx4 is a Go + htmx 4 + gsxui app on Cloudflare Workers via workers-go v0.36.0, built
-// with TinyGo and no Node (plans: .plans/done/).
+// with TinyGo and no Node.
 //
 // The same handlers run in two places:
 //

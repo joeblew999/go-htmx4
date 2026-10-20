@@ -11,7 +11,7 @@ import (
 	"github.com/joeblew999/go-htmx4/views"
 )
 
-// Locale URLs (plan: .plans/2026-09-14_1106_full-i18n.md, decision 2):
+// Locale URLs:
 //
 //	/about        the default locale (cldr.Data.Locales[0], "en"): unprefixed, and hreflang x-default
 //	/de/about     every other shipped locale, prefixed with its lowercase id ("/pt-br/", "/zh-hant/")
