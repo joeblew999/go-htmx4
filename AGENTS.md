@@ -133,8 +133,9 @@
   `APP_PREVIEW=1` (every response noindex: `TestPreviewNoindex`), the shared `$APP_NAME-preview` D1 and their own
   Durable Object storage. A new binding goes into both `deploy` and `preview` in `tasks/app.toml`. Production deploys
   keep previews enabled. Branch previews are pre-approved; production deploys still need an OK.
-  Workers Builds config (Cloudflare, not in the repo): previews build with `mise install && mise run build`, deploy with
-  `mise run --skip-deps preview "$WORKERS_CI_BRANCH"`; the `main` trigger only echoes (no production auto-deploy).
+  Workers Builds runs `ci/workers-builds.sh build` and `… deploy` for every branch except `main` (trigger "go-htmx4
+  branch previews", set on Cloudflare); the `main` trigger only echoes (no production auto-deploy). The script
+  ignores the build image's global mise config, so only `mise.toml` decides the tools.
 - **Shared board (live updates):** D1 is the source of truth; `worker/room.mjs` (one Durable Object per topic) only fans out.
   - Every app write goes through a Go handler that writes D1 **then** publishes the whole `#board` fragment with its
     `data-version`. Writes made straight to D1 (dashboard, REST) are not pushed.
