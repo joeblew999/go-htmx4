@@ -7,16 +7,19 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
-# Only this repo's mise.toml: the build image has a global mise config of its own (node, ruby, python, hugo, …)
-# that `mise install` would otherwise install too (and its hugo pin fails with current mise).
+# Only this repo's mise.toml. The build image has mise config of its own (node, ruby, python, hugo, …) in the
+# global/system config, in the clone's parent directory (/opt/buildhome) and in MISE_*_VERSION variables; `mise
+# install` would install all of it too (and its hugo pin fails with current mise).
 empty=$(mktemp)
-export MISE_GLOBAL_CONFIG_FILE="$empty" MISE_SYSTEM_CONFIG_FILE="$empty"
+export MISE_GLOBAL_CONFIG_FILE="$empty" MISE_SYSTEM_CONFIG_FILE="$empty" MISE_CEILING_PATHS="$(dirname "$PWD")"
+for v in $(env | grep -oE '^MISE_[A-Z0-9_]+_VERSION' || true); do unset "$v"; done
 export MISE_YES=1 MISE_TRUSTED_CONFIG_PATHS="$PWD" PATH="$HOME/.local/bin:$PATH"
 
 if ! command -v mise >/dev/null 2>&1; then
   curl -fsSL https://mise.run | MISE_VERSION="${MISE_VERSION:-v2026.10.14}" MISE_QUIET=1 sh
 fi
 mise --version
+mise config ls
 
 case "${1:-}" in
 build)
