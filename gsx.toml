@@ -1,4 +1,4 @@
-class_merger = "github.com/joeblew999/go-htmx4/ui/merge.Merge"
+class_merger = "github.com/joeblew999/go-htmx4/internal/classmerge.Merge"
 
 # gsx config for the app (gsx Configuration guide).
 # gsx's htmx preset predates htmx 4: add hx-action, and hx-ws:connect, which also carries a URL.
