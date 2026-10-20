@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Workers Builds (Cloudflare's GitHub app) runs this for every pushed branch; main gets the preview "main" (staging)
+# Workers Builds (Cloudflare's GitHub app) runs this for every pushed branch; main deploys staging instead
 # (PR #6; `mise run cf:builds` sets the trigger up):
 #   build command:  ci/workers-builds.sh build    fetch the deploy tool CI published for this commit, then with it
 #                                                 the build (verified against its manifest). No compiling.
@@ -54,6 +54,13 @@ deploy)
   [ ! -e .superseded ] || { echo "· superseded by a newer push: no deploy"; exit 0; }
   branch=${WORKERS_CI_BRANCH:?WORKERS_CI_BRANCH is not set (Workers Builds sets it)}
   if [ -x bin/deploy ]; then deploy=(bin/deploy); else mise install go; deploy=(mise exec -- go run ./cmd/deploy); fi
+  # main is staging: its own Worker, https://$APP_NAME-staging.<subdomain>.workers.dev, exactly what's merged.
+  if [ "$branch" = main ]; then
+    DEPLOY_CMD="${deploy[*]}" mise run --skip-deps staging
+    echo "✓ staging: $(cat .staging-url)"
+    "${deploy[@]}" -name "$APP_NAME" -repo "$APP_REPO" -prune-previews || echo "· pruning previews failed (staging is live)"
+    exit 0
+  fi
   slug=$("${deploy[@]}" -name "$APP_NAME" -slug "$branch")
   DEPLOY_CMD="${deploy[*]}" mise run --skip-deps preview "$slug"
   echo "✓ preview for branch $branch: $(cat .preview-url)"

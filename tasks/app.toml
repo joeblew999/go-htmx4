@@ -377,6 +377,27 @@ echo "$url"
 if [ -n "${APP_DOMAIN:-}" ]; then echo "https://$APP_DOMAIN"; else echo "$url"; fi > .deploy-url   # outside build/: workers-assets-gen wipes build/
 '''
 
+# ── staging ─────────────────────────────────────────────────────
+# Staging: its own Worker $APP_NAME-staging (https://$APP_NAME-staging.<subdomain>.workers.dev), exactly what's on main.
+# Workers Builds deploys it on every merge to main (ci/workers-builds.sh). Like production, but never production: no
+# custom domain (host.go never redirects), APP_PREVIEW=1 (noindex), its own D1 ($APP_NAME-staging) and Durable Objects.
+["staging"]
+description = "Deploy staging: the Worker $APP_NAME-staging → its URL on stdout and in .staging-url; tested first"
+depends = ["test"]
+dir = "{{config_root}}"
+run = '''
+#!/usr/bin/env bash
+set -euo pipefail
+cf() { if [ -n "${CLOUDFLARE_API_TOKEN:-}" ] && [ -n "${CLOUDFLARE_ACCOUNT_ID:-}" ]; then "$@"; else fnox exec -- "$@"; fi; }
+url=$(cf ${DEPLOY_CMD:-go run ./cmd/deploy} -name "$APP_NAME-staging" -allow-existing \
+  -main worker/index.mjs -module worker/room.mjs -assets dist/site \
+  -var "APP_ENV=staging" -var "APP_DOMAIN=" -var "APP_PREVIEW=1" \
+  -d1 DB="$APP_NAME-staging" -d1-create -migrations migrations \
+  -do ROOM=Room -migration-tag v1 -new-sqlite-class Room \
+  -ratelimit WRITES=1001:60/10)
+echo "$url" | tee .staging-url
+'''
+
 # ── preview ─────────────────────────────────────────────────────
 # A Worker Preview of $APP_NAME (PR #6): its own URL, code and Durable
 # Object storage, the shared preview D1 ($APP_NAME-preview), no custom domain (so host.go never redirects it) and

@@ -133,7 +133,7 @@
   by `mise run cf:builds`) fetches the tool, `-fetch-build` verifies before extracting, deploys `<branch slug>`
   and `-prune-previews` deletes previews of deleted branches. Fallback: compile on Cloudflare. Logic lives in
   `kit/previewbuild` and `kit/cfdeploy` (tested with fake GitHub and Cloudflare APIs); keep the scripts thin.
-  The `main` trigger runs the same commands: the preview `main` is staging (exactly what's merged). Production is
+  The `main` trigger runs the same commands: main deploys staging, its own Worker `$APP_NAME-staging` (`mise run staging`: no domain, noindex, own D1). Production is
   never deployed by Workers Builds (`mise run deploy`).
 - **Shared board (live updates):** D1 is the source of truth; `worker/room.mjs` (one Durable Object per topic) only fans out.
   - Every app write goes through a Go handler that writes D1 **then** publishes the whole `#board` fragment with its
