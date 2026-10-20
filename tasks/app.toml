@@ -1,6 +1,6 @@
 # tasks/app.toml — the app's tasks (plans: .plans/done/2026-09-13_1111_adopt-workers-go.md and later).
 #
-# workers-go v0.35.0, TinyGo for everything that ships to Workers, no Node (no npm, no wrangler). Standard Go
+# workers-go v0.36.0, TinyGo for everything that ships to Workers, no Node (no npm, no wrangler). Standard Go
 # only for local-only code: `go run .`, go test/vet, cmd/deploy, cmd/wsload. Tools come from mise.toml.
 #
 #   mise run dev            # gsx dev: save → regenerate → TinyGo + assets → workerd restart → http://localhost:8913
@@ -156,7 +156,7 @@ check "POST form, OOB toast"      "$(curl -s -X POST -d name=Ada "$base/greet")"
 check "POST form empty"           "$(curl -s -X POST -d name= "$base/greet")" 'Please enter a name.'
 check "DELETE /greet"             "$(curl -s -X DELETE "$base/greet")" 'Cleared'
 info=$(curl -s "$base/fragments/server-info")
-check "server-info on TinyGo"     "$info" 'tinygo 0.42.0 js/wasm'
+check "server-info on TinyGo"     "$info" 'tinygo 0.43.0 js/wasm'
 check "state resets per request"  "$info$(curl -s "$base/fragments/server-info")" 'fresh Go runtime'
 check "stats fragment"            "$(curl -s "$base/fragments/stats")" '<ul'
 check "static file first"         "$(curl -s -o /dev/null -w '%{http_code} %{content_type}' "$base/static/htmx.min.js")" '200 text/javascript'
@@ -236,7 +236,7 @@ if [ -z "$base" ]; then
 fi
 echo "→ $base"
 # chromedp logs CDP events it doesn't model ("unhandled node event"); they're noise.
-E2E_BASE="$base" go test -C e2e -count=1 -v ./... 2>&1 | grep -v "unhandled node event"
+E2E_BASE="$base" E2E_CHROME="$(mise which chrome-headless-shell)" go test -C e2e -count=1 -v ./... 2>&1 | grep -v "unhandled node event"
 '''
 
 # Design size: 1,000 WebSockets on one topic, then a burst of 50 concurrent writes (coalescing).

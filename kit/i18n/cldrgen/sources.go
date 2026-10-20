@@ -24,13 +24,13 @@ const (
 
 	// Workerd is the workerd release whose Intl the goldens record (`mise run i18n:golden`). mise.toml's
 	// [tools] workerd must be the same version (TestReferencePins).
-	Workerd = "1.20260911.1"
+	Workerd = "1.20261019.1"
 
 	// ChromiumICU is the chromium/deps/icu commit that workerd release is built with (ICU 78.2): workerd's
 	// build/deps/gen/deps.MODULE.bazel, repository com_googlesource_chromium_icu. Chrome and Workers ship its
 	// filtered ICU data; the generator reads its data filter (filters/common.json) so Intl output matches
 	// theirs, and the `known` conformance entries cite its locale files as evidence.
-	ChromiumICU = "8cc91d9b6ab9991802fd208ee03a69714fd0251c"
+	ChromiumICU = "19dfb44a62ae60ce6b0060de8c0cef5d5c527177"
 )
 
 const (

@@ -5,30 +5,43 @@
 #   mise run check      # test everything (TinyGo under workerd + go test)
 #   mise tasks          # list everything
 
+# The oldest mise that handles these pins (http: backend platforms, packslip tools). CI installs this version too
+# (MISE_VERSION in ci/check.sh and ci/i18n-verify.sh); bump all three together.
+min_version = "2026.10.14"
+
 [settings]
 # go.mod/go.work `toolchain` is the Go pin; this makes `mise install` honour it.
 idiomatic_version_file_enable_tools = ["go"]
 
 [tools]
-tinygo = "0.42.0"      # workers-go TinyGo builds need >= 0.42.0 (net/http on wasm); supports Go <= 1.27
+tinygo = "0.43.0"      # workers-go TinyGo builds need >= 0.42.0 (net/http on wasm); supports Go <= 1.27
 # wasm-opt, required by `tinygo build -target wasm`. The aqua registry lags (121),
 # so pull the upstream release directly.
-"github:WebAssembly/binaryen" = "version_132"
+"github:WebAssembly/binaryen" = "version_133"
 # gsx / gsxui toolchain (see .plans/done/2026-09-13_1109_adopt-gsxui.md). No Node anywhere.
 # Tailwind standalone CLI — the npm-free path in https://ui.gsxhq.dev/docs/npm-free.
 "github:tailwindlabs/tailwindcss" = "v4.3.3"
 # gsxui has no tags yet: pin the commit (README: go install .../cmd/gsxui).
-"go:github.com/gsxhq/gsxui/cmd/gsxui" = "c7fd6a8"
+"go:github.com/gsxhq/gsxui/cmd/gsxui" = "915241b"
 # gsx itself is pinned in go.mod: builds use `go tool gsx` (gsx Status guide); the editor copy comes from `editor:gsx`.
 # Cloudflare Workers toolchain (see .plans/done/2026-09-13_1111_adopt-workers-go.md). No Node, no wrangler.
 # workerd: the standalone Workers runtime (what `wrangler dev` runs). Pin a release that has binaries.
-workerd = "1.20260911.1"
+workerd = "1.20261019.1"
 # fnox: Cloudflare credentials from the keychain via `fnox exec -- …`.
-fnox = "1.35.0"
+fnox = "1.40.0"
 # jq: URL-encodes the links `mise run search:google` prints.
-jq = "1.8.1"
+jq = "1.8.2"
 # usage: shell completion for task arguments and flags (mise run search:inspect <TAB>, --json).
-usage = "6.8.0"
+usage = "7.0.2"
+
+# Chrome for `mise run e2e` (chromedp). Pinned so the Mac, CI and any other machine test the same browser; e2e gets
+# its path from `mise which chrome-headless-shell`. Chrome for Testing: https://googlechromelabs.github.io/chrome-for-testing/
+[tools."http:chrome-headless-shell"]
+version = "155.0.8059.84"
+[tools."http:chrome-headless-shell".platforms]
+linux-x64 = { url = "https://storage.googleapis.com/chrome-for-testing-public/{{ version }}/linux64/chrome-headless-shell-linux64.zip", strip_components = 1, bin_path = "." }
+macos-arm64 = { url = "https://storage.googleapis.com/chrome-for-testing-public/{{ version }}/mac-arm64/chrome-headless-shell-mac-arm64.zip", strip_components = 1, bin_path = "." }
+macos-x64 = { url = "https://storage.googleapis.com/chrome-for-testing-public/{{ version }}/mac-x64/chrome-headless-shell-mac-x64.zip", strip_components = 1, bin_path = "." }
 
 [env]
 # Worker script and D1 database name (mise run deploy): https://$APP_NAME.<subdomain>.workers.dev
