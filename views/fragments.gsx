@@ -57,7 +57,9 @@ component ServerInfoView(info ServerInfo) {
 		<dt class="font-medium text-foreground">{ M(ctx).ServerInfoGo() }</dt>
 		<dd translate="no">{ info.GoVersion }</dd>
 		<dt class="font-medium text-foreground">{ M(ctx).ServerInfoUptime() }</dt>
-		<dd><Elapsed d={info.Uptime}/></dd>
+		<dd>
+			<Elapsed d={info.Uptime}/>
+		</dd>
 		<dt class="font-medium text-foreground">{ M(ctx).ServerInfoRequests() }</dt>
 		<dd>{ Num(ctx, info.Requests) }</dd>
 		<dt class="font-medium text-foreground">{ M(ctx).ServerInfoRendered() }</dt>

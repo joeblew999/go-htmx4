@@ -106,7 +106,9 @@ func currency(loc *i18n.Locale, m locales.Messages) FormatSection {
 func dates(loc *i18n.Locale, m locales.Messages) FormatSection {
 	sec := FormatSection{Title: m.FormatsDatesTitle(), Description: m.FormatsDatesDescription()}
 	iso := isoInstant(sampleInstant)
-	add := func(opts string) { sec.Rows = append(sec.Rows, intlRow(iso, "datetime", iso, opts, utcText(sampleInstant))) }
+	add := func(opts string) {
+		sec.Rows = append(sec.Rows, intlRow(iso, "datetime", iso, opts, utcText(sampleInstant)))
+	}
 	add(`{"dateStyle":"full"}`)
 	add(`{"dateStyle":"long","timeStyle":"short"}`)
 	add(`{"dateStyle":"medium","timeStyle":"medium"}`)
@@ -211,7 +213,9 @@ func lists(loc *i18n.Locale, m locales.Messages) FormatSection {
 func durations(m locales.Messages) FormatSection {
 	sec := FormatSection{Title: m.FormatsDurationsTitle(), Description: m.FormatsDurationsDescription()}
 	const d = `{"days":1,"hours":2,"minutes":5,"seconds":30,"milliseconds":250}`
-	add := func(opts string) { sec.Rows = append(sec.Rows, intlRow("1d 2h 5m 30.25s", "duration", d, opts, "1d 2h 5m 30.25s")) }
+	add := func(opts string) {
+		sec.Rows = append(sec.Rows, intlRow("1d 2h 5m 30.25s", "duration", d, opts, "1d 2h 5m 30.25s"))
+	}
 	add("")
 	add(`{"style":"long"}`)
 	add(`{"style":"narrow"}`)

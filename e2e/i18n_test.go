@@ -114,7 +114,7 @@ func TestMixedLocalePush(t *testing.T) {
 	const age = `document.querySelector("#board time[data-intl=relative]").setAttribute("datetime", new Date(Date.now() - 5 * 60 * 1000).toISOString())`
 	de.eval(age, nil)
 	ar.eval(age, nil)
-	rel := `document.querySelector("#board time[data-intl=relative]")?.textContent ?? ""`
+	rel := `(document.querySelector("#board time[data-intl=relative]")?.textContent ?? "")`
 	check(t, "German relative time", de.waitJS(5*time.Second, rel+` === "vor 5 Minuten"`), " ", de.str(rel))
 	check(t, "Arabic relative time", ar.waitJS(5*time.Second, rel+` === "قبل 5 دقائق"`), " ", ar.str(rel))
 	de.noProblems()
