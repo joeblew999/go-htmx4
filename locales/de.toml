@@ -127,7 +127,7 @@ mise = "legt die Version jedes Tools fest"
 [formats]
 title = "Formate"
 intro = "Gebietsschemabewusste Formatierung mit dem Intl Ihres eigenen Browsers, in der Sprache dieser Seite und Ihrer Zeitzone: Jede Zeile ist ein Intl-Aufruf mit seinen Optionen. Die Sprache wechseln Sie unten auf der Seite."
-description = "Gebietsschemabewusste Formatierung mit dem Intl Ihres Browsers: Zahlen, Währungen, Datumsangaben, Zeitzonen, Einheiten, Listen und Pluralregeln in jeder Sprache der Website."
+description = "Zahlen, Währungen, Daten, Zeitzonen, Einheiten und Listen, formatiert vom Intl Ihres Browsers in jeder Sprache der Website."
 input = "Eingabe"
 options = "Optionen"
 result = "Ergebnis"

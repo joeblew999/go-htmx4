@@ -127,7 +127,7 @@ mise = "fija la versión de cada herramienta"
 [formats]
 title = "Formatos"
 intro = "Formato según la configuración regional con el Intl de tu propio navegador, en el idioma de esta página y tu zona horaria: cada fila es una llamada a Intl con sus opciones. Cambia de idioma al pie de la página."
-description = "Formato según la configuración regional con el Intl de tu navegador: números, monedas, fechas, zonas horarias, unidades, listas y reglas de plural en todos los idiomas del sitio."
+description = "Números, monedas, fechas, zonas horarias, unidades y listas, con el formato del Intl de tu navegador en cada idioma del sitio."
 input = "Entrada"
 options = "Opciones"
 result = "Resultado"

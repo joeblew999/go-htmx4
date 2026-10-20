@@ -204,7 +204,7 @@ func (m Messages) FormatsDatesTitle() string {
 	return m.format(39)
 }
 
-// FormatsDescription is "formats.description": Locale-aware formatting by your browser's own Intl: numbers, currencies, dates, time zones, units, lists and plural rules in every language the site ships.
+// FormatsDescription is "formats.description": Numbers, currencies, dates, time zones, units and lists, formatted by your browser's own Intl in every language the site ships.
 func (m Messages) FormatsDescription() string {
 	return m.format(40)
 }

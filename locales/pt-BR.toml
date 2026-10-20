@@ -127,7 +127,7 @@ mise = "fixa a versão de cada ferramenta"
 [formats]
 title = "Formatos"
 intro = "Formatação sensível à localidade feita pelo Intl do seu próprio navegador, no idioma desta página e no seu fuso horário: cada linha é uma chamada do Intl com suas opções. Troque de idioma no fim da página."
-description = "Formatação sensível à localidade feita pelo Intl do seu navegador: números, moedas, datas, fusos horários, unidades, listas e regras de plural em todos os idiomas do site."
+description = "Números, moedas, datas, fusos horários, unidades e listas, formatados pelo Intl do seu navegador em cada idioma do site."
 input = "Entrada"
 options = "Opções"
 result = "Resultado"

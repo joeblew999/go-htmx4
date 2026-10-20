@@ -127,7 +127,7 @@ mise = "fixe la version de chaque outil"
 [formats]
 title = "Formats"
 intro = "Mise en forme adaptée aux paramètres régionaux par l'Intl de votre propre navigateur, dans la langue de cette page et votre fuseau horaire : chaque ligne est un appel Intl avec ses options. Changez de langue en bas de la page."
-description = "Mise en forme adaptée aux paramètres régionaux par l'Intl de votre navigateur : nombres, devises, dates, fuseaux horaires, unités, listes et règles de pluriel dans chaque langue du site."
+description = "Nombres, devises, dates, fuseaux horaires, unités et listes, mis en forme par l'Intl de votre navigateur dans chaque langue du site."
 input = "Entrée"
 options = "Options"
 result = "Résultat"

@@ -130,7 +130,7 @@ mise = "pins every tool"
 [formats]
 title = "Formats"
 intro = "Locale-aware formatting by your browser's own Intl, in this page's language and your time zone: each row is an Intl call and its options. Switch language at the bottom of the page."
-description = "Locale-aware formatting by your browser's own Intl: numbers, currencies, dates, time zones, units, lists and plural rules in every language the site ships."
+description = "Numbers, currencies, dates, time zones, units and lists, formatted by your browser's own Intl in every language the site ships."
 input = "Input"
 options = "Options"
 result = "Result"

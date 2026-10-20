@@ -347,7 +347,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "Locale-aware formatting by your browser's own Intl: numbers, currencies, dates, time zones, units, lists and plural rules in every language the site ships.",
+						Text: "Numbers, currencies, dates, time zones, units and lists, formatted by your browser's own Intl in every language the site ships.",
 					},
 				},
 			},
@@ -1524,7 +1524,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "Locale-aware formatting by your browser's own Intl: numbers, currencies, dates, time zones, units, lists and plural rules in every language the site ships.",
+						Text: "Numbers, currencies, dates, time zones, units and lists, formatted by your browser's own Intl in every language the site ships.",
 					},
 				},
 			},
@@ -2701,7 +2701,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "Gebietsschemabewusste Formatierung mit dem Intl Ihres Browsers: Zahlen, Währungen, Datumsangaben, Zeitzonen, Einheiten, Listen und Pluralregeln in jeder Sprache der Website.",
+						Text: "Zahlen, Währungen, Daten, Zeitzonen, Einheiten und Listen, formatiert vom Intl Ihres Browsers in jeder Sprache der Website.",
 					},
 				},
 			},
@@ -3878,7 +3878,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "Mise en forme adaptée aux paramètres régionaux par l'Intl de votre navigateur : nombres, devises, dates, fuseaux horaires, unités, listes et règles de pluriel dans chaque langue du site.",
+						Text: "Nombres, devises, dates, fuseaux horaires, unités et listes, mis en forme par l'Intl de votre navigateur dans chaque langue du site.",
 					},
 				},
 			},
@@ -5055,7 +5055,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "Formato según la configuración regional con el Intl de tu navegador: números, monedas, fechas, zonas horarias, unidades, listas y reglas de plural en todos los idiomas del sitio.",
+						Text: "Números, monedas, fechas, zonas horarias, unidades y listas, con el formato del Intl de tu navegador en cada idioma del sitio.",
 					},
 				},
 			},
@@ -6232,7 +6232,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "Formatação sensível à localidade feita pelo Intl do seu navegador: números, moedas, datas, fusos horários, unidades, listas e regras de plural em todos os idiomas do site.",
+						Text: "Números, moedas, datas, fusos horários, unidades e listas, formatados pelo Intl do seu navegador em cada idioma do site.",
 					},
 				},
 			},
@@ -7409,7 +7409,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "Formatação sensível à região feita pelo Intl do seu navegador: números, moedas, datas, fusos horários, unidades, listas e regras de plural em todos os idiomas do site.",
+						Text: "Números, moedas, datas, fusos horários, unidades e listas, formatados pelo Intl do seu navegador em cada idioma do site.",
 					},
 				},
 			},
@@ -8583,7 +8583,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "تنسيق يراعي اللغة والمنطقة باستخدام Intl في متصفحك: الأرقام والعملات والتواريخ والمناطق الزمنية والوحدات والقوائم وقواعد الجمع بكل لغات الموقع.",
+						Text: "الأرقام والعملات والتواريخ والمناطق الزمنية والوحدات والقوائم، ينسّقها Intl في متصفحك بكل لغات الموقع.",
 					},
 				},
 			},
@@ -9760,7 +9760,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "עיצוב לפי שפה ואזור באמצעות ה-Intl של הדפדפן שלך: מספרים, מטבעות, תאריכים, אזורי זמן, יחידות, רשימות וכללי ריבוי בכל שפות האתר.",
+						Text: "מספרים, מטבעות, תאריכים, אזורי זמן, יחידות ורשימות, מעוצבים ב-Intl של הדפדפן שלך בכל שפות האתר.",
 					},
 				},
 			},
@@ -10937,7 +10937,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "お使いのブラウザーの Intl による、ロケールに応じた書式設定：数値、通貨、日付、タイムゾーン、単位、リスト、複数形ルールを、サイトのすべての言語で。",
+						Text: "数値、通貨、日付、タイムゾーン、単位、リストを、ブラウザーの Intl がサイトのすべての言語で書式設定します。",
 					},
 				},
 			},
@@ -12111,7 +12111,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "由你浏览器的 Intl 按语言区域进行格式化：数字、货币、日期、时区、单位、列表和复数规则，覆盖本站的每种语言。",
+						Text: "数字、货币、日期、时区、单位和列表，由你浏览器的 Intl 以本站的每种语言进行格式化。",
 					},
 				},
 			},
@@ -13288,7 +13288,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "由你瀏覽器的 Intl 依語言地區進行格式化：數字、貨幣、日期、時區、單位、清單與複數規則，涵蓋本站的每種語言。",
+						Text: "數字、貨幣、日期、時區、單位與清單，由你瀏覽器的 Intl 以本站的每種語言進行格式化。",
 					},
 				},
 			},
@@ -14465,7 +14465,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "आपके ब्राउज़र के Intl से लोकेल के अनुसार फ़ॉर्मैटिंग: संख्याएँ, मुद्राएँ, तारीख़ें, टाइम ज़ोन, इकाइयाँ, सूचियाँ और बहुवचन नियम, साइट की हर भाषा में।",
+						Text: "संख्याएँ, मुद्राएँ, तारीख़ें, टाइम ज़ोन, इकाइयाँ और सूचियाँ, साइट की हर भाषा में आपके ब्राउज़र के Intl से फ़ॉर्मैट की गईं।",
 					},
 				},
 			},
@@ -15682,7 +15682,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "Форматирование с учётом языка и региона средствами Intl вашего браузера: числа, валюты, даты, часовые пояса, единицы, списки и правила множественного числа на всех языках сайта.",
+						Text: "Числа, валюты, даты, часовые пояса, единицы и списки в форматировании Intl вашего браузера на каждом языке сайта.",
 					},
 				},
 			},
@@ -17101,7 +17101,7 @@ var pseudoCatalog = &i18n.Catalog{
 					Text: "⟦",
 				},
 				{
-					Text: "Ļóçáļé-áŵáŕé ƒóŕɱáţţíñĝ ƀý ýóúŕ ƀŕóŵšéŕ'š óŵñ Îñţļ: ñúɱƀéŕš, çúŕŕéñçíéš, ðáţéš, ţíɱé žóñéš, úñíţš, ļíšţš áñð þļúŕáļ ŕúļéš íñ éṽéŕý ļáñĝúáĝé ţĥé šíţé šĥíþš.·················································",
+					Text: "Ñúɱƀéŕš, çúŕŕéñçíéš, ðáţéš, ţíɱé žóñéš, úñíţš áñð ļíšţš, ƒóŕɱáţţéð ƀý ýóúŕ ƀŕóŵšéŕ'š óŵñ Îñţļ íñ éṽéŕý ļáñĝúáĝé ţĥé šíţé šĥíþš.········································",
 				},
 				{
 					Text: "⟧",
