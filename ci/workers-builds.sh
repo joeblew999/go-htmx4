@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Workers Builds (Cloudflare's GitHub app) runs this for every pushed branch except main:
-#   build command:  ci/workers-builds.sh build    (fetch the build GitHub CI made and tested for this commit)
+#   build command:  ci/workers-builds.sh build    (fetch the build GitHub CI made and tested for this commit;
+#                                                 compile here if it doesn't appear, or PREVIEW_BUILD=compile)
 #   deploy command: ci/workers-builds.sh deploy   (mise run preview <branch>: a Worker Preview, URL in the log)
 # Cloudflare compiles nothing: GitHub CI (ci/check.sh) builds once and publishes build/ + dist/site as
 # preview-builds/<commit>.tar.gz on this public repo's "preview-builds" pre-release. No secrets in GitHub.
@@ -26,17 +27,27 @@ mise config ls
 
 case "${1:-}" in
 build)
-  sha=${WORKERS_CI_COMMIT_SHA:?WORKERS_CI_COMMIT_SHA is not set (Workers Builds sets it)}
+  # Normal path: GitHub CI built and tested this commit; fetch that build (~2 MB) instead of compiling again.
+  # Fallback, the old way: compile here with TinyGo when that build doesn't appear (GitHub CI down or slow, a
+  # forked repo) or when the build variable PREVIEW_BUILD=compile asks for it.
+  sha=${WORKERS_CI_COMMIT_SHA:-}
   url="https://github.com/${PREVIEW_BUILDS_REPO:-joeblew999/go-htmx4}/releases/download/preview-builds/$sha.tar.gz"
-  # GitHub CI builds and tests this commit in ~3 minutes; wait for it (a failed check publishes nothing).
-  for i in $(seq 1 90); do
-    if curl -fsSL -o build.tar.gz "$url"; then break; fi
-    [ "$i" = 90 ] && { echo "✗ no build for $sha after 15 minutes: did GitHub CI (check) fail?"; exit 1; }
-    sleep 10
-  done
-  tar -xzf build.tar.gz && rm build.tar.gz
-  echo "✓ build for $sha from GitHub CI: $(wc -c <build/app.wasm | tr -d ' ')B wasm, $(find dist/site -type f | wc -l | tr -d ' ') assets"
-  mise install go   # the deploy tool (go run ./cmd/deploy)
+  fetched=
+  if [ "${PREVIEW_BUILD:-}" != compile ] && [ -n "$sha" ]; then
+    for i in $(seq 1 48); do   # 8 minutes; GitHub CI normally publishes in ~4
+      if curl -fsSL -o build.tar.gz "$url"; then fetched=1; break; fi
+      sleep 10
+    done
+  fi
+  if [ -n "$fetched" ]; then
+    tar -xzf build.tar.gz && rm build.tar.gz
+    echo "✓ build for $sha from GitHub CI: $(wc -c <build/app.wasm | tr -d ' ')B wasm, $(find dist/site -type f | wc -l | tr -d ' ') assets"
+    mise install go   # the deploy tool (go run ./cmd/deploy)
+  else
+    echo "· no GitHub CI build for ${sha:-this commit}${PREVIEW_BUILD:+ (PREVIEW_BUILD=$PREVIEW_BUILD)}: compiling here instead"
+    mise install go tinygo github:WebAssembly/binaryen github:tailwindlabs/tailwindcss
+    mise run build
+  fi
   ;;
 deploy)
   branch=${WORKERS_CI_BRANCH:?WORKERS_CI_BRANCH is not set (Workers Builds sets it)}
