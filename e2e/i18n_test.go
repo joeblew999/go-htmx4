@@ -51,10 +51,10 @@ func TestArabicDigitsAndMirroring(t *testing.T) {
 	check(t, "Arabic page is rtl", b.is(`document.documentElement.dir === "rtl" && getComputedStyle(document.querySelector("main")).direction === "rtl"`))
 	check(t, "native Arabic-Indic digits (numberingSystem arab)", b.waitJS(5*time.Second, `document.body.textContent.includes("١٬٢٣٤٬٥٦٧٫٨٩١")`))
 	check(t, "CLDR default digits for ar are Latin", b.is(`document.body.textContent.includes("1,234,567.891")`))
-	check(t, "table results align to the logical end", b.is(`(() => {
-		const cell = document.querySelector("tbody td:last-child");
-		const row = cell.closest("tr").getBoundingClientRect(), r = cell.getBoundingClientRect();
-		return getComputedStyle(cell).textAlign === "end" && r.left - row.left < 5;
+	check(t, "examples mirror: labels start at the right edge, results to their left", b.is(`(() => {
+		const row = document.querySelector("#numberformat li"), dt = row.querySelector("dt"), dd = row.querySelector("dd");
+		const r = row.getBoundingClientRect(), t = dt.getBoundingClientRect(), d = dd.getBoundingClientRect();
+		return getComputedStyle(row).direction === "rtl" && r.right - t.right < 40 && d.right <= t.left + 1;
 	})()`))
 	b.noProblems()
 }

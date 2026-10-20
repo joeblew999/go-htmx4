@@ -43,13 +43,13 @@
   `check`. Run it after UI, board or JS changes. Its write-limit test uses up the local write budget, so it runs last.
 - `mise run rename -- <module path> <app name>` turns the template into a new project; keep it working when you add
   files that mention the module path or the app name (it's verified by renaming a scratch clone and running `check`).
-- Dev loops: `dev:native` (~1 s per save, `go run`-style server, no Durable Objects, no Worker Intl: use for UI work)
-  and `dev` (`build:dev` + workerd, a TinyGo build per Go save: use for anything touching the board, D1, the Room,
-  the server's Intl or TinyGo behaviour). Both are `gsx dev`; the backend port comes from `APP_DEV_PORT`. Stopping
-  `gsx dev` can leave workerd running: stop it by PID. JS/CSS-only edits need no Go build: `mise run assets`, reload.
-- Builds: `build` is production (`-opt=z`, size-checked; deploy, staging, CI and the tests), `build:dev` is debug
-  (`-opt=0`, ~20% faster, never deployed). Both run `ci/tinygo-build.sh`; most of the time is TinyGo's asyncify pass,
-  so CPU cores matter more than the profile.
+- Dev loops: `dev:native` (~1 s per save, `go run`-style server, no Durable Objects, no Worker Intl) and `dev`
+  (`build:dev` + workerd, the real runtime, seconds per save: use it for anything touching the board, D1, the Room or
+  the server's Intl). Both are `gsx dev`; the backend port comes from `APP_DEV_PORT`. Stopping `gsx dev` can leave
+  workerd running: stop it by PID. JS/CSS-only edits need no Go build: `mise run assets`, reload.
+- Builds (`ci/wasm-build.sh`): `build` is production, TinyGo (small wasm, size-checked, ~1–2 min; deploy, staging,
+  CI and the tests). `build:dev` is the standard Go compiler to wasm (seconds after an edit, larger wasm, never
+  deployed). Check TinyGo-specific behaviour with `mise run check` before pushing: the tests use the production build.
 - List all tasks: `mise tasks`
 
 # UI (gsx + gsxui + htmx 4)

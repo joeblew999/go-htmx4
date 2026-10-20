@@ -71,7 +71,7 @@ echo "✓ dist/site: $(find dist/site -type f | wc -l | tr -d ' ') files, gsxui.
 
 ["build"]
 depends = ["vendor", "generate", "assets"]
-description = "Production TinyGo build → build/ (optimized for size; deploy, staging, CI and the tests use it)"
+description = "Production build → build/: TinyGo, small wasm, ~1–2 min (deploy, staging, CI and the tests use it)"
 dir = "{{config_root}}"
 # Skipped when no input changed since the last production build, so `check` then `e2e` (CI, ci/check.sh) builds once.
 # Inputs: every Go file (the generated *.x.go included), the module files, and mise.toml (a Go/TinyGo/workers-go pin
@@ -79,23 +79,23 @@ dir = "{{config_root}}"
 # production build; build:dev removes it, so a debug wasm is never skipped into a deploy.
 sources = ["**/*.go", "go.mod", "go.sum", "mise.toml"]
 outputs = ["build/app.wasm", "build/worker.mjs", "build/runtime.mjs", "build/wasm_exec.js", "build/.prod"]
-env = { TINYGO_PROFILE = "prod" }
-run = "ci/tinygo-build.sh"
+env = { WASM_PROFILE = "prod" }
+run = "ci/wasm-build.sh"
 
 ["build:dev"]
 depends = ["vendor", "generate", "assets"]
-description = "Debug TinyGo build → build/ (unoptimized: ~20% faster, larger wasm; mise run dev uses it, never deployed)"
+description = "Dev build → build/: standard Go to wasm, seconds after an edit (mise run dev uses it; never deployed)"
 dir = "{{config_root}}"
 sources = ["**/*.go", "go.mod", "go.sum", "mise.toml"]
 outputs = ["build/app.wasm", "build/worker.mjs", "build/runtime.mjs", "build/wasm_exec.js", "build/.dev"]
-env = { TINYGO_PROFILE = "dev" }
-run = "ci/tinygo-build.sh"
+env = { WASM_PROFILE = "dev" }
+run = "ci/wasm-build.sh"
 
 # The gsx CLI's dev loops (gsx.toml [dev]). Which one:
 #   dev:native  GUI, layout and text work: go build + the native server, seconds per save (memory store, no live
 #               pushes, no Worker Intl: the browser's intl.js formats the page).
-#   dev         Worker-only work (server Intl, Durable Objects, D1): build:dev + workerd, the real runtime; a TinyGo
-#               build per Go save (about a minute on a laptop, ~90 s on a 2-CPU machine).
+#   dev         The real runtime (server Intl, Durable Objects, D1, the board): build:dev (standard Go, seconds per
+#               save) + workerd.
 # JS and CSS edits (static/, worker/intl.mjs, web/gsxui) need no Go build: mise run assets, then reload.
 ["dev"]
 description = "gsx dev → TinyGo + CSS → workerd restart on every .gsx/.go save → http://localhost:8913"
