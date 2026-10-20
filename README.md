@@ -57,14 +57,14 @@ prompt: it installs `@latest`, not the pinned version.
 | `mise run deploy` | Test, then deploy to `https://$APP_NAME.<subdomain>.workers.dev` (credentials via fnox) |
 | `mise run smoke-remote` | Curl every route of the deployed Worker |
 | `mise run tail` | Live logs of the deployed Worker (requests, console output, exceptions), no wrangler |
-| `mise run preview <name>` | Deploy a [Worker Preview](https://developers.cloudflare.com/workers/previews/) (own URL and Durable Object storage, preview D1, noindex); CI does it for every PR as `pr-<n>` and comments the URL |
-| `mise run preview:delete <name>` | Delete a Worker Preview (CI does it when the PR closes) |
+| `mise run preview <name>` | Deploy a [Worker Preview](https://developers.cloudflare.com/workers/previews/) (own URL and Durable Object storage, preview D1, noindex); Workers Builds does it for every pushed branch |
+| `mise run preview:delete <name>` | Delete a Worker Preview |
 
 `mise tasks` lists everything. CI runs `mise run check` and `mise run e2e` on every push and pull request
 ([`ci/check.sh`](ci/check.sh), shell steps only, no JavaScript actions).
-Every pull request also gets a Cloudflare Worker Preview ([`ci/preview.sh`](ci/preview.sh)): deployed on each push, URL
-commented on the PR, e2e run against it, deleted on close. It needs the repository secrets `CLOUDFLARE_API_TOKEN`
-and `CLOUDFLARE_ACCOUNT_ID`.
+Every branch gets a Cloudflare Worker Preview through **Workers Builds** (Cloudflare's GitHub app): Cloudflare builds
+the pushed branch (`mise install`, `mise run build`) and deploys it with `mise run preview <branch>`. No secrets in
+GitHub; production deploys stay manual (`mise run deploy`).
 
 ## Stack
 

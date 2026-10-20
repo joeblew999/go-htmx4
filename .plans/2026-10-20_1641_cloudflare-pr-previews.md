@@ -88,3 +88,11 @@ URLs come back in `preview.urls` (stable per PR) and `deployment.urls` (per comm
   deployment happens in CI once the secrets exist, or with `mise run preview pr-test` on a machine with fnox.
 - **CI doesn't re-test:** `check.yml` tests every PR, so `ci/preview.sh` runs `mise run build` then
   `mise run --skip-deps preview`, then e2e against the preview URL. Without the secrets it says so and passes.
+- **Switched to Workers Builds (Gerard's standing preference; my first version used GitHub secrets, wrong).**
+  Cloudflare's GitHub app is installed on his repos. Configured through the Cloudflare connector (API, 2026-10-20):
+  repo connection joeblew999/go-htmx4, previews on (`migrate_to_previews` with our deploy command), previews build
+  `curl mise.run | sh && mise install && mise run build`, deploy `mise run --skip-deps preview "$WORKERS_CI_BRANCH"`,
+  `CLOUDFLARE_ACCOUNT_ID` as a build variable. The `main` (production) trigger only echoes: production deploys stay
+  manual until Gerard says otherwise. `.github/workflows/preview.yml` and `ci/preview.sh` removed.
+- **Build token:** reuses the account's existing `worker-go build token` (creating one needs an API token secret,
+  which the connector can't produce). Replace it with a go-htmx4 token from the dashboard if that matters.
