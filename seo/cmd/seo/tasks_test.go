@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"slices"
+	"strings"
 	"testing"
 
 	"github.com/joeblew999/go-htmx4/seo/mise"
@@ -31,6 +32,12 @@ func TestTasks(t *testing.T) {
 	for _, m := range regexp.MustCompile(`go tool seo (\w+)`).FindAllStringSubmatch(string(mise.Tasks), -1) {
 		if !slices.Contains(known, m[1]) {
 			t.Errorf("mise/tasks.toml runs seo %s, which it doesn't have", m[1])
+		}
+	}
+	// A task brings what it runs, so a fresh app needs only mise: each one that runs fnox pins it.
+	for _, task := range regexp.MustCompile(`(?m)^\["`).Split(string(mise.Tasks), -1)[1:] {
+		if strings.Contains(task, "fnox ") && !regexp.MustCompile(`(?m)^tools = \{[^}]*\bfnox = "`).MatchString(task) {
+			t.Errorf("task %.40s… runs fnox without tools = { fnox = … }", task)
 		}
 	}
 	path := filepath.Join(t.TempDir(), ".mise", "tasks", "seo.toml")
