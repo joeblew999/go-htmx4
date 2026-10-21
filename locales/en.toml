@@ -1,7 +1,8 @@
 # go-htmx4 UI strings: the source catalog. ICU MessageFormat 1 (plural, selectordinal, select, number).
-# Translations live next to it as <locale>.toml with the same keys; `mise run i18n:messages` generates the typed
-# accessors in this package (locales.For(ctx).HomeHeading(), …). Brand and technical names (gsx, htmx, D1,
-# Durable Objects, TinyGo, Workers) stay as they are in every language.
+# Translations live next to it as <locale>.toml with the same keys; `mise run intl` generates a typed constructor per
+# key in this package ({ locales.HomeHeading() } in markup, an intl.Msg). [gsxui] is the text gsxui components write
+# themselves (intl.toml gsxui). Brand and technical names (gsx, htmx, D1, Durable Objects, TinyGo, Workers) stay as
+# they are in every language.
 
 page_title = "{title} · go-htmx4"
 
@@ -134,8 +135,6 @@ description = "Numbers, currencies, dates, time zones, units and lists, formatte
 input = "Input"
 options = "Options"
 result = "Result"
-numbering = "numbers {system}"
-native = "native {system}"
 direction = "direction {dir}"
 numbers_title = "Numbers"
 numbers_description = "Intl.NumberFormat options, formatted by your browser."
@@ -177,11 +176,9 @@ try_text = "Some text"
 try_submit = "Format on the server"
 try_parsed = "Read back as"
 try_not_number = "That isn't a number in this language."
-try_no_runtime = "This needs the Worker's Intl: run the app under workerd (mise run dev)."
 try_graphemes = "Characters"
 try_words = "Words"
 try_sentences = "Sentences"
-try_sorted = "Words, sorted"
 dates_title = "Dates and times"
 dates_description = "Intl.DateTimeFormat: CLDR styles, skeletons, day periods, eras and hour cycles, all for the instant in the first column, in your time zone."
 zones_title = "Time zones"

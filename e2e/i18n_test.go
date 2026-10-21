@@ -110,11 +110,11 @@ func testMixedLocalePush(t *testing.T) {
 	check(t, "user text isolated with dir=auto", de.is(`[...document.querySelectorAll("#board [dir=auto]")].some(e => e.textContent.includes("مرحبا"))`))
 
 	// Relative times are worded by each browser in its page's language, and follow the instant: pretend the note is
-	// 5 minutes old (intl.js reformats on the attribute change).
-	const age = `document.querySelector("#board time[data-intl=relative]").setAttribute("datetime", new Date(Date.now() - 5 * 60 * 1000).toISOString())`
+	// 5 minutes old (intl-browser.mjs redoes it on the attribute change).
+	const age = `document.querySelector("#board time[data-intl=since]").setAttribute("datetime", new Date(Date.now() - 5 * 60 * 1000).toISOString())`
 	de.eval(age, nil)
 	ar.eval(age, nil)
-	rel := `(document.querySelector("#board time[data-intl=relative]")?.textContent ?? "")`
+	rel := `(document.querySelector("#board time[data-intl=since]")?.textContent ?? "")`
 	check(t, "German relative time", de.waitJS(5*time.Second, rel+` === "vor 5 Minuten"`), " ", de.str(rel))
 	check(t, "Arabic relative time", ar.waitJS(5*time.Second, rel+` === "قبل 5 دقائق"`), " ", ar.str(rel))
 	de.noProblems()

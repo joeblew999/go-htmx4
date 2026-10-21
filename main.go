@@ -3,7 +3,7 @@
 //
 // It runs on workerd locally (mise run dev on every save, mise run serve for the production build →
 // http://localhost:8913) and on Cloudflare. go test runs the handlers natively, with workerd's Intl
-// (internal/i18n/i18ntest).
+// (intl/intltest).
 //
 // Files in dist/site (static/, gsxui CSS, behaviours and fonts) are served by Workers Static Assets
 // before the Worker runs (locally: workerd's disk service, fronted by workerd/assets-first.mjs). Platform calls live
@@ -28,7 +28,7 @@ import (
 	"github.com/gsxhq/gsx"
 	"github.com/joeblew999/charter/go/lib/transport"
 	"github.com/joeblew999/go-htmx4/internal/httpx"
-	"github.com/joeblew999/go-htmx4/internal/i18n"
+	"github.com/joeblew999/go-htmx4/intl"
 	"github.com/joeblew999/go-htmx4/locales"
 	"github.com/joeblew999/go-htmx4/views"
 )
@@ -38,17 +38,17 @@ var (
 	components = []string{"badge", "button", "button-group", "card", "dialog", "empty", "field", "input", "item",
 		"label", "native-select", "separator", "switch", "tabs", "toast", "toaster"}
 	stack = []views.StackItem{
-		{Name: "gsx", Role: locales.Messages.AboutRolesGsx, URL: "https://gsxhq.github.io"},
-		{Name: "gsxui", Role: locales.Messages.AboutRolesGsxui, URL: "https://ui.gsxhq.dev"},
-		{Name: "htmx 4", Role: locales.Messages.AboutRolesHtmx, URL: "https://four.htmx.org"},
-		{Name: "hx-live", Role: locales.Messages.AboutRolesHxLive, URL: "https://four.htmx.org/extensions/hx-live/"},
-		{Name: "hx-ws", Role: locales.Messages.AboutRolesHxWs, URL: "https://four.htmx.org/extensions/hx-ws"},
-		{Name: "workers-go", Role: locales.Messages.AboutRolesWorkersGo, URL: "https://github.com/syumai/workers-go"},
-		{Name: "TinyGo", Role: locales.Messages.AboutRolesTinygo, URL: "https://tinygo.org"},
-		{Name: "Cloudflare D1", Role: locales.Messages.AboutRolesD1, URL: "https://developers.cloudflare.com/d1/"},
-		{Name: "Durable Objects", Role: locales.Messages.AboutRolesDurableObjects, URL: "https://developers.cloudflare.com/durable-objects/"},
-		{Name: "Tailwind CSS", Role: locales.Messages.AboutRolesTailwind, URL: "https://tailwindcss.com/docs/installation/tailwind-cli"},
-		{Name: "mise", Role: locales.Messages.AboutRolesMise, URL: "https://mise.jdx.dev"},
+		{Name: "gsx", Role: locales.AboutRolesGsx(), URL: "https://gsxhq.github.io"},
+		{Name: "gsxui", Role: locales.AboutRolesGsxui(), URL: "https://ui.gsxhq.dev"},
+		{Name: "htmx 4", Role: locales.AboutRolesHtmx(), URL: "https://four.htmx.org"},
+		{Name: "hx-live", Role: locales.AboutRolesHxLive(), URL: "https://four.htmx.org/extensions/hx-live/"},
+		{Name: "hx-ws", Role: locales.AboutRolesHxWs(), URL: "https://four.htmx.org/extensions/hx-ws"},
+		{Name: "workers-go", Role: locales.AboutRolesWorkersGo(), URL: "https://github.com/syumai/workers-go"},
+		{Name: "TinyGo", Role: locales.AboutRolesTinygo(), URL: "https://tinygo.org"},
+		{Name: "Cloudflare D1", Role: locales.AboutRolesD1(), URL: "https://developers.cloudflare.com/d1/"},
+		{Name: "Durable Objects", Role: locales.AboutRolesDurableObjects(), URL: "https://developers.cloudflare.com/durable-objects/"},
+		{Name: "Tailwind CSS", Role: locales.AboutRolesTailwind(), URL: "https://tailwindcss.com/docs/installation/tailwind-cli"},
+		{Name: "mise", Role: locales.AboutRolesMise(), URL: "https://mise.jdx.dev"},
 	}
 )
 
@@ -98,7 +98,7 @@ func (s *server) routes() http.Handler {
 		if !allow(w, r, http.MethodGet) {
 			return
 		}
-		req, _ := i18n.FromContext(r.Context())
+		req, _ := intl.FromContext(r.Context())
 		if req.Locale != locales.Shipped[0] {
 			http.NotFound(w, r) // one sitemap, at the root: it already lists every locale
 			return

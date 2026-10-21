@@ -1,0 +1,9 @@
+# intl.toml — the app's languages, for github.com/joeblew999/go-htmx4/intl (go tool intl, intltest; intl/README.md).
+# The languages it ships, as BCP 47 ids, the source (default, x-default) first.
+locales = ["en", "en-IN", "de", "fr", "es", "pt-BR", "pt-PT", "ar", "he", "ja", "zh-Hans", "zh-Hant", "hi", "ru"]
+# Their catalogs: <locale>.toml, ICU MessageFormat. go tool intl gen writes the Go package (intl_gen.go) and
+# intl-messages.mjs beside them.
+catalogs = "locales"
+# Where gsxui add vendors components: go tool intl gen writes the renderer for the text they write themselves
+# (i18n.T, "Close") to ui/i18n/intl_gen.go from the catalogs' [gsxui] messages, and names any it has no message for.
+gsxui = "ui"

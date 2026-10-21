@@ -1,4 +1,4 @@
-package msggen
+package gen
 
 import (
 	"fmt"

@@ -1,10 +1,10 @@
-package i18n
+package intl
 
 import "context"
 
 type ctxKey struct{}
 
-// Request is the request-scoped i18n state an app puts in the context: the resolved locale, the request
+// Request is the request-scoped state an app puts in the context: the resolved locale, the request
 // path without its locale prefix (so views can link the same page in another locale), and the viewer's
 // date and time preferences.
 type Request struct {
@@ -23,10 +23,19 @@ type Request struct {
 	HourCycle string
 }
 
-// WithRequest returns ctx carrying r. Middleware calls it once per request; gsx components read it
-// through the ambient ctx with [FromContext].
+// WithRequest returns ctx carrying r. The app's locale middleware calls it once per request; the renderers (Value,
+// Msg) and components read it through the render context with [FromContext].
 func WithRequest(ctx context.Context, r Request) context.Context {
 	return context.WithValue(ctx, ctxKey{}, r)
+}
+
+// Current is the request's locale: <html lang={ intl.Current(ctx).ID() } dir={ intl.Current(ctx).Dir() }>. A render
+// without a request is in the source locale.
+func Current(ctx context.Context) *Locale {
+	if r, ok := FromContext(ctx); ok {
+		return r.Locale
+	}
+	return Default()
 }
 
 // FromContext returns the request's i18n state; ok is false when none was set.

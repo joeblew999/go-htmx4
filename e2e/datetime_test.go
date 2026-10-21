@@ -8,7 +8,7 @@ import (
 	"github.com/chromedp/chromedp"
 )
 
-// testViewerTimeZone: dates follow the viewer. The browser formats them with its own Intl (static/intl.js) in its own
+// testViewerTimeZone: dates follow the viewer. The browser redoes them with its own Intl (intl-browser.mjs) in its own
 // zone; choosing a zone and clock in the header dialog stores them, and every page formats in them from then on.
 func testViewerTimeZone(t *testing.T) {
 	b := newTab(t, "browser")
@@ -21,8 +21,8 @@ func testViewerTimeZone(t *testing.T) {
 	ok := b.waitJS(5*time.Second, `(document.querySelector("#server-info time")?.textContent ?? "").includes("GMT+9")`)
 	text := b.str(`document.querySelector("#server-info time")?.textContent ?? ""`)
 	check(t, "the browser formats a time in its own zone", ok, " ", text)
-	check(t, "durations are formatted too", b.waitJS(5*time.Second, `/\bsec\b/.test(document.querySelector("#server-info data[data-intl=duration]")?.textContent ?? "")`),
-		" ", b.str(`document.querySelector("#server-info data[data-intl=duration]")?.textContent ?? ""`))
+	check(t, "durations are formatted too", b.waitJS(5*time.Second, `/\bsec\b/.test(document.querySelector("#server-info data[data-intl=DurationFormat]")?.textContent ?? "")`),
+		" ", b.str(`document.querySelector("#server-info data[data-intl=DurationFormat]")?.textContent ?? ""`))
 	b.run(chromedp.KeyEvent("\x1b"))
 
 	b.open("/formats")
@@ -32,8 +32,9 @@ func testViewerTimeZone(t *testing.T) {
 	kept := b.str(`(() => {
 		const el = document.createElement("time");
 		el.setAttribute("datetime", "2026-07-04T15:30:45Z");
-		el.dataset.intl = "datetime";
+		el.dataset.intl = "DateTimeFormat";
 		el.dataset.opts = '{"dateStyle":"bogus"}';
+		el.dataset.args = "[1783179045000]";
 		el.textContent = "2026-07-04 15:30 UTC";
 		document.body.append(el);
 		intl.update(el);

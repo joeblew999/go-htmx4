@@ -7,6 +7,10 @@ url_presets = ["htmx"]
 # gsxui components write their own text ("Close", "Notifications") as ui/i18n.T; translate it from the catalogs.
 [renderers]
 "github.com/joeblew999/go-htmx4/ui/i18n.T" = "github.com/joeblew999/go-htmx4/ui/i18n.Translate"
+# intl (intl/README.md): an Intl call or a translated message written in markup renders in the request's language.
+"github.com/joeblew999/go-htmx4/intl.Value" = "github.com/joeblew999/go-htmx4/intl.Render"
+"github.com/joeblew999/go-htmx4/intl.Msg" = "github.com/joeblew999/go-htmx4/intl.Translate"
+"github.com/joeblew999/go-htmx4/intl.Plain" = "github.com/joeblew999/go-htmx4/intl.PlainText"
 
 [url_attrs]
 names = ["hx-action", "hx-ws:connect"]

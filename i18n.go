@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/joeblew999/go-htmx4/internal/httpx"
-	"github.com/joeblew999/go-htmx4/internal/i18n"
+	"github.com/joeblew999/go-htmx4/intl"
 	"github.com/joeblew999/go-htmx4/locales"
 	"github.com/joeblew999/go-htmx4/views"
 )
@@ -25,13 +25,13 @@ import (
 const localeCookie = "locale"
 
 // Date and time preferences: the viewer's explicit choice (these cookies, set by POST /preferences, passed to the
-// browser as <html data-tz data-hc>) > the browser's own zone and the language's clock (static/intl.js).
+// browser as <html data-tz data-hc>) > the browser's own zone and the language's clock (intl-browser.mjs).
 const (
 	timeZoneCookie  = "tz" // an Intl time zone id
 	hourCycleCookie = "hc" // "h12" or "h23"
 )
 
-// preferences resolves the viewer's time zone and clock for i18n.Request. The browser formats dates (static/intl.js)
+// preferences resolves the viewer's time zone and clock for intl.Request. The browser redoes dates (intl-browser.mjs)
 // in the chosen zone, else its own; the connection's zone is only the server's guess, shown as "Automatic (…)".
 func preferences(r *http.Request) (tz string, chosen bool, hc string) {
 	if c, err := r.Cookie(hourCycleCookie); err == nil && (c.Value == "h12" || c.Value == "h23") {
@@ -47,7 +47,7 @@ func preferences(r *http.Request) (tz string, chosen bool, hc string) {
 }
 
 // withLocale resolves the request's locale from its URL prefix, strips the prefix, and puts
-// i18n.Request in the context for handlers and views.
+// intl.Request in the context for handlers and views.
 func withLocale(next http.Handler) http.Handler {
 	def := locales.Shipped[0]
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -101,11 +101,11 @@ func withLocale(next http.Handler) http.Handler {
 		w.Header().Set("Content-Language", ld.ID())
 		// A locale whose catalog isn't complete (locales/*.toml) shows some English: noindex, so an English page
 		// under /de/ isn't indexed as German or as a duplicate.
-		if !locales.Complete(ld.ID()) {
+		if !intl.Complete(ld.ID()) {
 			w.Header().Set("X-Robots-Tag", "noindex")
 		}
 		tz, chosen, hc := preferences(r)
-		r2 := r.Clone(i18n.WithRequest(r.Context(), i18n.Request{
+		r2 := r.Clone(intl.WithRequest(r.Context(), intl.Request{
 			Locale: loc, Path: pathWithQuery(path, r.URL.RawQuery), Origin: httpx.Origin(r),
 			TimeZone: tz, TimeZoneChosen: chosen, HourCycle: hc,
 		}))
@@ -158,14 +158,14 @@ func safeReturn(u string) string {
 }
 
 // localeByPrefix finds a shipped locale by URL segment or cookie value, case-insensitively.
-func localeByPrefix(seg string) *i18n.Locale {
+func localeByPrefix(seg string) *intl.Locale {
 	if seg == "" || len(seg) > 16 {
 		return nil
 	}
 	return locales.Shipped.Find(seg)
 }
 
-func remember(w http.ResponseWriter, r *http.Request, ld *i18n.Locale) {
+func remember(w http.ResponseWriter, r *http.Request, ld *intl.Locale) {
 	if c, err := r.Cookie(localeCookie); err == nil && c.Value == ld.ID() {
 		return
 	}

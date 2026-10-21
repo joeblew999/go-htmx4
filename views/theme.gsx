@@ -1,6 +1,7 @@
 package views
 
 import (
+	"github.com/joeblew999/go-htmx4/locales"
 	"github.com/joeblew999/go-htmx4/ui"
 	"github.com/joeblew999/go-htmx4/ui/icon"
 )
@@ -44,8 +45,8 @@ component ThemeToggle() {
 		size="icon-sm"
 		type="button"
 		data-site-theme-toggle
-		aria-label={M(ctx).NavToggleTheme()}
-		title={M(ctx).NavToggleTheme()}
+		aria-label={locales.NavToggleTheme()}
+		title={locales.NavToggleTheme()}
 	>
 		<icon.SunMoon/>
 	</ui.Button>

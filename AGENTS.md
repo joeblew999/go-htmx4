@@ -31,8 +31,9 @@ Binding. How the app works is in [docs/architecture.md](docs/architecture.md), h
 
 ## Generated files: never edit
 
-`*.x.go` (`go tool gsx generate`; not committed), `locales/*_msg_gen.go` and `worker/messages_gen.mjs`
-(`mise run i18n:messages`), `docs/commands.md` (`mise run docs:commands`), and what `gsxui` manages (`gsxui.json` lists it).
+`*.x.go` (`go tool gsx generate`; not committed, except `intl/render.x.go`: apps import intl as a Go package),
+`intl_gen.go` and `intl-messages.mjs` (`mise run intl`), `docs/commands.md` (`mise run docs:commands`), and what
+`gsxui` manages (`gsxui.json` lists it).
 
 ## UI: gsx, gsxui, htmx 4
 
@@ -51,20 +52,25 @@ Binding. How the app works is in [docs/architecture.md](docs/architecture.md), h
 
 ## Languages and search
 
-- **Intl is the one source of language.** Messages, plural forms, numbers, dates, locale names and direction all
-  come from `worker/intl.mjs` with the runtime's Intl; Go never decides them. Outside the Worker the only Intl is
-  workerd's: a test package that renders or formats anything has
-  `func TestMain(m *testing.M) { os.Exit(i18ntest.Main(m)) }` (`internal/i18n/i18ntest`).
-- No literal user-facing text in `views/` or handlers: `M(ctx).Key(args)` in views, `locales.For(r.Context())` in
-  handlers, from `locales/*.toml` (ICU MessageFormat; `en.toml` is the source). Messages use only `{n, number}` and
+- **Intl is the one source of language**, through `intl/` (its own module, for any gsx app: `intl/README.md`).
+  Messages, plural forms, numbers, dates, locale names and direction all come from `intl/js/intl.mjs` with the
+  runtime's Intl; Go never decides them. Outside the Worker the only Intl is workerd's: a test package that renders
+  or formats anything has `func TestMain(m *testing.M) { os.Exit(intltest.Main(m)) }`.
+- No literal user-facing text in `views/` or handlers: write the message in markup, `{ locales.Key(args) }` (an
+  `intl.Msg`, rendered by gsx in text and attributes), from `locales/*.toml` (ICU MessageFormat; `en.toml` is the
+  source). Our components take `intl.Msg`, not strings. `intl.Text(ctx, m)` only where a renderer can't reach: Go
+  code, a gsxui prop typed `string`, another message's argument. Messages use only `{n, number}` and
   `{n, number, integer}`. Brand names, code and machine values get `translate="no"`. `TestNoHardcodedText` checks.
 - A translation uses the source's arguments with the same kinds. `TestShippedLocalesComplete` keeps every shipped
-  locale complete; the locale list is `I18N_LOCALES` in `mise.toml`.
-- User text inside a message: `Isolate(Loc(ctx).Dir(), s)`; in its own element: `dir="auto"`.
+  locale complete; the locale list is `intl.toml`. Text arguments are bidi-isolated by the renderer; user text in
+  its own element gets `dir="auto"`.
+- gsxui components' own text (`i18n.T`) is the catalogs' `[gsxui]` table: after `gsxui add`, `mise run intl` names
+  every string that needs a message.
 - Every in-app `href`/`hx-*` URL goes through `URL(ctx, "/path")` (not `/static/`, `/assets/`, `/gsxui/`, `/live/`).
   Logical Tailwind classes only (`ms-`, `pe-`, `start-`, `text-end`, …) so RTL mirrors (`TestLogicalClasses`).
-- Dates and numbers for readers go through Intl, never `time.Format` or `strconv`: `LocalTime`, `RelativeTime`,
-  `Elapsed`, `IntlText` (`views/intl.gsx`), `Num`. How: `internal/i18n/doc.go`.
+- Dates and numbers for readers go through Intl, never `time.Format` or `strconv`: write the Intl call in markup,
+  `{ intl.Date(t, opts) }`, `{ intl.Since(t) }`, `{ intl.Int(n) }`, `{ intl.Of(api, method, opts, args…) }`
+  (`v.Plain()` in attributes). Every Intl API is reachable that way: add no Go formatting of our own.
 - A new page: a translated title and its own translated `description` key to `Layout`, an entry in
   `views.SitemapPages`. A query parameter that makes a different page goes in `pageKey`. Titles ≤ 60 and descriptions
   ≤ 160 wide (`TestSnippetWidths`).
@@ -85,9 +91,9 @@ Binding. How the app works is in [docs/architecture.md](docs/architecture.md), h
 - `cloudflare/*` packages import `syscall/js`: call them from `platform_js.go` with a `platform_other.go` twin.
   Cloudflare's request data is `transport.CFOf(r)`; workers-go's `fetch.NewIncomingProperties` panics under charter's
   runtime.
-- JS only in `worker/index.mjs` (entry), `worker/room.mjs` (Durable Object), `worker/intl.mjs` and
-  `worker/gointl.mjs` (Intl, and what Go calls of it) and `workerd/` (local shims). Keep it logic-free; logic stays in Go. The topic and locale rules are `internal/live`'s
-  (`TestWorkerJSMatchesLive`).
+- JS only in `worker/index.mjs` (entry), `worker/room.mjs` (Durable Object), `intl/js/` (Intl, and what Go calls of
+  it) and `workerd/` (local shims). Keep it logic-free; logic stays in Go. The topic and locale rules are
+  `internal/live`'s (`TestWorkerJSMatchesLive`).
 
 ## Cloudflare: outward-facing
 

@@ -9,6 +9,9 @@
 
 # gsx generated code (gsx Getting started: do not edit or commit)
 *.x.go
+# go tool intl gen output (mise run intl)
+intl_gen.go
+intl-messages.mjs
 # workers-assets-gen + tinygo output (mise run build)
 /build/
 # held while ci/wasm-build.sh writes build/
@@ -27,3 +30,5 @@
 
 # mise run bench:variants: the last run's results (ci/bench.sh render .bench writes docs/benchmarks.md from them)
 /.bench/
+# intl is a library other modules import: its renderer package is committed generated (gsx Package renderers)
+!/intl/*.x.go

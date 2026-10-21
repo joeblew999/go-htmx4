@@ -1,10 +1,10 @@
 //go:build js && wasm
 
-package i18n
+package intl
 
 import "syscall/js"
 
-// call calls goIntl[method] (worker/gointl.mjs, which worker/index.mjs puts on globalThis) with string arguments; ok is
+// call calls goIntl[method] (js/intl-worker.mjs, on globalThis) with string arguments; ok is
 // false when there is none or it throws.
 func call(method string, args ...string) (s string, ok bool) {
 	g := js.Global().Get("goIntl")

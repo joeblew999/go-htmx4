@@ -129,8 +129,8 @@ func TestStaticAssets(t *testing.T) {
 		"/static/htmx.min.js":                   "text/javascript",
 		"/static/hx-live.js":                    "text/javascript",
 		"/static/hx-ws.js":                      "text/javascript",
-		"/static/intl.js":                       "text/javascript",
-		"/static/intl-core.mjs":                 "text/javascript", // a module: anything else and the browser refuses it
+		"/static/intl-browser.mjs":              "text/javascript", // modules: anything else and the browser refuses them
+		"/static/intl.mjs":                      "text/javascript",
 		"/gsxui/index.js":                       "text/javascript",
 		"/assets/gsxui.css":                     "text/css",
 		"/assets/geist-latin-wght-normal.woff2": "font/woff2",
@@ -142,7 +142,7 @@ func TestStaticAssets(t *testing.T) {
 	}
 }
 
-// TestServerIntl: the Worker formats with its own V8 Intl (worker/intl.mjs via internal/i18n Format), so pages arrive
+// TestServerIntl: the Worker formats with its own V8 Intl (intl/js/intl.mjs, through package intl), so pages arrive
 // finished, and picks each message's plural form with Intl.PluralRules.
 func TestServerIntl(t *testing.T) {
 	de := get(t, "/de/formats").body
@@ -152,7 +152,7 @@ func TestServerIntl(t *testing.T) {
 	has(t, "numbers, the locale's own digits", get(t, "/ar/formats").body, "١٬٢٣٤٬٥٦٧٫٨٩١")
 	has(t, "zone names", get(t, "/formats").body, "11:30 AM Eastern Time")
 	has(t, "display names", get(t, "/ja/formats").body, "日本")
-	has(t, "plural rules", get(t, "/ru/formats").body, "2, 3, 4, 22, 23")
+	has(t, "plural rules", get(t, "/ru/formats").body, `&#34;pluralCategories&#34;:[&#34;one&#34;,&#34;few&#34;,&#34;many&#34;,&#34;other&#34;]`)
 	has(t, "round trip: 1.234,5 → 1234.5", post(t, "/de/formats/try", "number="+url.QueryEscape("1.234,5")+"&text=Hallo").body, "1234.5")
 	has(t, "chosen zone and clock reach the browser", get(t, "/formats", "tz=America/Los_Angeles", "hc=h23").body, `data-tz="America/Los_Angeles" data-hc="h23"`)
 	has(t, "chosen zone on the server", get(t, "/fragments/server-info", "tz=America/Los_Angeles").body, "PDT")
