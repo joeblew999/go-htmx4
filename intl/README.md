@@ -46,108 +46,82 @@ code:
 [mise](https://mise.jdx.dev) brings every tool: Go (from `go.mod`'s `toolchain`), gsx (a `go tool`), and
 [workerd](https://github.com/cloudflare/workerd), whose Intl the tooling and the tests run on.
 
-1. Add the module and its command:
+1. Add intl's command and set the app up, from the directory of its `go.mod`:
 
    ```sh
-   go get github.com/joeblew999/go-htmx4/intl
    go get -tool github.com/joeblew999/go-htmx4/intl/cmd/intl
+   go tool intl init -locales en,de,ar
    ```
 
-2. Write intl's mise tasks into the app:
+   `init` writes:
+   - `intl.toml`, the source catalog and a catalog per language;
+   - intl's filters and renderers into `gsx.toml`;
+   - the generated files into `.gitignore`;
+   - intl's mise tasks to `.mise/tasks/intl.toml`, where mise finds them with no configuration
+     ([Task discovery](https://mise.jdx.dev/tasks/task-discovery.html));
+   - the `intl-translate` skill into `.claude/skills`.
 
-   ```sh
-   go tool intl tasks   # .mise/tasks/intl.toml, from the intl version in go.mod
-   ```
+   It picks up gsxui from `gsxui.json`, and then compiles the catalogs. Running it again leaves what is there
+   alone. After upgrading intl, `mise run intl:tasks` and `mise run intl:skill` write those two again, and
+   `intl:check` says when they're out of date.
 
-   mise finds it in its default task directory, with no configuration
-   ([Task discovery](https://mise.jdx.dev/tasks/task-discovery.html)). If your `mise.toml` sets
-   `task_config.includes`, add `".mise/tasks"` to it. After upgrading intl, `mise run intl:tasks` writes it again;
-   `intl:check` says when it is out of date. Commit it.
-
-3. Name the languages in `intl.toml` at the module root, the source first:
-
-   ```toml
-   locales = ["en", "de", "ar"]
-   catalogs = "locales"   # locales/<locale>.toml; go tool intl gen writes the Go package there
-   gsxui = "ui"           # optional: where gsxui add vendors components
-
-   [notes]                # optional: guidance for translators, people and Claude
-   "*" = "A shop. Keep brand names in English."
-   de = "Address the reader as Sie."
-   ```
-
-4. Write the source catalog. A comment above a key or its table tells translators where the text appears:
-
-   ```toml
-   # locales/en.toml
-   page_title = "{title} · My shop"
-
-   # The order page.
-   [order]
-   # Under the order's items; n is how many.
-   items = "{n, plural, one {# item} other {# items}}"
-
-   [gsxui]
-   close = "Close"
-   ```
-
-5. Register intl in `gsx.toml`:
-
-   ```toml
-   filter_packages = ["github.com/joeblew999/go-htmx4/intl/filters"]
-
-   [renderers]
-   "github.com/joeblew999/go-htmx4/intl.Msg" = "github.com/joeblew999/go-htmx4/intl.Translate"
-   "github.com/joeblew999/go-htmx4/intl.Value" = "github.com/joeblew999/go-htmx4/intl.Render"
-   "github.com/joeblew999/go-htmx4/intl.Plain" = "github.com/joeblew999/go-htmx4/intl.PlainText"
-   "example.com/app/ui/i18n.T" = "example.com/app/ui/i18n.Translate"   # with gsxui
-   ```
-
-6. Run `mise run intl` before `gsx generate` (make your generate task depend on it). It writes, beside the
-   catalogs, the `locales` package (`intl_gen.go`), the catalogs the formatter reads (`intl-messages.mjs`), and
-   `intl.sum`. With `gsxui` set, it also writes `ui/i18n/intl_gen.go`. Commit `intl.sum`; the others are generated
-   output.
-
-7. Put the request's language in the context, in middleware:
+2. Serve every request through `intl.Site`. It handles the locale URLs (`/about`, `/de/about`), the locale cookie,
+   `Content-Language`, noindex while a catalog is incomplete, and the viewer's time zone and clock:
 
    ```go
-   ctx := intl.WithRequest(r.Context(), intl.Request{
-   	Locale:   locales.Shipped.Find("de"), // from the URL, a cookie, Accept-Language
-   	TimeZone: "Europe/Berlin",            // the viewer's choice, else the connection's guess
-   })
+   site := intl.Site{
+   	IsPage:             func(path string) bool { return !strings.HasPrefix(path, "/api/") },
+   	ConnectionTimeZone: func(r *http.Request) string { return transport.CFOf(r).Timezone }, // Cloudflare's guess
+   }
+   mux.HandleFunc("POST /preferences", site.Preferences) // tz, hc, return: the viewer's choice
+   http.ListenAndServe(addr, site.Handler(mux))
    ```
 
-   `intl.Current(ctx)` is that locale: `<html lang={ intl.Current(ctx).ID() } dir={ intl.Current(ctx).Dir() }>`.
+3. In the layout:
 
-8. Wire the Worker and the page. `go tool intl assets` copies the JavaScript (embedded in the module) where they
-   load it:
+   ```gsx
+   <html { intl.HTML(ctx)... }>                  // lang, dir, and the viewer's data-tz / data-hc
+   <head>
+   	<intl.Head page="/about"/>                 // canonical, hreflang alternates, og:url, og:locale
+   	<script type="module" src="/static/intl-browser.mjs"></script>
+   ```
+
+   The browser redoes each `[data-intl]` element in the viewer's zone and clock, keeps `since` fresh, and redoes what
+   htmx swaps in. A language list is `intl.Links(ctx)` (each locale's name in its own language, and the page's URL
+   in it); `intl.Sitemap(origin, pages)` is a sitemap.xml with every alternate.
+
+4. Wire the Worker: its entry module puts intl's formatter where Go calls it, and the build copies the JavaScript
+   (embedded in the module):
+
+   ```js
+   import { goIntl } from "./build/intl-worker.mjs";
+   globalThis.goIntl = goIntl;
+   ```
 
    ```sh
    go tool intl assets -worker build -browser dist/static
    ```
 
-   ```js
-   // the Worker's entry module, before Go runs
-   import { goIntl } from "./build/intl-worker.mjs";
-   globalThis.goIntl = goIntl;
-   ```
-
-   ```gsx
-   <html lang={ intl.Current(ctx).ID() } data-tz={ chosenZone } data-hc={ chosenClock }>
-   <script type="module" src="/static/intl-browser.mjs"></script>
-   ```
-
-   The browser redoes each `[data-intl]` element in the viewer's zone (or `<html data-tz>`) and clock
-   (`data-hc`), keeps `since` fresh, and redoes what htmx swaps in.
-
-9. Test with workerd's Intl, in every package that renders:
+5. Test with workerd's Intl, in every package that renders:
 
    ```go
    func TestMain(m *testing.M) { os.Exit(intltest.Main(m)) }
    ```
 
-10. For translating with Claude Code: `mise run intl:skill` installs the `intl-translate` skill into
-    `.claude/skills`. Commit it.
+6. Day to day: `mise run intl` before `gsx generate` (make your generate task depend on it), and
+   `mise run intl:check` in CI.
+
+`intl.toml` holds the languages, where the catalogs are, and notes for translators:
+
+```toml
+locales = ["en", "de", "ar"]   # the source first
+catalogs = "locales"
+gsxui = "ui"
+
+[notes]
+"*" = "A shop. Keep brand names in English."
+de = "Address the reader as Sie."
+```
 
 ## In markup
 
@@ -165,6 +139,7 @@ code:
 | `title={ v \|> plain }` | a Value's text alone: attributes take no markup |
 | `title={ locales.Key \|> text }` | a message's text, for a component input typed `string` (gsxui's `Toast title`) |
 | `<option { v.Attrs()... }>{ v \|> plain }</option>` | an element that can't hold the Value's own, still redone by the browser |
+| `href={ "/about" \|> localize }`, `hx-post={ f`/cart/add?id=@{id}` \|> localize }` | an in-app path in the request's locale: `/de/about` |
 
 Options are an Intl options object as JSON. Results that aren't strings (`resolvedOptions`, `select`, `compare`,
 `segment`) render as JSON. In Go, the same values are `intl.Date(t, opts)`, `intl.Of(api, method, opts, args…)`
@@ -226,14 +201,15 @@ Each one is a `go tool intl` command, so they also run without mise.
 
 | Path | What |
 |---|---|
-| `*.go`, `render.gsx` | the package: `Msg`, `Value`, `Locale`, `Request`, the renderers |
-| `render.x.go` | `render.gsx` generated, committed: apps import it as a Go package |
+| `*.go`, `render.gsx`, `head.gsx` | the package: `Msg`, `Value`, `Locale`, `Request`, the renderers, `Site` (URLs, preferences, SEO), `Head` |
+| `*.x.go` | `render.gsx` and `head.gsx` generated, committed: apps import intl as a Go package |
 | `filters/` | the gsx filters |
 | `js/intl.mjs` | the formatter, in the Worker and the browser |
 | `js/intl-worker.mjs`, `js/intl-browser.mjs` | what Go calls; what redoes `[data-intl]` in the browser |
 | `catalog/` | the catalogs: read, checked, compiled, what is left, intl.sum, XLIFF |
 | `cmd/intl/` | `go tool intl` |
 | `config/` | `intl.toml` |
+| `setup/` | `go tool intl init` |
 | `intltest/` | workerd's Intl for `go test` and the tooling |
 | `skills/intl-translate/` | the agent skill |
 | `mise/tasks.toml` | the mise tasks |

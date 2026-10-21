@@ -29,30 +29,17 @@ import (
 // boosted swap keeps the old <html lang dir>.
 component Layout(title intl.Msg, description intl.Msg, path string, children gsx.Node) {
 	<!DOCTYPE html>
-	<html
-		lang={intl.Current(ctx).ID()}
-		dir={intl.Current(ctx).Dir()}
-		data-tz={ChosenTimeZone(ctx)}
-		data-hc={HourCycle(ctx)}
-	>
+	<html { intl.HTML(ctx)... }>
 		<head>
 			<meta charset="utf-8"/>
 			<meta name="viewport" content="width=device-width, initial-scale=1"/>
 			<title>{ pageTitle(ctx, title) }</title>
 			<meta name="description" content={description}/>
-			<link rel="canonical" href={CanonicalURL(ctx)}/>
-			{ for _, a := range Alternates(ctx) {
-				<link rel="alternate" hreflang={a.Lang} href={a.Href}/>
-			} }
+			<intl.Head page={pageKey(ctx)}/>
 			<meta property="og:type" content="website"/>
 			<meta property="og:site_name" content="go-htmx4"/>
 			<meta property="og:title" content={pageTitle(ctx, title)}/>
 			<meta property="og:description" content={description}/>
-			<meta property="og:url" content={CanonicalURL(ctx)}/>
-			<meta property="og:locale" content={OGLocale(intl.Current(ctx))}/>
-			{ for _, l := range OGLocaleAlternates(ctx) {
-				<meta property="og:locale:alternate" content={l}/>
-			} }
 			<ThemeScript/>
 			<link rel="stylesheet" href="/assets/gsxui.css"/>
 			<meta name="htmx-config" content="ws.reconnectDelay:2s ws.reconnectJitter:0.5"/>
@@ -70,15 +57,15 @@ component Layout(title intl.Msg, description intl.Msg, path string, children gsx
 					hx-boost:inherited="true"
 					hx-swap:inherited="outerMorph transition:true"
 				>
-					<a href={URL(ctx, "/")} class="me-auto font-semibold" translate="no">go-htmx4</a>
-					<ui.Button variant={navVariant(path, "/")} size="sm" href={URL(ctx, "/")}>{ locales.NavHome }</ui.Button>
-					<ui.Button variant={navVariant(path, "/board")} size="sm" href={URL(ctx, "/board")}>
+					<a href={"/" |> localize} class="me-auto font-semibold" translate="no">go-htmx4</a>
+					<ui.Button variant={navVariant(path, "/")} size="sm" href={"/" |> localize}>{ locales.NavHome }</ui.Button>
+					<ui.Button variant={navVariant(path, "/board")} size="sm" href={"/board" |> localize}>
 						{ locales.NavBoard }
 					</ui.Button>
-					<ui.Button variant={navVariant(path, "/formats")} size="sm" href={URL(ctx, "/formats")}>
+					<ui.Button variant={navVariant(path, "/formats")} size="sm" href={"/formats" |> localize}>
 						{ locales.NavFormats }
 					</ui.Button>
-					<ui.Button variant={navVariant(path, "/about")} size="sm" href={URL(ctx, "/about")}>
+					<ui.Button variant={navVariant(path, "/about")} size="sm" href={"/about" |> localize}>
 						{ locales.NavAbout }
 					</ui.Button>
 					<ui.Button
@@ -108,9 +95,9 @@ component LanguageFooter() {
 	<footer id="languages" class="border-t">
 		<nav aria-label={locales.NavLanguages} class="mx-auto flex max-w-3xl flex-wrap items-center gap-1 p-4">
 			<icon.Languages class="me-1 size-4 text-muted-foreground"/>
-			{ for _, l := range LocaleLinks(ctx) {
+			{ for _, l := range intl.Links(ctx) {
 				<ui.Button
-					variant={navVariant(l.Href, LocaleLinkHref(ctx))}
+					variant={activeVariant(l.Current)}
 					size="sm"
 					href={l.Href}
 					hreflang={l.Lang}

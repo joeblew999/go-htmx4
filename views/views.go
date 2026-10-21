@@ -50,8 +50,11 @@ type ServerInfo struct {
 }
 
 // navVariant highlights the current page's header button (as gsxui's site layout does).
-func navVariant(path, href string) string {
-	if path == href {
+func navVariant(path, href string) string { return activeVariant(path == href) }
+
+// activeVariant is a nav button's gsxui variant: secondary for the current page, else ghost.
+func activeVariant(active bool) string {
+	if active {
 		return "secondary"
 	}
 	return "ghost"

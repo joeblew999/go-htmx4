@@ -19,7 +19,7 @@ component PreferencesDialog() {
 			aria-expanded="false"
 			aria-label={locales.NavPreferences}
 			title={locales.NavPreferences}
-			hx-get={URL(ctx, "/fragments/preferences")}
+			hx-get={"/fragments/preferences" |> localize}
 			hx-target="#preferences"
 			hx-swap="innerHTML"
 		>
@@ -40,7 +40,7 @@ component PreferencesDialog() {
 // filled in by intl-browser.mjs), each named in the page's language; without JavaScript it offers automatic and the
 // current choice. The clock options are labelled by an example time in each clock, redone by intl-browser.mjs.
 component PreferencesForm(returnTo string, connectionZone string) {
-	<form method="post" action={URL(ctx, "/preferences")} class="flex flex-col gap-4">
+	<form method="post" action={"/preferences" |> localize} class="flex flex-col gap-4">
 		<input type="hidden" name="return" value={returnTo}/>
 		<ui.FieldGroup>
 			<ui.Field>
@@ -48,15 +48,19 @@ component PreferencesForm(returnTo string, connectionZone string) {
 				<ui.NativeSelect id="pref-tz" name="tz" class="w-full" data-intl-zones>
 					<ui.NativeSelectOption
 						value=""
-						selected={!TimeZoneChosen(ctx)}
+						selected={intl.ChosenTimeZone(ctx) == ""}
 						data-intl="browser-zone"
 						data-template={locales.PreferencesTimeZoneAuto(slot)}
 					>
 						{ locales.PreferencesTimeZoneAuto(connectionZone) }
 					</ui.NativeSelectOption>
-					{ if TimeZoneChosen(ctx) {
-						<ui.NativeSelectOption value={TimeZone(ctx)} selected={true} { intl.Zone(TimeZone(ctx)).Attrs()... }>
-							{ TimeZone(ctx) |> zone |> plain }
+					{ if intl.ChosenTimeZone(ctx) != "" {
+						<ui.NativeSelectOption
+							value={intl.TimeZone(ctx)}
+							selected={true}
+							{ intl.Zone(intl.TimeZone(ctx)).Attrs()... }
+						>
+							{ intl.TimeZone(ctx) |> zone |> plain }
 						</ui.NativeSelectOption>
 					} }
 				</ui.NativeSelect>
@@ -66,7 +70,7 @@ component PreferencesForm(returnTo string, connectionZone string) {
 				<ui.NativeSelect id="pref-hc" name="hc" class="w-full">
 					<ui.NativeSelectOption
 						value=""
-						selected={HourCycle(ctx) == ""}
+						selected={intl.HourCycle(ctx) == ""}
 						{ clockExample(`,"viewerClock":false`).Attrs()... }
 						data-template={locales.PreferencesHourCycleAuto(slot)}
 					>
@@ -74,14 +78,14 @@ component PreferencesForm(returnTo string, connectionZone string) {
 					</ui.NativeSelectOption>
 					<ui.NativeSelectOption
 						value="h12"
-						selected={HourCycle(ctx) == "h12"}
+						selected={intl.HourCycle(ctx) == "h12"}
 						{ clockExample(`,"hourCycle":"h12"`).Attrs()... }
 					>
 						{ clockExample(`,"hourCycle":"h12"`) |> plain }
 					</ui.NativeSelectOption>
 					<ui.NativeSelectOption
 						value="h23"
-						selected={HourCycle(ctx) == "h23"}
+						selected={intl.HourCycle(ctx) == "h23"}
 						{ clockExample(`,"hourCycle":"h23"`).Attrs()... }
 					>
 						{ clockExample(`,"hourCycle":"h23"`) |> plain }

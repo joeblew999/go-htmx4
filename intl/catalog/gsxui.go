@@ -89,7 +89,7 @@ func (p *Project) writeGsxui() error {
 	} else if len(problems) > 0 {
 		return errors.New("intl: gsxui text without a message:\n  " + strings.Join(problems, "\n  "))
 	}
-	pkg, err := importPath(p.Config.CatalogDir())
+	pkg, err := PackagePath(p.Config.CatalogDir())
 	if err != nil {
 		return err
 	}
@@ -124,8 +124,8 @@ func snake(s string) string {
 	return b.String()
 }
 
-// importPath is dir's Go import path, from the module path in the nearest go.mod above it.
-func importPath(dir string) (string, error) {
+// PackagePath is dir's Go import path, from the module path in the nearest go.mod at or above it.
+func PackagePath(dir string) (string, error) {
 	for root := dir; ; {
 		b, err := os.ReadFile(filepath.Join(root, "go.mod"))
 		if err == nil {

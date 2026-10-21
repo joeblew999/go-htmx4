@@ -136,7 +136,7 @@ func change(w http.ResponseWriter, r *http.Request, topic string, write func(sto
 	if err := publish(topic, b.Version, fragments); err != nil {
 		log.Printf("publish %s v%d: %v", topic, b.Version, err)
 	}
-	httpx.WriteHTML(w, []byte(fragments.Fragments[views.LocaleKey(intl.Current(r.Context()))]))
+	httpx.WriteHTML(w, []byte(fragments.Fragments[intl.Key(intl.Current(r.Context()))]))
 }
 
 // topicOf reads ?topic= (default "lobby") and checks it with live.ValidTopic, the rule worker/index.mjs
@@ -170,10 +170,10 @@ func renderBoard(ctx context.Context, b Board) string {
 // renderBoardLocales renders the board once per shipped locale: the Room sends each browser the fragment
 // in its page's locale, and the poster gets its own from the same set.
 func renderBoardLocales(ctx context.Context, b Board) live.Localized {
-	out := live.Localized{Default: views.LocaleKey(locales.Shipped[0]), Fragments: map[string]string{}}
+	out := live.Localized{Default: intl.Key(locales.Shipped[0]), Fragments: map[string]string{}}
 	for _, ld := range locales.Shipped {
 		lctx := intl.WithRequest(ctx, intl.Request{Locale: ld, Path: "/board"})
-		out.Fragments[views.LocaleKey(ld)] = renderBoard(lctx, b)
+		out.Fragments[intl.Key(ld)] = renderBoard(lctx, b)
 	}
 	return out
 }

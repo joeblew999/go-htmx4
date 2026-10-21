@@ -41,7 +41,7 @@ component BoardPage(topic string, b Board, live bool) {
 			</ui.CardHeader>
 			<ui.CardContent>
 				{ if live {
-					<div hx-ws:connect=f`/live/@{topic}?locale=@{LocaleKey(intl.Current(ctx))}` hx-swap="none">
+					<div hx-ws:connect=f`/live/@{topic}?locale=@{intl.Key(intl.Current(ctx))}` hx-swap="none">
 						<boardSection b={b}/>
 					</div>
 				} else {
@@ -55,7 +55,7 @@ component BoardPage(topic string, b Board, live bool) {
 						variant="outline"
 						size="icon"
 						aria-label={locales.BoardDecrement}
-						hx-post={URL(ctx, "/board/add?topic="+topic+"&delta=-1")}
+						hx-post={f`/board/add?topic=@{topic}&delta=-1` |> localize}
 						hx-swap="none"
 					>
 						<icon.Minus/>
@@ -65,14 +65,14 @@ component BoardPage(topic string, b Board, live bool) {
 						variant="outline"
 						size="icon"
 						aria-label={locales.BoardIncrement}
-						hx-post={URL(ctx, "/board/add?topic="+topic+"&delta=1")}
+						hx-post={f`/board/add?topic=@{topic}&delta=1` |> localize}
 						hx-swap="none"
 					>
 						<icon.Plus/>
 					</ui.Button>
 				</ui.ButtonGroup>
 				<form
-					hx-post={URL(ctx, "/board/note?topic="+topic)}
+					hx-post={f`/board/note?topic=@{topic}` |> localize}
 					hx-swap="none"
 					hx-on:htmx:after:request=js`this.reset()`
 					class="flex min-w-0 flex-1 gap-2"
