@@ -1,4 +1,4 @@
-package seo_test
+package searchconsole_test
 
 import (
 	"context"
@@ -17,7 +17,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/joeblew999/go-htmx4/seo"
+	"github.com/joeblew999/go-htmx4/seo/searchconsole"
 )
 
 // fakeGoogle is a token endpoint that verifies the JWT assertion's RS256 signature, plus the Search Console endpoints.
@@ -40,7 +40,7 @@ func fakeGoogle(t *testing.T, pub *rsa.PublicKey) (*httptest.Server, *[]string) 
 		claims, _ := base64.RawURLEncoding.DecodeString(parts[1])
 		var c map[string]any
 		json.Unmarshal(claims, &c)
-		if c["iss"] != "sa@proj.iam.gserviceaccount.com" || c["scope"] != seo.Scope {
+		if c["iss"] != "sa@proj.iam.gserviceaccount.com" || c["scope"] != searchconsole.Scope {
 			http.Error(w, `{"error_description":"bad claims"}`, 400)
 			return
 		}
@@ -85,16 +85,16 @@ func TestSearchConsole(t *testing.T) {
 		"private_key":  string(pem.EncodeToMemory(&pem.Block{Type: "PRIVATE KEY", Bytes: der})),
 		"token_uri":    srv.URL + "/token",
 	})
-	key, err := seo.ParseKey(keyJSON)
+	key, err := searchconsole.ParseKey(keyJSON)
 	if err != nil {
 		t.Fatal(err)
 	}
 	ctx := context.Background()
-	tok, err := key.Token(ctx, srv.Client(), seo.Scope)
+	tok, err := key.Token(ctx, srv.Client(), searchconsole.Scope)
 	if err != nil || tok != "tok" {
 		t.Fatalf("Token = %q, %v", tok, err)
 	}
-	c := &seo.Client{HTTP: srv.Client(), Token: tok, Site: "sc-domain:example.com",
+	c := &searchconsole.Client{HTTP: srv.Client(), Token: tok, Site: "sc-domain:example.com",
 		WebmastersBase: srv.URL + "/webmasters/v3", SearchConsoleBase: srv.URL + "/v1"}
 
 	sites, err := c.Sites(ctx)
@@ -118,16 +118,8 @@ func TestSearchConsole(t *testing.T) {
 		t.Errorf("calls = %q", *calls)
 	}
 
-	bad := &seo.Client{HTTP: srv.Client(), Token: "nope", WebmastersBase: srv.URL + "/webmasters/v3"}
+	bad := &searchconsole.Client{HTTP: srv.Client(), Token: "nope", WebmastersBase: srv.URL + "/webmasters/v3"}
 	if _, err := bad.Sites(ctx); err == nil || !strings.Contains(err.Error(), "unauthenticated") {
 		t.Errorf("bad token: %v", err)
-	}
-}
-
-func TestSnippetWidth(t *testing.T) {
-	for s, want := range map[string]int{"": 0, "Home": 4, "Café": 4, "ホーム": 6, "服务器，": 8, "gsx 组件": 8, "مكونات": 6} {
-		if got := seo.SnippetWidth(s); got != want {
-			t.Errorf("SnippetWidth(%q) = %d, want %d", s, got, want)
-		}
 	}
 }

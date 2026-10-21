@@ -47,7 +47,7 @@ func TestBoard(t *testing.T) {
 	}
 
 	expect(do("GET", "/board?topic=t-page", ""), http.StatusOK,
-		`hx-ws:connect="/live/t-page?locale=en"`, `src="/static/hx-ws.js"`, `id="board"`, `data-version="0"`,
+		`hx-ws:connect="/live/t-page?locale=en"`, `src="/static/htmx.js"`, `id="board"`, `data-version="0"`,
 		`hx-post="/board/add?topic=t-page&amp;delta=1"`, `htmx:before:swap`, `id="presence"`)
 	expect(do("GET", "/board", ""), http.StatusOK, `hx-ws:connect="/live/lobby?locale=en"`, `<section id="board" data-version="`)
 	// The page's #board must not be out-of-band: a boosted navigation would drop it.

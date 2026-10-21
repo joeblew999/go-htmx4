@@ -61,7 +61,8 @@ served `noindex`.
   locale with `hreflang` alternates.
 - Every page has a translated title and description, a canonical URL, reciprocal `hreflang` with `x-default`, and Open
   Graph tags. Fragments, `/healthz`, form posts and previews send `X-Robots-Tag: noindex`.
-- The Worker's `*.workers.dev` URL redirects to the custom domain (`app/host.go`), so one host is indexed.
+- Every page has one address: the Worker's `*.workers.dev` URL and plain http redirect to `https://` the custom domain
+  (`seo.Site` in `app/site.go`), so one host is indexed.
 - `mise run deploy` then audits robots.txt and every sitemap URL live as Googlebot (`seo:audit`);
   `seo:todo` gives Google's verdict per URL. Both come from `seo/`, this repo's own module for
   Google Search Console (its README).
@@ -71,7 +72,7 @@ served `noindex`.
 ```
 .
 ├── main.go                                      the entry point: transport.Run(app.Handler())
-├── app/                                         server.go (routes), board.go + stores, locale.go, seo.go, host.go,
+├── app/                                         server.go (routes), board.go + stores, site.go (intl.Site, seo.Site),
 │                                                Cloudflare-only calls (platform_js.go) and their twins
 ├── views/  ui/  web/gsxui/  web/htmx/           pages (gsx), gsxui components and behaviours, vendored htmx
 ├── intl/  intl.toml                             Intl for gsx (its own module); the app's languages

@@ -464,7 +464,7 @@ component ShapeDemos() {
 		</ui.ResizablePanelGroup>
 		<ui.AspectRatio
 			ratio="16 / 9"
-			class="flex items-center justify-center rounded-lg border bg-muted text-sm text-muted-foreground"
+			class="flex items-center justify-center rounded-lg border bg-muted text-sm text-foreground"
 		>
 			{ locales.ComponentsAspectLabel(1920, 1080) }
 		</ui.AspectRatio>
@@ -547,8 +547,11 @@ component SelectDemo() {
 component CommandDemo() {
 	<Demo name="ui.Command · ui.DropdownMenu" about={locales.ComponentsCommandAbout} wide={false}>
 		<ui.Command class="rounded-lg border">
-			<ui.CommandInput placeholder={locales.ComponentsCommandPlaceholder |> text}/>
-			<ui.CommandList class="max-h-56">
+			<ui.CommandInput
+				placeholder={locales.ComponentsCommandPlaceholder |> text}
+				aria-controls="components-command-list"
+			/>
+			<ui.CommandList id="components-command-list" aria-label={locales.ComponentsCommandResults} class="max-h-56">
 				<ui.CommandEmpty>{ locales.ComponentsCommandEmpty }</ui.CommandEmpty>
 				<ui.CommandGroup heading={locales.ComponentsCommandLanguages |> text}>
 					{ for _, l := range intl.Links(ctx) {

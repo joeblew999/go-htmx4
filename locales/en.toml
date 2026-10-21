@@ -17,7 +17,6 @@ toggle_theme = "Toggle theme"
 preferences = "Time zone and clock"
 
 [home]
-title = "Home"
 heading = "Go + htmx 4 + gsxui on Cloudflare Workers"
 intro = "Server-rendered gsx components, htmx 4 for requests, hx-live for local state, D1 and Durable Objects for live updates. Go compiled with TinyGo. No Node, no bundler."
 description = "Server-rendered gsx components with htmx 4, hx-live, D1 and Durable Objects for live updates. Go compiled with TinyGo. No Node, no bundler."
@@ -102,6 +101,13 @@ empty_title = "No notes yet"
 empty_description = "Leave one below. Every open tab sees it instantly."
 slow_title = "Slow down"
 slow_description = "Too many changes from your connection. Try again in a few seconds."
+# Below the board: how it works, a heading and five steps.
+how_title = "How the board works"
+how_write = "Each change is a form post to a Go handler on the Worker. It writes to D1, Cloudflare's SQLite database and the board's only source of truth, and raises the topic's version."
+how_push = "The handler then renders the whole board once per language and hands it to the topic's Durable Object, which sends it to every open tab. Nothing is merged in the browser: each push replaces the board."
+how_sockets = "Tabs stay connected with htmx 4's hx-ws over WebSocket Hibernation, so a thousand quiet tabs cost almost nothing until something changes. The badge counts who is here."
+how_order = "Every push carries the version it was made from. A tab ignores a push older than the board it shows, so changes that cross on the network never go backwards."
+how_limits = "Each connection can make 60 changes in 10 seconds, and a topic holds up to 1,000 open tabs."
 
 [board.errors]
 delta = "delta must be 1 or -1"
@@ -289,6 +295,8 @@ select_label = "Calendar system"
 command_about = "A command palette and a menu: every language named in itself, and this site's pages."
 command_placeholder = "Search languages and pages…"
 command_empty = "Nothing found."
+# The name a screen reader gives the command palette's list of results.
+command_results = "Languages and pages"
 command_languages = "Languages"
 command_pages = "Pages"
 dropdown_label = "Language"

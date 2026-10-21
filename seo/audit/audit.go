@@ -1,14 +1,20 @@
-package seo
+package audit
 
 import (
 	"context"
+	"encoding/json"
 	"encoding/xml"
 	"fmt"
 	"io"
 	"net/http"
 	"net/url"
+	"slices"
+	"strconv"
 	"strings"
 	"sync"
+	"time"
+
+	"github.com/joeblew999/go-htmx4/seo"
 
 	"golang.org/x/net/html"
 )
@@ -29,6 +35,12 @@ type page struct {
 	canonical   string
 	h1          int
 	alternates  map[string]string // hreflang → href
+	icon        bool              // <link rel="icon">: the site's icon beside its results
+	ogTitle     string
+	ogDesc      string
+	ogURL       string
+	webSiteName string // the name in WebSite structured data (JSON-LD), the site name Google shows
+	location    string // a redirect's target
 }
 
 // Audit fetches robots.txt, the sitemap at base/sitemap.xml and every URL it lists as Googlebot, and returns how many
@@ -82,6 +94,10 @@ func audit(ctx context.Context, httpc *http.Client, base, sitemap string, urls [
 	}
 	wg.Wait()
 
+	for _, msg := range siteProblems(ctx, httpc, site, pages) {
+		add("%s", msg)
+	}
+
 	inSitemap := map[string]bool{}
 	for _, u := range urls {
 		inSitemap[u] = true
@@ -110,6 +126,13 @@ func audit(ctx context.Context, httpc *http.Client, base, sitemap string, urls [
 	return problems
 }
 
+// invisible reports whether r is a character that shows nothing but changes text: bidi marks and isolates, the zero
+// width ones, a byte order mark.
+func invisible(r rune) bool {
+	return r == '\u200b' || r == '\u200c' || r == '\u200d' || r == '\u200e' || r == '\u200f' ||
+		r >= '\u202a' && r <= '\u202e' || r >= '\u2066' && r <= '\u2069' || r == '\ufeff'
+}
+
 // pageProblems checks one page against what Google needs to index it as its own canonical URL.
 func pageProblems(p page, site *url.URL) []string {
 	var out []string
@@ -131,20 +154,34 @@ func pageProblems(p page, site *url.URL) []string {
 	if p.lang == "" {
 		out = append(out, "<html> has no lang")
 	}
-	switch n := SnippetWidth(p.title); {
+	switch n := seo.SnippetWidth(p.title); {
 	case n == 0:
 		out = append(out, "no <title>")
-	case n > MaxTitleWidth:
-		out = append(out, fmt.Sprintf("title is %d characters wide (Google shows about %d)", n, MaxTitleWidth))
+	case n > seo.MaxTitleWidth:
+		out = append(out, fmt.Sprintf("title is %d characters wide (Google shows about %d)", n, seo.MaxTitleWidth))
 	}
-	switch n := SnippetWidth(p.description); {
+	switch n := seo.SnippetWidth(p.description); {
 	case n == 0:
 		out = append(out, "no meta description")
-	case n > MaxDescriptionWidth:
-		out = append(out, fmt.Sprintf("meta description is %d characters wide (Google shows about %d)", n, MaxDescriptionWidth))
+	case n > seo.MaxDescriptionWidth:
+		out = append(out, fmt.Sprintf("meta description is %d characters wide (Google shows about %d)", n, seo.MaxDescriptionWidth))
 	}
 	if p.h1 != 1 {
 		out = append(out, fmt.Sprintf("%d <h1> elements (want exactly 1)", p.h1))
+	}
+	for what, s := range map[string]string{"title": p.title, "meta description": p.description, "og:title": p.ogTitle} {
+		if strings.ContainsFunc(s, invisible) {
+			out = append(out, fmt.Sprintf("%s %q has invisible characters (bidi marks, a BOM): they show in results and previews", what, s))
+		}
+	}
+	if !p.icon {
+		out = append(out, `no <link rel="icon">: Google shows a generic icon beside the site's results`)
+	}
+	switch {
+	case p.ogTitle == "" || p.ogDesc == "":
+		out = append(out, "no og:title or og:description: a shared link has no title or text")
+	case p.ogURL != p.url:
+		out = append(out, fmt.Sprintf("og:url %q is not the page's own URL", p.ogURL))
 	}
 	if len(p.alternates) > 0 {
 		if _, ok := p.alternates["x-default"]; !ok {
@@ -240,6 +277,29 @@ func parsePage(body []byte, p *page) {
 			}
 		case "h1":
 			p.h1++
+		case "script":
+			if attr(n, "type") == "application/ld+json" && n.FirstChild != nil {
+				var ld struct {
+					Type string `json:"@type"`
+					Name string `json:"name"`
+				}
+				if json.Unmarshal([]byte(n.FirstChild.Data), &ld) == nil && ld.Type == "WebSite" {
+					p.webSiteName = ld.Name
+				}
+			}
+		}
+		if n.Data == "link" && slices.Contains(strings.Fields(attr(n, "rel")), "icon") {
+			p.icon = true
+		}
+		if n.Data == "meta" {
+			switch attr(n, "property") {
+			case "og:title":
+				p.ogTitle = attr(n, "content")
+			case "og:description":
+				p.ogDesc = attr(n, "content")
+			case "og:url":
+				p.ogURL = attr(n, "content")
+			}
 		}
 	}
 }
@@ -259,6 +319,7 @@ func fetchPage(ctx context.Context, httpc *http.Client, u string, p *page) ([]by
 	}
 	defer res.Body.Close()
 	p.xRobotsTag = strings.Join(res.Header.Values("X-Robots-Tag"), ", ")
+	p.location = res.Header.Get("Location")
 	b, err := io.ReadAll(res.Body)
 	return b, res.StatusCode, err
 }
@@ -270,6 +331,47 @@ func fetch(ctx context.Context, httpc *http.Client, u string) ([]byte, int, erro
 
 // SitemapURLs fetches a live sitemap and returns its <loc> URLs.
 func SitemapURLs(ctx context.Context, httpc *http.Client, sitemap string) ([]string, error) {
+	entries, err := sitemapEntries(ctx, httpc, sitemap)
+	out := make([]string, 0, len(entries))
+	for _, e := range entries {
+		out = append(out, e.Loc)
+	}
+	return out, err
+}
+
+// SitemapPages fetches a live sitemap and returns one URL per page: the x-default of each entry's language versions
+// (its hreflang links), else the entry itself, each once and in order. A site in fourteen languages has fourteen
+// entries per page and one URL here.
+func SitemapPages(ctx context.Context, httpc *http.Client, sitemap string) ([]string, error) {
+	entries, err := sitemapEntries(ctx, httpc, sitemap)
+	var out []string
+	seen := map[string]bool{}
+	for _, e := range entries {
+		page := e.Loc
+		for _, l := range e.Links {
+			if l.Rel == "alternate" && l.Hreflang == "x-default" {
+				page = l.Href
+			}
+		}
+		if !seen[page] {
+			seen[page] = true
+			out = append(out, page)
+		}
+	}
+	return out, err
+}
+
+// sitemapEntry is one <url> of a sitemap, with its hreflang links (xhtml:link).
+type sitemapEntry struct {
+	Loc   string `xml:"loc"`
+	Links []struct {
+		Rel      string `xml:"rel,attr"`
+		Hreflang string `xml:"hreflang,attr"`
+		Href     string `xml:"href,attr"`
+	} `xml:"link"`
+}
+
+func sitemapEntries(ctx context.Context, httpc *http.Client, sitemap string) ([]sitemapEntry, error) {
 	req, err := http.NewRequestWithContext(ctx, "GET", sitemap, nil)
 	if err != nil {
 		return nil, err
@@ -287,16 +389,34 @@ func SitemapURLs(ctx context.Context, httpc *http.Client, sitemap string) ([]str
 		return nil, err
 	}
 	var set struct {
-		URLs []struct {
-			Loc string `xml:"loc"`
-		} `xml:"url"`
+		URLs []sitemapEntry `xml:"url"`
 	}
 	if err := xml.Unmarshal(b, &set); err != nil {
 		return nil, fmt.Errorf("%s: %w", sitemap, err)
 	}
-	out := make([]string, 0, len(set.URLs))
-	for _, u := range set.URLs {
-		out = append(out, u.Loc)
+	return set.URLs, nil
+}
+
+// siteProblems checks the site as a whole: a page that doesn't exist answers 404 (a "soft 404" that answers 200
+// makes Google index nonsense); plain http moves to https; the home page names the site (WebSite structured data).
+func siteProblems(ctx context.Context, httpc *http.Client, site *url.URL, pages []page) []string {
+	var out []string
+	home := site.Scheme + "://" + site.Host + "/"
+	missing := home + "seo-audit-no-such-page-" + strconv.FormatInt(time.Now().UnixNano(), 36)
+	if _, status, err := fetch(ctx, httpc, missing); err == nil && status != 404 && status != 410 {
+		out = append(out, fmt.Sprintf("%s: HTTP %d for a page that doesn't exist (want 404: a soft 404 gets indexed)", missing, status))
 	}
-	return out, nil
+	if site.Scheme == "https" && site.Port() == "" { // plain http is port 80; a test server's own port has none
+		var p page
+		_, status, err := fetchPage(ctx, httpc, "http://"+site.Host+"/", &p)
+		if err == nil && (status < 300 || status > 399 || !strings.HasPrefix(p.location, "https://"+site.Host+"/")) {
+			out = append(out, fmt.Sprintf("http://%s/: HTTP %d, not a redirect to https: every page has two addresses", site.Host, status))
+		}
+	}
+	for _, p := range pages {
+		if p.url == home && p.status == 200 && p.webSiteName == "" {
+			out = append(out, home+`: no WebSite structured data with a name (the site name Google shows beside results)`)
+		}
+	}
+	return out
 }

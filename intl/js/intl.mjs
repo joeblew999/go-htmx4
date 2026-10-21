@@ -104,12 +104,18 @@ export function zoneName(lang, id, now = Date.now()) {
 // parts, each a string or ["a", i] (a text argument), ["n", i, style] (a number; style "integer"), ["p" or "o", i,
 // offset, cases] (plural, selectordinal: an exact "=N" case, else the category Intl.PluralRules picks, else
 // "other"), ["s", i, cases] (select) or ["#"] (the plural's number less its offset). args are strings, numbers as
-// plain decimals.
+// plain decimals; a text argument that starts with OWN is already in lang (another message), so it isn't isolated.
 export function message(lang, msg, args = []) {
-  return typeof msg === "string" ? msg : messageParts(lang, msg ?? [], args, "", 0);
+  const own = args.map((a) => typeof a === "string" && a.startsWith(OWN));
+  args = args.map((a, i) => (own[i] ? a.slice(OWN.length) : a));
+  return typeof msg === "string" ? msg : messageParts(lang, msg ?? [], args, "", 0, own);
 }
 
-function messageParts(lang, parts, args, pound, offset) {
+// OWN marks a text argument in the message's own language (message.go's Translate): a page's title in
+// "{title} · go-htmx4" needs no isolation, and a search result shows no stray marks around it.
+const OWN = "\ue001";
+
+function messageParts(lang, parts, args, pound, offset, own) {
   let out = "";
   for (const p of parts) {
     if (typeof p === "string") {
@@ -117,8 +123,8 @@ function messageParts(lang, parts, args, pound, offset) {
       continue;
     }
     switch (p[0]) {
-      case "a": // text: isolated (FSI … PDI), so its own direction can't reorder the words around it
-        out += args[p[1]] ? "\u2068" + args[p[1]] + "\u2069" : "";
+      case "a": // text of unknown direction: isolated (FSI … PDI), so it can't reorder the words around it
+        out += !args[p[1]] ? "" : own[p[1]] ? args[p[1]] : "\u2068" + args[p[1]] + "\u2069";
         break;
       case "n":
         out += number(lang, args[p[1]] ?? "", p[2] === "integer" ? { maximumFractionDigits: 0 } : {});
@@ -132,12 +138,12 @@ function messageParts(lang, parts, args, pound, offset) {
         const chosen = cases["=" + Number(value)] ??
           cases[make(Intl.PluralRules, lang, { type: p[0] === "o" ? "ordinal" : "cardinal" }).select(Number(value) - p[2])] ??
           cases.other;
-        if (chosen) out += messageParts(lang, chosen, args, value, p[2]);
+        if (chosen) out += messageParts(lang, chosen, args, value, p[2], own);
         break;
       }
       case "s": {
         const chosen = p[2][args[p[1]]] ?? p[2].other;
-        if (chosen) out += messageParts(lang, chosen, args, pound, offset);
+        if (chosen) out += messageParts(lang, chosen, args, pound, offset, own);
         break;
       }
     }

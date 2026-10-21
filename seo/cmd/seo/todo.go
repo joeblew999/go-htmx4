@@ -6,7 +6,7 @@ import (
 	"os/exec"
 	"runtime"
 
-	"github.com/joeblew999/go-htmx4/seo"
+	"github.com/joeblew999/go-htmx4/seo/searchconsole"
 )
 
 // finding is a sitemap URL Google hasn't indexed as its own page. Only problems need a person.
@@ -19,8 +19,8 @@ type finding struct {
 }
 
 // todo inspects every sitemap URL in Google's index. It returns the number indexed and the rest as findings.
-func todo(ctx context.Context, c *seo.Client, urls []string) (indexed int, findings []finding) {
-	results := make([]seo.Inspection, len(urls))
+func todo(ctx context.Context, c *searchconsole.Client, urls []string) (indexed int, findings []finding) {
+	results := make([]searchconsole.Inspection, len(urls))
 	errs := make([]error, len(urls))
 	sem := make(chan struct{}, 6)
 	done := make(chan struct{})
@@ -50,7 +50,7 @@ func todo(ctx context.Context, c *seo.Client, urls []string) (indexed int, findi
 
 // classify sorts one URL's inspection: ok=false means indexed as its own canonical page. Waiting for a crawl and a
 // same-content duplicate are expected; anything else Google reports (404, noindex, blocked, a FAIL verdict) is a problem.
-func classify(u string, in seo.Inspection) (finding, bool) {
+func classify(u string, in searchconsole.Inspection) (finding, bool) {
 	fail := in.Verdict == "FAIL"
 	if in.GoogleCanonical != "" && in.GoogleCanonical != u {
 		return finding{u, in.CoverageState, "Google indexes " + in.GoogleCanonical + " instead (same content, e.g. a " +

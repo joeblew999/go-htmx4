@@ -13,6 +13,28 @@ Cloudflare Workers, compiled with TinyGo. No Node anywhere: no npm, no Vite, no 
 
 **Live:** https://go-htmx4.ubuntusoftware.net (the board: [/board](https://go-htmx4.ubuntusoftware.net/board)).
 
+## Two tools that come with it
+
+The app is built on two Go modules from this repository, which any gsx app can use as well:
+
+- **[intl](intl/README.md): every language, done properly.** Text lives in ICU message catalogs; dates, numbers,
+  plurals, lists and names come from the runtime's own Intl, on the server and again in the reader's browser, in
+  their time zone, right-to-left included. `mise run intl:translate` has Claude translate every new message into
+  every language, in parallel, in about two minutes; `mise run intl:check` keeps every catalog complete. Each language
+  gets its own URLs, `hreflang` links and sitemap entries, so Google indexes every language version and shows it to
+  the people who read that language.
+- **[seo](seo/README.md): what Google sees, checked.** One middleware answers robots.txt and the sitemap, keeps what
+  isn't a page out of the index, and gives every page one https address. Every `mise run check` then fetches every
+  page as Googlebot does and fails on anything that would keep a page out or look wrong in a result. After a deploy,
+  `mise run seo:lighthouse` scores every page on Google's servers (performance, accessibility, best practices, SEO,
+  with the failing elements named), and `mise run seo:todo` reports what Google has indexed.
+
+Each is set up by one command (`go tool intl init`, `go tool seo init`), which writes a config file into the project
+(`intl.toml`, `seo.toml`). Their mise tasks read it, so every task runs with no arguments, from a terminal or the VS
+Code mise panel, and an argument still overrides it for one run. Each also installs an agent skill, so Claude Code
+knows how to use it. Both use gsx's own mechanisms (renderers, filters, `gsx fmt` and its checks); issues and pull
+requests that make them, or gsx, better are welcome.
+
 ## Quick start
 
 ```sh
@@ -44,13 +66,13 @@ Every branch gets its own preview, `main` deploys staging, and a release deploys
 | Path | What it is |
 | --- | --- |
 | `main.go` | the entry point: `transport.Run(app.Handler())` |
-| `app/` | the server (`server.go`: routes), the board (`board.go`, its stores), locale URLs (`locale.go`), robots.txt and the sitemap (`seo.go`), Cloudflare-only calls (`platform_js.go`) and their twins; each file's tests beside it |
+| `app/` | the server (`server.go`: routes), the board (`board.go`, its stores), the app on the web (`site.go`: its languages, `intl.Site`, and search engines, `seo.Site`, with the sitemap's pages), Cloudflare-only calls (`platform_js.go`) and their twins; each file's tests beside it |
 | `views/` | pages and fragments in gsx; a page's data in a `.go` file beside it |
 | `ui/`, `web/gsxui/` | gsxui components and their behaviours, vendored by `gsxui add`: never edited by hand |
 | `web/htmx/` | htmx 4, hx-ws and hx-live, vendored by `mise run vendor` |
 | `locales/` | the messages: one catalog per language (`en.toml` is the source) and `intl.sum` |
 | `intl/`, `intl.toml` | Intl for gsx apps, its own Go module ([intl/README.md](intl/README.md)); this app's languages |
-| `seo/` | how Google sees the live site: the audit after each deploy and Google Search Console, its own Go module ([seo/README.md](seo/README.md)) |
+| `seo/`, `seo.toml` | search engines for Go apps, its own Go module ([seo/README.md](seo/README.md)): the middleware, the audit, Lighthouse, Search Console; this app's settings |
 | `internal/` | httpx (rendering, origin), live (publishing to the Room), ratelimit, classmerge (gsx's class merger, cached) |
 | `worker/` | the deployed JavaScript: the Worker's entry and the board's Durable Object; `worker/local/` runs them under workerd |
 | `migrations/` | D1's schema |
@@ -63,7 +85,7 @@ Every branch gets its own preview, `main` deploys staging, and a release deploys
 **Adding something, one way each:**
 
 - **A page:** a component in `views/<page>.gsx` inside `Layout`, with its own translated title and description; a
-  route in `app/server.go` that renders it with `s.render`; its path in `views.SitemapPages`.
+  route in `app/server.go` that renders it with `s.render`; its path in `sitemapPages` (`app/site.go`).
 - **Text:** a key in `locales/en.toml`, written `{ locales.Key }`, then `mise run intl:translate` and
   `mise run intl:check`.
 - **A date, a number, any Intl call:** a filter in markup, `{ t |> date("dateStyle", "long") }`, its options in pairs.

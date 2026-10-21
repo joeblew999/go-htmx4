@@ -13,8 +13,9 @@ import (
 //
 // Script order matters. The htmx-config meta comes before htmx, which reads it when it loads (hx-ws spreads
 // reconnects over 1–3 s: a deploy drops every socket at once, and hx-ws's defaults would bring 1,000 tabs back
-// within ~0.3 s, over a Room's ~1,000 requests/s soft limit). Then htmx (classic script, sets window.htmx), its
-// extensions hx-live and hx-ws, the board's version guard, and the gsxui behaviours as native ES modules.
+// within ~0.3 s, over a Room's ~1,000 requests/s soft limit). Then htmx with its extensions hx-live and hx-ws, one
+// deferred script (the assets task joins them, so they register before htmx starts), the board's version guard, and
+// the gsxui behaviours as native ES modules.
 // Everything loads on every page, so a boosted navigation to /board has hx-ws ready.
 //
 // htmx 4 inheritance is explicit: only the nav links are boosted (morph + view transition), so the pages'
@@ -24,7 +25,8 @@ import (
 // <html lang dir> come from the request's locale (views/locale.go), and every UI string from locales/*.toml (intl.Msg).
 // <html data-tz data-hc> are the viewer's chosen time zone and clock ("" = the browser's own and the language's), for
 // intl-browser.mjs, which redoes dates, times and rich numbers in the browser. The
-// head carries a translated description, the canonical URL, the page in every locale and Open Graph (views/seo.go). The
+// head carries a translated description, the canonical URL, the page in every locale and Open Graph (intl.Head, with
+// pageKey in views.go), the site's icon, and on the home page the site's name for Google (WebSite structured data). The
 // language links sit in the footer, outside the boosted nav: switching locale must be a full page load, since a
 // boosted swap keeps the old <html lang dir>.
 component Layout(title intl.Msg, description intl.Msg, path string, children gsx.Node) {
@@ -40,12 +42,23 @@ component Layout(title intl.Msg, description intl.Msg, path string, children gsx
 			<meta property="og:site_name" content="go-htmx4"/>
 			<meta property="og:title" content={locales.PageTitle(title)}/>
 			<meta property="og:description" content={description}/>
+			<meta name="twitter:card" content="summary"/>
+			<link rel="icon" href="/static/favicon.svg" type="image/svg+xml"/>
+			{ if path == "/" {
+				<script type="application/ld+json">@{ webSite(ctx) }</script>
+			} }
 			<ThemeScript/>
 			<link rel="stylesheet" href="/assets/gsxui.css"/>
+			// The body font (gsxui.preset.json's fontSans), fetched with the stylesheet: no reflow when it arrives late.
+			<link
+				rel="preload"
+				href="/assets/geist-latin-wght-normal.woff2"
+				as="font"
+				type="font/woff2"
+				crossorigin="anonymous"
+			/>
 			<meta name="htmx-config" content="ws.reconnectDelay:2s ws.reconnectJitter:0.5"/>
-			<script src="/static/htmx.min.js"></script>
-			<script src="/static/hx-live.js"></script>
-			<script src="/static/hx-ws.js"></script>
+			<script src="/static/htmx.js" defer></script>
 			<script type="module" src="/static/intl-browser.mjs"></script>
 			<VersionGuard/>
 			<script type="module" src="/gsxui/index.js"></script>

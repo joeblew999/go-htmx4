@@ -1,7 +1,7 @@
 //go:build !js
 
-// Search engines (seo.go, views/seo.go): robots.txt, the sitemap, noindex, canonical URLs and hreflang, Open Graph,
-// snippet widths.
+// Search engines (site.go's seo.Site, the layout, intl.Head): robots.txt, the sitemap, noindex, one address, canonical
+// URLs and hreflang, Open Graph, snippet widths.
 
 package app
 
@@ -19,13 +19,12 @@ import (
 	"github.com/joeblew999/go-htmx4/intl"
 	"github.com/joeblew999/go-htmx4/locales"
 	"github.com/joeblew999/go-htmx4/seo"
-	"github.com/joeblew999/go-htmx4/views"
 	nethtml "golang.org/x/net/html"
 )
 
 func TestRobotsTxt(t *testing.T) {
 	rec := httptest.NewRecorder()
-	robotsTxt(rec, httptest.NewRequest("GET", "/robots.txt", nil))
+	newServer().routes().ServeHTTP(rec, httptest.NewRequest("GET", "/robots.txt", nil))
 	body := rec.Body.String()
 	for _, want := range []string{"User-agent: *\n", "Allow: /\n", "Content-Signal: search=yes, ai-input=yes, ai-train=yes\n", "Sitemap: http://example.com/sitemap.xml\n"} {
 		if !strings.Contains(body, want) {
@@ -43,11 +42,6 @@ func TestRobotsTxt(t *testing.T) {
 	}
 	if ct := rec.Header().Get("Content-Type"); ct != "text/plain; charset=utf-8" {
 		t.Errorf("Content-Type = %q", ct)
-	}
-	rec = httptest.NewRecorder()
-	robotsTxt(rec, httptest.NewRequest("POST", "/robots.txt", nil))
-	if rec.Code != 405 {
-		t.Errorf("POST /robots.txt: status %d, want 405", rec.Code)
 	}
 }
 
@@ -88,7 +82,7 @@ func TestSitemap(t *testing.T) {
 	if err := xml.Unmarshal(rec.Body.Bytes(), &set); err != nil {
 		t.Fatal(err)
 	}
-	if want := len(views.SitemapPages) * len(locales.Shipped); len(set.URLs) != want {
+	if want := len(sitemapPages) * len(locales.Shipped); len(set.URLs) != want {
 		t.Fatalf("%d URLs, want %d", len(set.URLs), want)
 	}
 	for _, u := range set.URLs {
@@ -136,7 +130,9 @@ func TestNoIndexNonPages(t *testing.T) {
 		{"GET", "/about", "", false},
 		{"GET", "/formats", "", false},
 		{"GET", "/board", "", false},
-		{"GET", "/board?topic=seo-noindex", "", false},
+		{"GET", "/board?topic=lobby", "", false},
+		{"GET", "/board?topic=seo-noindex", "", true}, // a topic anyone made: no end to them
+		{"GET", "/de/board?topic=seo-noindex", "", true},
 		{"GET", "/de/", "", false},
 		{"GET", "/de/board", "", false},
 		{"HEAD", "/about", "", false},
@@ -158,7 +154,7 @@ func TestNoIndexNonPages(t *testing.T) {
 // TestPreviewNoindex: on a Worker Preview (APP_PREVIEW) every response is noindex, pages included; on
 // production pages stay indexable.
 func TestPreviewNoindex(t *testing.T) {
-	h := noindexNonPages(http.HandlerFunc(func(http.ResponseWriter, *http.Request) {}))
+	h := newServer().routes()
 	for _, tc := range []struct {
 		preview, path, want string
 	}{
@@ -172,6 +168,44 @@ func TestPreviewNoindex(t *testing.T) {
 		h.ServeHTTP(rec, httptest.NewRequest("GET", tc.path, nil))
 		if got := rec.Header().Get("X-Robots-Tag"); got != tc.want {
 			t.Errorf("APP_PREVIEW=%q %s: X-Robots-Tag %q, want %q", tc.preview, tc.path, got, tc.want)
+		}
+	}
+}
+
+// TestOneAddress: with APP_DOMAIN (production only), a page on the Worker's workers.dev host or over plain http moves
+// to https on the domain; a write, the health check, a WebSocket and a local server stay where they are.
+func TestOneAddress(t *testing.T) {
+	h := newServer().routes()
+	do := func(method, url string) (int, string) {
+		rec := httptest.NewRecorder()
+		h.ServeHTTP(rec, httptest.NewRequest(method, url, strings.NewReader("")))
+		return rec.Code, rec.Header().Get("Location")
+	}
+	t.Setenv("APP_DOMAIN", "")
+	if code, loc := do("GET", "https://app.acme.workers.dev/about"); code != 200 || loc != "" {
+		t.Errorf("no APP_DOMAIN: GET workers.dev/about = %d %q, want 200 and no redirect", code, loc)
+	}
+	t.Setenv("APP_DOMAIN", "go-htmx4.example.net")
+	for _, tc := range []struct {
+		method, url string
+		code        int
+		location    string
+	}{
+		{"GET", "https://app.acme.workers.dev/about", 301, "https://go-htmx4.example.net/about"},
+		{"GET", "https://app.acme.workers.dev/de/board?topic=other", 200, ""}, // a topic page is not indexed: no need
+		{"GET", "https://app.acme.workers.dev/", 301, "https://go-htmx4.example.net/"},
+		{"GET", "http://go-htmx4.example.net/de/formats", 301, "https://go-htmx4.example.net/de/formats"},
+		{"HEAD", "https://app.acme.workers.dev/robots.txt", 301, "https://go-htmx4.example.net/robots.txt"},
+		{"GET", "https://app.acme.workers.dev/healthz", 200, ""},
+		{"GET", "https://app.acme.workers.dev/live/lobby", 404, ""}, // the Worker entry answers /live/* before Go
+		{"POST", "https://app.acme.workers.dev/greet", 200, ""},
+		{"GET", "https://go-htmx4.example.net/about", 200, ""},
+		{"GET", "http://localhost:9913/about", 200, ""},
+		{"GET", "http://127.0.0.1:8913/about", 200, ""},
+	} {
+		code, loc := do(tc.method, tc.url)
+		if code != tc.code || loc != tc.location {
+			t.Errorf("%s %s = %d %q, want %d %q", tc.method, tc.url, code, loc, tc.code, tc.location)
 		}
 	}
 }

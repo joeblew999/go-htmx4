@@ -20,7 +20,7 @@ import (
 	"time"
 
 	"github.com/joeblew999/go-htmx4/e2e/load"
-	"github.com/joeblew999/go-htmx4/seo"
+	"github.com/joeblew999/go-htmx4/seo/audit"
 )
 
 var (
@@ -128,9 +128,7 @@ func TestPages(t *testing.T) {
 
 func TestStaticAssets(t *testing.T) {
 	for path, typ := range map[string]string{
-		"/static/htmx.min.js":                   "text/javascript",
-		"/static/hx-live.js":                    "text/javascript",
-		"/static/hx-ws.js":                      "text/javascript",
+		"/static/htmx.js":                       "text/javascript",
 		"/static/intl-browser.mjs":              "text/javascript", // modules: anything else and the browser refuses them
 		"/static/intl.mjs":                      "text/javascript",
 		"/gsxui/index.js":                       "text/javascript",
@@ -206,7 +204,7 @@ func TestSEO(t *testing.T) {
 // robots.txt, the sitemap, and every page in it 200, indexable, self-canonical, with lang, a title, a description, one
 // h1 and reciprocal hreflang. Here, before it ships.
 func TestAudit(t *testing.T) {
-	urls, problems, err := seo.Audit(context.Background(), &http.Client{Timeout: time.Minute}, base)
+	urls, problems, err := audit.Audit(context.Background(), &http.Client{Timeout: time.Minute}, base)
 	if err != nil {
 		t.Fatal(err)
 	}

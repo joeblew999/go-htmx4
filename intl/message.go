@@ -23,6 +23,7 @@ type Arg struct {
 	s    string
 	num  bool
 	text Textual // a Msg or Value argument, made text in the request's language when the message renders
+	own  bool    // a Msg: in the message's own language and direction, so js/intl.mjs doesn't isolate it
 }
 
 // TextArg is what a message's text argument can be: a string, another message, or an Intl Value ({ zone } in
@@ -37,11 +38,12 @@ type NumberArg interface {
 }
 
 // Str is a text argument. js/intl.mjs wraps it in a first-strong isolate (FSI … PDI) where it lands in the message, so
-// an Arabic name can't reorder the English words around it; select matches the value itself.
+// an Arabic name can't reorder the English words around it; select matches the value itself. Another message is
+// already in the page's language and direction: it goes in as it is ("{title} · go-htmx4" stays clean text).
 func Str[T TextArg](v T) Arg {
 	switch x := any(v).(type) {
 	case Msg:
-		return Arg{text: x}
+		return Arg{text: x, own: true}
 	case Value:
 		return Arg{text: x}
 	case Plain:
@@ -71,6 +73,9 @@ func Num[N NumberArg](n N) Arg {
 	return Arg{s: s, num: true}
 }
 
+// own marks an argument in the message's own language for js/intl.mjs (its OWN).
+const own = "\ue001"
+
 // M is message index of the catalogs with args: what the generated constructors return.
 func M(index int, args ...Arg) Msg { return Msg{index: index, args: args} }
 
@@ -93,6 +98,9 @@ func Translate(ctx context.Context, m Msg) string {
 		args[i] = a.s
 		if a.text != nil {
 			args[i] = a.text.text(ctx)
+		}
+		if a.own && args[i] != "" {
+			args[i] = own + args[i]
 		}
 	}
 	return loc.Message(catalog, m.index, args...)

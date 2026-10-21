@@ -92,6 +92,16 @@ component BoardPage(topic string, b Board, live bool) {
 				</form>
 			</ui.CardFooter>
 		</ui.Card>
+		<section class="flex flex-col gap-3">
+			<h2 class="text-xl font-semibold tracking-tight">{ locales.BoardHowTitle }</h2>
+			<ol class="flex list-decimal flex-col gap-2 ps-5 text-muted-foreground">
+				<li>{ locales.BoardHowWrite }</li>
+				<li>{ locales.BoardHowPush }</li>
+				<li>{ locales.BoardHowSockets }</li>
+				<li>{ locales.BoardHowOrder }</li>
+				<li>{ locales.BoardHowLimits }</li>
+			</ol>
+		</section>
 	</Layout>
 }
 

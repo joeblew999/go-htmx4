@@ -3,8 +3,11 @@
 package views
 
 import (
+	"context"
 	"maps"
+	"net/url"
 	"slices"
+	"strings"
 	"time"
 
 	"github.com/joeblew999/go-htmx4/intl"
@@ -62,4 +65,28 @@ func activeVariant(active bool) string {
 
 func sortedKeys(m map[string]int) []string {
 	return slices.Sorted(maps.Keys(m))
+}
+
+// pageKey is the request's page for its canonical URL and alternates (intl.Head): without locale prefix and without query parameters that don't make a different page:
+// only ?topic= on /board survives, and not for the default topic. "/board?topic=lobby&utm_source=x" → "/board".
+func pageKey(ctx context.Context) string {
+	path, query := "/", ""
+	if r, ok := intl.FromContext(ctx); ok && r.Path != "" {
+		path, query, _ = strings.Cut(r.Path, "?")
+	}
+	if path == "/board" && query != "" {
+		if q, err := url.ParseQuery(query); err == nil {
+			if topic := q.Get("topic"); topic != "" && topic != DefaultTopic {
+				return path + "?topic=" + url.QueryEscape(topic)
+			}
+		}
+	}
+	return path
+}
+
+// webSite is the home page's WebSite structured data (schema.org): the site's name Google shows beside its results,
+// for the home page in the request's language.
+func webSite(ctx context.Context) map[string]string {
+	return map[string]string{"@context": "https://schema.org", "@type": "WebSite", "name": "go-htmx4",
+		"url": intl.Canonical(ctx, "/"), "inLanguage": intl.Current(ctx).ID()}
 }

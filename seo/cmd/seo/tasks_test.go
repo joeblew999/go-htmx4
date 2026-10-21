@@ -28,7 +28,7 @@ func TestFlagsAfterTheCommand(t *testing.T) {
 
 // TestTasks: every command the tasks run is one seo has, and tasks writes them.
 func TestTasks(t *testing.T) {
-	known := []string{"sites", "submit", "status", "audit", "todo", "inspect", "tasks", "skill"}
+	known := []string{"sites", "submit", "status", "audit", "todo", "inspect", "lighthouse", "tasks", "skill"}
 	for _, m := range regexp.MustCompile(`go tool seo (\w+)`).FindAllStringSubmatch(string(mise.Tasks), -1) {
 		if !slices.Contains(known, m[1]) {
 			t.Errorf("mise/tasks.toml runs seo %s, which it doesn't have", m[1])

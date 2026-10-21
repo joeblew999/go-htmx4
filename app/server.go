@@ -110,8 +110,6 @@ func (s *server) routes() http.Handler {
 			s.render(w, r, "about", views.About(stack))
 		}
 	})
-	mux.HandleFunc("/robots.txt", robotsTxt)
-	mux.HandleFunc("/sitemap.xml", sitemapXML)
 	mux.HandleFunc("/healthz", func(w http.ResponseWriter, r *http.Request) {
 		if allow(w, r, http.MethodGet) {
 			w.Write([]byte("ok"))
@@ -148,11 +146,11 @@ func (s *server) routes() http.Handler {
 		if !allow(w, r, http.MethodGet) {
 			return
 		}
-		s.render(w, r, "preferences", views.PreferencesForm(intl.SafeReturn(cmp.Or(r.Header.Get("HX-Current-URL"), r.Referer())), site.ConnectionZone(r)))
+		s.render(w, r, "preferences", views.PreferencesForm(intl.SafeReturn(cmp.Or(r.Header.Get("HX-Current-URL"), r.Referer())), languages.ConnectionZone(r)))
 	})
 	mux.HandleFunc("/preferences", func(w http.ResponseWriter, r *http.Request) {
 		if allow(w, r, http.MethodPost) {
-			site.Preferences(w, r)
+			languages.Preferences(w, r)
 		}
 	})
 	// The /formats round trip: a number typed the reader's way and some text, read back and formatted with the
@@ -182,7 +180,7 @@ func (s *server) routes() http.Handler {
 		s.render(w, r, "stats", views.Stats(snapshot))
 	})
 	s.boardRoutes(mux)
-	return canonicalHost(site.Handler(noindexNonPages(mux)))
+	return withSite(mux)
 }
 
 // render counts the request, then writes n with httpx.Render (buffered, Content-Length: chunked

@@ -51,7 +51,7 @@ WORKER_COMPILER = "{{ get_env(name='WORKER_COMPILER', default='tinygo') }}"
 # Worker script and D1 database name (mise run deploy): https://$APP_NAME.<subdomain>.workers.dev
 APP_NAME = "go-htmx4"
 # Custom domain (Workers Custom Domain, zone in the same Cloudflare account); "" = workers.dev only. When set, deploy
-# attaches it and *.workers.dev 301s to it (host.go). mise run rename clears it.
+# attaches it, and *.workers.dev and plain http 301 to it (seo.Site, app/site.go). mise run rename clears it.
 APP_DOMAIN = "go-htmx4.ubuntusoftware.net"
 # GitHub repository (owner/name) for preview builds and Workers Builds; mise run rename sets it from the module path.
 APP_REPO = "joeblew999/go-htmx4"

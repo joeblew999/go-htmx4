@@ -7,6 +7,8 @@
 //	fnox exec -- go tool seo [-open] todo         # what Google hasn't indexed; exit 1 (and -open) on problems
 //	fnox exec -- go tool seo [-open] inspect /de/ # one URL: Google's verdict + its Search Console page
 //	go tool seo audit                             # live fetch as Googlebot: robots.txt + every sitemap URL
+//	fnox exec -- go tool seo lighthouse [/de/]    # Lighthouse on Google's servers (PageSpeed Insights): scores, failures
+//	go tool seo init                              # seo.toml, the mise tasks and the agent skill, into an app
 //	go tool seo tasks                             # write its mise tasks: .mise/tasks/seo.toml
 //	go tool seo skill                             # install its agent skill: .claude/skills/seo
 //
@@ -14,27 +16,33 @@
 // text (same data, for agents, CI and jq) and never opens a browser.
 // Exit codes are the contract between tasks: 0 ok, 1 problems (or no access), 2 usage.
 //
-// The key is GOOGLE_SEARCH_CONSOLE_KEY (a service account JSON key, e.g. from fnox); audit needs none. -base defaults
-// to https://$APP_DOMAIN and -site to the Domain property of its registrable domain (app.example.com →
-// sc-domain:example.com). Request indexing has no API: todo prints Google's link for each problem (-open opens only those).
+// The key is GOOGLE_SEARCH_CONSOLE_KEY (a service account JSON key, e.g. from fnox); audit needs none. The settings
+// come from the app's seo.toml (package config), each overridden by its flag: -base defaults to its site, else
+// https://$APP_DOMAIN, and -site to its property, else the Domain property of the site's registrable domain
+// (app.example.com → sc-domain:example.com). Request indexing has no API: todo prints Google's link for each problem
+// (-open opens only those).
 package main
 
 import (
 	"bytes"
+	"cmp"
 	"context"
 	"encoding/json"
 	"flag"
 	"fmt"
 	"io/fs"
 	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
 	"text/tabwriter"
 	"time"
 
-	"github.com/joeblew999/go-htmx4/seo"
+	"github.com/joeblew999/go-htmx4/seo/audit"
+	"github.com/joeblew999/go-htmx4/seo/config"
 	"github.com/joeblew999/go-htmx4/seo/mise"
+	"github.com/joeblew999/go-htmx4/seo/searchconsole"
 	"github.com/joeblew999/go-htmx4/seo/skills"
 )
 
@@ -47,9 +55,9 @@ type (
 		Problems []string `json:"problems"`
 	}
 	sitesReport struct {
-		Site   string     `json:"site"`
-		Access bool       `json:"access"` // Full or Owner on Site
-		Sites  []seo.Site `json:"sites"`
+		Site   string               `json:"site"`
+		Access bool                 `json:"access"` // Full or Owner on Site
+		Sites  []searchconsole.Site `json:"sites"`
 	}
 	submitReport struct {
 		Site    string `json:"site"`
@@ -66,14 +74,14 @@ type (
 		Error           string `json:"error,omitempty"`
 	}
 	statusReport struct {
-		Sitemap      *seo.Sitemap   `json:"sitemap"`
-		SitemapError string         `json:"sitemapError,omitempty"`
-		URLs         []urlStatus    `json:"urls"`
-		Counts       map[string]int `json:"counts"`
+		Sitemap      *searchconsole.Sitemap `json:"sitemap"`
+		SitemapError string                 `json:"sitemapError,omitempty"`
+		URLs         []urlStatus            `json:"urls"`
+		Counts       map[string]int         `json:"counts"`
 	}
 	inspectReport struct {
 		URL string `json:"url"`
-		seo.Inspection
+		searchconsole.Inspection
 		Link string `json:"link"`
 	}
 	todoReport struct {
@@ -85,14 +93,23 @@ type (
 )
 
 func main() {
-	domain := os.Getenv("APP_DOMAIN")
-	site := flag.String("site", domainProperty(domain), "Search Console property (sc-domain:… or a URL prefix)")
-	base := flag.String("base", "https://"+domain, "the app's base URL (sitemap at <base>/sitemap.xml)")
+	cfg, err := config.Find(".")
+	if err != nil {
+		fail(err)
+	}
+	host := ""
+	if u, err := url.Parse(cfg.Site); err == nil {
+		host = u.Hostname()
+	}
+	site := flag.String("site", cmp.Or(cfg.Property, domainProperty(host)), "Search Console property (sc-domain:… or a URL prefix)")
+	base := flag.String("base", cfg.Site, "the app's base URL (sitemap at <base>/sitemap.xml)")
 	open := flag.Bool("open", false, "todo, inspect: open Google's Search Console page (todo: only for problem URLs)")
 	jsonOut := flag.Bool("json", false, "print one JSON document on stdout instead of text; never opens a browser")
 	out := flag.String("o", filepath.Join(".mise", "tasks", "seo.toml"), "tasks: the file to write")
+	strategy := flag.String("strategy", cfg.Lighthouse.Strategy, "lighthouse: mobile (what Google indexes) or desktop")
+	minScore := flag.Int("min", cfg.Lighthouse.Min, "lighthouse: the lowest score out of 100 a category may have")
 	flag.Usage = func() {
-		fmt.Fprintln(os.Stderr, "usage: seo sites|submit|status|todo|audit|inspect <path or URL>|tasks|skill [-site sc-domain:example.com] [-base https://app.example.com] [-open] [-json] [-o file]")
+		fmt.Fprintln(os.Stderr, "usage: seo audit|lighthouse [path or URL]|todo|inspect <path or URL>|status|sites|submit|init|tasks|skill [-site sc-domain:example.com] [-base https://app.example.com] [-open] [-json] [-o file]")
 		flag.PrintDefaults()
 	}
 	flag.Parse()
@@ -105,9 +122,22 @@ func main() {
 		writeSkill(filepath.Join(".claude", "skills"))
 		return
 	}
-	if len(args) != 1 && !(len(args) == 2 && args[0] == "inspect") || domain == "" && (*site == "" || *base == "https://") {
+	if len(args) == 1 && args[0] == "init" {
+		if cfg.Path == "" {
+			writeFile(config.File, []byte(config.Template))
+		} else {
+			fmt.Println("✓ " + cfg.Path + " is there: yours to edit")
+		}
+		writeFile(*out, mise.Tasks)
+		writeSkill(filepath.Join(".claude", "skills"))
+		return
+	}
+	if len(args) != 1 && !(len(args) == 2 && (args[0] == "inspect" || args[0] == "lighthouse")) {
 		flag.Usage()
 		os.Exit(2)
+	}
+	if *base == "" {
+		fail(fmt.Errorf("no site: set site in %s, or APP_DOMAIN, or pass -base", config.File))
 	}
 	if *jsonOut {
 		*open = false
@@ -116,7 +146,7 @@ func main() {
 	httpc := &http.Client{Timeout: 60 * time.Second}
 	sitemap := strings.TrimRight(*base, "/") + "/sitemap.xml"
 	if args[0] == "audit" {
-		urls, problems, err := seo.Audit(ctx, httpc, *base)
+		urls, problems, err := audit.Audit(ctx, httpc, *base)
 		if err != nil {
 			fail(err)
 		}
@@ -145,15 +175,33 @@ func main() {
 	if raw == "" {
 		fail(fmt.Errorf("GOOGLE_SEARCH_CONSOLE_KEY is not set (run through fnox exec)"))
 	}
-	key, err := seo.ParseKey([]byte(raw))
+	key, err := searchconsole.ParseKey([]byte(raw))
 	if err != nil {
 		fail(err)
 	}
-	token, err := key.Token(ctx, httpc, seo.Scope)
+	if args[0] == "lighthouse" {
+		pages := cfg.Lighthouse.Pages
+		if len(args) == 2 {
+			pages = []string{args[1]}
+		}
+		if len(pages) == 0 {
+			if pages, err = audit.SitemapPages(ctx, httpc, sitemap); err != nil {
+				fail(err)
+			}
+		}
+		for i, p := range pages {
+			if strings.HasPrefix(p, "/") {
+				pages[i] = strings.TrimRight(*base, "/") + p
+			}
+		}
+		lighthouseRun(ctx, key, pages, *strategy, *minScore, *jsonOut)
+		return
+	}
+	token, err := key.Token(ctx, httpc, searchconsole.Scope)
 	if err != nil {
 		fail(err)
 	}
-	c := &seo.Client{HTTP: httpc, Token: token, Site: *site}
+	c := &searchconsole.Client{HTTP: httpc, Token: token, Site: *site}
 
 	switch args[0] {
 	case "sites":
@@ -163,7 +211,7 @@ func main() {
 		}
 		r := sitesReport{Site: *site, Sites: sites}
 		if r.Sites == nil {
-			r.Sites = []seo.Site{}
+			r.Sites = []searchconsole.Site{}
 		}
 		for _, s := range sites {
 			if s.SiteURL == *site && (s.PermissionLevel == "siteOwner" || s.PermissionLevel == "siteFullUser") {
@@ -215,7 +263,7 @@ func main() {
 			openInBrowser([]string{in.Link})
 		}
 	case "todo":
-		urls, err := seo.SitemapURLs(ctx, httpc, sitemap)
+		urls, err := audit.SitemapURLs(ctx, httpc, sitemap)
 		if err != nil {
 			fail(err)
 		}
@@ -259,7 +307,7 @@ func emit(v any) {
 	}
 }
 
-func status(ctx context.Context, c *seo.Client, httpc *http.Client, sitemap string, jsonOut bool) {
+func status(ctx context.Context, c *searchconsole.Client, httpc *http.Client, sitemap string, jsonOut bool) {
 	r := statusReport{Counts: map[string]int{}}
 	if s, err := c.GetSitemap(ctx, sitemap); err != nil {
 		r.SitemapError = err.Error()
@@ -278,7 +326,7 @@ func status(ctx context.Context, c *seo.Client, httpc *http.Client, sitemap stri
 			}
 		}
 	}
-	urls, err := seo.SitemapURLs(ctx, httpc, sitemap)
+	urls, err := audit.SitemapURLs(ctx, httpc, sitemap)
 	if err != nil {
 		fail(err)
 	}

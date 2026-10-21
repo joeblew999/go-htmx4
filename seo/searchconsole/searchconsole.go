@@ -1,4 +1,4 @@
-// Package seo talks to the Google Search Console API with a service account, standard library only: submit
+// Package searchconsole talks to the Google Search Console API with a service account, standard library only: submit
 // and read sitemaps, and inspect how Google indexed a URL. Test live URL and Request indexing have no API (Search
 // Console UI only).
 //
@@ -6,7 +6,7 @@
 // https://developers.google.com/webmaster-tools/v1/urlInspection.index/inspect (seo/v1). Service account
 // auth is the OAuth 2.0 JWT bearer grant (RFC 7523): https://developers.google.com/identity/protocols/oauth2/service-account.
 // The service account must be added as a user of the property in Search Console (Settings → Users and permissions).
-package seo
+package searchconsole
 
 import (
 	"bytes"

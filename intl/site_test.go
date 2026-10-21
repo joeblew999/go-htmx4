@@ -168,3 +168,14 @@ func TestValidTimeZone(t *testing.T) {
 		}
 	}
 }
+
+// TestUnprefixed: the page a path is, whatever its locale.
+func TestUnprefixed(t *testing.T) {
+	intl.Use(intl.Locales{intl.NewLocale("en"), intl.NewLocale("de"), intl.NewLocale("zh-Hant")}, []bool{true, true, true})
+	for in, want := range map[string]string{"/": "/", "/about": "/about", "/de": "/", "/de/": "/", "/de/about": "/about",
+		"/zh-hant/board": "/board", "/deutsch/x": "/deutsch/x", "/fragments/stats": "/fragments/stats"} {
+		if got := intl.Unprefixed(in); got != want {
+			t.Errorf("Unprefixed(%q) = %q, want %q", in, got, want)
+		}
+	}
+}
