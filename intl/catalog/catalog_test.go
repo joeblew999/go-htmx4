@@ -142,6 +142,14 @@ func TestGenerate(t *testing.T) {
 		}
 	}
 
+	// A language just added to intl.toml gets its catalog.
+	if err := a.project("en", "en-IN", "de", "fr").Generate(nil); err != nil {
+		t.Fatal(err)
+	}
+	if got := a.read("cat/fr.toml"); !strings.HasPrefix(got, "# fr: the translations of en.toml") {
+		t.Errorf("fr.toml: %q", got)
+	}
+
 	// A translation must use the source's arguments, with the same kinds, and only the source's keys.
 	for _, bad := range []string{"hello = \"Hallo, {who}\"\n", "hello = \"Hallo, {name, number}\"\n", "bye = \"Tschüss\"\n"} {
 		a.write("cat/de.toml", bad)

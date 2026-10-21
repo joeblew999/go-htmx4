@@ -180,7 +180,7 @@ func gitignore(path string, log io.Writer) error {
 	}
 	s := string(b)
 	var add []string
-	for _, p := range []string{"intl_gen.go", "intl-messages.mjs"} {
+	for _, p := range []string{"intl_gen.go", "intl-messages.mjs", "/xliff/"} {
 		if !regexp.MustCompile(`(?m)^/?` + regexp.QuoteMeta(p) + `$`).MatchString(s) {
 			add = append(add, p)
 		}

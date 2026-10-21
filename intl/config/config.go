@@ -5,6 +5,7 @@
 //	locales = ["en", "de", "ar"]   # BCP 47 ids, the source (default) first
 //	catalogs = "locales"           # <locale>.toml (ICU MessageFormat), and the generated package
 //	gsxui = "ui"                   # optional: where gsxui add vendors components; gen translates their i18n.T
+//	xliff = "xliff"                # optional: where go tool intl export writes and import reads (default xliff)
 //
 //	[notes]                        # optional: guidance for whoever translates (people, and Claude: go tool intl todo)
 //	"*" = "A developer tool. Keep product names in English."
@@ -28,6 +29,7 @@ type Config struct {
 	Locales  []string          `toml:"locales"`
 	Catalogs string            `toml:"catalogs"`
 	Gsxui    string            `toml:"gsxui"`
+	XLIFF    string            `toml:"xliff"`
 	Notes    map[string]string `toml:"notes"`
 	Root     string            `toml:"-"` // the directory intl.toml is in
 }
@@ -35,6 +37,14 @@ type Config struct {
 // Note is the translators' guidance for locale id: the notes for every locale ("*"), then its own.
 func (c Config) Note(id string) string {
 	return strings.TrimSpace(c.Notes["*"] + " " + c.Notes[id])
+}
+
+// XLIFFDir is where export writes and import reads XLIFF: intl.toml's xliff, else "xliff".
+func (c Config) XLIFFDir() string {
+	if c.XLIFF == "" {
+		return filepath.Join(c.Root, "xliff")
+	}
+	return filepath.Join(c.Root, c.XLIFF)
 }
 
 // CatalogDir is the catalogs' directory.
