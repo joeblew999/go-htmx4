@@ -2,7 +2,7 @@
 # docs/commands.md (generated from the descriptions: mise run docs:commands).
 #
 # TinyGo (or WORKER_COMPILER) for what ships to Workers; standard Go for local-only code: go test/vet,
-# charter's go tool workerdeploy/workertail, cmd/*. No Node. Tools come from mise.toml.
+# charter's go tool workerdeploy/workertail, e2e/. No Node. Tools come from mise.toml.
 
 # Vendor htmx 4.0.0 + the hx-ws and hx-live extensions from the npm registry tarball (integrity-checked,
 # no npm).
@@ -144,26 +144,18 @@ depends = ["generate", "assets"]
 dir = "{{config_root}}"
 run = "ci/bench.sh variants"
 
-# Design size: 1,000 WebSockets on one topic, then a burst of 50 concurrent writes (coalescing).
-# Starts its own workerd on :8913 unless LOAD_BASE points somewhere else (e.g. the deployed URL).
+# Design size: 1,000 WebSockets on one topic, then a burst of 50 concurrent writes (coalescing), then socket 1,001
+# refused (e2e/load). Starts its own workerd on :8913 unless LOAD_BASE points somewhere else (e.g. the deployed URL).
 ["load"]
-description = "1,000 WebSockets in every locale on one topic + a 50-write burst (local workerd, or LOAD_BASE=https://…)"
+description = "1,000 WebSockets in every locale on one topic, a 50-write burst, socket 1,001 refused (e2e/load; local workerd, or LOAD_BASE=https://…)"
 depends = ["build"]
 dir = "{{config_root}}"
 run = '''
 #!/usr/bin/env bash
 set -euo pipefail
 ulimit -n 8192
-load() {
-  # Sockets spread over every shipped locale: each must get only its own locale's fragments.
-  locales=$(go tool intl locales | tr 'A-Z' 'a-z')
-  go run ./cmd/wsload -base "$1" -n 1000 -locales "$locales" -topic load
-  go run ./cmd/wsload -base "$1" -n 1000 -writes 50 -locales "$locales" -topic load-burst
-  # The Room refuses socket 1,001 (worker/room.mjs MAX_SOCKETS).
-  full=$(go run ./cmd/wsload -base "$1" -n 1001 -topic load-full 2>&1 || true)
-  if grep -q "connected 1000/1001" <<<"$full"; then echo "✓ room refuses socket 1,001"; else echo "$full" | tail -5; echo "✗ room cap"; return 1; fi
-}
-if [ -n "${LOAD_BASE:-}" ]; then echo "→ $LOAD_BASE"; load "$LOAD_BASE"; else export -f load; ci/with-workerd.sh load bash -c 'load "$BASE"'; fi
+if [ -n "${LOAD_BASE:-}" ]; then echo "→ $LOAD_BASE"; exec go test -C e2e -count=1 -v -timeout 10m ./load; fi
+exec ci/with-workerd.sh load sh -c 'LOAD_BASE=$BASE go test -C e2e -count=1 -v -timeout 10m ./load'
 '''
 
 ["test"]
@@ -195,9 +187,11 @@ git diff --quiet -- locales/intl.sum || { git --no-pager diff --stat -- locales/
 test -z "$(gofmt -l intl)" || { gofmt -l intl; echo "✗ gofmt: intl/ needs formatting"; exit 1; }
 go vet -C intl ./...
 go test -C intl ./...
-# e2e/ is its own module (chromedp): format and vet it too; its tests need a server (mise run smoke / e2e).
+# e2e/ is its own module (chromedp): format and vet it too. Its tests need a server (mise run smoke / e2e / load),
+# except the load checker's own, which run against an in-process fake.
 test -z "$(gofmt -l e2e)" || { gofmt -l e2e; echo "✗ gofmt: e2e/ needs formatting"; exit 1; }
 go vet -C e2e ./...
+go test -C e2e ./load
 # docs/commands.md is generated from the task descriptions: a changed task must regenerate it.
 mise run -q docs:commands >/dev/null
 git diff --quiet -- docs/commands.md || { git --no-pager diff --stat -- docs/commands.md; echo "✗ docs/commands.md was stale: regenerated, commit it"; exit 1; }

@@ -31,7 +31,9 @@ Binding. How the app works is in [docs/architecture.md](docs/architecture.md), h
   generated from it (`test:go` fails when it's stale).
 - Before pushing: `mise run check` (what CI runs, `ci/check.sh`), then `mise run e2e` after UI, board or JS changes.
   A task with `sources`/`outputs` is skipped when nothing it reads changed: a new input to the wasm goes in `sources`.
-- Shell lives in `ci/`, one script per job; tasks call them; checks are Go tests (`e2e/smoke`, `e2e`), not curl.
+- A task's own script is inline in its task. `ci/` holds the scripts CI runs or several tasks share (`check.sh`,
+  `deploy.sh`, `wasm-build.sh`, `with-workerd.sh`, `bench.sh`, `workers-builds.sh`). Checks are Go tests (`e2e/smoke`,
+  `e2e`, `e2e/load`), never curl or a grep of a command's output.
 - Stopping `gsx dev` can leave workerd on :8913; `ci/with-workerd.sh` then refuses to start. Stop it by PID.
 - `mise run rename -- <module path> <app name>` turns the template into a new project: keep it working when a file
   mentions the module path or the app name.

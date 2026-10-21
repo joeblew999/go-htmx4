@@ -1,4 +1,4 @@
-// Package wsload checks a live board end to end over real WebSockets: it opens N sockets to
+// Package load checks a live board end to end over real WebSockets (mise run load, load_test.go): it opens N sockets to
 // /live/{topic}, makes changes through the app (POST /board/add), and reports how many sockets
 // received the newest version, how fast, how many broadcasts coalescing let through, whether
 // presence (the online count) tracks connects and closes, whether each socket only gets its own locale's
@@ -6,8 +6,8 @@
 //
 // It speaks the protocol of github.com/joeblew999/go-htmx4/internal/live's Room: pushes are elements with
 // id="board", data-version="N" and lang="…", presence is <span id="presence" …>N</span>, sockets connect with
-// ?locale=, and "ping" is answered with "pong". Local tooling (standard Go).
-package wsload
+// ?locale=, and "ping" is answered with "pong".
+package load
 
 import (
 	"context"
@@ -102,7 +102,7 @@ func Run(ctx context.Context, o Options) (Result, error) {
 	wsURL := *u
 	wsURL.Scheme = map[string]string{"http": "ws", "https": "wss"}[u.Scheme]
 	if wsURL.Scheme == "" {
-		return res, fmt.Errorf("wsload: base URL %q must be http or https", o.Base)
+		return res, fmt.Errorf("load: base URL %q must be http or https", o.Base)
 	}
 	wsURL.Path = "/live/" + o.Topic
 
@@ -284,7 +284,7 @@ func post(ctx context.Context, hc *http.Client, base, topic string) (int64, erro
 	res.Body.Close()
 	m := versionRe.FindSubmatch(body)
 	if res.StatusCode != http.StatusOK || m == nil {
-		return 0, fmt.Errorf("wsload: POST /board/add: HTTP %d: %.200s", res.StatusCode, body)
+		return 0, fmt.Errorf("load: POST /board/add: HTTP %d: %.200s", res.StatusCode, body)
 	}
 	return strconv.ParseInt(string(m[1]), 10, 64)
 }

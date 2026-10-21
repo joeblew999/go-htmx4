@@ -8,7 +8,6 @@ package app
 
 import (
 	"cmp"
-	"io"
 	"log"
 	"net/http"
 	"runtime"
@@ -112,18 +111,7 @@ func (s *server) routes() http.Handler {
 		}
 	})
 	mux.HandleFunc("/robots.txt", robotsTxt)
-	mux.HandleFunc("/sitemap.xml", func(w http.ResponseWriter, r *http.Request) {
-		if !allow(w, r, http.MethodGet) {
-			return
-		}
-		req, _ := intl.FromContext(r.Context())
-		if req.Locale != locales.Shipped[0] {
-			http.NotFound(w, r) // one sitemap, at the root: it already lists every locale
-			return
-		}
-		w.Header().Set("Content-Type", "application/xml; charset=utf-8")
-		io.WriteString(w, intl.Sitemap(req.Origin, views.SitemapPages))
-	})
+	mux.HandleFunc("/sitemap.xml", sitemapXML)
 	mux.HandleFunc("/healthz", func(w http.ResponseWriter, r *http.Request) {
 		if allow(w, r, http.MethodGet) {
 			w.Write([]byte("ok"))

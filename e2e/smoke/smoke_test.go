@@ -9,16 +9,17 @@
 package smoke
 
 import (
+	"context"
 	"io"
 	"net/http"
 	"net/url"
 	"os"
-	"os/exec"
-	"path/filepath"
 	"strings"
 	"sync"
 	"testing"
 	"time"
+
+	"github.com/joeblew999/go-htmx4/e2e/load"
 )
 
 var (
@@ -201,18 +202,16 @@ func TestSEO(t *testing.T) {
 }
 
 // TestBoard: Go (TinyGo) → database/sql d1 driver → D1 → publish → Room Durable Object → hx-ws, and live pushes to
-// WebSockets in three locales (cmd/wsload).
+// WebSockets in three locales (e2e/load).
 func TestBoard(t *testing.T) {
 	has(t, "board page with hx-ws", get(t, "/board?topic=smoke").body, `hx-ws:connect="/live/smoke?locale=en"`)
 	has(t, "board write via D1", post(t, "/board/add?topic=smoke", "delta=1").body, `hx-swap-oob="true" data-version="`)
 	if r := get(t, "/live/smoke"); r.status != 426 {
 		t.Errorf("✗ /live needs an upgrade: got %d", r.status)
 	}
-	root, _ := filepath.Abs("../..")
-	cmd := exec.Command("go", "run", "./cmd/wsload", "-base", base, "-n", "3", "-locales", "en,de,ar", "-topic", "smoke")
-	cmd.Dir = root
-	if out, err := cmd.CombinedOutput(); err != nil {
-		t.Errorf("✗ live push to 3 WebSockets in 3 locales (wsload): %v\n%s", err, out)
+	res, err := load.Run(context.Background(), load.Options{Base: base, N: 3, Locales: []string{"en", "de", "ar"}, Topic: "smoke"})
+	if err != nil || !res.OK() {
+		t.Errorf("✗ live push to 3 WebSockets in 3 locales: %v %+v", err, res)
 	}
 }
 

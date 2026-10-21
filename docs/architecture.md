@@ -70,16 +70,15 @@ served `noindex`.
 ```
 .
 ├── main.go                                      the entry point: transport.Run(app.Handler())
-├── app/                                         handlers, locale URLs, redirect, crawl rules, D1 / memory stores,
+├── app/                                         server.go (routes), board.go + stores, locale.go, seo.go, host.go,
 │                                                Cloudflare-only calls (platform_js.go) and their twins
 ├── views/  ui/  web/gsxui/  web/htmx/           pages (gsx), gsxui components and behaviours, vendored htmx
 ├── intl/  intl.toml                             Intl for gsx (its own module); the app's languages
 ├── locales/                                     UI messages (*.toml) and their generated package
-├── internal/                                    httpx, live (Room publish), ratelimit, wsload, classmerge
-├── cmd/                                         wsload (live-board check)
+├── internal/                                    httpx, live (Room publish), ratelimit, classmerge
 ├── worker/  worker/local/                       the deployed JS (entry, Room); workerd config and shims, locally
 ├── migrations/                                  D1 schema
-├── e2e/                                         smoke (HTTP) and browser tests: its own module
-├── ci/  tasks/  mise.toml                       scripts, mise tasks, pinned tools
+├── e2e/                                         smoke/ (HTTP), browser tests, load/ (1,000 WebSockets): its own module
+├── ci/  tasks/  mise.toml                       shared scripts, mise tasks, pinned tools
 └── docs/                                        this page, deploy.md, commands.md (generated), benchmarks.md
 ```

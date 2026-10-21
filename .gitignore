@@ -16,7 +16,7 @@ intl-messages.mjs
 /build/
 # held while ci/wasm-build.sh writes build/
 /.build.lock
-# native binary (mise run dev:native)
+# CI's deploy tool (ci/check.sh builds charter's workerdeploy here)
 /bin/
 # Tailwind output + assembled Static Assets (mise run assets)
 /dist/
@@ -26,6 +26,7 @@ intl-messages.mjs
 /.staging-url
 # Durable Object SQLite state for local workerd (Room cache, LocalD1 board data)
 /.workerd-state/
+# a Workers Build that a newer commit superseded (ci/workers-builds.sh)
 /.superseded
 
 # mise run bench:variants: the last run's results (ci/bench.sh render .bench writes docs/benchmarks.md from them)

@@ -1,10 +1,11 @@
 //go:build !js
 
+// Languages (locale.go and intl): locale URLs and cookies, every link in the page's locale, mirrored layouts, no text
+// outside the catalogs, the viewer's zone and clock.
+
 package app
 
 import (
-	"encoding/xml"
-	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -17,20 +18,8 @@ import (
 	"github.com/joeblew999/go-htmx4/intl"
 	"github.com/joeblew999/go-htmx4/intl/config"
 	"github.com/joeblew999/go-htmx4/locales"
-	"github.com/joeblew999/go-htmx4/views"
 	nethtml "golang.org/x/net/html"
 )
-
-func get(t *testing.T, h http.Handler, path string, cookies ...*http.Cookie) *httptest.ResponseRecorder {
-	t.Helper()
-	req := httptest.NewRequest("GET", path, nil)
-	for _, c := range cookies {
-		req.AddCookie(c)
-	}
-	rec := httptest.NewRecorder()
-	h.ServeHTTP(rec, req)
-	return rec
-}
 
 func TestLocaleRouting(t *testing.T) {
 	h := newServer().routes()
@@ -395,137 +384,5 @@ func TestLocalesMatchConfig(t *testing.T) {
 	}
 	if !slices.Equal(ids, c.Locales) {
 		t.Errorf("intl.toml locales = %v, locales.Shipped has %v: mise run intl", c.Locales, ids)
-	}
-}
-
-func attr(n *nethtml.Node, key string) string {
-	for _, a := range n.Attr {
-		if a.Key == key {
-			return a.Val
-		}
-	}
-	return ""
-}
-
-// headLinks returns a page's canonical URL and its hreflang alternates (lang → href).
-func headLinks(t *testing.T, body string) (canonical string, alternates map[string]string, description string) {
-	t.Helper()
-	doc, err := nethtml.Parse(strings.NewReader(body))
-	if err != nil {
-		t.Fatal(err)
-	}
-	alternates = map[string]string{}
-	var walk func(*nethtml.Node)
-	walk = func(n *nethtml.Node) {
-		if n.Type == nethtml.ElementNode && n.Data == "link" {
-			switch attr(n, "rel") {
-			case "canonical":
-				canonical = attr(n, "href")
-			case "alternate":
-				if _, dup := alternates[attr(n, "hreflang")]; dup {
-					t.Errorf("duplicate hreflang %s", attr(n, "hreflang"))
-				}
-				alternates[attr(n, "hreflang")] = attr(n, "href")
-			}
-		}
-		if n.Type == nethtml.ElementNode && n.Data == "meta" && attr(n, "name") == "description" {
-			description = attr(n, "content")
-		}
-		for c := n.FirstChild; c != nil; c = c.NextSibling {
-			walk(c)
-		}
-	}
-	walk(doc)
-	return canonical, alternates, description
-}
-
-// TestCanonicalAndHreflang: every page in every locale names its canonical URL and lists the same set of alternates
-// (all locales + x-default, reciprocal, absolute, self included), with a translated description.
-func TestCanonicalAndHreflang(t *testing.T) {
-	h := newServer().routes()
-	for _, page := range []string{"/", "/about", "/formats", "/board", "/board?topic=roadmap"} {
-		var first map[string]string
-		for _, ld := range locales.Shipped {
-			url := intl.Prefix(ld) + page
-			body := get(t, h, url).Body.String()
-			canonical, alts, desc := headLinks(t, body)
-			if want := "http://example.com" + url; canonical != want {
-				t.Errorf("%s: canonical %q, want %q", url, canonical, want)
-			}
-			if len(alts) != len(locales.Shipped)+1 || alts[ld.ID()] != canonical || alts["x-default"] != "http://example.com"+page {
-				t.Errorf("%s: alternates %v (self %q, x-default %q)", url, alts, alts[ld.ID()], alts["x-default"])
-			}
-			if first == nil {
-				first = alts
-			} else if fmt.Sprint(alts) != fmt.Sprint(first) {
-				t.Errorf("%s: alternates differ from the default locale's (not reciprocal)", url)
-			}
-			if desc == "" {
-				t.Errorf("%s: no meta description", url)
-			}
-		}
-	}
-	for url, want := range map[string]string{
-		"/de/board?topic=lobby":             "http://example.com/de/board",
-		"/board?topic=roadmap&utm_source=x": "http://example.com/board?topic=roadmap",
-		"/formats?x=1":                      "http://example.com/formats",
-	} {
-		if canonical, _, _ := headLinks(t, get(t, h, url).Body.String()); canonical != want {
-			t.Errorf("%s: canonical %q, want %q", url, canonical, want)
-		}
-	}
-	req := httptest.NewRequest("GET", "/ja/about", nil)
-	req.Header.Set("X-Forwarded-Proto", "https")
-	rec := httptest.NewRecorder()
-	h.ServeHTTP(rec, req)
-	if canonical, _, desc := headLinks(t, rec.Body.String()); canonical != "https://example.com/ja/about" || !strings.Contains(desc, "go-htmx4") || !strings.Contains(desc, "技術") {
-		t.Errorf("/ja/about behind TLS: canonical %q, description %q", canonical, desc)
-	}
-}
-
-// TestSitemap: /sitemap.xml is valid XML listing every page in every locale, each with the same alternates its page
-// links (reciprocal), and exists only at the root.
-func TestSitemap(t *testing.T) {
-	h := newServer().routes()
-	rec := get(t, h, "/sitemap.xml")
-	if rec.Code != 200 || !strings.HasPrefix(rec.Header().Get("Content-Type"), "application/xml") {
-		t.Fatalf("/sitemap.xml: %d %s", rec.Code, rec.Header().Get("Content-Type"))
-	}
-	var set struct {
-		URLs []struct {
-			Loc   string `xml:"loc"`
-			Links []struct {
-				Rel      string `xml:"rel,attr"`
-				Hreflang string `xml:"hreflang,attr"`
-				Href     string `xml:"href,attr"`
-			} `xml:"http://www.w3.org/1999/xhtml link"`
-		} `xml:"url"`
-	}
-	if err := xml.Unmarshal(rec.Body.Bytes(), &set); err != nil {
-		t.Fatal(err)
-	}
-	if want := len(views.SitemapPages) * len(locales.Shipped); len(set.URLs) != want {
-		t.Fatalf("%d URLs, want %d", len(set.URLs), want)
-	}
-	for _, u := range set.URLs {
-		path := strings.TrimPrefix(u.Loc, "http://example.com")
-		canonical, alts, _ := headLinks(t, get(t, h, path).Body.String())
-		if canonical != u.Loc {
-			t.Errorf("sitemap <loc>%s</loc>, but that page's canonical is %s", u.Loc, canonical)
-		}
-		if len(u.Links) != len(alts) {
-			t.Errorf("%s: %d sitemap alternates, page has %d", u.Loc, len(u.Links), len(alts))
-		}
-		for _, l := range u.Links {
-			if l.Rel != "alternate" || alts[l.Hreflang] != l.Href {
-				t.Errorf("%s: sitemap alternate %s=%s, page says %s", u.Loc, l.Hreflang, l.Href, alts[l.Hreflang])
-			}
-		}
-	}
-	if rec := get(t, h, "/de/sitemap.xml"); rec.Code != 404 {
-		t.Errorf("/de/sitemap.xml: %d, want 404", rec.Code)
-	}
-	if rec := get(t, h, "/sitemap.xml"); len(rec.Result().Cookies()) != 0 {
-		t.Errorf("/sitemap.xml sets cookies: %v", rec.Result().Cookies())
 	}
 }

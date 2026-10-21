@@ -1,12 +1,17 @@
+// Search engines: robots.txt, the sitemap, and noindex for whatever isn't a page. Which pages there are, and their
+// canonical URLs and alternates, are views/seo.go's and intl's.
+
 package app
 
 import (
+	"io"
 	"net/http"
 	"strings"
 
 	"github.com/joeblew999/go-htmx4/internal/httpx"
 	"github.com/joeblew999/go-htmx4/intl"
 	"github.com/joeblew999/go-htmx4/locales"
+	"github.com/joeblew999/go-htmx4/views"
 )
 
 // robotsTxt answers /robots.txt. One `*`
@@ -31,6 +36,21 @@ func robotsTxt(w http.ResponseWriter, r *http.Request) {
 		"Sitemap: " + httpx.Origin(r) + "/sitemap.xml\n"
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 	w.Write([]byte(body))
+}
+
+// sitemapXML answers /sitemap.xml: every page of views.SitemapPages in every locale, with its alternates. One
+// sitemap, at the root: under a locale prefix it is 404.
+func sitemapXML(w http.ResponseWriter, r *http.Request) {
+	if !allow(w, r, http.MethodGet) {
+		return
+	}
+	req, _ := intl.FromContext(r.Context())
+	if req.Locale != locales.Shipped[0] {
+		http.NotFound(w, r)
+		return
+	}
+	w.Header().Set("Content-Type", "application/xml; charset=utf-8")
+	io.WriteString(w, intl.Sitemap(req.Origin, views.SitemapPages))
 }
 
 // noindexNonPages marks every response that isn't a page X-Robots-Tag: noindex: fragments
