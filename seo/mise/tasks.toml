@@ -1,12 +1,14 @@
 # seo's mise tasks: how Google sees the app at https://$APP_DOMAIN, every workflow a go tool seo
 # command (seo/README.md). In an app, go tool seo tasks writes this file to
 # .mise/tasks/seo.toml, one of mise's default task directories, from the seo version in go.mod.
-# --json prints one JSON document for a program; exit codes: 0 ok, 1 problems or no access.
+# --json prints one JSON document for a program; exit codes: 0 ok, 1 problems or no access. A task brings what it
+# runs (fnox for the key, gcloud for setup), so an app needs only mise.
 
 # Every task that talks to Search Console needs the key and Full access first. Silent, so --json stays one document.
 ["seo:access"]
 hide = true
 silent = true
+tools = { fnox = "1.40.0" }
 run = "fnox exec -- go tool seo sites"
 
 ["seo:audit"]
@@ -21,6 +23,7 @@ usage = '''
 flag "--json" help="one JSON document on stdout"
 flag "--open" help="open Google's page for each problem (Test live URL, Request indexing)"
 '''
+tools = { fnox = "1.40.0" }
 run = "fnox exec -- go tool seo todo -json=${usage_json:-false} -open=${usage_open:-false}"
 
 ["seo:inspect"]
@@ -31,23 +34,27 @@ arg "[page]" default="/" help="a path like /de/ or a full URL"
 flag "--json" help="one JSON document on stdout"
 flag "--open" help="open its Search Console page (Test live URL, Request indexing)"
 '''
+tools = { fnox = "1.40.0" }
 run = 'fnox exec -- go tool seo inspect "${usage_page:-/}" -json=${usage_json:-false} -open=${usage_open:-false}'
 
 ["seo:status"]
 description = "The sitemap's status in Search Console and Google's index status for every URL in it"
 depends = ["seo:access"]
 usage = 'flag "--json" help="one JSON document on stdout"'
+tools = { fnox = "1.40.0" }
 run = "fnox exec -- go tool seo status -json=${usage_json:-false}"
 
 ["seo:sites"]
 description = "The Search Console properties the service account can use; fails without Full access"
 usage = 'flag "--json" help="one JSON document on stdout"'
+tools = { fnox = "1.40.0" }
 run = "fnox exec -- go tool seo sites -json=${usage_json:-false}"
 
 ["seo:submit"]
 description = "Submit https://$APP_DOMAIN/sitemap.xml to Search Console, after access and a passing live audit"
 depends = ["seo:access", "seo:audit"]
 confirm = "Submit the sitemap to Google Search Console?"
+tools = { fnox = "1.40.0" }
 run = "fnox exec -- go tool seo submit"
 
 # Once per person, not per site: one service account serves every site it is added to. With its key already in fnox
@@ -57,7 +64,7 @@ run = "fnox exec -- go tool seo submit"
 ["seo:setup"]
 description = "Once: a service account for the Search Console API and its key in fnox (needs gcloud auth login if there is no key yet)"
 confirm = "Make or check the Search Console service account?"
-tools = { "asdf:mise-plugins/mise-gcloud" = "584.0.0", python = "3.13.15" }
+tools = { fnox = "1.40.0", "asdf:mise-plugins/mise-gcloud" = "584.0.0", python = "3.13.15" }
 env = { CLOUDSDK_PYTHON = "python3" }
 run = '''
 #!/usr/bin/env bash
