@@ -71,8 +71,10 @@ mise run seo:lighthouse --json             # every page of the live sitemap (or 
 mise run seo:lighthouse /de/board --json   # one page; --desktop for the desktop one
 ```
 
-The settings (the site, the property, Lighthouse's pages, device and minimum score) are the app's `seo.toml`, each
-with a default; an argument overrides one for one run.
+The settings (the site, the property, Lighthouse's pages, device and minimum score, where badges go) are the app's
+`seo.toml`, each with a default; an argument overrides one for one run. After a production release,
+`mise run seo:badges` writes the README's Lighthouse and audit badges and its scores table from a fresh run: commit
+them, never edit them by hand.
 
 It runs on Google's servers (PageSpeed Insights), so only on a live site: production, or a branch preview (whose
 SEO score reads noindex, by design). Each category under 90 fails; `failed` lists the checks with `items`, the

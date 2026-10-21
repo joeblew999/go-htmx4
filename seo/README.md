@@ -56,6 +56,7 @@ Every task runs with no arguments: the site is `https://$APP_DOMAIN`. Exit codes
 |---|---|---|
 | `seo:audit` | fetches robots.txt, the sitemap and every page in it as Googlebot, and fails on whatever would keep a page out or look wrong in a result (below). `mise run deploy` runs it after every production deploy | nothing |
 | `seo:lighthouse` | Lighthouse on the live site (every page of the sitemap, `seo.toml`'s pages, or one: `/de/board`), on Google's servers through PageSpeed Insights: performance, accessibility, best practices and SEO out of 100, each failing check with the elements it failed on, and real Chrome users' Core Web Vitals once there are enough visits; fails under 90. `--desktop` for the desktop page | the key |
+| `seo:badges` | Lighthouse on every page and the audit, then badges for a README (an SVG per Lighthouse category, the lowest page's score; one for the audit) into `seo.toml`'s `[badges] dir`, and every page's scores into the README between `<!-- seo:scores -->` and `<!-- /seo:scores -->`. Run it after a release, and commit | the key |
 | `seo:todo` | Google's verdict for every sitemap URL: indexed, waiting, duplicate or a problem; fails on problems; `--open` opens each problem's page | the key |
 | `seo:inspect` | one URL (the home page, or e.g. `/de/`): verdict, last crawl, Google's canonical and the app's | the key |
 | `seo:status` | the sitemap's status, and every URL's coverage, last crawl and canonical | the key |
@@ -92,8 +93,9 @@ Google verdict means and where its fix is, and that `seo:submit` and `seo:setup`
 | `.` | package `seo`: `Site`, and `SnippetWidth` |
 | `audit/` | the site as Googlebot reads it |
 | `lighthouse/` | Lighthouse through PageSpeed Insights |
+| `badge/` | README badges as SVG, no service |
 | `searchconsole/` | the Search Console API with a service account key |
 | `config/` | `seo.toml` |
-| `cmd/seo/` | `go tool seo`: audit, lighthouse, todo, inspect, status, sites, submit, init, tasks, skill |
+| `cmd/seo/` | `go tool seo`: audit, lighthouse, badges, todo, inspect, status, sites, submit, init, tasks, skill |
 | `mise/` | the tasks, embedded in the command |
 | `skills/seo/` | the agent skill, embedded in the command |

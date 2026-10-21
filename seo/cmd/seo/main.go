@@ -8,6 +8,7 @@
 //	fnox exec -- go tool seo [-open] inspect /de/ # one URL: Google's verdict + its Search Console page
 //	go tool seo audit                             # live fetch as Googlebot: robots.txt + every sitemap URL
 //	fnox exec -- go tool seo lighthouse [/de/]    # Lighthouse on Google's servers (PageSpeed Insights): scores, failures
+//	fnox exec -- go tool seo badges               # the README's badges and scores table, from Lighthouse and the audit
 //	go tool seo init                              # seo.toml, the mise tasks and the agent skill, into an app
 //	go tool seo tasks                             # write its mise tasks: .mise/tasks/seo.toml
 //	go tool seo skill                             # install its agent skill: .claude/skills/seo
@@ -109,7 +110,7 @@ func main() {
 	strategy := flag.String("strategy", cfg.Lighthouse.Strategy, "lighthouse: mobile (what Google indexes) or desktop")
 	minScore := flag.Int("min", cfg.Lighthouse.Min, "lighthouse: the lowest score out of 100 a category may have")
 	flag.Usage = func() {
-		fmt.Fprintln(os.Stderr, "usage: seo audit|lighthouse [path or URL]|todo|inspect <path or URL>|status|sites|submit|init|tasks|skill [-site sc-domain:example.com] [-base https://app.example.com] [-open] [-json] [-o file]")
+		fmt.Fprintln(os.Stderr, "usage: seo audit|lighthouse [path or URL]|badges|todo|inspect <path or URL>|status|sites|submit|init|tasks|skill [-site sc-domain:example.com] [-base https://app.example.com] [-open] [-json] [-o file]")
 		flag.PrintDefaults()
 	}
 	flag.Parse()
@@ -159,7 +160,8 @@ func main() {
 			emit(r)
 		} else if r.OK {
 			fmt.Printf("✓ robots.txt and all %d sitemap URLs pass (fetched as Googlebot: 200, indexable, self-canonical, lang, "+
-				"title, description, one h1, reciprocal hreflang with x-default)\n", r.URLs)
+				"title, description, one h1, reciprocal hreflang with x-default, icon, Open Graph; a missing page is 404, "+
+				"http moves to https, the home page names the site)\n", r.URLs)
 		} else {
 			for _, p := range r.Problems {
 				fmt.Println("✗ " + p)
@@ -179,7 +181,7 @@ func main() {
 	if err != nil {
 		fail(err)
 	}
-	if args[0] == "lighthouse" {
+	if args[0] == "lighthouse" || args[0] == "badges" {
 		pages := cfg.Lighthouse.Pages
 		if len(args) == 2 {
 			pages = []string{args[1]}
@@ -193,6 +195,10 @@ func main() {
 			if strings.HasPrefix(p, "/") {
 				pages[i] = strings.TrimRight(*base, "/") + p
 			}
+		}
+		if args[0] == "badges" {
+			badges(ctx, httpc, key, *base, pages, *strategy, cfg.Badges.Dir, cfg.Badges.Readme)
+			return
 		}
 		lighthouseRun(ctx, key, pages, *strategy, *minScore, *jsonOut)
 		return

@@ -45,7 +45,8 @@ Binding. How the app works is in [docs/architecture.md](docs/architecture.md), h
 `intl_gen.go` and `intl-messages.mjs` (`mise run intl`; not committed), `locales/intl.sum` (`mise run intl`;
 committed), `.claude/skills/intl` (`mise run intl:skill`; committed), `.claude/skills/seo`
 (`mise run seo:skill`; committed), `docs/commands.md`
-(`mise run docs:commands`), and what `gsxui` manages (`gsxui.json` lists it).
+(`mise run docs:commands`), `docs/badges/` and the README's `<!-- seo:scores -->` table (`mise run seo:badges`, after
+a release; committed), and what `gsxui` manages (`gsxui.json` lists it).
 
 ## UI: gsx, gsxui, htmx 4
 

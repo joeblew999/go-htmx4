@@ -245,6 +245,12 @@ Fetch robots.txt and every sitemap URL live as Googlebot: 200, indexable, self-c
 ### Flags
 - **`--json`** — one JSON document on stdout
 
+### `seo:badges`
+
+- **Usage:** `seo:badges`
+
+Lighthouse on every page and the audit, then the README's badges (seo.toml's [badges] dir: each Lighthouse category's lowest page, the audit) and its &lt;!-- seo:scores --> table; run after a production release, then commit
+
 ### `seo:inspect`
 
 One URL (the home page unless named): Google's verdict, last crawl and canonical, and the link to its Search Console page
