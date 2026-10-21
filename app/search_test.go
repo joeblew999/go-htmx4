@@ -1,6 +1,6 @@
 //go:build !js
 
-package main
+package app
 
 import (
 	"html"

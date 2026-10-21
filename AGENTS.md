@@ -128,9 +128,9 @@ committed), `.claude/skills/intl-translate` (`mise run intl:skill`; committed), 
   notes, zero `value` and bump `version`.
 - D1 has no interactive transactions: single statements with `RETURNING`.
 - `BoardFragment` is the wire format the Room and the version guard rely on: `TestBoardFragmentWireFormat` keeps it.
-- Limits stay in sync: the `WRITES` rate limit (60 / 10 s per IP) in `ci/deploy.sh` and `workerd/local-entry.mjs`;
+- Limits stay in sync: the `WRITES` rate limit (60 / 10 s per IP) in `ci/deploy.sh` and `worker/local/local-entry.mjs`;
   every write handler calls `s.limited` first; `keepNotes` (50); `MAX_SOCKETS` (1,000) in `worker/room.mjs`.
   New browser checks go into `TestE2E`'s parallel list: the write-limit check runs alone after it.
-- Schema changes: a new idempotent `migrations/NNNN_name.sql`, also imported by `workerd/local-d1.mjs`. A new Durable
+- Schema changes: a new idempotent `migrations/NNNN_name.sql`, also imported by `worker/local/local-d1.mjs`. A new Durable
   Object class bumps `-migration-tag` in `ci/deploy.sh`.
 - After a board change: `mise run check`; `mise run load` for the 1,000-socket check.

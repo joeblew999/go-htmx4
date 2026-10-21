@@ -1,4 +1,4 @@
-package main
+package app
 
 import (
 	"database/sql"
@@ -6,7 +6,7 @@ import (
 )
 
 // sqlStore is the board on a database/sql driver in the SQLite dialect: workers-go's D1 driver on
-// Workers, or the same driver against workerd/local-d1.mjs locally. D1 has no interactive
+// Workers, or the same driver against worker/local/local-d1.mjs locally. D1 has no interactive
 // transactions, so each change is a single UPSERT … RETURNING, which is atomic.
 type sqlStore struct{ db *sql.DB }
 

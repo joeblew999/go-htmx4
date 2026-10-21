@@ -367,4 +367,4 @@ Verify CLOUDFLARE_API_TOKEN (from fnox) against the Cloudflare API
 
 - **Usage:** `vendor`
 
-Vendor htmx 4.0.0 htmx.min.js + ext/hx-ws.js + ext/hx-live.js into static/ (curl, integrity-checked)
+Vendor htmx 4.0.0 htmx.min.js + ext/hx-ws.js + ext/hx-live.js into web/htmx/ (curl, integrity-checked)

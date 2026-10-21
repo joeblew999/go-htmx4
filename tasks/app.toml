@@ -7,13 +7,13 @@
 # Vendor htmx 4.0.0 + the hx-ws and hx-live extensions from the npm registry tarball (integrity-checked,
 # no npm).
 ["vendor"]
-description = "Vendor htmx 4.0.0 htmx.min.js + ext/hx-ws.js + ext/hx-live.js into static/ (curl, integrity-checked)"
+description = "Vendor htmx 4.0.0 htmx.min.js + ext/hx-ws.js + ext/hx-live.js into web/htmx/ (curl, integrity-checked)"
 dir = "{{config_root}}"
 run = '''
 #!/usr/bin/env bash
 set -euo pipefail
 version=4.0.0
-if [ -f static/hx-ws.js ] && [ -f static/hx-live.js ] && [ "$(cat static/.htmx-version 2>/dev/null)" = "$version" ]; then
+if [ -f web/htmx/hx-ws.js ] && [ -f web/htmx/hx-live.js ] && [ "$(cat web/htmx/.htmx-version 2>/dev/null)" = "$version" ]; then
   echo "· htmx $version (cached)"; exit 0
 fi
 meta=$(curl -sfL "https://registry.npmjs.org/htmx.org/$version")
@@ -22,12 +22,12 @@ tgz=$(mktemp); curl -sfL -o "$tgz" "$url"
 algo=${integrity%%-*}; want=${integrity#*-}
 [ "$(openssl dgst -"$algo" -binary "$tgz" | base64)" = "$want" ] || { echo "✗ integrity mismatch"; exit 1; }
 tmp=$(mktemp -d); tar -xzf "$tgz" -C "$tmp" --strip-components 1
-cp "$tmp/dist/htmx.min.js" static/htmx.min.js
-cp "$tmp/dist/ext/hx-ws.js" static/hx-ws.js
-cp "$tmp/dist/ext/hx-live.js" static/hx-live.js
-echo "$version" > static/.htmx-version
+cp "$tmp/dist/htmx.min.js" web/htmx/htmx.min.js
+cp "$tmp/dist/ext/hx-ws.js" web/htmx/hx-ws.js
+cp "$tmp/dist/ext/hx-live.js" web/htmx/hx-live.js
+echo "$version" > web/htmx/.htmx-version
 rm -rf "$tgz" "$tmp"
-echo "✓ htmx $version: static/htmx.min.js, static/hx-ws.js, static/hx-live.js"
+echo "✓ htmx $version: web/htmx/htmx.min.js, web/htmx/hx-ws.js, web/htmx/hx-live.js"
 '''
 
 # gsx components (views/, ui/) → *.x.go, which are gitignored; every build/run/test path depends on this.
@@ -38,7 +38,7 @@ dir = "{{config_root}}"
 run = ["go -C intl tool gsx generate -q .", "go tool gsx generate"]
 
 # gsxui (npm-free mode): compile web/gsxui/index.css with the standalone Tailwind CLI, then assemble the
-# Static Assets directory: /static/ = static/ (htmx, hx-ws),
+# Static Assets directory: /static/ = web/htmx/ (htmx, hx-ws) and intl's browser module,
 # /gsxui/ = web/gsxui/ behaviours, /assets/ = compiled CSS + fonts (fonts.css url()s are relative).
 ["assets"]
 description = "Tailwind (gsxui CSS) + assemble dist/site (Static Assets for workerd and deploy)"
@@ -50,7 +50,7 @@ set -euo pipefail
 tailwindcss -i web/gsxui/index.css -o dist/gsxui.css --minify 2>&1 | grep -v "^≈\|^$" || true
 rm -rf dist/site
 mkdir -p dist/site/static dist/site/gsxui dist/site/assets
-cp static/*.js dist/site/static/
+cp web/htmx/*.js dist/site/static/
 # The browser's half of intl, with the same intl.mjs the Worker runs (/static/intl-browser.mjs).
 go tool intl assets -browser dist/site/static
 cp -R web/gsxui/. dist/site/gsxui/
@@ -83,7 +83,7 @@ run = "ci/wasm-build.sh"
 
 # The dev loop (gsx CLI, gsx.toml [dev]): the real runtime (Intl, Durable Objects, D1, the board), build:dev
 # (standard Go, seconds per save) + workerd.
-# JS and CSS edits (static/, intl/js, web/gsxui) need no Go build: mise run assets, then reload.
+# JS and CSS edits (web/htmx/, intl/js, web/gsxui) need no Go build: mise run assets, then reload.
 ["dev"]
 description = "gsx dev → build:dev (standard Go, seconds) + CSS → workerd restart on every .gsx/.go save → http://localhost:8913"
 env = { APP_DEV_PORT = "8913" }
@@ -98,7 +98,7 @@ run = "fnox exec -- go tool workertail -name \"$APP_NAME\""
 description = "The production build (WORKER_COMPILER) on local workerd, static files first → http://localhost:8913"
 depends = ["build"]
 dir = "{{config_root}}"
-run = "mkdir -p .workerd-state && exec workerd serve workerd/config.capnp"
+run = "mkdir -p .workerd-state && exec workerd serve worker/local/config.capnp"
 
 # go test runs the handlers on standard Go, which hides TinyGo runtime gaps (html/template panics, pre-1.22
 # ServeMux). So also run the production build under workerd and check every route over HTTP. SMOKE_BASE=https://…
@@ -233,7 +233,7 @@ perl -pi -e 's/^APP_DOMAIN = ".*"/APP_DOMAIN = ""/' mise.toml
 repo=""; [[ "$module" =~ ^github\.com/([^/]+/[^/]+)$ ]] && repo=${BASH_REMATCH[1]}
 perl -pi -e "s#^APP_REPO = \".*\"#APP_REPO = \"$repo\"#" mise.toml
 perl -pi -e 's/^CF_SUBDOMAIN = ".*"/CF_SUBDOMAIN = ""/' mise.toml
-git ls-files -z -- views main.go main_test.go e2e tasks/app.toml workerd/config.capnp | xargs -0 perl -pi -e "s/\\b\\Q$old_name\\E\\b/$name/g"
+git ls-files -z -- views app main.go e2e tasks/app.toml worker/local/config.capnp | xargs -0 perl -pi -e "s/\\b\\Q$old_name\\E\\b/$name/g"
 # Import blocks re-sort under the new path.
 go tool gsx fmt -w . >/dev/null
 git ls-files -z -- '*.go' | xargs -0 gofmt -w

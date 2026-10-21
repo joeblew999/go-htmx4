@@ -1,6 +1,6 @@
 //go:build !js
 
-package main
+package app
 
 import (
 	"cmp"
@@ -270,7 +270,7 @@ func TestBoardFragmentWireFormat(t *testing.T) {
 
 // The Worker entry and the Room are JavaScript: they must use internal/live's topic and locale rules and version header.
 func TestWorkerJSMatchesLive(t *testing.T) {
-	index, err := os.ReadFile("worker/index.mjs")
+	index, err := os.ReadFile("../worker/index.mjs")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -280,7 +280,7 @@ func TestWorkerJSMatchesLive(t *testing.T) {
 	if !strings.Contains(string(index), "/"+live.LocalePattern+"/") {
 		t.Errorf("worker/index.mjs must validate locales with /%s/", live.LocalePattern)
 	}
-	room, err := os.ReadFile("worker/room.mjs")
+	room, err := os.ReadFile("../worker/room.mjs")
 	if err != nil {
 		t.Fatal(err)
 	}

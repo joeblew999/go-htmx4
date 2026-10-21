@@ -1,10 +1,11 @@
 //go:build !js
 
-package main
+package app
 
 import (
 	"net/http"
 	"os"
+	"path/filepath"
 
 	"github.com/joeblew999/go-htmx4/internal/httpx"
 	"github.com/joeblew999/go-htmx4/internal/live"
@@ -24,9 +25,21 @@ func getenv(name string) string { return os.Getenv(name) }
 // object, so a request header stands in for it (tests and local checks); "" = unknown.
 func connectionTimeZone(r *http.Request) string { return r.Header.Get("X-Test-Connection-Time-Zone") }
 
-// staticFiles serves the assembled static assets (dist/site: static/, gsxui behaviours, compiled
+// staticFiles serves the assembled static assets (dist/site: htmx, gsxui behaviours, compiled
 // gsxui CSS + fonts) from disk, standing in for Workers Static Assets under go test.
-func staticFiles() http.Handler { return httpx.GetOnly(http.FileServer(http.Dir("dist/site"))) }
+func staticFiles() http.Handler { return httpx.GetOnly(http.FileServer(http.Dir(siteDir()))) }
+
+// siteDir is dist/site in the module: go test runs in the package's directory, app/.
+func siteDir() string {
+	for dir, _ := os.Getwd(); ; dir = filepath.Dir(dir) {
+		if _, err := os.Stat(filepath.Join(dir, "go.mod")); err == nil {
+			return filepath.Join(dir, "dist", "site")
+		}
+		if filepath.Dir(dir) == dir {
+			return filepath.Join("dist", "site")
+		}
+	}
+}
 
 var mem = newMemStore()
 

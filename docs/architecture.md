@@ -10,7 +10,7 @@
   so an unchanged build takes under a second. `WORKER_COMPILER=go` builds with the standard compiler instead (seconds,
   bigger, slower per request); `build:dev` always does, for `mise run dev`.
 - **Static files** (`dist/site`: htmx, gsxui CSS and behaviours, fonts) are Workers Static Assets, served before the
-  Worker runs. Locally `workerd/config.capnp` stands in for them and for D1 (`workerd/local-d1.mjs`, over Durable Object
+  Worker runs. Locally `worker/local/config.capnp` stands in for them and for D1 (`worker/local/local-d1.mjs`, over Durable Object
   SQLite), so the same `database/sql` code runs on workerd.
 
 ## The shared board
