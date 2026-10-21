@@ -49,6 +49,10 @@ func TestSite(t *testing.T) {
 		"/xx/about":      "200 en /xx/about Asia/Tokyo guessed  http://example.com",
 		"/de/api/thing":  "200 de /api/thing Asia/Tokyo guessed  http://example.com",
 		"/zh-hant/about": "200 en /zh-hant/about Asia/Tokyo guessed  http://example.com",
+		// Never a redirect to another host (browsers read // and /\ as one).
+		"/en//evil.example/x": "301 /evil.example/x",
+		"/en/%5Cevil.example": "301 /evil.example",
+		"/DE//evil.example":   "301 /de/evil.example",
 	} {
 		w := do(h, path)
 		got := w.Body.String()
@@ -123,7 +127,8 @@ func TestPreferences(t *testing.T) {
 			t.Errorf("POST %s = %d", body, w.Code)
 		}
 	}
-	for ret, want := range map[string]string{"%2F%2Fevil.example%2Fx": "/", "https%3A%2F%2Fevil.example%2Fx%3Fa%3D1": "/x?a=1", "javascript%3Aalert(1)": "/", "": "/", "%2Fabout": "/about"} {
+	for ret, want := range map[string]string{"%2F%2Fevil.example%2Fx": "/", "https%3A%2F%2Fevil.example%2Fx%3Fa%3D1": "/x?a=1", "javascript%3Aalert(1)": "/", "": "/", "%2Fabout": "/about",
+		"%2F%09%2Fevil.example": "/", "%2F%5Cevil.example": "/%5Cevil.example", "%2Fsearch%3Fq%3Dhttp%3A%2F%2Fx%2Fy": "/search?q=http://x/y", "%2Fde%2Fformats": "/de/formats"} {
 		if got := post("return=" + ret).Header().Get("Location"); got != want {
 			t.Errorf("return=%s → %q, want %q", ret, got, want)
 		}

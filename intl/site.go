@@ -3,6 +3,7 @@ package intl
 import (
 	"cmp"
 	"net/http"
+	"net/url"
 	"strings"
 )
 
@@ -50,6 +51,7 @@ func (s Site) Handler(next http.Handler) http.Handler {
 		loc := def
 		if len(path) > 1 {
 			if found := byPrefix(seg); found != nil {
+				rest = sameSite(rest) // "/en//evil.example" must not redirect to //evil.example
 				switch {
 				case found == def:
 					redirect(w, r, cmp.Or(rest, "/"), http.StatusMovedPermanently)
@@ -151,21 +153,31 @@ func (s Site) origin(r *http.Request) string {
 	return scheme + "://" + host
 }
 
-// SafeReturn keeps a same-site redirect target: the path and query of an absolute or root-relative URL, else "/"
-// (never another host).
+// SafeReturn keeps a same-site redirect target: the path and query of a root-relative URL, or of an http(s) URL
+// (never its host), else "/". Protocol-relative URLs, other schemes and control characters (which browsers strip,
+// turning "/\t/evil.example" into //evil.example) give "/".
 func SafeReturn(u string) string {
-	if i := strings.Index(u, "://"); i >= 0 {
-		u = u[i+3:]
-		if j := strings.IndexByte(u, '/'); j >= 0 {
-			u = u[j:]
-		} else {
-			u = "/"
-		}
-	}
-	if u == "" || u[0] != '/' || strings.HasPrefix(u, "//") || strings.ContainsAny(u, "\\\r\n") {
+	p, err := url.Parse(u)
+	if err != nil || p.Scheme != "" && p.Scheme != "http" && p.Scheme != "https" || p.Scheme == "" && p.Host != "" || p.Opaque != "" {
 		return "/"
 	}
-	return u
+	out := p.EscapedPath()
+	if p.RawQuery != "" {
+		out += "?" + p.RawQuery
+	}
+	if out == "" || out[0] != '/' || sameSite(out) != out {
+		return "/"
+	}
+	return out
+}
+
+// sameSite is path with one leading slash: "//evil.example" or "/\evil.example" (which browsers read as another
+// host) become "/evil.example", a path of this site.
+func sameSite(path string) string {
+	if path == "" {
+		return path
+	}
+	return "/" + strings.TrimLeft(path, "/\\")
 }
 
 // byPrefix is the shipped locale a URL segment or cookie names, case-insensitively, or nil.
