@@ -8,7 +8,9 @@ Binding. How the app works is in [docs/architecture.md](docs/architecture.md), h
 - Plans, open work and follow-ups are GitHub issues on joeblew999/go-htmx4. No plan files in the repo. Before
   non-trivial work, find the issue and update it rather than opening a duplicate; reference it as `#N` in commits, PRs
   and code comments. Close it when its PR merges (`Closes #N`) or say why it's not planned.
-- Changes land by branch and PR. `main` is protected: a PR needs a green `check`. Squash merges only.
+- Changes land by branch and PR, squash-merged as soon as the local checks pass: `mise run check`, and `mise run e2e`
+  after UI, board or JS changes. Merge with `gh pr merge --admin --squash`: nobody waits for CI, which runs the same
+  `check` on GitHub as a record (`main` requires it, but not of admins).
 - End every report of finished work with a **Follow-ups** list, even a short one: what's next, what needs the user's
   OK and why, bugs or risks found but not fixed, checks skipped, leftovers (processes, resources, stale docs). Put the
   same list in the issue.
