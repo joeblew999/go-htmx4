@@ -5,8 +5,8 @@
 #   mise run check      # test everything (TinyGo under workerd + go test)
 #   mise tasks          # list everything
 
-# The oldest mise that handles these pins (http: backend platforms, packslip tools). CI installs this version too
-# (MISE_VERSION in ci/check.sh); bump both together.
+# The oldest mise that handles these pins (http: backend platforms, packslip tools). CI and Workers Builds install
+# this version (ci/check.sh, ci/workers-builds.sh read it from here).
 min_version = "2026.10.14"
 
 [settings]
@@ -64,12 +64,9 @@ CF_SUBDOMAIN = "gedw99"
 I18N_LOCALES = "en,en-IN,de,fr,es,pt-BR,pt-PT,ar,he,ja,zh-Hans,zh-Hant,hi,ru"
 
 [task_config]
-includes = ["tasks/app.toml", "tasks/upstream.toml", "tasks/i18n.toml", "tasks/search.toml", "tasks/editor.toml"]
+includes = ["tasks/app.toml", "tasks/i18n.toml", "tasks/search.toml", "tasks/editor.toml"]
 
 # The VS Code gsx language server needs the compiler where the extension looks (tasks/editor.toml).
 [hooks]
 postinstall = { task = "editor:gsx" }
 
-[tasks.check]
-description = "Test the app: TinyGo build + workerd smoke + gsx fmt/gofmt + go vet + go test"
-depends = ["test"]

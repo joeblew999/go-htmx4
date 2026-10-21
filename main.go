@@ -1,14 +1,14 @@
-// Command go-htmx4 is a Go + htmx 4 + gsxui app on Cloudflare Workers via workers-go v0.36.0, built
-// with TinyGo and no Node.
+// Command go-htmx4 is a Go + htmx 4 + gsxui app on Cloudflare Workers: charter's runtime (transport.Run) over
+// workers-go v0.36.0, built with TinyGo and no Node.
 //
 // The same handlers run in two places:
 //
-//	mise run serve   TinyGo → wasm on workerd  → http://localhost:8913
-//	mise run run     go run . (non-js fallback) → http://localhost:9913
+//	mise run serve       the production build on workerd → http://localhost:8913 (mise run dev: on every save)
+//	mise run dev:native  go build, the native server     → http://localhost:9913
 //
 // Files in dist/site (static/, gsxui CSS, behaviours and fonts) are served by Workers Static Assets
 // before the Worker runs (locally: workerd's disk service, fronted by workerd/assets-first.mjs).
-// Only `go run .` serves them from Go. Platform calls live in platform_js.go / platform_other.go.
+// Only the native server serves them from Go. Platform calls live in platform_js.go / platform_other.go.
 //
 // Routes are plain paths with method checks: TinyGo 0.42's net/http has the pre-Go 1.22 ServeMux
 // (no "GET /x" patterns, no {$}). No html/template either: under TinyGo 0.42 it compiles but panics

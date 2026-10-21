@@ -1,5 +1,4 @@
-# Runs `mise run check` (TinyGo under workerd + go test) and `mise run e2e` (headless Chrome) on every push and pull
-# request to main.
+# Runs ci/check.sh on every branch push: the production build, go test, smoke under workerd, headless Chrome (e2e).
 # Strict no-Node: shell `run:` steps only, no JavaScript actions.
 name: check
 
@@ -21,9 +20,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 45
     env:
-      # mise downloads tool releases from GitHub; the token avoids API rate limits. Nothing is deployed.
+      # mise's GitHub downloads (no rate limit), the preview-builds upload and PR comment, and a release's tag and
+      # production branch. Cloudflare credentials never come here: Workers Builds deploys.
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - name: Check out with git (no actions/checkout)
         run: |
@@ -32,5 +31,5 @@ jobs:
           git checkout -q --detach FETCH_HEAD
           git log --oneline -1
 
-      - name: mise install + mise run check + mise run e2e
+      - name: ci/check.sh
         run: ci/check.sh

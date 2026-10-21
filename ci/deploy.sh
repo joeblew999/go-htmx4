@@ -1,17 +1,16 @@
 #!/usr/bin/env bash
-# The app's deploys in one place (mise run deploy / staging / preview / preview:delete): which modules, assets,
+# The app's deploys in one place (mise run deploy / staging / preview, and Workers Builds): which modules, assets,
 # bindings and D1 each one gets. charter's workerdeploy does the uploading (Go, no wrangler).
 #
 #   ci/deploy.sh production        $APP_NAME, custom domain $APP_DOMAIN if set → .deploy-url
 #   ci/deploy.sh staging           $APP_NAME-staging, its own D1, noindex → .staging-url
 #   ci/deploy.sh preview <name>    a Worker Preview of $APP_NAME, the shared preview D1, noindex → .preview-url
-#   ci/deploy.sh delete-preview <name>
 #
 # Credentials: CLOUDFLARE_API_TOKEN/CLOUDFLARE_ACCOUNT_ID from the environment (Workers Builds' build token), else
 # fnox. DEPLOY_CMD: a prebuilt workerdeploy (Workers Builds gets one from GitHub CI); default: go tool workerdeploy.
 # The URL files live outside build/: workers-assets-gen wipes build/.
 set -euo pipefail
-kind=${1:?production, staging, preview <name> or delete-preview <name>}
+kind=${1:?production, staging or preview <name>}
 name=${2:-}
 cf() { if [ -n "${CLOUDFLARE_API_TOKEN:-}" ] && [ -n "${CLOUDFLARE_ACCOUNT_ID:-}" ]; then "$@"; else fnox exec -- "$@"; fi; }
 read -r -a deploy <<<"${DEPLOY_CMD:-go tool workerdeploy}"
@@ -43,20 +42,12 @@ case $kind in
   preview)
     [ -n "$name" ] || { echo "✗ preview needs a name, e.g. pr-7"; exit 1; }
     ann=(-annotation "workers/commit_sha=$(git rev-parse HEAD)")
-    gh=${GITHUB_SERVER_URL:-https://github.com}
-    [ -z "${PREVIEW_PR:-}" ] || ann+=(-annotation "workers/pull_request_number=$PREVIEW_PR")
-    [ -z "${GITHUB_REPOSITORY:-}" ] || ann+=(-annotation "workers/repository_url=$gh/$GITHUB_REPOSITORY")
-    [ -z "${GITHUB_REPOSITORY:-}" ] || [ -z "${PREVIEW_PR:-}" ] ||
-      ann+=(-annotation "workers/pull_request_url=$gh/$GITHUB_REPOSITORY/pull/$PREVIEW_PR")
+    [ -z "${APP_REPO:-}" ] || ann+=(-annotation "workers/repository_url=https://github.com/$APP_REPO")
     cf "${deploy[@]}" -name "$APP_NAME" -preview "$name" "${common[@]}" -d1 DB="$APP_NAME-preview" \
       -var "APP_ENV=preview $name" -var "APP_DOMAIN=" -var "APP_PREVIEW=1" "${ann[@]}" | tee .preview-url
     ;;
-  delete-preview)
-    [ -n "$name" ] || { echo "✗ delete-preview needs a name"; exit 1; }
-    cf "${deploy[@]}" -name "$APP_NAME" -delete-preview "$name"
-    ;;
   *)
-    echo "✗ $kind: production, staging, preview <name> or delete-preview <name>"
+    echo "✗ $kind: production, staging or preview <name>"
     exit 1
     ;;
 esac

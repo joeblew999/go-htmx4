@@ -7,9 +7,6 @@
 .idea/
 .DS_Store
 
-# Upstream checkouts driven by mise tasks (tasks/upstream.toml)
-/.upstream/
-
 # gsx generated code (gsx Getting started: do not edit or commit)
 *.x.go
 # workers-assets-gen + tinygo output (mise run build)

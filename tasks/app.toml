@@ -1,18 +1,8 @@
-# tasks/app.toml — the app's tasks.
+# tasks/app.toml — the app's tasks: build, dev loops, tests, deploys, release. Every task, with when to use it:
+# docs/commands.md (generated from the descriptions: mise run docs:commands).
 #
-# workers-go v0.36.0, TinyGo for everything that ships to Workers, no Node (no npm, no wrangler). Standard Go
-# only for local-only code: `go run .`, go test/vet, charter's workerdeploy/workertail, cmd/wsload. Tools come from mise.toml.
-#
-#   mise run dev            # gsx dev: save → regenerate → TinyGo + assets → workerd restart → http://localhost:8913
-#   mise run dev:native     # gsx dev: save → regenerate → go build → native restart (no DOs) → http://localhost:9913
-#   mise run serve          # TinyGo build + workerd (static files first)                  → http://localhost:8913
-#   mise run run            # go run . (non-js fallback)                                  → http://localhost:9913
-#   mise run test           # TinyGo build (size-gated) + workerd smoke + gsx fmt/gofmt + vet + go test
-#   mise run load           # 1,000 WebSockets on one topic + 50-write burst (local, or LOAD_BASE=…)
-#   mise run e2e            # headless Chrome checks (local workerd, or E2E_BASE=…)
-#   mise run deploy         # test + token check, then Direct Upload → https://$APP_NAME.<subdomain>.workers.dev
-#   mise run smoke-remote   # curl every route of the deployed Worker
-#   mise run tail           # live logs of the deployed Worker
+# TinyGo (or WORKER_COMPILER) for what ships to Workers; standard Go for local-only code: go run ., go test/vet,
+# charter's go tool workerdeploy/workertail, cmd/*. No Node. Tools come from mise.toml.
 
 # Vendor htmx 4.0.0 + the hx-ws and hx-live extensions from the npm registry tarball (integrity-checked,
 # no npm).
@@ -70,7 +60,7 @@ echo "✓ dist/site: $(find dist/site -type f | wc -l | tr -d ' ') files, gsxui.
 '''
 
 ["build"]
-depends = ["vendor", "generate", "assets"]
+depends = ["generate", "assets"]
 description = "Production build → build/ with WORKER_COMPILER (mise.toml: tinygo or go), size-checked (deploy, staging, CI and the tests use it)"
 dir = "{{config_root}}"
 # Skipped when no input changed since the last production build, so `check` then `e2e` (CI, ci/check.sh) builds once.
@@ -78,16 +68,16 @@ dir = "{{config_root}}"
 # change must rebuild). Nothing else feeds the wasm: Static Assets are dist/site, served beside it. build/.prod marks a
 # production build; build:dev removes it, so a debug wasm is never skipped into a deploy.
 sources = ["**/*.go", "go.mod", "go.sum", "mise.toml"]
-outputs = ["build/app.wasm", "build/go.mjs", "build/worker.mjs", "build/runtime.mjs", "build/wasm_exec.js", "build/.prod"]
+outputs = ["build/app.wasm", "build/go.mjs", "build/worker.mjs", "build/runtime.mjs", "build/wasm_exec.js", "build/hub.mjs", "build/websocket.mjs", "build/tinygo-clock.mjs", "build/.prod"]
 env = { WASM_PROFILE = "prod" }
 run = "ci/wasm-build.sh"
 
 ["build:dev"]
-depends = ["vendor", "generate", "assets"]
+depends = ["generate", "assets"]
 description = "Dev build → build/: standard Go to wasm, seconds after an edit (mise run dev uses it; never deployed)"
 dir = "{{config_root}}"
 sources = ["**/*.go", "go.mod", "go.sum", "mise.toml"]
-outputs = ["build/app.wasm", "build/go.mjs", "build/worker.mjs", "build/runtime.mjs", "build/wasm_exec.js", "build/.dev"]
+outputs = ["build/app.wasm", "build/go.mjs", "build/worker.mjs", "build/runtime.mjs", "build/wasm_exec.js", "build/hub.mjs", "build/websocket.mjs", "build/tinygo-clock.mjs", "build/.dev"]
 env = { WASM_PROFILE = "dev" }
 run = "ci/wasm-build.sh"
 
@@ -120,27 +110,26 @@ go tool gsx dev -build 'go build -o bin/app .' -run 'bin/app'
 description = "Stream the deployed Worker's live logs (requests, console, exceptions) → Ctrl-C to stop"
 run = "fnox exec -- go tool workertail -name \"$APP_NAME\""
 
-["run"]
-description = "go run . (non-js fallback, dist/site served by Go) → http://localhost:9913"
-depends = ["generate", "assets"]
-dir = "{{config_root}}"
-env = { PORT = "9913", APP_ENV = "go run . (local)" }
-run = "go run ."
-
 ["serve"]
-description = "TinyGo build, then workerd with static files first → http://localhost:8913"
+description = "The production build (WORKER_COMPILER) on local workerd, static files first → http://localhost:8913"
 depends = ["build"]
 dir = "{{config_root}}"
 run = "mkdir -p .workerd-state && exec workerd serve workerd/config.capnp"
 
-# go test runs the handlers on standard Go, which hides TinyGo runtime gaps (html/template
-# panics, pre-1.22 ServeMux). So also run the real TinyGo wasm under workerd and curl it.
+# go test runs the handlers on standard Go, which hides TinyGo runtime gaps (html/template panics, pre-1.22
+# ServeMux). So also run the production build under workerd and check every route over HTTP. SMOKE_BASE=https://…
+# (e.g. "$(cat .deploy-url)") checks a deployed Worker instead.
 ["smoke"]
-description = "Run the production build on local workerd and check every route over HTTP (e2e/smoke)"
+description = "The production build on local workerd, every route checked over HTTP (e2e/smoke); SMOKE_BASE=https://… checks a deployed Worker"
 depends = ["build"]
 dir = "{{config_root}}"
 env = { WORKERD_STRICT = "1" }
-run = "ci/with-workerd.sh smoke sh -c 'SMOKE_BASE=$BASE SMOKE_LOCAL=1 go test -C e2e -count=1 ./smoke'"
+run = '''
+#!/usr/bin/env bash
+set -euo pipefail
+if [ -n "${SMOKE_BASE:-}" ]; then echo "→ $SMOKE_BASE"; exec go test -C e2e -count=1 -v ./smoke; fi
+exec ci/with-workerd.sh smoke sh -c 'SMOKE_BASE=$BASE SMOKE_LOCAL=1 go test -C e2e -count=1 ./smoke'
+'''
 
 # Real-browser checks (e2e/: Go + chromedp + headless Chrome, no Node): pages, the live board across two browsers,
 # boosted navigation ↔ board presence, bare-close presence, the write limit. Starts local workerd unless E2E_BASE
@@ -167,7 +156,7 @@ run = "ci/bench.sh"
 
 ["bench:variants"]
 description = "Build the current code with each of charter's optimisations off in turn, measure each, write docs/benchmarks.md"
-depends = ["vendor", "generate", "assets"]
+depends = ["generate", "assets"]
 dir = "{{config_root}}"
 run = "ci/bench.sh variants"
 
@@ -194,20 +183,21 @@ if [ -n "${LOAD_BASE:-}" ]; then echo "→ $LOAD_BASE"; load "$LOAD_BASE"; else 
 '''
 
 ["test"]
-description = "TinyGo build + workerd smoke test + gsx fmt/gofmt check + go vet + kit/ import check + go test"
-# smoke (TinyGo build + workerd) and test:go (no wasm needed) run in parallel.
+description = "Everything before a push: the production build + workerd smoke, gsx fmt/gofmt, go vet, go test (mise run check is the same)"
+alias = "check"
+# smoke (production build + workerd) and test:go (no wasm needed) run in parallel.
 depends = ["smoke", "test:go"]
 run = "echo '✓ test: smoke + test:go'"
 
 ["test:go"]
-description = "gsx fmt/gofmt check + go vet + kit/ import check + go test (standard Go; runs beside the TinyGo build)"
+description = "gsx fmt/gofmt check + go vet + go test (standard Go; runs beside the production build)"
 depends = ["generate"]
 dir = "{{config_root}}"
 run = '''
 #!/usr/bin/env bash
 set -euo pipefail
 go tool gsx fmt -l . || { echo "✗ gsx fmt: run 'go tool gsx fmt -w .'"; exit 1; }
-# Files of this module only (gofmt -l on a directory recurses into .upstream/); IgnoredGoFiles
+# Files of this module only (gofmt -l . would walk the nested modules too); IgnoredGoFiles
 # are the other platform's build-tagged files.
 unformatted=$(gofmt -l $(go list -json ./... | jq -r '.Dir as $d | (.GoFiles + (.TestGoFiles // []) + (.XTestGoFiles // []) + (.IgnoredGoFiles // []))[] | "\($d)/\(.)"'))
 test -z "$unformatted" || { echo "$unformatted"; echo "✗ gofmt: files need formatting"; exit 1; }
@@ -313,12 +303,6 @@ dir = "{{config_root}}"
 usage = 'arg "<name>" help="preview name, e.g. pr-7"'
 run = 'ci/deploy.sh preview "$usage_name"'
 
-["preview:delete"]
-description = "Delete a Worker Preview (e.g. pr-7) with its Durable Object storage"
-dir = "{{config_root}}"
-usage = 'arg "<name>" help="preview name, e.g. pr-7"'
-run = 'ci/deploy.sh delete-preview "$usage_name"'
-
 # ── release ─────────────────────────────────────────────────────
 # Production without anyone's machine holding Cloudflare credentials: a v* tag (GitHub's Releases page) or a
 # release/v* branch (mise run release) on a commit that's on main. CI (ci/check.sh) tests it, then moves the production
@@ -355,17 +339,4 @@ cf() { if [ -n "${CLOUDFLARE_API_TOKEN:-}" ] && [ -n "${CLOUDFLARE_ACCOUNT_ID:-}
 cf sh -c 'exec go tool workerdeploy -name "$APP_NAME" -repo "$APP_REPO" -configure-builds \
   -build-token "$APP_NAME build token" -fallback-build-token "${FALLBACK_BUILD_TOKEN:-}" \
   -build-var "CLOUDFLARE_ACCOUNT_ID=$CLOUDFLARE_ACCOUNT_ID" -path-exclude "*.md"'
-'''
-
-# ── smoke-remote ────────────────────────────────────────────────
-# Same checks as smoke, against the deployed URL (from .deploy-url, written by deploy).
-["smoke-remote"]
-description = "The smoke checks (e2e/smoke) against the deployed Worker (.deploy-url, written by deploy)"
-dir = "{{config_root}}"
-run = '''
-#!/usr/bin/env bash
-set -euo pipefail
-base=$(cat .deploy-url 2>/dev/null) || { echo "✗ no .deploy-url; run deploy"; exit 1; }
-echo "→ $base"
-SMOKE_BASE=$base go test -C e2e -count=1 -v ./smoke
 '''

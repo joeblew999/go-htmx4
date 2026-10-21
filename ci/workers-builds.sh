@@ -20,7 +20,7 @@ for v in $(env | grep -oE '^MISE_[A-Z0-9_]+_VERSION' || true); do unset "$v"; do
 # task.run_auto_install off: `mise run` would otherwise install every tool in mise.toml first.
 export MISE_YES=1 MISE_TRUSTED_CONFIG_PATHS="$PWD" MISE_TASK_RUN_AUTO_INSTALL=false PATH="$HOME/.local/bin:$PATH"
 if ! command -v mise >/dev/null 2>&1; then
-  curl -fsSL https://mise.run | MISE_VERSION="${MISE_VERSION:-v2026.10.14}" MISE_QUIET=1 sh
+  curl -fsSL https://mise.run | MISE_VERSION="${MISE_VERSION:-v$(sed -n 's/^min_version = "\(.*\)"/\1/p' mise.toml)}" MISE_QUIET=1 sh
 fi
 eval "$(mise env -s bash)"   # APP_NAME, APP_REPO (no tools installed)
 sha=${WORKERS_CI_COMMIT_SHA:-}
@@ -66,13 +66,13 @@ deploy)
   fi
   # main is staging: its own Worker, https://$APP_NAME-staging.<subdomain>.workers.dev, exactly what's merged.
   if [ "$branch" = main ]; then
-    DEPLOY_CMD="${deploy[*]}" mise run --skip-deps staging
+    DEPLOY_CMD="${deploy[*]}" ci/deploy.sh staging
     echo "✓ staging: $(cat .staging-url)"
     "${deploy[@]}" -name "$APP_NAME" -repo "$APP_REPO" -prune-previews || echo "· pruning previews failed (staging is live)"
     exit 0
   fi
   slug=$("${deploy[@]}" -name "$APP_NAME" -slug "$branch")
-  DEPLOY_CMD="${deploy[*]}" mise run --skip-deps preview "$slug"
+  DEPLOY_CMD="${deploy[*]}" ci/deploy.sh preview "$slug"
   echo "✓ preview for branch $branch: $(cat .preview-url)"
   "${deploy[@]}" -name "$APP_NAME" -repo "$APP_REPO" -prune-previews || echo "· pruning previews failed (the preview is live)"
   ;;

@@ -46,7 +46,7 @@ report() {
 trap report EXIT
 
 if ! command -v mise >/dev/null 2>&1; then
-  echo "→ installing mise ${MISE_VERSION:=v2026.10.14}"
+  echo "→ installing mise ${MISE_VERSION:=v$(sed -n 's/^min_version = "\(.*\)"/\1/p' mise.toml)}"
   curl -fsSL https://mise.run | MISE_VERSION="$MISE_VERSION" MISE_QUIET=1 sh
   export PATH="$HOME/.local/bin:$PATH"
 fi
