@@ -205,7 +205,7 @@ Translate every missing and stale message with Claude Code (the intl-translate s
 
 - **Usage:** `load`
 
-1,000 WebSockets in every locale on one topic + a 50-write burst (local workerd, or LOAD_BASE=https://…)
+1,000 WebSockets in every locale on one topic, a 50-write burst, socket 1,001 refused (e2e/load; local workerd, or LOAD_BASE=https://…)
 
 ### `preview`
 

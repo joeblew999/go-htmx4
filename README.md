@@ -44,18 +44,17 @@ Every branch gets its own preview, `main` deploys staging, and a release deploys
 | Path | What it is |
 | --- | --- |
 | `main.go` | the entry point: `transport.Run(app.Handler())` |
-| `app/` | the server: routes and handlers, locale URLs, robots and sitemap, the board's stores (D1, memory), Cloudflare-only calls (`platform_js.go`) and their twins |
+| `app/` | the server (`server.go`: routes), the board (`board.go`, its stores), locale URLs (`locale.go`), robots.txt and the sitemap (`seo.go`), Cloudflare-only calls (`platform_js.go`) and their twins; each file's tests beside it |
 | `views/` | pages and fragments in gsx; a page's data in a `.go` file beside it |
 | `ui/`, `web/gsxui/` | gsxui components and their behaviours, vendored by `gsxui add`: never edited by hand |
 | `web/htmx/` | htmx 4, hx-ws and hx-live, vendored by `mise run vendor` |
 | `locales/` | the messages: one catalog per language (`en.toml` is the source) and `intl.sum` |
 | `intl/`, `intl.toml` | Intl for gsx apps, its own Go module ([intl/README.md](intl/README.md)); this app's languages |
-| `internal/` | httpx (rendering, origin), live (publishing to the Room), ratelimit, wsload, classmerge |
+| `internal/` | httpx (rendering, origin), live (publishing to the Room), ratelimit, classmerge (gsx's class merger, cached) |
 | `worker/` | the deployed JavaScript: the Worker's entry and the board's Durable Object; `worker/local/` runs them under workerd |
 | `migrations/` | D1's schema |
-| `e2e/` | HTTP smoke tests and browser tests, its own Go module |
-| `cmd/wsload/` | the 1,000-socket check (`mise run load`) |
-| `ci/`, `tasks/`, `mise.toml` | shell scripts, the mise tasks that run them, the pinned tools |
+| `e2e/` | the checks against a running server, its own Go module: `smoke/` over HTTP (`mise run smoke`), browser tests (`mise run e2e`), `load/` with 1,000 WebSockets (`mise run load`) |
+| `ci/`, `tasks/`, `mise.toml` | the scripts CI runs or several tasks share, the mise tasks, the pinned tools |
 | `docs/` | how it works, how it ships, every command |
 
 `build/` and `dist/` are build output, never committed.
@@ -63,7 +62,7 @@ Every branch gets its own preview, `main` deploys staging, and a release deploys
 **Adding something, one way each:**
 
 - **A page:** a component in `views/<page>.gsx` inside `Layout`, with its own translated title and description; a
-  route in `app/main.go` that renders it with `s.render`; its path in `views.SitemapPages`.
+  route in `app/server.go` that renders it with `s.render`; its path in `views.SitemapPages`.
 - **Text:** a key in `locales/en.toml`, written `{ locales.Key }`, then `mise run intl:translate` and
   `mise run intl:check`.
 - **A date, a number, any Intl call:** a filter in markup, `{ t |> date("dateStyle", "long") }`, its options in pairs.

@@ -1,4 +1,4 @@
-package wsload_test
+package load_test
 
 import (
 	"context"
@@ -10,9 +10,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/joeblew999/go-htmx4/internal/wsload"
+	"github.com/joeblew999/go-htmx4/e2e/load"
 	"golang.org/x/net/websocket"
 )
+
+// The checker's own tests, against fakeRoom: no server needed (test:go runs them).
 
 // fakeRoom is an in-process stand-in for the app + Room: POST /board/add bumps the version and
 // pushes the fragment, sockets on /live/{topic} get presence, pong and the cached fragment.
@@ -89,7 +91,7 @@ func (f *fakeRoom) live(c *websocket.Conn) {
 func TestRun(t *testing.T) {
 	srv := newFakeRoom(t, true)
 	var out strings.Builder
-	res, err := wsload.Run(context.Background(), wsload.Options{Base: srv.URL, Topic: "t", N: 6, Writes: 3, Out: &out})
+	res, err := load.Run(context.Background(), load.Options{Base: srv.URL, Topic: "t", N: 6, Writes: 3, Out: &out})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -106,7 +108,7 @@ func TestRun(t *testing.T) {
 
 func TestRunReportsMissingPresence(t *testing.T) {
 	srv := newFakeRoom(t, false)
-	res, err := wsload.Run(context.Background(), wsload.Options{Base: srv.URL, N: 2, PresenceTimeout: 200 * time.Millisecond, Timeout: 2 * time.Second})
+	res, err := load.Run(context.Background(), load.Options{Base: srv.URL, N: 2, PresenceTimeout: 200 * time.Millisecond, Timeout: 2 * time.Second})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -120,7 +122,7 @@ func TestRunReportsMissingPresence(t *testing.T) {
 
 func TestRunWriteFailure(t *testing.T) {
 	srv := newFakeRoom(t, true)
-	if _, err := wsload.Run(context.Background(), wsload.Options{Base: srv.URL, Topic: "t", N: 1, PresenceTimeout: 100 * time.Millisecond}); err != nil {
+	if _, err := load.Run(context.Background(), load.Options{Base: srv.URL, Topic: "t", N: 1, PresenceTimeout: 100 * time.Millisecond}); err != nil {
 		t.Fatalf("baseline: %v", err)
 	}
 	broken := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -131,7 +133,7 @@ func TestRunWriteFailure(t *testing.T) {
 		http.Error(w, "store unavailable", http.StatusInternalServerError)
 	}))
 	defer broken.Close()
-	if _, err := wsload.Run(context.Background(), wsload.Options{Base: broken.URL, N: 1, PresenceTimeout: 100 * time.Millisecond}); err == nil || !strings.Contains(err.Error(), "HTTP 500") {
+	if _, err := load.Run(context.Background(), load.Options{Base: broken.URL, N: 1, PresenceTimeout: 100 * time.Millisecond}); err == nil || !strings.Contains(err.Error(), "HTTP 500") {
 		t.Errorf("err = %v, want the failed write", err)
 	}
 }

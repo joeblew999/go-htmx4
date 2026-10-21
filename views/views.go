@@ -1,5 +1,5 @@
 // Package views holds the app's pages and fragments: gsx components composed from gsxui (ui/).
-// Handlers in package main render them.
+// Handlers in package app render them.
 package views
 
 import (
@@ -18,7 +18,7 @@ type Board struct {
 	Topic   string
 	Value   int64
 	Version int64
-	Notes   []Note // newest first, at most maxNotes (package main)
+	Notes   []Note // newest first, at most maxNotes (package app)
 }
 
 // Note is one posted note.
