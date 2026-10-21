@@ -7,3 +7,19 @@ catalogs = "locales"
 # Where gsxui add vendors components: go tool intl gen writes the renderer for the text they write themselves
 # (i18n.T, "Close") to ui/i18n/intl_gen.go from the catalogs' [gsxui] messages, and names any it has no message for.
 gsxui = "ui"
+
+# Guidance for whoever translates, people or Claude (go tool intl todo shows it with each locale's work; "*" is for all).
+[notes]
+"*" = "A demo site for developers. Keep product and technical names in English as the source writes them: gsx, gsxui, htmx, hx-live, hx-ws, Go, TinyGo, Cloudflare Workers, Durable Objects, D1, Intl, Node. Short UI labels stay short."
+de = "Address the reader as Sie."
+fr = "Address the reader as vous. Use French typography: a no-break space before : ; ? !"
+es = "Address the reader as tú."
+pt-BR = "Brazilian Portuguese; address the reader as você."
+pt-PT = "European Portuguese (separador, ecrã, utilizador); address the reader as você, impersonally where natural."
+ru = "Address the reader as вы (lowercase)."
+ja = "Polite form (です/ます). Keep half-width spaces around Latin product names as the source catalog does."
+hi = "Address the reader as आप. Common English technical words (टैब, सर्वर) may be written in Devanagari as the catalog does."
+he = "Address the reader in the plural or impersonally, as the catalog does."
+ar = "Modern Standard Arabic, addressing the reader formally."
+zh-Hans = "Simplified Chinese for mainland China; half-width spaces around Latin product names as the catalog does."
+zh-Hant = "Traditional Chinese for Taiwan; half-width spaces around Latin product names as the catalog does."

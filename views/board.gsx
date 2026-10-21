@@ -12,36 +12,36 @@ import (
 // the online count into #presence (the label next to it is rendered here, in the page's language). Without it (go test, no Durable Objects) only the poster's own response
 // updates the board, and a badge says so.
 component BoardPage(topic string, b Board, live bool) {
-	<Layout title={locales.BoardTitle()} description={locales.BoardIntro()} path="/board">
+	<Layout title={locales.BoardTitle} description={locales.BoardIntro} path="/board">
 		<div class="flex flex-col gap-2">
-			<h1 class="text-3xl font-semibold tracking-tight">{ locales.BoardTitle() }</h1>
-			<p class="text-muted-foreground">{ locales.BoardIntro() }</p>
+			<h1 class="text-3xl font-semibold tracking-tight">{ locales.BoardTitle }</h1>
+			<p class="text-muted-foreground">{ locales.BoardIntro }</p>
 		</div>
 		<ui.Card>
 			<ui.CardHeader>
 				<ui.CardTitle>
-					{ locales.BoardTopic() }
+					{ locales.BoardTopic }
 					<code translate="no">{ topic }</code>
 				</ui.CardTitle>
-				<ui.CardDescription>{ locales.BoardHint() }</ui.CardDescription>
+				<ui.CardDescription>{ locales.BoardHint }</ui.CardDescription>
 				<ui.CardAction>
 					{ if live {
 						<ui.Badge variant="secondary">
 							<icon.Users/>
 							<span id="presence">…</span>
-							<span>{ locales.BoardOnline() }</span>
+							<span>{ locales.BoardOnline }</span>
 						</ui.Badge>
 					} else {
 						<ui.Badge variant="outline">
 							<icon.WifiOff/>
-							{ locales.BoardNoLive() }
+							{ locales.BoardNoLive }
 						</ui.Badge>
 					} }
 				</ui.CardAction>
 			</ui.CardHeader>
 			<ui.CardContent>
 				{ if live {
-					<div hx-ws:connect={"/live/" + topic + "?locale=" + LocaleKey(intl.Current(ctx))} hx-swap="none">
+					<div hx-ws:connect=f`/live/@{topic}?locale=@{LocaleKey(intl.Current(ctx))}` hx-swap="none">
 						<boardSection b={b}/>
 					</div>
 				} else {
@@ -54,7 +54,7 @@ component BoardPage(topic string, b Board, live bool) {
 						type="button"
 						variant="outline"
 						size="icon"
-						aria-label={locales.BoardDecrement()}
+						aria-label={locales.BoardDecrement}
 						hx-post={URL(ctx, "/board/add?topic="+topic+"&delta=-1")}
 						hx-swap="none"
 					>
@@ -64,7 +64,7 @@ component BoardPage(topic string, b Board, live bool) {
 						type="button"
 						variant="outline"
 						size="icon"
-						aria-label={locales.BoardIncrement()}
+						aria-label={locales.BoardIncrement}
 						hx-post={URL(ctx, "/board/add?topic="+topic+"&delta=1")}
 						hx-swap="none"
 					>
@@ -80,14 +80,14 @@ component BoardPage(topic string, b Board, live bool) {
 					<ui.Input
 						name="body"
 						maxlength="280"
-						placeholder={locales.BoardNotePlaceholder()}
+						placeholder={locales.BoardNotePlaceholder}
 						autocomplete="off"
-						aria-label={locales.BoardNoteLabel()}
+						aria-label={locales.BoardNoteLabel}
 						required
 					/>
 					<ui.Button type="submit">
 						<icon.Send/>
-						{ locales.BoardPost() }
+						{ locales.BoardPost }
 					</ui.Button>
 				</form>
 			</ui.CardFooter>
@@ -120,7 +120,7 @@ component boardSection(b Board) {
 
 component boardBody(b Board) {
 	<div class="flex items-baseline gap-3">
-		<output class="text-6xl font-semibold tracking-tight tabular-nums">{ intl.Int(b.Value) }</output>
+		<output class="text-6xl font-semibold tracking-tight tabular-nums">{ b.Value |> number }</output>
 		<span class="text-sm text-muted-foreground">{ locales.BoardVersion(float64(b.Version)) }</span>
 	</div>
 	{ if len(b.Notes) == 0 {
@@ -129,8 +129,8 @@ component boardBody(b Board) {
 				<ui.EmptyMedia variant="icon">
 					<icon.MessageSquare/>
 				</ui.EmptyMedia>
-				<ui.EmptyTitle>{ locales.BoardEmptyTitle() }</ui.EmptyTitle>
-				<ui.EmptyDescription>{ locales.BoardEmptyDescription() }</ui.EmptyDescription>
+				<ui.EmptyTitle>{ locales.BoardEmptyTitle }</ui.EmptyTitle>
+				<ui.EmptyDescription>{ locales.BoardEmptyDescription }</ui.EmptyDescription>
 			</ui.EmptyHeader>
 		</ui.Empty>
 	} else {
@@ -146,7 +146,7 @@ component boardBody(b Board) {
 					<ui.ItemContent>
 						<ui.ItemTitle dir="auto">{ n.Body }</ui.ItemTitle>
 						<ui.ItemDescription>
-							{ NoteAge(n.CreatedAt) }
+							{ n.Created() |> since }
 						</ui.ItemDescription>
 					</ui.ItemContent>
 				</ui.Item>

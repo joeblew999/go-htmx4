@@ -17,8 +17,8 @@ component PreferencesDialog() {
 			data-gsxui-slot-dialog-trigger
 			aria-haspopup="dialog"
 			aria-expanded="false"
-			aria-label={locales.NavPreferences()}
-			title={locales.NavPreferences()}
+			aria-label={locales.NavPreferences}
+			title={locales.NavPreferences}
 			hx-get={URL(ctx, "/fragments/preferences")}
 			hx-target="#preferences"
 			hx-swap="innerHTML"
@@ -27,10 +27,10 @@ component PreferencesDialog() {
 		</ui.Button>
 		<ui.DialogContent hideCloseButton={true}>
 			<ui.DialogHeader>
-				<ui.DialogTitle>{ locales.PreferencesTitle() }</ui.DialogTitle>
-				<ui.DialogDescription>{ locales.PreferencesDescription() }</ui.DialogDescription>
+				<ui.DialogTitle>{ locales.PreferencesTitle }</ui.DialogTitle>
+				<ui.DialogDescription>{ locales.PreferencesDescription }</ui.DialogDescription>
 			</ui.DialogHeader>
-			<div id="preferences" class="text-sm text-muted-foreground">{ locales.PreferencesLoading() }</div>
+			<div id="preferences" class="text-sm text-muted-foreground">{ locales.PreferencesLoading }</div>
 		</ui.DialogContent>
 	</ui.Dialog>
 }
@@ -44,7 +44,7 @@ component PreferencesForm(returnTo string, connectionZone string) {
 		<input type="hidden" name="return" value={returnTo}/>
 		<ui.FieldGroup>
 			<ui.Field>
-				<ui.FieldLabel for="pref-tz">{ locales.PreferencesTimeZone() }</ui.FieldLabel>
+				<ui.FieldLabel for="pref-tz">{ locales.PreferencesTimeZone }</ui.FieldLabel>
 				<ui.NativeSelect id="pref-tz" name="tz" class="w-full" data-intl-zones>
 					<ui.NativeSelectOption
 						value=""
@@ -56,13 +56,13 @@ component PreferencesForm(returnTo string, connectionZone string) {
 					</ui.NativeSelectOption>
 					{ if TimeZoneChosen(ctx) {
 						<ui.NativeSelectOption value={TimeZone(ctx)} selected={true} { intl.Zone(TimeZone(ctx)).Attrs()... }>
-							{ intl.Zone(TimeZone(ctx)).Plain() }
+							{ TimeZone(ctx) |> zone |> plain }
 						</ui.NativeSelectOption>
 					} }
 				</ui.NativeSelect>
 			</ui.Field>
 			<ui.Field>
-				<ui.FieldLabel for="pref-hc">{ locales.PreferencesHourCycle() }</ui.FieldLabel>
+				<ui.FieldLabel for="pref-hc">{ locales.PreferencesHourCycle }</ui.FieldLabel>
 				<ui.NativeSelect id="pref-hc" name="hc" class="w-full">
 					<ui.NativeSelectOption
 						value=""
@@ -70,30 +70,30 @@ component PreferencesForm(returnTo string, connectionZone string) {
 						{ clockExample(`,"viewerClock":false`).Attrs()... }
 						data-template={locales.PreferencesHourCycleAuto(slot)}
 					>
-						{ locales.PreferencesHourCycleAuto(intl.Text(ctx, clockExample(`,"viewerClock":false`))) }
+						{ hourCycleAuto(ctx) }
 					</ui.NativeSelectOption>
 					<ui.NativeSelectOption
 						value="h12"
 						selected={HourCycle(ctx) == "h12"}
 						{ clockExample(`,"hourCycle":"h12"`).Attrs()... }
 					>
-						{ clockExample(`,"hourCycle":"h12"`).Plain() }
+						{ clockExample(`,"hourCycle":"h12"`) |> plain }
 					</ui.NativeSelectOption>
 					<ui.NativeSelectOption
 						value="h23"
 						selected={HourCycle(ctx) == "h23"}
 						{ clockExample(`,"hourCycle":"h23"`).Attrs()... }
 					>
-						{ clockExample(`,"hourCycle":"h23"`).Plain() }
+						{ clockExample(`,"hourCycle":"h23"`) |> plain }
 					</ui.NativeSelectOption>
 				</ui.NativeSelect>
 			</ui.Field>
 		</ui.FieldGroup>
 		<ui.DialogFooter showCloseButton={false}>
 			<ui.Button variant="outline" type="button" data-gsxui-dialog-close data-gsxui-slot-dialog-footer-close>
-				{ locales.HomeDialogClose() }
+				{ locales.HomeDialogClose }
 			</ui.Button>
-			<ui.Button type="submit">{ locales.PreferencesSave() }</ui.Button>
+			<ui.Button type="submit">{ locales.PreferencesSave }</ui.Button>
 		</ui.DialogFooter>
 	</form>
 }

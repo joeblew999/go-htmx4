@@ -105,13 +105,100 @@ Install go.mod's gsx into GOPATH/bin for the VS Code gsx language server
 
 - **Usage:** `generate`
 
-go tool gsx generate (after intl: views write the generated messages)
+go tool gsx generate (after intl: views write the generated messages); intl/'s own renderer too, which it commits for the apps that import it
 
 ### `intl`
 
 - **Usage:** `intl`
 
-Compile locales/*.toml into the locales package, intl-messages.mjs and the gsxui translator (go tool intl gen, from intl.toml)
+Compile the catalogs (intl.toml): the Go package of messages, intl-messages.mjs, the gsxui translator and intl.sum. Run it after editing a catalog; gsx generate needs it first
+
+### `intl:add`
+
+Add a language: its BCP 47 id to intl.toml, and its catalog; then mise run intl:translate
+
+
+- **Usage:** `intl:add <locale>…`
+
+### Arguments
+- **`<locale>…`** — BCP 47 ids, e.g. fr-CA ja
+
+### `intl:check`
+
+- **Usage:** `intl:check`
+
+Every catalog problem, for CI: ICU syntax, arguments, a case for each plural category Intl says a language uses, missing and stale translations, unused messages, gsxui text, intl.sum committed; exits 1 on any
+
+### `intl:confirm`
+
+Keep stale translations that are still right after their source changed: <locale> (all of its stale ones) or <locale>:<key>
+
+
+- **Usage:** `intl:confirm <which>…`
+
+### Arguments
+- **`<which>…`** — de, or de:board.notes
+
+### `intl:export`
+
+XLIFF 2.0 per locale for human translators and translation-management systems: what is left to translate (--all: every message)
+
+
+- **Usage:** `intl:export [--all] [-o --out <dir>] [locale]…`
+
+### Arguments
+- **`[locale]…`** — only these locales (default: all)
+
+### Flags
+- **`--all`** — every message, not only what is left
+- **`-o --out <dir>`** — directory for &lt;locale>.xlf
+
+  **Default:** `xliff`
+
+### `intl:import`
+
+Read translators' XLIFF 2.0 back into the catalogs (each target checked against its source), then compile
+
+
+- **Usage:** `intl:import <file>…`
+
+### Arguments
+- **`<file>…`** — &lt;locale>.xlf files
+
+### `intl:skill`
+
+- **Usage:** `intl:skill`
+
+Install or update the intl-translate agent skill (.claude/skills), which Claude Code uses to translate
+
+### `intl:status`
+
+- **Usage:** `intl:status`
+
+Per locale: translated, inherited, stale and missing messages; exits 1 when a locale is incomplete
+
+### `intl:todo`
+
+What is left to translate, per locale: each message's source, context and arguments, the plural categories the language needs, the style note (--json for agents)
+
+
+- **Usage:** `intl:todo [--json] [locale]…`
+
+### Arguments
+- **`[locale]…`** — only these locales (default: all)
+
+### Flags
+- **`--json`** — JSON on stdout, for agents
+
+### `intl:translate`
+
+Translate every missing and stale message with Claude Code (the intl-translate skill), until intl:check passes. Needs claude on PATH
+
+
+- **Usage:** `intl:translate [locale]…`
+
+### Arguments
+- **`[locale]…`** — only these locales (default: all)
 
 ### `load`
 

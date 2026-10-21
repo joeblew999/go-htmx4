@@ -37,13 +37,19 @@ browser ─ hx-post /board/add|note ─────▶ worker/index.mjs ─▶ G
 ## Languages
 
 Intl is the one source of language, through `intl/`: its own Go module, which any gsx app can use
-([intl/README.md](../intl/README.md)). Views write messages and Intl calls in markup (`{ locales.BoardNotes(n) }`,
-`{ intl.Date(t, opts) }`), and gsx renders them through the type renderers in `gsx.toml`. `intl/js/intl.mjs` formats
-every message (ICU MessageFormat, plural forms by `Intl.PluralRules`), every value and every locale fact with the
-runtime's V8 Intl: on the Worker, where Go calls it, and in the browser, which redoes the viewer's own time zone and
-relative times as they age. Go routes and passes values; `go test` uses workerd's Intl (`intl/intltest`).
-`intl.toml` lists the languages and `locales/*.toml` holds their text; `mise run intl` compiles them into the
-`locales` package, the catalogs the formatter reads, and the translator for gsxui components' own text.
+([intl/README.md](../intl/README.md)). Views write messages as typed values (`{ locales.NavHome }`,
+`{ locales.BoardNotes(n) }`) and Intl calls as gsx filters (`{ t |> date(opts) }`, `{ n |> number }`), rendered by the
+renderers in `gsx.toml`. `intl/js/intl.mjs` formats every message (ICU MessageFormat, plural forms by
+`Intl.PluralRules`), every value and every locale fact with the runtime's V8 Intl: on the Worker, where Go calls it,
+and in the browser, which redoes the viewer's own time zone and relative times as they age. Go routes and passes
+values; `go test` uses workerd's Intl (`intl/intltest`).
+
+`intl.toml` lists the languages and the translators' notes; `locales/*.toml` holds their text. intl's own mise
+tasks (`intl/tasks.toml`) are the workflow:
+- `intl` compiles the catalogs.
+- `intl:translate` translates what is missing or stale with Claude Code.
+- `intl:todo`, `intl:export` and `intl:import` serve people translating.
+- `intl:check` (in `test:go`) fails on anything missing, stale, unused or short of a plural case.
 
 URLs: the default locale is unprefixed, every other is `/<lowercase id>/…`, `/en/…` and mixed-case prefixes redirect;
 no Accept-Language redirects, and only `/` follows the `locale` cookie. A locale whose catalog isn't complete is
@@ -63,7 +69,7 @@ served `noindex`.
 
 ```
 .
-├── main.go board.go i18n.go host.go robots.go   handlers, locale URLs, redirect, crawl rules
+├── main.go board.go locale.go host.go robots.go handlers, locale URLs, redirect, crawl rules
 ├── store_{sql,mem}.go platform_{js,other}.go    D1 / memory stores; Cloudflare-only calls and their twins
 ├── views/  ui/  web/gsxui/  static/             pages (gsx), gsxui components and behaviours, vendored htmx
 ├── intl/  intl.toml                             Intl for gsx (its own module); the app's languages

@@ -81,11 +81,12 @@ func List(items []string, opts string) Value {
 // Zone is a time zone's name in the language: "Europe/Berlin · Mitteleuropäische Zeit (GMT+2)".
 func Zone(id string) Value { return Value{kind: "zone", tag: "span", fallback: id, zone: id} }
 
-// Text is a Value's or a Msg's text in the request's language, time zone and clock: for attributes, component
-// arguments and Go code. A Value where Intl can't is its fallback.
-func Text(ctx context.Context, x interface{ text(context.Context) string }) string {
-	return x.text(ctx)
-}
+// Textual is a Msg or a Value: what has a text in the request's language.
+type Textual interface{ text(context.Context) string }
+
+// Text is a Value's or a Msg's text in the request's language, time zone and clock, for Go code (in markup, the
+// text filter). A Value where Intl can't is its fallback.
+func Text(ctx context.Context, x Textual) string { return x.text(ctx) }
 
 func (m Msg) text(ctx context.Context) string { return Translate(ctx, m) }
 

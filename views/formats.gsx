@@ -11,10 +11,10 @@ import (
 // browser knows more (the reader's time zone) or words things its own way (Firefox, Safari). The Try it card
 // round-trips values typed the reader's way through the server.
 component Formats() {
-	<Layout title={locales.FormatsTitle()} description={locales.FormatsDescription()} path="/formats">
+	<Layout title={locales.FormatsTitle} description={locales.FormatsDescription} path="/formats">
 		<div class="flex flex-col gap-2">
-			<h1 class="text-3xl font-semibold tracking-tight">{ locales.FormatsTitle() }</h1>
-			<p class="text-muted-foreground">{ locales.FormatsIntro() }</p>
+			<h1 class="text-3xl font-semibold tracking-tight">{ locales.FormatsTitle }</h1>
+			<p class="text-muted-foreground">{ locales.FormatsIntro }</p>
 		</div>
 		<HowItWorks/>
 		<LocaleCard facts={Facts(ctx)}/>
@@ -31,20 +31,20 @@ component HowItWorks() {
 	<div class="grid gap-4 sm:grid-cols-3">
 		<ui.Card data-size="sm">
 			<ui.CardHeader>
-				<ui.CardTitle>{ locales.FormatsHowServerTitle() }</ui.CardTitle>
-				<ui.CardDescription>{ locales.FormatsHowServer() }</ui.CardDescription>
+				<ui.CardTitle>{ locales.FormatsHowServerTitle }</ui.CardTitle>
+				<ui.CardDescription>{ locales.FormatsHowServer }</ui.CardDescription>
 			</ui.CardHeader>
 		</ui.Card>
 		<ui.Card data-size="sm">
 			<ui.CardHeader>
-				<ui.CardTitle>{ locales.FormatsHowBrowserTitle() }</ui.CardTitle>
-				<ui.CardDescription>{ locales.FormatsHowBrowser() }</ui.CardDescription>
+				<ui.CardTitle>{ locales.FormatsHowBrowserTitle }</ui.CardTitle>
+				<ui.CardDescription>{ locales.FormatsHowBrowser }</ui.CardDescription>
 			</ui.CardHeader>
 		</ui.Card>
 		<ui.Card data-size="sm">
 			<ui.CardHeader>
-				<ui.CardTitle>{ locales.FormatsHowRoundtripTitle() }</ui.CardTitle>
-				<ui.CardDescription>{ locales.FormatsHowRoundtrip() }</ui.CardDescription>
+				<ui.CardTitle>{ locales.FormatsHowRoundtripTitle }</ui.CardTitle>
+				<ui.CardDescription>{ locales.FormatsHowRoundtrip }</ui.CardDescription>
 			</ui.CardHeader>
 		</ui.Card>
 	</div>
@@ -52,16 +52,16 @@ component HowItWorks() {
 
 // IntlNav links every section of the page; it wraps on narrow screens.
 component IntlNav(apis []IntlAPI) {
-	<nav aria-label={locales.FormatsOnThisPage()} class="flex flex-col gap-2">
-		<h2 class="text-sm font-medium text-muted-foreground">{ locales.FormatsOnThisPage() }</h2>
+	<nav aria-label={locales.FormatsOnThisPage} class="flex flex-col gap-2">
+		<h2 class="text-sm font-medium text-muted-foreground">{ locales.FormatsOnThisPage }</h2>
 		<ul class="flex flex-wrap gap-2">
 			<li>
-				<a href="#try" class="inline-flex rounded-md border px-2 py-1 text-sm hover:bg-muted">{ locales.FormatsTryTitle() }</a>
+				<a href="#try" class="inline-flex rounded-md border px-2 py-1 text-sm hover:bg-muted">{ locales.FormatsTryTitle }</a>
 			</li>
 			{ for _, api := range apis {
 				<li>
 					<a
-						href={"#" + api.ID}
+						href=f`#@{api.ID}`
 						class="inline-flex rounded-md border px-2 py-1 font-mono text-xs hover:bg-muted"
 						translate="no"
 						dir="ltr"
@@ -111,11 +111,11 @@ component IntlExample(r Example) {
 			<code dir="ltr" translate="no" class="text-xs text-muted-foreground break-all">{ r.Options }</code>
 		</div>
 		<dl class="grid grid-cols-[auto_1fr] items-baseline gap-x-3 gap-y-0.5 text-sm">
-			<dt class="text-xs text-muted-foreground">{ locales.FormatsServer() }</dt>
+			<dt class="text-xs text-muted-foreground">{ locales.FormatsServer }</dt>
 			<dd class="break-all">
-				<bdi data-i18n="intl">{ r.V.Plain() }</bdi>
+				<bdi data-intl-text>{ r.V |> plain }</bdi>
 			</dd>
-			<dt class="text-xs text-muted-foreground">{ locales.FormatsBrowser() }</dt>
+			<dt class="text-xs text-muted-foreground">{ locales.FormatsBrowser }</dt>
 			<dd class="break-all">
 				<bdi>{ r.V }</bdi>
 			</dd>
@@ -129,23 +129,23 @@ component TryIt() {
 		<ui.Card>
 			<ui.CardHeader>
 				<ui.CardTitle>
-					<h2 class="text-lg">{ locales.FormatsTryTitle() }</h2>
+					<h2 class="text-lg">{ locales.FormatsTryTitle }</h2>
 				</ui.CardTitle>
-				<ui.CardDescription>{ locales.FormatsTryDescription() }</ui.CardDescription>
+				<ui.CardDescription>{ locales.FormatsTryDescription }</ui.CardDescription>
 			</ui.CardHeader>
 			<ui.CardContent class="flex flex-col gap-6">
 				<form hx-post={URL(ctx, "/formats/try")} hx-target="#try-result" class="flex flex-col gap-4">
 					<ui.FieldGroup>
 						<ui.Field>
-							<ui.FieldLabel for="try-number">{ locales.FormatsTryNumber() }</ui.FieldLabel>
+							<ui.FieldLabel for="try-number">{ locales.FormatsTryNumber }</ui.FieldLabel>
 							<ui.Input id="try-number" name="number" inputmode="decimal" autocomplete="off" value={TrySample(ctx)}/>
 						</ui.Field>
 						<ui.Field>
-							<ui.FieldLabel for="try-text">{ locales.FormatsTryText() }</ui.FieldLabel>
-							<ui.Input id="try-text" name="text" autocomplete="off" value={locales.HomeHeading()}/>
+							<ui.FieldLabel for="try-text">{ locales.FormatsTryText }</ui.FieldLabel>
+							<ui.Input id="try-text" name="text" autocomplete="off" value={locales.HomeHeading}/>
 						</ui.Field>
 					</ui.FieldGroup>
-					<ui.Button type="submit" class="self-start">{ locales.FormatsTrySubmit() }</ui.Button>
+					<ui.Button type="submit" class="self-start">{ locales.FormatsTrySubmit }</ui.Button>
 				</form>
 				<div id="try-result" aria-live="polite">
 					<TryResultView res={RoundTrip(ctx, TrySample(ctx), TryText(ctx))}/>
@@ -162,7 +162,7 @@ component TryResultView(res TryResult) {
 			<div class="flex flex-col gap-2">
 				{ if res.NumberOK {
 					<p class="text-sm">
-						{ locales.FormatsTryParsed() }
+						{ locales.FormatsTryParsed }
 						<code dir="ltr" translate="no" class="ms-1 rounded bg-muted px-1.5 py-0.5 font-medium">{ res.Parsed }</code>
 					</p>
 					<ul class="flex flex-col divide-y rounded-md border">
@@ -171,7 +171,7 @@ component TryResultView(res TryResult) {
 						} }
 					</ul>
 				} else {
-					<ui.FieldError>{ locales.FormatsTryNotNumber() }</ui.FieldError>
+					<ui.FieldError>{ locales.FormatsTryNotNumber }</ui.FieldError>
 				} }
 			</div>
 		} }
@@ -192,7 +192,7 @@ component TryRowView(row TryRow, code bool) {
 		} else {
 			<span class="text-muted-foreground">{ row.Label }</span>
 		} }
-		<bdi data-i18n="intl" class="font-medium">{ row.Text }</bdi>
+		<bdi data-intl-text class="font-medium">{ row.Text }</bdi>
 	</li>
 }
 

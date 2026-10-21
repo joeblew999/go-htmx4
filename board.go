@@ -65,12 +65,12 @@ func (s *server) boardRoutes(mux *http.ServeMux) {
 		}
 		st, err := newStore()
 		if err != nil {
-			storeError(w, err)
+			storeError(w, r, err)
 			return
 		}
 		b, err := st.Board(topic)
 		if err != nil {
-			storeError(w, err)
+			storeError(w, r, err)
 			return
 		}
 		s.render(w, r, "board", views.BoardPage(topic, b, livePush))
@@ -82,7 +82,7 @@ func (s *server) boardRoutes(mux *http.ServeMux) {
 		}
 		delta, err := strconv.ParseInt(r.FormValue("delta"), 10, 64)
 		if err != nil || (delta != 1 && delta != -1) {
-			http.Error(w, intl.Text(r.Context(), locales.BoardErrorsDelta()), http.StatusBadRequest)
+			http.Error(w, intl.Text(r.Context(), locales.BoardErrorsDelta), http.StatusBadRequest)
 			return
 		}
 		if s.limited(w, r) {
@@ -124,12 +124,12 @@ func (s *server) limited(w http.ResponseWriter, r *http.Request) bool {
 func change(w http.ResponseWriter, r *http.Request, topic string, write func(store) (Board, error)) {
 	st, err := newStore()
 	if err != nil {
-		storeError(w, err)
+		storeError(w, r, err)
 		return
 	}
 	b, err := write(st)
 	if err != nil {
-		storeError(w, err)
+		storeError(w, r, err)
 		return
 	}
 	fragments := renderBoardLocales(r.Context(), b)
@@ -147,15 +147,15 @@ func topicOf(w http.ResponseWriter, r *http.Request) (string, bool) {
 		topic = defaultTopic
 	}
 	if !live.ValidTopic(topic) {
-		http.Error(w, intl.Text(r.Context(), locales.BoardErrorsTopic()), http.StatusBadRequest)
+		http.Error(w, intl.Text(r.Context(), locales.BoardErrorsTopic), http.StatusBadRequest)
 		return "", false
 	}
 	return topic, true
 }
 
-func storeError(w http.ResponseWriter, err error) {
+func storeError(w http.ResponseWriter, r *http.Request, err error) {
 	log.Printf("store: %v", err)
-	http.Error(w, "store unavailable", http.StatusInternalServerError)
+	http.Error(w, intl.Text(r.Context(), locales.BoardErrorsStore), http.StatusInternalServerError)
 }
 
 // renderBoard returns BoardFragment for the context's locale as a string.

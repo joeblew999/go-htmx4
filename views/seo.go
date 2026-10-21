@@ -17,6 +17,11 @@ import (
 // but open-ended (anyone can create one), so the sitemap lists only /board.
 var SitemapPages = []string{"/", "/board", "/formats", "/about"}
 
+// pageTitle is a page's <title>: its title, then the app's name (a translated title is the message's argument).
+func pageTitle(ctx context.Context, title intl.Msg) intl.Msg {
+	return locales.PageTitle(intl.Text(ctx, title))
+}
+
 // pageKey is the request's page without locale prefix and without query parameters that don't make a different page:
 // only ?topic= on /board survives, and not for the default topic. "/board?topic=lobby&utm_source=x" → "/board".
 func pageKey(ctx context.Context) string {

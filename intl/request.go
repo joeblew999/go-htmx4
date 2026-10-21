@@ -38,7 +38,7 @@ func Current(ctx context.Context) *Locale {
 	return Default()
 }
 
-// FromContext returns the request's i18n state; ok is false when none was set.
+// FromContext returns the request's intl state; ok is false when none was set.
 func FromContext(ctx context.Context) (r Request, ok bool) {
 	r, ok = ctx.Value(ctxKey{}).(Request)
 	return r, ok && r.Locale != nil

@@ -10,8 +10,12 @@ Binding. How the app works is in [docs/architecture.md](docs/architecture.md), h
   and code comments. Close it when its PR merges (`Closes #N`) or say why it's not planned.
 - Changes land by branch and PR. `main` is protected: a PR needs a green `check`. Squash merges only.
 - End every report of finished work with a **Follow-ups** list, even a short one: what's next, what needs the user's
-  OK and why (deploys, Cloudflare or GitHub writes, tags), bugs or risks found but not fixed, checks skipped, leftovers
-  (processes, resources, stale docs). Put the same list in the issue.
+  OK and why, bugs or risks found but not fixed, checks skipped, leftovers (processes, resources, stale docs). Put the
+  same list in the issue.
+- **What needs the user's OK** is what ships or can't be taken back: a production deploy or a release (a release tag
+  deploys), a Cloudflare write, a write to Google, repository settings, and anything on another owner's repository.
+  Everyday GitHub work on this repo doesn't: branches, PRs and auto-merge, issue comments and edits, and deleting a
+  tag or branch whose commits are on `main`.
 
 ## Toolchain and commands
 
@@ -32,8 +36,9 @@ Binding. How the app works is in [docs/architecture.md](docs/architecture.md), h
 ## Generated files: never edit
 
 `*.x.go` (`go tool gsx generate`; not committed, except `intl/render.x.go`: apps import intl as a Go package),
-`intl_gen.go` and `intl-messages.mjs` (`mise run intl`), `docs/commands.md` (`mise run docs:commands`), and what
-`gsxui` manages (`gsxui.json` lists it).
+`intl_gen.go` and `intl-messages.mjs` (`mise run intl`; not committed), `locales/intl.sum` (`mise run intl`;
+committed), `.claude/skills/intl-translate` (`mise run intl:skill`; committed), `docs/commands.md`
+(`mise run docs:commands`), and what `gsxui` manages (`gsxui.json` lists it).
 
 ## UI: gsx, gsxui, htmx 4
 
@@ -56,21 +61,27 @@ Binding. How the app works is in [docs/architecture.md](docs/architecture.md), h
   Messages, plural forms, numbers, dates, locale names and direction all come from `intl/js/intl.mjs` with the
   runtime's Intl; Go never decides them. Outside the Worker the only Intl is workerd's: a test package that renders
   or formats anything has `func TestMain(m *testing.M) { os.Exit(intltest.Main(m)) }`.
-- No literal user-facing text in `views/` or handlers: write the message in markup, `{ locales.Key(args) }` (an
-  `intl.Msg`, rendered by gsx in text and attributes), from `locales/*.toml` (ICU MessageFormat; `en.toml` is the
-  source). Our components take `intl.Msg`, not strings. `intl.Text(ctx, m)` only where a renderer can't reach: Go
-  code, a gsxui prop typed `string`, another message's argument. Messages use only `{n, number}` and
-  `{n, number, integer}`. Brand names, code and machine values get `translate="no"`. `TestNoHardcodedText` checks.
-- A translation uses the source's arguments with the same kinds. `TestShippedLocalesComplete` keeps every shipped
-  locale complete; the locale list is `intl.toml`. Text arguments are bidi-isolated by the renderer; user text in
-  its own element gets `dir="auto"`.
+- No literal user-facing text in `views/` or handlers: a message from `locales/*.toml` (ICU MessageFormat; `en.toml`
+  is the source), written in markup as a value, `{ locales.NavHome }`, or with arguments, `{ locales.BoardNotes(n) }`.
+  Our components take `intl.Msg`, not strings. A gsxui input typed `string` takes `{ locales.Key |> text }`; Go code
+  (an HTTP error) takes `intl.Text(ctx, m)`. Messages use only `{n, number}` and `{n, number, integer}`. Brand
+  names, code and machine values get `translate="no"`. `TestNoHardcodedText` checks.
+- **Every message change is translated in the same PR.** A new or changed source message: `mise run intl:translate`
+  (Claude Code with the `intl-translate` skill), or translate what `mise run intl:todo` lists by that skill's rules.
+  A stale translation that is still right: `mise run intl:confirm -- <locale>:<key>`. `mise run intl:check` (in
+  `test:go`) fails on anything missing, stale, unused or wrongly plural. How each language reads is `intl.toml`'s
+  `[notes]`: change them there, not per message.
+- Text arguments are bidi-isolated by the renderer; user text in its own element gets `dir="auto"`.
 - gsxui components' own text (`i18n.T`) is the catalogs' `[gsxui]` table: after `gsxui add`, `mise run intl` names
   every string that needs a message.
+- gsx's own smell finder runs over `views/` (`TestGsxSmells`): write what the `gsx` skill says, not what older code
+  does.
 - Every in-app `href`/`hx-*` URL goes through `URL(ctx, "/path")` (not `/static/`, `/assets/`, `/gsxui/`, `/live/`).
   Logical Tailwind classes only (`ms-`, `pe-`, `start-`, `text-end`, …) so RTL mirrors (`TestLogicalClasses`).
-- Dates and numbers for readers go through Intl, never `time.Format` or `strconv`: write the Intl call in markup,
-  `{ intl.Date(t, opts) }`, `{ intl.Since(t) }`, `{ intl.Int(n) }`, `{ intl.Of(api, method, opts, args…) }`
-  (`v.Plain()` in attributes). Every Intl API is reachable that way: add no Go formatting of our own.
+- Dates and numbers for readers go through Intl, never `time.Format` or `strconv`: intl's gsx filters in markup,
+  `{ t |> date(opts) }`, `{ t |> since }`, `{ n |> number(opts) }`, `{ d |> duration }`, `{ v |> intl(api, method,
+  opts) }`, and `{ v |> plain }` in an attribute. Every Intl API is reachable that way: add no Go formatting of our
+  own.
 - A new page: a translated title and its own translated `description` key to `Layout`, an entry in
   `views.SitemapPages`. A query parameter that makes a different page goes in `pageKey`. Titles ≤ 60 and descriptions
   ≤ 160 wide (`TestSnippetWidths`).
