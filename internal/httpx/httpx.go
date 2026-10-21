@@ -35,7 +35,8 @@ func Allow(w http.ResponseWriter, r *http.Request, methods ...string) bool {
 var pages = sync.Pool{New: func() any { return bytes.NewBuffer(make([]byte, 0, 256<<10)) }}
 
 // Render renders n into a buffer and writes it as HTML with a Content-Length. If rendering fails it
-// replies 500 instead and returns the error, so a half-rendered page is never sent.
+// replies 500 instead and returns the error, so a half-rendered page is never sent. Keep the buffer: a streamed
+// (chunked) response broke htmx's history restore (Back) under local workerd.
 func Render(w http.ResponseWriter, r *http.Request, n gsx.Node) error {
 	buf := pages.Get().(*bytes.Buffer)
 	buf.Reset()

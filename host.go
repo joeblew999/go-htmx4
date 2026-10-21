@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-// canonicalHost redirects the Worker's *.workers.dev URL to the custom domain (custom-domains plan Phase 3), so
+// canonicalHost redirects the Worker's *.workers.dev URL to the custom domain, so
 // search engines index one host: canonical, hreflang, og:url, the sitemap and robots.txt are all built from the
 // request origin and follow automatically. The domain comes from the APP_DOMAIN text binding (mise.toml [env],
 // passed by `mise run deploy`); without it nothing redirects (a renamed template, local workerd, `go run .`).

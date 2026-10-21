@@ -3,192 +3,54 @@
 [![check](https://github.com/joeblew999/go-htmx4/actions/workflows/check.yml/badge.svg)](https://github.com/joeblew999/go-htmx4/actions/workflows/check.yml)
 
 Server-rendered web apps with [Go](https://go.dev), [htmx 4](https://four.htmx.org) and [gsxui](https://ui.gsxhq.dev) on
-Cloudflare Workers. One app at the repo root:
+Cloudflare Workers, compiled with TinyGo. No Node anywhere: no npm, no Vite, no wrangler.
 
-- **gsx + gsxui pages**: a form with an out-of-band toast, a dialog and tabs loaded via `hx-get`, client state with hx-live,
-  boosted navigation with `outerMorph`, light/dark theme.
-- **A live shared board** (`/board`): Go writes to D1, a Durable Object per topic pushes every change to all open tabs over
-  hx-ws WebSockets (hibernation), with presence ("N online").
-- **Go compiled with TinyGo**, served by [workers-go](https://github.com/syumai/workers-go); the same handlers run under
-  `go run .`.
+- **Pages** in gsx from gsxui components: forms with out-of-band toasts, a dialog, tabs, client state with hx-live,
+  boosted navigation, light/dark theme, 14 languages including right-to-left.
+- **A live shared board** (`/board`): Go writes to D1, a Durable Object per topic pushes every change to every open
+  tab over WebSockets, with presence.
+- **Search-ready:** canonical URLs, `hreflang`, a sitemap and Open Graph on every page, audited live as Googlebot.
 
-**Live:** https://go-htmx4.ubuntusoftware.net (board: [/board](https://go-htmx4.ubuntusoftware.net/board)). The Worker's
-`*.workers.dev` URL redirects there.
-
-No Node anywhere: no npm, no Vite, no wrangler. Every tool is pinned in [`mise.toml`](mise.toml).
-
-## Use it as a template
-
-```sh
-# GitHub: "Use this template" (or clone), then:
-mise install
-mise run rename -- github.com/you/my-app my-app   # module path + app name (Worker, D1, brand)
-mise run check                                    # proves the renamed copy builds and passes
-```
-
-To deploy, put a Cloudflare API token (Workers Scripts, D1 and Workers Tail edit) and your account id in
-[fnox](https://github.com/jdx/fnox) as `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`, then `mise run deploy`. Nothing
-reads a `.env` file.
+**Live:** https://go-htmx4.ubuntusoftware.net (the board: [/board](https://go-htmx4.ubuntusoftware.net/board)).
 
 ## Quick start
 
 ```sh
-git clone https://github.com/joeblew999/go-htmx4.git
-cd go-htmx4
-mise install        # every pinned tool (Go, TinyGo, workerd, Tailwind, gsxui, …) + gsx for the editor
-mise run dev        # save → regenerate → standard-Go wasm (seconds) → workerd restart → http://localhost:8913
-mise run check      # production TinyGo build + workerd smoke + go test
+git clone https://github.com/joeblew999/go-htmx4.git && cd go-htmx4
+mise install        # every pinned tool, and gsx for the editor
+mise run dev        # rebuild on every save → http://localhost:8913
+mise run check      # the production build under workerd, and go test
 ```
 
-**VS Code:** install the recommended [gsx extension](https://marketplace.visualstudio.com/items?itemName=gsxhq.gsx)
-(`.vscode/extensions.json`). `mise install` puts go.mod's gsx in `GOPATH/bin`, where its language server looks
-(`mise run editor:gsx` reinstalls it); then run **gsx: Restart Language Server**. Don't use the extension's *Install gsx*
-prompt: it installs `@latest`, not the pinned version.
+**Every command, and which to use when:** [docs/commands.md](docs/commands.md).
 
-**Every command, and which to use when: [docs/commands.md](docs/commands.md)** (generated from the tasks).
+**VS Code:** install the recommended [gsx extension](https://marketplace.visualstudio.com/items?itemName=gsxhq.gsx).
+`mise install` puts go.mod's gsx where its language server looks; then run **gsx: Restart Language Server**. Don't
+use the extension's *Install gsx* prompt: it installs `@latest`, not the pinned version.
 
-`mise tasks` lists everything. CI runs `mise run check` and `mise run e2e` on every push and pull request
-([`ci/check.sh`](ci/check.sh), shell steps only, no JavaScript actions).
-Every branch gets a Cloudflare [Worker Preview](https://developers.cloudflare.com/workers/previews/), built once:
-GitHub CI ([`ci/check.sh`](ci/check.sh)) builds the commit, publishes the build and the deploy tool to the
-`preview-builds` pre-release and posts the preview URL on the PR; Workers Builds (Cloudflare's GitHub app,
-[`ci/workers-builds.sh`](ci/workers-builds.sh)) downloads them, verifies the build against its manifest and deploys
-`https://<branch>-$APP_NAME.$CF_SUBDOMAIN.workers.dev` in seconds, then deletes previews of deleted branches. No
-secrets in GitHub. If CI's build never appears, Cloudflare compiles it itself (also `PREVIEW_BUILD=compile`).
-`main` deploys staging, its own Worker: `https://$APP_NAME-staging.$CF_SUBDOMAIN.workers.dev`, exactly what's merged.
-`mise run cf:builds` sets up the Cloudflare side; production deploys stay manual (`mise run deploy`).
+## Use it as a template
+
+```sh
+mise run rename -- github.com/you/my-app my-app   # module path and app name (Worker, D1, brand)
+mise run check
+```
+
+To deploy, put a Cloudflare API token (Workers Scripts, D1 and Workers Tail edit) and your account id in
+[fnox](https://github.com/jdx/fnox) as `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`, then `mise run deploy`.
+Every branch gets its own preview, `main` deploys staging, and a release deploys production: [docs/deploy.md](docs/deploy.md).
 
 ## Stack
 
-| Layer | Technology | Version | Notes |
-| --- | --- | --- | --- |
-| Language | [Go](https://go.dev) | 1.27.3 | Standard Go for tests, `go run .` and tooling |
-| Interactivity | [htmx](https://four.htmx.org) | 4.0.0 | Vendored in `static/` with hx-live and hx-ws |
-| Toolchain & tasks | [mise](https://mise.jdx.dev) | — | Pins every tool; `mise tasks` lists tasks |
-| Templates | [gsx](https://gsxhq.github.io): JSX-style, type-checked Go templates | v0.4.0 | `go tool gsx` |
-| UI components | [gsxui](https://ui.gsxhq.dev): shadcn/ui for gsx, npm-free mode | `915241b` | Vendored with `gsxui add` |
-| Client state | [hx-live](https://four.htmx.org/extensions/hx-live/) | 4.0.0 | htmx 4 extension |
-| CSS | [Tailwind CSS standalone CLI](https://tailwindcss.com/docs/installation/tailwind-cli) | 4.3.3 | Single binary, no npm |
-| Hosting | [Cloudflare Workers](https://workers.cloudflare.com) via [workers-go](https://github.com/syumai/workers-go) | v0.36.0 | Go compiled to wasm |
-| Wasm compiler | [TinyGo](https://tinygo.org) | 0.43.0 | Required for everything that ships to Workers |
-| Wasm optimiser | [binaryen](https://github.com/WebAssembly/binaryen) `wasm-opt` | 133 | Required by TinyGo wasm targets |
-| Local Workers runtime | [workerd](https://github.com/cloudflare/workerd) | 1.20261019.1 | Standalone binary; replaces `wrangler dev` |
-| Database | [Cloudflare D1](https://developers.cloudflare.com/d1/) via workers-go's `database/sql` driver | — | Source of truth for the shared board |
-| Live updates | [Durable Objects](https://developers.cloudflare.com/durable-objects/) (WebSocket Hibernation) + htmx 4 [`hx-ws`](https://four.htmx.org/extensions/hx-ws) | 4.0.0 | One `Room` per topic pushes fragments to every tab |
-| E2E browser | [Chrome for Testing](https://googlechromelabs.github.io/chrome-for-testing/) `chrome-headless-shell` | 155.0.8059.84 | Pinned in mise for `mise run e2e`, same browser on every machine |
-| Secrets | [fnox](https://github.com/jdx/fnox) | 1.40.0 | Cloudflare token + account id from the keychain |
+Versions are pinned in [`mise.toml`](mise.toml) and [`go.mod`](go.mod).
 
-Plans, open work and follow-ups are [GitHub issues](https://github.com/joeblew999/go-htmx4/issues). Licensed under [MIT](LICENSE).
-
-## Upstream references
-
-Read-only checkouts in gitignored `.upstream/`, reproduced without Node.
-
-| Upstream | Run | URL |
-| --- | --- | --- |
-| **gsxui's own demo** (showcase site, all component examples, theme editor), served by its Go harness. The app's UI patterns are copied from here. | `mise run upstream:gsxui:serve` | http://127.0.0.1:7799 |
-| **workers-go v0.36.0** source | `mise run upstream:workers-go:fetch` | |
-
-## Cloudflare Workers without Node
-
-workers-go's docs use `npm create cloudflare` and wrangler. `tasks/app.toml` does the same steps
-without them:
-
-- **Build:** charter's `go tool workerbuild` (TinyGo, tuned for Workers, cached), from `ci/wasm-build.sh`.
-- **Run locally:** `workerd serve`, the runtime `wrangler dev` uses. `workerd/assets-first.mjs` stands in for
-  Static Assets (it runs inside workerd, not Node).
-- **Deploy:** charter's `go tool workerdeploy`, from `ci/deploy.sh`: Cloudflare's
-  [Static Assets Direct Upload](https://developers.cloudflare.com/workers/static-assets/direct-upload/), script upload,
-  D1 and Durable Object migration APIs, Worker Previews. Live logs: `go tool workertail` (`mise run tail`).
-  Credentials come from fnox (`fnox exec -- …`).
-
-**TinyGo 0.43 caveats**: its `net/http` has the
-pre-Go 1.22 `ServeMux` (no `GET /path` patterns), and `html/template` compiles but panics at runtime. gsx + gsxui work
-(verified byte-identical output). `go test` runs on standard Go and can't see TinyGo runtime issues, so the app's test
-tasks also curl the real TinyGo build under workerd.
-
-## Live updates on Workers (shared board)
-
-```
-browser ─ hx-ws:connect /live/{topic} ─▶ worker/index.mjs ─▶ Room Durable Object (worker/room.mjs, hibernatable WebSockets)
-browser ─ hx-post /board/add|note ─────▶ worker/index.mjs ─▶ Go Worker (TinyGo)
-                                           1. D1: INSERT … ON CONFLICT DO UPDATE … RETURNING version
-                                           2. ROOM stub: POST /publish <#board fragment>
-                                                 └▶ Room: ws.send(fragment) to every tab (≤ 5 broadcasts/s, newest wins)
-```
-
-- **D1 is the source of truth; the Room only fans out.** Its cached last fragment is sent to (re)connecting tabs.
-- **Every fragment is the whole `#board` with a `data-version`;** the page cancels any `htmx:before:swap` older than
-  what's on screen, so HTTP responses and pushes can arrive in any order.
-- **Designed for 1,000 tabs per topic:** receive-only sockets, `setWebSocketAutoResponse` ping/pong, coalesced broadcasts,
-  reconnects spread over 1–3 s (a deploy drops every socket at once). Measured live: 1,000/1,000 delivered, p50 386 ms
-  from the click on a phone hotspot.
-- **Abuse limits:** writes are rate limited per client IP (Workers Rate Limiting binding `WRITES`, 60 per 10 s per
-  location; over it: 429 + a toast), each topic keeps its newest 50 notes, and a Room accepts at most 1,000 sockets
-  (the 1,001st gets 503). Topics are 1–32 of `a-z 0-9 -`.
-- **Presence:** the Room pushes "N online" on connects and closes, through the same coalescing (one update for a
-  1,000-socket join in the local test).
-  It counts foreground tabs: hx-ws closes a hidden tab's socket (`pauseOnBackground`) and reconnects when it's shown.
-- **Markup is gsx** (`views/board.gsx`), rendered by TinyGo; a test pins the pushed fragment's wire format (`id`, `hx-swap-oob`, `data-version`).
-- **JS only where Go can't go:** `index.mjs` (workers-go has no WebSocket support) and `room.mjs` (workers-go can only call
-  Durable Objects). Locally, `workerd/local-d1.mjs` gives Go a D1-shaped `DB` over Durable Object SQLite, so the same
-  `database/sql` code runs on workerd without miniflare.
-
-## Search and link previews
-
-- **Indexed host:** https://go-htmx4.ubuntusoftware.net (Search Console property `sc-domain:ubuntusoftware.net`). The
-  `*.workers.dev` URL 301s there, so there is one host to index.
-- **Crawl files are Go routes built from the request origin:** `/robots.txt` (one `*` group, Gemini training and grounding
-  allowed, points at the sitemap) and `/sitemap.xml` (every page in every locale with `hreflang` alternates).
-- **Every page carries:** a translated `<title>` and description, a canonical URL, reciprocal `hreflang` + `x-default`,
-  and Open Graph tags with `og:locale`.
-- **Not indexed:** fragments, `/healthz` and form posts send `X-Robots-Tag: noindex`.
-- **Checks:** `mise run search:audit` fetches robots.txt and every sitemap URL live as Googlebot (200, indexable,
-  self-canonical, `lang`, title and description that fit a result, one `<h1>`, reciprocal `hreflang`).
-- **What Google says:** `mise run search:status` (Search Console API: index coverage per URL), `search:todo` (Google's
-  verdict per URL; fails and opens Search Console only for real problems), `search:inspect /de/` (one URL in detail,
-  opening its page for Google's *Test live URL*) and `search:google` (links to Google's reports). Order of use:
-  [`tasks/search.toml`](tasks/search.toml). `--json` on each gives one JSON document for scripts and agents, and
-  `mise run deploy` runs `search:audit` afterwards.
-  Status on 2026-09-15: 52 of 56 sitemap URLs indexed.
-
-
-## Reusable packages (`kit/`)
-
-Importable from other repos with `go get github.com/joeblew999/go-htmx4/kit/…`. They don't import the app (checked by
-`mise run test`) and are tested without Cloudflare (fake API, fake Room).
-
-`kit/i18n` is the server half of internationalization: locales, translated messages, plural rules and plain numbers.
-Dates, times, currencies and units are formatted in the viewer's browser by its own `Intl` (`static/intl.js`). The
-earlier server-side `Intl` implementation is kept, out of the build, in [kit/i18n/legacy](kit/i18n/legacy/README.md).
-
-| Package | What |
+| Layer | Technology |
 | --- | --- |
-| [`kit/wsload`](kit/wsload) | End-to-end live-board check over real WebSockets: delivery latency, coalescing, presence, heartbeat, cached fragment. |
-| [`kit/searchconsole`](kit/searchconsole) | Google Search Console API with a service account (standard library JWT auth): submit sitemaps, sitemap status, URL Inspection. `mise run search:submit` / `search:status`. |
-| [`kit/ratelimit`](kit/ratelimit) | Call a Workers Rate Limiting binding from Go (TinyGo), plus the per-client key (`CF-Connecting-IP`). |
-| [`kit/live`](kit/live) | Go side of per-topic live updates: `Publish` to a Room Durable Object (js/wasm), the shared topic rule and version header. |
-| [`kit/httpx`](kit/httpx) | TinyGo-safe HTTP helpers: `Allow` (method check for plain-path routes), `Render` (buffered gsx, Content-Length), `GetOnly`. |
+| Language | [Go](https://go.dev); [TinyGo](https://tinygo.org) for what ships to Workers, with [binaryen](https://github.com/WebAssembly/binaryen)'s `wasm-opt` |
+| Templates and UI | [gsx](https://gsxhq.github.io) (type-checked Go templates), [gsxui](https://ui.gsxhq.dev) components, the [Tailwind](https://tailwindcss.com/docs/installation/tailwind-cli) standalone CLI |
+| Interactivity | [htmx 4](https://four.htmx.org) with hx-live and hx-ws, vendored in `static/` |
+| Hosting | [Cloudflare Workers](https://workers.cloudflare.com): [charter](https://github.com/joeblew999/charter)'s Go runtime and tools over [workers-go](https://github.com/syumai/workers-go); [workerd](https://github.com/cloudflare/workerd) locally |
+| Data and live updates | [D1](https://developers.cloudflare.com/d1/), [Durable Objects](https://developers.cloudflare.com/durable-objects/) with WebSocket Hibernation |
+| Tools and secrets | [mise](https://mise.jdx.dev) (tools and tasks), [fnox](https://github.com/jdx/fnox) (credentials), [Chrome for Testing](https://googlechromelabs.github.io/chrome-for-testing/) (e2e) |
 
-The Room and Worker entry are JavaScript (`worker/room.mjs`, `worker/index.mjs`) and come with the template, not `kit/`.
-
-## Project layout
-
-```
-.
-├── mise.toml            # pinned tools, APP_NAME, `check`; includes tasks/*.toml
-├── go.mod               # module github.com/joeblew999/go-htmx4 (the app)
-├── main.go board.go store_*.go platform_{js,other}.go   # handlers, D1/memory stores, platform split
-├── views/               # pages + fragments (.gsx) composed from gsxui
-├── ui/ web/gsxui/       # gsxui components, behaviours, CSS entry, fonts (gsxui add)
-├── static/              # vendored htmx 4 + hx-live + hx-ws
-├── worker/              # index.mjs (Worker entry) + room.mjs (Room Durable Object): deployed
-├── workerd/             # config.capnp + local-only shims (static files first, D1 over DO SQLite)
-├── migrations/          # D1 schema
-├── kit/                 # importable packages (see below)
-├── cmd/                 # wsload, searchconsole, msggen: flag parsing over kit/
-├── e2e/                 # headless Chrome checks (own Go module: chromedp stays out of the app)
-├── tasks/
-│   ├── app.toml         # dev, serve, run, test, smoke, load, deploy, smoke-remote, …
-│   └── upstream.toml    # upstream:gsxui:*, upstream:workers-go:fetch
-```
+How it works: [docs/architecture.md](docs/architecture.md). Rules for changing it: [AGENTS.md](AGENTS.md). Plans and
+open work: [GitHub issues](https://github.com/joeblew999/go-htmx4/issues). Licensed under [MIT](LICENSE).

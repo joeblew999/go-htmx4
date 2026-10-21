@@ -31,7 +31,7 @@ case $kind in
     url=$(cf "${deploy[@]}" -name "$APP_NAME" -allow-existing "${common[@]}" -d1 DB="$APP_NAME" \
       -var "APP_ENV=cloudflare" -var "APP_DOMAIN=${APP_DOMAIN:-}" "${domain[@]}")
     echo "$url"
-    # smoke-remote, e2e and load target the custom domain when there is one (workers.dev redirects to it).
+    # SMOKE_BASE/E2E_BASE/LOAD_BASE=$(cat .deploy-url) target the custom domain when there is one (workers.dev redirects to it).
     if [ -n "${APP_DOMAIN:-}" ]; then echo "https://$APP_DOMAIN"; else echo "$url"; fi >.deploy-url
     ;;
   staging)

@@ -2,7 +2,7 @@
 // SEO, the board through D1 and the Room, and live pushes. One list of checks for both places it runs:
 //
 //	mise run smoke          local workerd serving the production build (SMOKE_LOCAL=1: local-only checks too)
-//	mise run smoke-remote   the deployed Worker (.deploy-url)
+//	SMOKE_BASE=$(cat .deploy-url) mise run smoke   the deployed Worker
 //
 // SMOKE_BASE is the URL. go test runs the handlers on standard Go, which hides TinyGo runtime gaps; this runs the
 // real wasm.
@@ -80,7 +80,7 @@ func has(t *testing.T, name, got, want string) {
 
 func TestMain(m *testing.M) {
 	if base == "" {
-		os.Stderr.WriteString("SMOKE_BASE is required (mise run smoke / smoke-remote set it)\n")
+		os.Stderr.WriteString("SMOKE_BASE is required (mise run smoke sets it)\n")
 		os.Exit(2)
 	}
 	// A brand-new workers.dev hostname can take a little while to answer.

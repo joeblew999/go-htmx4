@@ -1,9 +1,7 @@
 # mise.toml — go-htmx4: Go + htmx 4 + gsxui on Cloudflare Workers (no Node anywhere)
 #
-#   mise install        # install pinned tools
-#   mise run dev        # gsx dev → TinyGo + workerd → http://localhost:8913
-#   mise run check      # test everything (TinyGo under workerd + go test)
-#   mise tasks          # list everything
+#   mise install        # install pinned tools (Go itself comes from go.mod's toolchain line)
+#   mise tasks          # every task; when to use which: docs/commands.md
 
 # The oldest mise that handles these pins (http: backend platforms, packslip tools). CI and Workers Builds install
 # this version (ci/check.sh, ci/workers-builds.sh read it from here).
@@ -29,7 +27,7 @@ tinygo = "0.43.0"      # workers-go TinyGo builds need >= 0.42.0 (net/http on wa
 workerd = "1.20261019.1"
 # fnox: Cloudflare credentials from the keychain via `fnox exec -- …`.
 fnox = "1.40.0"
-# jq: URL-encodes the links `mise run search:google` prints.
+# jq: task scripts read JSON with it (test:go's file list, vendor's npm metadata).
 jq = "1.8.2"
 # usage: shell completion for task arguments and flags (mise run search:inspect <TAB>, --json).
 usage = "7.0.2"

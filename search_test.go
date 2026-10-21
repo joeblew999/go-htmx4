@@ -15,7 +15,7 @@ import (
 	"github.com/joeblew999/go-htmx4/internal/i18n/cldr"
 )
 
-// Search plan Phase 1: every non-page response is noindex, every page (and the crawl files) isn't.
+// Every non-page response is noindex, every page (and the crawl files) isn't.
 func TestNoIndexNonPages(t *testing.T) {
 	h := newServer().routes()
 	allowWrite = func(*http.Request) bool { return true }
@@ -72,7 +72,7 @@ func TestRobotsTxtOnlyAtRoot(t *testing.T) {
 	}
 }
 
-// Search plan Phase 2: Open Graph agrees with the page's canonical URL, title, description and locale.
+// Open Graph agrees with the page's canonical URL, title, description and locale.
 func TestOpenGraph(t *testing.T) {
 	h := newServer().routes()
 	meta := func(page, attr, key string) []string {
@@ -134,7 +134,7 @@ func TestOpenGraph(t *testing.T) {
 	}
 }
 
-// Search plan: every sitemap page's title and meta description fit in a Google result without being cut
+// Every sitemap page's title and meta description fit in a Google result without being cut
 // (widths from charter's searchconsole, the same limits `mise run search:audit` checks live).
 func TestSnippetWidths(t *testing.T) {
 	h := newServer().routes()
