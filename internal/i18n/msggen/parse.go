@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
-
-	"github.com/joeblew999/go-htmx4/internal/i18n"
 )
 
 // argKind is how a message uses an argument.
@@ -23,9 +21,22 @@ type parsed struct {
 	order []string // argument names in first-use order
 }
 
-// node mirrors i18n.MsgPart with an argument name instead of an index.
+// kind is what a message part is.
+type kind uint8
+
+const (
+	kText          kind = iota // literal text
+	kArg                       // {name}: a string, or a number in the default format
+	kNumber                    // {name, number[, style]}
+	kPlural                    // {name, plural, [offset:N] =0 {…} one {…} other {…}}
+	kSelectOrdinal             // {name, selectordinal, one {…} other {…}}
+	kSelect                    // {name, select, male {…} other {…}}
+	kPound                     // # inside plural/selectordinal: the number (minus offset)
+)
+
+// node is one part of a parsed message, its argument by name.
 type node struct {
-	kind   i18n.MsgKind
+	kind   kind
 	text   string
 	arg    string
 	style  string
@@ -65,7 +76,7 @@ func (p *msgParser) parts(depth int, inPlural bool) ([]node, error) {
 	var text strings.Builder
 	flush := func() {
 		if text.Len() > 0 {
-			out = append(out, node{kind: i18n.MsgText, text: text.String()})
+			out = append(out, node{kind: kText, text: text.String()})
 			text.Reset()
 		}
 	}
@@ -112,7 +123,7 @@ func (p *msgParser) parts(depth int, inPlural bool) ([]node, error) {
 			return out, nil
 		case c == '#' && inPlural:
 			flush()
-			out = append(out, node{kind: i18n.MsgPound})
+			out = append(out, node{kind: kPound})
 			p.i++
 		default:
 			text.WriteRune(c)
@@ -160,7 +171,7 @@ func (p *msgParser) argument(depth int, inPlural bool) (node, error) {
 	if p.i < len(p.s) && p.s[p.i] == '}' {
 		p.i++
 		use(argString)
-		return node{kind: i18n.MsgArg, arg: name}, nil
+		return node{kind: kArg, arg: name}, nil
 	}
 	if p.i >= len(p.s) || p.s[p.i] != ',' {
 		return node{}, fmt.Errorf("argument %s: expected , or }", name)
@@ -185,14 +196,14 @@ func (p *msgParser) argument(depth int, inPlural bool) (node, error) {
 			return node{}, fmt.Errorf("argument %s: unclosed number", name)
 		}
 		if style != "" && style != "integer" {
-			// The server formats plain numbers only; currency, percent, units and compact belong to the browser
-			// (static/intl.js, <data data-intl="number">), which has the full Intl.
+			// Messages format plain numbers only; currency, percent, units and compact are Intl rows of their own
+			// (<data data-intl="number">).
 			return node{}, fmt.Errorf("argument %s: number style %q: only the default and \"integer\" are supported", name, style)
 		}
 		p.i++
-		return node{kind: i18n.MsgNumber, arg: name, style: style}, nil
+		return node{kind: kNumber, arg: name, style: style}, nil
 	case "plural", "selectordinal", "select":
-		kind := map[string]i18n.MsgKind{"plural": i18n.MsgPlural, "selectordinal": i18n.MsgSelectOrdinal, "select": i18n.MsgSelect}[typ]
+		k := map[string]kind{"plural": kPlural, "selectordinal": kSelectOrdinal, "select": kSelect}[typ]
 		if typ == "select" {
 			use(argString)
 		} else {
@@ -202,7 +213,7 @@ func (p *msgParser) argument(depth int, inPlural bool) (node, error) {
 			return node{}, fmt.Errorf("argument %s: %s needs cases", name, typ)
 		}
 		p.i++
-		n := node{kind: kind, arg: name}
+		n := node{kind: k, arg: name}
 		for {
 			p.skipSpace()
 			if p.i < len(p.s) && p.s[p.i] == '}' {
@@ -210,7 +221,7 @@ func (p *msgParser) argument(depth int, inPlural bool) (node, error) {
 				break
 			}
 			key := p.word()
-			if strings.HasPrefix(key, "offset:") && kind == i18n.MsgPlural {
+			if strings.HasPrefix(key, "offset:") && k == kPlural {
 				v, err := strconv.Atoi(strings.TrimPrefix(key, "offset:"))
 				if err != nil {
 					return node{}, fmt.Errorf("argument %s: bad %s", name, key)
@@ -226,7 +237,7 @@ func (p *msgParser) argument(depth int, inPlural bool) (node, error) {
 				return node{}, fmt.Errorf("argument %s: case %s needs {…}", name, key)
 			}
 			p.i++
-			parts, err := p.parts(depth+1, kind != i18n.MsgSelect || inPlural)
+			parts, err := p.parts(depth+1, k != kSelect || inPlural)
 			if err != nil {
 				return node{}, fmt.Errorf("argument %s case %s: %w", name, key, err)
 			}
@@ -245,20 +256,4 @@ func (p *msgParser) argument(depth int, inPlural bool) (node, error) {
 		return node{}, fmt.Errorf("argument %s: %s arguments are not supported yet (use a formatted string argument)", name, typ)
 	}
 	return node{}, fmt.Errorf("argument %s: unknown type %q", name, typ)
-}
-
-// resolve turns named nodes into i18n parts with argument indexes from order.
-func resolve(nodes []node, index map[string]int8) []i18n.MsgPart {
-	out := make([]i18n.MsgPart, 0, len(nodes))
-	for _, n := range nodes {
-		p := i18n.MsgPart{Kind: n.kind, Text: n.text, Style: n.style, Offset: n.offset}
-		if n.arg != "" {
-			p.Arg = index[n.arg]
-		}
-		for _, c := range n.cases {
-			p.Cases = append(p.Cases, i18n.MsgCase{Key: c.key, Parts: resolve(c.parts, index)})
-		}
-		out = append(out, p)
-	}
-	return out
 }

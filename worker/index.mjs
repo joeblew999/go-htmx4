@@ -3,11 +3,12 @@
 // Go runtimes alive between requests and starts two while the module loads (charter go/lib/worker;
 // copied into build/ by the build, from the version go.mod requires).
 
-import * as intl from "./intl.mjs";
+import { goIntl } from "./gointl.mjs";
 import { goWorker } from "./build/go.mjs";
 
-// The app's Intl formatter, for Go (internal/i18n Format): the same code the browser runs (static/intl.js).
-globalThis.goIntl = intl;
+// Everything a language decides, for Go (internal/i18n): worker/intl.mjs, the same code the browser runs
+// (static/intl.js), with the message catalogs.
+globalThis.goIntl = goIntl;
 
 export { Room } from "./room.mjs";
 

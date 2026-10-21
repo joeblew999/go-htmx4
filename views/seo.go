@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/joeblew999/go-htmx4/internal/i18n"
-	"github.com/joeblew999/go-htmx4/internal/i18n/cldr"
+	"github.com/joeblew999/go-htmx4/locales"
 )
 
 // SEO. Every page links its canonical URL and the same page in every locale (hreflang,
@@ -41,7 +41,7 @@ func origin(ctx context.Context) string {
 
 // CanonicalURL is the request's page in its own locale, absolute.
 func CanonicalURL(ctx context.Context) string {
-	return origin(ctx) + LocalePrefix(Loc(ctx).Data) + pageKey(ctx)
+	return origin(ctx) + LocalePrefix(Loc(ctx)) + pageKey(ctx)
 }
 
 // Alternate is one hreflang link.
@@ -57,9 +57,9 @@ func Alternates(ctx context.Context) []Alternate {
 }
 
 func alternates(origin, page string) []Alternate {
-	out := make([]Alternate, 0, len(cldr.Data.Locales)+1)
-	for _, ld := range cldr.Data.Locales {
-		out = append(out, Alternate{Lang: ld.ID, Href: origin + LocalePrefix(ld) + page})
+	out := make([]Alternate, 0, len(locales.Shipped)+1)
+	for _, ld := range locales.Shipped {
+		out = append(out, Alternate{Lang: ld.ID(), Href: origin + LocalePrefix(ld) + page})
 	}
 	return append(out, Alternate{Lang: "x-default", Href: origin + page})
 }
@@ -92,21 +92,23 @@ func xmlEscape(s string) string { return xmlEscaper.Replace(s) }
 // og:title/og:description are the page's translated title and description, og:locale is the page's locale and
 // og:locale:alternate every other shipped locale.
 
-// OGLocale is a locale in Open Graph's language_TERRITORY form, from its likely-subtags maximum: "en" → "en_US",
-// "pt-BR" → "pt_BR", "zh-Hant" (zh-Hant-TW) → "zh_TW".
-func OGLocale(ld *i18n.LocaleData) string {
-	t := i18n.MustParseTag(ld.Maximal)
-	if t.Region == "" {
-		return t.Language
+// OGLocale is a locale in Open Graph's language_TERRITORY form, from its likely subtags (Intl.Locale maximize):
+// "en" (en-Latn-US) → "en_US", "pt-BR" → "pt_BR", "zh-Hant" (zh-Hant-TW) → "zh_TW".
+func OGLocale(ld *i18n.Locale) string {
+	tags := strings.Split(ld.Maximal(), "-")
+	for _, t := range tags[1:] {
+		if len(t) == 2 || len(t) == 3 && t[0] >= '0' && t[0] <= '9' {
+			return tags[0] + "_" + t
+		}
 	}
-	return t.Language + "_" + t.Region
+	return tags[0]
 }
 
 // OGLocaleAlternates are every shipped locale except the request's, in data order.
 func OGLocaleAlternates(ctx context.Context) []string {
-	self := Loc(ctx).Data
-	out := make([]string, 0, len(cldr.Data.Locales)-1)
-	for _, ld := range cldr.Data.Locales {
+	self := Loc(ctx)
+	out := make([]string, 0, len(locales.Shipped)-1)
+	for _, ld := range locales.Shipped {
 		if ld != self {
 			out = append(out, OGLocale(ld))
 		}

@@ -5,8 +5,8 @@ descriptions in tasks/*.toml and mise.toml. Edit those, not this file. -->
 
 Every command is a mise task: `mise run <task>`; `mise tasks` lists them. Which to use when:
 
-- **Develop:** `dev:native` for UI and text (plain Go, seconds per save); `dev` for the real Worker runtime (board,
-  D1, Durable Objects, the server's Intl) with the fast `build:dev`.
+- **Develop:** `dev`: the real Worker runtime (Intl, board, D1, Durable Objects) on workerd, rebuilt on every save
+  with the fast `build:dev`.
 - **Build:** `build` is production (what ships and what the tests use), compiled by `WORKER_COMPILER` in mise.toml:
   `tinygo` (smallest wasm, ~1–2 min builds) or `go` (seconds, a bigger wasm, ~50–90 ms slower per request).
   Override it for one run: `WORKER_COMPILER=go ci/check.sh`. `build:dev` is always standard Go, for `dev`.

@@ -5,8 +5,8 @@ descriptions in tasks/*.toml and mise.toml. Edit those, not this file. -->
 
 Every command is a mise task: `mise run <task>`; `mise tasks` lists them. Which to use when:
 
-- **Develop:** `dev:native` for UI and text (plain Go, seconds per save); `dev` for the real Worker runtime (board,
-  D1, Durable Objects, the server's Intl) with the fast `build:dev`.
+- **Develop:** `dev`: the real Worker runtime (Intl, board, D1, Durable Objects) on workerd, rebuilt on every save
+  with the fast `build:dev`.
 - **Build:** `build` is production (what ships and what the tests use), compiled by `WORKER_COMPILER` in mise.toml:
   `tinygo` (smallest wasm, ~1–2 min builds) or `go` (seconds, a bigger wasm, ~50–90 ms slower per request).
   Override it for one run: `WORKER_COMPILER=go ci/check.sh`. `build:dev` is always standard Go, for `dev`.
@@ -25,7 +25,7 @@ Every command is a mise task: `mise run <task>`; `mise tasks` lists them. Which 
 
 - **Usage:** `assets`
 
-Tailwind (gsxui CSS) + assemble dist/site (Static Assets for workerd, go run . and deploy)
+Tailwind (gsxui CSS) + assemble dist/site (Static Assets for workerd and deploy)
 
 ### `bench`
 
@@ -79,14 +79,6 @@ Test, then deploy production → https://$APP_DOMAIN (or $APP_NAME.&lt;subdomain
 
 gsx dev → build:dev (standard Go, seconds) + CSS → workerd restart on every .gsx/.go save → http://localhost:8913
 
-### `dev:native`
-
-- Depends: generate, assets
-
-- **Usage:** `dev:native`
-
-gsx dev → go build → native server restart on every save (seconds; no Durable Objects) → http://localhost:9913
-
 ### `docs:commands`
 
 - **Usage:** `docs:commands`
@@ -115,17 +107,11 @@ Install go.mod's gsx into GOPATH/bin for the VS Code gsx language server
 
 go tool gsx generate (after i18n:messages: views call the generated message methods)
 
-### `i18n:generate`
-
-- **Usage:** `i18n:generate`
-
-Regenerate internal/i18n/cldr for I18N_LOCALES from CLDR, with the generator at the git tag i18n-generator (network on first run)
-
 ### `i18n:messages`
 
 - **Usage:** `i18n:messages`
 
-Generate locales/*_msg_gen.go from the UI message catalogs locales/*.toml (I18N_LOCALES, en first)
+Generate worker/messages_gen.mjs (the catalogs Intl formats) and their typed accessors locales/*_msg_gen.go from locales/*.toml (I18N_LOCALES, en first)
 
 ### `load`
 

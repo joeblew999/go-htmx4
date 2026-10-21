@@ -109,7 +109,7 @@ component IntlExample(r FormatRow) {
 		<dl class="grid grid-cols-[auto_1fr] items-baseline gap-x-3 gap-y-0.5 text-sm">
 			<dt class="text-xs text-muted-foreground">{ M(ctx).FormatsServer() }</dt>
 			<dd>
-				<bdi data-i18n="cldr">{ r.Text(ctx) }</bdi>
+				<bdi data-i18n="intl">{ r.Text(ctx) }</bdi>
 			</dd>
 			{ if r.Kind != "" {
 				<dt class="text-xs text-muted-foreground">{ M(ctx).FormatsBrowser() }</dt>
@@ -208,15 +208,14 @@ component TryRowView(row TryRow, code bool) {
 		} else {
 			<span class="text-muted-foreground">{ row.Label }</span>
 		} }
-		<bdi data-i18n="cldr" class="font-medium">{ row.Text }</bdi>
+		<bdi data-i18n="intl" class="font-medium">{ row.Text }</bdi>
 	</li>
 }
 
 component LocaleCard(facts LocaleFacts) {
 	<ui.Card>
 		<ui.CardHeader>
-			<ui.CardTitle translate="no">{ facts.NativeName }</ui.CardTitle>
-			<ui.CardDescription translate="no">{ facts.CLDR }</ui.CardDescription>
+			<ui.CardTitle translate="no">{ facts.Name }</ui.CardTitle>
 		</ui.CardHeader>
 		<ui.CardContent class="flex flex-wrap gap-2">
 			<ui.Badge variant="secondary" translate="no">{ facts.ID }</ui.Badge>
@@ -226,7 +225,6 @@ component LocaleCard(facts LocaleFacts) {
 			{ if facts.NativeSystem != "" {
 				<ui.Badge variant="outline">{ M(ctx).FormatsNative(facts.NativeSystem) }</ui.Badge>
 			} }
-			<ui.Badge variant="outline" translate="no">{ facts.Currency }</ui.Badge>
 			<ui.Badge variant="outline">{ M(ctx).FormatsTimeZone(TimeZone(ctx)) }</ui.Badge>
 		</ui.CardContent>
 	</ui.Card>

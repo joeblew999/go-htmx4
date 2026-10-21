@@ -7,13 +7,12 @@ import (
 	"time"
 
 	"github.com/joeblew999/go-htmx4/internal/i18n"
-	"github.com/joeblew999/go-htmx4/internal/i18n/cldr"
 	"github.com/joeblew999/go-htmx4/locales"
 )
 
 // FormatRow is one example on the /formats page: what is formatted, the Intl options, and the result. Kind is the
 // data-intl kind intl.js formats in the browser (Value, Opts, End and Unit are its input, Fallback the text until it
-// does); "" is a result computed on the server (plural rules, which pick messages' wording), shown as Fallback.
+// does); "" is a result computed on the server, shown as Fallback.
 type FormatRow struct {
 	Label    string
 	Options  string // the Intl call's options, as shown to the reader
@@ -42,18 +41,35 @@ type FormatSection struct {
 
 // LocaleFacts describes the request's locale for the /formats page.
 type LocaleFacts struct {
-	ID, NativeName, Dir, Maximal, NumberingSystem, NativeSystem, Currency, CLDR string
+	ID, Name, Dir, Maximal, NumberingSystem, NativeSystem string
 }
 
-// Facts returns the request locale's facts.
+// Facts returns the request locale's facts, all from the runtime's Intl.
 func Facts(ctx context.Context) LocaleFacts {
 	loc := Loc(ctx)
-	d := loc.Data
-	return LocaleFacts{
-		ID: d.ID, NativeName: d.NativeName, Dir: loc.Dir(), Maximal: d.Maximal,
-		NumberingSystem: d.Numbers.DefaultSystem, NativeSystem: d.Numbers.NativeSystem,
-		Currency: cmpOr(d.Currency, "USD"), CLDR: "CLDR " + cldr.Data.CLDRVersion + " (cldr-json " + cldr.Data.CLDRJSONVersion + ")",
+	return LocaleFacts{ID: loc.ID(), Name: loc.Name(), Dir: loc.Dir(), Maximal: loc.Maximal(),
+		NumberingSystem: localeFact(loc, "numberingSystem"), NativeSystem: nativeSystem(loc)}
+}
+
+// showcaseCurrency is the currency the /formats page formats in every language (Intl knows no region's currency).
+const showcaseCurrency = "EUR"
+
+// localeFact asks Intl.Locale (format kind "locale") for one fact, "" without a JS runtime.
+func localeFact(loc *i18n.Locale, fact string) string {
+	s, _ := loc.Format(i18n.Call{Kind: "locale", Value: fact}, "", "")
+	return s
+}
+
+// nativeSystem is the locale's own numbering system when Intl lists one besides its default digits ("arab" for
+// ar), else "".
+func nativeSystem(loc *i18n.Locale) string {
+	def := localeFact(loc, "numberingSystem")
+	for _, ns := range strings.Split(localeFact(loc, "numberingSystems"), ", ") {
+		if ns != "" && ns != def {
+			return ns
+		}
 	}
+	return ""
 }
 
 // sampleInstant is the instant the date sections format (a fixed one, so the page is stable for crawlers).
@@ -119,7 +135,7 @@ func RoundTrip(ctx context.Context, number, text string) TryResult {
 		res.Parsed, res.NumberOK = loc.ParseNumber(number)
 	}
 	if res.NumberOK {
-		cur := cmpOr(loc.Data.Currency, "USD")
+		cur := showcaseCurrency
 		for _, o := range []string{"", `{"style":"currency","currency":"` + cur + `"}`, `{"notation":"compact","compactDisplay":"long"}`,
 			`{"style":"percent"}`, `{"notation":"scientific"}`} {
 			res.NumberRows = append(res.NumberRows, TryRow{"NumberFormat " + jsOptions(o), IntlText(ctx, i18n.Call{Kind: "number", Value: res.Parsed, Opts: o}, "")})
@@ -160,7 +176,7 @@ func numbers(loc *i18n.Locale, m locales.Messages) FormatSection {
 	add("0", `{"signDisplay":"exceptZero"}`)
 	add("42", `{"signDisplay":"always"}`)
 	add("7", `{"minimumIntegerDigits":3}`)
-	if native := loc.Data.Numbers.NativeSystem; native != "" {
+	if native := nativeSystem(loc); native != "" {
 		add("1234567.891", `{"numberingSystem":"`+native+`"}`)
 	}
 	rng := func(start, end, opts string) {
@@ -170,14 +186,14 @@ func numbers(loc *i18n.Locale, m locales.Messages) FormatSection {
 		sec.Rows = append(sec.Rows, r)
 	}
 	rng("3", "5", `{"style":"unit","unit":"kilogram"}`)
-	rng("1000", "1500", `{"style":"currency","currency":"`+cmpOr(loc.Data.Currency, "USD")+`","maximumFractionDigits":0}`)
+	rng("1000", "1500", `{"style":"currency","currency":"`+showcaseCurrency+`","maximumFractionDigits":0}`)
 	rng("1200000", "1500000", `{"notation":"compact"}`)
 	rng("2.9", "3.1", `{"maximumFractionDigits":0}`)
 	return sec
 }
 
 func currency(loc *i18n.Locale, m locales.Messages) FormatSection {
-	cur := cmpOr(loc.Data.Currency, "USD")
+	cur := showcaseCurrency
 	sec := FormatSection{Title: m.FormatsCurrencyTitle(), Description: m.FormatsCurrencyDescription(cur)}
 	add := func(in, code, more string) {
 		opts := `{"style":"currency","currency":"` + code + `"` + more + `}`
@@ -212,7 +228,7 @@ func dates(loc *i18n.Locale, m locales.Messages) FormatSection {
 	add(`{"hour":"numeric","dayPeriod":"long"}`)
 	add(`{"era":"long","year":"numeric"}`)
 	add(`{"minute":"2-digit","second":"2-digit","fractionalSecondDigits":3}`)
-	if native := loc.Data.Numbers.NativeSystem; native != "" {
+	if native := nativeSystem(loc); native != "" {
 		add(`{"dateStyle":"medium","numberingSystem":"` + native + `"}`)
 	}
 	return sec
@@ -286,7 +302,7 @@ func relativeTimes(m locales.Messages) FormatSection {
 
 func lists(loc *i18n.Locale, m locales.Messages) FormatSection {
 	sec := FormatSection{Title: m.FormatsListsTitle(), Description: m.FormatsListsDescription()}
-	items := []string{loc.Data.NativeName, "Go", "htmx", "Cloudflare"}
+	items := []string{loc.Name(), "Go", "htmx", "Cloudflare"}
 	add := func(opts string, n int) {
 		quoted := make([]string, n)
 		for i, it := range items[:n] {
@@ -315,22 +331,19 @@ func durations(m locales.Messages) FormatSection {
 	return sec
 }
 
-// plurals are computed on the server: they are the rules that pick a translated message's wording.
+// plurals are Intl.PluralRules: each category this language has, with numbers that select it, then select and
+// selectRange. On the server they also pick a translated message's wording.
 func plurals(loc *i18n.Locale, m locales.Messages) FormatSection {
 	sec := FormatSection{Title: m.FormatsPluralsTitle(), Description: m.FormatsPluralsDescription()}
-	for _, typ := range []struct {
-		name  string
-		rules i18n.PluralRules
-	}{{"cardinal", loc.Data.Cardinal}, {"ordinal", loc.Data.Ordinal}} {
-		for _, cat := range typ.rules.Categories() {
-			sec.Rows = append(sec.Rows, FormatRow{
-				Label:    typ.name + " · " + cat.String(),
-				Options:  `{type: "` + typ.name + `"}`,
-				Fallback: strings.Join(pluralSamples(typ.rules, cat, typ.name == "cardinal"), ", "),
-			})
+	for _, typ := range []string{"cardinal", "ordinal"} {
+		opts := `{"type":"` + typ + `"}`
+		cats, _ := loc.Format(i18n.Call{Kind: "plural-categories", Opts: opts}, "", "")
+		for _, cat := range strings.Split(cats, ", ") {
+			if cat != "" {
+				sec.Rows = append(sec.Rows, intlRow(typ+" · "+cat, "plural-samples", cat, opts, "—"))
+			}
 		}
 	}
-	// The same rules in the browser: Intl.PluralRules select and selectRange.
 	pr := func(label, v, end, opts string) {
 		r := intlRow(label, "plural", v, opts, "—")
 		r.End = end
@@ -416,30 +429,4 @@ func supported(m locales.Messages) FormatSection {
 		sec.Rows = append(sec.Rows, FormatRow{Label: key, Options: `supportedValuesOf("` + key + `")`, Kind: "supported", Value: key, Fallback: "—"})
 	}
 	return sec
-}
-
-// pluralSamples returns up to six numbers selecting cat: integers first, then (for cardinals) one-decimal values.
-func pluralSamples(rules i18n.PluralRules, cat i18n.PluralCat, decimals bool) []string {
-	var out []string
-	for n := 0; n <= 1000 && len(out) < 5; n++ {
-		s := strconv.Itoa(n)
-		if rules.Select(s) == cat {
-			out = append(out, s)
-		}
-	}
-	for n := 0; decimals && n <= 100 && len(out) < 6; n++ {
-		s := strconv.Itoa(n/10) + "." + strconv.Itoa(n%10)
-		if rules.Select(s) == cat {
-			out = append(out, s)
-			break
-		}
-	}
-	return out
-}
-
-func cmpOr(a, b string) string {
-	if a != "" {
-		return a
-	}
-	return b
 }

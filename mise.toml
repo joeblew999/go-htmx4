@@ -58,7 +58,8 @@ APP_REPO = "joeblew999/go-htmx4"
 # The account's workers.dev subdomain: previews answer at https://<branch slug>-$APP_NAME.$CF_SUBDOMAIN.workers.dev
 # (CI posts that URL on the PR). The owner's; mise run rename clears it.
 CF_SUBDOMAIN = "gedw99"
-# Locales the app ships (mise run i18n:generate); the first is the default and x-default.
+# Locales the app ships (msggen writes locales.Shipped from it: mise run i18n:messages); the first is the default and
+# x-default.
 I18N_LOCALES = "en,en-IN,de,fr,es,pt-BR,pt-PT,ar,he,ja,zh-Hans,zh-Hant,hi,ru"
 
 [task_config]

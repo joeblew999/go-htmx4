@@ -12,7 +12,7 @@ import (
 	"testing"
 
 	"github.com/joeblew999/charter/go/lib/searchconsole"
-	"github.com/joeblew999/go-htmx4/internal/i18n/cldr"
+	"github.com/joeblew999/go-htmx4/locales"
 )
 
 // Every non-page response is noindex, every page (and the crawl files) isn't.
@@ -124,8 +124,8 @@ func TestOpenGraph(t *testing.T) {
 				}
 				seen[a] = true
 			}
-			if len(alts) != len(cldr.Data.Locales)-1 {
-				t.Errorf("%d og:locale:alternate, want %d (every other locale)", len(alts), len(cldr.Data.Locales)-1)
+			if len(alts) != len(locales.Shipped)-1 {
+				t.Errorf("%d og:locale:alternate, want %d (every other locale)", len(alts), len(locales.Shipped)-1)
 			}
 			if got := one(t, page, "property", "og:type"); got != "website" {
 				t.Errorf("og:type = %q", got)

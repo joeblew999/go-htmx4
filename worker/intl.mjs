@@ -15,6 +15,8 @@
 //   number         Intl.NumberFormat                   a decimal string
 //   number-range   Intl.NumberFormat formatRange       the start; extra.end: the end
 //   plural         Intl.PluralRules select             a number (with extra.end: selectRange)
+//   plural-categories Intl.PluralRules categories      (no value); opts.type: cardinal, ordinal
+//   plural-samples Intl.PluralRules                    a category: numbers that select it
 //   list           Intl.ListFormat                     a JSON array of strings
 //   duration       Intl.DurationFormat                 a JSON object ({"days":1,"hours":2,…})
 //   display-name   Intl.DisplayNames                   a code; opts.type: language, region, script, currency,
@@ -24,7 +26,8 @@
 //   count          Intl.Segmenter                      text; the number of graphemes, words or sentences
 //   sort-words     Intl.Segmenter + Intl.Collator      text; its words, sorted
 //   locale         Intl.Locale                         maximize, minimize, calendars, collations, hourCycles,
-//                                                      numberingSystems, timeZones, direction, firstDay, weekend
+//                                                      numberingSystems, timeZones, direction, firstDay, weekend;
+//                                                      numberingSystem: Intl.NumberFormat's default
 //   supported      Intl.supportedValuesOf              calendar, collation, currency, numberingSystem, timeZone,
 //                                                      unit; shows the count and the first few
 //   zone           a time zone's name                  an IANA id
@@ -104,6 +107,24 @@ const kinds = {
     const pr = make(Intl.PluralRules, lang, o);
     return x.end ? pr.selectRange(Number(v), Number(x.end)) : pr.select(Number(v));
   },
+  "plural-categories": (lang, v, o) => make(Intl.PluralRules, lang, o).resolvedOptions().pluralCategories.join(", "),
+  // Up to five integers that select category v, then (cardinals) a number shown with one decimal ("1.0" can select
+  // differently from "1": minimumFractionDigits makes the decimal visible to the rules).
+  "plural-samples"(lang, v, o) {
+    const pr = make(Intl.PluralRules, lang, o);
+    const out = [];
+    for (let n = 0; n <= 1000 && out.length < 5; n++) if (pr.select(n) === v) out.push(String(n));
+    if (o.type !== "ordinal") {
+      const decimal = make(Intl.PluralRules, lang, { ...o, minimumFractionDigits: 1 });
+      for (let n = 0; n <= 100; n++) {
+        if (decimal.select(n / 10) === v) {
+          out.push((n / 10).toFixed(1));
+          break;
+        }
+      }
+    }
+    return out.join(", ");
+  },
   list: (lang, v, o) => make(Intl.ListFormat, lang, o).format(JSON.parse(v)),
   duration(lang, v, o) {
     if (!Intl.DurationFormat) throw new TypeError("no Intl.DurationFormat");
@@ -133,6 +154,7 @@ const kinds = {
   locale(lang, v) {
     const base = new Intl.Locale(lang);
     if (v === "maximize" || v === "minimize") return base[v]().toString();
+    if (v === "numberingSystem") return make(Intl.NumberFormat, lang).resolvedOptions().numberingSystem;
     // Region-dependent answers (time zones, week, clocks) need the region: "de" → de-Latn-DE.
     const loc = base.maximize();
     const get = (name) => {
@@ -161,6 +183,59 @@ const kinds = {
   },
   zone: (lang, v, o, x) => zoneName(lang, v, x.now),
 };
+
+// message formats one message of the catalogs msggen writes (worker/messages_gen.mjs) in lang: a string, or a list of
+// parts, each a string or ["a", i] (a text argument), ["n", i, style] (a number; style "integer"), ["p" or "o", i,
+// offset, cases] (plural, selectordinal: an exact "=N" case, else the category Intl.PluralRules picks, else
+// "other"), ["s", i, cases] (select) or ["#"] (the plural's number less its offset). args are strings, numbers as
+// plain decimals.
+export function message(lang, msg, args = []) {
+  return typeof msg === "string" ? msg : messageParts(lang, msg ?? [], args, "", 0);
+}
+
+function messageParts(lang, parts, args, pound, offset) {
+  let out = "";
+  for (const p of parts) {
+    if (typeof p === "string") {
+      out += p;
+      continue;
+    }
+    switch (p[0]) {
+      case "a":
+        out += args[p[1]] ?? "";
+        break;
+      case "n":
+        out += messageNumber(lang, args[p[1]] ?? "", p[2] === "integer" ? { maximumFractionDigits: 0 } : {});
+        break;
+      case "#":
+        out += pound === "" ? "#" : messageNumber(lang, String(Number(pound) - offset), {});
+        break;
+      case "p":
+      case "o": {
+        const value = args[p[1]] ?? "0", cases = p[3];
+        const chosen = cases["=" + Number(value)] ??
+          cases[make(Intl.PluralRules, lang, { type: p[0] === "o" ? "ordinal" : "cardinal" }).select(Number(value) - p[2])] ??
+          cases.other;
+        if (chosen) out += messageParts(lang, chosen, args, value, p[2]);
+        break;
+      }
+      case "s": {
+        const chosen = p[2][args[p[1]]] ?? p[2].other;
+        if (chosen) out += messageParts(lang, chosen, args, pound, offset);
+        break;
+      }
+    }
+  }
+  return out;
+}
+
+function messageNumber(lang, value, opts) {
+  try {
+    return make(Intl.NumberFormat, lang, opts).format(value);
+  } catch {
+    return value;
+  }
+}
 
 // format is "" when this Intl can't (unknown kind, value or option): the caller keeps its fallback.
 export function format(lang, kind, value, opts = {}, extra = {}) {

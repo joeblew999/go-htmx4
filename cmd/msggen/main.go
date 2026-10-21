@@ -1,6 +1,7 @@
-// Command msggen generates typed message accessors from ICU MessageFormat catalogs (internal/i18n/msggen).
+// Command msggen generates the message catalogs for worker/intl.mjs and their typed Go accessors from ICU
+// MessageFormat catalogs (internal/i18n/msggen).
 //
-//	go run ./cmd/msggen -dir locales -out locales -locales en,de,ar
+//	go run ./cmd/msggen -dir locales -out locales -js worker/messages_gen.mjs -locales en,de,ar
 package main
 
 import (
@@ -17,6 +18,7 @@ func main() {
 	var locales string
 	flag.StringVar(&cfg.Dir, "dir", "locales", "catalog directory (<locale>.toml)")
 	flag.StringVar(&cfg.Out, "out", "locales", "output package directory")
+	flag.StringVar(&cfg.JS, "js", "worker/messages_gen.mjs", "the catalogs' JS module")
 	flag.StringVar(&cfg.Package, "pkg", "", "package name (default: base of -out)")
 	flag.StringVar(&cfg.Source, "source", "", "source locale (default: the first of -locales)")
 	flag.StringVar(&locales, "locales", "", "comma-separated shipped locale ids (required)")

@@ -8,7 +8,7 @@ import (
 // canonicalHost redirects the Worker's *.workers.dev URL to the custom domain, so
 // search engines index one host: canonical, hreflang, og:url, the sitemap and robots.txt are all built from the
 // request origin and follow automatically. The domain comes from the APP_DOMAIN text binding (mise.toml [env],
-// passed by `mise run deploy`); without it nothing redirects (a renamed template, local workerd, `go run .`).
+// passed by `mise run deploy`); without it nothing redirects (a renamed template, local workerd, go test).
 // Only *.workers.dev hosts redirect, never localhost. Exempt: /healthz (monitoring), /live/* (a WebSocket upgrade
 // can't follow a redirect) and non-GET/HEAD requests (a redirected POST loses its body).
 func canonicalHost(next http.Handler) http.Handler {

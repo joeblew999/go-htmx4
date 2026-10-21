@@ -17,7 +17,7 @@ import (
 var ErrNoBinding = errors.New("ratelimit: binding not configured")
 
 // ClientKey is the key for per-connection limits: the client IP Cloudflare puts in CF-Connecting-IP, or
-// "local" when there is none (local workerd, `go run .`).
+// "local" when there is none (local workerd, go test).
 func ClientKey(r *http.Request) string {
 	if ip := r.Header.Get("CF-Connecting-IP"); ip != "" {
 		return ip

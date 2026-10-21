@@ -12,8 +12,6 @@
 - **Static files** (`dist/site`: htmx, gsxui CSS and behaviours, fonts) are Workers Static Assets, served before the
   Worker runs. Locally `workerd/config.capnp` stands in for them and for D1 (`workerd/local-d1.mjs`, over Durable Object
   SQLite), so the same `database/sql` code runs on workerd.
-- **Without Cloudflare** (`mise run dev:native`) the same handlers run as a plain Go server with an in-memory store
-  and no live pushes.
 
 ## The shared board
 
@@ -38,11 +36,17 @@ browser ─ hx-post /board/add|note ─────▶ worker/index.mjs ─▶ G
 
 ## Languages
 
-The server picks the wording (locales, messages, plural rules, plain numbers: `internal/i18n`); dates, times, numbers,
-currencies and units go through the runtime's own Intl, the same module on the server and in the browser
-(`internal/i18n/doc.go`). URLs: the default locale is unprefixed, every other is `/<lowercase id>/…`, `/en/…` and
-mixed-case prefixes redirect; no Accept-Language redirects, and only `/` follows the `locale` cookie. A locale whose
-catalog isn't complete is served `noindex`.
+Intl is the one source of language. `worker/intl.mjs` formats every message (ICU MessageFormat from
+`worker/messages_gen.mjs`, plural forms by `Intl.PluralRules`), every value (dates, numbers, currencies, units,
+lists) and every locale fact (name, direction, likely subtags), with the runtime's V8 Intl: on the Worker, where Go
+calls it through `worker/gointl.mjs`, and in the browser, which re-formats only the viewer's own time zone and
+relative times as they age. Go routes and passes values (`internal/i18n`); `go test` uses workerd's Intl
+(`internal/i18n/i18ntest`). The catalogs are `locales/*.toml`; `mise run i18n:messages` compiles them into
+`worker/messages_gen.mjs` and the typed accessors Go calls (`M(ctx).Key(…)`).
+
+URLs: the default locale is unprefixed, every other is `/<lowercase id>/…`, `/en/…` and mixed-case prefixes redirect;
+no Accept-Language redirects, and only `/` follows the `locale` cookie. A locale whose catalog isn't complete is
+served `noindex`.
 
 ## Search
 
@@ -64,7 +68,7 @@ catalog isn't complete is served `noindex`.
 ├── locales/                                     UI messages (*.toml) and their generated accessors
 ├── internal/                                    httpx, i18n, live (Room publish), ratelimit, wsload, classmerge
 ├── cmd/                                         msggen (message accessors), wsload (live-board check)
-├── worker/  workerd/                            the deployed JS (entry, Room, Intl); local-only workerd config and shims
+├── worker/  workerd/                            the deployed JS (entry, Room, Intl, message catalogs); local workerd config
 ├── migrations/                                  D1 schema
 ├── e2e/                                         smoke (HTTP) and browser tests: its own module
 ├── ci/  tasks/  mise.toml                       scripts, mise tasks, pinned tools

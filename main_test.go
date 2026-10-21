@@ -5,7 +5,7 @@ package main
 import (
 	"cmp"
 	"context"
-	"github.com/joeblew999/go-htmx4/internal/i18n/cldr"
+	"github.com/joeblew999/go-htmx4/locales"
 	"github.com/joeblew999/go-htmx4/views"
 	"html"
 	"net/http"
@@ -17,7 +17,12 @@ import (
 	"testing"
 
 	"github.com/joeblew999/go-htmx4/internal/live"
+
+	"github.com/joeblew999/go-htmx4/internal/i18n/i18ntest"
 )
+
+// TestMain runs the tests with the Worker's Intl: worker/gointl.mjs on workerd (internal/i18n/i18ntest).
+func TestMain(m *testing.M) { os.Exit(i18ntest.Main(m)) }
 
 func TestRoutes(t *testing.T) {
 	h := newServer().routes()
@@ -220,7 +225,7 @@ func TestBoardFragmentWireFormat(t *testing.T) {
 		{ID: 1, Body: "unicode ✓ 日本", CreatedAt: "2026-09-14 00:00:00"},
 	}}
 	set := renderBoardLocales(context.Background(), b)
-	if set.Default != "en" || len(set.Fragments) != len(cldr.Data.Locales) {
+	if set.Default != "en" || len(set.Fragments) != len(locales.Shipped) {
 		t.Fatalf("renderBoardLocales: default %q, %d fragments; want en and one per shipped locale", set.Default, len(set.Fragments))
 	}
 	for key, got := range set.Fragments {
@@ -285,7 +290,7 @@ func TestWorkerJSMatchesLive(t *testing.T) {
 	if !strings.Contains(string(room), `searchParams.get("`+live.LocaleParam+`")`) {
 		t.Errorf("worker/room.mjs must tag sockets with ?%s=", live.LocaleParam)
 	}
-	for _, ld := range cldr.Data.Locales {
+	for _, ld := range locales.Shipped {
 		if key := views.LocaleKey(ld); !live.ValidLocale(key) || !regexp.MustCompile(live.LocalePattern).MatchString(key) {
 			t.Errorf("shipped locale key %q fails internal/live's locale rule", key)
 		}

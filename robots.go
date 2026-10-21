@@ -6,7 +6,7 @@ import (
 
 	"github.com/joeblew999/go-htmx4/internal/httpx"
 	"github.com/joeblew999/go-htmx4/internal/i18n"
-	"github.com/joeblew999/go-htmx4/internal/i18n/cldr"
+	"github.com/joeblew999/go-htmx4/locales"
 )
 
 // robotsTxt answers /robots.txt. One `*`
@@ -20,7 +20,7 @@ func robotsTxt(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// Crawlers only read /robots.txt at the host root; the locale middleware would also route /de/robots.txt here.
-	if req, ok := i18n.FromContext(r.Context()); ok && req.Locale.Data != cldr.Data.Locales[0] {
+	if req, ok := i18n.FromContext(r.Context()); ok && req.Locale != locales.Shipped[0] {
 		http.NotFound(w, r)
 		return
 	}

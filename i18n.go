@@ -7,14 +7,13 @@ import (
 
 	"github.com/joeblew999/go-htmx4/internal/httpx"
 	"github.com/joeblew999/go-htmx4/internal/i18n"
-	"github.com/joeblew999/go-htmx4/internal/i18n/cldr"
 	"github.com/joeblew999/go-htmx4/locales"
 	"github.com/joeblew999/go-htmx4/views"
 )
 
 // Locale URLs:
 //
-//	/about        the default locale (cldr.Data.Locales[0], "en"): unprefixed, and hreflang x-default
+//	/about        the default locale (locales.Shipped[0], "en"): unprefixed, and hreflang x-default
 //	/de/about     every other shipped locale, prefixed with its lowercase id ("/pt-br/", "/zh-hant/")
 //	/en/about     301 → /about;  /DE/about, /pt-BR/ → 301 to the lowercase prefix;  /de → 301 /de/
 //
@@ -50,8 +49,7 @@ func preferences(r *http.Request) (tz string, chosen bool, hc string) {
 // withLocale resolves the request's locale from its URL prefix, strips the prefix, and puts
 // i18n.Request in the context for handlers and views.
 func withLocale(next http.Handler) http.Handler {
-	data := cldr.Data
-	def := data.Locales[0]
+	def := locales.Shipped[0]
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		path := r.URL.Path
 		seg, rest := path, ""
@@ -96,14 +94,14 @@ func withLocale(next http.Handler) http.Handler {
 				}
 			}
 		}
-		loc := &i18n.Locale{Data: ld}
+		loc := ld
 		if r.Method == http.MethodGet && !isHTMX(r) && isPage(path) {
 			remember(w, r, ld)
 		}
-		w.Header().Set("Content-Language", ld.ID)
+		w.Header().Set("Content-Language", ld.ID())
 		// A locale whose catalog isn't complete (locales/*.toml) shows some English: noindex, so an English page
 		// under /de/ isn't indexed as German or as a duplicate.
-		if !locales.Complete(ld.ID) {
+		if !locales.Complete(ld.ID()) {
 			w.Header().Set("X-Robots-Tag", "noindex")
 		}
 		tz, chosen, hc := preferences(r)
@@ -160,19 +158,19 @@ func safeReturn(u string) string {
 }
 
 // localeByPrefix finds a shipped locale by URL segment or cookie value, case-insensitively.
-func localeByPrefix(seg string) *i18n.LocaleData {
+func localeByPrefix(seg string) *i18n.Locale {
 	if seg == "" || len(seg) > 16 {
 		return nil
 	}
-	return cldr.Data.Find(seg)
+	return locales.Shipped.Find(seg)
 }
 
-func remember(w http.ResponseWriter, r *http.Request, ld *i18n.LocaleData) {
-	if c, err := r.Cookie(localeCookie); err == nil && c.Value == ld.ID {
+func remember(w http.ResponseWriter, r *http.Request, ld *i18n.Locale) {
+	if c, err := r.Cookie(localeCookie); err == nil && c.Value == ld.ID() {
 		return
 	}
 	http.SetCookie(w, &http.Cookie{
-		Name: localeCookie, Value: ld.ID, Path: "/", MaxAge: 365 * 24 * 3600,
+		Name: localeCookie, Value: ld.ID(), Path: "/", MaxAge: 365 * 24 * 3600,
 		SameSite: http.SameSiteLaxMode, Secure: r.TLS != nil || r.Header.Get("X-Forwarded-Proto") == "https",
 	})
 }

@@ -7,7 +7,7 @@ import (
 
 // BoardPage is the shared board page, composed from gsxui components. With live (on Workers) it connects to
 // /live/{topic} with hx-ws (loaded by Layout); the Room Durable Object pushes BoardFragment on every change and
-// the online count into #presence (the label next to it is rendered here, in the page's language). Without it (`go run .`, no Durable Objects) only the poster's own response
+// the online count into #presence (the label next to it is rendered here, in the page's language). Without it (go test, no Durable Objects) only the poster's own response
 // updates the board, and a badge says so.
 component BoardPage(topic string, b Board, live bool) {
 	<Layout title={M(ctx).BoardTitle()} description={M(ctx).BoardIntro()} path="/board">
@@ -39,7 +39,7 @@ component BoardPage(topic string, b Board, live bool) {
 			</ui.CardHeader>
 			<ui.CardContent>
 				{ if live {
-					<div hx-ws:connect={"/live/" + topic + "?locale=" + LocaleKey(Loc(ctx).Data)} hx-swap="none">
+					<div hx-ws:connect={"/live/" + topic + "?locale=" + LocaleKey(Loc(ctx))} hx-swap="none">
 						<boardSection b={b}/>
 					</div>
 				} else {

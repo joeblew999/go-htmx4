@@ -13,7 +13,6 @@ import (
 	"context"
 	"errors"
 	"github.com/joeblew999/go-htmx4/internal/i18n"
-	"github.com/joeblew999/go-htmx4/internal/i18n/cldr"
 	"github.com/joeblew999/go-htmx4/locales"
 	"log"
 	"net/http"
@@ -51,7 +50,7 @@ type (
 	Note  = views.Note
 )
 
-// store is the board's source of truth: D1 on Workers (store_sql.go), memory under `go run .`.
+// store is the board's source of truth: D1 on Workers (store_sql.go), memory under go test.
 type store interface {
 	Board(topic string) (Board, error)
 	Add(topic string, delta int64) (Board, error)
@@ -137,7 +136,7 @@ func change(w http.ResponseWriter, r *http.Request, topic string, write func(sto
 	if err := publish(topic, b.Version, fragments); err != nil {
 		log.Printf("publish %s v%d: %v", topic, b.Version, err)
 	}
-	httpx.WriteHTML(w, []byte(fragments.Fragments[views.LocaleKey(views.Loc(r.Context()).Data)]))
+	httpx.WriteHTML(w, []byte(fragments.Fragments[views.LocaleKey(views.Loc(r.Context()))]))
 }
 
 // topicOf reads ?topic= (default "lobby") and checks it with live.ValidTopic, the rule worker/index.mjs
@@ -171,9 +170,9 @@ func renderBoard(ctx context.Context, b Board) string {
 // renderBoardLocales renders the board once per shipped locale: the Room sends each browser the fragment
 // in its page's locale, and the poster gets its own from the same set.
 func renderBoardLocales(ctx context.Context, b Board) live.Localized {
-	out := live.Localized{Default: views.LocaleKey(cldr.Data.Locales[0]), Fragments: map[string]string{}}
-	for _, ld := range cldr.Data.Locales {
-		lctx := i18n.WithRequest(ctx, i18n.Request{Locale: &i18n.Locale{Data: ld}, Path: "/board"})
+	out := live.Localized{Default: views.LocaleKey(locales.Shipped[0]), Fragments: map[string]string{}}
+	for _, ld := range locales.Shipped {
+		lctx := i18n.WithRequest(ctx, i18n.Request{Locale: ld, Path: "/board"})
 		out.Fragments[views.LocaleKey(ld)] = renderBoard(lctx, b)
 	}
 	return out

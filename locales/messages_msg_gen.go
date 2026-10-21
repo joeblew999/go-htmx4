@@ -4,6 +4,8 @@ package locales
 
 import "github.com/joeblew999/go-htmx4/internal/i18n"
 
+var _ = i18n.Num
+
 // AboutDescription is "about.description": The stack behind go-htmx4: Go with gsx and gsxui, htmx 4, TinyGo, and Cloudflare Workers with D1 and Durable Objects.
 func (m Messages) AboutDescription() string {
 	return m.format(0)
@@ -106,7 +108,7 @@ func (m Messages) BoardErrorsDelta() string {
 
 // BoardErrorsNoteLength is "board.errors.note_length": note must be 1–{max, number} characters
 func (m Messages) BoardErrorsNoteLength(max float64) string {
-	return m.format(20, i18n.FloatArg(max))
+	return m.format(20, i18n.Num(max))
 }
 
 // BoardErrorsStore is "board.errors.store": store unavailable
@@ -134,7 +136,7 @@ func (m Messages) BoardIntro() string {
 	return m.format(25)
 }
 
-// BoardNoLive is "board.no_live": No live push (go run .)
+// BoardNoLive is "board.no_live": No live push (go test)
 func (m Messages) BoardNoLive() string {
 	return m.format(26)
 }
@@ -181,7 +183,7 @@ func (m Messages) BoardTopic() string {
 
 // BoardVersion is "board.version": version {version, number}
 func (m Messages) BoardVersion(version float64) string {
-	return m.format(35, i18n.FloatArg(version))
+	return m.format(35, i18n.Num(version))
 }
 
 // FormatsBrowser is "formats.browser": Your browser
@@ -199,9 +201,9 @@ func (m Messages) FormatsCollationTitle() string {
 	return m.format(38)
 }
 
-// FormatsCurrencyDescription is "formats.currency_description": Intl.NumberFormat style "currency", from exact decimal strings. Local currency: {currency}.
+// FormatsCurrencyDescription is "formats.currency_description": Intl.NumberFormat style "currency", from exact decimal strings. Currency: {currency}.
 func (m Messages) FormatsCurrencyDescription(currency string) string {
-	return m.format(39, i18n.StrArg(currency))
+	return m.format(39, currency)
 }
 
 // FormatsCurrencyTitle is "formats.currency_title": Currency
@@ -226,7 +228,7 @@ func (m Messages) FormatsDescription() string {
 
 // FormatsDirection is "formats.direction": direction {dir}
 func (m Messages) FormatsDirection(dir string) string {
-	return m.format(44, i18n.StrArg(dir))
+	return m.format(44, dir)
 }
 
 // FormatsDisplayNamesDescription is "formats.display_names_description": Intl.DisplayNames: languages, regions, scripts, currencies, calendars and date fields named in this page's language.
@@ -311,12 +313,12 @@ func (m Messages) FormatsLocaleTitle() string {
 
 // FormatsNative is "formats.native": native {system}
 func (m Messages) FormatsNative(system string) string {
-	return m.format(61, i18n.StrArg(system))
+	return m.format(61, system)
 }
 
 // FormatsNumbering is "formats.numbering": numbers {system}
 func (m Messages) FormatsNumbering(system string) string {
-	return m.format(62, i18n.StrArg(system))
+	return m.format(62, system)
 }
 
 // FormatsNumbersDescription is "formats.numbers_description": Intl.NumberFormat options, formatted by your browser.
@@ -401,7 +403,7 @@ func (m Messages) FormatsSupportedTitle() string {
 
 // FormatsTimeZone is "formats.time_zone": time zone {zone}
 func (m Messages) FormatsTimeZone(zone string) string {
-	return m.format(79, i18n.StrArg(zone))
+	return m.format(79, zone)
 }
 
 // FormatsTitle is "formats.title": Formats
@@ -511,17 +513,17 @@ func (m Messages) GreetEmpty() string {
 
 // GreetHello is "greet.hello": Hello, {name}.
 func (m Messages) GreetHello(name string) string {
-	return m.format(101, i18n.StrArg(name))
+	return m.format(101, name)
 }
 
 // GreetShout is "greet.shout": HELLO, {name}!
 func (m Messages) GreetShout(name string) string {
-	return m.format(102, i18n.StrArg(name))
+	return m.format(102, name)
 }
 
 // GreetToastDescription is "greet.toast_description": Server-rendered toast for {name}.
 func (m Messages) GreetToastDescription(name string) string {
-	return m.format(103, i18n.StrArg(name))
+	return m.format(103, name)
 }
 
 // GreetToastTitle is "greet.toast_title": Greeting rendered
@@ -771,7 +773,7 @@ func (m Messages) NavToggleTheme() string {
 
 // PageTitle is "page_title": {title} · go-htmx4
 func (m Messages) PageTitle(title string) string {
-	return m.format(153, i18n.StrArg(title))
+	return m.format(153, title)
 }
 
 // PreferencesDescription is "preferences.description": Dates and times on every page use these settings. Automatic uses your browser's time zone.
@@ -786,7 +788,7 @@ func (m Messages) PreferencesHourCycle() string {
 
 // PreferencesHourCycleAuto is "preferences.hour_cycle_auto": Language default ({example})
 func (m Messages) PreferencesHourCycleAuto(example string) string {
-	return m.format(156, i18n.StrArg(example))
+	return m.format(156, example)
 }
 
 // PreferencesLoading is "preferences.loading": Loading…
@@ -806,7 +808,7 @@ func (m Messages) PreferencesTimeZone() string {
 
 // PreferencesTimeZoneAuto is "preferences.time_zone_auto": Automatic ({zone})
 func (m Messages) PreferencesTimeZoneAuto(zone string) string {
-	return m.format(160, i18n.StrArg(zone))
+	return m.format(160, zone)
 }
 
 // PreferencesTitle is "preferences.title": Time zone and clock
