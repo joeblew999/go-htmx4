@@ -10,6 +10,10 @@
 //	pages = ["/", "/de/board"]           # what seo:lighthouse scores; default one URL per page of the live sitemap
 //	strategy = "mobile"                  # mobile (what Google indexes) or desktop
 //	min = 90                             # a category scoring under it fails
+//
+//	[badges]
+//	dir = "docs/badges"                  # where seo:badges writes its SVG badges
+//	readme = "README.md"                 # the file whose <!-- seo:scores --> … <!-- /seo:scores --> it rewrites
 package config
 
 import (
@@ -31,6 +35,10 @@ type Config struct {
 		Strategy string   `toml:"strategy"`
 		Min      int      `toml:"min"`
 	} `toml:"lighthouse"`
+	Badges struct {
+		Dir    string `toml:"dir"`
+		Readme string `toml:"readme"`
+	} `toml:"badges"`
 	Path string `toml:"-"` // the file read, "" without one
 }
 
@@ -65,6 +73,12 @@ func Find(dir string) (Config, error) {
 	if c.Lighthouse.Min == 0 {
 		c.Lighthouse.Min = 90
 	}
+	if c.Badges.Dir == "" {
+		c.Badges.Dir = "docs/badges"
+	}
+	if c.Badges.Readme == "" {
+		c.Badges.Readme = "README.md"
+	}
 	return c, nil
 }
 
@@ -86,4 +100,10 @@ const Template = `# seo.toml: this app and search engines, for go tool seo and t
 # strategy = "mobile"
 # A category scoring under this fails.
 # min = 90
+
+[badges]
+# Where seo:badges writes its badges (Lighthouse's four categories, the audit), for the README to show.
+# dir = "docs/badges"
+# The file whose <!-- seo:scores --> … <!-- /seo:scores --> seo:badges rewrites with every page's scores.
+# readme = "README.md"
 `

@@ -47,6 +47,11 @@ flag "--desktop" help="score the desktop page instead of the mobile one Google i
 '''
 run = 'fnox exec -- go tool seo lighthouse ${usage_page:+"$usage_page"} -json=${usage_json:-false} $([ "${usage_desktop:-false}" = true ] && echo -strategy=desktop)'
 
+["seo:badges"]
+description = "Lighthouse on every page and the audit, then the README's badges (seo.toml's [badges] dir: each Lighthouse category's lowest page, the audit) and its <!-- seo:scores --> table; run after a production release, then commit"
+tools = { fnox = "1.40.0" }
+run = "fnox exec -- go tool seo badges"
+
 ["seo:status"]
 description = "The sitemap's status in Search Console and Google's index status for every URL in it"
 depends = ["seo:access"]

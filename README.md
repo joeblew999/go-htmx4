@@ -1,6 +1,17 @@
 # go-htmx4
 
 [![check](https://github.com/joeblew999/go-htmx4/actions/workflows/check.yml/badge.svg)](https://github.com/joeblew999/go-htmx4/actions/workflows/check.yml)
+[![release](https://img.shields.io/github/v/release/joeblew999/go-htmx4)](https://github.com/joeblew999/go-htmx4/releases)
+[![Go](https://img.shields.io/github/go-mod/go-version/joeblew999/go-htmx4)](go.mod)
+[![license](https://img.shields.io/github/license/joeblew999/go-htmx4)](LICENSE)
+[![intl: Go Reference](https://pkg.go.dev/badge/github.com/joeblew999/go-htmx4/intl.svg)](https://pkg.go.dev/github.com/joeblew999/go-htmx4/intl)
+[![seo: Go Reference](https://pkg.go.dev/badge/github.com/joeblew999/go-htmx4/seo.svg)](https://pkg.go.dev/github.com/joeblew999/go-htmx4/seo)
+
+[![performance](docs/badges/lighthouse-performance.svg)](#lighthouse)
+[![accessibility](docs/badges/lighthouse-accessibility.svg)](#lighthouse)
+[![best practices](docs/badges/lighthouse-best-practices.svg)](#lighthouse)
+[![seo](docs/badges/lighthouse-seo.svg)](#lighthouse)
+[![seo audit](docs/badges/seo-audit.svg)](seo/README.md)
 
 Server-rendered web apps with [Go](https://go.dev), [htmx 4](https://four.htmx.org) and [gsxui](https://ui.gsxhq.dev) on
 Cloudflare Workers, compiled with TinyGo. No Node anywhere: no npm, no Vite, no wrangler.
@@ -12,6 +23,24 @@ Cloudflare Workers, compiled with TinyGo. No Node anywhere: no npm, no Vite, no 
 - **Search-ready:** canonical URLs, `hreflang`, a sitemap and Open Graph on every page, audited live as Googlebot.
 
 **Live:** https://go-htmx4.ubuntusoftware.net (the board: [/board](https://go-htmx4.ubuntusoftware.net/board)).
+
+## Lighthouse
+
+Every page of the live site, scored by Lighthouse; each badge above is the lowest page's score.
+
+<!-- seo:scores -->
+
+| Page | Performance | Accessibility | Best practices | SEO |
+|---|---:|---:|---:|---:|
+| [/](https://go-htmx4.ubuntusoftware.net/) | 99 | 100 | 100 | 100 |
+| [/board](https://go-htmx4.ubuntusoftware.net/board) | 99 | 95 | 96 | 100 |
+| [/formats](https://go-htmx4.ubuntusoftware.net/formats) | 99 | 100 | 100 | 100 |
+| [/components](https://go-htmx4.ubuntusoftware.net/components) | 98 | 84 | 100 | 100 |
+| [/about](https://go-htmx4.ubuntusoftware.net/about) | 93 | 100 | 100 | 100 |
+
+Lighthouse mobile on Google's servers (PageSpeed Insights), 2026-10-21: `mise run seo:badges` writes this table and the badges.
+
+<!-- /seo:scores -->
 
 ## Two tools that come with it
 

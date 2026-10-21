@@ -16,22 +16,7 @@ import (
 // prints each page's four scores, what fails, and real users' Core Web Vitals, and exits 1 when a category of any
 // page scores under min.
 func lighthouseRun(ctx context.Context, key searchconsole.Key, pages []string, strategy string, min int, jsonOut bool) {
-	httpc := &http.Client{Timeout: 3 * time.Minute}
-	token, err := key.Token(ctx, httpc, lighthouse.Scope)
-	if err != nil {
-		fail(err)
-	}
-	reports, errs := make([]lighthouse.Report, len(pages)), make([]error, len(pages))
-	var wg sync.WaitGroup
-	sem := make(chan struct{}, 4)
-	for i, page := range pages {
-		wg.Go(func() {
-			sem <- struct{}{}
-			defer func() { <-sem }()
-			reports[i], errs[i] = lighthouse.Run(ctx, httpc, token, page, strategy)
-		})
-	}
-	wg.Wait()
+	reports, errs := lighthouseAll(ctx, key, pages, strategy)
 	low := false
 	for i, r := range reports {
 		if errs[i] != nil {
@@ -54,6 +39,27 @@ func lighthouseRun(ctx context.Context, key searchconsole.Key, pages []string, s
 	if low {
 		os.Exit(1)
 	}
+}
+
+// lighthouseAll runs Lighthouse on every page, four at a time.
+func lighthouseAll(ctx context.Context, key searchconsole.Key, pages []string, strategy string) ([]lighthouse.Report, []error) {
+	httpc := &http.Client{Timeout: 3 * time.Minute}
+	token, err := key.Token(ctx, httpc, lighthouse.Scope)
+	if err != nil {
+		fail(err)
+	}
+	reports, errs := make([]lighthouse.Report, len(pages)), make([]error, len(pages))
+	var wg sync.WaitGroup
+	sem := make(chan struct{}, 4)
+	for i, page := range pages {
+		wg.Go(func() {
+			sem <- struct{}{}
+			defer func() { <-sem }()
+			reports[i], errs[i] = lighthouse.Run(ctx, httpc, token, page, strategy)
+		})
+	}
+	wg.Wait()
+	return reports, errs
 }
 
 func printLighthouse(r lighthouse.Report, min int) {
