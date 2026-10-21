@@ -12,6 +12,7 @@ import (
 	"strings"
 
 	"github.com/joeblew999/go-htmx4/intl/catalog"
+	"github.com/joeblew999/go-htmx4/intl/intltest"
 )
 
 // Options are what the app ships.
@@ -91,7 +92,36 @@ func Init(root string, o Options, log io.Writer) error {
 	if err := gsxToml(filepath.Join(root, "gsx.toml"), renderers, log); err != nil {
 		return err
 	}
-	return gitignore(filepath.Join(root, ".gitignore"), log)
+	if err := gitignore(filepath.Join(root, ".gitignore"), log); err != nil {
+		return err
+	}
+	return miseTools(filepath.Join(root, "mise.toml"), log)
+}
+
+var workerdTool = regexp.MustCompile(`(?m)^"?workerd"?\s*=`)
+
+// miseTools pins workerd in mise.toml's [tools]: go test and the tooling run Intl on it (intltest).
+func miseTools(path string, log io.Writer) error {
+	b, err := os.ReadFile(path)
+	if err != nil && !errors.Is(err, os.ErrNotExist) {
+		return err
+	}
+	s := string(b)
+	if workerdTool.MatchString(s) {
+		return nil
+	}
+	line := "# workerd: the Workers runtime; go test and go tool intl run Intl on it (intl/README.md).\nworkerd = \"" + intltest.Workerd + "\"\n"
+	if i := strings.Index(s, "[tools]\n"); i == 0 || i > 0 && s[i-1] == '\n' {
+		at := i + len("[tools]\n")
+		s = s[:at] + line + s[at:]
+	} else {
+		if s != "" && !strings.HasSuffix(s, "\n\n") {
+			s = strings.TrimRight(s, "\n") + "\n\n"
+		}
+		s += "[tools]\n" + line
+	}
+	fmt.Fprintln(log, "updated mise.toml: workerd", intltest.Workerd)
+	return os.WriteFile(path, []byte(s), 0o644)
 }
 
 var (

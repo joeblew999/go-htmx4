@@ -8,6 +8,8 @@ import (
 	"testing"
 
 	"github.com/BurntSushi/toml"
+	"github.com/joeblew999/go-htmx4/intl/intltest"
+	intlmise "github.com/joeblew999/go-htmx4/intl/mise"
 	"github.com/joeblew999/go-htmx4/intl/setup"
 )
 
@@ -64,12 +66,22 @@ func TestInitFresh(t *testing.T) {
 	if s := read(t, root, ".gitignore"); !strings.Contains(s, "\nintl_gen.go\nintl-messages.mjs\n") {
 		t.Errorf(".gitignore:\n%s", s)
 	}
+	if s := read(t, root, "mise.toml"); !strings.Contains(s, "[tools]\n") || !strings.Contains(s, `workerd = "`+intltest.Workerd+`"`) {
+		t.Errorf("mise.toml:\n%s", s)
+	}
+}
+
+// TestWorkerdPins: intl's mise tasks pin the workerd init pins.
+func TestWorkerdPins(t *testing.T) {
+	if n := strings.Count(string(intlmise.Tasks), `workerd = "`+intltest.Workerd+`"`); n == 0 || n != strings.Count(string(intlmise.Tasks), "workerd = ") {
+		t.Errorf("mise/tasks.toml pins workerd other than %s", intltest.Workerd)
+	}
 }
 
 // TestInitExisting: an app's own gsx.toml keeps everything it has; intl's lines go where TOML needs them.
 func TestInitExisting(t *testing.T) {
 	gsx := "class_merger = \"example.com/shop/twcfg.Merge\"\nfilter_packages = [\"example.com/shop/filters\"]\n\n[renderers]\n\"example.com/shop/db.Text\" = \"example.com/shop/db.TextOf\"\n\n[dev]\nno_web = true\n"
-	root := app(t, map[string]string{"gsx.toml": gsx, ".gitignore": "/build/\nintl_gen.go"})
+	root := app(t, map[string]string{"gsx.toml": gsx, ".gitignore": "/build/\nintl_gen.go", "mise.toml": "[tools]\ngo = \"1.27.3\"\n\n[env]\nX = \"1\"\n"})
 	o := setup.Options{Locales: []string{"en"}, Catalogs: "msg"}
 	for range 2 { // and again: nothing changes
 		if err := setup.Init(root, o, io.Discard); err != nil {
@@ -85,6 +97,13 @@ func TestInitExisting(t *testing.T) {
 	}
 	if s := read(t, root, ".gitignore"); strings.Count(s, "intl_gen.go") != 1 || !strings.Contains(s, "intl-messages.mjs") {
 		t.Errorf(".gitignore:\n%s", s)
+	}
+	var m struct {
+		Tools map[string]string `toml:"tools"`
+		Env   map[string]string `toml:"env"`
+	}
+	if _, err := toml.Decode(read(t, root, "mise.toml"), &m); err != nil || m.Tools["go"] == "" || m.Tools["workerd"] != intltest.Workerd || m.Env["X"] != "1" {
+		t.Errorf("mise.toml: %v %+v\n%s", err, m, read(t, root, "mise.toml"))
 	}
 
 	gsx = "url_presets = [\"htmx\"]\n"
