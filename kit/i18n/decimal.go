@@ -7,7 +7,7 @@ import (
 )
 
 // Decimal is an exact base-10 number for formatting: never a float, so 0.1 stays 0.1 and money keeps
-// its cents. Build one with [ParseDecimal], [Int], [Float] or [Minor].
+// its cents. Build one with [ParseDecimal], [Int] or [Float].
 type Decimal struct {
 	neg    bool
 	digits string // significant digits, no leading or trailing zeros ("" = zero)
@@ -105,15 +105,6 @@ func Float(f float64) Decimal {
 	return d
 }
 
-// Minor returns units × 10^-scale, e.g. Minor(12345, 2) = 123.45 (money in minor units).
-func Minor(units int64, scale int) Decimal {
-	d := Int(units)
-	if d.digits != "" {
-		d.exp -= scale
-	}
-	return d
-}
-
 // String is the plain decimal form, e.g. "-1234.5", "0.001", "NaN".
 func (d Decimal) String() string {
 	switch d.kind {
@@ -202,9 +193,6 @@ func (d *Decimal) normalize() {
 		d.exp = 0
 	}
 }
-
-// magnitude is floor(log10(|d|)) for nonzero finite d.
-func (d Decimal) magnitude() int { return d.exp - 1 }
 
 // shift multiplies by 10^n.
 func (d Decimal) shift(n int) Decimal {

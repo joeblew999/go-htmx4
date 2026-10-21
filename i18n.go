@@ -1,6 +1,7 @@
 package main
 
 import (
+	"cmp"
 	"net/http"
 	"strings"
 
@@ -67,10 +68,10 @@ func withLocale(next http.Handler) http.Handler {
 				canonical := views.LocalePrefix(found)
 				switch {
 				case found == def:
-					redirect(w, r, cmpOr(rest, "/"), http.StatusMovedPermanently)
+					redirect(w, r, cmp.Or(rest, "/"), http.StatusMovedPermanently)
 					return
 				case "/"+seg != canonical || rest == "":
-					redirect(w, r, canonical+cmpOr(rest, "/"), http.StatusMovedPermanently)
+					redirect(w, r, canonical+cmp.Or(rest, "/"), http.StatusMovedPermanently)
 					return
 				}
 				ld = found
@@ -197,11 +198,4 @@ func pathWithQuery(path, query string) string {
 		return path
 	}
 	return path + "?" + query
-}
-
-func cmpOr(a, b string) string {
-	if a != "" {
-		return a
-	}
-	return b
 }

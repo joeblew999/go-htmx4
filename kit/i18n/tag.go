@@ -168,43 +168,6 @@ func (t Tag) String() string {
 	return b.String()
 }
 
-// BaseID is language[-Script][-REGION] without variants or extensions, e.g. "pt-BR".
-func (t Tag) BaseID() string {
-	s := cmpOr(t.Language, "und")
-	if t.Script != "" {
-		s += "-" + t.Script
-	}
-	if t.Region != "" {
-		s += "-" + t.Region
-	}
-	return s
-}
-
-// Keyword returns the -u- extension type for key ("nu", "hc", "ca", "fw", "cu"…), or "".
-func (t Tag) Keyword(key string) string {
-	for _, kw := range t.Keywords {
-		if kw.Key == key {
-			return kw.Type
-		}
-	}
-	return ""
-}
-
-// WithKeyword returns a copy of t with the -u- key set to typ (typ "" removes it).
-func (t Tag) WithKeyword(key, typ string) Tag {
-	kws := make([]Keyword, 0, len(t.Keywords)+1)
-	for _, kw := range t.Keywords {
-		if kw.Key != key {
-			kws = append(kws, kw)
-		}
-	}
-	t.Keywords = kws
-	if typ != "" {
-		t.setKeyword(key, typ)
-	}
-	return t
-}
-
 // setKeyword inserts keeping keys sorted (canonical order); the first occurrence of a key wins.
 func (t *Tag) setKeyword(key, typ string) {
 	for _, kw := range t.Keywords {

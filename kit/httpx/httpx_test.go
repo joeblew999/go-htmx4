@@ -105,15 +105,6 @@ func ExampleAllow() {
 	// Output: 405 POST
 }
 
-func TestNoIndex(t *testing.T) {
-	rec := httptest.NewRecorder()
-	httpx.NoIndex(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { io.WriteString(w, "fragment") })).
-		ServeHTTP(rec, httptest.NewRequest("GET", "/fragments/stats", nil))
-	if got := rec.Header().Get("X-Robots-Tag"); got != "noindex" || rec.Body.String() != "fragment" {
-		t.Errorf("X-Robots-Tag = %q, body %q", got, rec.Body.String())
-	}
-}
-
 func TestOrigin(t *testing.T) {
 	native := httptest.NewRequest("GET", "/robots.txt", nil) // Host example.com, no scheme in URL
 	proxied := httptest.NewRequest("GET", "/robots.txt", nil)

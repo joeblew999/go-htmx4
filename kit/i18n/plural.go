@@ -23,16 +23,6 @@ func (c PluralCat) String() string {
 	return "other"
 }
 
-// ParsePluralCat maps "zero"…"other" to a PluralCat.
-func ParsePluralCat(s string) (PluralCat, bool) {
-	for i, n := range pluralNames {
-		if n == s {
-			return PluralCat(i), true
-		}
-	}
-	return Other, false
-}
-
 // PluralRules are a locale's non-"other" rules in CLDR order; no match means Other.
 type PluralRules []PluralRule
 
