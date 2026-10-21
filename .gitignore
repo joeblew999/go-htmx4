@@ -14,6 +14,8 @@
 *.x.go
 # workers-assets-gen + tinygo output (mise run build)
 /build/
+# held while ci/wasm-build.sh writes build/
+/.build.lock
 # native binary (mise run dev:native)
 /bin/
 # Tailwind output + assembled Static Assets (mise run assets)
