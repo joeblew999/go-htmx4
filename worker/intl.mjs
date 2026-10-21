@@ -51,6 +51,27 @@ function dateOptions(opts, extra) {
   return o;
 }
 
+// make is new Ctor(lang, opts), kept: building an Intl formatter costs far more than using one (a German
+// DateTimeFormat: ~62 µs to build, ~2.5 µs to format a date, in workerd), and the formatters repeat while the
+// values don't: a page formats many values with a few language-and-style pairs. Kept for the life of the module,
+// which on Workers spans requests (an isolate is reused) and in the browser the page. The pairs hold no
+// request's data, so sharing them is safe; at most MAX_FORMATTERS, the least recently used dropped first, so
+// options sent from a form can't grow it without end.
+const MAX_FORMATTERS = 200;
+const formatters = new Map();
+function make(Ctor, lang, opts) {
+  const key = Ctor.name + "\u0000" + lang + "\u0000" + JSON.stringify(opts ?? null);
+  let f = formatters.get(key);
+  if (f) {
+    formatters.delete(key); // most recently used last
+  } else {
+    f = new Ctor(lang, opts);
+    if (formatters.size >= MAX_FORMATTERS) formatters.delete(formatters.keys().next().value);
+  }
+  formatters.set(key, f);
+  return f;
+}
+
 function instant(s) {
   const t = Date.parse(s);
   if (Number.isNaN(t)) throw new RangeError("bad instant " + s);
@@ -60,7 +81,7 @@ function instant(s) {
 // zoneName: "Europe/Berlin · Central European Time (GMT+2)", in lang.
 export function zoneName(lang, id, now = Date.now()) {
   const part = (style) =>
-    new Intl.DateTimeFormat(lang, { timeZone: id, timeZoneName: style }).formatToParts(now).find((p) => p.type === "timeZoneName")?.value;
+    make(Intl.DateTimeFormat, lang, { timeZone: id, timeZoneName: style }).formatToParts(now).find((p) => p.type === "timeZoneName")?.value;
   let label = id.replaceAll("_", " ");
   try {
     label += " · " + part("longGeneric") + " (" + part("shortOffset") + ")";
@@ -69,45 +90,45 @@ export function zoneName(lang, id, now = Date.now()) {
 }
 
 const kinds = {
-  datetime: (lang, v, o, x) => new Intl.DateTimeFormat(lang, dateOptions(o, x)).format(instant(v)),
-  range: (lang, v, o, x) => new Intl.DateTimeFormat(lang, dateOptions(o, x)).formatRange(instant(v), instant(x.end)),
+  datetime: (lang, v, o, x) => make(Intl.DateTimeFormat, lang, dateOptions(o, x)).format(instant(v)),
+  range: (lang, v, o, x) => make(Intl.DateTimeFormat, lang, dateOptions(o, x)).formatRange(instant(v), instant(x.end)),
   relative(lang, v, o, x) {
-    if (x.unit) return new Intl.RelativeTimeFormat(lang, o).format(Number(v), x.unit);
+    if (x.unit) return make(Intl.RelativeTimeFormat, lang, o).format(Number(v), x.unit);
     const [value, unit] = elapsedUnit((instant(v) - (x.now ?? Date.now())) / 1000);
-    return new Intl.RelativeTimeFormat(lang, { numeric: "auto", ...o }).format(value, unit);
+    return make(Intl.RelativeTimeFormat, lang, { numeric: "auto", ...o }).format(value, unit);
   },
   // A decimal string, not a float: Intl.NumberFormat formats strings exactly ("1234567.891" keeps its digits).
-  number: (lang, v, o) => new Intl.NumberFormat(lang, o).format(v),
-  "number-range": (lang, v, o, x) => new Intl.NumberFormat(lang, o).formatRange(v, x.end),
+  number: (lang, v, o) => make(Intl.NumberFormat, lang, o).format(v),
+  "number-range": (lang, v, o, x) => make(Intl.NumberFormat, lang, o).formatRange(v, x.end),
   plural(lang, v, o, x) {
-    const pr = new Intl.PluralRules(lang, o);
+    const pr = make(Intl.PluralRules, lang, o);
     return x.end ? pr.selectRange(Number(v), Number(x.end)) : pr.select(Number(v));
   },
-  list: (lang, v, o) => new Intl.ListFormat(lang, o).format(JSON.parse(v)),
+  list: (lang, v, o) => make(Intl.ListFormat, lang, o).format(JSON.parse(v)),
   duration(lang, v, o) {
     if (!Intl.DurationFormat) throw new TypeError("no Intl.DurationFormat");
     const d = JSON.parse(v);
     // Display "auto" hides zero units, so an all-zero duration would be "": show "0 sec" instead.
-    return new Intl.DurationFormat(lang, o).format(d) || new Intl.DurationFormat(lang, { ...o, secondsDisplay: "always" }).format(d);
+    return make(Intl.DurationFormat, lang, o).format(d) || make(Intl.DurationFormat, lang, { ...o, secondsDisplay: "always" }).format(d);
   },
-  "display-name": (lang, v, o) => new Intl.DisplayNames(lang, { type: "language", ...o }).of(v),
-  collate: (lang, v, o) => JSON.parse(v).sort(new Intl.Collator(lang, o).compare).join(" · "),
+  "display-name": (lang, v, o) => make(Intl.DisplayNames, lang, { type: "language", ...o }).of(v),
+  collate: (lang, v, o) => JSON.parse(v).sort(make(Intl.Collator, lang, o).compare).join(" · "),
   segment(lang, v, o) {
-    const parts = [...new Intl.Segmenter(lang, o).segment(v)].filter((s) => s.isWordLike ?? s.segment.trim() !== "");
+    const parts = [...make(Intl.Segmenter, lang, o).segment(v)].filter((s) => s.isWordLike ?? s.segment.trim() !== "");
     return parts.length + " · " + parts.map((s) => s.segment.trim()).join(" | ");
   },
   // How many segments v has (opts.granularity: grapheme, word, sentence; words count only word-like ones).
   count(lang, v, o) {
-    const segs = [...new Intl.Segmenter(lang, o).segment(v)];
+    const segs = [...make(Intl.Segmenter, lang, o).segment(v)];
     const n = (o.granularity === "word" ? segs.filter((s) => s.isWordLike) : segs.filter((s) => s.segment.trim() !== "")).length;
-    return new Intl.NumberFormat(lang).format(n);
+    return make(Intl.NumberFormat, lang).format(n);
   },
   // The words of v (Intl.Segmenter), sorted the language's way (Intl.Collator with opts).
   "sort-words": (lang, v, o) =>
-    [...new Intl.Segmenter(lang, { granularity: "word" }).segment(v)]
+    [...make(Intl.Segmenter, lang, { granularity: "word" }).segment(v)]
       .filter((s) => s.isWordLike)
       .map((s) => s.segment)
-      .sort(new Intl.Collator(lang, o).compare)
+      .sort(make(Intl.Collator, lang, o).compare)
       .join(" · "),
   locale(lang, v) {
     const base = new Intl.Locale(lang);
@@ -157,7 +178,7 @@ export function format(lang, kind, value, opts = {}, extra = {}) {
 export function fullySupports(lang) {
   try {
     return Intl.DateTimeFormat.supportedLocalesOf([lang]).length > 0 &&
-      new Intl.NumberFormat(lang).resolvedOptions().locale.split("-")[0] === lang.split("-")[0];
+      make(Intl.NumberFormat, lang).resolvedOptions().locale.split("-")[0] === lang.split("-")[0];
   } catch {
     return false;
   }
@@ -168,13 +189,13 @@ export function fullySupports(lang) {
 export function parseNumber(lang, text) {
   let parts;
   try {
-    parts = new Intl.NumberFormat(lang).formatToParts(-12345.6);
+    parts = make(Intl.NumberFormat, lang).formatToParts(-12345.6);
   } catch {
     return "";
   }
   const sym = (type) => parts.find((p) => p.type === type)?.value ?? "";
   const group = sym("group"), decimal = sym("decimal") || ".";
-  const digits = new Intl.NumberFormat(lang, { useGrouping: false }).format(9876543210).split("").reverse(); // 0…9
+  const digits = make(Intl.NumberFormat, lang, { useGrouping: false }).format(9876543210).split("").reverse(); // 0…9
   let s = text.trim().replace(/[‎‏؜  \s]/g, "");
   if (group) s = s.split(group.replace(/[  ]/g, "")).join("");
   let out = "";
