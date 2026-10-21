@@ -4,6 +4,9 @@ package locales
 
 import "github.com/joeblew999/go-htmx4/internal/i18n"
 
+// Shipped are the app's locales (I18N_LOCALES), the source first.
+var Shipped = i18n.Locales{i18n.NewLocale("en"), i18n.NewLocale("en-IN"), i18n.NewLocale("de"), i18n.NewLocale("fr"), i18n.NewLocale("es"), i18n.NewLocale("pt-BR"), i18n.NewLocale("pt-PT"), i18n.NewLocale("ar"), i18n.NewLocale("he"), i18n.NewLocale("ja"), i18n.NewLocale("zh-Hans"), i18n.NewLocale("zh-Hant"), i18n.NewLocale("hi"), i18n.NewLocale("ru")}
+
 var catalogs = []*i18n.Catalog{
 	&i18n.Catalog{
 		Locale: "en",
@@ -333,7 +336,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.currency_description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "Intl.NumberFormat style \"currency\", from exact decimal strings. Local currency: ",
+						Text: "Intl.NumberFormat style \"currency\", from exact decimal strings. Currency: ",
 					},
 					{
 						Kind: i18n.MsgKind(1),
@@ -1742,7 +1745,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.currency_description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "Intl.NumberFormat style \"currency\", from exact decimal strings. Local currency: ",
+						Text: "Intl.NumberFormat style \"currency\", from exact decimal strings. Currency: ",
 					},
 					{
 						Kind: i18n.MsgKind(1),
@@ -3151,7 +3154,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.currency_description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "Intl.NumberFormat mit Stil „currency“, aus exakten Dezimalzeichenfolgen. Landeswährung: ",
+						Text: "Intl.NumberFormat mit Stil „currency“, aus exakten Dezimalzeichenfolgen. Währung: ",
 					},
 					{
 						Kind: i18n.MsgKind(1),
@@ -4560,7 +4563,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.currency_description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "Intl.NumberFormat avec le style « currency », à partir de chaînes décimales exactes. Devise locale : ",
+						Text: "Intl.NumberFormat avec le style « currency », à partir de chaînes décimales exactes. Devise : ",
 					},
 					{
 						Kind: i18n.MsgKind(1),
@@ -5969,7 +5972,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.currency_description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "Intl.NumberFormat con estilo «currency», a partir de cadenas decimales exactas. Moneda local: ",
+						Text: "Intl.NumberFormat con estilo «currency», a partir de cadenas decimales exactas. Moneda: ",
 					},
 					{
 						Kind: i18n.MsgKind(1),
@@ -7378,7 +7381,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.currency_description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "Intl.NumberFormat com estilo \"currency\", a partir de strings decimais exatas. Moeda local: ",
+						Text: "Intl.NumberFormat com estilo \"currency\", a partir de strings decimais exatas. Moeda: ",
 					},
 					{
 						Kind: i18n.MsgKind(1),
@@ -8787,7 +8790,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.currency_description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "Intl.NumberFormat com estilo \"currency\", a partir de cadeias decimais exatas. Moeda local: ",
+						Text: "Intl.NumberFormat com estilo \"currency\", a partir de cadeias decimais exatas. Moeda: ",
 					},
 					{
 						Kind: i18n.MsgKind(1),
@@ -10193,7 +10196,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.currency_description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "Intl.NumberFormat بنمط \u200e\"currency\"\u200e، انطلاقًا من سلاسل عشرية دقيقة. العملة المحلية: ",
+						Text: "Intl.NumberFormat بنمط \u200e\"currency\"\u200e، انطلاقًا من سلاسل عشرية دقيقة. العملة: ",
 					},
 					{
 						Kind: i18n.MsgKind(1),
@@ -11602,7 +11605,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.currency_description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "Intl.NumberFormat בסגנון \"currency\", ממחרוזות עשרוניות מדויקות. המטבע המקומי: ",
+						Text: "Intl.NumberFormat בסגנון \"currency\", ממחרוזות עשרוניות מדויקות. המטבע: ",
 					},
 					{
 						Kind: i18n.MsgKind(1),
@@ -13011,7 +13014,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.currency_description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "スタイル「currency」の Intl.NumberFormat。正確な 10 進文字列から書式設定します。現地通貨：",
+						Text: "スタイル「currency」の Intl.NumberFormat。正確な 10 進文字列から書式設定します。通貨：",
 					},
 					{
 						Kind: i18n.MsgKind(1),
@@ -14417,7 +14420,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.currency_description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "样式为“currency”的 Intl.NumberFormat，基于精确的十进制字符串。本地货币：",
+						Text: "样式为“currency”的 Intl.NumberFormat，基于精确的十进制字符串。货币：",
 					},
 					{
 						Kind: i18n.MsgKind(1),
@@ -15826,7 +15829,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.currency_description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "樣式為「currency」的 Intl.NumberFormat，以精確的十進位字串為準。當地貨幣：",
+						Text: "樣式為「currency」的 Intl.NumberFormat，以精確的十進位字串為準。貨幣：",
 					},
 					{
 						Kind: i18n.MsgKind(1),
@@ -17235,7 +17238,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.currency_description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "\"currency\" स्टाइल वाला Intl.NumberFormat, सटीक दशमलव स्ट्रिंग से। स्थानीय मुद्रा: ",
+						Text: "\"currency\" स्टाइल वाला Intl.NumberFormat, सटीक दशमलव स्ट्रिंग से। मुद्रा: ",
 					},
 					{
 						Kind: i18n.MsgKind(1),
@@ -18684,7 +18687,7 @@ var catalogs = []*i18n.Catalog{
 				Key: "formats.currency_description",
 				Parts: []i18n.MsgPart{
 					{
-						Text: "Intl.NumberFormat со стилем «currency» из точных десятичных строк. Местная валюта: ",
+						Text: "Intl.NumberFormat со стилем «currency» из точных десятичных строк. Валюта: ",
 					},
 					{
 						Kind: i18n.MsgKind(1),
@@ -20329,7 +20332,7 @@ var pseudoCatalog = &i18n.Catalog{
 					Text: "⟦",
 				},
 				{
-					Text: "Îñţļ.ÑúɱƀéŕƑóŕɱáţ šţýļé \"çúŕŕéñçý\", ƒŕóɱ éẋáçţ ðéçíɱáļ šţŕíñĝš. Ļóçáļ çúŕŕéñçý: ··························",
+					Text: "Îñţļ.ÑúɱƀéŕƑóŕɱáţ šţýļé \"çúŕŕéñçý\", ƒŕóɱ éẋáçţ ðéçíɱáļ šţŕíñĝš. Çúŕŕéñçý: ························",
 				},
 				{
 					Kind: i18n.MsgKind(1),

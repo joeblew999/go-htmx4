@@ -30,7 +30,6 @@ import (
 	"github.com/joeblew999/charter/go/lib/transport"
 	"github.com/joeblew999/go-htmx4/internal/httpx"
 	"github.com/joeblew999/go-htmx4/internal/i18n"
-	"github.com/joeblew999/go-htmx4/internal/i18n/cldr"
 	"github.com/joeblew999/go-htmx4/locales"
 	"github.com/joeblew999/go-htmx4/views"
 )
@@ -101,7 +100,7 @@ func (s *server) routes() http.Handler {
 			return
 		}
 		req, _ := i18n.FromContext(r.Context())
-		if req.Locale.Data != cldr.Data.Locales[0] {
+		if req.Locale != locales.Shipped[0] {
 			http.NotFound(w, r) // one sitemap, at the root: it already lists every locale
 			return
 		}

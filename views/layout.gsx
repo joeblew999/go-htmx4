@@ -42,7 +42,7 @@ component Layout(title string, description string, path string, children gsx.Nod
 			<meta property="og:title" content={M(ctx).PageTitle(title)}/>
 			<meta property="og:description" content={description}/>
 			<meta property="og:url" content={CanonicalURL(ctx)}/>
-			<meta property="og:locale" content={OGLocale(Loc(ctx).Data)}/>
+			<meta property="og:locale" content={OGLocale(Loc(ctx))}/>
 			{ for _, l := range OGLocaleAlternates(ctx) {
 				<meta property="og:locale:alternate" content={l}/>
 			} }

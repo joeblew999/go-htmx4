@@ -6,10 +6,7 @@ import (
 	"context"
 
 	"github.com/joeblew999/go-htmx4/internal/i18n"
-	"github.com/joeblew999/go-htmx4/internal/i18n/cldr"
 )
-
-func defaultLocale() *i18n.Locale { return cldr.Data.MustLocale(catalogs[0].Locale) }
 
 // Messages are the app's UI strings in one locale. Get them with For (the request's locale) or ForLocale.
 type Messages struct {
@@ -28,15 +25,14 @@ func For(ctx context.Context) Messages {
 // ForLocale returns the messages for a resolved locale (the source locale's for one without a catalog).
 func ForLocale(loc *i18n.Locale) Messages {
 	for _, c := range catalogs {
-		if loc != nil && c.Locale == loc.Data.ID {
+		if loc != nil && c.Locale == loc.ID() {
 			return Messages{loc: loc, cat: c}
 		}
 	}
 	return Messages{loc: loc, cat: catalogs[0]}
 }
 
-// Pseudo returns en-XA pseudo-localized messages (accented, bracketed, ~40% longer) formatted with loc's
-// rules: render pages with them to find text that doesn't go through a catalog.
+// Pseudo returns en-XA pseudo-localized messages (accented, bracketed, ~40% longer) formatted for loc: render pages with them to find text that doesn't go through a catalog.
 func Pseudo(loc *i18n.Locale) Messages { return Messages{loc: loc, cat: pseudoCatalog} }
 
 // Complete reports whether the locale's catalog translates every message.
@@ -52,7 +48,7 @@ func Complete(id string) bool {
 func (m Messages) format(i int, args ...i18n.MsgArgValue) string {
 	loc := m.loc
 	if loc == nil {
-		loc = defaultLocale()
+		loc = Shipped[0]
 	}
 	return loc.FormatMessage(m.cat.Messages[i].Parts, args...)
 }

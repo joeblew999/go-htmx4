@@ -39,7 +39,7 @@ component BoardPage(topic string, b Board, live bool) {
 			</ui.CardHeader>
 			<ui.CardContent>
 				{ if live {
-					<div hx-ws:connect={"/live/" + topic + "?locale=" + LocaleKey(Loc(ctx).Data)} hx-swap="none">
+					<div hx-ws:connect={"/live/" + topic + "?locale=" + LocaleKey(Loc(ctx))} hx-swap="none">
 						<boardSection b={b}/>
 					</div>
 				} else {

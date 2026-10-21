@@ -12,7 +12,7 @@ import (
 	"testing"
 
 	"github.com/joeblew999/charter/go/lib/searchconsole"
-	"github.com/joeblew999/go-htmx4/internal/i18n/cldr"
+	"github.com/joeblew999/go-htmx4/locales"
 )
 
 // Every non-page response is noindex, every page (and the crawl files) isn't.
@@ -91,10 +91,8 @@ func TestOpenGraph(t *testing.T) {
 		}
 		return v[0]
 	}
-	for _, tc := range []struct{ path, locale string }{
-		{"/", "en_US"}, {"/about", "en_US"}, {"/en-in/", "en_IN"}, {"/de/about", "de_DE"}, {"/pt-br/board", "pt_BR"},
-		{"/zh-hant/formats", "zh_TW"}, {"/zh-hans/", "zh_CN"}, {"/ar/", "ar_EG"}, {"/board?topic=seo-og", "en_US"},
-	} {
+	// og:locale's territory comes from Intl (likely subtags): e2e/smoke checks it on workerd.
+	for _, tc := range []struct{ path string }{{"/"}, {"/about"}, {"/en-in/"}, {"/de/about"}, {"/pt-br/board"}, {"/zh-hant/formats"}, {"/ar/"}, {"/board?topic=seo-og"}} {
 		t.Run(tc.path, func(t *testing.T) {
 			rec := httptest.NewRecorder()
 			h.ServeHTTP(rec, httptest.NewRequest("GET", "https://go-htmx4.example.net"+tc.path, nil))
@@ -113,19 +111,10 @@ func TestOpenGraph(t *testing.T) {
 			if got, want := one(t, page, "property", "og:description"), one(t, page, "name", "description"); got != want || got == "" {
 				t.Errorf("og:description = %q, meta description %q", got, want)
 			}
-			if got := one(t, page, "property", "og:locale"); got != tc.locale {
-				t.Errorf("og:locale = %q, want %q", got, tc.locale)
-			}
+			one(t, page, "property", "og:locale")
 			alts := meta(page, "property", "og:locale:alternate")
-			seen := map[string]bool{tc.locale: true}
-			for _, a := range alts {
-				if seen[a] || !regexp.MustCompile(`^[a-z]{2,3}(_[A-Z]{2}|_[0-9]{3})?$`).MatchString(a) {
-					t.Errorf("og:locale:alternate %q duplicated or not language_TERRITORY", a)
-				}
-				seen[a] = true
-			}
-			if len(alts) != len(cldr.Data.Locales)-1 {
-				t.Errorf("%d og:locale:alternate, want %d (every other locale)", len(alts), len(cldr.Data.Locales)-1)
+			if len(alts) != len(locales.Shipped)-1 {
+				t.Errorf("%d og:locale:alternate, want %d (every other locale)", len(alts), len(locales.Shipped)-1)
 			}
 			if got := one(t, page, "property", "og:type"); got != "website" {
 				t.Errorf("og:type = %q", got)

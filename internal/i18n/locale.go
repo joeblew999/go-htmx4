@@ -1,57 +1,61 @@
 package i18n
 
-import "strings"
+import (
+	"strings"
+	"sync"
+)
 
-// Locale is a shipped locale, resolved for a request. It is immutable and safe to share.
+// Locale is a shipped locale: its BCP 47 id, and what the runtime's Intl says about it (its name in its own
+// language, text direction, likely subtags), asked once per runtime and kept: it is the same for every request.
+// Make one per id with NewLocale and share it.
 type Locale struct {
-	Data *LocaleData
+	id                 string
+	once               sync.Once
+	name, dir, maximal string
 }
+
+// NewLocale returns the locale with a BCP 47 id, e.g. "pt-BR".
+func NewLocale(id string) *Locale { return &Locale{id: id} }
 
 // ID is the locale id, e.g. "pt-BR".
-func (l *Locale) ID() string { return l.Data.ID }
+func (l *Locale) ID() string { return l.id }
 
-// Lang is the locale id for <html lang> and hreflang.
-func (l *Locale) Lang() string { return l.Data.ID }
+// Lang is the locale id for <html lang>, hreflang and Intl.
+func (l *Locale) Lang() string { return l.id }
 
-// Dir is "rtl" or "ltr", for <html dir>.
-func (l *Locale) Dir() string {
-	if l.Data.RTL {
-		return "rtl"
-	}
-	return "ltr"
+// Name is the locale's name in its own language (Intl.DisplayNames), e.g. "português (Brasil)".
+func (l *Locale) Name() string { l.ask(); return l.name }
+
+// Dir is "rtl" or "ltr" (Intl.Locale's text direction), for <html dir>.
+func (l *Locale) Dir() string { l.ask(); return l.dir }
+
+// Maximal is the id with its likely subtags (Intl.Locale maximize), e.g. "pt-Latn-BR".
+func (l *Locale) Maximal() string { l.ask(); return l.maximal }
+
+// ask fills the Intl facts. With no JS runtime (go test) they are the id and "ltr".
+func (l *Locale) ask() {
+	l.once.Do(func() {
+		get := func(c Call, none string) string {
+			if s, ok := l.Format(c, "", ""); ok {
+				return s
+			}
+			return none
+		}
+		l.name = get(Call{Kind: "display-name", Value: l.id}, l.id)
+		l.dir = get(Call{Kind: "locale", Value: "direction"}, "ltr")
+		l.maximal = get(Call{Kind: "locale", Value: "maximize"}, l.id)
+	})
 }
 
-// Find returns the shipped locale data with id, compared case-insensitively ("pt-br" finds pt-BR).
-func (d *Data) Find(id string) *LocaleData {
-	for _, ld := range d.Locales {
-		if strings.EqualFold(ld.ID, id) {
-			return ld
+// Locales are the locales an app ships, its source (default) locale first.
+type Locales []*Locale
+
+// Find returns the shipped locale with id, compared case-insensitively ("pt-br" finds pt-BR), or nil.
+func (s Locales) Find(id string) *Locale {
+	for _, l := range s {
+		if strings.EqualFold(l.id, id) {
+			return l
 		}
 	}
 	return nil
-}
-
-// Locale returns the shipped locale id (case-insensitive); ok is false when it isn't shipped.
-func (d *Data) Locale(id string) (l *Locale, ok bool) {
-	if ld := d.Find(id); ld != nil {
-		return &Locale{Data: ld}, true
-	}
-	return nil, false
-}
-
-// MustLocale is Locale for an id that must be shipped.
-func (d *Data) MustLocale(id string) *Locale {
-	l, ok := d.Locale(id)
-	if !ok {
-		panic("i18n: locale " + id + " is not shipped")
-	}
-	return l
-}
-
-// Parent returns the nearest shipped ancestor of the shipped locale id on CLDR's parent chain, or "root".
-func (d *Data) Parent(id string) string {
-	if ld := d.Find(id); ld != nil && ld.Parent != "" {
-		return ld.Parent
-	}
-	return "root"
 }

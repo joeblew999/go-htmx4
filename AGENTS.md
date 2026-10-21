@@ -32,7 +32,6 @@ Binding. How the app works is in [docs/architecture.md](docs/architecture.md), h
 ## Generated files: never edit
 
 `*.x.go` (`go tool gsx generate`; not committed), `locales/*_msg_gen.go` (`mise run i18n:messages`),
-`internal/i18n/cldr/data_cldr.go` and `internal/i18n/testdata/numbers.json` (`mise run i18n:generate`),
 `docs/commands.md` (`mise run docs:commands`), and what `gsxui` manages (`gsxui.json` lists it).
 
 ## UI: gsx, gsxui, htmx 4

@@ -15,6 +15,8 @@
 //   number         Intl.NumberFormat                   a decimal string
 //   number-range   Intl.NumberFormat formatRange       the start; extra.end: the end
 //   plural         Intl.PluralRules select             a number (with extra.end: selectRange)
+//   plural-categories Intl.PluralRules categories      (no value); opts.type: cardinal, ordinal
+//   plural-samples Intl.PluralRules                    a category: numbers that select it
 //   list           Intl.ListFormat                     a JSON array of strings
 //   duration       Intl.DurationFormat                 a JSON object ({"days":1,"hours":2,…})
 //   display-name   Intl.DisplayNames                   a code; opts.type: language, region, script, currency,
@@ -24,7 +26,8 @@
 //   count          Intl.Segmenter                      text; the number of graphemes, words or sentences
 //   sort-words     Intl.Segmenter + Intl.Collator      text; its words, sorted
 //   locale         Intl.Locale                         maximize, minimize, calendars, collations, hourCycles,
-//                                                      numberingSystems, timeZones, direction, firstDay, weekend
+//                                                      numberingSystems, timeZones, direction, firstDay, weekend;
+//                                                      numberingSystem: Intl.NumberFormat's default
 //   supported      Intl.supportedValuesOf              calendar, collation, currency, numberingSystem, timeZone,
 //                                                      unit; shows the count and the first few
 //   zone           a time zone's name                  an IANA id
@@ -104,6 +107,24 @@ const kinds = {
     const pr = make(Intl.PluralRules, lang, o);
     return x.end ? pr.selectRange(Number(v), Number(x.end)) : pr.select(Number(v));
   },
+  "plural-categories": (lang, v, o) => make(Intl.PluralRules, lang, o).resolvedOptions().pluralCategories.join(", "),
+  // Up to five integers that select category v, then (cardinals) a number shown with one decimal ("1.0" can select
+  // differently from "1": minimumFractionDigits makes the decimal visible to the rules).
+  "plural-samples"(lang, v, o) {
+    const pr = make(Intl.PluralRules, lang, o);
+    const out = [];
+    for (let n = 0; n <= 1000 && out.length < 5; n++) if (pr.select(n) === v) out.push(String(n));
+    if (o.type !== "ordinal") {
+      const decimal = make(Intl.PluralRules, lang, { ...o, minimumFractionDigits: 1 });
+      for (let n = 0; n <= 100; n++) {
+        if (decimal.select(n / 10) === v) {
+          out.push((n / 10).toFixed(1));
+          break;
+        }
+      }
+    }
+    return out.join(", ");
+  },
   list: (lang, v, o) => make(Intl.ListFormat, lang, o).format(JSON.parse(v)),
   duration(lang, v, o) {
     if (!Intl.DurationFormat) throw new TypeError("no Intl.DurationFormat");
@@ -133,6 +154,7 @@ const kinds = {
   locale(lang, v) {
     const base = new Intl.Locale(lang);
     if (v === "maximize" || v === "minimize") return base[v]().toString();
+    if (v === "numberingSystem") return make(Intl.NumberFormat, lang).resolvedOptions().numberingSystem;
     // Region-dependent answers (time zones, week, clocks) need the region: "de" → de-Latn-DE.
     const loc = base.maximize();
     const get = (name) => {

@@ -13,7 +13,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/joeblew999/go-htmx4/internal/i18n/cldr"
 	"github.com/joeblew999/go-htmx4/locales"
 	"github.com/joeblew999/go-htmx4/views"
 	nethtml "golang.org/x/net/html"
@@ -41,10 +40,10 @@ func TestLocaleRouting(t *testing.T) {
 	}{
 		{path: "/", status: 200, want: []string{`<html lang="en" dir="ltr" `}, language: "en"},
 		{path: "/de/", status: 200, want: []string{`<html lang="de" dir="ltr" `, `href="/de/board"`}, language: "de"},
-		{path: "/ar/formats", status: 200, want: []string{`<html lang="ar" dir="rtl" `}, language: "ar"},
-		{path: "/he/about", status: 200, want: []string{`<html lang="he" dir="rtl" `}, language: "he"},
+		{path: "/ar/formats", status: 200, want: []string{`<html lang="ar" `}, language: "ar"},
+		{path: "/he/about", status: 200, want: []string{`<html lang="he" `}, language: "he"},
 		{path: "/pt-br/about", status: 200, want: []string{`<html lang="pt-BR" dir="ltr" `}, language: "pt-BR"},
-		{path: "/zh-hant/formats", status: 200, want: []string{`<html lang="zh-Hant" dir="ltr" `, "繁體中文"}, language: "zh-Hant"},
+		{path: "/zh-hant/formats", status: 200, want: []string{`<html lang="zh-Hant" `}, language: "zh-Hant"},
 		{path: "/de", status: 301, location: "/de/"},
 		{path: "/DE/about?x=1", status: 301, location: "/de/about?x=1"},
 		{path: "/pt-BR/", status: 301, location: "/pt-br/"},
@@ -78,13 +77,13 @@ func TestUntranslatedNoindex(t *testing.T) {
 	if got := get(t, h, "/about").Header().Get("X-Robots-Tag"); got != "" {
 		t.Errorf("/about X-Robots-Tag = %q, want none", got)
 	}
-	for _, ld := range cldr.Data.Locales[1:] {
+	for _, ld := range locales.Shipped[1:] {
 		want := ""
-		if !locales.Complete(ld.ID) {
+		if !locales.Complete(ld.ID()) {
 			want = "noindex"
 		}
 		if got := get(t, h, views.LocalePrefix(ld)+"/about").Header().Get("X-Robots-Tag"); got != want {
-			t.Errorf("%s (complete catalog: %v) X-Robots-Tag = %q, want %q", ld.ID, locales.Complete(ld.ID), got, want)
+			t.Errorf("%s (complete catalog: %v) X-Robots-Tag = %q, want %q", ld.ID(), locales.Complete(ld.ID()), got, want)
 		}
 	}
 }
@@ -139,7 +138,7 @@ var urlAttr = regexp.MustCompile(`\s(href|hx-get|hx-post|hx-put|hx-patch|hx-dele
 func TestLocalizedURLs(t *testing.T) {
 	h := newServer().routes()
 	shared := []string{"/static/", "/assets/", "/gsxui/", "/live/"}
-	for _, ld := range cldr.Data.Locales[1:] {
+	for _, ld := range locales.Shipped[1:] {
 		prefix := views.LocalePrefix(ld)
 		for _, page := range []string{"/", "/about", "/formats", "/board"} {
 			rec := get(t, h, prefix+page)
@@ -183,7 +182,6 @@ func TestLanguageLinks(t *testing.T) {
 		`href="/about\?x=1"[^>]* hreflang="en" lang="en"`,
 		`href="/ar/about\?x=1"[^>]* hreflang="ar" lang="ar"`,
 		`href="/fr/about\?x=1"[^>]* hreflang="fr" lang="fr"[^>]* aria-current="page"`,
-		`>\s*português \(Brasil\)\s*<`, `>\s*العربية\s*<`,
 	} {
 		if !regexp.MustCompile(want).MatchString(body) {
 			t.Errorf("language list lacks %s", want)
@@ -209,17 +207,12 @@ func TestLogicalClasses(t *testing.T) {
 }
 
 // TestFormatsPage: the examples reach the browser as raw values with their Intl options (static/intl.js formats
-// them), the currency is the locale's own, and the plural rules (server-side: they pick messages' wording) show
-// the locale's categories.
+// them). What Intl answers for each language is checked on workerd (e2e/smoke).
 func TestFormatsPage(t *testing.T) {
 	h := newServer().routes()
 	for path, wants := range map[string][]string{
-		"/formats":    {`data-intl="number" data-value="1234567.891"`, `data-opts="{&#34;style&#34;:&#34;currency&#34;,&#34;currency&#34;:&#34;USD&#34;}"`, `data-intl="datetime" data-value="2026-07-04T15:30:45.123Z"`, `data-intl="range"`, `data-end="2026-07-04T17:00:45.123Z"`, `data-intl="relative" data-value="-1" data-opts="{&#34;numeric&#34;:&#34;auto&#34;}" data-unit="day"`, `data-intl="list"`, `data-intl="duration"`, `data-intl="number-range"`, `data-intl="plural"`, `data-intl="display-name"`, `data-intl="collate"`, `data-intl="segment"`, `data-intl="locale" data-value="maximize"`, `data-intl="supported" data-value="unit"`, "cardinal · one", "ordinal · few", "2026-07-04 15:30 UTC"},
-		"/de/formats": {`&#34;currency&#34;:&#34;EUR&#34;`, "cardinal · one"},
-		"/hi/formats": {`&#34;currency&#34;:&#34;INR&#34;`, `{&#34;numberingSystem&#34;:&#34;deva&#34;}`},
-		"/ar/formats": {`&#34;currency&#34;:&#34;EGP&#34;`, "cardinal · zero", "cardinal · two", "cardinal · few", "cardinal · many"},
-		"/ru/formats": {"cardinal · few", "2, 3, 4, 22, 23"},
-		"/ja/formats": {`&#34;currency&#34;:&#34;JPY&#34;`},
+		"/formats":    {`data-intl="number" data-value="1234567.891"`, `data-opts="{&#34;style&#34;:&#34;currency&#34;,&#34;currency&#34;:&#34;EUR&#34;}"`, `data-intl="datetime" data-value="2026-07-04T15:30:45.123Z"`, `data-intl="range"`, `data-end="2026-07-04T17:00:45.123Z"`, `data-intl="relative" data-value="-1" data-opts="{&#34;numeric&#34;:&#34;auto&#34;}" data-unit="day"`, `data-intl="list"`, `data-intl="duration"`, `data-intl="number-range"`, `data-intl="plural"`, `data-intl="display-name"`, `data-intl="collate"`, `data-intl="segment"`, `data-intl="locale" data-value="maximize"`, `data-intl="supported" data-value="unit"`, "2026-07-04 15:30 UTC"},
+		"/de/formats": {`&#34;currency&#34;:&#34;EUR&#34;`},
 	} {
 		body := get(t, h, path).Body.String()
 		for _, w := range wants {
@@ -250,7 +243,7 @@ func TestNoteRelativeTime(t *testing.T) {
 // plain-ASCII word left in visible text or in placeholder/aria-label/title: such text doesn't come from
 // locales/*.toml. Brand and technical values opt out with translate="no" (or <code>, <time>); values the browser
 // formats (data-intl: their text is a fallback until static/intl.js replaces it) and server-computed locale data
-// (data-i18n="cldr") are skipped too. <template> is client-side markup (gsxui toaster).
+// (data-i18n="intl") are skipped too. <template> is client-side markup (gsxui toaster).
 func TestNoHardcodedText(t *testing.T) {
 	views.PseudoMessages = true
 	defer func() { views.PseudoMessages = false }()
@@ -270,7 +263,7 @@ func TestNoHardcodedText(t *testing.T) {
 					skip = true
 				}
 				for _, a := range n.Attr {
-					if a.Key == "translate" && a.Val == "no" || a.Key == "data-i18n" && a.Val == "cldr" || a.Key == "data-intl" {
+					if a.Key == "translate" && a.Val == "no" || a.Key == "data-i18n" && a.Val == "intl" || a.Key == "data-intl" {
 						skip = true
 					}
 				}
@@ -380,8 +373,8 @@ func TestTimeZonePreferences(t *testing.T) {
 	}
 }
 
-// TestLocalesMatchMise: internal/i18n/cldr ships the locales mise.toml's I18N_LOCALES names, in that order
-// (mise run i18n:generate regenerates it).
+// TestLocalesMatchMise: locales.Shipped is the locales mise.toml's I18N_LOCALES names, in that order
+// (mise run i18n:messages regenerates it).
 func TestLocalesMatchMise(t *testing.T) {
 	mise, err := os.ReadFile("mise.toml")
 	if err != nil {
@@ -389,11 +382,11 @@ func TestLocalesMatchMise(t *testing.T) {
 	}
 	m := regexp.MustCompile(`(?m)^I18N_LOCALES = "([^"]+)"`).FindSubmatch(mise)
 	var ids []string
-	for _, ld := range cldr.Data.Locales {
-		ids = append(ids, ld.ID)
+	for _, ld := range locales.Shipped {
+		ids = append(ids, ld.ID())
 	}
 	if m == nil || string(m[1]) != strings.Join(ids, ",") {
-		t.Errorf("mise.toml I18N_LOCALES = %q, internal/i18n/cldr has %s: mise run i18n:generate", m, strings.Join(ids, ","))
+		t.Errorf("mise.toml I18N_LOCALES = %q, locales.Shipped has %s: mise run i18n:messages", m, strings.Join(ids, ","))
 	}
 }
 
@@ -444,15 +437,15 @@ func TestCanonicalAndHreflang(t *testing.T) {
 	h := newServer().routes()
 	for _, page := range []string{"/", "/about", "/formats", "/board", "/board?topic=roadmap"} {
 		var first map[string]string
-		for _, ld := range cldr.Data.Locales {
+		for _, ld := range locales.Shipped {
 			url := views.LocalePrefix(ld) + page
 			body := get(t, h, url).Body.String()
 			canonical, alts, desc := headLinks(t, body)
 			if want := "http://example.com" + url; canonical != want {
 				t.Errorf("%s: canonical %q, want %q", url, canonical, want)
 			}
-			if len(alts) != len(cldr.Data.Locales)+1 || alts[ld.ID] != canonical || alts["x-default"] != "http://example.com"+page {
-				t.Errorf("%s: alternates %v (self %q, x-default %q)", url, alts, alts[ld.ID], alts["x-default"])
+			if len(alts) != len(locales.Shipped)+1 || alts[ld.ID()] != canonical || alts["x-default"] != "http://example.com"+page {
+				t.Errorf("%s: alternates %v (self %q, x-default %q)", url, alts, alts[ld.ID()], alts["x-default"])
 			}
 			if first == nil {
 				first = alts
@@ -503,7 +496,7 @@ func TestSitemap(t *testing.T) {
 	if err := xml.Unmarshal(rec.Body.Bytes(), &set); err != nil {
 		t.Fatal(err)
 	}
-	if want := len(views.SitemapPages) * len(cldr.Data.Locales); len(set.URLs) != want {
+	if want := len(views.SitemapPages) * len(locales.Shipped); len(set.URLs) != want {
 		t.Fatalf("%d URLs, want %d", len(set.URLs), want)
 	}
 	for _, u := range set.URLs {

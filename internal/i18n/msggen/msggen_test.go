@@ -7,40 +7,28 @@ import (
 	"testing"
 
 	"github.com/joeblew999/go-htmx4/internal/i18n"
-	"github.com/joeblew999/go-htmx4/internal/i18n/cldr"
 )
 
+// TestParseAndFormat: parsing and the language-independent rest (quotes, select, exact plural cases). With no JS
+// runtime a plural takes its exact or "other" case and numbers their plain digits; what a language does is tested
+// on workerd (e2e/smoke, locales).
 func TestParseAndFormat(t *testing.T) {
 	type args = map[string]i18n.MsgArgValue
 	str, num := i18n.StrArg, i18n.FloatArg
 	for _, tc := range []struct {
-		locale, src string
-		args        args
-		want        string
+		src  string
+		args args
+		want string
 	}{
-		{"en", "It''s {name}", args{"name": str("Ada")}, "It's Ada"},
-		{"en", "'{'literal'}' # {n, number}", args{"n": num(1234.5)}, "{literal} # 1,234.5"},
-		{"en", "'{n}' is quoted, don't", nil, "{n} is quoted, don't"},
-		{"de", "{n, number}", args{"n": num(1234.5)}, "1.234,5"},
-		{"en", "{n, number, integer}", args{"n": num(2.5)}, "3"},
-		{"en-IN", "{n, number}", args{"n": num(1234567)}, "12,34,567"},
-		{"es", "{n, number}", args{"n": num(1234)}, "1234"},
-		{"es", "{n, number}", args{"n": num(12345)}, "12.345"},
-		{"ar", "{n, number}", args{"n": num(-1234.5)}, "\u200e-1,234.5"},
-		{"en", "{n, number}", args{"n": num(0.12345)}, "0.123"},
-		{"en", "{n, plural, =0 {none} one {# item} other {# items}}", args{"n": num(0)}, "none"},
-		{"en", "{n, plural, =0 {none} one {# item} other {# items}}", args{"n": num(1)}, "1 item"},
-		{"en", "{n, plural, =0 {none} one {# item} other {# items}}", args{"n": num(1234)}, "1,234 items"},
-		{"ru", "{n, plural, one {# символ} few {# символа} many {# символов} other {# символа}}", args{"n": num(3)}, "3 символа"},
-		{"ru", "{n, plural, one {# символ} few {# символа} many {# символов} other {# символа}}", args{"n": num(5)}, "5 символов"},
-		{"ru", "{n, plural, one {# символ} few {# символа} many {# символов} other {# символа}}", args{"n": num(1.5)}, "1,5 символа"},
-		{"en", "{n, plural, offset:1 =0 {nobody} =1 {{who}} one {{who} and # other} other {{who} and # others}}", args{"n": num(1), "who": str("Ada")}, "Ada"},
-		{"en", "{n, plural, offset:1 =0 {nobody} =1 {{who}} one {{who} and # other} other {{who} and # others}}", args{"n": num(2), "who": str("Ada")}, "Ada and 1 other"},
-		{"en", "{n, plural, offset:1 =0 {nobody} =1 {{who}} one {{who} and # other} other {{who} and # others}}", args{"n": num(3), "who": str("Ada")}, "Ada and 2 others"},
-		{"en", "{n, selectordinal, one {#st} two {#nd} few {#rd} other {#th}}", args{"n": num(22)}, "22nd"},
-		{"en", "{n, selectordinal, one {#st} two {#nd} few {#rd} other {#th}}", args{"n": num(13)}, "13th"},
-		{"en", "{g, select, female {her} male {his} other {their}} turn", args{"g": str("x")}, "their turn"},
-		{"en", "{g, select, female {her} male {his} other {their}} turn", args{"g": str("female")}, "her turn"},
+		{"It''s {name}", args{"name": str("Ada")}, "It's Ada"},
+		{"'{'literal'}' # {n, number}", args{"n": num(1234.5)}, "{literal} # 1234.5"},
+		{"'{n}' is quoted, don't", nil, "{n} is quoted, don't"},
+		{"{n, plural, =0 {none} one {# item} other {# items}}", args{"n": num(0)}, "none"},
+		{"{n, plural, =0 {none} one {# item} other {# items}}", args{"n": num(1234)}, "1234 items"},
+		{"{n, plural, offset:1 =0 {nobody} =1 {{who}} one {{who} and # other} other {{who} and # others}}", args{"n": num(1), "who": str("Ada")}, "Ada"},
+		{"{n, plural, offset:1 =0 {nobody} =1 {{who}} one {{who} and # other} other {{who} and # others}}", args{"n": num(3), "who": str("Ada")}, "Ada and 2 others"},
+		{"{g, select, female {her} male {his} other {their}} turn", args{"g": str("x")}, "their turn"},
+		{"{g, select, female {her} male {his} other {their}} turn", args{"g": str("female")}, "her turn"},
 	} {
 		p, err := parse(tc.src)
 		if err != nil {
@@ -53,8 +41,8 @@ func TestParseAndFormat(t *testing.T) {
 			index[name] = int8(i)
 			vals[i] = tc.args[name]
 		}
-		if got := cldr.Data.MustLocale(tc.locale).FormatMessage(resolve(p.parts, index), vals...); got != tc.want {
-			t.Errorf("%s %q = %q, want %q", tc.locale, tc.src, got, tc.want)
+		if got := i18n.NewLocale("en").FormatMessage(resolve(p.parts, index), vals...); got != tc.want {
+			t.Errorf("%q = %q, want %q", tc.src, got, tc.want)
 		}
 	}
 }
@@ -103,8 +91,11 @@ func TestGenerate(t *testing.T) {
 		}
 		return string(b)
 	}
-	if got := gen("catalogs_msg_gen.go"); !strings.Contains(got, "var complete = []bool{true, true, false}") {
-		t.Errorf("complete flags wrong:\n%s", got)
+	cats := gen("catalogs_msg_gen.go")
+	for _, want := range []string{"var complete = []bool{true, true, false}", `var Shipped = i18n.Locales{i18n.NewLocale("en"), i18n.NewLocale("en-IN"), i18n.NewLocale("de")}`} {
+		if !strings.Contains(cats, want) {
+			t.Errorf("catalogs_msg_gen.go lacks %q:\n%s", want, cats)
+		}
 	}
 	msgs := gen("messages_msg_gen.go")
 	for _, want := range []string{"func (m Messages) Hello(name string) string", "func (m Messages) FilesCount(n float64) string"} {

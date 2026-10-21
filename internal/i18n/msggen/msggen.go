@@ -5,9 +5,8 @@
 //
 //	go run ./cmd/msggen -dir locales -out locales -source en -locales en,de,ar
 //
-// A key missing from a translation comes from the nearest CLDR ancestor that has it (en-IN → en-001 → en,
-// pt-PT → pt), so a regional catalog holds only what differs; inheriting from the source locale counts as
-// translated. Keys with no ancestor fall back to the source text, and [Complete] in the generated package is
+// A key missing from a translation comes from the nearest shipped locale its id shortens to (en-IN → en), so a
+// regional catalog holds only what differs; inheriting from the source locale counts as translated. Keys with no ancestor fall back to the source text, and [Complete] in the generated package is
 // false for that locale. Local tooling (standard Go).
 package msggen
 
@@ -25,7 +24,6 @@ import (
 
 	"github.com/BurntSushi/toml"
 	"github.com/joeblew999/go-htmx4/internal/i18n"
-	"github.com/joeblew999/go-htmx4/internal/i18n/cldr"
 	"github.com/joeblew999/go-htmx4/internal/i18n/internal/goemit"
 )
 
@@ -36,7 +34,6 @@ type Config struct {
 	Package string   // default: base of Out
 	Source  string   // source locale (default: first of Locales)
 	Locales []string // shipped locale ids, e.g. "en", "pt-BR"
-	Data    *i18n.Data
 	Log     io.Writer
 }
 
@@ -60,9 +57,6 @@ func Generate(cfg Config) error {
 	}
 	if cfg.Log == nil {
 		cfg.Log = io.Discard
-	}
-	if cfg.Data == nil {
-		cfg.Data = cldr.Data
 	}
 	src, err := readCatalog(filepath.Join(cfg.Dir, cfg.Source+".toml"))
 	if err != nil {
@@ -104,9 +98,9 @@ func Generate(cfg Config) error {
 		}
 		trs[id] = tr
 	}
-	// lookup finds key in id's catalog or its nearest shipped CLDR ancestor's, reporting which one.
+	// lookup finds key in id's catalog or its nearest shipped ancestor's, reporting which one.
 	lookup := func(id, key string) (text, from string, ok bool) {
-		for ; id != "root"; id = cfg.Data.Parent(id) {
+		for ; id != ""; id = parent(id, cfg.Locales) {
 			if text, ok := trs[id][key]; ok {
 				return text, id, true
 			}
@@ -115,10 +109,6 @@ func Generate(cfg Config) error {
 	}
 	var cats []catalogOut
 	for _, id := range cfg.Locales {
-		loc, ok := cfg.Data.Locale(id)
-		if !ok || loc.Data.ID != id {
-			return fmt.Errorf("msggen: locale %s is not in the CLDR data set", id)
-		}
 		out := catalogOut{cat: i18n.Catalog{Locale: id}}
 		inherited := 0
 		for _, m := range msgs {
@@ -141,7 +131,6 @@ func Generate(cfg Config) error {
 						return fmt.Errorf("msggen: %s.toml %s: argument {%s} is used as a %s, %s uses it as a %s", from, m.key, name, kindName(kind), cfg.Source, kindName(want))
 					}
 				}
-				checkPlurals(cfg.Log, id, m.key, p.parts, loc.Data)
 			} else {
 				out.missing = append(out.missing, m.key)
 			}
@@ -178,6 +167,11 @@ func Generate(cfg Config) error {
 	var b strings.Builder
 	b.WriteString(header)
 	b.WriteString("import \"" + goemit.ImportPath + "\"\n\n")
+	b.WriteString("// Shipped are the app's locales (I18N_LOCALES), the source first.\nvar Shipped = i18n.Locales{")
+	for _, id := range cfg.Locales {
+		fmt.Fprintf(&b, "i18n.NewLocale(%q), ", id)
+	}
+	b.WriteString("}\n\n")
 	b.WriteString("var catalogs = []*i18n.Catalog{")
 	for _, c := range cats {
 		b.WriteString("\n&")
@@ -230,10 +224,7 @@ const runtimeSource = `import (
 	"context"
 
 	"github.com/joeblew999/go-htmx4/internal/i18n"
-	"github.com/joeblew999/go-htmx4/internal/i18n/cldr"
 )
-
-func defaultLocale() *i18n.Locale { return cldr.Data.MustLocale(catalogs[0].Locale) }
 
 // Messages are the app's UI strings in one locale. Get them with For (the request's locale) or ForLocale.
 type Messages struct {
@@ -252,15 +243,14 @@ func For(ctx context.Context) Messages {
 // ForLocale returns the messages for a resolved locale (the source locale's for one without a catalog).
 func ForLocale(loc *i18n.Locale) Messages {
 	for _, c := range catalogs {
-		if loc != nil && c.Locale == loc.Data.ID {
+		if loc != nil && c.Locale == loc.ID() {
 			return Messages{loc: loc, cat: c}
 		}
 	}
 	return Messages{loc: loc, cat: catalogs[0]}
 }
 
-// Pseudo returns en-XA pseudo-localized messages (accented, bracketed, ~40% longer) formatted with loc's
-// rules: render pages with them to find text that doesn't go through a catalog.
+// Pseudo returns en-XA pseudo-localized messages (accented, bracketed, ~40% longer) formatted for loc: render pages with them to find text that doesn't go through a catalog.
 func Pseudo(loc *i18n.Locale) Messages { return Messages{loc: loc, cat: pseudoCatalog} }
 
 // Complete reports whether the locale's catalog translates every message.
@@ -276,7 +266,7 @@ func Complete(id string) bool {
 func (m Messages) format(i int, args ...i18n.MsgArgValue) string {
 	loc := m.loc
 	if loc == nil {
-		loc = defaultLocale()
+		loc = Shipped[0]
 	}
 	return loc.FormatMessage(m.cat.Messages[i].Parts, args...)
 }
@@ -338,22 +328,16 @@ func kindName(k argKind) string {
 	return "string"
 }
 
-// checkPlurals warns when a plural or selectordinal lacks a category the locale's rules produce.
-func checkPlurals(log io.Writer, id, key string, parts []node, ld *i18n.LocaleData) {
-	for _, n := range parts {
-		if n.kind == i18n.MsgPlural || n.kind == i18n.MsgSelectOrdinal {
-			rules := ld.Cardinal
-			if n.kind == i18n.MsgSelectOrdinal {
-				rules = ld.Ordinal
-			}
-			for _, cat := range rules.Categories() {
-				if !slices.ContainsFunc(n.cases, func(c caseNode) bool { return c.key == cat.String() }) {
-					fmt.Fprintf(log, "warning: %s.toml %s: {%s} has no %q case (%s uses it)\n", id, key, n.arg, cat, id)
-				}
-			}
+// parent is the nearest shipped locale id shortens to by dropping subtags (en-IN → en), or "".
+func parent(id string, shipped []string) string {
+	for {
+		i := strings.LastIndexByte(id, '-')
+		if i < 0 {
+			return ""
 		}
-		for _, c := range n.cases {
-			checkPlurals(log, id, key, c.parts, ld)
+		id = id[:i]
+		if slices.Contains(shipped, id) {
+			return id
 		}
 	}
 }

@@ -13,7 +13,9 @@ func intl() js.Value {
 	return g
 }
 
-func runtimeFormat(lang string, c Call, timeZone, hourCycle string) (s string) {
+var runtimeFormat = jsFormat
+
+func jsFormat(lang string, c Call, timeZone, hourCycle string) (s string) {
 	g := intl()
 	if g.IsUndefined() {
 		return ""

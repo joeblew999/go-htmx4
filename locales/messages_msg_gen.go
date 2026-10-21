@@ -199,7 +199,7 @@ func (m Messages) FormatsCollationTitle() string {
 	return m.format(38)
 }
 
-// FormatsCurrencyDescription is "formats.currency_description": Intl.NumberFormat style "currency", from exact decimal strings. Local currency: {currency}.
+// FormatsCurrencyDescription is "formats.currency_description": Intl.NumberFormat style "currency", from exact decimal strings. Currency: {currency}.
 func (m Messages) FormatsCurrencyDescription(currency string) string {
 	return m.format(39, i18n.StrArg(currency))
 }

@@ -115,12 +115,6 @@ Install go.mod's gsx into GOPATH/bin for the VS Code gsx language server
 
 go tool gsx generate (after i18n:messages: views call the generated message methods)
 
-### `i18n:generate`
-
-- **Usage:** `i18n:generate`
-
-Regenerate internal/i18n/cldr for I18N_LOCALES from CLDR, with the generator at the git tag i18n-generator (network on first run)
-
 ### `i18n:messages`
 
 - **Usage:** `i18n:messages`

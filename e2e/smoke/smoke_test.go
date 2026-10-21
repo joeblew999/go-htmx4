@@ -143,13 +143,13 @@ func TestStaticAssets(t *testing.T) {
 }
 
 // TestServerIntl: the Worker formats with its own V8 Intl (worker/intl.mjs via internal/i18n Format), so pages arrive
-// finished; plural rules (which pick messages' wording) run in Go.
+// finished, and picks each message's plural form with Intl.PluralRules.
 func TestServerIntl(t *testing.T) {
 	de := get(t, "/de/formats").body
 	has(t, "Intl markup", de, `&#34;currency&#34;:&#34;EUR&#34;`)
 	has(t, "dates", de, "Samstag, 4. Juli 2026")
 	has(t, "currency", de, "1.234,50 €")
-	has(t, "numbers, native digits", get(t, "/hi/formats").body, "१२,३४,५६७.८९१")
+	has(t, "numbers, the locale's own digits", get(t, "/ar/formats").body, "١٬٢٣٤٬٥٦٧٫٨٩١")
 	has(t, "zone names", get(t, "/formats").body, "11:30 AM Eastern Time")
 	has(t, "display names", get(t, "/ja/formats").body, "日本")
 	has(t, "plural rules", get(t, "/ru/formats").body, "2, 3, 4, 22, 23")
@@ -166,6 +166,11 @@ func TestServerIntl(t *testing.T) {
 func TestLocales(t *testing.T) {
 	has(t, "locale page /de/", get(t, "/de/").body, `<html lang="de" dir="ltr"`)
 	has(t, "rtl page /ar/formats", get(t, "/ar/formats").body, `<html lang="ar" dir="rtl"`)
+	has(t, "rtl page /he/about", get(t, "/he/about").body, `<html lang="he" dir="rtl"`)
+	about := get(t, "/fr/about").body
+	has(t, "language names, each in its own language", about, "português (Brasil)")
+	has(t, "language names, right to left", about, "العربية")
+	has(t, "locale facts from Intl", get(t, "/zh-hant/formats").body, "zh-Hant-TW")
 	has(t, "UI catalog", get(t, "/de/").body, "Go + htmx 4 + gsxui auf Cloudflare Workers")
 	has(t, "ICU plural", post(t, "/ru/board/note?topic=smoke", "body=").body, "до 280 символов")
 	has(t, "localized hx-post", get(t, "/de/board?topic=smoke").body, `hx-post="/de/board/add?topic=smoke`)
@@ -188,6 +193,8 @@ func TestSEO(t *testing.T) {
 	has(t, "canonical + hreflang", about, `<link rel="canonical" href="`+base+`/de/about">`)
 	has(t, "hreflang x-default", about, `<link rel="alternate" hreflang="x-default" href="`+base+`/about">`)
 	has(t, "Open Graph url + locale", about, `<meta property="og:url" content="`+base+`/de/about"><meta property="og:locale" content="de_DE">`)
+	has(t, "Open Graph locale: script → territory", get(t, "/zh-hant/").body, `<meta property="og:locale" content="zh_TW">`)
+	has(t, "Open Graph alternates", about, `<meta property="og:locale:alternate" content="pt_BR">`)
 	has(t, "sitemap with alternates", get(t, "/sitemap.xml").body, `<xhtml:link rel="alternate" hreflang="zh-Hant" href="`+base+`/zh-hant/formats"/>`)
 	has(t, "robots.txt is ours", get(t, "/robots.txt").body, "Sitemap: "+base+"/sitemap.xml")
 	has(t, "fragment noindex", get(t, "/fragments/stats").header.Get("X-Robots-Tag"), "noindex")
