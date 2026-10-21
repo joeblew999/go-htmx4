@@ -17,6 +17,8 @@
 //	go tool intl tasks [-o file]           write intl's mise tasks into the app (.mise/tasks/intl.toml)
 //	go tool intl assets -worker dir -browser dir    the JavaScript a Worker and a page import
 //	go tool intl locales                   the shipped locales, comma-separated
+//	go tool intl catalogs                  the catalogs' Go package name (locales), for scripts
+//	go tool intl markup                    the app's own .gsx directories: not gsxui's, not nested modules
 //
 // todo, check, add and export ask Intl itself (plural categories, language names): they run workerd.
 package main
@@ -177,6 +179,14 @@ func main() {
 		}
 	case "locales":
 		fmt.Println(strings.Join(c.Locales, ","))
+	case "catalogs":
+		fmt.Println(filepath.Base(c.CatalogDir()))
+	case "markup":
+		dirs, err := markup(c)
+		check(err)
+		for _, d := range dirs {
+			fmt.Println(d)
+		}
 	default:
 		usage()
 	}
@@ -216,6 +226,42 @@ Set up. What is left is your code (intl/README.md, "Set up an app"):
   - every package that renders, in its tests: func TestMain(m *testing.M) { os.Exit(intltest.Main(m)) }
   - mise run intl before gsx generate; mise run intl:check in CI
 `)
+}
+
+// markup is every directory of the app's module with .gsx files, relative to its root: the app's own markup, so
+// not intl.toml's gsxui directory (vendored components) nor a nested module's.
+func markup(c config.Config) ([]string, error) {
+	seen := map[string]bool{}
+	var out []string
+	gsxui := filepath.Join(c.Root, c.Gsxui)
+	err := filepath.WalkDir(c.Root, func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		if d.IsDir() {
+			name := d.Name()
+			if path != c.Root && (strings.HasPrefix(name, ".") || name == "node_modules" || name == "vendor" || name == "testdata" ||
+				c.Gsxui != "" && path == gsxui) {
+				return filepath.SkipDir
+			}
+			if path != c.Root {
+				if _, err := os.Stat(filepath.Join(path, "go.mod")); err == nil {
+					return filepath.SkipDir
+				}
+			}
+			return nil
+		}
+		if dir := filepath.Dir(path); strings.HasSuffix(path, ".gsx") && !seen[dir] {
+			seen[dir] = true
+			rel, err := filepath.Rel(c.Root, dir)
+			if err != nil {
+				return err
+			}
+			out = append(out, rel)
+		}
+		return nil
+	})
+	return out, err
 }
 
 func writeTasks(path string) error {
@@ -427,6 +473,6 @@ func fail(err error) {
 func usage() {
 	fmt.Fprintln(os.Stderr, "usage: go tool intl init [-locales en,de] [-catalogs dir] [-gsxui dir] | gen | status | todo [-json] [locale…] | check | add <locale>… | confirm <locale>[:<key>]… |\n"+
 		"       export [-all] [-o dir] [locale…] | import <file.xlf>… | skill | tasks [-o file] | assets [-worker dir] [-browser dir] |\n"+
-		"       locales")
+		"       locales | catalogs | markup")
 	os.Exit(2)
 }

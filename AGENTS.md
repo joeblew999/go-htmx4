@@ -74,8 +74,8 @@ committed), `.claude/skills/intl-translate` (`mise run intl:skill`; committed), 
 - Text arguments are bidi-isolated by the renderer; user text in its own element gets `dir="auto"`.
 - gsxui components' own text (`i18n.T`) is the catalogs' `[gsxui]` table: after `gsxui add`, `mise run intl` names
   every string that needs a message.
-- gsx's own smell finder runs over `views/` (`TestGsxSmells`): write what the `gsx` skill says, not what older code
-  does.
+- `mise run intl:check` also runs gsx's own checks on the app's markup: `gsx generate`, `gsx fmt` and the `gsx` skill's
+  smell finder. Write what the `gsx` skill says, not what older code does.
 - Every in-app `href`/`hx-*` URL goes through intl's `localize` filter, `href={ "/path" |> localize }` (not
   `/static/`, `/assets/`, `/gsxui/`, `/live/`). Locale URLs, cookies and preferences are `intl.Site` (`locale.go`).
   Logical Tailwind classes only (`ms-`, `pe-`, `start-`, `text-end`, …) so RTL mirrors (`TestLogicalClasses`).
