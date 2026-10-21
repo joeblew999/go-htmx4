@@ -37,7 +37,9 @@ func SetMessages(path string, msgs map[string]string) error {
 		line := tomlKey(leaf) + " = " + tomlString(msgs[key])
 		layout := scan(lines)
 		if at, ok := layout.keys[key]; ok {
-			lines = slices.Replace(lines, at.start, at.end+1, line)
+			// Keep the key as the file writes it (notes.title in [board]): only its value changes.
+			name, _, _ := strings.Cut(lines[at.start], "=")
+			lines = slices.Replace(lines, at.start, at.end+1, strings.TrimRight(name, " \t")+" = "+tomlString(msgs[key]))
 			continue
 		}
 		sec, ok := layout.tables[table]
@@ -76,7 +78,7 @@ func scan(lines []string) layout {
 		case t == "" || t[0] == '#':
 		case t[0] == '[':
 			l.tables[table] = span{start, i}
-			table, start = strings.Trim(strings.TrimSpace(strings.Trim(t, "[]")), `"`), i+1
+			table, start = tableName(t), i+1
 		default:
 			name, value, ok := strings.Cut(t, "=")
 			if !ok {
@@ -102,6 +104,35 @@ func scan(lines []string) layout {
 	}
 	l.tables[table] = span{start, len(lines)}
 	return l
+}
+
+// tableName is a table header's name: "[board] # the board" is board.
+func tableName(header string) string {
+	if i := strings.IndexByte(header, ']'); i >= 0 {
+		header = header[:i]
+	}
+	return strings.Trim(strings.TrimSpace(strings.TrimPrefix(header, "[")), `"`)
+}
+
+// RemoveMessages deletes keys from the catalog at path (go tool intl prune: keys the source no longer has).
+func RemoveMessages(path string, keys []string) error {
+	b, err := os.ReadFile(path)
+	if err != nil {
+		return err
+	}
+	lines := strings.Split(strings.TrimRight(string(b), "\n"), "\n")
+	at := scan(lines).keys
+	var spans []span
+	for _, k := range keys {
+		if sp, ok := at[k]; ok {
+			spans = append(spans, sp)
+		}
+	}
+	slices.SortFunc(spans, func(a, b span) int { return b.start - a.start })
+	for _, sp := range spans {
+		lines = slices.Delete(lines, sp.start, sp.end+1)
+	}
+	return os.WriteFile(path, []byte(strings.Join(lines, "\n")+"\n"), 0o644)
 }
 
 var bareKey = regexp.MustCompile(`^[A-Za-z0-9_-]+$`)

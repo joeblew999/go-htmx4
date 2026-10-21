@@ -17,62 +17,77 @@ import (
 // else <span>. Since and Zone are data-intl "since" and "zone".
 func Render(ctx context.Context, v Value) gsx.Node {
 	text, call := v.text(ctx), v.Attrs()
-	switch v.tag {
-	case "time":
+	switch {
+	case v.kind == "since": // its call carries its datetime
 		return _gsxrt.Func(func(ctx _gsxctx.Context, _gsxw _gsxio.Writer) error {
 			_gsxgw := _gsxrt.W(_gsxw)
 //line render.gsx:17:10
-			_gsxv0 := /*line render.gsx:17:39*/ call
+			_gsxv0 := /*line render.gsx:17:18*/ call
 			_gsxgw.S("<time")
-			if !_gsxv0.Has("datetime") {
-				_gsxgw.S(" datetime=\"")
-				_gsxgw.AttrValue(string( /*line render.gsx:17:26*/ v.machine))
-				_gsxgw.S("\"")
-			}
 			_gsxgw.ClassMerged(_gsxrt.DefaultClassMerge, _gsxv0.Class())
 			_gsxgw.StyleMerged("", _gsxv0.Style())
 			_gsxgw.Spread(ctx, "time", _gsxv0, _gsxrt.AttrSinks{}, []string{"class", "style"})
 			_gsxgw.S(">")
-//line render.gsx:17:49
-			_gsxgw.Text(string( /*line render.gsx:17:51*/ text))
+//line render.gsx:17:28
+			_gsxgw.Text(string( /*line render.gsx:17:30*/ text))
 			_gsxgw.S("</time>")
 			return _gsxgw.Err()
-		}) /*line render.gsx:17:64*/
-	case "data":
+		}) /*line render.gsx:17:43*/
+	case v.tag == "time":
 		return _gsxrt.Func(func(ctx _gsxctx.Context, _gsxw _gsxio.Writer) error {
 			_gsxgw := _gsxrt.W(_gsxw)
 //line render.gsx:19:10
-			_gsxv1 := /*line render.gsx:19:36*/ call
-			_gsxgw.S("<data")
-			if !_gsxv1.Has("value") {
-				_gsxgw.S(" value=\"")
-				_gsxgw.AttrValue(string( /*line render.gsx:19:23*/ v.machine))
+			_gsxv1 := /*line render.gsx:19:39*/ call
+			_gsxgw.S("<time")
+			if !_gsxv1.Has("datetime") {
+				_gsxgw.S(" datetime=\"")
+				_gsxgw.AttrValue(string( /*line render.gsx:19:26*/ v.machine))
 				_gsxgw.S("\"")
 			}
 			_gsxgw.ClassMerged(_gsxrt.DefaultClassMerge, _gsxv1.Class())
 			_gsxgw.StyleMerged("", _gsxv1.Style())
-			_gsxgw.Spread(ctx, "data", _gsxv1, _gsxrt.AttrSinks{}, []string{"class", "style"})
+			_gsxgw.Spread(ctx, "time", _gsxv1, _gsxrt.AttrSinks{}, []string{"class", "style"})
 			_gsxgw.S(">")
-//line render.gsx:19:46
-			_gsxgw.Text(string( /*line render.gsx:19:48*/ text))
+//line render.gsx:19:49
+			_gsxgw.Text(string( /*line render.gsx:19:51*/ text))
+			_gsxgw.S("</time>")
+			return _gsxgw.Err()
+		}) /*line render.gsx:19:64*/
+	case v.tag == "data":
+		return _gsxrt.Func(func(ctx _gsxctx.Context, _gsxw _gsxio.Writer) error {
+			_gsxgw := _gsxrt.W(_gsxw)
+//line render.gsx:21:10
+			_gsxv2 := /*line render.gsx:21:36*/ call
+			_gsxgw.S("<data")
+			if !_gsxv2.Has("value") {
+				_gsxgw.S(" value=\"")
+				_gsxgw.AttrValue(string( /*line render.gsx:21:23*/ v.machine))
+				_gsxgw.S("\"")
+			}
+			_gsxgw.ClassMerged(_gsxrt.DefaultClassMerge, _gsxv2.Class())
+			_gsxgw.StyleMerged("", _gsxv2.Style())
+			_gsxgw.Spread(ctx, "data", _gsxv2, _gsxrt.AttrSinks{}, []string{"class", "style"})
+			_gsxgw.S(">")
+//line render.gsx:21:46
+			_gsxgw.Text(string( /*line render.gsx:21:48*/ text))
 			_gsxgw.S("</data>")
 			return _gsxgw.Err()
-		}) /*line render.gsx:19:61*/
+		}) /*line render.gsx:21:61*/
 	}
 	return _gsxrt.Func(func(ctx _gsxctx.Context, _gsxw _gsxio.Writer) error {
 		_gsxgw := _gsxrt.W(_gsxw)
-//line render.gsx:21:9
-		_gsxv2 := /*line render.gsx:21:17*/ call
+//line render.gsx:23:9
+		_gsxv3 := /*line render.gsx:23:17*/ call
 		_gsxgw.S("<span")
-		_gsxgw.ClassMerged(_gsxrt.DefaultClassMerge, _gsxv2.Class())
-		_gsxgw.StyleMerged("", _gsxv2.Style())
-		_gsxgw.Spread(ctx, "span", _gsxv2, _gsxrt.AttrSinks{}, []string{"class", "style"})
+		_gsxgw.ClassMerged(_gsxrt.DefaultClassMerge, _gsxv3.Class())
+		_gsxgw.StyleMerged("", _gsxv3.Style())
+		_gsxgw.Spread(ctx, "span", _gsxv3, _gsxrt.AttrSinks{}, []string{"class", "style"})
 		_gsxgw.S(">")
-//line render.gsx:21:27
-		_gsxgw.Text(string( /*line render.gsx:21:29*/ text))
+//line render.gsx:23:27
+		_gsxgw.Text(string( /*line render.gsx:23:29*/ text))
 		_gsxgw.S("</span>")
 		return _gsxgw.Err()
-	}) /*line render.gsx:21:42*/
+	}) /*line render.gsx:23:42*/
 }
 
 // Attrs is v's call as js/intl-browser.mjs reads it, for an element that can't hold Render's (an <option>): spread it
@@ -80,7 +95,7 @@ func Render(ctx context.Context, v Value) gsx.Node {
 func (v Value) Attrs() gsx.Attrs {
 	switch v.kind {
 	case "since":
-		return gsx.Attrs{{Key: "data-intl", Value: "since"}}
+		return gsx.Attrs{{Key: "datetime", Value: v.machine}, {Key: "data-intl", Value: "since"}}
 	case "zone":
 		return gsx.Attrs{{Key: "data-intl", Value: "zone"}, {Key: "data-args", Value: "[" + JSON(v.zone) + "]"}}
 	}

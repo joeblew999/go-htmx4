@@ -21,6 +21,7 @@ import (
 	"path/filepath"
 	"slices"
 	"strings"
+	"syscall"
 	"testing"
 	"time"
 
@@ -119,11 +120,15 @@ const config :Workerd.Config = (
 		}
 	}
 	var errs bytes.Buffer
+	reapOrphans()
 	cmd := exec.Command(workerd, "serve", filepath.Join(dir, "config.capnp"))
 	cmd.Stderr = io.MultiWriter(os.Stderr, &errs)
 	if err := cmd.Start(); err != nil {
 		return nil, err
 	}
+	// Who owns this workerd: a test process that dies without stopping it (a panic) leaves it to the next run's
+	// reapOrphans.
+	os.WriteFile(filepath.Join(dir, "owner"), []byte(fmt.Sprintf("%d %d", os.Getpid(), cmd.Process.Pid)), 0o644)
 	exited := make(chan struct{})
 	go func() { cmd.Wait(); close(exited) }()
 	stop = func() {
@@ -151,10 +156,12 @@ const config :Workerd.Config = (
 			return nil, fmt.Errorf("workerd didn't answer on %s", addr)
 		}
 	}
+	// As on a Worker, an Intl that can't answer gives "" (the value's machine form shows); the reason goes to stderr.
 	intl.Runtime = func(method string, args ...string) string {
 		s, err := post(map[string]any{"method": method, "args": args})
 		if err != nil {
-			panic("intltest: " + method + ": " + err.Error())
+			fmt.Fprintln(os.Stderr, "intltest:", method, err)
+			return ""
 		}
 		return s
 	}
@@ -238,6 +245,31 @@ func readCatalogs(c config.Config) ([]byte, error) {
 		return nil, fmt.Errorf("%w: run go tool intl gen", err)
 	}
 	return b, nil
+}
+
+// reapOrphans stops the workerds of earlier test processes that died without stopping them.
+func reapOrphans() {
+	dirs, _ := filepath.Glob(filepath.Join(os.TempDir(), "intltest-*"))
+	for _, d := range dirs {
+		b, err := os.ReadFile(filepath.Join(d, "owner"))
+		if err != nil {
+			continue
+		}
+		var owner, worker int
+		if _, err := fmt.Sscan(string(b), &owner, &worker); err != nil || alive(owner) {
+			continue
+		}
+		if p, err := os.FindProcess(worker); err == nil && alive(worker) {
+			p.Kill()
+		}
+		os.RemoveAll(d)
+	}
+}
+
+// alive reports whether process pid is running.
+func alive(pid int) bool {
+	p, err := os.FindProcess(pid)
+	return err == nil && p.Signal(syscall.Signal(0)) == nil
 }
 
 // Tree formats a message tree as go tool intl gen writes it (js/intl.mjs message) in lang with args.

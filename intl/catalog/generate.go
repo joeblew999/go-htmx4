@@ -76,7 +76,7 @@ func (p *Project) Generate(log io.Writer) error {
 		fmt.Fprintf(&b, "%v, ", l.Complete())
 	}
 	b.WriteString("}) }\n\n")
-	names := map[string]string{}
+	names := map[string]string{"Shipped": "(the shipped locales)"}
 	for i, m := range p.Messages {
 		fn := GoName(m.Key)
 		if prev, dup := names[fn]; dup {
@@ -233,7 +233,7 @@ func paramName(arg string) string {
 	}
 	n = strings.ToLower(n[:1]) + n[1:]
 	switch n {
-	case "type", "func", "range", "map", "var", "default", "select", "case", "go", "string", "len":
+	case "type", "func", "range", "map", "var", "default", "select", "case", "go", "string", "len", "intl":
 		n += "_"
 	}
 	return n
@@ -284,8 +284,9 @@ func pseudoText(s string) string {
 func writeGo(path, src string) error {
 	out, err := format.Source([]byte(src))
 	if err != nil {
-		os.WriteFile(path+".broken", []byte(src), 0o644)
-		return fmt.Errorf("intl gen: %s: %w", path, err)
+		broken := filepath.Join(os.TempDir(), filepath.Base(path)+".broken")
+		os.WriteFile(broken, []byte(src), 0o644)
+		return fmt.Errorf("intl gen: %s: %w (the source is in %s)", path, err, broken)
 	}
 	return writeFile(path, out)
 }

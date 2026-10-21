@@ -36,11 +36,25 @@ function result(x) {
 
 function withPrefs(opts, prefs) {
   const { viewerClock, ...o } = opts;
-  if (!o.timeZone && prefs.timeZone) o.timeZone = prefs.timeZone;
+  if (!o.timeZone && prefs.timeZone && knownZone(prefs.timeZone)) o.timeZone = prefs.timeZone;
   if (prefs.hourCycle && viewerClock !== false && o.hour12 === undefined && !o.hourCycle && (o.hour || o.timeStyle)) {
     o.hourCycle = prefs.hourCycle;
   }
   return o;
+}
+
+// knownZone reports whether this Intl knows time zone id (a cookie can name one that doesn't exist).
+const zones = new Map();
+function knownZone(id) {
+  if (!zones.has(id)) {
+    try {
+      make(Intl.DateTimeFormat, "en", { timeZone: id });
+      zones.set(id, true);
+    } catch {
+      zones.set(id, false);
+    }
+  }
+  return zones.get(id);
 }
 
 // make is new Ctor(lang, opts), kept: building an Intl formatter costs far more than using one (a German
@@ -103,8 +117,8 @@ function messageParts(lang, parts, args, pound, offset) {
       continue;
     }
     switch (p[0]) {
-      case "a":
-        out += args[p[1]] ?? "";
+      case "a": // text: isolated (FSI … PDI), so its own direction can't reorder the words around it
+        out += args[p[1]] ? "\u2068" + args[p[1]] + "\u2069" : "";
         break;
       case "n":
         out += number(lang, args[p[1]] ?? "", p[2] === "integer" ? { maximumFractionDigits: 0 } : {});
@@ -183,7 +197,8 @@ export function parseNumber(lang, text) {
 //   ("{month} {year}"), the day label pattern ("{weekday}, {month} {day}, {year}"), the ten digits ("" for 0-9), and
 //   the first day of the week (1 Monday … 7 Sunday).
 export function calendar(lang) {
-  const fmt = (o) => make(Intl.DateTimeFormat, lang, { timeZone: "UTC", ...o });
+  // A month calendar is Gregorian: a locale whose default calendar is another (fa: Persian) still names Gregorian months.
+  const fmt = (o) => make(Intl.DateTimeFormat, lang, { timeZone: "UTC", calendar: "gregory", ...o });
   const months = [], short = [], weekdays = [], narrow = [];
   // A month's name is its part of the caption itself ("1" in Japanese "2026年1月", whose 月 is the pattern's), so name
   // and pattern always fit together.

@@ -48,7 +48,7 @@ func TestValue(t *testing.T) {
 			t.Errorf("%+v:\n got %s\nwant …%s", tc.v.Call, got, tc.want)
 		}
 	}
-	if got := render(t, de, intl.Since(time.Now().Add(-3*time.Minute))); !strings.Contains(got, `data-intl="since">vor 3 Minuten</time>`) {
+	if got := render(t, de, intl.Since(time.Now().Add(-3*time.Minute))); !strings.Contains(got, `data-intl="since"`) || !strings.HasSuffix(got, `>vor 3 Minuten</time>`) {
 		t.Errorf("Since: %s", got)
 	}
 	ar := intl.NewLocale("ar")

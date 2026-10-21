@@ -66,7 +66,8 @@ func TestInitFresh(t *testing.T) {
 	if s := read(t, root, ".gitignore"); !strings.Contains(s, "\nintl_gen.go\nintl-messages.mjs\n") {
 		t.Errorf(".gitignore:\n%s", s)
 	}
-	if s := read(t, root, "mise.toml"); !strings.Contains(s, "[tools]\n") || !strings.Contains(s, `workerd = "`+intltest.Workerd+`"`) {
+	if s := read(t, root, "mise.toml"); !strings.Contains(s, "[tools]\n") || !strings.Contains(s, `workerd = "`+intltest.Workerd+`"`) ||
+		!strings.Contains(s, `idiomatic_version_file_enable_tools = ["go"]`) {
 		t.Errorf("mise.toml:\n%s", s)
 	}
 }
@@ -80,7 +81,7 @@ func TestWorkerdPins(t *testing.T) {
 
 // TestInitExisting: an app's own gsx.toml keeps everything it has; intl's lines go where TOML needs them.
 func TestInitExisting(t *testing.T) {
-	gsx := "class_merger = \"example.com/shop/twcfg.Merge\"\nfilter_packages = [\"example.com/shop/filters\"]\n\n[renderers]\n\"example.com/shop/db.Text\" = \"example.com/shop/db.TextOf\"\n\n[dev]\nno_web = true\n"
+	gsx := "class_merger = \"example.com/shop/twcfg.Merge\"\nfilter_packages = [\"example.com/shop/filters\"]\n\n[renderers] # the app's own\r\n\"example.com/shop/db.Text\" = \"example.com/shop/db.TextOf\"\n\n[dev]\nno_web = true\n"
 	root := app(t, map[string]string{"gsx.toml": gsx, ".gitignore": "/build/\nintl_gen.go", "mise.toml": "[tools]\ngo = \"1.27.3\"\n\n[env]\nX = \"1\"\n"})
 	o := setup.Options{Locales: []string{"en"}, Catalogs: "msg"}
 	for range 2 { // and again: nothing changes

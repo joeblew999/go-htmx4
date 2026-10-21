@@ -119,6 +119,11 @@ func (p *Project) ImportXLIFF(data []byte) (l *Locale, changed, confirmed int, e
 			continue
 		}
 		text := *u.Segment.Target
+		if u.Segment.Source != m.Text {
+			// Translated from older source text: taking it as current would hide that it is stale.
+			problems = append(problems, u.ID+": translated from an older source text (export again)")
+			continue
+		}
 		if err := m.check(text); err != nil {
 			problems = append(problems, u.ID+": "+err.Error())
 			continue

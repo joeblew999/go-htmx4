@@ -12,10 +12,12 @@ import (
 // else <span>. Since and Zone are data-intl "since" and "zone".
 func Render(ctx context.Context, v Value) gsx.Node {
 	text, call := v.text(ctx), v.Attrs()
-	switch v.tag {
-	case "time":
+	switch {
+	case v.kind == "since": // its call carries its datetime
+		return <time { call... }>{ text }</time>
+	case v.tag == "time":
 		return <time datetime={v.machine} { call... }>{ text }</time>
-	case "data":
+	case v.tag == "data":
 		return <data value={v.machine} { call... }>{ text }</data>
 	}
 	return <span { call... }>{ text }</span>
@@ -26,7 +28,7 @@ func Render(ctx context.Context, v Value) gsx.Node {
 func (v Value) Attrs() gsx.Attrs {
 	switch v.kind {
 	case "since":
-		return gsx.Attrs{{Key: "data-intl", Value: "since"}}
+		return gsx.Attrs{{Key: "datetime", Value: v.machine}, {Key: "data-intl", Value: "since"}}
 	case "zone":
 		return gsx.Attrs{{Key: "data-intl", Value: "zone"}, {Key: "data-args", Value: "[" + JSON(v.zone) + "]"}}
 	}

@@ -36,8 +36,8 @@ type NumberArg interface {
 	~int | ~int8 | ~int16 | ~int32 | ~int64 | ~uint | ~uint8 | ~uint16 | ~uint32 | ~uint64 | ~float32 | ~float64
 }
 
-// Str is a text argument. Where its direction differs from the page's (an Arabic name in an English sentence) it is
-// wrapped in Unicode isolates, so it can't reorder the words around it.
+// Str is a text argument. js/intl.mjs wraps it in a first-strong isolate (FSI … PDI) where it lands in the message, so
+// an Arabic name can't reorder the English words around it; select matches the value itself.
 func Str[T TextArg](v T) Arg {
 	switch x := any(v).(type) {
 	case Msg:
@@ -94,9 +94,6 @@ func Translate(ctx context.Context, m Msg) string {
 		if a.text != nil {
 			args[i] = a.text.text(ctx)
 		}
-		if !a.num {
-			args[i] = isolate(loc.Dir(), args[i])
-		}
 	}
 	return loc.Message(catalog, m.index, args...)
 }
@@ -128,27 +125,4 @@ func (l *Locale) Message(catalog string, index int, args ...string) string {
 type messageKey struct {
 	catalog string
 	index   int
-}
-
-// isolate wraps s in FSI … PDI unless its first strongly directional character matches the page's direction (dir
-// "ltr" or "rtl").
-func isolate(dir, s string) string {
-	strong, rtl := firstStrong(s)
-	if strong && rtl == (dir == "rtl") {
-		return s
-	}
-	return "\u2068" + s + "\u2069"
-}
-
-// firstStrong reports the direction of s's first strongly directional character.
-func firstStrong(s string) (found, rtl bool) {
-	for _, r := range s {
-		switch {
-		case r >= 0x0590 && r <= 0x08FF, r >= 0xFB1D && r <= 0xFDFF, r >= 0xFE70 && r <= 0xFEFF, r >= 0x10800 && r <= 0x10FFF, r >= 0x1E800 && r <= 0x1EFFF:
-			return true, true
-		case r >= 'A' && r <= 'Z', r >= 'a' && r <= 'z', r >= 0x00C0 && r <= 0x058F, r >= 0x0900 && r <= 0x1FFF, r >= 0x3040 && r <= 0x9FFF, r >= 0xAC00 && r <= 0xD7AF:
-			return true, false
-		}
-	}
-	return false, false
 }

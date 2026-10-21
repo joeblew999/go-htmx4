@@ -14,8 +14,9 @@
 //	go tool intl add <locale>…             add a language: intl.toml and its catalog
 //	go tool intl confirm [<locale>[:<key>]…] keep stale translations that are still right (all of them by default)
 //	go tool intl export [-all] [-o dir] [locale…]   XLIFF 2.0 for translators: what is left (or everything), into
-//	                                       intl.toml's xliff directory (xliff/)
-//	go tool intl import [file.xlf…]        read translators' XLIFF back into the catalogs (all of xliff/ by default)
+//	                                       xliff/out (intl.toml's xliff)
+//	go tool intl import [file.xlf…]        read translators' XLIFF back into the catalogs (all of xliff/in by default)
+//	go tool intl prune                     remove from the catalogs the keys the source no longer has
 //	go tool intl skill                     install the intl-translate agent skill into .claude/skills
 //	go tool intl tasks [-o file]           write intl's mise tasks into the app (.mise/tasks/intl.toml)
 //	go tool intl assets -worker dir -browser dir    the JavaScript a Worker and a page import
@@ -34,6 +35,7 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 
 	"github.com/joeblew999/go-htmx4/intl"
@@ -66,7 +68,7 @@ func main() {
 		ok := true
 		for _, l := range p.Locales {
 			fmt.Println(l.Summary(len(p.Messages)))
-			ok = ok && l.Complete()
+			ok = ok && l.Current() && len(l.Obsolete) == 0
 		}
 		if !ok {
 			fmt.Println("go tool intl todo lists what is left")
@@ -84,6 +86,20 @@ func main() {
 		os.Exit(checkAll(c))
 	case "translate":
 		os.Exit(translate(c, args))
+	case "prune":
+		p := read(c)
+		n := 0
+		for _, l := range p.Locales[1:] {
+			if len(l.Obsolete) > 0 {
+				check(catalog.RemoveMessages(l.File, l.Obsolete))
+				fmt.Printf("%s: removed %s\n", l.File, strings.Join(l.Obsolete, ", "))
+				n += len(l.Obsolete)
+			}
+		}
+		if n == 0 {
+			fmt.Println("nothing to prune")
+		}
+		check(read(c).Generate(os.Stderr))
 	case "add":
 		if len(args) == 0 {
 			usage()
@@ -142,7 +158,7 @@ func main() {
 	case "export":
 		f := flag.NewFlagSet("export", flag.ExitOnError)
 		all := f.Bool("all", false, "every message, not only what is left to translate")
-		out := f.String("o", c.XLIFFDir(), "directory for <locale>.xlf")
+		out := f.String("o", filepath.Join(c.XLIFFDir(), "out"), "directory for <locale>.xlf")
 		f.Parse(args)
 		p := read(c)
 		stop := startIntl()
@@ -159,11 +175,12 @@ func main() {
 			fmt.Printf("%s: %d messages\n", path, n)
 		}
 	case "import":
-		if len(args) == 0 { // everything export wrote
-			files, err := filepath.Glob(filepath.Join(c.XLIFFDir(), "*.xlf"))
+		if len(args) == 0 { // every file translators sent back
+			in := filepath.Join(c.XLIFFDir(), "in")
+			files, err := filepath.Glob(filepath.Join(in, "*.xlf"))
 			check(err)
 			if len(files) == 0 {
-				fail(fmt.Errorf("intl: no .xlf files in %s", c.XLIFFDir()))
+				fail(fmt.Errorf("intl: no .xlf files in %s: put translators' files there", in))
 			}
 			args = files
 		}
@@ -386,27 +403,34 @@ func todo(c config.Config, p *catalog.Project, asJSON bool, ids []string) {
 	}
 }
 
-// checkLocales checks only the named locales' own catalogs: syntax, arguments, completeness and plural categories. It
-// writes nothing, so a translator working on one language runs it while others work on theirs.
+// checkLocales checks only the named locales' own catalogs (and what they inherit from): syntax, arguments,
+// completeness, staleness and plural categories. It reads and writes nothing else, so a translator working on one
+// language runs it while others work on theirs.
 func checkLocales(c config.Config, ids []string) int {
-	p, err := catalog.Read(c)
+	keep := []string{c.Locales[0]}
+	for _, id := range ids {
+		for from := id; from != "" && !slices.Contains(keep, from); from = c.Inherit[from] {
+			if i := slices.IndexFunc(c.Locales, func(l string) bool { return strings.EqualFold(l, from) }); i >= 0 {
+				keep = append(keep, c.Locales[i])
+			}
+		}
+	}
+	scoped := c
+	scoped.Locales = keep
+	p, err := catalog.Read(scoped)
 	if err != nil {
 		fmt.Println(err)
 		return 1
 	}
-	var problems []string
-	for _, l := range pick(p, ids) {
-		if !l.Complete() {
-			problems = append(problems, l.Summary(len(p.Messages))+": go tool intl todo "+l.ID)
-		}
-	}
+	locs := pick(p, ids)
+	problems := localeProblems(p, locs)
 	stop := startIntl()
 	pl, err := intltest.PluralProblems(p)
 	stop()
 	check(err)
 	for _, s := range pl {
-		for _, id := range ids {
-			if strings.Contains(s, string(filepath.Separator)+id+".toml ") {
+		for _, l := range locs {
+			if strings.HasPrefix(s, l.File+" ") {
 				problems = append(problems, s)
 			}
 		}
@@ -417,8 +441,26 @@ func checkLocales(c config.Config, ids []string) int {
 	if len(problems) > 0 {
 		return 1
 	}
-	fmt.Println("✓", strings.Join(ids, ", "))
+	var names []string
+	for _, l := range locs {
+		names = append(names, l.ID)
+	}
+	fmt.Println("✓", strings.Join(names, ", "))
 	return 0
+}
+
+// localeProblems are what is left in locs: missing and stale translations, and keys the source no longer has.
+func localeProblems(p *catalog.Project, locs []*catalog.Locale) []string {
+	var out []string
+	for _, l := range locs {
+		if n := l.Count(catalog.Missing) + l.Count(catalog.Stale); n > 0 {
+			out = append(out, l.Summary(len(p.Messages))+": go tool intl translate "+l.ID+" (or todo)")
+		}
+		if len(l.Obsolete) > 0 {
+			out = append(out, fmt.Sprintf("%s has %s, which the source no longer does: go tool intl prune", l.File, strings.Join(l.Obsolete, ", ")))
+		}
+	}
+	return out
 }
 
 // checkAll prints every problem and returns the exit status.
@@ -430,11 +472,7 @@ func checkAll(c config.Config) int {
 	}
 	var problems []string
 	add := func(s ...string) { problems = append(problems, s...) }
-	for _, l := range p.Locales {
-		if !l.Complete() {
-			add(l.Summary(len(p.Messages)) + ": go tool intl todo " + l.ID)
-		}
-	}
+	add(localeProblems(p, p.Locales)...)
 	if !p.SumCurrent() {
 		add(p.SumFile() + " is not up to date: go tool intl gen, and commit it")
 	}
@@ -460,6 +498,18 @@ func checkAll(c config.Config) int {
 	pl, err := intltest.PluralProblems(p)
 	check(err)
 	add(pl...)
+	for child, from := range c.Inherit { // inheriting text only makes sense in the same script
+		script := func(id string) string {
+			s, _ := intl.NewLocale(id).Intl(intl.Call{API: "Locale", Method: "maximize"}, "", "")
+			if parts := strings.Split(s, "-"); len(parts) > 1 {
+				return parts[1]
+			}
+			return ""
+		}
+		if a, b := script(child), script(from); a != b {
+			add(fmt.Sprintf("%s: [inherit] %s = %q, but Intl writes %s in %s and %s in %s: give it its own translations", config.File, child, from, child, a, from, b))
+		}
+	}
 	for _, id := range c.Locales { // as Intl writes it: fr-CA, zh-Hant
 		canon, ok := intl.NewLocale("en").Intl(intl.Call{API: "Intl", Method: "getCanonicalLocales", Args: []string{intl.JSON(id)}}, "", "")
 		if want := `["` + id + `"]`; !ok || canon != want {
@@ -535,7 +585,7 @@ func fail(err error) {
 }
 
 func usage() {
-	fmt.Fprintln(os.Stderr, "usage: go tool intl init [-locales en,de] [-catalogs dir] [-gsxui dir] | gen | status | todo [-json] [locale…] | check [locale…] | translate [locale…] | add <locale>… | confirm [<locale>[:<key>]…] |\n"+
+	fmt.Fprintln(os.Stderr, "usage: go tool intl init [-locales en,de] [-catalogs dir] [-gsxui dir] | gen | status | todo [-json] [locale…] | check [locale…] | translate [locale…] | prune | add <locale>… | confirm [<locale>[:<key>]…] |\n"+
 		"       export [-all] [-o dir] [locale…] | import [file.xlf…] | skill | tasks [-o file] | assets [-worker dir] [-browser dir] |\n"+
 		"       locales | catalogs | markup")
 	os.Exit(2)

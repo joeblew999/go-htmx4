@@ -107,20 +107,20 @@ func miseTools(path string, log io.Writer) error {
 		return err
 	}
 	s := string(b)
-	if workerdTool.MatchString(s) {
+	before := s
+	if !workerdTool.MatchString(s) {
+		line := "# workerd: the Workers runtime; go test and go tool intl run Intl on it (intl/README.md).\nworkerd = \"" + intltest.Workerd + "\"\n"
+		s = addToTable(s, "tools", line)
+		fmt.Fprintln(log, "updated mise.toml: workerd", intltest.Workerd)
+	}
+	// Go itself from go.mod's toolchain line (mise: idiomatic version files).
+	if !strings.Contains(s, "idiomatic_version_file_enable_tools") {
+		s = addToTable(s, "settings", "# Go comes from go.mod's toolchain line.\nidiomatic_version_file_enable_tools = [\"go\"]\n")
+		fmt.Fprintln(log, "updated mise.toml: Go from go.mod")
+	}
+	if s == before {
 		return nil
 	}
-	line := "# workerd: the Workers runtime; go test and go tool intl run Intl on it (intl/README.md).\nworkerd = \"" + intltest.Workerd + "\"\n"
-	if i := strings.Index(s, "[tools]\n"); i == 0 || i > 0 && s[i-1] == '\n' {
-		at := i + len("[tools]\n")
-		s = s[:at] + line + s[at:]
-	} else {
-		if s != "" && !strings.HasSuffix(s, "\n\n") {
-			s = strings.TrimRight(s, "\n") + "\n\n"
-		}
-		s += "[tools]\n" + line
-	}
-	fmt.Fprintln(log, "updated mise.toml: workerd", intltest.Workerd)
 	return os.WriteFile(path, []byte(s), 0o644)
 }
 
@@ -128,6 +128,15 @@ var (
 	filterLine = regexp.MustCompile(`(?m)^filter_packages\s*=\s*\[`)
 	tableLine  = regexp.MustCompile(`(?m)^\[`)
 )
+
+// header finds a TOML table's header line (a comment or \r after it allowed); the index is just past it.
+func header(s, table string) int {
+	loc := regexp.MustCompile(`(?m)^\[` + regexp.QuoteMeta(table) + `\][ \t]*(#[^\n]*)?\r?\n`).FindStringIndex(s)
+	if loc == nil {
+		return -1
+	}
+	return loc[1]
+}
 
 // gsxToml registers intl's filter package and renderers in gsx.toml (gsx Configuration guide), creating it if need be.
 func gsxToml(path string, renderers [][2]string, log io.Writer) error {
@@ -155,8 +164,7 @@ func gsxToml(path string, renderers [][2]string, log io.Writer) error {
 	}
 	if len(add) > 0 {
 		block := strings.Join(add, "\n") + "\n"
-		if i := strings.Index(s, "\n[renderers]\n"); i >= 0 || strings.HasPrefix(s, "[renderers]\n") {
-			at := strings.Index(s, "[renderers]\n") + len("[renderers]\n")
+		if at := header(s, "renderers"); at >= 0 {
 			s = s[:at] + block + s[at:]
 		} else {
 			if s != "" && !strings.HasSuffix(s, "\n\n") {
@@ -170,6 +178,17 @@ func gsxToml(path string, renderers [][2]string, log io.Writer) error {
 	}
 	fmt.Fprintln(log, "updated gsx.toml: intl's filters and renderers")
 	return os.WriteFile(path, []byte(s), 0o644)
+}
+
+// addToTable puts lines at the start of TOML table name, adding the table at the end if there is none.
+func addToTable(s, name, lines string) string {
+	if at := header(s, name); at >= 0 {
+		return s[:at] + lines + s[at:]
+	}
+	if s != "" && !strings.HasSuffix(s, "\n\n") {
+		s = strings.TrimRight(s, "\n") + "\n\n"
+	}
+	return s + "[" + name + "]\n" + lines
 }
 
 // gitignore keeps go tool intl gen's output out of git (intl.sum stays in).

@@ -8,6 +8,10 @@ catalogs = "locales"
 # (i18n.T, "Close") to ui/i18n/intl_gen.go from the catalogs' [gsxui] messages, and names any it has no message for.
 gsxui = "ui"
 
+# A regional locale takes what it doesn't translate from another (same script: go tool intl check confirms it).
+[inherit]
+en-IN = "en"
+
 # Guidance for whoever translates, people or Claude (go tool intl todo shows it with each locale's work; "*" is for all).
 [notes]
 "*" = "A demo site for developers. Keep product and technical names in English as the source writes them: gsx, gsxui, htmx, hx-live, hx-ws, Go, TinyGo, Cloudflare Workers, Durable Objects, D1, Intl, Node. Short UI labels stay short."

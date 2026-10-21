@@ -44,8 +44,9 @@ mise run intl:translate      # Claude Code translates everything missing or stal
 mise run intl:check          # everything, for CI: catalogs, plurals, unused messages, gsx's own checks
 mise run intl:todo           # what is left to translate, for a person (--json for an agent)
 mise run intl:confirm        # the source changed but not its meaning (a typo fixed): keep the stale translations
-mise run intl:export         # xliff/<locale>.xlf for human translators: what is left (--all: everything)
-mise run intl:import         # their work back, from xliff/
+mise run intl:export         # xliff/out/<locale>.xlf for human translators: what is left (--all: everything)
+mise run intl:import         # their work back, from xliff/in
+mise run intl:prune          # remove keys the source no longer has from every catalog
 mise run intl:tasks          # after upgrading intl: these tasks again
 mise run intl:skill          # after upgrading intl: Claude's translation skill again
 
@@ -70,13 +71,15 @@ code:
   [package renderer](https://github.com/gsxhq/gsx/blob/main/docs/guide/patterns/package-renderers.md) written in gsx
   renders (`render.gsx`).
 - **gsxui:** its components' own text (`i18n.T`, the English as the id) is generated from the catalogs.
-- **gsx's own checks:** markup written this way passes the `gsx` skill's `find-smells.sh`. `gsx info` lists intl's
-  filters and renderers.
+- **gsx's own checks:** `intl:check` runs `gsx generate`, `gsx fmt` and the `gsx` skill's `find-smells.sh` on the
+  app's markup. The smell finder can't tell one shape from a component call, a message with arguments alone on a line
+  (`{ locales.Notes(n) }`), and `intl:check` lets that one through. `gsx info` lists intl's filters and renderers.
 
 ## Set up an app
 
-[mise](https://mise.jdx.dev) brings every tool: Go (from `go.mod`'s `toolchain`), gsx (a `go tool`), and
-[workerd](https://github.com/cloudflare/workerd), whose Intl the tooling and the tests run on.
+[mise](https://mise.jdx.dev) brings every tool: Go (from `go.mod`'s `toolchain`, which `init` tells mise to use),
+gsx (a `go tool`), and [workerd](https://github.com/cloudflare/workerd), whose Intl the tooling and the tests run on.
+Translating with Claude also needs [Claude Code](https://code.claude.com) (`claude`) installed.
 
 1. Add intl's command and set the app up, from the directory of its `go.mod`:
 
@@ -194,21 +197,25 @@ say:
 |---|---|
 | You added or changed messages in the source catalog | `mise run intl`, then `mise run intl:translate` (Claude Code) or translate what `mise run intl:todo` lists |
 | A translation's source changed | it is **stale**: `intl:todo` shows the old translation beside the new source. Update it, or keep it: `mise run intl:confirm de:order.items` |
-| You add a language | add its id to `intl.toml`'s `locales`, then `mise run intl:translate` (fr-CA inherits from fr what it doesn't translate) |
+| You add a language | add its id to `intl.toml`'s `locales`, then `mise run intl:translate`. A regional one can take what it doesn't translate from another: `[inherit] fr-CA = "fr"` |
+| You delete or rename a source message | `intl:check` names the keys left in the translations; `mise run intl:prune` removes them |
 | `gsxui add pagination` | `mise run intl` names each new text with the line to add under `[gsxui]`; add them, then translate |
-| A person translates | `mise run intl:export` writes XLIFF 2.0 per locale into `xliff/` for their tool; `mise run intl:import` reads it back, checking each target |
+| A person translates | `mise run intl:export` writes XLIFF 2.0 per locale into `xliff/out` for their tool; put what comes back in `xliff/in`, and `mise run intl:import` reads it, checking each target (one translated from older English is refused) |
 | CI | `mise run intl:check` |
 | Leftover English in the UI | `intl.Pseudo = true` renders the `en-XA` catalog: accented, bracketed (`⟦Ĥéļļó⟧`), 40% longer |
 
-`intl:translate` runs Claude Code headless with the `intl-translate` skill. It reads `intl:todo -json`: each
-message's source, context and arguments, the locale's plural categories from Intl, and the notes from `intl.toml`.
-It writes the catalogs and repeats until `intl:check` passes. The skill is in `skills/` and works the same in an
+`intl:translate` runs Claude Code headless with the `intl-translate` skill, one worker per language at once
+(`intl.toml`'s `[translate] workers`, default 6, on `[translate] model`). A worker reads `intl:todo -json` for its
+language (each message's source, context and arguments, the plural categories from Intl, the notes from
+`intl.toml`). It may edit only that language's catalog, and it checks its work with `go tool intl check <locale>`
+until that passes. Then `gen` and the full `intl:check` run once. The skill is in `skills/` and works the same in an
 interactive session ("translate the new messages").
 
 `intl:check` fails on any of these:
 - an ICU syntax error, or an argument or argument kind the source doesn't have;
 - a plural or selectordinal without a case for a category the language uses (Russian: one, few, many, other);
-- a missing or stale translation;
+- a missing or stale translation, or a key the source no longer has;
+- an `[inherit]` between locales Intl writes in different scripts;
 - a message no Go or gsx file uses;
 - gsxui text without a message;
 - an `intl.sum` that is out of date.
@@ -216,12 +223,13 @@ interactive session ("translate the new messages").
 ### The catalogs
 
 - One `<locale>.toml` per shipped locale, with the source's tables and keys, in ICU MessageFormat 1 (`plural`,
-  `selectordinal`, `select`, `{n, number}`). A key a translation lacks comes from the nearest shipped locale its id
-  shortens to (`en-IN` ← `en`). Otherwise it is missing, and the source text shows.
+  `selectordinal`, `select`, `{n, number}`). A key a translation lacks comes from the locale `[inherit]` names
+  (`en-IN = "en"`). Otherwise it is missing, and the source text shows.
 - `intl.sum` records, for every translation, the source text it was translated from (as hashes). That's how a
   changed source shows up as stale. `intl:gen` writes it; editing a translation updates it.
-- A locale is complete when nothing is missing or stale: `intl.Complete(id)`, for example to serve an incomplete
-  locale `noindex`.
+- A locale is complete when nothing is missing: `intl.Complete(id)`, so `intl.Site` serves an incomplete one
+  `noindex`. Stale translations don't make it incomplete (they still say the right thing in the language); `intl:check`
+  fails on them until they are updated or confirmed.
 
 ## Tasks
 
@@ -233,7 +241,8 @@ interactive session ("translate the new messages").
 | `intl:translate [locale…]` | translate it with Claude Code |
 | `intl:check` | every problem, for CI |
 | `intl:confirm [locale[:key]…]` | keep stale translations that are still right (all by default) |
-| `intl:export [--all] [locale…]`, `intl:import [file…]` | XLIFF 2.0 for human translators, in `xliff/` |
+| `intl:export [--all] [locale…]`, `intl:import [file…]` | XLIFF 2.0 for human translators: out to `xliff/out`, back from `xliff/in` |
+| `intl:prune` | remove keys the source no longer has |
 | `intl:skill` | install or update the agent skill |
 | `intl:tasks` | write these tasks again, after upgrading intl |
 

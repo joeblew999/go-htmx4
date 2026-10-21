@@ -348,7 +348,7 @@ func TestTimeZonePreferences(t *testing.T) {
 	has("server-info", page("/fragments/server-info", ""), `data-intl="DateTimeFormat" data-opts="{&#34;dateStyle&#34;:&#34;full&#34;,&#34;timeStyle&#34;:&#34;long&#34;}"`, `data-intl="DurationFormat"`)
 
 	form := page("/de/fragments/preferences", "Asia/Tokyo", &http.Cookie{Name: "tz", Value: "Europe/Berlin"}, &http.Cookie{Name: "hc", Value: "h12"})
-	has("preferences form", form, `action="/de/preferences"`, `data-intl-zones`, `<option value="Europe/Berlin" selected`, "Automatisch (Asia/Tokyo)", "data-template=\"Automatisch (\u2068\ue000\u2069)\"", `<option value="h12" selected`)
+	has("preferences form", form, `action="/de/preferences"`, `data-intl-zones`, `<option value="Europe/Berlin" selected`, "Automatisch (\u2068Asia/Tokyo\u2069)", "data-template=\"Automatisch (\u2068\ue000\u2069)\"", `<option value="h12" selected`)
 
 	post := func(body string) *httptest.ResponseRecorder {
 		req := httptest.NewRequest("POST", "/de/preferences", strings.NewReader(body))

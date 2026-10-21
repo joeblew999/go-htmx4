@@ -10,6 +10,7 @@ import (
 	"os"
 	"path/filepath"
 	"slices"
+	"strconv"
 	"strings"
 )
 
@@ -60,10 +61,15 @@ func readSum(path string) (sum, error) {
 			continue
 		}
 		fields := strings.Fields(line)
-		if len(fields) != 4 {
+		if len(fields) < 4 {
 			return nil, fmt.Errorf("intl: %s:%d: want <locale> <key> <source hash> <translation hash>", path, n)
 		}
-		s.set(fields[0], fields[1], sumEntry{source: fields[2], translation: fields[3]})
+		// A key with spaces is quoted: the hashes are the last two fields.
+		key := strings.Join(fields[1:len(fields)-2], " ")
+		if k, err := strconv.Unquote(key); err == nil {
+			key = k
+		}
+		s.set(fields[0], key, sumEntry{source: fields[len(fields)-2], translation: fields[len(fields)-1]})
 	}
 	return s, sc.Err()
 }
@@ -80,7 +86,11 @@ func (p *Project) sumBytes() []byte {
 		slices.Sort(keys)
 		for _, k := range keys {
 			e := p.sum[l.ID][k]
-			fmt.Fprintf(&b, "%s %s %s %s\n", l.ID, k, e.source, e.translation)
+			key := k
+			if strings.ContainsAny(k, " \t\"") {
+				key = strconv.Quote(k)
+			}
+			fmt.Fprintf(&b, "%s %s %s %s\n", l.ID, key, e.source, e.translation)
 		}
 	}
 	return b.Bytes()
