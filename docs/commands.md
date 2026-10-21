@@ -115,8 +115,6 @@ Compile the catalogs (intl.toml): the Go package of messages, intl-messages.mjs,
 
 ### `intl:check`
 
-- Depends: intl
-
 - **Usage:** `intl:check`
 
 Every problem, for CI: the catalogs (ICU syntax, arguments, a case for each plural category Intl says a language uses, missing and stale translations, unused messages, gsxui text, intl.sum), then gsx's own checks on the app's markup (gsx generate, gsx fmt, the gsx skill's find-smells.sh); exits 1 on any
@@ -133,7 +131,7 @@ Keep stale translations as they are: the source changed, their meaning didn't (a
 
 ### `intl:export`
 
-XLIFF 2.0 per locale into xliff/ (intl.toml's xliff), for human translators and translation-management systems: what is left to translate (--all: every message)
+XLIFF 2.0 per locale into xliff/out (intl.toml's xliff), for human translators and translation-management systems: what is left to translate (--all: every message)
 
 
 - **Usage:** `intl:export [--all] [locale]…`
@@ -146,13 +144,19 @@ XLIFF 2.0 per locale into xliff/ (intl.toml's xliff), for human translators and 
 
 ### `intl:import`
 
-Read translators' XLIFF 2.0 back into the catalogs, each target checked against its source: every file in xliff/, or the ones named; then compile
+Read translators' XLIFF 2.0 back into the catalogs, each target checked against its source: every file in xliff/in, or the ones named; then compile
 
 
 - **Usage:** `intl:import [file]…`
 
 ### Arguments
 - **`[file]…`** — &lt;locale>.xlf files (default: all of xliff/)
+
+### `intl:prune`
+
+- **Usage:** `intl:prune`
+
+Remove from every catalog the keys the source no longer has (intl:check names them)
 
 ### `intl:skill`
 
