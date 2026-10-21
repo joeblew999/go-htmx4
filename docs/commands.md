@@ -71,7 +71,7 @@ Set up Workers Builds for $APP_REPO: every branch deploys (previews; production 
 
 - **Usage:** `deploy`
 
-Test, then deploy production → https://$APP_DOMAIN (or $APP_NAME.&lt;subdomain>.workers.dev), then search:audit live
+Test, then deploy production → https://$APP_DOMAIN (or $APP_NAME.&lt;subdomain>.workers.dev), then seo:audit live
 
 ### `dev`
 
@@ -235,80 +235,94 @@ Release main to production (e.g. v1.3): CI tests it, tags it, Workers Builds dep
 
 Make this template yours: mise run rename -- &lt;module path> &lt;app name>  (e.g. github.com/you/board board)
 
-### `search:audit`
+### `seo:audit`
 
-Fetch robots.txt and every sitemap URL live as Googlebot: 200, indexable, self-canonical, lang, title, description, one h1, reciprocal hreflang
+Fetch robots.txt and every sitemap URL live as Googlebot: 200, indexable, self-canonical, lang, title, description, one h1, reciprocal hreflang (no Google account needed)
 
 
-- **Usage:** `search:audit [--json]`
+- **Usage:** `seo:audit [--json]`
 
 ### Flags
-- **`--json`** — JSON on stdout
+- **`--json`** — one JSON document on stdout
 
-### `search:inspect`
+### `seo:inspect`
 
-One URL: Google's verdict, last crawl and canonical; opens its Search Console page (Test live URL, Request indexing)
+One URL (the home page unless named): Google's verdict, last crawl and canonical, and the link to its Search Console page
 
 
-- Depends: search:access
+- Depends: seo:access
 
-- **Usage:** `search:inspect [--json] [--no-open] <page>`
+- **Usage:** `seo:inspect [--json] [--open] [page]`
 
 ### Arguments
-- **`<page>`** — a path like /de/ or a full URL
+- **`[page]`** — a path like /de/ or a full URL
+
+  **Default:** `/`
 
 ### Flags
-- **`--json`** — JSON on stdout (never opens a browser)
-- **`--no-open`** — print Google's link instead of opening it
+- **`--json`** — one JSON document on stdout
+- **`--open`** — open its Search Console page (Test live URL, Request indexing)
 
-### `search:setup`
+### `seo:setup`
 
-- **Usage:** `search:setup`
+- **Usage:** `seo:setup`
 
-One-time: Google Cloud project, Search Console API, service account, key into fnox (needs gcloud auth login)
+Once: a service account for the Search Console API and its key in fnox (needs gcloud auth login if there is no key yet)
 
-### `search:sites`
+### `seo:sites`
 
-List the Search Console properties the service account can use; fails without Full access
-
-
-- **Usage:** `search:sites [--json]`
-
-### Flags
-- **`--json`** — JSON on stdout
-
-### `search:status`
-
-Search Console: sitemap status and Google's index status for every URL in the sitemap
+The Search Console properties the service account can use; fails without Full access
 
 
-- Depends: search:access
-
-- **Usage:** `search:status [--json]`
+- **Usage:** `seo:sites [--json]`
 
 ### Flags
-- **`--json`** — JSON on stdout
+- **`--json`** — one JSON document on stdout
 
-### `search:submit`
+### `seo:skill`
 
-- Depends: search:access, search:audit
+- **Usage:** `seo:skill`
 
-- **Usage:** `search:submit`
+Install or update the seo agent skill (.claude/skills/seo), which Claude Code uses to check and fix how Google sees the site
 
-Submit https://$APP_DOMAIN/sitemap.xml to Search Console (after access and a passing live audit)
+### `seo:status`
 
-### `search:todo`
-
-Google's verdict for every sitemap URL (indexed, waiting, duplicate, problem); fails and opens Search Console only for problems
+The sitemap's status in Search Console and Google's index status for every URL in it
 
 
-- Depends: search:access
+- Depends: seo:access
 
-- **Usage:** `search:todo [--json] [--no-open]`
+- **Usage:** `seo:status [--json]`
 
 ### Flags
-- **`--json`** — JSON on stdout (never opens a browser)
-- **`--no-open`** — print problem links instead of opening them
+- **`--json`** — one JSON document on stdout
+
+### `seo:submit`
+
+- Depends: seo:access, seo:audit
+
+- **Usage:** `seo:submit`
+
+Submit https://$APP_DOMAIN/sitemap.xml to Search Console, after access and a passing live audit
+
+### `seo:tasks`
+
+- **Usage:** `seo:tasks`
+
+Write this file again from the seo version in go.mod: run it after upgrading seo
+
+### `seo:todo`
+
+Google's verdict for every sitemap URL (indexed, waiting, duplicate, problem); fails on problems
+
+
+- Depends: seo:access
+
+- **Usage:** `seo:todo [--json] [--open]`
+
+### Flags
+- **`--json`** — one JSON document on stdout
+- **`--open`** — open Google's page for each problem (Test live URL, Request indexing)
 
 ### `serve`
 

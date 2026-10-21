@@ -9,6 +9,7 @@ require (
 	github.com/jackielii/tailwind-merge-go v0.0.0-20260726184505-8a911ed0cf9a
 	github.com/joeblew999/charter/go/lib v0.9.2-0.20261021035509-8ca48a3e384b
 	github.com/joeblew999/go-htmx4/intl v0.0.0
+	github.com/joeblew999/go-htmx4/seo v0.0.0
 	github.com/syumai/workers-go v0.36.0
 	golang.org/x/net v0.61.0
 )
@@ -30,12 +31,14 @@ require (
 
 tool (
 	github.com/gsxhq/gsx/cmd/gsx
-	github.com/joeblew999/charter/go/lib/cmd/searchconsole
 	github.com/joeblew999/charter/go/lib/cmd/workerbench
 	github.com/joeblew999/charter/go/lib/cmd/workerbuild
 	github.com/joeblew999/charter/go/lib/cmd/workerdeploy
 	github.com/joeblew999/charter/go/lib/cmd/workertail
 	github.com/joeblew999/go-htmx4/intl/cmd/intl
+	github.com/joeblew999/go-htmx4/seo/cmd/seo
 )
 
 replace github.com/joeblew999/go-htmx4/intl => ./intl
+
+replace github.com/joeblew999/go-htmx4/seo => ./seo

@@ -50,6 +50,7 @@ Every branch gets its own preview, `main` deploys staging, and a release deploys
 | `web/htmx/` | htmx 4, hx-ws and hx-live, vendored by `mise run vendor` |
 | `locales/` | the messages: one catalog per language (`en.toml` is the source) and `intl.sum` |
 | `intl/`, `intl.toml` | Intl for gsx apps, its own Go module ([intl/README.md](intl/README.md)); this app's languages |
+| `seo/` | how Google sees the live site: the audit after each deploy and Google Search Console, its own Go module ([seo/README.md](seo/README.md)) |
 | `internal/` | httpx (rendering, origin), live (publishing to the Room), ratelimit, classmerge (gsx's class merger, cached) |
 | `worker/` | the deployed JavaScript: the Worker's entry and the board's Durable Object; `worker/local/` runs them under workerd |
 | `migrations/` | D1's schema |

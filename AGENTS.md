@@ -43,7 +43,8 @@ Binding. How the app works is in [docs/architecture.md](docs/architecture.md), h
 
 `*.x.go` (`go tool gsx generate`; not committed, except `intl/render.x.go`: apps import intl as a Go package),
 `intl_gen.go` and `intl-messages.mjs` (`mise run intl`; not committed), `locales/intl.sum` (`mise run intl`;
-committed), `.claude/skills/intl-translate` (`mise run intl:skill`; committed), `docs/commands.md`
+committed), `.claude/skills/intl-translate` (`mise run intl:skill`; committed), `.claude/skills/seo`
+(`mise run seo:skill`; committed), `docs/commands.md`
 (`mise run docs:commands`), and what `gsxui` manages (`gsxui.json` lists it).
 
 ## UI: gsx, gsxui, htmx 4
@@ -95,8 +96,10 @@ committed), `.claude/skills/intl-translate` (`mise run intl:skill`; committed), 
   ≤ 160 wide (`TestSnippetWidths`).
 - `/robots.txt` keeps one `*` group with no `Disallow` (`TestRobotsTxt`); absolute URLs come from `httpx.Origin(r)`,
   never a hard-coded host. No page routes under `/fragments/` (noindex) and no robots `Disallow` for them.
-- Search tasks talk through exit codes (0 ok, 1 problems) and `--json`: never scrape their text. Writes to Google
-  (`search:submit`, `search:setup`) ask first; agents pass `mise run --yes` only with the user's OK.
+- How Google sees the site is `seo/` (its own module, `seo/README.md`) and the `seo` skill: what Google reads is
+  this app's own code (`app/seo.go`, `views/seo.go`, intl), and `mise run check` audits every page of the local build.
+  The `seo:*` tasks talk through exit codes (0 ok, 1 problems) and `--json`: never scrape their text. Writes to Google
+  (`seo:submit`, `seo:setup`) ask first; agents pass `mise run --yes` only with the user's OK.
 
 ## Workers and TinyGo
 

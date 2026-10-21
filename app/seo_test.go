@@ -16,9 +16,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/joeblew999/charter/go/lib/searchconsole"
 	"github.com/joeblew999/go-htmx4/intl"
 	"github.com/joeblew999/go-htmx4/locales"
+	"github.com/joeblew999/go-htmx4/seo"
 	"github.com/joeblew999/go-htmx4/views"
 	nethtml "golang.org/x/net/html"
 )
@@ -315,7 +315,7 @@ func TestOpenGraph(t *testing.T) {
 }
 
 // Every sitemap page's title and meta description fit in a Google result without being cut
-// (widths from charter's searchconsole, the same limits `mise run search:audit` checks live).
+// (widths from charter's seo, the same limits `mise run search:audit` checks live).
 func TestSnippetWidths(t *testing.T) {
 	h := newServer().routes()
 	rec := get(t, h, "/sitemap.xml")
@@ -336,11 +336,11 @@ func TestSnippetWidths(t *testing.T) {
 			t.Errorf("%s: no title or meta description", u.RequestURI())
 			continue
 		}
-		if w := searchconsole.SnippetWidth(html.UnescapeString(title[1])); w > searchconsole.MaxTitleWidth {
-			t.Errorf("%s: title %d wide (max %d): %q", u.RequestURI(), w, searchconsole.MaxTitleWidth, title[1])
+		if w := seo.SnippetWidth(html.UnescapeString(title[1])); w > seo.MaxTitleWidth {
+			t.Errorf("%s: title %d wide (max %d): %q", u.RequestURI(), w, seo.MaxTitleWidth, title[1])
 		}
-		if w := searchconsole.SnippetWidth(html.UnescapeString(desc[1])); w > searchconsole.MaxDescriptionWidth {
-			t.Errorf("%s: description %d wide (max %d): %q", u.RequestURI(), w, searchconsole.MaxDescriptionWidth, desc[1])
+		if w := seo.SnippetWidth(html.UnescapeString(desc[1])); w > seo.MaxDescriptionWidth {
+			t.Errorf("%s: description %d wide (max %d): %q", u.RequestURI(), w, seo.MaxDescriptionWidth, desc[1])
 		}
 	}
 }
