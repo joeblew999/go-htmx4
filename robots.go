@@ -42,7 +42,7 @@ func robotsTxt(w http.ResponseWriter, r *http.Request) {
 func noindexNonPages(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if getenv("APP_PREVIEW") != "" || (r.Method != http.MethodGet && r.Method != http.MethodHead) ||
-			strings.HasPrefix(r.URL.Path, "/fragments/") || r.URL.Path == "/healthz" {
+			strings.HasPrefix(r.URL.Path, "/fragments/") || strings.HasPrefix(r.URL.Path, "/components/") || r.URL.Path == "/healthz" {
 			w.Header().Set("X-Robots-Tag", "noindex")
 		}
 		h.ServeHTTP(w, r)

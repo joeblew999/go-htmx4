@@ -8,8 +8,8 @@ Code, by people, or by both), finding stale translations, adding a language, and
 ```gsx
 <h1>{ locales.HomeHeading }</h1>
 <p title={ locales.BoardHint }>{ locales.BoardNotes(len(notes)) }</p>
-<p>{ order.Placed |> date(`{"dateStyle":"long"}`) } · { order.Total |> number(`{"style":"currency","currency":"EUR"}`) }</p>
-<p>{ note.Created |> since } · { "JP" |> intl("DisplayNames", "of", `{"type":"region"}`) }</p>
+<p>{ order.Placed |> date("dateStyle", "long") } · { order.Total |> number("style", "currency", "currency", "EUR") }</p>
+<p>{ note.Created |> since } · { "JP" |> intl("DisplayNames", "of", "type", "region") }</p>
 ```
 
 For a German request that renders `4. Juli 2026 · 1.234,50 €` and `vor 3 Minuten · Japan`, formatted by the
@@ -19,6 +19,14 @@ code in the viewer's own time zone and clock:
 ```html
 <time datetime="2026-07-04T15:30:00Z" data-intl="DateTimeFormat" data-opts='{"dateStyle":"long"}'
       data-args="[1783179000000]">4. Juli 2026</time>
+```
+
+Set its `data-opts` or `data-args` in the browser and the browser's Intl redoes it: a menu that changes a date's
+style, a slider whose value is written in kilometres, need no request and no Go:
+
+```gsx
+<ui.Slider hx-on:input=js`document.querySelector("#km [data-intl]").dataset.args = JSON.stringify([this.value])`/>
+<output id="km">{ 42 |> number("style", "unit", "unit", "kilometer", "unitDisplay", "long") }</output>
 ```
 
 Go decides nothing about a language: no CLDR tables, no formatting of its own. Outside a Worker, `go test` and the
@@ -152,22 +160,33 @@ de = "Address the reader as Sie."
 | Write | Renders |
 |---|---|
 | `{ locales.Key }`, `{ locales.Key(args…) }` | a message, in text or an attribute; text arguments are bidi-isolated |
-| `{ t \|> date }`, `{ t \|> date(opts) }` | `Intl.DateTimeFormat`, in a `<time>` |
+| `{ t \|> date }`, `{ t \|> date("dateStyle", "full", "calendar", "hebrew") }` | `Intl.DateTimeFormat`, in a `<time>` |
 | `{ start \|> dateRange(end, opts) }` | its `formatRange` |
 | `{ t \|> since }` | `Intl.RelativeTimeFormat` in the largest readable unit, kept fresh by the browser |
-| `{ n \|> number }`, `{ n \|> number(opts) }` | `Intl.NumberFormat`, in a `<data>`; an int, a float or an exact decimal string |
+| `{ n \|> number }`, `{ n \|> number("style", "percent") }` | `Intl.NumberFormat`, in a `<data>`; an int, a float or an exact decimal string |
 | `{ d \|> duration }` | `Intl.DurationFormat` |
 | `{ items \|> list(opts) }` | `Intl.ListFormat` |
 | `{ id \|> zone }` | a time zone's name: `Europe/Berlin · Mitteleuropäische Zeit (GMT+2)` |
-| `{ v \|> intl(api, method, opts) }` | any call: `new Intl[api](lang, opts)[method](v)`; api `"Intl"` for `Intl.supportedValuesOf` and the like |
+| `{ v \|> intl(api, method, opts…) }` | any call: `new Intl[api](lang, opts)[method](v)`; api `"Intl"` for `Intl.supportedValuesOf` and the like |
 | `title={ v \|> plain }` | a Value's text alone: attributes take no markup |
 | `title={ locales.Key \|> text }` | a message's text, for a component input typed `string` (gsxui's `Toast title`) |
 | `<option { v.Attrs()... }>{ v \|> plain }</option>` | an element that can't hold the Value's own, still redone by the browser |
 | `href={ "/about" \|> localize }`, `hx-post={ f`/cart/add?id=@{id}` \|> localize }` | an in-app path in the request's locale: `/de/about` |
 
-Options are an Intl options object as JSON. Results that aren't strings (`resolvedOptions`, `select`, `compare`,
-`segment`) render as JSON. In Go, the same values are `intl.Date(t, opts)`, `intl.Of(api, method, opts, args…)`
-and the rest, and `intl.Text(ctx, x)` is the text (an HTTP error, a log line).
+Options are Intl's own option names and values, in pairs (`"maximumFractionDigits", "0"`: a number or true/false
+is one), or one JSON object. Results that aren't strings (`resolvedOptions`, `select`, `compare`, `segment`) render as
+JSON.
+
+In Go, the same values are `intl.Date(t, opts)`, `intl.Of(api, method, opts, args…)` and the rest, with options
+from `intl.Options(pairs…)`, and `intl.Text(ctx, x)` is the text (an HTTP error, a log line). For what markup can't
+say:
+
+| Go | Does |
+|---|---|
+| `intl.Order(ctx, names, opts)` | the order `Intl.Collator` sorts names in: sort rows by a name (Ägypten before Österreich in German, after it in Swedish) |
+| `intl.Segments(ctx, text, "grapheme" \| "word" \| "sentence")` | text split by `Intl.Segmenter`: count what a reader sees as characters, take initials, find words in Japanese |
+| `intl.CalendarOf(ctx)`, `intl.WeekStart(ctx)` | a month calendar's words and its first day: `<ui.Calendar locale={ ui.CalendarLocale(intl.CalendarOf(ctx)) } weekStartsOn={ intl.WeekStart(ctx) }/>` |
+| `intl.Current(ctx).ParseNumber(text)` | a number typed the language's way, as a plain decimal (`window.intl.parseNumber` in the browser) |
 
 ## Translating
 

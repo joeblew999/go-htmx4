@@ -7,6 +7,10 @@
 //	gsxui = "ui"                   # optional: where gsxui add vendors components; gen translates their i18n.T
 //	xliff = "xliff"                # optional: where go tool intl export writes and import reads (default xliff)
 //
+//	[translate]                    # optional: go tool intl translate (Claude Code)
+//	model = "sonnet"               # the model it runs on (claude --model); default: Claude Code's
+//	workers = 6                    # languages translated at once (default 6)
+//
 //	[notes]                        # optional: guidance for whoever translates (people, and Claude: go tool intl todo)
 //	"*" = "A developer tool. Keep product names in English."
 //	de = "Address the reader as du."
@@ -26,12 +30,16 @@ const File = "intl.toml"
 
 // Config is an app's intl.toml.
 type Config struct {
-	Locales  []string          `toml:"locales"`
-	Catalogs string            `toml:"catalogs"`
-	Gsxui    string            `toml:"gsxui"`
-	XLIFF    string            `toml:"xliff"`
-	Notes    map[string]string `toml:"notes"`
-	Root     string            `toml:"-"` // the directory intl.toml is in
+	Locales   []string          `toml:"locales"`
+	Catalogs  string            `toml:"catalogs"`
+	Gsxui     string            `toml:"gsxui"`
+	XLIFF     string            `toml:"xliff"`
+	Notes     map[string]string `toml:"notes"`
+	Translate struct {
+		Model   string `toml:"model"`
+		Workers int    `toml:"workers"`
+	} `toml:"translate"`
+	Root string `toml:"-"` // the directory intl.toml is in
 }
 
 // Note is the translators' guidance for locale id: the notes for every locale ("*"), then its own.

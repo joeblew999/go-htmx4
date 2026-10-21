@@ -83,3 +83,34 @@ func TestCalendar(t *testing.T) {
 		}
 	}
 }
+
+// TestSegmentsOrder: text split and sorted the language's way.
+func TestSegmentsOrder(t *testing.T) {
+	intl.Use(intl.Locales{intl.NewLocale("en"), intl.NewLocale("de"), intl.NewLocale("ja"), intl.NewLocale("sv")}, []bool{true, true, true, true})
+	in := func(id string) context.Context {
+		return intl.WithRequest(context.Background(), intl.Request{Locale: intl.NewLocale(id)})
+	}
+	if got := intl.Segments(in("en"), "Zoë 👨‍👩‍👧!", "grapheme"); len(got) != 6 || got[4] != "👨‍👩‍👧" {
+		t.Errorf("graphemes = %q", got)
+	}
+	if got := intl.Segments(in("ja"), "今日は良い天気です。", "word"); len(got) < 4 {
+		t.Errorf("Japanese words = %q", got)
+	}
+	if got := intl.Segments(in("en"), "Smith arrived. He sat down! ", "sentence"); len(got) != 2 {
+		t.Errorf("sentences = %q", got)
+	}
+	names := []string{"Zürich", "Österreich", "Oslo", "Ägypten", "Zypern"}
+	sorted := func(id string) string {
+		var out []string
+		for _, i := range intl.Order(in(id), names, "") {
+			out = append(out, names[i])
+		}
+		return strings.Join(out, " ")
+	}
+	if got := sorted("de"); got != "Ägypten Oslo Österreich Zürich Zypern" {
+		t.Errorf("German order: %s", got)
+	}
+	if got := sorted("sv"); got != "Oslo Zypern Zürich Ägypten Österreich" { // Swedish: ü sorts as y, Ä and Ö after Z
+		t.Errorf("Swedish order: %s", got)
+	}
+}

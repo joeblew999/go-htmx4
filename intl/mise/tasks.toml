@@ -26,21 +26,12 @@ exec go tool intl todo ${args[@]+"${args[@]}"} ${usage_locale:-}
 '''
 
 ["intl:translate"]
-description = "Translate every missing and stale message with Claude Code (the intl-translate skill), until intl:check passes. Needs claude on PATH"
+description = "Translate every missing and stale message with Claude Code (the intl-translate skill), one worker per language at once (intl.toml [translate]), until intl:check passes. Needs claude on PATH"
 tools = { workerd = "1.20261019.1" }
 usage = '''
 arg "[locale]" var=#true help="only these locales (default: all)"
 '''
-run = '''
-#!/usr/bin/env bash
-set -euo pipefail
-command -v claude >/dev/null || { echo "✗ intl:translate runs Claude Code: install it (https://code.claude.com), or translate by hand (mise run intl:todo)"; exit 1; }
-go tool intl skill >/dev/null
-go tool intl gen
-only=""; [ -z "${usage_locale:-}" ] || only=" in ${usage_locale}"
-exec claude -p "Translate this app's messages with the intl-translate skill: every missing and stale message${only}. Finish when go tool intl check passes, then say what you translated." \
-  --permission-mode acceptEdits --allowedTools "Bash(go tool intl:*)" Read Edit Write Glob Grep
-'''
+run = "go tool intl translate ${usage_locale:-}"
 
 ["intl:check"]
 description = "Every problem, for CI: the catalogs (ICU syntax, arguments, a case for each plural category Intl says a language uses, missing and stale translations, unused messages, gsxui text, intl.sum), then gsx's own checks on the app's markup (gsx generate, gsx fmt, the gsx skill's find-smells.sh); exits 1 on any"

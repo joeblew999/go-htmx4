@@ -187,7 +187,7 @@ What is left to translate, per locale: each message's source, context and argume
 
 ### `intl:translate`
 
-Translate every missing and stale message with Claude Code (the intl-translate skill), until intl:check passes. Needs claude on PATH
+Translate every missing and stale message with Claude Code (the intl-translate skill), one worker per language at once (intl.toml [translate]), until intl:check passes. Needs claude on PATH
 
 
 - **Usage:** `intl:translate [locale]…`

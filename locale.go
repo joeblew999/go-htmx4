@@ -14,7 +14,7 @@ var site = intl.Site{IsPage: isPage, ConnectionTimeZone: connectionTimeZone, Ori
 
 // isPage reports whether path is a page (not an API, fragment, asset or health check).
 func isPage(path string) bool {
-	for _, p := range []string{"/fragments/", "/board/", "/greet", "/healthz", "/static/", "/assets/", "/gsxui/", "/live/", "/preferences", "/sitemap.xml", "/robots.txt"} {
+	for _, p := range []string{"/fragments/", "/board/", "/greet", "/healthz", "/static/", "/assets/", "/gsxui/", "/live/", "/preferences", "/sitemap.xml", "/robots.txt", "/components/"} {
 		if strings.HasPrefix(path, p) {
 			return false
 		}

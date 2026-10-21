@@ -10,6 +10,8 @@ export const goIntl = {
   zoneName: (lang, id) => intl.zoneName(lang, id),
   parseNumber: (lang, text) => intl.parseNumber(lang, text),
   calendar: (lang) => intl.calendar(lang),
+  segments: (lang, text, granularity) => intl.segments(lang, text, granularity),
+  order: (lang, items, opts) => intl.order(lang, items, opts),
   // Message index of catalog (a locale id, or "en-XA": pseudo-localized) in lang.
   message: (lang, catalog, index, ...args) => intl.message(lang, catalogs[catalog]?.[Number(index)], args),
 };

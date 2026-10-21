@@ -14,7 +14,7 @@ import (
 
 // SitemapPages are the pages /sitemap.xml lists, in every locale. Board topics other than the default are indexable
 // but open-ended (anyone can create one), so the sitemap lists only /board.
-var SitemapPages = []string{"/", "/board", "/formats", "/about"}
+var SitemapPages = []string{"/", "/board", "/formats", "/components", "/about"}
 
 // pageKey is the request's page without locale prefix and without query parameters that don't make a different page:
 // only ?topic= on /board survives, and not for the default topic. "/board?topic=lobby&utm_source=x" → "/board".

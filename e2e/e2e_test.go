@@ -22,6 +22,7 @@ func TestE2E(t *testing.T) {
 			{"IntlKinds", testIntlKinds},
 			{"Locales", testLocales},
 			{"Pages", testPages},
+			{"Components", testComponents},
 		} {
 			t.Run(c.name, func(t *testing.T) {
 				t.Parallel()

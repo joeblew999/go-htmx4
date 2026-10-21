@@ -88,6 +88,34 @@ func (s *server) routes() http.Handler {
 			s.render(w, r, "formats", views.Formats())
 		}
 	})
+	// /components: every gsxui component with Intl (views/components.gsx). The sidebar runs in its own document, and
+	// the text box counts on the Worker; everything else on the page is redone by the browser's Intl.
+	mux.HandleFunc("/components", func(w http.ResponseWriter, r *http.Request) {
+		if allow(w, r, http.MethodGet) {
+			s.render(w, r, "components", views.Components())
+		}
+	})
+	mux.HandleFunc("/components/sidebar", func(w http.ResponseWriter, r *http.Request) {
+		if allow(w, r, http.MethodGet) {
+			s.render(w, r, "components-sidebar", views.ComponentsSidebar())
+		}
+	})
+	mux.HandleFunc("/components/count", func(w http.ResponseWriter, r *http.Request) {
+		if !allow(w, r, http.MethodPost) {
+			return
+		}
+		text := r.FormValue("text")
+		if len(text) > 2000 {
+			http.Error(w, intl.Text(r.Context(), locales.ComponentsTextareaTooLong(2000)), http.StatusRequestEntityTooLarge)
+			return
+		}
+		s.render(w, r, "components-count", views.TextCounts(views.CountText(r.Context(), text)))
+	})
+	mux.HandleFunc("/fragments/components-week", func(w http.ResponseWriter, r *http.Request) {
+		if allow(w, r, http.MethodGet) {
+			s.render(w, r, "components-week", views.Week())
+		}
+	})
 	mux.HandleFunc("/about", func(w http.ResponseWriter, r *http.Request) {
 		if allow(w, r, http.MethodGet) {
 			s.render(w, r, "about", views.About(stack))
