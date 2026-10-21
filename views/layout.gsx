@@ -65,6 +65,9 @@ component Layout(title intl.Msg, description intl.Msg, path string, children gsx
 					<ui.Button variant={navVariant(path, "/formats")} size="sm" href={"/formats" |> localize}>
 						{ locales.NavFormats }
 					</ui.Button>
+					<ui.Button variant={navVariant(path, "/components")} size="sm" href={"/components" |> localize}>
+						{ locales.NavComponents }
+					</ui.Button>
 					<ui.Button variant={navVariant(path, "/about")} size="sm" href={"/about" |> localize}>
 						{ locales.NavAbout }
 					</ui.Button>

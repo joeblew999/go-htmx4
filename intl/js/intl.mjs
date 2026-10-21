@@ -213,3 +213,20 @@ export function calendar(lang) {
     pattern({ month: "long", year: "numeric" }), pattern({ weekday: "long", month: "long", day: "numeric", year: "numeric" }),
     digits, String(first)].join("\u001e");
 }
+
+// segments is text split by Intl.Segmenter in lang: granularity "grapheme" (what a reader sees as one character),
+// "word" (the word-like segments only) or "sentence" (without blank ones), joined by U+001F for Go.
+export function segments(lang, text, granularity) {
+  let parts = [...make(Intl.Segmenter, lang, { granularity }).segment(text)];
+  if (granularity === "word") parts = parts.filter((p) => p.isWordLike);
+  if (granularity === "sentence") parts = parts.filter((p) => p.segment.trim() !== "");
+  return parts.map((p) => p.segment).join("\u001f");
+}
+
+// order is the indexes of items (a JSON array of strings) in the order Intl.Collator sorts them in lang with opts,
+// comma-separated for Go.
+export function order(lang, items, opts) {
+  const c = make(Intl.Collator, lang, JSON.parse(opts || "{}"));
+  const a = JSON.parse(items);
+  return a.map((_, i) => i).sort((x, y) => c.compare(a[x], a[y]) || x - y).join(",");
+}

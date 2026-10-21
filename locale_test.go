@@ -296,7 +296,8 @@ func TestNoHardcodedText(t *testing.T) {
 		}
 		walk(doc, false)
 	}
-	for _, path := range []string{"/", "/about", "/formats", "/board?topic=pseudo", "/fragments/server-info", "/fragments/stats", "/fragments/preferences"} {
+	for _, path := range []string{"/", "/about", "/formats", "/components", "/components/sidebar", "/board?topic=pseudo", "/fragments/server-info",
+		"/fragments/stats", "/fragments/preferences", "/fragments/components-week"} {
 		check(path, get(t, h, path).Body.String())
 	}
 	for _, tc := range []struct{ method, path, body string }{

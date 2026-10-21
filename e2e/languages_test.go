@@ -18,7 +18,7 @@ func testNoOverflow(t *testing.T) {
 		b.run(chromedp.EmulateViewport(size[0], size[1]))
 		var bad []string
 		for _, prefix := range []string{"", "/de", "/ru", "/fr", "/pt-pt", "/ar", "/hi", "/ja"} {
-			for _, page := range []string{"/", "/formats", "/board?topic=" + topic("overflow"), "/about"} {
+			for _, page := range []string{"/", "/formats", "/components", "/board?topic=" + topic("overflow"), "/about"} {
 				b.open(prefix + page)
 				over := b.str(`(() => {
 					const w = document.documentElement.clientWidth;

@@ -47,6 +47,10 @@ Never edit the source catalog's text, `intl.sum`, or generated files (`intl_gen.
 
 ## 4. Check
 
+When you were asked to translate one locale while others are translated at the same time (`go tool intl
+translate`), edit only that locale's file, never run `go tool intl gen`, and check with `go tool intl check <locale>`,
+which writes nothing. Otherwise:
+
 ```sh
 go tool intl gen && go tool intl check
 ```

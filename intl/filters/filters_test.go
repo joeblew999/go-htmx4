@@ -24,6 +24,8 @@ func TestFilters(t *testing.T) {
 	}{
 		"date":           {filters.Date(at), "4.7.2026"},
 		"date opts":      {filters.Date(at, `{"dateStyle":"long","timeStyle":"short"}`), "4. Juli 2026 um 17:30"},
+		"date pairs":     {filters.Date(at, "dateStyle", "long", "calendar", "hebrew"), "19. Tammus 5786 AM"},
+		"number pairs":   {filters.Number("42.195", "style", "unit", "unit", "kilometer", "unitDisplay", "long", "maximumFractionDigits", "1"), "42,2 Kilometer"},
 		"dateRange":      {filters.DateRange(at, at.Add(90*time.Minute), `{"timeStyle":"short"}`), "17:30–19:00 Uhr"},
 		"number int":     {filters.Number(1234567), "1.234.567"},
 		"number int64":   {filters.Number(int64(-42)), "-42"},

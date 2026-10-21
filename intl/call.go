@@ -68,3 +68,32 @@ func JSON(s string) string {
 	b.WriteByte('"')
 	return b.String()
 }
+
+// Options is an Intl options object from its names and values in pairs, as Intl names them:
+// Options("dateStyle", "full", "calendar", "hebrew") is {"dateStyle":"full","calendar":"hebrew"}. A value that is a
+// number or true/false is one ("maximumFractionDigits", "0"); the rest are strings. One argument that is already a
+// JSON object is itself, and an odd one out is dropped.
+func Options(pairs ...string) string {
+	if len(pairs) == 1 && strings.HasPrefix(strings.TrimSpace(pairs[0]), "{") {
+		return pairs[0]
+	}
+	if len(pairs) < 2 {
+		return ""
+	}
+	var b strings.Builder
+	b.WriteByte('{')
+	for i := 0; i+1 < len(pairs); i += 2 {
+		if i > 0 {
+			b.WriteByte(',')
+		}
+		b.WriteString(JSON(pairs[i]) + ":")
+		v := pairs[i+1]
+		if _, err := strconv.ParseFloat(v, 64); err == nil || v == "true" || v == "false" {
+			b.WriteString(v)
+		} else {
+			b.WriteString(JSON(v))
+		}
+	}
+	b.WriteByte('}')
+	return b.String()
+}
