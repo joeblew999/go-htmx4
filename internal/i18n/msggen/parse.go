@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/joeblew999/go-htmx4/kit/i18n"
+	"github.com/joeblew999/go-htmx4/internal/i18n"
 )
 
 // argKind is how a message uses an argument.

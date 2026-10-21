@@ -5,8 +5,8 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/joeblew999/go-htmx4/kit/i18n"
-	"github.com/joeblew999/go-htmx4/kit/i18n/cldr"
+	"github.com/joeblew999/go-htmx4/internal/i18n"
+	"github.com/joeblew999/go-htmx4/internal/i18n/cldr"
 )
 
 // SEO (plan: full i18n Phase 8). Every page links its canonical URL and the same page in every locale (hreflang,

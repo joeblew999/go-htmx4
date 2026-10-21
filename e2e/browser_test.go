@@ -1,6 +1,6 @@
 // Package e2e drives the running app in headless Chrome (chromedp, no Node): pages, the live board across
 // two browsers, boosted navigation, presence and the write limit. It's its own module so chromedp stays out
-// of the app's and kit/'s dependencies.
+// of the app's dependencies.
 //
 //	mise run e2e                               # builds, starts local workerd, runs these tests
 //	E2E_BASE=https://….workers.dev mise run e2e # against a deployed Worker

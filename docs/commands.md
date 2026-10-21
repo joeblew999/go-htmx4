@@ -119,13 +119,7 @@ go tool gsx generate (after i18n:messages: views call the generated message meth
 
 - **Usage:** `i18n:generate`
 
-Regenerate kit/i18n/cldr for I18N_LOCALES from CLDR, via kit/i18n/legacy's generator (network on first run)
-
-### `i18n:legacy`
-
-- **Usage:** `i18n:legacy`
-
-Test kit/i18n/legacy, the earlier server-side Intl implementation (its own module, out of the build)
+Regenerate internal/i18n/cldr for I18N_LOCALES from CLDR, with the generator at the git tag i18n-generator (network on first run)
 
 ### `i18n:messages`
 

@@ -1,5 +1,5 @@
 // The app's one Intl formatter, run in two places with the same V8 Intl:
-//   - on the Worker: worker/index.mjs puts it on globalThis.goIntl and Go calls it (kit/i18n Format), so every
+//   - on the Worker: worker/index.mjs puts it on globalThis.goIntl and Go calls it (internal/i18n Format), so every
 //     page, email or PDF the server writes is already formatted;
 //   - in the browser: static/intl.js imports it (as /static/intl-core.mjs) and re-formats only what the server
 //     couldn't know: the viewer's own time zone and "3 minutes ago" as time passes.

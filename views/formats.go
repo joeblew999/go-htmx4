@@ -6,8 +6,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/joeblew999/go-htmx4/kit/i18n"
-	"github.com/joeblew999/go-htmx4/kit/i18n/cldr"
+	"github.com/joeblew999/go-htmx4/internal/i18n"
+	"github.com/joeblew999/go-htmx4/internal/i18n/cldr"
 	"github.com/joeblew999/go-htmx4/locales"
 )
 
@@ -25,7 +25,7 @@ type FormatRow struct {
 	Fallback string
 }
 
-// Text is the row's result: formatted on the server with the runtime's Intl (kit/i18n Format), else Fallback.
+// Text is the row's result: formatted on the server with the runtime's Intl (internal/i18n Format), else Fallback.
 func (r FormatRow) Text(ctx context.Context) string {
 	if r.Kind == "" {
 		return r.Fallback

@@ -202,9 +202,6 @@ go tool gsx fmt -l . || { echo "✗ gsx fmt: run 'go tool gsx fmt -w .'"; exit 1
 unformatted=$(gofmt -l $(go list -json ./... | jq -r '.Dir as $d | (.GoFiles + (.TestGoFiles // []) + (.XTestGoFiles // []) + (.IgnoredGoFiles // []))[] | "\($d)/\(.)"'))
 test -z "$unformatted" || { echo "$unformatted"; echo "✗ gofmt: files need formatting"; exit 1; }
 go vet ./...
-# kit/ is importable by other repos: it must not depend on the app (views, ui, cmd, package main).
-app_deps=$(go list -deps ./kit/... | grep '^github.com/joeblew999/go-htmx4' | grep -v '^github.com/joeblew999/go-htmx4/kit/' || true)
-test -z "$app_deps" || { echo "$app_deps"; echo "✗ kit/ imports app packages"; exit 1; }
 go test ./...
 # e2e/ is its own module (chromedp): format and vet it too; its tests need a server (mise run smoke / e2e).
 test -z "$(gofmt -l e2e)" || { gofmt -l e2e; echo "✗ gofmt: e2e/ needs formatting"; exit 1; }

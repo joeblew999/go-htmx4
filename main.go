@@ -28,9 +28,9 @@ import (
 
 	"github.com/gsxhq/gsx"
 	"github.com/joeblew999/charter/go/lib/transport"
-	"github.com/joeblew999/go-htmx4/kit/httpx"
-	"github.com/joeblew999/go-htmx4/kit/i18n"
-	"github.com/joeblew999/go-htmx4/kit/i18n/cldr"
+	"github.com/joeblew999/go-htmx4/internal/httpx"
+	"github.com/joeblew999/go-htmx4/internal/i18n"
+	"github.com/joeblew999/go-htmx4/internal/i18n/cldr"
 	"github.com/joeblew999/go-htmx4/locales"
 	"github.com/joeblew999/go-htmx4/views"
 )

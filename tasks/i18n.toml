@@ -1,21 +1,21 @@
 # tasks/i18n.toml — locales and UI messages.
 #
 #   mise run i18n:messages   # locales/*.toml (ICU MessageFormat) → typed accessors in locales/*_msg_gen.go
-#   mise run i18n:generate   # kit/i18n/cldr (the shipped locales: names, direction, plural rules, digits) from CLDR
+#   mise run i18n:generate   # internal/i18n/cldr (the shipped locales: names, direction, plural rules, digits) from CLDR
 #
 # Dates, times, currencies, units and the rest go through the runtime's own Intl, on the server and in the browser:
-# kit/i18n/doc.go.
+# internal/i18n/doc.go.
 
 ["i18n:messages"]
 description = "Generate locales/*_msg_gen.go from the UI message catalogs locales/*.toml (I18N_LOCALES, en first)"
 # Skipped when the catalogs, the generator and the locale list (mise.toml) are unchanged since the last run.
-sources = ["locales/*.toml", "cmd/msggen/**/*.go", "kit/i18n/msggen/**/*.go", "mise.toml"]
+sources = ["locales/*.toml", "cmd/msggen/**/*.go", "internal/i18n/msggen/**/*.go", "mise.toml"]
 outputs = ["locales/*_msg_gen.go"]
 dir = "{{config_root}}"
 run = "go run ./cmd/msggen -dir locales -out locales -locales \"$I18N_LOCALES\""
 
 ["i18n:generate"]
-description = "Regenerate kit/i18n/cldr for I18N_LOCALES from CLDR, with the generator at the git tag i18n-generator (network on first run)"
+description = "Regenerate internal/i18n/cldr for I18N_LOCALES from CLDR, with the generator at the git tag i18n-generator (network on first run)"
 dir = "{{config_root}}"
 run = '''
 #!/usr/bin/env bash
@@ -28,5 +28,9 @@ git rev-parse -q --verify i18n-generator >/dev/null || git fetch -q origin tag i
 git worktree add -q --detach "$tmp/gen" i18n-generator
 cd "$tmp/gen/kit/i18n/legacy"
 go run ./cmd/cldrgen -locales "$I18N_LOCALES" -out cldr
-go run ./cmd/coregen -out "$root/kit/i18n/cldr/data_cldr.go" -golden "$root/kit/i18n/testdata/numbers.json"
+go run ./cmd/coregen -out "$root/internal/i18n/cldr/data_cldr.go" -golden "$root/internal/i18n/testdata/numbers.json"
+# The tagged generator writes the package path it had (go-htmx4/kit/i18n): point it at this module's.
+cd "$root"
+sed -i.bak -e "s#github.com/joeblew999/go-htmx4/kit/i18n\"#$(go list -m)/internal/i18n\"#" -e "s#(kit/i18n's schema)#(internal/i18n's schema)#" internal/i18n/cldr/data_cldr.go
+rm internal/i18n/cldr/data_cldr.go.bak
 '''

@@ -7,7 +7,7 @@ import (
 	"net/http"
 
 	"github.com/joeblew999/charter/go/lib/transport"
-	"github.com/joeblew999/go-htmx4/kit/live"
+	"github.com/joeblew999/go-htmx4/internal/live"
 	"github.com/syumai/workers-go/cloudflare"
 	_ "github.com/syumai/workers-go/cloudflare/d1" // registers the "d1" database/sql driver
 )

@@ -5,8 +5,8 @@ import (
 	"os"
 	"testing"
 
-	"github.com/joeblew999/go-htmx4/kit/i18n"
-	"github.com/joeblew999/go-htmx4/kit/i18n/cldr"
+	"github.com/joeblew999/go-htmx4/internal/i18n"
+	"github.com/joeblew999/go-htmx4/internal/i18n/cldr"
 )
 
 // TestFormatNumberGolden: numbers in messages match what a full Intl-conformant formatter outputs

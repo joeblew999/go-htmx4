@@ -10,7 +10,7 @@ import (
 	"testing"
 
 	"github.com/gsxhq/gsx"
-	"github.com/joeblew999/go-htmx4/kit/httpx"
+	"github.com/joeblew999/go-htmx4/internal/httpx"
 )
 
 func TestAllow(t *testing.T) {

@@ -45,7 +45,7 @@ export class Room extends DurableObject {
       return new Response("room full", { status: 503, headers: { "Retry-After": "10" } });
     }
     const [client, server] = Object.values(new WebSocketPair());
-    // index.mjs has checked ?locale= against kit/live's LocalePattern.
+    // index.mjs has checked ?locale= against internal/live's LocalePattern.
     const locale = new URL(request.url).searchParams.get("locale") ?? "";
     this.ctx.acceptWebSocket(server, [locale]);
     const last = await this.ctx.storage.get("last");

@@ -1,5 +1,5 @@
 // The browser half of the app's Intl (worker/intl.mjs, served as /static/intl-core.mjs). The Worker already formatted
-// every [data-intl] element with the same V8 Intl (kit/i18n Format), in the server's best guess of the viewer's
+// every [data-intl] element with the same V8 Intl (internal/i18n Format), in the server's best guess of the viewer's
 // zone. This script re-formats only what the server couldn't know: the viewer's own time zone (unless they chose
 // one, <html data-tz>) and relative times as time passes. Most of the time the text doesn't change at all.
 //

@@ -2,7 +2,7 @@
 
 package locales
 
-import "github.com/joeblew999/go-htmx4/kit/i18n"
+import "github.com/joeblew999/go-htmx4/internal/i18n"
 
 var catalogs = []*i18n.Catalog{
 	&i18n.Catalog{

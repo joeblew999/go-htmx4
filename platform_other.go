@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/joeblew999/go-htmx4/kit/httpx"
-	"github.com/joeblew999/go-htmx4/kit/live"
+	"github.com/joeblew999/go-htmx4/internal/httpx"
+	"github.com/joeblew999/go-htmx4/internal/live"
 )
 
 // platformNote is shown in the server-info fragment; the native server keeps its state.

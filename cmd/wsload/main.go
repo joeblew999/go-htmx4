@@ -1,4 +1,4 @@
-// Command wsload checks the shared board's live updates over real WebSockets: flags for kit/wsload,
+// Command wsload checks the shared board's live updates over real WebSockets: flags for internal/wsload,
 // which documents the checks. It exits 1 if any check fails.
 //
 //	go run ./cmd/wsload -n 2                                   # smoke (local workerd)
@@ -17,7 +17,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/joeblew999/go-htmx4/kit/wsload"
+	"github.com/joeblew999/go-htmx4/internal/wsload"
 )
 
 func main() {

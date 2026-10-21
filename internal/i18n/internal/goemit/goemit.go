@@ -1,5 +1,5 @@
-// Package goemit writes Go values as composite-literal source for kit/i18n's generators: zero fields omitted,
-// kit/i18n types qualified as i18n.T, so generated tables are static data TinyGo lays out at compile time.
+// Package goemit writes Go values as composite-literal source for internal/i18n's generators: zero fields omitted,
+// internal/i18n types qualified as i18n.T, so generated tables are static data TinyGo lays out at compile time.
 package goemit
 
 import (
@@ -8,8 +8,8 @@ import (
 	"strings"
 )
 
-// ImportPath is kit/i18n's package path; its named types are written as i18n.Name.
-const ImportPath = "github.com/joeblew999/go-htmx4/kit/i18n"
+// ImportPath is internal/i18n's package path; its named types are written as i18n.Name.
+const ImportPath = "github.com/joeblew999/go-htmx4/internal/i18n"
 
 // Value writes v as a Go expression. typed is false for elements of a composite literal whose type Go infers.
 func Value(b *strings.Builder, v reflect.Value, typed bool) {

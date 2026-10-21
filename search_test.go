@@ -11,8 +11,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/joeblew999/go-htmx4/kit/i18n/cldr"
 	"github.com/joeblew999/charter/go/lib/searchconsole"
+	"github.com/joeblew999/go-htmx4/internal/i18n/cldr"
 )
 
 // Search plan Phase 1: every non-page response is noindex, every page (and the crawl files) isn't.

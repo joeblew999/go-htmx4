@@ -1,6 +1,6 @@
 // Package i18n is the server half of the app's internationalization: which locales ship (I18N_LOCALES in
 // mise.toml), the request's locale, translated messages (ICU MessageFormat, generated into typed accessors by
-// kit/i18n/msggen) with their plural rules, and the plain numbers inside them.
+// internal/i18n/msggen) with their plural rules, and the plain numbers inside them.
 //
 // One Intl, run twice. Dates, times, zones, relative times, durations, numbers, currencies, units and lists go
 // through worker/intl.mjs:
@@ -15,6 +15,6 @@
 //   - Forms send canonical values back (decimal strings, UTC instants); ParseNumber reads a number typed the
 //     language's way ("1.234,5") back to "1234.5".
 //
-// kit/i18n/cldr is the generated locale table (names, direction, plural rules, digits: a few KB). Never edit it:
+// internal/i18n/cldr is the generated locale table (names, direction, plural rules, digits: a few KB). Never edit it:
 // `mise run i18n:generate` writes it, and testdata/numbers.json, with the generator at the git tag i18n-generator.
 package i18n

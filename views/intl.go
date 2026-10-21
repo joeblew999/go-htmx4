@@ -6,11 +6,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/joeblew999/go-htmx4/kit/i18n"
+	"github.com/joeblew999/go-htmx4/internal/i18n"
 )
 
 // Dates, times, durations, rich numbers and the rest of Intl are formatted twice with the same code
-// (worker/intl.mjs): on the server with the Worker's own V8 Intl (IntlText, kit/i18n Format), so pages arrive
+// (worker/intl.mjs): on the server with the Worker's own V8 Intl (IntlText, internal/i18n Format), so pages arrive
 // finished, and in the browser (static/intl.js), which re-formats only what the server couldn't know: the viewer's
 // own time zone and relative times as time passes. The markup carries the raw value and the Intl options:
 //

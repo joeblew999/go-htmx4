@@ -3,7 +3,7 @@ package views
 import (
 	"time"
 
-	"github.com/joeblew999/go-htmx4/kit/i18n"
+	"github.com/joeblew999/go-htmx4/internal/i18n"
 
 	"github.com/joeblew999/go-htmx4/ui"
 	"github.com/joeblew999/go-htmx4/ui/icon"

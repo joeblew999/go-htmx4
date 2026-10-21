@@ -4,8 +4,8 @@ import (
 	"context"
 	"strings"
 
-	"github.com/joeblew999/go-htmx4/kit/i18n"
-	"github.com/joeblew999/go-htmx4/kit/i18n/cldr"
+	"github.com/joeblew999/go-htmx4/internal/i18n"
+	"github.com/joeblew999/go-htmx4/internal/i18n/cldr"
 )
 
 // Loc is the request's locale (set by the app's locale middleware), or the default locale when a view is

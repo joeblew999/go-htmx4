@@ -1,6 +1,6 @@
 package i18n
 
-// This file is the schema of the generated locale table (kit/i18n/cldr, written from CLDR by `mise run
+// This file is the schema of the generated locale table (internal/i18n/cldr, written from CLDR by `mise run
 // i18n:generate`). It holds only what the server itself needs: which locales ship, their names and text direction,
 // the plural rules that pick a message's wording, and the digits and separators for numbers inside messages.
 // Dates, times, currencies, units and the rest go through the runtime's own Intl (Locale.Format), so none of that

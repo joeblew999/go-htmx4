@@ -1,6 +1,6 @@
 // Package msggen generates typed message accessors from ICU MessageFormat catalogs: one TOML file per locale
 // (locales/en.toml, locales/de.toml…), the source locale first. Messages are parsed and checked at generate
-// time (arguments and kinds must match the source), and emitted as static kit/i18n data plus a Messages type
+// time (arguments and kinds must match the source), and emitted as static internal/i18n data plus a Messages type
 // with one method per key, so a missing key is a compile error and no parser runs in the Worker.
 //
 //	go run ./cmd/msggen -dir locales -out locales -source en -locales en,de,ar
@@ -24,9 +24,9 @@ import (
 	"unicode"
 
 	"github.com/BurntSushi/toml"
-	"github.com/joeblew999/go-htmx4/kit/i18n"
-	"github.com/joeblew999/go-htmx4/kit/i18n/cldr"
-	"github.com/joeblew999/go-htmx4/kit/i18n/internal/goemit"
+	"github.com/joeblew999/go-htmx4/internal/i18n"
+	"github.com/joeblew999/go-htmx4/internal/i18n/cldr"
+	"github.com/joeblew999/go-htmx4/internal/i18n/internal/goemit"
 )
 
 // Config is one generation run.
@@ -229,8 +229,8 @@ func Generate(cfg Config) error {
 const runtimeSource = `import (
 	"context"
 
-	"github.com/joeblew999/go-htmx4/kit/i18n"
-	"github.com/joeblew999/go-htmx4/kit/i18n/cldr"
+	"github.com/joeblew999/go-htmx4/internal/i18n"
+	"github.com/joeblew999/go-htmx4/internal/i18n/cldr"
 )
 
 func defaultLocale() *i18n.Locale { return cldr.Data.MustLocale(catalogs[0].Locale) }
@@ -241,7 +241,7 @@ type Messages struct {
 	cat *i18n.Catalog
 }
 
-// For returns the messages for the request's locale (kit/i18n FromContext), or the source locale's.
+// For returns the messages for the request's locale (internal/i18n FromContext), or the source locale's.
 func For(ctx context.Context) Messages {
 	if r, ok := i18n.FromContext(ctx); ok {
 		return ForLocale(r.Locale)

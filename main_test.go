@@ -5,7 +5,7 @@ package main
 import (
 	"cmp"
 	"context"
-	"github.com/joeblew999/go-htmx4/kit/i18n/cldr"
+	"github.com/joeblew999/go-htmx4/internal/i18n/cldr"
 	"github.com/joeblew999/go-htmx4/views"
 	"html"
 	"net/http"
@@ -16,7 +16,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/joeblew999/go-htmx4/kit/live"
+	"github.com/joeblew999/go-htmx4/internal/live"
 )
 
 func TestRoutes(t *testing.T) {
@@ -263,8 +263,8 @@ func TestBoardFragmentWireFormat(t *testing.T) {
 	}
 }
 
-// The Worker entry and the Room are JavaScript: they must use kit/live's topic and locale rules and version header.
-func TestWorkerJSMatchesKitLive(t *testing.T) {
+// The Worker entry and the Room are JavaScript: they must use internal/live's topic and locale rules and version header.
+func TestWorkerJSMatchesLive(t *testing.T) {
 	index, err := os.ReadFile("worker/index.mjs")
 	if err != nil {
 		t.Fatal(err)
@@ -287,7 +287,7 @@ func TestWorkerJSMatchesKitLive(t *testing.T) {
 	}
 	for _, ld := range cldr.Data.Locales {
 		if key := views.LocaleKey(ld); !live.ValidLocale(key) || !regexp.MustCompile(live.LocalePattern).MatchString(key) {
-			t.Errorf("shipped locale key %q fails kit/live's locale rule", key)
+			t.Errorf("shipped locale key %q fails internal/live's locale rule", key)
 		}
 	}
 }

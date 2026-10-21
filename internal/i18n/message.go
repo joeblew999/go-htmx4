@@ -7,7 +7,7 @@ import (
 )
 
 // Messages: ICU MessageFormat 1 (the syntax translators and their tools know), parsed at generate time
-// (kit/i18n/msggen) into static trees of MsgPart, formatted here with the locale's plural rules and
+// (internal/i18n/msggen) into static trees of MsgPart, formatted here with the locale's plural rules and
 // digits and separators. No parser runs in the Worker.
 
 // MsgKind is the kind of a message part.

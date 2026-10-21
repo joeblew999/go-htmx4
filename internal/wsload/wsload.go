@@ -4,7 +4,7 @@
 // presence (the online count) tracks connects and closes, whether each socket only gets its own locale's
 // fragments, and whether a late joiner gets the cached fragment.
 //
-// It speaks the protocol of github.com/joeblew999/go-htmx4/kit/live's Room: pushes are elements with
+// It speaks the protocol of github.com/joeblew999/go-htmx4/internal/live's Room: pushes are elements with
 // id="board", data-version="N" and lang="…", presence is <span id="presence" …>N</span>, sockets connect with
 // ?locale=, and "ping" is answered with "pong". Local tooling (standard Go).
 package wsload

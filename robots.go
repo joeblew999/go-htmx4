@@ -4,9 +4,9 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/joeblew999/go-htmx4/kit/httpx"
-	"github.com/joeblew999/go-htmx4/kit/i18n"
-	"github.com/joeblew999/go-htmx4/kit/i18n/cldr"
+	"github.com/joeblew999/go-htmx4/internal/httpx"
+	"github.com/joeblew999/go-htmx4/internal/i18n"
+	"github.com/joeblew999/go-htmx4/internal/i18n/cldr"
 )
 
 // robotsTxt answers /robots.txt. One `*`

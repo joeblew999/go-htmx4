@@ -10,7 +10,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/joeblew999/go-htmx4/kit/wsload"
+	"github.com/joeblew999/go-htmx4/internal/wsload"
 	"golang.org/x/net/websocket"
 )
 

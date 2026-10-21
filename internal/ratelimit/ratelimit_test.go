@@ -5,7 +5,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/joeblew999/go-htmx4/kit/ratelimit"
+	"github.com/joeblew999/go-htmx4/internal/ratelimit"
 )
 
 func TestClientKey(t *testing.T) {

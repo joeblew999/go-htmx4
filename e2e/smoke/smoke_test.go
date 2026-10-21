@@ -142,7 +142,7 @@ func TestStaticAssets(t *testing.T) {
 	}
 }
 
-// TestServerIntl: the Worker formats with its own V8 Intl (worker/intl.mjs via kit/i18n Format), so pages arrive
+// TestServerIntl: the Worker formats with its own V8 Intl (worker/intl.mjs via internal/i18n Format), so pages arrive
 // finished; plural rules (which pick messages' wording) run in Go.
 func TestServerIntl(t *testing.T) {
 	de := get(t, "/de/formats").body

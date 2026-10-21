@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/joeblew999/go-htmx4/kit/live"
+	"github.com/joeblew999/go-htmx4/internal/live"
 )
 
 // ValidTopic and TopicPattern must agree: Go checks one, the Worker entry's JavaScript the other.
