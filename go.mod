@@ -2,13 +2,13 @@ module github.com/joeblew999/go-htmx4
 
 go 1.27.1
 
-toolchain go1.27.2
+toolchain go1.27.3
 
 require (
 	github.com/BurntSushi/toml v1.6.0
 	github.com/gsxhq/gsx v0.4.0
 	github.com/jackielii/tailwind-merge-go v0.0.0-20260726184505-8a911ed0cf9a
-	github.com/joeblew999/charter/go/lib v0.9.2-0.20261020171937-8fd6eb9bd6e2
+	github.com/joeblew999/charter/go/lib v0.9.2-0.20261021033757-1846a865ef24
 	github.com/syumai/workers-go v0.36.0
 	golang.org/x/net v0.61.0
 )
@@ -31,4 +31,6 @@ tool (
 	github.com/gsxhq/gsx/cmd/gsx
 	github.com/joeblew999/charter/go/lib/cmd/workerbench
 	github.com/joeblew999/charter/go/lib/cmd/workerbuild
+	github.com/joeblew999/charter/go/lib/cmd/workerdeploy
+	github.com/joeblew999/charter/go/lib/cmd/workertail
 )

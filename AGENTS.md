@@ -21,14 +21,14 @@
 
 # Toolchain
 
-- All tools are pinned in `mise.toml` (Go 1.27.2, TinyGo 0.43.0, binaryen, Tailwind, gsxui, workerd, fnox, and
+- All tools are pinned in `mise.toml` (Go 1.27.3, TinyGo 0.43.0, binaryen, Tailwind, gsxui, workerd, fnox, and
   `chrome-headless-shell` for e2e: `mise run e2e` passes it as `E2E_CHROME`). Never rely on a browser installed by hand.
   Run `mise install` first; use `mise run <task>` rather than ad-hoc commands.
 - gsx is pinned only in `go.mod` (builds run `go tool gsx`). The VS Code extension's language server needs a `gsx` binary
   it can find: `mise install`'s postinstall hook runs `editor:gsx` (`tasks/editor.toml`), which installs go.mod's version
   into `GOPATH/bin`. `.vscode/` is committed: shared settings only, never machine-specific paths.
 - When bumping Go, update `mise.toml`, `go.mod` (`go` + `toolchain` lines) and the README Stack table together.
-- The app is the Go module at the repo root (`github.com/joeblew999/go-htmx4`). Released as v0.1.0.
+- The app is the Go module at the repo root (`github.com/joeblew999/go-htmx4`). Releases are `v*` tags (`git tag`; how: Production releases below).
 
 # Commands
 
@@ -104,7 +104,7 @@ README: change a task's description. The rules:
 # Cloudflare Workers
 
 - **No Node, no wrangler.** No `npm create cloudflare`, `wrangler`, or miniflare. Run locally with `workerd`, deploy with
-  `cmd/deploy` (Cloudflare REST API). Don't include the joeblew999 `tool-wrangler.toml` / `tool-cf.toml`.
+  charter's `go tool workerdeploy` (Cloudflare REST API; `ci/deploy.sh`). Don't include the joeblew999 `tool-wrangler.toml` / `tool-cf.toml`.
 - **workers-go `v0.36.0` exactly**, module path `github.com/syumai/workers-go` (never the old `github.com/syumai/workers`).
 - **TinyGo for everything that ships to Workers, built by charter's `go tool workerbuild`**
   (github.com/joeblew999/charter/go/lib, pinned in go.mod): TinyGo with the runtime patch for tinygo#5800, an 8 MB heap,
@@ -120,7 +120,7 @@ README: change a task's description. The rules:
   attaches it as a Workers Custom Domain and passes it as a binding; `host.go` then 301s `*.workers.dev` GET/HEAD requests
   to it (never `/healthz`, `/live/*` or form posts; never local hosts), so canonical, hreflang, og:url, sitemap and
   robots.txt carry one host. The zone also hosts other projects (apex/www Pages site, remy, ifcsketch, auth): only ever
-  add `go-htmx4.*` records, and `cfdeploy` refuses hostnames attached to other Workers. `mise run rename` clears it.
+  add `go-htmx4.*` records, and `workerdeploy` refuses hostnames attached to other Workers. `mise run rename` clears it.
   `dev` is `gsx dev` driving the TinyGo build + workerd (`gsx.toml` `[dev]`). Static Assets are assembled into `dist/site`
   (`mise run assets`: gsxui CSS via standalone Tailwind, `/gsxui/` behaviours, fonts). `<meta name="htmx-config">` must
   render before htmx's script (it does, in `views/layout.gsx`), or hx-ws ignores it.
@@ -133,11 +133,11 @@ README: change a task's description. The rules:
   merged classes); shared state needs a Cloudflare binding.
 - `cloudflare/*` packages import `syscall/js`: call them from `platform_js.go` (`//go:build js && wasm`) with a
   `platform_other.go` (`//go:build !js`) twin.
-- **Credentials only via fnox:** `fnox exec -- go run ./cmd/deploy …` or `fnox exec -- sh -c '…$CLOUDFLARE_API_TOKEN…'`
+- **Credentials only via fnox:** `fnox exec -- go tool workerdeploy …` or `fnox exec -- sh -c '…$CLOUDFLARE_API_TOKEN…'`
   (single-quoted so the variable expands after fnox injects it). Never print tokens or add `.env` files.
 - **Deploys and other Cloudflare writes are outward-facing:** get an explicit OK first.
 - **Worker Previews** (`mise run preview <name>`, run by Workers Builds for every pushed branch, PR #6):
-  `kit/cfdeploy.DeployPreview`/`DeletePreview` over the Previews REST API. Previews get `APP_DOMAIN=` (no redirect),
+  `go tool workerdeploy -preview`/`-delete-preview` over the Previews REST API. Previews get `APP_DOMAIN=` (no redirect),
   `APP_PREVIEW=1` (every response noindex: `TestPreviewNoindex`), the shared `$APP_NAME-preview` D1 and their own
   Durable Object storage. Bindings for every deploy kind live in one place, `ci/deploy.sh`. Production deploys
   keep previews enabled. Branch previews are pre-approved; production deploys still need an OK.
@@ -146,7 +146,7 @@ README: change a task's description. The rules:
   `-comment-pr` posts the URL. Workers Builds (`ci/workers-builds.sh`, trigger "$APP_NAME branch previews", set up
   by `mise run cf:builds`) fetches the tool, `-fetch-build` verifies before extracting, deploys `<branch slug>`
   and `-prune-previews` deletes previews of deleted branches. Fallback: compile on Cloudflare. Logic lives in
-  `kit/previewbuild` and `kit/cfdeploy` (tested with fake GitHub and Cloudflare APIs); keep the scripts thin.
+  charter's `workerdeploy` (tested there with fake GitHub and Cloudflare APIs); keep the scripts thin.
   The `main` trigger runs the same commands: main deploys staging, its own Worker `$APP_NAME-staging` (`mise run staging`: no domain, noindex, own D1).
 - **Production releases** (`mise run release v1.3`, which pushes a `release/v1.3` branch, or a v* tag from GitHub's
   Releases page): CI tests the commit, checks it's on `main`, tags it (for a release branch, then deletes the branch),
@@ -176,7 +176,7 @@ README: change a task's description. The rules:
     `worker/room.mjs` `MAX_SOCKETS` (1,000) refuses further sockets with 503; `mise run load` checks it. The smoke's
     and e2e's 429 checks use up the local write budget: e2e's `TestE2E` runs every other check in parallel first, then
     the write limit alone (`e2e/e2e_test.go`); add new browser checks to its list.
-  - Schema changes: add `migrations/NNNN_name.sql` (SQLite, idempotent). `cmd/deploy -migrations` applies it
+  - Schema changes: add `migrations/NNNN_name.sql` (SQLite, idempotent). `workerdeploy -migrations` applies it
     to D1 once (tracked in `_migrations`); `workerd/local-d1.mjs` must import it for local runs.
   - Durable Object classes change through `-migration-tag`/`-new-sqlite-class` in the deploy task; bump the tag for a new class.
   - Run `mise run test` (smoke includes a 2-socket push via `cmd/wsload`) after any board change; use
@@ -189,11 +189,11 @@ README: change a task's description. The rules:
 
 - repo root - the app (`main.go` + `board.go` handlers, `views/` pages + fragments (`.gsx`, package `views`), `ui/` vendored by gsxui,
   `store_{sql,mem}.go`, `platform_{js,other}.go`, `worker/index.mjs` entry + `worker/room.mjs` Durable Object, `migrations/`, `static/` (vendored htmx + hx-ws, `intl.js`),
-  `web/gsxui/` (behaviours + CSS entry), `workerd/` (config.capnp + local-only shims), `cmd/deploy` + `cmd/wsload` (flag parsing over kit/)).
-- `kit/` - importable packages: `cfdeploy` (Cloudflare deploy), `cftail` (live logs), `searchconsole` (Search Console API), `wsload` (WebSocket checks), `live`
+  `web/gsxui/` (behaviours + CSS entry), `workerd/` (config.capnp + local-only shims), `cmd/` (wsload, searchconsole, msggen: flag parsing over kit/)).
+- `kit/` - importable packages: `searchconsole` (Search Console API), `wsload` (WebSocket checks), `live`
   (Room publish, topic rule), `ratelimit` (rate limiting binding), `httpx` (TinyGo-safe HTTP helpers), `i18n` (locales, messages, plural rules;
   `i18n/cldr` generated table, `i18n/msggen` message generator, `i18n/legacy` the earlier server-side Intl as its own
-  module); `kit/internal/cfapi` is their shared API client.
+  module). Deploying and live logs are charter's `go tool workerdeploy` / `workertail` (pinned in go.mod).
 - `tasks/` - mise task files included from `mise.toml`.
 
 # kit/ (importable packages)
@@ -201,10 +201,10 @@ README: change a task's description. The rules:
 - Other repos import `kit/*`: it must never import the app (`views`, `ui`, `cmd`, package main). `mise run test` fails if it
   does. Keep exported APIs documented (`// Package …`, examples) and stable; errors are returned, not `log.Fatal`.
 - `kit/httpx`, `kit/live` and `kit/ratelimit` are compiled into the Worker: TinyGo-safe only (no reflection-heavy code, no regexp in hot
-  paths). `kit/cfdeploy` and `kit/wsload` are local tooling (standard Go).
-- Tests never call Cloudflare: `kit/cfdeploy` and `kit/cftail` use `httptest` fakes of the API, `kit/wsload` a fake Room. Extend the fakes
-  when you add an API call.
-- `cmd/deploy`, `cmd/tail` and `cmd/wsload` stay flag parsing only; logic goes in `kit/`.
+  paths). `kit/wsload` and `kit/searchconsole` are local tooling (standard Go).
+- Tests never call Google or Cloudflare: `kit/searchconsole` uses `httptest` fakes of the API, `kit/wsload` a fake Room. Extend the
+  fakes when you add an API call.
+- `cmd/*` stay flag parsing only; logic goes in `kit/`.
 - The topic rule and version header live in `kit/live`; `TestWorkerJSMatchesKitLive` checks `worker/index.mjs` and
   `worker/room.mjs` use the same.
 

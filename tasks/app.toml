@@ -1,7 +1,7 @@
 # tasks/app.toml — the app's tasks.
 #
 # workers-go v0.36.0, TinyGo for everything that ships to Workers, no Node (no npm, no wrangler). Standard Go
-# only for local-only code: `go run .`, go test/vet, cmd/deploy, cmd/wsload. Tools come from mise.toml.
+# only for local-only code: `go run .`, go test/vet, charter's workerdeploy/workertail, cmd/wsload. Tools come from mise.toml.
 #
 #   mise run dev            # gsx dev: save → regenerate → TinyGo + assets → workerd restart → http://localhost:8913
 #   mise run dev:native     # gsx dev: save → regenerate → go build → native restart (no DOs) → http://localhost:9913
@@ -115,10 +115,10 @@ trap 'kill $css 2>/dev/null' EXIT
 go tool gsx dev -build 'go build -o bin/app .' -run 'bin/app'
 '''
 
-# Live logs of the deployed Worker (kit/cftail): requests, console output, exceptions. Ctrl-C deletes the tail.
+# Live logs of the deployed Worker (charter's workertail): requests, console output, exceptions. Ctrl-C deletes the tail.
 ["tail"]
 description = "Stream the deployed Worker's live logs (requests, console, exceptions) → Ctrl-C to stop"
-run = "fnox exec -- go run ./cmd/tail -name \"$APP_NAME\""
+run = "fnox exec -- go tool workertail -name \"$APP_NAME\""
 
 ["run"]
 description = "go run . (non-js fallback, dist/site served by Go) → http://localhost:9913"
@@ -280,7 +280,7 @@ fnox exec -- sh -c '
 '''
 
 # ── deploy ──────────────────────────────────────────────────────
-# Direct Upload via cmd/deploy (stdlib Go, no wrangler). Runs the full local test
+# Direct Upload via charter's workerdeploy (Go, no wrangler). Runs the full local test
 # (TinyGo build + workerd smoke + go test) and the token check first. The Worker and D1 names are
 # $APP_NAME (mise.toml [env]); updating an existing script of that name is allowed.
 ["deploy"]
@@ -352,7 +352,7 @@ run = '''
 #!/usr/bin/env bash
 set -euo pipefail
 cf() { if [ -n "${CLOUDFLARE_API_TOKEN:-}" ] && [ -n "${CLOUDFLARE_ACCOUNT_ID:-}" ]; then "$@"; else fnox exec -- "$@"; fi; }
-cf sh -c 'exec go run ./cmd/deploy -name "$APP_NAME" -repo "$APP_REPO" -configure-builds \
+cf sh -c 'exec go tool workerdeploy -name "$APP_NAME" -repo "$APP_REPO" -configure-builds \
   -build-token "$APP_NAME build token" -fallback-build-token "${FALLBACK_BUILD_TOKEN:-}" \
   -build-var "CLOUDFLARE_ACCOUNT_ID=$CLOUDFLARE_ACCOUNT_ID" -path-exclude "*.md"'
 '''
