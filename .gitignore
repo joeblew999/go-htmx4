@@ -25,3 +25,6 @@
 # Durable Object SQLite state for local workerd (Room cache, LocalD1 board data)
 /.workerd-state/
 /.superseded
+
+# mise run bench:variants: the last run's results (ci/bench.sh render .bench writes docs/benchmarks.md from them)
+/.bench/

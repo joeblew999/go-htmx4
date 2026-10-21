@@ -40,7 +40,7 @@ names=("A runtime per request, TinyGo as it ships" "B A + TinyGo patched (tinygo
 flags=("-reuse=false -patches=false -heap=0" "-reuse=false" "-patches=false" "")
 # ci/bench.sh render DIR writes docs/benchmarks.md again from a run's results (DIR/N.json) without measuring.
 if [ "$1" = render ]; then out=$2; else
-out=build/bench
+out=.bench
 rm -rf "$out" && mkdir -p "$out"
 for i in "${!names[@]}"; do
   echo "── ${names[$i]} (workerbuild ${flags[$i]:-defaults})"
