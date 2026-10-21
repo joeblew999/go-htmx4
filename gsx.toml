@@ -12,9 +12,8 @@ url_presets = ["htmx"]
 names = ["hx-action", "hx-ws:connect"]
 
 # gsx dev (gsx Configuration guide, [dev]): a .gsx/.go save regenerates, rebuilds, restarts the backend and probes
-# /healthz. Two loops share this config; the backend port comes from APP_DEV_PORT (gsx then leaves ports to us):
-#   mise run dev          build/run below: build:dev (standard Go, seconds) → workerd on :8913 (Durable Objects, D1 shim, pushes)
-#   mise run dev:native   -build/-run flags: go build → the native server on :9913 (seconds per save, no live push)
+# /healthz. mise run dev: build:dev (standard Go, seconds) → workerd on :8913 (Intl, Durable Objects, D1 shim, pushes);
+# the backend port comes from APP_DEV_PORT (gsx then leaves ports to us).
 [dev]
 no_web = true
 build = ["mise", "run", "build:dev"]

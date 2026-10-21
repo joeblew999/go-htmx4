@@ -17,7 +17,12 @@ import (
 	"testing"
 
 	"github.com/joeblew999/go-htmx4/internal/live"
+
+	"github.com/joeblew999/go-htmx4/internal/i18n/i18ntest"
 )
+
+// TestMain runs the tests with the Worker's Intl: worker/gointl.mjs on workerd (internal/i18n/i18ntest).
+func TestMain(m *testing.M) { os.Exit(i18ntest.Main(m)) }
 
 func TestRoutes(t *testing.T) {
 	h := newServer().routes()

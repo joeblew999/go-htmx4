@@ -1,14 +1,14 @@
 # tasks/i18n.toml — locales and UI messages.
 #
-#   mise run i18n:messages   # locales/*.toml (ICU MessageFormat) → typed accessors in locales/*_msg_gen.go
+#   mise run i18n:messages   # locales/*.toml (ICU MessageFormat) → worker/messages_gen.mjs + typed accessors in locales/
 #
 # Dates, times, currencies, units and the rest go through the runtime's own Intl, on the server and in the browser:
 # internal/i18n/doc.go.
 
 ["i18n:messages"]
-description = "Generate locales/*_msg_gen.go from the UI message catalogs locales/*.toml (I18N_LOCALES, en first)"
+description = "Generate worker/messages_gen.mjs (the catalogs Intl formats) and their typed accessors locales/*_msg_gen.go from locales/*.toml (I18N_LOCALES, en first)"
 # Skipped when the catalogs, the generator and the locale list (mise.toml) are unchanged since the last run.
 sources = ["locales/*.toml", "cmd/msggen/**/*.go", "internal/i18n/msggen/**/*.go", "mise.toml"]
-outputs = ["locales/*_msg_gen.go"]
+outputs = ["locales/*_msg_gen.go", "worker/messages_gen.mjs"]
 dir = "{{config_root}}"
-run = "go run ./cmd/msggen -dir locales -out locales -locales \"$I18N_LOCALES\""
+run = "go run ./cmd/msggen -dir locales -out locales -js worker/messages_gen.mjs -locales \"$I18N_LOCALES\""

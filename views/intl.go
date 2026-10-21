@@ -17,10 +17,10 @@ import (
 //	<time datetime="2026-07-04T15:30:45Z" data-intl="datetime" data-opts='{"dateStyle":"full"}'>Samstag, 4. Juli 2026</time>
 //
 // data-opts is a JSON object of Intl options, written in the views as a literal (the app has no JSON encoder in
-// the Worker). Without a JS runtime (go run, go test) the text is a plain fallback ("2026-07-04 15:30 UTC").
+// the Worker). Where Intl can't format a value, the text is the plain fallback ("2026-07-04 15:30 UTC").
 
 // IntlText is c formatted on the server with the runtime's Intl in the request's language, time zone and clock, or
-// fallback where there is no JS runtime or the runtime can't format c.
+// fallback where Intl can't format c.
 func IntlText(ctx context.Context, c i18n.Call, fallback string) string {
 	if s, ok := Loc(ctx).Format(c, TimeZone(ctx), HourCycle(ctx)); ok {
 		return s

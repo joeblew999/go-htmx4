@@ -1,7 +1,7 @@
 # tasks/app.toml — the app's tasks: build, dev loops, tests, deploys, release. Every task, with when to use it:
 # docs/commands.md (generated from the descriptions: mise run docs:commands).
 #
-# TinyGo (or WORKER_COMPILER) for what ships to Workers; standard Go for local-only code: go run ., go test/vet,
+# TinyGo (or WORKER_COMPILER) for what ships to Workers; standard Go for local-only code: go test/vet,
 # charter's go tool workerdeploy/workertail, cmd/*. No Node. Tools come from mise.toml.
 
 # Vendor htmx 4.0.0 + the hx-ws and hx-live extensions from the npm registry tarball (integrity-checked,
@@ -41,7 +41,7 @@ run = "go tool gsx generate"
 # Static Assets directory: /static/ = static/ (htmx, hx-ws),
 # /gsxui/ = web/gsxui/ behaviours, /assets/ = compiled CSS + fonts (fonts.css url()s are relative).
 ["assets"]
-description = "Tailwind (gsxui CSS) + assemble dist/site (Static Assets for workerd, go run . and deploy)"
+description = "Tailwind (gsxui CSS) + assemble dist/site (Static Assets for workerd and deploy)"
 depends = ["vendor"]
 dir = "{{config_root}}"
 run = '''
@@ -81,29 +81,13 @@ outputs = ["build/app.wasm", "build/go.mjs", "build/worker.mjs", "build/runtime.
 env = { WASM_PROFILE = "dev" }
 run = "ci/wasm-build.sh"
 
-# The gsx CLI's dev loops (gsx.toml [dev]). Which one:
-#   dev:native  GUI, layout and text work: go build + the native server, seconds per save (memory store, no live
-#               pushes, no Worker Intl: the browser's intl.js formats the page).
-#   dev         The real runtime (server Intl, Durable Objects, D1, the board): build:dev (standard Go, seconds per
-#               save) + workerd.
+# The dev loop (gsx CLI, gsx.toml [dev]): the real runtime (Intl, Durable Objects, D1, the board), build:dev
+# (standard Go, seconds per save) + workerd.
 # JS and CSS edits (static/, worker/intl.mjs, web/gsxui) need no Go build: mise run assets, then reload.
 ["dev"]
 description = "gsx dev → build:dev (standard Go, seconds) + CSS → workerd restart on every .gsx/.go save → http://localhost:8913"
 env = { APP_DEV_PORT = "8913" }
 run = "go tool gsx dev"
-
-["dev:native"]
-description = "gsx dev → go build → native server restart on every save (seconds; no Durable Objects) → http://localhost:9913"
-depends = ["generate", "assets"]
-env = { APP_DEV_PORT = "9913", PORT = "9913", APP_ENV = "go run . (dev:native)" }
-run = '''
-#!/usr/bin/env bash
-set -euo pipefail
-tailwindcss -i web/gsxui/index.css -o dist/site/assets/gsxui.css --watch=always 2>/dev/null &
-css=$!
-trap 'kill $css 2>/dev/null' EXIT
-go tool gsx dev -build 'go build -o bin/app .' -run 'bin/app'
-'''
 
 # Live logs of the deployed Worker (charter's workertail): requests, console output, exceptions. Ctrl-C deletes the tail.
 ["tail"]

@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-// memStore is the board for `go run .` and tests: one process, so memory persists across
+// memStore is the board under go test: one process, so memory persists across
 // requests (unlike on Workers).
 type memStore struct {
 	mu     sync.Mutex

@@ -40,10 +40,10 @@ func TestLocaleRouting(t *testing.T) {
 	}{
 		{path: "/", status: 200, want: []string{`<html lang="en" dir="ltr" `}, language: "en"},
 		{path: "/de/", status: 200, want: []string{`<html lang="de" dir="ltr" `, `href="/de/board"`}, language: "de"},
-		{path: "/ar/formats", status: 200, want: []string{`<html lang="ar" `}, language: "ar"},
-		{path: "/he/about", status: 200, want: []string{`<html lang="he" `}, language: "he"},
+		{path: "/ar/formats", status: 200, want: []string{`<html lang="ar" dir="rtl" `}, language: "ar"},
+		{path: "/he/about", status: 200, want: []string{`<html lang="he" dir="rtl" `}, language: "he"},
 		{path: "/pt-br/about", status: 200, want: []string{`<html lang="pt-BR" dir="ltr" `}, language: "pt-BR"},
-		{path: "/zh-hant/formats", status: 200, want: []string{`<html lang="zh-Hant" `}, language: "zh-Hant"},
+		{path: "/zh-hant/formats", status: 200, want: []string{`<html lang="zh-Hant" dir="ltr" `, "繁體中文"}, language: "zh-Hant"},
 		{path: "/de", status: 301, location: "/de/"},
 		{path: "/DE/about?x=1", status: 301, location: "/de/about?x=1"},
 		{path: "/pt-BR/", status: 301, location: "/pt-br/"},
@@ -182,6 +182,7 @@ func TestLanguageLinks(t *testing.T) {
 		`href="/about\?x=1"[^>]* hreflang="en" lang="en"`,
 		`href="/ar/about\?x=1"[^>]* hreflang="ar" lang="ar"`,
 		`href="/fr/about\?x=1"[^>]* hreflang="fr" lang="fr"[^>]* aria-current="page"`,
+		`>\s*português \(Brasil\)\s*<`, `>\s*العربية\s*<`,
 	} {
 		if !regexp.MustCompile(want).MatchString(body) {
 			t.Errorf("language list lacks %s", want)
@@ -207,12 +208,14 @@ func TestLogicalClasses(t *testing.T) {
 }
 
 // TestFormatsPage: the examples reach the browser as raw values with their Intl options (static/intl.js formats
-// them). What Intl answers for each language is checked on workerd (e2e/smoke).
+// them), and the plural rows show each language's Intl.PluralRules categories with numbers that select them.
 func TestFormatsPage(t *testing.T) {
 	h := newServer().routes()
 	for path, wants := range map[string][]string{
-		"/formats":    {`data-intl="number" data-value="1234567.891"`, `data-opts="{&#34;style&#34;:&#34;currency&#34;,&#34;currency&#34;:&#34;EUR&#34;}"`, `data-intl="datetime" data-value="2026-07-04T15:30:45.123Z"`, `data-intl="range"`, `data-end="2026-07-04T17:00:45.123Z"`, `data-intl="relative" data-value="-1" data-opts="{&#34;numeric&#34;:&#34;auto&#34;}" data-unit="day"`, `data-intl="list"`, `data-intl="duration"`, `data-intl="number-range"`, `data-intl="plural"`, `data-intl="display-name"`, `data-intl="collate"`, `data-intl="segment"`, `data-intl="locale" data-value="maximize"`, `data-intl="supported" data-value="unit"`, "2026-07-04 15:30 UTC"},
-		"/de/formats": {`&#34;currency&#34;:&#34;EUR&#34;`},
+		"/formats":    {`data-intl="number" data-value="1234567.891"`, `data-opts="{&#34;style&#34;:&#34;currency&#34;,&#34;currency&#34;:&#34;EUR&#34;}"`, `data-intl="datetime" data-value="2026-07-04T15:30:45.123Z"`, `data-intl="range"`, `data-end="2026-07-04T17:00:45.123Z"`, `data-intl="relative" data-value="-1" data-opts="{&#34;numeric&#34;:&#34;auto&#34;}" data-unit="day"`, `data-intl="list"`, `data-intl="duration"`, `data-intl="number-range"`, `data-intl="plural"`, `data-intl="display-name"`, `data-intl="collate"`, `data-intl="segment"`, `data-intl="locale" data-value="maximize"`, `data-intl="supported" data-value="unit"`, "cardinal · one", "ordinal · few", "Saturday, July 4, 2026"},
+		"/de/formats": {`&#34;currency&#34;:&#34;EUR&#34;`, "cardinal · one"},
+		"/ar/formats": {"cardinal · zero", "cardinal · two", "cardinal · few", "cardinal · many", `{&#34;numberingSystem&#34;:&#34;arab&#34;}`},
+		"/ru/formats": {"cardinal · few", "2, 3, 4, 22, 23"},
 	} {
 		body := get(t, h, path).Body.String()
 		for _, w := range wants {
@@ -231,8 +234,10 @@ func TestNoteRelativeTime(t *testing.T) {
 	post.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	h.ServeHTTP(httptest.NewRecorder(), post)
 	page := get(t, h, "/de/board?topic=reltime").Body.String()
-	if !regexp.MustCompile(`<time datetime="20\d\d-\d\d-\d\dT\d\d:\d\d:\d\dZ" title="20\d\d-\d\d-\d\d \d\d:\d\d UTC" data-intl="relative">20\d\d-\d\d-\d\d \d\d:\d\d UTC</time>`).MatchString(page) {
-		t.Errorf("board page lacks the note's <time data-intl=relative> with its UTC fallback")
+	// Worded by Intl on the server in German ("vor 0 Sekunden", "jetzt"…), not the UTC fallback.
+	m := regexp.MustCompile(`<time datetime="20\d\d-\d\d-\d\dT\d\d:\d\d:\d\dZ" title="20\d\d-\d\d-\d\d \d\d:\d\d UTC" data-intl="relative">([^<]+)</time>`).FindStringSubmatch(page)
+	if m == nil || strings.HasSuffix(m[1], "UTC") {
+		t.Errorf("board page lacks the note's <time data-intl=relative> worded by Intl: %q", m)
 	}
 	if !strings.Contains(page, `src="/static/intl.js"`) {
 		t.Errorf("layout lacks static/intl.js")
@@ -308,7 +313,7 @@ func TestNoHardcodedText(t *testing.T) {
 
 // TestTimeZonePreferences: the viewer's chosen zone and clock (the tz/hc cookies) reach static/intl.js as
 // <html data-tz data-hc>; without a choice they're empty and the browser uses its own zone. The connection's zone
-// (Cloudflare's cf.timezone; a header under go run .) only labels "Automatic (…)" in the form.
+// (Cloudflare's cf.timezone; a header under go test) only labels "Automatic (…)" in the form.
 func TestTimeZonePreferences(t *testing.T) {
 	h := newServer().routes()
 	page := func(path, connection string, cookies ...*http.Cookie) string {

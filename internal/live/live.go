@@ -19,7 +19,7 @@
 //     so the page renders its label in its own language.
 //
 // [Publish] needs js/wasm (TinyGo on Workers). Under standard Go there are no Durable Objects: handle
-// publishing in a platform file of your own (the go-htmx4 app makes it a no-op for `go run .`).
+// publishing in a platform file of your own (the go-htmx4 app makes it a no-op under go test).
 package live
 
 import (

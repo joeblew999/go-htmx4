@@ -91,8 +91,10 @@ func TestOpenGraph(t *testing.T) {
 		}
 		return v[0]
 	}
-	// og:locale's territory comes from Intl (likely subtags): e2e/smoke checks it on workerd.
-	for _, tc := range []struct{ path string }{{"/"}, {"/about"}, {"/en-in/"}, {"/de/about"}, {"/pt-br/board"}, {"/zh-hant/formats"}, {"/ar/"}, {"/board?topic=seo-og"}} {
+	for _, tc := range []struct{ path, locale string }{
+		{"/", "en_US"}, {"/about", "en_US"}, {"/en-in/", "en_IN"}, {"/de/about", "de_DE"}, {"/pt-br/board", "pt_BR"},
+		{"/zh-hant/formats", "zh_TW"}, {"/zh-hans/", "zh_CN"}, {"/ar/", "ar_EG"}, {"/board?topic=seo-og", "en_US"},
+	} {
 		t.Run(tc.path, func(t *testing.T) {
 			rec := httptest.NewRecorder()
 			h.ServeHTTP(rec, httptest.NewRequest("GET", "https://go-htmx4.example.net"+tc.path, nil))
@@ -111,8 +113,17 @@ func TestOpenGraph(t *testing.T) {
 			if got, want := one(t, page, "property", "og:description"), one(t, page, "name", "description"); got != want || got == "" {
 				t.Errorf("og:description = %q, meta description %q", got, want)
 			}
-			one(t, page, "property", "og:locale")
+			if got := one(t, page, "property", "og:locale"); got != tc.locale {
+				t.Errorf("og:locale = %q, want %q", got, tc.locale)
+			}
 			alts := meta(page, "property", "og:locale:alternate")
+			seen := map[string]bool{tc.locale: true}
+			for _, a := range alts {
+				if seen[a] || !regexp.MustCompile(`^[a-z]{2,3}(_[A-Z]{2}|_[0-9]{3})?$`).MatchString(a) {
+					t.Errorf("og:locale:alternate %q duplicated or not language_TERRITORY", a)
+				}
+				seen[a] = true
+			}
 			if len(alts) != len(locales.Shipped)-1 {
 				t.Errorf("%d og:locale:alternate, want %d (every other locale)", len(alts), len(locales.Shipped)-1)
 			}

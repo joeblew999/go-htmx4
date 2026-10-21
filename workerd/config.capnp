@@ -40,6 +40,8 @@ const app :Workerd.Worker = (
     (name = "index.mjs", esModule = embed "../worker/index.mjs"),
     (name = "room.mjs", esModule = embed "../worker/room.mjs"),
     (name = "intl.mjs", esModule = embed "../worker/intl.mjs"),
+    (name = "gointl.mjs", esModule = embed "../worker/gointl.mjs"),
+    (name = "messages_gen.mjs", esModule = embed "../worker/messages_gen.mjs"),
     (name = "build/go.mjs", esModule = embed "../build/go.mjs"),
     (name = "build/worker.mjs", esModule = embed "../build/worker.mjs"),
     (name = "build/tinygo-clock.mjs", esModule = embed "../build/tinygo-clock.mjs"),

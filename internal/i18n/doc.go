@@ -1,22 +1,18 @@
-// Package i18n is the app's internationalization over the runtime's own Intl. Which locales ship is
-// I18N_LOCALES in mise.toml (the generated locales.Shipped); the request's locale comes from its URL; UI text
-// comes from ICU MessageFormat catalogs, generated into typed accessors by internal/i18n/msggen.
+// Package i18n is how Go reaches the app's one source of language: the runtime's own Intl, through
+// worker/intl.mjs. Go decides nothing about a language itself; it routes the request to a locale and passes values.
 //
-// Everything a language decides goes through worker/intl.mjs, the same module with the same V8 Intl on the
-// Worker (workerd locally) and in the browser:
+// worker/intl.mjs runs in two places with the same V8 Intl: on the Worker (workerd locally), where Go calls it
+// through worker/gointl.mjs, and in the browser (static/intl.js, served as /static/intl-core.mjs). It does:
 //
-//   - On the Worker, Go calls it through Locale.Format: dates, times, zones, relative times, durations, numbers,
-//     currencies, units, lists; a message's plural category (Intl.PluralRules) and the numbers in it
-//     (Intl.NumberFormat); a locale's name, direction and likely subtags (Intl.DisplayNames, Intl.Locale). Pages
-//     arrive finished, and emails or PDFs can use the same call.
-//   - In the browser, static/intl.js imports the same module (served as /static/intl-core.mjs) and re-formats only
-//     what the server couldn't know: the viewer's own time zone, and relative times as time passes.
-//   - Markup carries the raw value and its options (<time datetime data-intl="datetime" data-opts='{…}'>), so either
-//     side can word it.
-//   - Forms send canonical values back (decimal strings, UTC instants); ParseNumber reads a number typed the
-//     language's way ("1.234,5") back to "1234.5".
+//   - every message (Locale.Message): ICU MessageFormat from the catalogs msggen writes (worker/messages_gen.mjs), its
+//     plural forms by Intl.PluralRules and its numbers by Intl.NumberFormat;
+//   - every value (Locale.Format): dates, times, zones, relative times, durations, numbers, currencies, units, lists;
+//   - a locale's name, direction and likely subtags (Intl.DisplayNames, Intl.Locale);
+//   - reading a number typed the language's way back to a plain decimal (Locale.ParseNumber).
 //
-// There is no Intl without a JS runtime: under go test, Format reports !ok, a plural takes its "other" case and a
-// number its plain digits. What a language says is tested on workerd: the smoke test (e2e/smoke) and the catalogs'
-// plural check (locales).
+// Pages arrive finished; the browser re-formats only what the server couldn't know: the viewer's own time zone, and
+// relative times as time passes. Markup carries raw values with their Intl options (<time datetime data-intl=…>).
+//
+// The shipped locales are I18N_LOCALES in mise.toml (the generated locales.Shipped). Outside the Worker there is no
+// Intl but workerd's: go test runs under internal/i18n/i18ntest, which serves worker/gointl.mjs from workerd.
 package i18n

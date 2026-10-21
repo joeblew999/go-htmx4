@@ -12,6 +12,9 @@ type Locale struct {
 	id                 string
 	once               sync.Once
 	name, dir, maximal string
+
+	mu    sync.Mutex
+	plain map[messageKey]string // messages without arguments, as Intl formatted them
 }
 
 // NewLocale returns the locale with a BCP 47 id, e.g. "pt-BR".
@@ -32,7 +35,7 @@ func (l *Locale) Dir() string { l.ask(); return l.dir }
 // Maximal is the id with its likely subtags (Intl.Locale maximize), e.g. "pt-Latn-BR".
 func (l *Locale) Maximal() string { l.ask(); return l.maximal }
 
-// ask fills the Intl facts. With no JS runtime (go test) they are the id and "ltr".
+// ask fills the Intl facts.
 func (l *Locale) ask() {
 	l.once.Do(func() {
 		get := func(c Call, none string) string {

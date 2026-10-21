@@ -8,10 +8,11 @@ import (
 	"github.com/joeblew999/go-htmx4/internal/i18n"
 )
 
-// Messages are the app's UI strings in one locale. Get them with For (the request's locale) or ForLocale.
+// Messages are the app's UI strings in one locale, formatted by worker/intl.mjs's message with the runtime's Intl.
+// Get them with For (the request's locale) or ForLocale.
 type Messages struct {
 	loc *i18n.Locale
-	cat *i18n.Catalog
+	cat string // the catalog: the locale's own, the source's, or the pseudo-localized one
 }
 
 // For returns the messages for the request's locale (internal/i18n FromContext), or the source locale's.
@@ -19,36 +20,53 @@ func For(ctx context.Context) Messages {
 	if r, ok := i18n.FromContext(ctx); ok {
 		return ForLocale(r.Locale)
 	}
-	return Messages{cat: catalogs[0]}
+	return ForLocale(Shipped[0])
 }
 
-// ForLocale returns the messages for a resolved locale (the source locale's for one without a catalog).
+// ForLocale returns the messages for a resolved locale (the source catalog for one without its own).
 func ForLocale(loc *i18n.Locale) Messages {
+	if loc == nil {
+		loc = Shipped[0]
+	}
 	for _, c := range catalogs {
-		if loc != nil && c.Locale == loc.ID() {
+		if c == loc.ID() {
 			return Messages{loc: loc, cat: c}
 		}
 	}
 	return Messages{loc: loc, cat: catalogs[0]}
 }
 
-// Pseudo returns en-XA pseudo-localized messages (accented, bracketed, ~40% longer) formatted for loc: render pages with them to find text that doesn't go through a catalog.
-func Pseudo(loc *i18n.Locale) Messages { return Messages{loc: loc, cat: pseudoCatalog} }
+// Pseudo returns en-XA pseudo-localized messages (accented, bracketed, ~40% longer) formatted for loc: render pages
+// with them to find text that doesn't go through a catalog.
+func Pseudo(loc *i18n.Locale) Messages {
+	if loc == nil {
+		loc = Shipped[0]
+	}
+	return Messages{loc: loc, cat: "en-XA"}
+}
 
 // Complete reports whether the locale's catalog translates every message.
 func Complete(id string) bool {
 	for i, c := range catalogs {
-		if c.Locale == id {
+		if c == id {
 			return complete[i]
 		}
 	}
 	return false
 }
 
-func (m Messages) format(i int, args ...i18n.MsgArgValue) string {
-	loc := m.loc
-	if loc == nil {
-		loc = Shipped[0]
+func (m Messages) format(i int, args ...string) string {
+	if m.loc == nil {
+		m = ForLocale(nil)
 	}
-	return loc.FormatMessage(m.cat.Messages[i].Parts, args...)
+	return m.loc.Message(m.cat, i, args...)
 }
+
+// Shipped are the app's locales (I18N_LOCALES), the source first.
+var Shipped = i18n.Locales{i18n.NewLocale("en"), i18n.NewLocale("en-IN"), i18n.NewLocale("de"), i18n.NewLocale("fr"), i18n.NewLocale("es"), i18n.NewLocale("pt-BR"), i18n.NewLocale("pt-PT"), i18n.NewLocale("ar"), i18n.NewLocale("he"), i18n.NewLocale("ja"), i18n.NewLocale("zh-Hans"), i18n.NewLocale("zh-Hant"), i18n.NewLocale("hi"), i18n.NewLocale("ru")}
+
+// catalogs are the catalogs in messages_gen.mjs, in Shipped's order.
+var catalogs = []string{"en", "en-IN", "de", "fr", "es", "pt-BR", "pt-PT", "ar", "he", "ja", "zh-Hans", "zh-Hant", "hi", "ru"}
+
+// complete lists, per catalog, whether every message is translated.
+var complete = []bool{true, true, true, true, true, true, true, true, true, true, true, true, true, true}

@@ -1,41 +1,45 @@
-// Package msggen generates typed message accessors from ICU MessageFormat catalogs: one TOML file per locale
-// (locales/en.toml, locales/de.toml…), the source locale first. Messages are parsed and checked at generate
-// time (arguments and kinds must match the source), and emitted as static internal/i18n data plus a Messages type
-// with one method per key, so a missing key is a compile error and no parser runs in the Worker.
+// Package msggen generates the app's message catalogs from ICU MessageFormat catalogs: one TOML file per locale
+// (locales/en.toml, locales/de.toml…), the source locale first. Messages are parsed and checked at generate time
+// (arguments and kinds must match the source) and written as data for worker/intl.mjs's message (the JS module
+// worker/messages_gen.mjs), which formats them with the runtime's Intl, plus a Go package of typed accessors (one
+// method per key, so a missing key is a compile error) that ask it.
 //
-//	go run ./cmd/msggen -dir locales -out locales -source en -locales en,de,ar
+//	go run ./cmd/msggen -dir locales -out locales -js worker/messages_gen.mjs -locales en,de,ar
 //
 // A key missing from a translation comes from the nearest shipped locale its id shortens to (en-IN → en), so a
-// regional catalog holds only what differs; inheriting from the source locale counts as translated. Keys with no ancestor fall back to the source text, and [Complete] in the generated package is
-// false for that locale. Local tooling (standard Go).
+// regional catalog holds only what differs; inheriting from the source locale counts as translated. Keys with no
+// ancestor fall back to the source text, and [Complete] in the generated package is false for that locale. Local
+// tooling (standard Go).
 package msggen
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"go/format"
 	"io"
 	"os"
 	"path/filepath"
-	"reflect"
 	"slices"
 	"strings"
 	"unicode"
 
 	"github.com/BurntSushi/toml"
-	"github.com/joeblew999/go-htmx4/internal/i18n"
-	"github.com/joeblew999/go-htmx4/internal/i18n/internal/goemit"
 )
 
 // Config is one generation run.
 type Config struct {
 	Dir     string   // catalog directory holding <locale>.toml
-	Out     string   // output package directory
+	Out     string   // output Go package directory
+	JS      string   // the catalogs' JS module, e.g. worker/messages_gen.mjs
 	Package string   // default: base of Out
 	Source  string   // source locale (default: first of Locales)
 	Locales []string // shipped locale ids, e.g. "en", "pt-BR"
 	Log     io.Writer
 }
+
+// PseudoCatalog is the en-XA catalog: the source, pseudo-localized (accented, bracketed, ~40% longer).
+const PseudoCatalog = "en-XA"
 
 type message struct {
 	key    string
@@ -44,10 +48,10 @@ type message struct {
 	index  map[string]int8
 }
 
-// Generate reads the catalogs and writes the generated package.
+// Generate reads the catalogs and writes the JS module and the Go package.
 func Generate(cfg Config) error {
-	if len(cfg.Locales) == 0 || cfg.Dir == "" || cfg.Out == "" {
-		return errors.New("msggen: Dir, Out and Locales are required")
+	if len(cfg.Locales) == 0 || cfg.Dir == "" || cfg.Out == "" || cfg.JS == "" {
+		return errors.New("msggen: Dir, Out, JS and Locales are required")
 	}
 	if cfg.Source == "" {
 		cfg.Source = cfg.Locales[0]
@@ -78,11 +82,6 @@ func Generate(cfg Config) error {
 		return fmt.Errorf("msggen: %s.toml has no messages", cfg.Source)
 	}
 
-	type catalogOut struct {
-		cat      i18n.Catalog
-		missing  []string
-		complete bool
-	}
 	trs := map[string]map[string]string{}
 	for _, id := range cfg.Locales {
 		tr, err := readCatalog(filepath.Join(cfg.Dir, id+".toml"))
@@ -107,10 +106,11 @@ func Generate(cfg Config) error {
 		}
 		return "", "", false
 	}
-	var cats []catalogOut
+	catalogs := map[string][]any{}
+	var complete []bool
 	for _, id := range cfg.Locales {
-		out := catalogOut{cat: i18n.Catalog{Locale: id}}
-		inherited := 0
+		var out []any
+		missing, inherited := 0, 0
 		for _, m := range msgs {
 			text, from, ok := lookup(id, m.key)
 			p := m.parsed
@@ -132,23 +132,31 @@ func Generate(cfg Config) error {
 					}
 				}
 			} else {
-				out.missing = append(out.missing, m.key)
+				missing++
 			}
-			out.cat.Messages = append(out.cat.Messages, i18n.CatalogMessage{Key: m.key, Parts: resolve(p.parts, m.index)})
+			out = append(out, jsMessage(p.parts, m))
 		}
-		out.complete = len(out.missing) == 0
-		fmt.Fprintf(cfg.Log, "%-8s %d/%d messages translated", id, len(msgs)-len(out.missing), len(msgs))
+		catalogs[id] = out
+		complete = append(complete, missing == 0)
+		fmt.Fprintf(cfg.Log, "%-8s %d/%d messages translated", id, len(msgs)-missing, len(msgs))
 		if inherited > 0 {
 			fmt.Fprintf(cfg.Log, " (%d inherited)", inherited)
 		}
 		fmt.Fprintln(cfg.Log)
-		cats = append(cats, out)
 	}
-
-	// en-XA pseudo-localization of the source, for the hard-coded-text test.
-	pseudo := i18n.Catalog{Locale: "en-XA"}
+	var pseudo []any
 	for _, m := range msgs {
-		pseudo.Messages = append(pseudo.Messages, i18n.CatalogMessage{Key: m.key, Parts: pseudoParts(resolve(m.parsed.parts, m.index), true)})
+		pseudo = append(pseudo, jsMessage(pseudoNodes(m.parsed.parts, true), m))
+	}
+	catalogs[PseudoCatalog] = pseudo
+
+	absDir, err := filepath.Abs(cfg.Dir)
+	if err != nil {
+		return err
+	}
+	dir := filepath.Base(absDir)
+	if err := writeJS(cfg.JS, dir, append(slices.Clone(cfg.Locales), PseudoCatalog), catalogs); err != nil {
+		return err
 	}
 
 	if err := os.MkdirAll(cfg.Out, 0o755); err != nil {
@@ -158,40 +166,31 @@ func Generate(cfg Config) error {
 	for _, f := range old {
 		os.Remove(f)
 	}
-	absDir, err := filepath.Abs(cfg.Dir)
-	if err != nil {
-		return err
-	}
-	header := "// Code generated by msggen from " + filepath.Base(absDir) + "/*.toml. DO NOT EDIT.\n\npackage " + cfg.Package + "\n\n"
+	header := "// Code generated by msggen from " + dir + "/*.toml. DO NOT EDIT.\n\npackage " + cfg.Package + "\n\n"
 
 	var b strings.Builder
 	b.WriteString(header)
-	b.WriteString("import \"" + goemit.ImportPath + "\"\n\n")
-	b.WriteString("// Shipped are the app's locales (I18N_LOCALES), the source first.\nvar Shipped = i18n.Locales{")
+	b.WriteString(runtimeSource)
+	b.WriteString("\n// Shipped are the app's locales (I18N_LOCALES), the source first.\nvar Shipped = i18n.Locales{")
 	for _, id := range cfg.Locales {
 		fmt.Fprintf(&b, "i18n.NewLocale(%q), ", id)
 	}
-	b.WriteString("}\n\n")
-	b.WriteString("var catalogs = []*i18n.Catalog{")
-	for _, c := range cats {
-		b.WriteString("\n&")
-		goemit.Value(&b, reflect.ValueOf(c.cat), true)
-		b.WriteString(",")
+	b.WriteString("}\n\n// catalogs are the catalogs in " + filepath.Base(cfg.JS) + ", in Shipped's order.\nvar catalogs = []string{")
+	for _, id := range cfg.Locales {
+		fmt.Fprintf(&b, "%q, ", id)
 	}
-	b.WriteString("\n}\n\nvar pseudoCatalog = &")
-	goemit.Value(&b, reflect.ValueOf(pseudo), true)
-	b.WriteString("\n\n// complete lists, per catalog, whether every message is translated.\nvar complete = []bool{")
-	for _, c := range cats {
-		fmt.Fprintf(&b, "%v, ", c.complete)
+	b.WriteString("}\n\n// complete lists, per catalog, whether every message is translated.\nvar complete = []bool{")
+	for _, c := range complete {
+		fmt.Fprintf(&b, "%v, ", c)
 	}
 	b.WriteString("}\n")
-	if err := writeGo(filepath.Join(cfg.Out, "catalogs_msg_gen.go"), b.String()); err != nil {
+	if err := writeGo(filepath.Join(cfg.Out, "runtime_msg_gen.go"), b.String()); err != nil {
 		return err
 	}
 
 	b.Reset()
 	b.WriteString(header)
-	b.WriteString("import \"" + goemit.ImportPath + "\"\n\n")
+	b.WriteString("import \"github.com/joeblew999/go-htmx4/internal/i18n\"\n\nvar _ = i18n.Num\n\n")
 	names := map[string]string{}
 	for i, m := range msgs {
 		name := goName(m.key)
@@ -204,19 +203,16 @@ func Generate(cfg Config) error {
 			pn := paramName(a)
 			if m.parsed.args[a] == argNumber {
 				params = append(params, pn+" float64")
-				args = append(args, "i18n.FloatArg("+pn+")")
+				args = append(args, "i18n.Num("+pn+")")
 			} else {
 				params = append(params, pn+" string")
-				args = append(args, "i18n.StrArg("+pn+")")
+				args = append(args, pn)
 			}
 		}
 		fmt.Fprintf(&b, "// %s is %q: %s\nfunc (m Messages) %s(%s) string {\n\treturn m.format(%d%s)\n}\n\n",
 			name, m.key, strings.ReplaceAll(m.src, "\n", " "), name, strings.Join(params, ", "), i, prefixComma(args))
 	}
-	if err := writeGo(filepath.Join(cfg.Out, "messages_msg_gen.go"), b.String()); err != nil {
-		return err
-	}
-	return writeGo(filepath.Join(cfg.Out, "runtime_msg_gen.go"), header+runtimeSource)
+	return writeGo(filepath.Join(cfg.Out, "messages_msg_gen.go"), b.String())
 }
 
 // runtimeSource is the generated package's lookup code.
@@ -226,10 +222,11 @@ const runtimeSource = `import (
 	"github.com/joeblew999/go-htmx4/internal/i18n"
 )
 
-// Messages are the app's UI strings in one locale. Get them with For (the request's locale) or ForLocale.
+// Messages are the app's UI strings in one locale, formatted by worker/intl.mjs's message with the runtime's Intl.
+// Get them with For (the request's locale) or ForLocale.
 type Messages struct {
 	loc *i18n.Locale
-	cat *i18n.Catalog
+	cat string // the catalog: the locale's own, the source's, or the pseudo-localized one
 }
 
 // For returns the messages for the request's locale (internal/i18n FromContext), or the source locale's.
@@ -237,40 +234,120 @@ func For(ctx context.Context) Messages {
 	if r, ok := i18n.FromContext(ctx); ok {
 		return ForLocale(r.Locale)
 	}
-	return Messages{cat: catalogs[0]}
+	return ForLocale(Shipped[0])
 }
 
-// ForLocale returns the messages for a resolved locale (the source locale's for one without a catalog).
+// ForLocale returns the messages for a resolved locale (the source catalog for one without its own).
 func ForLocale(loc *i18n.Locale) Messages {
+	if loc == nil {
+		loc = Shipped[0]
+	}
 	for _, c := range catalogs {
-		if loc != nil && c.Locale == loc.ID() {
+		if c == loc.ID() {
 			return Messages{loc: loc, cat: c}
 		}
 	}
 	return Messages{loc: loc, cat: catalogs[0]}
 }
 
-// Pseudo returns en-XA pseudo-localized messages (accented, bracketed, ~40% longer) formatted for loc: render pages with them to find text that doesn't go through a catalog.
-func Pseudo(loc *i18n.Locale) Messages { return Messages{loc: loc, cat: pseudoCatalog} }
+// Pseudo returns en-XA pseudo-localized messages (accented, bracketed, ~40% longer) formatted for loc: render pages
+// with them to find text that doesn't go through a catalog.
+func Pseudo(loc *i18n.Locale) Messages {
+	if loc == nil {
+		loc = Shipped[0]
+	}
+	return Messages{loc: loc, cat: "en-XA"}
+}
 
 // Complete reports whether the locale's catalog translates every message.
 func Complete(id string) bool {
 	for i, c := range catalogs {
-		if c.Locale == id {
+		if c == id {
 			return complete[i]
 		}
 	}
 	return false
 }
 
-func (m Messages) format(i int, args ...i18n.MsgArgValue) string {
-	loc := m.loc
-	if loc == nil {
-		loc = Shipped[0]
+func (m Messages) format(i int, args ...string) string {
+	if m.loc == nil {
+		m = ForLocale(nil)
 	}
-	return loc.FormatMessage(m.cat.Messages[i].Parts, args...)
+	return m.loc.Message(m.cat, i, args...)
 }
 `
+
+// jsMessage encodes a message for worker/intl.mjs's message: a string when it is all text, else its parts (see
+// message there), arguments by their index in the source message.
+func jsMessage(nodes []node, m *message) any {
+	switch {
+	case len(nodes) == 0:
+		return ""
+	case len(nodes) == 1 && nodes[0].kind == kText:
+		return nodes[0].text
+	}
+	return jsParts(nodes, m)
+}
+
+func jsParts(nodes []node, m *message) []any {
+	out := make([]any, 0, len(nodes))
+	for _, n := range nodes {
+		i := m.index[n.arg]
+		switch n.kind {
+		case kText:
+			out = append(out, n.text)
+		case kArg:
+			if m.parsed.args[n.arg] == argNumber {
+				out = append(out, []any{"n", i, ""})
+			} else {
+				out = append(out, []any{"a", i})
+			}
+		case kNumber:
+			out = append(out, []any{"n", i, n.style})
+		case kPound:
+			out = append(out, []any{"#"})
+		case kPlural, kSelectOrdinal:
+			tag := "p"
+			if n.kind == kSelectOrdinal {
+				tag = "o"
+			}
+			out = append(out, []any{tag, i, n.offset, jsCases(n.cases, m)})
+		case kSelect:
+			out = append(out, []any{"s", i, jsCases(n.cases, m)})
+		}
+	}
+	return out
+}
+
+func jsCases(cases []caseNode, m *message) map[string][]any {
+	out := make(map[string][]any, len(cases))
+	for _, c := range cases {
+		out[c.key] = jsParts(c.parts, m)
+	}
+	return out
+}
+
+// writeJS writes the catalogs as one ES module whose default export is JSON, a message per line so a change reads
+// as a diff.
+func writeJS(path, dir string, ids []string, catalogs map[string][]any) error {
+	var b strings.Builder
+	b.WriteString("// Code generated by msggen from " + dir + "/*.toml. DO NOT EDIT.\n")
+	b.WriteString("// The message catalogs for worker/intl.mjs's message: per catalog, its messages in key order (the index the\n// typed accessors pass).\n")
+	b.WriteString("export default {\n")
+	for i, id := range ids {
+		fmt.Fprintf(&b, "  %q: [\n", id)
+		for k, msg := range catalogs[id] {
+			j, err := json.Marshal(msg)
+			if err != nil {
+				return err
+			}
+			b.WriteString("    " + string(j) + map[bool]string{true: ",\n", false: "\n"}[k < len(catalogs[id])-1])
+		}
+		b.WriteString("  ]" + map[bool]string{true: ",\n", false: "\n"}[i < len(ids)-1])
+	}
+	b.WriteString("};\n")
+	return os.WriteFile(path, []byte(b.String()), 0o644)
+}
 
 func prefixComma(args []string) string {
 	if len(args) == 0 {
@@ -374,24 +451,24 @@ func paramName(arg string) string {
 	return n
 }
 
-// pseudoParts pseudo-localizes text parts: accents on ASCII letters, 40% expansion, brackets around the message.
-func pseudoParts(parts []i18n.MsgPart, top bool) []i18n.MsgPart {
-	out := make([]i18n.MsgPart, len(parts))
-	for i, p := range parts {
-		if p.Kind == i18n.MsgText {
-			p.Text = pseudoText(p.Text)
+// pseudoNodes pseudo-localizes text: accents on ASCII letters, 40% expansion, brackets around the message.
+func pseudoNodes(nodes []node, top bool) []node {
+	out := make([]node, len(nodes))
+	for i, n := range nodes {
+		if n.kind == kText {
+			n.text = pseudoText(n.text)
 		}
-		cases := make([]i18n.MsgCase, len(p.Cases))
-		for k, c := range p.Cases {
-			cases[k] = i18n.MsgCase{Key: c.Key, Parts: pseudoParts(c.Parts, false)}
+		if len(n.cases) > 0 {
+			cases := make([]caseNode, len(n.cases))
+			for k, c := range n.cases {
+				cases[k] = caseNode{key: c.key, parts: pseudoNodes(c.parts, false)}
+			}
+			n.cases = cases
 		}
-		if len(cases) > 0 {
-			p.Cases = cases
-		}
-		out[i] = p
+		out[i] = n
 	}
 	if top {
-		out = append([]i18n.MsgPart{{Kind: i18n.MsgText, Text: "⟦"}}, append(out, i18n.MsgPart{Kind: i18n.MsgText, Text: "⟧"})...)
+		out = append([]node{{kind: kText, text: "⟦"}}, append(out, node{kind: kText, text: "⟧"})...)
 	}
 	return out
 }

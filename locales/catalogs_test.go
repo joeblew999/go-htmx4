@@ -2,33 +2,26 @@ package locales
 
 import (
 	"encoding/json"
-	"net"
-	"net/http"
 	"os"
-	"os/exec"
 	"path/filepath"
-	"regexp"
-	"strconv"
 	"strings"
 	"testing"
-	"time"
 
 	"github.com/joeblew999/go-htmx4/internal/i18n"
+	"github.com/joeblew999/go-htmx4/internal/i18n/i18ntest"
 	"github.com/joeblew999/go-htmx4/internal/i18n/msggen"
 )
 
-func shippedIDs() []string {
-	ids := make([]string, len(Shipped))
-	for i, l := range Shipped {
-		ids[i] = l.ID()
-	}
-	return ids
-}
+func TestMain(m *testing.M) { os.Exit(i18ntest.Main(m)) }
 
-// TestGeneratedUpToDate fails when *_msg_gen.go doesn't match the catalogs: run mise run i18n:messages.
+const bundle = "../worker/messages_gen.mjs"
+
+// TestGeneratedUpToDate fails when *_msg_gen.go or worker/messages_gen.mjs doesn't match the catalogs: run
+// mise run i18n:messages.
 func TestGeneratedUpToDate(t *testing.T) {
 	out := t.TempDir()
-	if err := msggen.Generate(msggen.Config{Dir: ".", Out: out, Package: "locales", Locales: shippedIDs()}); err != nil {
+	js := filepath.Join(out, "messages_gen.mjs")
+	if err := msggen.Generate(msggen.Config{Dir: ".", Out: out, JS: js, Package: "locales", Locales: catalogs}); err != nil {
 		t.Fatal(err)
 	}
 	gen, _ := filepath.Glob(filepath.Join(out, "*_msg_gen.go"))
@@ -36,18 +29,22 @@ func TestGeneratedUpToDate(t *testing.T) {
 	if len(gen) != len(have) {
 		t.Fatalf("generated %d files, the package has %d: run mise run i18n:messages", len(gen), len(have))
 	}
-	for _, f := range gen {
+	for _, f := range append(gen, js) {
 		want, _ := os.ReadFile(f)
-		got, err := os.ReadFile(filepath.Base(f))
+		path := filepath.Base(f)
+		if f == js {
+			path = bundle
+		}
+		got, err := os.ReadFile(path)
 		if err != nil || string(got) != string(want) {
-			t.Errorf("%s is stale: run mise run i18n:messages", filepath.Base(f))
+			t.Errorf("%s is stale: run mise run i18n:messages", path)
 		}
 	}
 }
 
 // TestShippedLocalesComplete keeps every shipped locale indexable: a partial catalog serves noindex pages.
 func TestShippedLocalesComplete(t *testing.T) {
-	for _, id := range shippedIDs() {
+	for _, id := range catalogs {
 		if !Complete(id) {
 			t.Errorf("%s: catalog incomplete (pages get X-Robots-Tag: noindex)", id)
 		}
@@ -55,111 +52,60 @@ func TestShippedLocalesComplete(t *testing.T) {
 }
 
 // TestPluralCategories: every plural and selectordinal in every catalog has a case for each category its language's
-// Intl.PluralRules uses, asked of workerd's V8, the runtime that formats them (Russian needs one, few, many and
-// other). Skipped without workerd on PATH (mise run test:go has it).
+// Intl.PluralRules uses (Russian needs one, few, many and other).
 func TestPluralCategories(t *testing.T) {
-	cats := intlPluralCategories(t, shippedIDs())
-	var walk func(id, key string, parts []i18n.MsgPart)
-	walk = func(id, key string, parts []i18n.MsgPart) {
-		for _, p := range parts {
-			if p.Kind == i18n.MsgPlural || p.Kind == i18n.MsgSelectOrdinal {
-				want := cats[id].Cardinal
-				if p.Kind == i18n.MsgSelectOrdinal {
-					want = cats[id].Ordinal
+	src, err := os.ReadFile(bundle)
+	if err != nil {
+		t.Fatal(err)
+	}
+	body := string(src)
+	body = body[strings.Index(body, "export default ")+len("export default ") : strings.LastIndex(body, ";")]
+	var cats map[string][]json.RawMessage
+	if err := json.Unmarshal([]byte(body), &cats); err != nil {
+		t.Fatalf("%s: %v", bundle, err)
+	}
+	needs := func(id, typ string) []string {
+		s, ok := i18n.NewLocale(id).Format(i18n.Call{Kind: "plural-categories", Opts: `{"type":"` + typ + `"}`}, "", "")
+		if !ok {
+			t.Fatalf("%s: Intl has no %s plural categories", id, typ)
+		}
+		return strings.Split(s, ", ")
+	}
+	plurals := 0
+	var walk func(id string, index int, v any)
+	walk = func(id string, index int, v any) {
+		part, ok := v.([]any)
+		if !ok || len(part) == 0 {
+			return
+		}
+		if tag, _ := part[0].(string); (tag == "p" || tag == "o") && len(part) == 4 {
+			plurals++
+			typ := map[string]string{"p": "cardinal", "o": "ordinal"}[tag]
+			cases, _ := part[3].(map[string]any)
+			for _, cat := range needs(id, typ) {
+				if _, ok := cases[cat]; !ok {
+					t.Errorf("%s.toml message %d: no %q case (%s's %s plural categories: %s)", id, index, cat, id, typ, strings.Join(needs(id, typ), ", "))
 				}
-				for _, cat := range want {
-					if !hasCase(p.Cases, cat) {
-						t.Errorf("%s.toml %s: no %q case (%s's Intl.PluralRules uses %s)", id, key, cat, id, strings.Join(want, ", "))
-					}
-				}
 			}
-			for _, c := range p.Cases {
-				walk(id, key, c.Parts)
+			for _, c := range cases {
+				walk(id, index, c)
 			}
+			return
+		}
+		for _, x := range part {
+			walk(id, index, x)
 		}
 	}
-	for _, c := range catalogs {
-		for _, m := range c.Messages {
-			walk(c.Locale, m.Key, m.Parts)
-		}
-	}
-}
-
-func hasCase(cases []i18n.MsgCase, key string) bool {
-	for _, c := range cases {
-		if c.Key == key {
-			return true
-		}
-	}
-	return false
-}
-
-type pluralCategories struct{ Cardinal, Ordinal []string }
-
-// intlPluralCategories runs a two-line Worker on workerd (the compatibility date of ../workerd/config.capnp) and
-// returns each locale's plural categories as its Intl.PluralRules reports them.
-func intlPluralCategories(t *testing.T, ids []string) map[string]pluralCategories {
-	t.Helper()
-	workerd, err := exec.LookPath("workerd")
-	if err != nil {
-		t.Skip("workerd is not on PATH (run through mise)")
-	}
-	config, err := os.ReadFile("../workerd/config.capnp")
-	if err != nil {
-		t.Fatal(err)
-	}
-	date := regexp.MustCompile(`compatibilityDate = "([0-9-]+)"`).FindSubmatch(config)
-	if date == nil {
-		t.Fatal("../workerd/config.capnp has no compatibilityDate")
-	}
-	l, err := net.Listen("tcp", "127.0.0.1:0")
-	if err != nil {
-		t.Fatal(err)
-	}
-	addr := l.Addr().String()
-	l.Close()
-	dir := t.TempDir()
-	write := func(name, s string) {
-		if err := os.WriteFile(filepath.Join(dir, name), []byte(s), 0o644); err != nil {
-			t.Fatal(err)
-		}
-	}
-	write("main.mjs", `export default {
-  fetch(req) {
-    const ids = new URL(req.url).searchParams.get("locales").split(",");
-    const cats = (id, type) => new Intl.PluralRules(id, { type }).resolvedOptions().pluralCategories;
-    return Response.json(Object.fromEntries(ids.map((id) => [id, { Cardinal: cats(id, "cardinal"), Ordinal: cats(id, "ordinal") }])));
-  },
-};
-`)
-	write("config.capnp", `using Workerd = import "/workerd/workerd.capnp";
-const config :Workerd.Config = (
-  services = [(name = "main", worker = (modules = [(name = "main.mjs", esModule = embed "main.mjs")], compatibilityDate = "`+string(date[1])+`"))],
-  sockets = [(name = "http", address = "`+addr+`", http = (), service = "main")],
-);
-`)
-	cmd := exec.Command(workerd, "serve", filepath.Join(dir, "config.capnp"))
-	cmd.Stderr = os.Stderr
-	if err := cmd.Start(); err != nil {
-		t.Fatal(err)
-	}
-	t.Cleanup(func() { cmd.Process.Kill(); cmd.Wait() })
-	url := "http://" + addr + "/?locales=" + strings.Join(ids, ",")
-	for deadline := time.Now().Add(20 * time.Second); ; time.Sleep(100 * time.Millisecond) {
-		resp, err := http.Get(url)
-		if err == nil {
-			defer resp.Body.Close()
-			out := map[string]pluralCategories{}
-			if err := json.NewDecoder(resp.Body).Decode(&out); err != nil || resp.StatusCode != 200 {
-				t.Fatalf("workerd answered %d: %v", resp.StatusCode, err)
+	for _, id := range catalogs {
+		for i, raw := range cats[id] {
+			var v any
+			if err := json.Unmarshal(raw, &v); err != nil {
+				t.Fatal(err)
 			}
-			if len(out) != len(ids) {
-				t.Fatalf("workerd answered for %s locales, want %s", strconv.Itoa(len(out)), strconv.Itoa(len(ids)))
-			}
-			return out
+			walk(id, i, v)
 		}
-		if time.Now().After(deadline) {
-			t.Fatalf("workerd didn't answer on %s: %v", addr, err)
-		}
+	}
+	if plurals == 0 {
+		t.Error("no plural or selectordinal in any catalog: is the bundle's format still what this walks?")
 	}
 }

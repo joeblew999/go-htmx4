@@ -50,7 +50,7 @@ type (
 	Note  = views.Note
 )
 
-// store is the board's source of truth: D1 on Workers (store_sql.go), memory under `go run .`.
+// store is the board's source of truth: D1 on Workers (store_sql.go), memory under go test.
 type store interface {
 	Board(topic string) (Board, error)
 	Add(topic string, delta int64) (Board, error)

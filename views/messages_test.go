@@ -1,9 +1,18 @@
 package views
 
 import (
+	"context"
+	"os"
 	"testing"
 	"time"
+
+	"github.com/joeblew999/go-htmx4/internal/i18n"
+	"github.com/joeblew999/go-htmx4/internal/i18n/i18ntest"
+	"github.com/joeblew999/go-htmx4/locales"
 )
+
+// TestMain runs the tests with the Worker's Intl: worker/gointl.mjs on workerd (internal/i18n/i18ntest).
+func TestMain(m *testing.M) { os.Exit(i18ntest.Main(m)) }
 
 func TestElapsed(t *testing.T) {
 	for _, tc := range []struct {
@@ -20,6 +29,19 @@ func TestElapsed(t *testing.T) {
 		}
 		if got := durationText(tc.d); got != tc.text {
 			t.Errorf("durationText(%v) = %q, want %q", tc.d, got, tc.text)
+		}
+	}
+}
+
+func TestNum(t *testing.T) {
+	for _, tc := range []struct {
+		locale string
+		v      int64
+		want   string
+	}{{"en", 1234567, "1,234,567"}, {"de", -1234, "-1.234"}, {"en-IN", 1234567, "12,34,567"}, {"es", 1234, "1234"}} {
+		ctx := i18n.WithRequest(context.Background(), i18n.Request{Locale: locales.Shipped.Find(tc.locale)})
+		if got := Num(ctx, tc.v); got != tc.want {
+			t.Errorf("Num(%s, %d) = %q, want %q", tc.locale, tc.v, got, tc.want)
 		}
 	}
 }
