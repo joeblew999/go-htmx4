@@ -53,13 +53,16 @@ code:
    go get -tool github.com/joeblew999/go-htmx4/intl/cmd/intl
    ```
 
-2. Include intl's tasks in `mise.toml` ([mise Task discovery](https://mise.jdx.dev/tasks/task-discovery.html):
-   a `git::` include pinned to a tag). The list replaces mise's default task directories, so list your own too:
+2. Write intl's mise tasks into the app:
 
-   ```toml
-   [task_config]
-   includes = ["git::https://github.com/joeblew999/go-htmx4.git//intl/tasks.toml?ref=<tag>", "mise-tasks"]
+   ```sh
+   go tool intl tasks   # .mise/tasks/intl.toml, from the intl version in go.mod
    ```
+
+   mise finds it in its default task directory, with no configuration
+   ([Task discovery](https://mise.jdx.dev/tasks/task-discovery.html)). If your `mise.toml` sets
+   `task_config.includes`, add `".mise/tasks"` to it. After upgrading intl, `mise run intl:tasks` writes it again;
+   `intl:check` says when it is out of date. Commit it.
 
 3. Name the languages in `intl.toml` at the module root, the source first:
 
@@ -215,6 +218,7 @@ interactive session ("translate the new messages").
 | `intl:confirm <locale>[:<key>]…` | keep stale translations that are still right |
 | `intl:export [--all] [-o dir] [locale…]`, `intl:import <file>…` | XLIFF 2.0 for human translators |
 | `intl:skill` | install or update the agent skill |
+| `intl:tasks` | write these tasks again, after upgrading intl |
 
 Each one is a `go tool intl` command, so they also run without mise.
 
@@ -232,4 +236,4 @@ Each one is a `go tool intl` command, so they also run without mise.
 | `config/` | `intl.toml` |
 | `intltest/` | workerd's Intl for `go test` and the tooling |
 | `skills/intl-translate/` | the agent skill |
-| `tasks.toml` | the mise tasks |
+| `mise/tasks.toml` | the mise tasks |

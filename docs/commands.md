@@ -177,6 +177,12 @@ Install or update the intl-translate agent skill (.claude/skills), which Claude 
 
 Per locale: translated, inherited, stale and missing messages; exits 1 when a locale is incomplete
 
+### `intl:tasks`
+
+- **Usage:** `intl:tasks`
+
+Write this file again from the intl version in go.mod: run it after upgrading intl (intl:check says when)
+
 ### `intl:todo`
 
 What is left to translate, per locale: each message's source, context and arguments, the plural categories the language needs, the style note (--json for agents)

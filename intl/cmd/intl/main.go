@@ -1,5 +1,5 @@
 // Command intl is go tool intl: an app's languages, from its intl.toml (found up from the working directory). Every
-// workflow of intl's mise tasks (intl/tasks.toml) is one of these commands.
+// workflow of intl's mise tasks (intl/mise/tasks.toml) is one of these commands.
 //
 //	go tool intl gen                       compile the catalogs: intl_gen.go, intl-messages.mjs, the gsxui translator,
 //	                                       intl.sum

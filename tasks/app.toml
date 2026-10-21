@@ -187,7 +187,7 @@ unformatted=$(gofmt -l $(go list -json ./... | jq -r '.Dir as $d | (.GoFiles + (
 test -z "$unformatted" || { echo "$unformatted"; echo "✗ gofmt: files need formatting"; exit 1; }
 go vet ./...
 go test ./...
-# The catalogs: every intl problem (intl/tasks.toml intl:check), as CI sees them.
+# The catalogs: every intl problem (intl:check), as CI sees them.
 go tool intl check
 # intl/ is its own module, for any gsx app: format, vet and test it too (its tests run Intl on workerd).
 test -z "$(gofmt -l intl)" || { gofmt -l intl; echo "✗ gofmt: intl/ needs formatting"; exit 1; }
