@@ -95,7 +95,7 @@ Translating with Claude also needs [Claude Code](https://code.claude.com) (`clau
    - the generated files into `.gitignore`;
    - intl's mise tasks to `.mise/tasks/intl.toml`, where mise finds them with no configuration
      ([Task discovery](https://mise.jdx.dev/tasks/task-discovery.html));
-   - the `intl-translate` skill into `.claude/skills`.
+   - the `intl` skill into `.claude/skills`.
 
    It picks up gsxui from `gsxui.json`, and then compiles the catalogs. Running it again leaves what is there
    alone. After upgrading intl, `mise run intl:tasks` and `mise run intl:skill` write those two again, and
@@ -208,7 +208,7 @@ say:
 | CI | `mise run intl:check` |
 | Leftover English in the UI | `intl.Pseudo = true` renders the `en-XA` catalog: accented, bracketed (`⟦Ĥéļļó⟧`), 40% longer |
 
-`intl:translate` runs Claude Code headless with the `intl-translate` skill, one worker per language at once
+`intl:translate` runs Claude Code headless with the `intl` skill, one worker per language at once
 (`intl.toml`'s `[translate] workers`, default 6, on `[translate] model`). A worker reads `intl:todo -json` for its
 language (each message's source, context and arguments, the plural categories from Intl, the notes from
 `intl.toml`). It may edit only that language's catalog, and it checks its work with `go tool intl check <locale>`
@@ -266,5 +266,5 @@ Each one is a `go tool intl` command, so they also run without mise.
 | `config/` | `intl.toml` |
 | `setup/` | `go tool intl init` |
 | `intltest/` | workerd's Intl for `go test` and the tooling |
-| `skills/intl-translate/` | the agent skill |
+| `skills/intl/` | the agent skill |
 | `mise/tasks.toml` | the mise tasks |

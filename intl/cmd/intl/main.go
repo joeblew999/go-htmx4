@@ -17,7 +17,7 @@
 //	                                       xliff/out (intl.toml's xliff)
 //	go tool intl import [file.xlf…]        read translators' XLIFF back into the catalogs (all of xliff/in by default)
 //	go tool intl prune                     remove from the catalogs the keys the source no longer has
-//	go tool intl skill                     install the intl-translate agent skill into .claude/skills
+//	go tool intl skill                     install the intl agent skill into .claude/skills
 //	go tool intl tasks [-o file]           write intl's mise tasks into the app (.mise/tasks/intl.toml)
 //	go tool intl assets -worker dir -browser dir    the JavaScript a Worker and a page import
 //	go tool intl locales                   the shipped locales, comma-separated
@@ -197,7 +197,7 @@ func main() {
 		changed, err := writeSkill(c.Root)
 		check(err)
 		if !changed {
-			fmt.Println("✓ .claude/skills/intl-translate is up to date")
+			fmt.Println("✓ .claude/skills/intl is up to date")
 		}
 	case "tasks":
 		f := flag.NewFlagSet("tasks", flag.ExitOnError)
@@ -317,9 +317,17 @@ func markup(c config.Config) ([]string, error) {
 // writeTasks writes intl's mise tasks to path, reporting whether they changed.
 func writeTasks(root, path string) (bool, error) { return writeChanged(root, path, intlmise.Tasks) }
 
-// writeSkill writes the intl-translate skill into root's .claude/skills, reporting whether it changed.
+// writeSkill writes the intl skill into root's .claude/skills, reporting whether it changed. It removes the skill's
+// old name, intl-translate (before intl v0.2.0), so an app keeps only the current one.
 func writeSkill(root string) (changed bool, err error) {
 	dir := filepath.Join(root, ".claude", "skills")
+	if old := filepath.Join(dir, "intl-translate"); exists(old) {
+		if err := os.RemoveAll(old); err != nil {
+			return false, err
+		}
+		fmt.Println("removed .claude/skills/intl-translate (now .claude/skills/intl)")
+		changed = true
+	}
 	err = fs.WalkDir(skills.FS, ".", func(path string, d fs.DirEntry, err error) error {
 		if err != nil || d.IsDir() {
 			return err
@@ -511,9 +519,12 @@ func checkAll(c config.Config) int {
 			add(f + " is not this intl's: go tool intl tasks")
 		}
 	}
-	if b, err := os.ReadFile(filepath.Join(c.Root, ".claude", "skills", "intl-translate", "SKILL.md")); err == nil {
-		if want, _ := skills.FS.ReadFile("intl-translate/SKILL.md"); !bytes.Equal(b, want) {
-			add(".claude/skills/intl-translate is not this intl's: go tool intl skill")
+	if _, err := os.Stat(filepath.Join(c.Root, ".claude", "skills", "intl-translate")); err == nil {
+		add(".claude/skills/intl-translate is the skill's old name: go tool intl skill")
+	}
+	if b, err := os.ReadFile(filepath.Join(c.Root, ".claude", "skills", "intl", "SKILL.md")); err == nil {
+		if want, _ := skills.FS.ReadFile("intl/SKILL.md"); !bytes.Equal(b, want) {
+			add(".claude/skills/intl is not this intl's: go tool intl skill")
 		}
 	}
 	stop := startIntl()
@@ -611,4 +622,10 @@ func usage() {
 		"       export [-all] [-o dir] [locale…] | import [file.xlf…] | skill | tasks [-o file] | assets [-worker dir] [-browser dir] |\n"+
 		"       locales | catalogs | markup")
 	os.Exit(2)
+}
+
+// exists reports whether path is there.
+func exists(path string) bool {
+	_, err := os.Stat(path)
+	return err == nil
 }
