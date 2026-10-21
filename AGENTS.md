@@ -44,10 +44,11 @@ README: change a task's description. The rules:
   `sources`.
 - CI is strict no-Node: shell `run:` steps only. Don't add `actions/checkout`, `jdx/mise-action` or any JavaScript action;
   new tools go in `mise.toml` so `ci/check.sh` picks them up.
-- Shell lives in `ci/`, one script per job: `wasm-build.sh` (both builds), `with-workerd.sh` (runs a command against
-  local workerd and always stops it: smoke, e2e, load), `deploy.sh` (production, staging, previews: modules, assets
-  and bindings in one place; a new `worker/*.mjs` ships with no edits), `check.sh` (CI), `workers-builds.sh`
-  (Cloudflare's builds). Tasks call them; checks are Go tests (`e2e/smoke`, `e2e`), not curl in bash.
+- Shell lives in `ci/`, one script per job: `wasm-build.sh` (both builds, one at a time: `.build.lock`),
+  `with-workerd.sh` (runs a command against local workerd and always stops it: smoke, e2e, load), `deploy.sh`
+  (production, staging, previews: modules, assets and bindings in one place; a new `worker/*.mjs` ships with no
+  edits), `check.sh` (CI), `workers-builds.sh` (Cloudflare's builds). Tasks call them; checks are Go tests
+  (`e2e/smoke`, `e2e`), not curl in bash.
 - Dev loops: `dev:native` for UI work (seconds, no Worker runtime), `dev` for the real runtime (`build:dev`, seconds per
   save). Stopping `gsx dev` can leave workerd running: `with-workerd.sh` refuses to start then; stop it by PID.
   JS/CSS-only edits need no Go build: `mise run assets`, reload.

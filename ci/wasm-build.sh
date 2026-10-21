@@ -16,6 +16,21 @@ set -euo pipefail
 profile=${WASM_PROFILE:-prod}
 compiler=${WORKER_COMPILER:-tinygo}
 [ "$profile" = dev ] && compiler=go
+# One build at a time: build and build:dev share build/. Two at once (mise run check while mise run dev rebuilds on a
+# save) left one's app.wasm beside the other's glue, with both markers, so mise skipped the next build as up to date.
+# The lock is a symlink to the builder's PID (made atomically); one whose builder is gone (kill -9) is taken over.
+# It lives outside build/: workers-assets-gen (run by workerbuild) deletes build/ first.
+lock=.build.lock
+until ln -s "$$" "$lock" 2>/dev/null; do
+  holder=$(readlink "$lock" || true)
+  if ! kill -0 "$holder" 2>/dev/null; then
+    [ "$(readlink "$lock" || true)" != "$holder" ] || rm -f "$lock"
+    continue
+  fi
+  [ -n "${waiting:-}" ] || { echo "· waiting for another build into build/ (pid $holder)"; waiting=1; }
+  sleep 0.2
+done
+trap 'rm -f "$lock"' EXIT
 rm -f build/.prod build/.dev
 case $compiler in
   tinygo) go tool workerbuild ${WORKERBUILD_FLAGS:-} ;;
