@@ -29,7 +29,7 @@ workerd = "1.20261019.1"
 fnox = "1.40.0"
 # jq: task scripts read JSON with it (test:go's file list, vendor's npm metadata).
 jq = "1.8.2"
-# usage: shell completion for task arguments and flags (mise run search:inspect <TAB>, --json).
+# usage: shell completion for task arguments and flags (mise run seo:inspect <TAB>, --json).
 usage = "7.0.2"
 
 # Chrome for `mise run e2e` (chromedp). Pinned so the Mac, CI and any other machine test the same browser; e2e gets
@@ -60,7 +60,7 @@ APP_REPO = "joeblew999/go-htmx4"
 CF_SUBDOMAIN = "gedw99"
 
 [task_config]
-includes = ["tasks/app.toml", "intl/mise/tasks.toml", "tasks/search.toml", "tasks/editor.toml"]
+includes = ["tasks/app.toml", "intl/mise/tasks.toml", "seo/mise/tasks.toml", "tasks/editor.toml"]
 
 # The VS Code gsx language server needs the compiler where the extension looks (tasks/editor.toml).
 [hooks]

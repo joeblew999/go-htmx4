@@ -20,6 +20,7 @@ import (
 	"time"
 
 	"github.com/joeblew999/go-htmx4/e2e/load"
+	"github.com/joeblew999/go-htmx4/seo"
 )
 
 var (
@@ -199,6 +200,22 @@ func TestSEO(t *testing.T) {
 	has(t, "sitemap with alternates", get(t, "/sitemap.xml").body, `<xhtml:link rel="alternate" hreflang="zh-Hant" href="`+base+`/zh-hant/formats"/>`)
 	has(t, "robots.txt is ours", get(t, "/robots.txt").body, "Sitemap: "+base+"/sitemap.xml")
 	has(t, "fragment noindex", get(t, "/fragments/stats").header.Get("X-Robots-Tag"), "noindex")
+}
+
+// TestAudit: the whole site as Googlebot reads it (seo.Audit, what seo:audit runs after a deploy):
+// robots.txt, the sitemap, and every page in it 200, indexable, self-canonical, with lang, a title, a description, one
+// h1 and reciprocal hreflang. Here, before it ships.
+func TestAudit(t *testing.T) {
+	urls, problems, err := seo.Audit(context.Background(), &http.Client{Timeout: time.Minute}, base)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, p := range problems {
+		t.Error("✗ " + p)
+	}
+	if len(problems) == 0 {
+		t.Logf("✓ robots.txt and all %d sitemap URLs as Googlebot reads them", urls)
+	}
 }
 
 // TestBoard: Go (TinyGo) → database/sql d1 driver → D1 → publish → Room Durable Object → hx-ws, and live pushes to
