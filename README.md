@@ -62,7 +62,7 @@ secrets in GitHub. If CI's build never appears, Cloudflare compiles it itself (a
 
 | Layer | Technology | Version | Notes |
 | --- | --- | --- | --- |
-| Language | [Go](https://go.dev) | 1.27.2 | Standard Go for tests, `go run .` and tooling |
+| Language | [Go](https://go.dev) | 1.27.3 | Standard Go for tests, `go run .` and tooling |
 | Interactivity | [htmx](https://four.htmx.org) | 4.0.0 | Vendored in `static/` with hx-live and hx-ws |
 | Toolchain & tasks | [mise](https://mise.jdx.dev) | — | Pins every tool; `mise tasks` lists tasks |
 | Templates | [gsx](https://gsxhq.github.io): JSX-style, type-checked Go templates | v0.4.0 | `go tool gsx` |
@@ -97,9 +97,10 @@ without them:
 - **Build:** charter's `go tool workerbuild` (TinyGo, tuned for Workers, cached), from `ci/wasm-build.sh`.
 - **Run locally:** `workerd serve`, the runtime `wrangler dev` uses. `workerd/assets-first.mjs` stands in for
   Static Assets (it runs inside workerd, not Node).
-- **Deploy:** [`cmd/deploy`](cmd/deploy), a stdlib Go client for Cloudflare's
+- **Deploy:** charter's `go tool workerdeploy`, from `ci/deploy.sh`: Cloudflare's
   [Static Assets Direct Upload](https://developers.cloudflare.com/workers/static-assets/direct-upload/), script upload,
-  D1 and Durable Object migration APIs. Credentials come from fnox (`fnox exec -- …`).
+  D1 and Durable Object migration APIs, Worker Previews. Live logs: `go tool workertail` (`mise run tail`).
+  Credentials come from fnox (`fnox exec -- …`).
 
 **TinyGo 0.43 caveats**: its `net/http` has the
 pre-Go 1.22 `ServeMux` (no `GET /path` patterns), and `html/template` compiles but panics at runtime. gsx + gsxui work
@@ -163,9 +164,7 @@ earlier server-side `Intl` implementation is kept, out of the build, in [kit/i18
 
 | Package | What |
 | --- | --- |
-| [`kit/cfdeploy`](kit/cfdeploy) | Deploy a workers-go Worker with the REST API: Static Assets Direct Upload, script upload, plain-text/D1/Durable Object/rate limiting bindings, D1 create + migrations, Durable Object migrations, workers.dev. No wrangler. |
 | [`kit/wsload`](kit/wsload) | End-to-end live-board check over real WebSockets: delivery latency, coalescing, presence, heartbeat, cached fragment. |
-| [`kit/cftail`](kit/cftail) | Stream a deployed Worker's live logs: start a tail with the REST API, read its WebSocket, delete it on exit. No wrangler. |
 | [`kit/searchconsole`](kit/searchconsole) | Google Search Console API with a service account (standard library JWT auth): submit sitemaps, sitemap status, URL Inspection. `mise run search:submit` / `search:status`. |
 | [`kit/ratelimit`](kit/ratelimit) | Call a Workers Rate Limiting binding from Go (TinyGo), plus the per-client key (`CF-Connecting-IP`). |
 | [`kit/live`](kit/live) | Go side of per-topic live updates: `Publish` to a Room Durable Object (js/wasm), the shared topic rule and version header. |
@@ -187,7 +186,7 @@ The Room and Worker entry are JavaScript (`worker/room.mjs`, `worker/index.mjs`)
 ├── workerd/             # config.capnp + local-only shims (static files first, D1 over DO SQLite)
 ├── migrations/          # D1 schema
 ├── kit/                 # importable packages (see below)
-├── cmd/deploy cmd/tail cmd/wsload  # CLIs over kit/cfdeploy, kit/cftail, kit/wsload
+├── cmd/                 # wsload, searchconsole, msggen: flag parsing over kit/
 ├── e2e/                 # headless Chrome checks (own Go module: chromedp stays out of the app)
 ├── tasks/
 │   ├── app.toml         # dev, serve, run, test, smoke, load, deploy, smoke-remote, …

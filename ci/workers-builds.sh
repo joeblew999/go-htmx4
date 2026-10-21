@@ -54,7 +54,7 @@ build)
 deploy)
   [ ! -e .superseded ] || { echo "· superseded by a newer push: no deploy"; exit 0; }
   branch=${WORKERS_CI_BRANCH:?WORKERS_CI_BRANCH is not set (Workers Builds sets it)}
-  if [ -x bin/deploy ]; then deploy=(bin/deploy); else mise install go; deploy=(mise exec -- go run ./cmd/deploy); fi
+  if [ -x bin/deploy ]; then deploy=(bin/deploy); else mise install go; deploy=(mise exec -- go tool workerdeploy); fi
   # release/v*: a release request; CI tests it and moves production. Nothing to preview.
   if [[ "$branch" == release/* ]]; then echo "· $branch is a release request: CI releases it"; exit 0; fi
   # production: CI moved it to a tagged commit that passed check + e2e and is on main. Credentials stay here, at

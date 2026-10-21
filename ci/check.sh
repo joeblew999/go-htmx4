@@ -64,12 +64,12 @@ else
 fi
 
 # GitHub Actions: build first and publish it for this commit's Cloudflare preview straight away (in parallel with
-# the tests below), so Cloudflare deploys this build instead of compiling it again (kit/previewbuild; PR #6). The
+# the tests below), so Cloudflare deploys this build instead of compiling it again (charter's workerdeploy; PR #6). The
 # deploy tool goes along (static linux/amd64): Cloudflare runs it to fetch, verify and deploy. A failing commit still
 # gets a preview; this check stays red.
 publish() {
   eval "$(mise env -s bash)" # APP_NAME, APP_REPO, CF_SUBDOMAIN, WORKER_COMPILER
-  CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -o bin/deploy ./cmd/deploy
+  CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -o bin/deploy github.com/joeblew999/charter/go/lib/cmd/workerdeploy
   bin/deploy -name "$APP_NAME" -assets dist/site -repo "$GITHUB_REPOSITORY" -publish-build "$GITHUB_SHA"
   if [ -n "${CF_SUBDOMAIN:-}" ] && [ "${GITHUB_REF_TYPE:-branch}" = branch ] && [ "${GITHUB_REF_NAME:-main}" != main ] &&
     [ "${GITHUB_REF_NAME:-}" != production ] && [[ "${GITHUB_REF_NAME:-}" != release/* ]]; then
