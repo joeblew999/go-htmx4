@@ -5,18 +5,18 @@
 CPU per request of this Worker on a local workerd, in ms: the median of 3 runs of 60 requests each, after warm requests,
 measured by charter's `go tool workerbench` from the operating system's count of workerd's CPU time. Each row is
 the same code built with `go tool workerbuild` and one or more of its optimisations off. Absolute numbers depend on the
-machine (linux/amd64, 2026-10-20); compare rows.
+machine (linux/amd64, 2026-10-21); compare rows.
 
-| Build | `GET /healthz` | `GET /de/` | `GET /board?topic=bench` | `POST /board/add?topic=bench` | `GET /de/formats` |
+| Build | `GET /healthz` | `GET /de/` | `GET /board?topic=bench` | `GET /de/formats` | `POST /board/add?topic=bench` |
 |---|---|---|---|---|---|
-| A runtime per request, TinyGo as it ships (`-reuse=false -patches=false -heap=0`) | 8.2 | 17 | 18.8 | 27.8 | 46.7 |
-| B A + TinyGo patched (tinygo#5800), 8 MB heap (`-reuse=false`) | 7.2 | 16.3 | 16 | 19.7 | 42.8 |
-| C runtimes reused, TinyGo as it ships (`-patches=false`) | 3.7 | 6.5 | 18 | 30.2 | 35.8 |
-| D what ships: runtimes reused + TinyGo patched (`defaults`) | 1.8 | 5.3 | 6.8 | 20 | 29.5 |
+| A runtime per request, TinyGo as it ships (`-reuse=false -patches=false -heap=0`) | 6.3 | 15.3 | 17.3 | 30.5 | 27 |
+| B A + TinyGo patched (tinygo#5800), 8 MB heap (`-reuse=false`) | 5.5 | 15.2 | 12.3 | 24.3 | 17.2 |
+| C runtimes reused, TinyGo as it ships (`-patches=false`) | 2.7 | 5.3 | 14.8 | 18.5 | 28.8 |
+| D what ships: runtimes reused + TinyGo patched (`defaults`) | 1 | 6.5 | 5.8 | 15.5 | 16.8 |
 
 Every run of every cell, to see how much a number moves:
 
-- A runtime per request, TinyGo as it ships: GET /healthz 18.8/8.2/7.5; GET /de/ 20.5/17/16.8; GET /board?topic=bench 20.7/18.3/18.8; POST /board/add?topic=bench 27.8/28.2/27.5; GET /de/formats 48.5/46.7/46.7
-- B A + TinyGo patched (tinygo#5800), 8 MB heap: GET /healthz 17/6.5/7.2; GET /de/ 20.3/16.3/16; GET /board?topic=bench 17.3/16/14.7; POST /board/add?topic=bench 19.7/20/17.3; GET /de/formats 44.7/39/42.8
-- C runtimes reused, TinyGo as it ships: GET /healthz 4/3.7/3; GET /de/ 9.8/6.3/6.5; GET /board?topic=bench 28.7/18/17.8; POST /board/add?topic=bench 33.5/28.8/30.2; GET /de/formats 36.5/35.8/33.5
-- D what ships: runtimes reused + TinyGo patched: GET /healthz 2.2/1.8/1.8; GET /de/ 8.2/5/5.3; GET /board?topic=bench 9/6.8/6.5; POST /board/add?topic=bench 32.2/20/18.7; GET /de/formats 31.5/28.8/29.5
+- A runtime per request, TinyGo as it ships: GET /healthz 10.5/6/6.3; GET /de/ 24.3/14.3/15.3; GET /board?topic=bench 17.7/16.8/17.3; GET /de/formats 30.5/31.2/30.3; POST /board/add?topic=bench 27.8/27/25.8
+- B A + TinyGo patched (tinygo#5800), 8 MB heap: GET /healthz 8.8/5.5/4.5; GET /de/ 25.3/15.2/14.7; GET /board?topic=bench 12.3/12.2/12.8; GET /de/formats 26.5/24/24.3; POST /board/add?topic=bench 17.7/17.2/16.2
+- C runtimes reused, TinyGo as it ships: GET /healthz 2.7/2.8/2.3; GET /de/ 11.2/4.8/5.3; GET /board?topic=bench 24.2/14.8/14.3; GET /de/formats 20/17.8/18.5; POST /board/add?topic=bench 27.8/29.2/28.8
+- D what ships: runtimes reused + TinyGo patched: GET /healthz 1/1.7/0.7; GET /de/ 7.7/6.5/3.2; GET /board?topic=bench 5.8/6.5/4.3; GET /de/formats 17.2/15.5/14.3; POST /board/add?topic=bench 18.7/16.8/16.3

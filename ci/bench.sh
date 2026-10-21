@@ -9,11 +9,25 @@
 # BENCH_N and BENCH_RUNS set requests per kind and runs (defaults 60 and 3).
 set -euo pipefail
 cd "$(dirname "$0")/.."
-requests=('GET /healthz' 'GET /de/' 'GET /board?topic=bench' 'POST /board/add?topic=bench delta=1' 'GET /de/formats')
+reads=('GET /healthz' 'GET /de/' 'GET /board?topic=bench' 'GET /de/formats')
+writes=('POST /board/add?topic=bench delta=1')
 n=${BENCH_N:-60}
 runs=${BENCH_RUNS:-3}
-# -every keeps board writes under the app's write limit (60 per 10 s); waiting costs no CPU.
-bench() { ci/with-workerd.sh bench go tool workerbench -n "$n" -runs "$runs" -every 170ms "$@" "${requests[@]}"; }
+# Reads go flat out; writes are paced (-every) to stay under the app's write limit (60 per 10 s). Waiting costs
+# no CPU, so pacing changes how long a run takes, never what it measures. With -json the two halves are one object.
+measure() {
+  go tool workerbench -n "$n" -runs "$runs" "$@" "${reads[@]}"
+  go tool workerbench -n "$n" -runs "$runs" -every 170ms "$@" "${writes[@]}"
+}
+bench() {
+  export n runs
+  export -f measure
+  if [[ " $* " == *" -json "* ]]; then
+    ci/with-workerd.sh bench bash -c "$(declare -p reads writes); measure $(printf '%q ' "$@")" | sed -n '/^{/,$p' | jq -s '.[0] + {requests: (.[0].requests + .[1].requests)}'
+  else
+    ci/with-workerd.sh bench bash -c "$(declare -p reads writes); measure $(printf '%q ' "$@")"
+  fi
+}
 
 if [ "${1:-}" != variants ] && [ "${1:-}" != render ]; then
   [ -e build/.prod ] || { echo "✗ no production build: mise run build"; exit 1; }
@@ -26,12 +40,12 @@ names=("A runtime per request, TinyGo as it ships" "B A + TinyGo patched (tinygo
 flags=("-reuse=false -patches=false -heap=0" "-reuse=false" "-patches=false" "")
 # ci/bench.sh render DIR writes docs/benchmarks.md again from a run's results (DIR/N.json) without measuring.
 if [ "$1" = render ]; then out=$2; else
-out=build/bench
+out=.bench
 rm -rf "$out" && mkdir -p "$out"
 for i in "${!names[@]}"; do
   echo "── ${names[$i]} (workerbuild ${flags[$i]:-defaults})"
   WORKER_COMPILER=tinygo WORKERBUILD_FLAGS="${flags[$i]}" ci/wasm-build.sh
-  bench -label "${names[$i]}" -json | sed -n '/^{/,$p' >"$out/$i.json"
+  bench -label "${names[$i]}" -json >"$out/$i.json"
   jq -r '.requests[] | "  \(.request): \(.median*10|round/10) ms (runs \(.runs | map(.*10|round/10|tostring) | join(", ")))"' "$out/$i.json"
 done
 ci/wasm-build.sh >/dev/null # leave build/ as it ships
