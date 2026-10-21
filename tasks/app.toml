@@ -32,10 +32,10 @@ echo "✓ htmx $version: static/htmx.min.js, static/hx-ws.js, static/hx-live.js"
 
 # gsx components (views/, ui/) → *.x.go, which are gitignored; every build/run/test path depends on this.
 ["generate"]
-description = "go tool gsx generate (after intl: views write the generated messages)"
+description = "go tool gsx generate (after intl: views write the generated messages); intl/'s own renderer too, which it commits for the apps that import it"
 depends = ["intl"]
 dir = "{{config_root}}"
-run = "go tool gsx generate"
+run = ["go -C intl tool gsx generate -q .", "go tool gsx generate"]
 
 # gsxui (npm-free mode): compile web/gsxui/index.css with the standalone Tailwind CLI, then assemble the
 # Static Assets directory: /static/ = static/ (htmx, hx-ws),
@@ -187,6 +187,8 @@ unformatted=$(gofmt -l $(go list -json ./... | jq -r '.Dir as $d | (.GoFiles + (
 test -z "$unformatted" || { echo "$unformatted"; echo "✗ gofmt: files need formatting"; exit 1; }
 go vet ./...
 go test ./...
+# The catalogs: every intl problem (intl:check), as CI sees them.
+go tool intl check
 # intl/ is its own module, for any gsx app: format, vet and test it too (its tests run Intl on workerd).
 test -z "$(gofmt -l intl)" || { gofmt -l intl; echo "✗ gofmt: intl/ needs formatting"; exit 1; }
 go vet -C intl ./...

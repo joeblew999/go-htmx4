@@ -25,13 +25,19 @@ type Board struct {
 type Note struct {
 	ID        int64
 	Body      string
-	CreatedAt string
+	CreatedAt string // SQLite datetime('now'), UTC: "2026-09-14 12:34:56"
+}
+
+// Created is when the note was posted.
+func (n Note) Created() time.Time {
+	t, _ := time.Parse("2006-01-02 15:04:05", n.CreatedAt)
+	return t
 }
 
 // StackItem is one row on the About page.
 type StackItem struct {
 	Name, URL string
-	Role      intl.Msg // e.g. locales.AboutRolesGsx()
+	Role      intl.Msg // e.g. locales.AboutRolesGsx
 }
 
 // ServerInfo is what the home page's dialog shows about the process that rendered it.

@@ -45,8 +45,8 @@ component ThemeToggle() {
 		size="icon-sm"
 		type="button"
 		data-site-theme-toggle
-		aria-label={locales.NavToggleTheme()}
-		title={locales.NavToggleTheme()}
+		aria-label={locales.NavToggleTheme}
+		title={locales.NavToggleTheme}
 	>
 		<icon.SunMoon/>
 	</ui.Button>

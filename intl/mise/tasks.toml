@@ -1,0 +1,87 @@
+# intl's mise tasks: an app's languages, every workflow a go tool intl command (intl/README.md). In an app,
+# go tool intl tasks writes this file to .mise/tasks/intl.toml, one of mise's default task directories, from the intl
+# version in go.mod; intl:check says when an upgrade changed it. Intl itself (plural categories, language names) runs
+# on workerd, which these tasks pin.
+
+["intl"]
+description = "Compile the catalogs (intl.toml): the Go package of messages, intl-messages.mjs, the gsxui translator and intl.sum. Run it after editing a catalog; gsx generate needs it first"
+run = "go tool intl gen"
+
+["intl:status"]
+description = "Per locale: translated, inherited, stale and missing messages; exits 1 when a locale is incomplete"
+run = "go tool intl status"
+
+["intl:todo"]
+description = "What is left to translate, per locale: each message's source, context and arguments, the plural categories the language needs, the style note (--json for agents)"
+tools = { workerd = "1.20261019.1" }
+usage = '''
+flag "--json" help="JSON on stdout, for agents"
+arg "[locale]" var=#true help="only these locales (default: all)"
+'''
+run = '''
+#!/usr/bin/env bash
+set -euo pipefail
+args=(); [ "${usage_json:-}" != true ] || args+=(-json)
+exec go tool intl todo ${args[@]+"${args[@]}"} ${usage_locale:-}
+'''
+
+["intl:translate"]
+description = "Translate every missing and stale message with Claude Code (the intl-translate skill), until intl:check passes. Needs claude on PATH"
+tools = { workerd = "1.20261019.1" }
+usage = '''
+arg "[locale]" var=#true help="only these locales (default: all)"
+'''
+run = '''
+#!/usr/bin/env bash
+set -euo pipefail
+command -v claude >/dev/null || { echo "✗ intl:translate runs Claude Code: install it (https://code.claude.com), or translate by hand (mise run intl:todo)"; exit 1; }
+go tool intl skill >/dev/null
+go tool intl gen
+only=""; [ -z "${usage_locale:-}" ] || only=" in ${usage_locale}"
+exec claude -p "Translate this app's messages with the intl-translate skill: every missing and stale message${only}. Finish when go tool intl check passes, then say what you translated." \
+  --permission-mode acceptEdits --allowedTools "Bash(go tool intl:*)" Read Edit Write Glob Grep
+'''
+
+["intl:check"]
+description = "Every catalog problem, for CI: ICU syntax, arguments, a case for each plural category Intl says a language uses, missing and stale translations, unused messages, gsxui text, intl.sum committed; exits 1 on any"
+tools = { workerd = "1.20261019.1" }
+run = "go tool intl check"
+
+["intl:add"]
+description = "Add a language: its BCP 47 id to intl.toml, and its catalog; then mise run intl:translate"
+tools = { workerd = "1.20261019.1" }
+usage = 'arg "<locale>" var=#true help="BCP 47 ids, e.g. fr-CA ja"'
+run = "go tool intl add ${usage_locale}"
+
+["intl:confirm"]
+description = "Keep stale translations that are still right after their source changed: <locale> (all of its stale ones) or <locale>:<key>"
+usage = 'arg "<which>" var=#true help="de, or de:board.notes"'
+run = "go tool intl confirm ${usage_which}"
+
+["intl:export"]
+description = "XLIFF 2.0 per locale for human translators and translation-management systems: what is left to translate (--all: every message)"
+tools = { workerd = "1.20261019.1" }
+usage = '''
+flag "--all" help="every message, not only what is left"
+flag "-o --out <dir>" default="xliff" help="directory for <locale>.xlf"
+arg "[locale]" var=#true help="only these locales (default: all)"
+'''
+run = '''
+#!/usr/bin/env bash
+set -euo pipefail
+args=(-o "${usage_out}"); [ "${usage_all:-}" != true ] || args+=(-all)
+exec go tool intl export "${args[@]}" ${usage_locale:-}
+'''
+
+["intl:import"]
+description = "Read translators' XLIFF 2.0 back into the catalogs (each target checked against its source), then compile"
+usage = 'arg "<file>" var=#true help="<locale>.xlf files"'
+run = "go tool intl import ${usage_file}"
+
+["intl:tasks"]
+description = "Write this file again from the intl version in go.mod: run it after upgrading intl (intl:check says when)"
+run = "go tool intl tasks"
+
+["intl:skill"]
+description = "Install or update the intl-translate agent skill (.claude/skills), which Claude Code uses to translate"
+run = "go tool intl skill"

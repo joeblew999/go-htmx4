@@ -1,7 +1,6 @@
 package views
 
 import (
-	"github.com/joeblew999/go-htmx4/intl"
 	"github.com/joeblew999/go-htmx4/locales"
 
 	"github.com/joeblew999/go-htmx4/ui"
@@ -23,8 +22,8 @@ component Greeting(name string, flavour string, shout bool) {
 	<div hx-swap-oob="beforeend:#gsxui-toaster">
 		<ui.Toast
 			toastType="success"
-			title={intl.Text(ctx, locales.GreetToastTitle())}
-			description={intl.Text(ctx, locales.GreetToastDescription(name))}
+			title={locales.GreetToastTitle |> text}
+			description={locales.GreetToastDescription(name) |> text}
 		/>
 	</div>
 }
@@ -32,12 +31,12 @@ component Greeting(name string, flavour string, shout bool) {
 // GreetingCleared answers DELETE /greet (sent via hx-action + hx-method). The main content must not be empty:
 // htmx 4 leaves the target untouched when a response has only out-of-band content.
 component GreetingCleared() {
-	<p class="text-sm text-muted-foreground">{ locales.GreetCleared() }</p>
+	<p class="text-sm text-muted-foreground">{ locales.GreetCleared }</p>
 	<div hx-swap-oob="beforeend:#gsxui-toaster">
 		<ui.Toast
 			toastType="info"
-			title={intl.Text(ctx, locales.GreetClearedToastTitle())}
-			description={intl.Text(ctx, locales.GreetClearedToastDescription())}
+			title={locales.GreetClearedToastTitle |> text}
+			description={locales.GreetClearedToastDescription |> text}
 		/>
 	</div>
 }
@@ -48,33 +47,33 @@ component RateLimited() {
 	<div hx-swap-oob="beforeend:#gsxui-toaster">
 		<ui.Toast
 			toastType="error"
-			title={intl.Text(ctx, locales.BoardSlowTitle())}
-			description={intl.Text(ctx, locales.BoardSlowDescription())}
+			title={locales.BoardSlowTitle |> text}
+			description={locales.BoardSlowDescription |> text}
 		/>
 	</div>
 }
 
 component GreetingError() {
-	<ui.FieldError>{ locales.GreetEmpty() }</ui.FieldError>
+	<ui.FieldError>{ locales.GreetEmpty }</ui.FieldError>
 }
 
 component ServerInfoView(info ServerInfo) {
 	<dl class="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1">
-		<dt class="font-medium text-foreground">{ locales.ServerInfoGo() }</dt>
+		<dt class="font-medium text-foreground">{ locales.ServerInfoGo }</dt>
 		<dd translate="no">{ info.GoVersion }</dd>
-		<dt class="font-medium text-foreground">{ locales.ServerInfoUptime() }</dt>
+		<dt class="font-medium text-foreground">{ locales.ServerInfoUptime }</dt>
 		<dd>
-			{ intl.Duration(info.Uptime, "") }
+			{ info.Uptime |> duration }
 		</dd>
-		<dt class="font-medium text-foreground">{ locales.ServerInfoRequests() }</dt>
-		<dd>{ intl.Int(info.Requests) }</dd>
-		<dt class="font-medium text-foreground">{ locales.ServerInfoRendered() }</dt>
+		<dt class="font-medium text-foreground">{ locales.ServerInfoRequests }</dt>
+		<dd>{ info.Requests |> number }</dd>
+		<dt class="font-medium text-foreground">{ locales.ServerInfoRendered }</dt>
 		<dd>
-			{ intl.Date(info.Now, `{"dateStyle":"full","timeStyle":"long"}`) }
+			{ info.Now |> date(`{"dateStyle":"full","timeStyle":"long"}`) }
 		</dd>
 		{ if info.Note != "" {
-			<dt class="font-medium text-foreground">{ locales.ServerInfoNote() }</dt>
-			<dd>{ locales.ServerInfoWorkersNote() }</dd>
+			<dt class="font-medium text-foreground">{ locales.ServerInfoNote }</dt>
+			<dd>{ locales.ServerInfoWorkersNote }</dd>
 		} }
 	</dl>
 }
@@ -84,7 +83,7 @@ component Stats(stats map[string]int) {
 		{ for _, k := range sortedKeys(stats) {
 			<li class="flex justify-between">
 				<span>{ k }</span>
-				<ui.Badge variant="secondary">{ intl.Int(int64(stats[k])) }</ui.Badge>
+				<ui.Badge variant="secondary">{ stats[k] |> number }</ui.Badge>
 			</li>
 		} }
 	</ul>

@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/joeblew999/go-htmx4/intl"
+	"github.com/joeblew999/go-htmx4/locales"
 )
 
 // Dates, numbers, durations and the rest of Intl are written in the views as intl Values ({ intl.Date(t, opts) }),
@@ -106,11 +107,10 @@ func jsOptions(opts string) string {
 	return b.String()
 }
 
-// NoteAge is a note's age ("3 minutes ago"), from its created_at (SQLite datetime('now'), UTC), kept fresh by the
-// browser.
-func NoteAge(createdAt string) intl.Value {
-	t, _ := time.Parse("2006-01-02 15:04:05", createdAt)
-	return intl.Since(t)
+// hourCycleAuto is the clock option "the language's (13:05)": the example time in the language's own clock is an
+// argument of the message.
+func hourCycleAuto(ctx context.Context) intl.Msg {
+	return locales.PreferencesHourCycleAuto(intl.Text(ctx, clockExample(`,"viewerClock":false`)))
 }
 
 // clockExample is the time the clock options show, 13:05 UTC, written in each clock (Intl.DateTimeFormat opts).

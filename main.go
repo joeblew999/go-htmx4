@@ -38,17 +38,17 @@ var (
 	components = []string{"badge", "button", "button-group", "card", "dialog", "empty", "field", "input", "item",
 		"label", "native-select", "separator", "switch", "tabs", "toast", "toaster"}
 	stack = []views.StackItem{
-		{Name: "gsx", Role: locales.AboutRolesGsx(), URL: "https://gsxhq.github.io"},
-		{Name: "gsxui", Role: locales.AboutRolesGsxui(), URL: "https://ui.gsxhq.dev"},
-		{Name: "htmx 4", Role: locales.AboutRolesHtmx(), URL: "https://four.htmx.org"},
-		{Name: "hx-live", Role: locales.AboutRolesHxLive(), URL: "https://four.htmx.org/extensions/hx-live/"},
-		{Name: "hx-ws", Role: locales.AboutRolesHxWs(), URL: "https://four.htmx.org/extensions/hx-ws"},
-		{Name: "workers-go", Role: locales.AboutRolesWorkersGo(), URL: "https://github.com/syumai/workers-go"},
-		{Name: "TinyGo", Role: locales.AboutRolesTinygo(), URL: "https://tinygo.org"},
-		{Name: "Cloudflare D1", Role: locales.AboutRolesD1(), URL: "https://developers.cloudflare.com/d1/"},
-		{Name: "Durable Objects", Role: locales.AboutRolesDurableObjects(), URL: "https://developers.cloudflare.com/durable-objects/"},
-		{Name: "Tailwind CSS", Role: locales.AboutRolesTailwind(), URL: "https://tailwindcss.com/docs/installation/tailwind-cli"},
-		{Name: "mise", Role: locales.AboutRolesMise(), URL: "https://mise.jdx.dev"},
+		{Name: "gsx", Role: locales.AboutRolesGsx, URL: "https://gsxhq.github.io"},
+		{Name: "gsxui", Role: locales.AboutRolesGsxui, URL: "https://ui.gsxhq.dev"},
+		{Name: "htmx 4", Role: locales.AboutRolesHtmx, URL: "https://four.htmx.org"},
+		{Name: "hx-live", Role: locales.AboutRolesHxLive, URL: "https://four.htmx.org/extensions/hx-live/"},
+		{Name: "hx-ws", Role: locales.AboutRolesHxWs, URL: "https://four.htmx.org/extensions/hx-ws"},
+		{Name: "workers-go", Role: locales.AboutRolesWorkersGo, URL: "https://github.com/syumai/workers-go"},
+		{Name: "TinyGo", Role: locales.AboutRolesTinygo, URL: "https://tinygo.org"},
+		{Name: "Cloudflare D1", Role: locales.AboutRolesD1, URL: "https://developers.cloudflare.com/d1/"},
+		{Name: "Durable Objects", Role: locales.AboutRolesDurableObjects, URL: "https://developers.cloudflare.com/durable-objects/"},
+		{Name: "Tailwind CSS", Role: locales.AboutRolesTailwind, URL: "https://tailwindcss.com/docs/installation/tailwind-cli"},
+		{Name: "mise", Role: locales.AboutRolesMise, URL: "https://mise.jdx.dev"},
 	}
 )
 
@@ -162,7 +162,7 @@ func (s *server) routes() http.Handler {
 		number := strings.TrimSpace(r.FormValue("number"))
 		text := strings.TrimSpace(r.FormValue("text"))
 		if len(number) > 64 || len(text) > 500 {
-			http.Error(w, "too long", http.StatusRequestEntityTooLarge)
+			http.Error(w, intl.Text(r.Context(), locales.FormatsTryTooLong(64, 500)), http.StatusRequestEntityTooLarge)
 			return
 		}
 		s.render(w, r, "formats-try", views.TryResultView(views.RoundTrip(r.Context(), number, text)))

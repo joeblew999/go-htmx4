@@ -63,7 +63,7 @@ func IntlAPIs(ctx context.Context) []IntlAPI {
 }
 
 func dates() FormatSection {
-	sec := FormatSection{Title: locales.FormatsDatesTitle(), Description: locales.FormatsDatesDescription()}
+	sec := FormatSection{Title: locales.FormatsDatesTitle, Description: locales.FormatsDatesDescription}
 	for _, opts := range []string{
 		`{"dateStyle":"full"}`, `{"dateStyle":"long","timeStyle":"short"}`, `{"dateStyle":"medium","timeStyle":"medium"}`,
 		`{"dateStyle":"short","timeStyle":"full"}`, `{"weekday":"long","month":"long","day":"numeric"}`, `{"year":"numeric","month":"short"}`,
@@ -77,7 +77,7 @@ func dates() FormatSection {
 }
 
 func zones() FormatSection {
-	sec := FormatSection{Title: locales.FormatsZonesTitle(), Description: locales.FormatsZonesDescription()}
+	sec := FormatSection{Title: locales.FormatsZonesTitle, Description: locales.FormatsZonesDescription}
 	for _, z := range [][2]string{{"Asia/Tokyo", "short"}, {"America/New_York", "longGeneric"}, {"America/Los_Angeles", "shortGeneric"},
 		{"Asia/Kolkata", "shortOffset"}, {"Australia/Lord_Howe", "longOffset"}, {"Europe/London", "long"}, {"Pacific/Chatham", "long"}} {
 		opts := `{"hour":"numeric","minute":"2-digit","timeZoneName":"` + z[1] + `","timeZone":"` + z[0] + `"}`
@@ -87,7 +87,7 @@ func zones() FormatSection {
 }
 
 func ranges() FormatSection {
-	sec := FormatSection{Title: locales.FormatsRangesTitle(), Description: locales.FormatsRangesDescription()}
+	sec := FormatSection{Title: locales.FormatsRangesTitle, Description: locales.FormatsRangesDescription}
 	for _, r := range []struct {
 		end  time.Time
 		opts string
@@ -104,7 +104,7 @@ func ranges() FormatSection {
 }
 
 func relativeTimes() FormatSection {
-	sec := FormatSection{Title: locales.FormatsRelativeTitle(), Description: locales.FormatsRelativeDescription()}
+	sec := FormatSection{Title: locales.FormatsRelativeTitle, Description: locales.FormatsRelativeDescription}
 	for _, r := range [][3]string{{"-1", "day", `{"numeric":"auto"}`}, {"2", "day", `{"numeric":"auto"}`}, {"-3", "hour", ""},
 		{"5", "minute", `{"style":"short"}`}, {"-1.5", "week", `{"style":"narrow"}`}, {"1", "quarter", `{"numeric":"auto"}`}, {"-10", "year", ""}} {
 		sec.Rows = append(sec.Rows, ex(r[0]+" "+r[1], intl.Of("RelativeTimeFormat", "", r[2], r[0], intl.JSON(r[1]))))
@@ -113,7 +113,7 @@ func relativeTimes() FormatSection {
 }
 
 func numbers() FormatSection {
-	sec := FormatSection{Title: locales.FormatsNumbersTitle(), Description: locales.FormatsNumbersDescription()}
+	sec := FormatSection{Title: locales.FormatsNumbersTitle, Description: locales.FormatsNumbersDescription}
 	for _, n := range [][2]string{
 		{"1234567.891", ""}, {"-0.256", `{"style":"percent","maximumFractionDigits":1}`}, {"1234567", `{"notation":"compact"}`},
 		{"1234567", `{"notation":"compact","compactDisplay":"long"}`}, {"0.000123", `{"notation":"scientific"}`},
@@ -133,7 +133,7 @@ func numbers() FormatSection {
 }
 
 func currency() FormatSection {
-	sec := FormatSection{Title: locales.FormatsCurrencyTitle(), Description: locales.FormatsCurrencyDescription(showcaseCurrency)}
+	sec := FormatSection{Title: locales.FormatsCurrencyTitle, Description: locales.FormatsCurrencyDescription(showcaseCurrency)}
 	for _, c := range [][3]string{{"1234.5", showcaseCurrency, ""}, {"-1234.5", showcaseCurrency, `,"currencySign":"accounting"`},
 		{"1", showcaseCurrency, `,"currencyDisplay":"name"`}, {"1234.5", showcaseCurrency, `,"currencyDisplay":"name"`},
 		{"1234.5", showcaseCurrency, `,"currencyDisplay":"code"`}, {"1234567", showcaseCurrency, `,"notation":"compact"`},
@@ -144,7 +144,7 @@ func currency() FormatSection {
 }
 
 func units() FormatSection {
-	sec := FormatSection{Title: locales.FormatsUnitsTitle(), Description: locales.FormatsUnitsDescription()}
+	sec := FormatSection{Title: locales.FormatsUnitsTitle, Description: locales.FormatsUnitsDescription}
 	for _, u := range [][3]string{{"1", "kilometer", `,"unitDisplay":"long"`}, {"2.5", "kilometer", `,"unitDisplay":"long"`},
 		{"88", "kilometer-per-hour", ""}, {"21.5", "celsius", ""}, {"512", "megabyte", `,"unitDisplay":"narrow"`},
 		{"3", "liter-per-kilometer", `,"unitDisplay":"long"`}, {"1234567", "meter", `,"notation":"compact","unitDisplay":"long"`}} {
@@ -156,7 +156,7 @@ func units() FormatSection {
 // plurals: the categories this language has (resolvedOptions), and which one a number selects. On the server they
 // also pick a translated message's wording.
 func plurals() FormatSection {
-	sec := FormatSection{Title: locales.FormatsPluralsTitle(), Description: locales.FormatsPluralsDescription()}
+	sec := FormatSection{Title: locales.FormatsPluralsTitle, Description: locales.FormatsPluralsDescription}
 	for _, typ := range []string{`{"type":"cardinal"}`, `{"type":"ordinal"}`} {
 		sec.Rows = append(sec.Rows, ex("pluralCategories", intl.Of("PluralRules", "resolvedOptions", typ)))
 	}
@@ -168,7 +168,7 @@ func plurals() FormatSection {
 }
 
 func lists(loc *intl.Locale) FormatSection {
-	sec := FormatSection{Title: locales.FormatsListsTitle(), Description: locales.FormatsListsDescription()}
+	sec := FormatSection{Title: locales.FormatsListsTitle, Description: locales.FormatsListsDescription}
 	items := []string{loc.Name(), "Go", "htmx", "Cloudflare"}
 	for _, l := range []struct {
 		opts string
@@ -180,7 +180,7 @@ func lists(loc *intl.Locale) FormatSection {
 }
 
 func durations() FormatSection {
-	sec := FormatSection{Title: locales.FormatsDurationsTitle(), Description: locales.FormatsDurationsDescription()}
+	sec := FormatSection{Title: locales.FormatsDurationsTitle, Description: locales.FormatsDurationsDescription}
 	const d = `{"days":1,"hours":2,"minutes":5,"seconds":30,"milliseconds":250}`
 	for _, opts := range []string{"", `{"style":"long"}`, `{"style":"narrow"}`, `{"style":"digital","fractionalDigits":2}`} {
 		sec.Rows = append(sec.Rows, ex("1d 2h 5m 30.25s", intl.Of("DurationFormat", "", opts, d)))
@@ -189,7 +189,7 @@ func durations() FormatSection {
 }
 
 func displayNames() FormatSection {
-	sec := FormatSection{Title: locales.FormatsDisplayNamesTitle(), Description: locales.FormatsDisplayNamesDescription()}
+	sec := FormatSection{Title: locales.FormatsDisplayNamesTitle, Description: locales.FormatsDisplayNamesDescription}
 	for _, n := range [][3]string{{"de", "language", ""}, {"zh-Hant", "language", ""}, {"en-GB", "language", `,"languageDisplay":"standard"`},
 		{"JP", "region", ""}, {"BR", "region", ""}, {"Cyrl", "script", ""}, {"EUR", "currency", ""}, {"JPY", "currency", ""},
 		{"islamic", "calendar", ""}, {"weekday", "dateTimeField", ""}} {
@@ -200,7 +200,7 @@ func displayNames() FormatSection {
 
 // collation: which of two strings sorts first in this language (-1, 0, 1), with Intl.Collator's options.
 func collation() FormatSection {
-	sec := FormatSection{Title: locales.FormatsCollationTitle(), Description: locales.FormatsCollationDescription()}
+	sec := FormatSection{Title: locales.FormatsCollationTitle, Description: locales.FormatsCollationDescription}
 	for _, c := range [][3]string{{"ä", "z", ""}, {"apfel", "Äpfel", ""}, {"9", "10", ""}, {"9", "10", `{"numeric":true}`},
 		{"a", "A", `{"caseFirst":"upper"}`}, {"résumé", "resume", `{"sensitivity":"base"}`}, {"ch", "cz", ""}} {
 		sec.Rows = append(sec.Rows, ex(c[0]+" · "+c[1], intl.Of("Collator", "compare", c[2], intl.JSON(c[0]), intl.JSON(c[1]))))
@@ -209,7 +209,7 @@ func collation() FormatSection {
 }
 
 func segments() FormatSection {
-	sec := FormatSection{Title: locales.FormatsSegmentsTitle(), Description: locales.FormatsSegmentsDescription()}
+	sec := FormatSection{Title: locales.FormatsSegmentsTitle, Description: locales.FormatsSegmentsDescription}
 	for _, s := range [][2]string{{"👨‍👩‍👧 née", `{"granularity":"grapheme"}`}, {"It's 3.14 o'clock.", `{"granularity":"word"}`},
 		{"今日は良い天気", `{"granularity":"word"}`}, {"Dr. Smith arrived. He sat down!", `{"granularity":"sentence"}`}} {
 		sec.Rows = append(sec.Rows, ex(s[0], intl.Of("Segmenter", "segment", s[1], intl.JSON(s[0]))))
@@ -218,7 +218,7 @@ func segments() FormatSection {
 }
 
 func localeInfo() FormatSection {
-	sec := FormatSection{Title: locales.FormatsLocaleTitle(), Description: locales.FormatsLocaleDescription()}
+	sec := FormatSection{Title: locales.FormatsLocaleTitle, Description: locales.FormatsLocaleDescription}
 	for _, m := range []string{"maximize", "minimize", "getCalendars", "getCollations", "getHourCycles", "getNumberingSystems",
 		"getTimeZones", "getTextInfo", "getWeekInfo"} {
 		sec.Rows = append(sec.Rows, ex(m+"()", intl.Of("Locale", m, "")))
@@ -227,7 +227,7 @@ func localeInfo() FormatSection {
 }
 
 func supported() FormatSection {
-	sec := FormatSection{Title: locales.FormatsSupportedTitle(), Description: locales.FormatsSupportedDescription()}
+	sec := FormatSection{Title: locales.FormatsSupportedTitle, Description: locales.FormatsSupportedDescription}
 	for _, key := range []string{"calendar", "collation", "currency", "numberingSystem", "timeZone", "unit"} {
 		sec.Rows = append(sec.Rows, ex(key, intl.Of("Intl", "supportedValuesOf", "", intl.JSON(key))))
 	}
@@ -280,9 +280,9 @@ func RoundTrip(ctx context.Context, number, text string) TryResult {
 			label intl.Msg
 			opts  string
 		}{
-			{locales.FormatsTryGraphemes(), `{"granularity":"grapheme"}`},
-			{locales.FormatsTryWords(), `{"granularity":"word"}`},
-			{locales.FormatsTrySentences(), `{"granularity":"sentence"}`},
+			{locales.FormatsTryGraphemes, `{"granularity":"grapheme"}`},
+			{locales.FormatsTryWords, `{"granularity":"word"}`},
+			{locales.FormatsTrySentences, `{"granularity":"sentence"}`},
 		} {
 			res.TextRows = append(res.TextRows, TryRow{intl.Text(ctx, r.label), intl.Text(ctx, intl.Of("Segmenter", "segment", r.opts, intl.JSON(text)))})
 		}
@@ -294,4 +294,4 @@ func RoundTrip(ctx context.Context, number, text string) TryResult {
 func TrySample(ctx context.Context) string { return intl.Text(ctx, intl.Number("1234567.891", "")) }
 
 // TryText is the round trip's starting text: the home page's heading.
-func TryText(ctx context.Context) string { return intl.Text(ctx, locales.HomeHeading()) }
+func TryText(ctx context.Context) string { return intl.Text(ctx, locales.HomeHeading) }

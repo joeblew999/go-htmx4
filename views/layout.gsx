@@ -21,7 +21,7 @@ import (
 // own hx-* requests keep their default swaps. The nav wraps: translated labels don't fit one row on a phone
 // (e2e TestNoOverflow).
 //
-// <html lang dir> come from the request's locale (views/i18n.go), and every UI string from locales/*.toml (intl.Msg).
+// <html lang dir> come from the request's locale (views/locale.go), and every UI string from locales/*.toml (intl.Msg).
 // <html data-tz data-hc> are the viewer's chosen time zone and clock ("" = the browser's own and the language's), for
 // intl-browser.mjs, which redoes dates, times and rich numbers in the browser. The
 // head carries a translated description, the canonical URL, the page in every locale and Open Graph (views/seo.go). The
@@ -38,7 +38,7 @@ component Layout(title intl.Msg, description intl.Msg, path string, children gsx
 		<head>
 			<meta charset="utf-8"/>
 			<meta name="viewport" content="width=device-width, initial-scale=1"/>
-			<title>{ locales.PageTitle(intl.Text(ctx, title)) }</title>
+			<title>{ pageTitle(ctx, title) }</title>
 			<meta name="description" content={description}/>
 			<link rel="canonical" href={CanonicalURL(ctx)}/>
 			{ for _, a := range Alternates(ctx) {
@@ -46,7 +46,7 @@ component Layout(title intl.Msg, description intl.Msg, path string, children gsx
 			} }
 			<meta property="og:type" content="website"/>
 			<meta property="og:site_name" content="go-htmx4"/>
-			<meta property="og:title" content={locales.PageTitle(intl.Text(ctx, title))}/>
+			<meta property="og:title" content={pageTitle(ctx, title)}/>
 			<meta property="og:description" content={description}/>
 			<meta property="og:url" content={CanonicalURL(ctx)}/>
 			<meta property="og:locale" content={OGLocale(intl.Current(ctx))}/>
@@ -71,23 +71,23 @@ component Layout(title intl.Msg, description intl.Msg, path string, children gsx
 					hx-swap:inherited="outerMorph transition:true"
 				>
 					<a href={URL(ctx, "/")} class="me-auto font-semibold" translate="no">go-htmx4</a>
-					<ui.Button variant={navVariant(path, "/")} size="sm" href={URL(ctx, "/")}>{ locales.NavHome() }</ui.Button>
+					<ui.Button variant={navVariant(path, "/")} size="sm" href={URL(ctx, "/")}>{ locales.NavHome }</ui.Button>
 					<ui.Button variant={navVariant(path, "/board")} size="sm" href={URL(ctx, "/board")}>
-						{ locales.NavBoard() }
+						{ locales.NavBoard }
 					</ui.Button>
 					<ui.Button variant={navVariant(path, "/formats")} size="sm" href={URL(ctx, "/formats")}>
-						{ locales.NavFormats() }
+						{ locales.NavFormats }
 					</ui.Button>
 					<ui.Button variant={navVariant(path, "/about")} size="sm" href={URL(ctx, "/about")}>
-						{ locales.NavAbout() }
+						{ locales.NavAbout }
 					</ui.Button>
 					<ui.Button
 						variant="ghost"
 						size="icon-sm"
 						href="#languages"
 						hx-boost:inherited="false"
-						aria-label={locales.NavLanguages()}
-						title={locales.NavLanguages()}
+						aria-label={locales.NavLanguages}
+						title={locales.NavLanguages}
 					>
 						<icon.Languages/>
 					</ui.Button>
@@ -106,7 +106,7 @@ component Layout(title intl.Msg, description intl.Msg, path string, children gsx
 // own language with lang and hreflang (and translate="no": a locale's own name must not be machine-translated).
 component LanguageFooter() {
 	<footer id="languages" class="border-t">
-		<nav aria-label={locales.NavLanguages()} class="mx-auto flex max-w-3xl flex-wrap items-center gap-1 p-4">
+		<nav aria-label={locales.NavLanguages} class="mx-auto flex max-w-3xl flex-wrap items-center gap-1 p-4">
 			<icon.Languages class="me-1 size-4 text-muted-foreground"/>
 			{ for _, l := range LocaleLinks(ctx) {
 				<ui.Button

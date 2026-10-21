@@ -60,7 +60,7 @@ APP_REPO = "joeblew999/go-htmx4"
 CF_SUBDOMAIN = "gedw99"
 
 [task_config]
-includes = ["tasks/app.toml", "tasks/intl.toml", "tasks/search.toml", "tasks/editor.toml"]
+includes = ["tasks/app.toml", "intl/mise/tasks.toml", "tasks/search.toml", "tasks/editor.toml"]
 
 # The VS Code gsx language server needs the compiler where the extension looks (tasks/editor.toml).
 [hooks]

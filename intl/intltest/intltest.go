@@ -19,11 +19,13 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"slices"
 	"strings"
 	"testing"
 	"time"
 
 	"github.com/joeblew999/go-htmx4/intl"
+	"github.com/joeblew999/go-htmx4/intl/catalog"
 	"github.com/joeblew999/go-htmx4/intl/config"
 	intljs "github.com/joeblew999/go-htmx4/intl/js"
 )
@@ -44,8 +46,21 @@ func Main(m *testing.M) int {
 
 var base string
 
-// Start starts workerd serving js/intl-worker.mjs and sets intl.Runtime to it.
+// Start starts workerd serving js/intl-worker.mjs with the app's catalogs and sets intl.Runtime to it.
 func Start() (stop func(), err error) {
+	catalogs := []byte("export default {};\n")
+	if c, err := config.Find("."); err == nil {
+		if catalogs, err = readCatalogs(c); err != nil {
+			return nil, err
+		}
+	}
+	return start(catalogs)
+}
+
+// StartIntl starts workerd's Intl without the app's catalogs (go tool intl, before they are compiled).
+func StartIntl() (stop func(), err error) { return start([]byte("export default {};\n")) }
+
+func start(catalogs []byte) (stop func(), err error) {
 	workerd, err := exec.LookPath("workerd")
 	if err != nil {
 		return nil, errors.New("workerd is not on PATH: run the tests through mise")
@@ -56,12 +71,6 @@ func Start() (stop func(), err error) {
 	}
 	if err := os.CopyFS(dir, intljs.FS); err != nil {
 		return nil, err
-	}
-	catalogs := []byte("export default {};\n")
-	if c, err := config.Find("."); err == nil {
-		if catalogs, err = readCatalogs(c); err != nil {
-			return nil, err
-		}
 	}
 	l, err := net.Listen("tcp", "127.0.0.1:0")
 	if err != nil {
@@ -143,57 +152,65 @@ func Plurals(t testing.TB) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	src, err := readCatalogs(c)
+	p, err := catalog.Read(c)
 	if err != nil {
 		t.Fatal(err)
 	}
-	body := string(src)
-	body = body[strings.Index(body, "export default ")+len("export default ") : strings.LastIndex(body, ";")]
-	var catalogs map[string][]any
-	if err := json.Unmarshal([]byte(body), &catalogs); err != nil {
-		t.Fatalf("intl-messages.mjs: %v", err)
+	problems, err := PluralProblems(p)
+	if err != nil {
+		t.Fatal(err)
 	}
-	needs := map[string][]string{}
-	categories := func(id, typ string) []string {
-		if cats, ok := needs[id+" "+typ]; ok {
-			return cats
-		}
+	for _, s := range problems {
+		t.Error(s)
+	}
+}
+
+// Categories are the plural categories Intl.PluralRules uses for locale id: cardinal ("one", "few", "many",
+// "other" for Russian) and ordinal.
+func Categories(id string) (cardinal, ordinal []string, err error) {
+	get := func(typ string) ([]string, error) {
 		s, ok := intl.NewLocale(id).Intl(intl.Call{API: "PluralRules", Method: "resolvedOptions", Opts: `{"type":"` + typ + `"}`}, "", "")
-		var opts struct{ PluralCategories []string }
-		if !ok || json.Unmarshal([]byte(s), &opts) != nil || len(opts.PluralCategories) == 0 {
-			t.Fatalf("%s: Intl has no %s plural categories", id, typ)
+		var o struct{ PluralCategories []string }
+		if !ok || json.Unmarshal([]byte(s), &o) != nil || len(o.PluralCategories) == 0 {
+			return nil, fmt.Errorf("intl: Intl has no %s plural categories for %s", typ, id)
 		}
-		needs[id+" "+typ] = opts.PluralCategories
-		return opts.PluralCategories
+		return o.PluralCategories, nil
 	}
-	var walk func(id string, index int, v any)
-	walk = func(id string, index int, v any) {
-		part, ok := v.([]any)
-		if !ok || len(part) == 0 {
-			return
+	if cardinal, err = get("cardinal"); err != nil {
+		return nil, nil, err
+	}
+	ordinal, err = get("ordinal")
+	return cardinal, ordinal, err
+}
+
+// PluralProblems are the plurals and selectordinals in p's own translations (and the source) missing a case for a
+// category their language uses. Intl must be running (Start, StartIntl).
+func PluralProblems(p *catalog.Project) ([]string, error) {
+	var out []string
+	for _, l := range p.Locales {
+		cardinal, ordinal, err := Categories(l.ID)
+		if err != nil {
+			return nil, err
 		}
-		if tag, _ := part[0].(string); (tag == "p" || tag == "o") && len(part) == 4 {
-			typ := map[string]string{"p": "cardinal", "o": "ordinal"}[tag]
-			cases, _ := part[3].(map[string]any)
-			for _, cat := range categories(id, typ) {
-				if _, ok := cases[cat]; !ok {
-					t.Errorf("%s.toml message %d: no %q case (%s %s plural categories: %s)", id, index, cat, id, typ, strings.Join(categories(id, typ), ", "))
+		for i, e := range l.Entries {
+			if e.From != l.ID {
+				continue // missing, or an ancestor's: checked there
+			}
+			for _, pl := range e.Plurals() {
+				need, typ := cardinal, "plural"
+				if pl.Ordinal {
+					need, typ = ordinal, "selectordinal"
+				}
+				for _, cat := range need {
+					if !slices.Contains(pl.Cases, cat) {
+						out = append(out, fmt.Sprintf("%s %s: a %s without a %q case (%s needs %s)",
+							l.File, p.Messages[i].Key, typ, cat, l.ID, strings.Join(need, ", ")))
+					}
 				}
 			}
-			for _, c := range cases {
-				walk(id, index, c)
-			}
-			return
-		}
-		for _, x := range part {
-			walk(id, index, x)
 		}
 	}
-	for _, id := range c.Locales {
-		for i, m := range catalogs[id] {
-			walk(id, i, m)
-		}
-	}
+	return out, nil
 }
 
 func readCatalogs(c config.Config) ([]byte, error) {

@@ -252,7 +252,7 @@ func TestNoteRelativeTime(t *testing.T) {
 // plain-ASCII word left in visible text or in placeholder/aria-label/title: such text doesn't come from
 // locales/*.toml. Brand and technical values opt out with translate="no" (or <code>, <time>); values the browser
 // redoes (data-intl: Intl's own words) and server-computed locale data
-// (data-i18n="intl") are skipped too. <template> is client-side markup (gsxui toaster).
+// (data-intl-text) are skipped too. <template> is client-side markup (gsxui toaster).
 func TestNoHardcodedText(t *testing.T) {
 	intl.Pseudo = true
 	defer func() { intl.Pseudo = false }()
@@ -272,7 +272,7 @@ func TestNoHardcodedText(t *testing.T) {
 					skip = true
 				}
 				for _, a := range n.Attr {
-					if a.Key == "translate" && a.Val == "no" || a.Key == "data-i18n" && a.Val == "intl" || a.Key == "data-intl" {
+					if a.Key == "translate" && a.Val == "no" || a.Key == "data-intl-text" || a.Key == "data-intl" {
 						skip = true
 					}
 				}

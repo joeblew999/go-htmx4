@@ -8,12 +8,12 @@ import (
 // About lists the stack, and gives the boosted nav a third page to morph to. Names are brands (translate="no");
 // roles are translated (StackItem.Role is a message).
 component About(stack []StackItem) {
-	<Layout title={locales.AboutTitle()} description={locales.AboutDescription()} path="/about">
-		<h1 class="text-3xl font-semibold tracking-tight">{ locales.AboutHeading() }</h1>
+	<Layout title={locales.AboutTitle} description={locales.AboutDescription} path="/about">
+		<h1 class="text-3xl font-semibold tracking-tight">{ locales.AboutHeading }</h1>
 		<ui.Card>
 			<ui.CardHeader>
-				<ui.CardTitle>{ locales.AboutStack() }</ui.CardTitle>
-				<ui.CardDescription>{ locales.AboutStackDescription() }</ui.CardDescription>
+				<ui.CardTitle>{ locales.AboutStack }</ui.CardTitle>
+				<ui.CardDescription>{ locales.AboutStackDescription }</ui.CardDescription>
 			</ui.CardHeader>
 			<ui.CardContent class="flex flex-col gap-3">
 				{ for i, s := range stack {
