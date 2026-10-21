@@ -1,13 +1,15 @@
 ---
 name: seo
-description: Use when a gsx app changes what Google reads (a new page, a title or description, a route, its noindex, robots.txt or sitemap rules), after a production deploy, or when asked how Google indexes the site or to fix what Google Search Console reports, with github.com/joeblew999/go-htmx4/seo (go tool seo, mise run seo:*).
+description: Use when a gsx app changes what Google reads (a new page, a title or description, a route, its noindex, robots.txt or sitemap rules), after a production deploy, or when asked how Google indexes the site, to fix what Google Search Console reports, or to get Lighthouse (performance, accessibility, best practices, SEO) right, with github.com/joeblew999/go-htmx4/seo (go tool seo, mise run seo:*).
 ---
 
 # How Google sees the site
 
-`seo` checks what the app serves Google and asks Google what it made of it. It produces nothing itself: robots.txt,
-the sitemap, canonical URLs, hreflang, `<html lang>`, titles and descriptions are the app's own code (with intl:
-`intl.Head`, `intl.Sitemap`, `intl.HTML`, and the catalogs' messages). Fix a problem there, never in `seo`.
+`seo.Site`, middleware around the app, answers robots.txt and the sitemap, marks what isn't a page noindex, and moves
+other hosts and plain http to the one https address; the app says which paths are pages. The rest of what Google
+reads is the app's own: canonical URLs, hreflang, `<html lang>`, titles and descriptions (with intl: `intl.Head`,
+`intl.Sitemap`, `intl.HTML`, the catalogs' messages), the icon, structured data, the pages' text. Fix a problem there.
+The `seo` tools check it and ask Google; see its README for the whole map.
 
 Run every command from the app's root. The site is `https://$APP_DOMAIN`.
 
@@ -31,6 +33,12 @@ with `problems`, one line each, naming the URL. For another server (a local buil
 | `N <h1> elements` | Exactly one `<h1>` per page |
 | `hreflang …` | Every language version lists every other and itself, plus x-default, as absolute URLs on the site's own scheme and host: `intl.Head` does, unless a page is missing in a language |
 | `robots.txt …` | One `User-agent: *` group that allows everything, and `Sitemap:` with the absolute sitemap URL |
+| `… has invisible characters` | Bidi marks in a title: a message argument isolated where it needn't be (pass another message, not text, as the argument) |
+| `no <link rel="icon">` | The layout's `<link rel="icon">` |
+| `no og:title or og:description`, `og:url …` | The layout's Open Graph tags; og:url is the canonical (`intl.Head`) |
+| `HTTP 200 for a page that doesn't exist` | A catch-all route answers 200: unknown paths must be 404 |
+| `not a redirect to https` | `seo.Site`'s Host: the production domain |
+| `no WebSite structured data` | The home page's `<script type="application/ld+json">` with `"@type": "WebSite"` and `name` |
 
 ## 2. Ask Google
 
@@ -56,7 +64,28 @@ needs work:
 Google re-crawls on its own schedule. **Test live URL** and **Request indexing** have no API: give the person each
 problem's `link` (`--open` opens them), don't try to do it for them.
 
-## 3. What needs the person's OK
+## 3. Lighthouse
+
+```sh
+mise run seo:lighthouse --json             # every page of the live sitemap (or seo.toml's pages), mobile
+mise run seo:lighthouse /de/board --json   # one page; --desktop for the desktop one
+```
+
+The settings (the site, the property, Lighthouse's pages, device and minimum score) are the app's `seo.toml`, each
+with a default; an argument overrides one for one run.
+
+It runs on Google's servers (PageSpeed Insights), so only on a live site: production, or a branch preview (whose
+SEO score reads noindex, by design). Each category under 90 fails; `failed` lists the checks with `items`, the
+elements or files they failed on. Real users' Core Web Vitals come in `field` once Chrome has enough visits.
+
+| Fails | Where the fix is |
+|---|---|
+| Render-blocking requests | A script in `<head>` without `defer` or `type="module"`. Only what must run before first paint (the theme) stays blocking |
+| Minify JavaScript, CSS | The build minifies what it ships |
+| ARIA, names, contrast, touch targets | In the app's markup: fix it. In a vendored component (gsxui's `ui/`, never edited): give it what it takes (an `aria-label`, an `id` and `aria-controls`, a class), else report it upstream with Lighthouse's items as evidence |
+| Errors in the console | Read the items. A WebSocket that can't connect is Lighthouse's sandbox, not the site |
+
+## 4. What needs the person's OK
 
 `seo:submit` (sends the sitemap to Google) and `seo:setup` (a Google Cloud project, a service account, its key) write
 to Google: run them only when asked; both ask before they act. Every other task only reads. The key stays in fnox

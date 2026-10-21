@@ -1,4 +1,4 @@
-package seo
+package audit
 
 import (
 	"cmp"
@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"slices"
 	"strings"
 	"testing"
 )
@@ -46,11 +47,28 @@ func site(t *testing.T, breakWith string) (base string, urls []string, client *h
 			case breakWith == "other-scheme" && lang == "de":
 				back = `<link rel="alternate" hreflang="en" href="http://` + strings.TrimPrefix(other, "https://") + `">`
 			}
-			fmt.Fprintf(w, `<!doctype html><html lang="%s"><head><title>Home</title>
-<meta name="description" content="A page."><link rel="canonical" href="%s">
+			title, icon, og := "Home", `<link rel="icon" href="/static/icon.svg">`, `<meta property="og:title" content="Home"><meta property="og:description" content="A page."><meta property="og:url" content="`+canonical+`">`
+			website := ""
+			if lang == "en" && breakWith != "no-website" {
+				website = `<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"Example","url":"` + b + `/"}</script>`
+			}
+			switch {
+			case breakWith == "invisible" && lang == "de":
+				title = "\u2068Start\u2069 · Example"
+			case breakWith == "no-icon" && lang == "de":
+				icon = ""
+			case breakWith == "no-og" && lang == "de":
+				og = ""
+			}
+			fmt.Fprintf(w, `<!doctype html><html lang="%s"><head><title>%s</title>
+<meta name="description" content="A page."><link rel="canonical" href="%s">%s%s%s
 <link rel="alternate" hreflang="%s" href="%s">%s<link rel="alternate" hreflang="x-default" href="%s/">
-</head><body>%s</body></html>`, lang, canonical, lang, self, back, b, h1)
+</head><body>%s</body></html>`, lang, title, canonical, icon, og, website, lang, self, back, b, h1)
 		default:
+			if breakWith == "soft-404" {
+				fmt.Fprint(w, "<!doctype html><title>Home</title>")
+				return
+			}
 			http.NotFound(w, r)
 		}
 	})
@@ -74,6 +92,11 @@ func TestAudit(t *testing.T) {
 		"one-way":         "does not link back",
 		"noindex-header":  "X-Robots-Tag: noindex",
 		"other-scheme":    "is not an absolute URL on https://",
+		"invisible":       "has invisible characters",
+		"no-icon":         `no <link rel="icon">`,
+		"no-og":           "no og:title or og:description",
+		"no-website":      "no WebSite structured data",
+		"soft-404":        "for a page that doesn't exist (want 404",
 		"plain-http":      "",
 	}
 	for breakWith, want := range cases {
@@ -108,5 +131,22 @@ func TestIsNoindex(t *testing.T) {
 		if got := isNoindex(v); got != want {
 			t.Errorf("isNoindex(%q) = %v, want %v", v, got, want)
 		}
+	}
+}
+
+// TestSitemapPages: one URL per page, the x-default of its language versions.
+func TestSitemapPages(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprint(w, `<?xml version="1.0"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+<url><loc>https://a.example/</loc><xhtml:link rel="alternate" hreflang="de" href="https://a.example/de/"/><xhtml:link rel="alternate" hreflang="x-default" href="https://a.example/"/></url>
+<url><loc>https://a.example/de/</loc><xhtml:link rel="alternate" hreflang="x-default" href="https://a.example/"/></url>
+<url><loc>https://a.example/about</loc><xhtml:link rel="alternate" hreflang="x-default" href="https://a.example/about"/></url>
+<url><loc>https://a.example/solo</loc></url>
+</urlset>`)
+	}))
+	defer srv.Close()
+	got, err := SitemapPages(context.Background(), srv.Client(), srv.URL)
+	if want := []string{"https://a.example/", "https://a.example/about", "https://a.example/solo"}; err != nil || !slices.Equal(got, want) {
+		t.Errorf("SitemapPages = %q, %v; want %q", got, err, want)
 	}
 }

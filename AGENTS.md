@@ -84,7 +84,7 @@ committed), `.claude/skills/intl` (`mise run intl:skill`; committed), `.claude/s
 - `mise run intl:check` also runs gsx's own checks on the app's markup: `gsx generate`, `gsx fmt` and the `gsx` skill's
   smell finder. Write what the `gsx` skill says, not what older code does.
 - Every in-app `href`/`hx-*` URL goes through intl's `localize` filter, `href={ "/path" |> localize }` (not
-  `/static/`, `/assets/`, `/gsxui/`, `/live/`). Locale URLs, cookies and preferences are `intl.Site` (`app/locale.go`).
+  `/static/`, `/assets/`, `/gsxui/`, `/live/`). Locale URLs, cookies and preferences are `intl.Site`, search engines `seo.Site`, both in `app/site.go`.
   Logical Tailwind classes only (`ms-`, `pe-`, `start-`, `text-end`, …) so RTL mirrors (`TestLogicalClasses`).
 - Dates and numbers for readers go through Intl, never `time.Format` or `strconv`: intl's gsx filters in markup,
   `{ t |> date(opts) }`, `{ t |> since }`, `{ n |> number(opts) }`, `{ d |> duration }`, `{ v |> intl(api, method,
@@ -92,12 +92,14 @@ committed), `.claude/skills/intl` (`mise run intl:skill`; committed), `.claude/s
   API is reachable that way: add no Go formatting of our own. Options are always pairs, as Intl names them:
   `date("dateStyle", "long")` in markup, `intl.Options("dateStyle", "long")` in Go; never a JSON string.
 - A new page: a translated title and its own translated `description` key to `Layout`, an entry in
-  `views.SitemapPages`. A query parameter that makes a different page goes in `pageKey`. Titles ≤ 60 and descriptions
+  `sitemapPages` (`app/site.go`). A query parameter that makes a different page goes in `pageKey` (`views/views.go`); one that makes
+  endless pages (a board topic) is not `indexable`. Titles ≤ 60 and descriptions
   ≤ 160 wide (`TestSnippetWidths`).
 - `/robots.txt` keeps one `*` group with no `Disallow` (`TestRobotsTxt`); absolute URLs come from `httpx.Origin(r)`,
   never a hard-coded host. No page routes under `/fragments/` (noindex) and no robots `Disallow` for them.
 - How Google sees the site is `seo/` (its own module, `seo/README.md`) and the `seo` skill: what Google reads is
-  this app's own code (`app/seo.go`, `views/seo.go`, intl), and `mise run check` audits every page of the local build.
+  this app's own code (`app/site.go`, the layout, intl), and `mise run check` audits every page of the local build.
+  `mise run seo:lighthouse` scores a live page; fix what is ours, and report a gsxui component's own failures upstream.
   The `seo:*` tasks talk through exit codes (0 ok, 1 problems) and `--json`: never scrape their text. Writes to Google
   (`seo:submit`, `seo:setup`) ask first; agents pass `mise run --yes` only with the user's OK.
 

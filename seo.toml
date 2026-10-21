@@ -1,0 +1,17 @@
+# seo.toml: this app and search engines, for go tool seo and the seo:* tasks (github.com/joeblew999/go-htmx4/seo).
+# The tasks read it, so none needs an argument; an argument still overrides it. Every line is optional: uncomment
+# what differs from its default.
+
+# The live site. Default: https://$APP_DOMAIN.
+# site = "https://app.example.com"
+
+# Its Search Console property. Default: the site's Domain property (app.example.com → sc-domain:example.com).
+# property = "sc-domain:example.com"
+
+[lighthouse]
+# The pages seo:lighthouse scores. Default: one URL per page of the live sitemap.
+# pages = ["/", "/about"]
+# mobile (what Google indexes) or desktop.
+# strategy = "mobile"
+# A category scoring under this fails.
+# min = 90

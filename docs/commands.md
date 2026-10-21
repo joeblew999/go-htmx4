@@ -209,15 +209,15 @@ Translate every missing and stale message with Claude Code (the intl skill), one
 
 ### `preview`
 
-Test, then deploy a Worker Preview (e.g. pr-7) → its URL on stdout and in .preview-url
+Test, then deploy a Worker Preview named after the branch (or e.g. pr-7) → its URL on stdout and in .preview-url
 
 
 - Depends: test
 
-- **Usage:** `preview <name>`
+- **Usage:** `preview [name]`
 
 ### Arguments
-- **`<name>`** — preview name, e.g. pr-7
+- **`[name]`** — preview name, e.g. pr-7; the branch unless named
 
 ### `release`
 
@@ -263,11 +263,25 @@ One URL (the home page unless named): Google's verdict, last crawl and canonical
 - **`--json`** — one JSON document on stdout
 - **`--open`** — open its Search Console page (Test live URL, Request indexing)
 
+### `seo:lighthouse`
+
+Lighthouse on the live site, on Google's servers through PageSpeed Insights: every page of the sitemap (seo.toml's pages), or one; performance, accessibility, best practices and SEO out of 100, what fails and on which elements, real users' Core Web Vitals; fails under seo.toml's min (90)
+
+
+- **Usage:** `seo:lighthouse [--json] [--desktop] [page]`
+
+### Arguments
+- **`[page]`** — one page, a path like /de/board or a full URL; default every page
+
+### Flags
+- **`--json`** — one JSON document on stdout
+- **`--desktop`** — score the desktop page instead of the mobile one Google indexes
+
 ### `seo:setup`
 
 - **Usage:** `seo:setup`
 
-Once: a service account for the Search Console API and its key in fnox (needs gcloud auth login if there is no key yet)
+Once: the Google Cloud project, the Search Console and PageSpeed Insights APIs, and a service account key in fnox (needs gcloud auth login)
 
 ### `seo:sites`
 

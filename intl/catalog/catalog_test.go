@@ -23,6 +23,8 @@ func TestParseAndFormat(t *testing.T) {
 		want        string
 	}{
 		{"en", "It''s {name}", args{"name": "Ada"}, "It's \u2068Ada\u2069"},
+		// Another message (Translate marks it U+E001) is in the page's own language: no isolates, as in a <title>.
+		{"en", "{title} · go-htmx4", args{"title": "\ue001Home"}, "Home · go-htmx4"},
 		{"en", "'{'literal'}' # {n, number}", args{"n": "1234.5"}, "{literal} # 1,234.5"},
 		{"en", "'{n}' is quoted, don't", nil, "{n} is quoted, don't"},
 		{"de", "{n, number}", args{"n": "1234.5"}, "1.234,5"},

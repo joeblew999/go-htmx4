@@ -3,7 +3,7 @@ package main
 import (
 	"testing"
 
-	"github.com/joeblew999/go-htmx4/seo"
+	"github.com/joeblew999/go-htmx4/seo/searchconsole"
 )
 
 func TestClassify(t *testing.T) {
@@ -11,17 +11,17 @@ func TestClassify(t *testing.T) {
 	const link = "https://search.google.com/search-console/inspect?resource_id=sc-domain:example.com&id=abc123"
 	for _, tc := range []struct {
 		name          string
-		in            seo.Inspection
+		in            searchconsole.Inspection
 		show, problem bool
 	}{
-		{"indexed", seo.Inspection{Verdict: "PASS", CoverageState: "Submitted and indexed"}, false, false},
-		{"waiting", seo.Inspection{Verdict: "NEUTRAL", CoverageState: "Discovered - currently not indexed", Link: link}, true, false},
-		{"unknown", seo.Inspection{Verdict: "NEUTRAL", CoverageState: "URL is unknown to Google", Link: link}, true, false},
-		{"duplicate", seo.Inspection{Verdict: "NEUTRAL", CoverageState: "Duplicate, Google chose different canonical than user",
+		{"indexed", searchconsole.Inspection{Verdict: "PASS", CoverageState: "Submitted and indexed"}, false, false},
+		{"waiting", searchconsole.Inspection{Verdict: "NEUTRAL", CoverageState: "Discovered - currently not indexed", Link: link}, true, false},
+		{"unknown", searchconsole.Inspection{Verdict: "NEUTRAL", CoverageState: "URL is unknown to Google", Link: link}, true, false},
+		{"duplicate", searchconsole.Inspection{Verdict: "NEUTRAL", CoverageState: "Duplicate, Google chose different canonical than user",
 			GoogleCanonical: "https://app.example.com/about", Link: link}, true, false},
-		{"404", seo.Inspection{Verdict: "FAIL", CoverageState: "Not found (404)", Link: link}, true, true},
-		{"noindex", seo.Inspection{Verdict: "NEUTRAL", CoverageState: "Excluded by ‘noindex’ tag", Link: link}, true, true},
-		{"crawled not indexed", seo.Inspection{Verdict: "NEUTRAL", CoverageState: "Crawled - currently not indexed", Link: link}, true, true},
+		{"404", searchconsole.Inspection{Verdict: "FAIL", CoverageState: "Not found (404)", Link: link}, true, true},
+		{"noindex", searchconsole.Inspection{Verdict: "NEUTRAL", CoverageState: "Excluded by ‘noindex’ tag", Link: link}, true, true},
+		{"crawled not indexed", searchconsole.Inspection{Verdict: "NEUTRAL", CoverageState: "Crawled - currently not indexed", Link: link}, true, true},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			f, show := classify(u, tc.in)

@@ -17,7 +17,12 @@ import (
 )
 
 // TestMain runs the tests with the Worker's Intl, on workerd (intl/intltest).
-func TestMain(m *testing.M) { os.Exit(intltest.Main(m)) }
+func TestMain(m *testing.M) {
+	// mise.toml's APP_DOMAIN reaches go test too: tests ask for example.com, which would move to the domain
+	// (seo.Site). A test about that sets it (TestOneAddress).
+	os.Unsetenv("APP_DOMAIN")
+	os.Exit(intltest.Main(m))
+}
 
 func get(t *testing.T, h http.Handler, path string, cookies ...*http.Cookie) *httptest.ResponseRecorder {
 	t.Helper()
@@ -48,8 +53,7 @@ func TestRoutes(t *testing.T) {
 		want               []string
 	}{
 		"home": {method: "GET", path: "/", want: []string{
-			"Go + htmx 4 + gsxui on Cloudflare Workers", `src="/static/htmx.min.js"`, `src="/static/hx-live.js"`,
-			`src="/static/hx-ws.js"`, `href="/assets/gsxui.css"`, `src="/gsxui/index.js"`, `hx-boost:inherited="true"`,
+			"Go + htmx 4 + gsxui on Cloudflare Workers", `src="/static/htmx.js"`, `href="/assets/gsxui.css"`, `src="/gsxui/index.js"`, `hx-boost:inherited="true"`,
 			`id="gsxui-toaster"`, `hx-post="/greet"`, `hx-on:click="data.count++"`, `id="target"`, `href="/board"`,
 			`data-site-theme-toggle`, `localStorage.getItem("gsxui-theme")`, `data-gsxui-slot-card`,
 		}},
@@ -65,9 +69,7 @@ func TestRoutes(t *testing.T) {
 		"server info compiler": {method: "GET", path: "/fragments/server-info", want: []string{"gc go1."}},
 		"stats":                {method: "GET", path: "/fragments/stats", want: []string{"<ul"}},
 		"healthz":              {method: "GET", path: "/healthz", want: []string{"ok"}},
-		"htmx":                 {method: "GET", path: "/static/htmx.min.js", want: []string{"htmx"}},
-		"hx-live":              {method: "GET", path: "/static/hx-live.js", want: []string{"hx-live"}},
-		"hx-ws":                {method: "GET", path: "/static/hx-ws.js", want: []string{"ws"}},
+		"htmx":                 {method: "GET", path: "/static/htmx.js", want: []string{"htmx", "hx-ws", "hx-live"}},
 		"css":                  {method: "GET", path: "/assets/gsxui.css", want: []string{"--background"}},
 		"gsxui js":             {method: "GET", path: "/gsxui/index.js", want: []string{"gsxui"}},
 		"font via assets":      {method: "GET", path: "/assets/geist-latin-wght-normal.woff2"},
@@ -133,18 +135,18 @@ func TestEnvEscaped(t *testing.T) {
 	}
 }
 
-// htmx reads <meta name="htmx-config"> when its script loads, so the meta must come first, and the extensions
-// (which need window.htmx) after. Every page loads hx-ws, so boosted navigation to /board can connect.
+// htmx reads <meta name="htmx-config"> when its script loads, so the meta must come first. htmx and its extensions are
+// one deferred script (the assets task joins them), so every page loads hx-ws and boosted navigation to /board can
+// connect.
 func TestHeadOrder(t *testing.T) {
 	h := newServer().routes()
 	for _, path := range []string{"/", "/about", "/board"} {
 		rec := httptest.NewRecorder()
 		h.ServeHTTP(rec, httptest.NewRequest("GET", path, nil))
 		page := rec.Body.String()
-		meta, htmx := strings.Index(page, `name="htmx-config" content="ws.reconnectDelay:2s ws.reconnectJitter:0.5"`), strings.Index(page, `src="/static/htmx.min.js"`)
-		live, ws := strings.Index(page, `src="/static/hx-live.js"`), strings.Index(page, `src="/static/hx-ws.js"`)
-		if meta < 0 || htmx < 0 || live < 0 || ws < 0 || !(meta < htmx && htmx < live && htmx < ws) {
-			t.Errorf("%s: head order must be htmx-config meta (%d) < htmx.min.js (%d) < hx-live.js (%d), hx-ws.js (%d)", path, meta, htmx, live, ws)
+		meta, htmx := strings.Index(page, `name="htmx-config" content="ws.reconnectDelay:2s ws.reconnectJitter:0.5"`), strings.Index(page, `src="/static/htmx.js" defer`)
+		if meta < 0 || htmx < 0 || meta > htmx {
+			t.Errorf("%s: head order must be htmx-config meta (%d) < htmx.js, deferred (%d)", path, meta, htmx)
 		}
 	}
 }

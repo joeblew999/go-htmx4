@@ -16,6 +16,26 @@ func Prefix(l *Locale) string {
 // Key is a locale's id in lower case, as URL prefixes use it: "de", "pt-br".
 func Key(l *Locale) string { return strings.ToLower(l.ID()) }
 
+// Unprefixed is path without its locale prefix: "/de/about" is "/about", "/de" is "/", "/about" stays. For what runs
+// before Site and asks which page a request is for (seo.Site's IsPage, say).
+func Unprefixed(path string) string {
+	seg, rest := path, ""
+	if len(path) > 1 {
+		if i := strings.IndexByte(path[1:], '/'); i >= 0 {
+			seg, rest = path[1:i+1], path[i+1:]
+		} else {
+			seg = path[1:]
+		}
+	}
+	if len(path) > 1 && byPrefix(seg) != nil {
+		if rest == "" {
+			return "/"
+		}
+		return rest
+	}
+	return path
+}
+
 // URL is an in-app path in the request's locale: "/about" in the source locale, "/de/about" in German. In markup,
 // the localize filter: href={ "/about" |> localize }. Paths that aren't per language (assets) don't go through it.
 func URL(ctx context.Context, path string) string { return Prefix(Current(ctx)) + path }

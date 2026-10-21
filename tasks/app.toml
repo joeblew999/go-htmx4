@@ -50,12 +50,18 @@ set -euo pipefail
 tailwindcss -i web/gsxui/index.css -o dist/gsxui.css --minify 2>&1 | grep -v "^≈\|^$" || true
 rm -rf dist/site
 mkdir -p dist/site/static dist/site/gsxui dist/site/assets
-cp web/htmx/*.js dist/site/static/
+# htmx and its extensions as one deferred script (/static/htmx.js): out of the way of the first paint, and in one
+# script, so the extensions register before htmx's start, which a deferred htmx runs on the next task (setTimeout).
+for f in htmx.min.js hx-live.js hx-ws.js; do cat "web/htmx/$f"; echo ";"; done >dist/site/static/htmx.js
+# The site's icon (<link rel="icon"> in the layout, which browsers and Google read).
+cp web/favicon.svg dist/site/static/
 # The browser's half of intl, with the same intl.mjs the Worker runs (/static/intl-browser.mjs).
 go tool intl assets -browser dist/site/static
 cp -R web/gsxui/. dist/site/gsxui/
 cp dist/gsxui.css dist/site/assets/
 cp web/gsxui/fonts/*.woff2 dist/site/assets/
+# Every script minified (tdewolff/minify, a Go tool): Lighthouse counts what the browser downloads.
+find dist/site/static dist/site/gsxui -name '*.js' -o -name '*.mjs' | xargs go tool minify -q -i --type=js
 echo "✓ dist/site: $(find dist/site -type f | wc -l | tr -d ' ') files, gsxui.css $(wc -c <dist/site/assets/gsxui.css | tr -d ' ')B"
 '''
 
@@ -275,7 +281,7 @@ run = "ci/deploy.sh production"
 # ── staging ─────────────────────────────────────────────────────
 # Staging: its own Worker $APP_NAME-staging (https://$APP_NAME-staging.<subdomain>.workers.dev), exactly what's on main.
 # Workers Builds deploys it on every merge to main (ci/workers-builds.sh). Like production, but never production: no
-# custom domain (host.go never redirects), APP_PREVIEW=1 (noindex), its own D1 ($APP_NAME-staging) and Durable Objects.
+# custom domain (seo.Site never redirects), APP_PREVIEW=1 (noindex), its own D1 ($APP_NAME-staging) and Durable Objects.
 ["staging"]
 description = "Test, then deploy staging: the Worker $APP_NAME-staging → its URL on stdout and in .staging-url"
 depends = ["test"]
@@ -284,15 +290,15 @@ run = "ci/deploy.sh staging"
 
 # ── preview ─────────────────────────────────────────────────────
 # A Worker Preview of $APP_NAME (PR #6): its own URL, code and Durable
-# Object storage, the shared preview D1 ($APP_NAME-preview), no custom domain (so host.go never redirects it) and
+# Object storage, the shared preview D1 ($APP_NAME-preview), no custom domain (so seo.Site never redirects it) and
 # APP_PREVIEW=1 (every response noindex). Workers Builds runs it for every pushed branch (name = the branch).
 # Credentials: CLOUDFLARE_API_TOKEN/CLOUDFLARE_ACCOUNT_ID from the environment (Workers Builds' build token) or fnox.
 ["preview"]
-description = "Test, then deploy a Worker Preview (e.g. pr-7) → its URL on stdout and in .preview-url"
+description = "Test, then deploy a Worker Preview named after the branch (or e.g. pr-7) → its URL on stdout and in .preview-url"
 depends = ["test"]
 dir = "{{config_root}}"
-usage = 'arg "<name>" help="preview name, e.g. pr-7"'
-run = 'ci/deploy.sh preview "$usage_name"'
+usage = 'arg "[name]" help="preview name, e.g. pr-7; the branch unless named"'
+run = 'ci/deploy.sh preview "${usage_name:-$(git branch --show-current)}"'
 
 # ── release ─────────────────────────────────────────────────────
 # Production without anyone's machine holding Cloudflare credentials: a v* tag (GitHub's Releases page) or a

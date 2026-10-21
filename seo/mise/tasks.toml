@@ -37,6 +37,16 @@ flag "--open" help="open its Search Console page (Test live URL, Request indexin
 tools = { fnox = "1.40.0" }
 run = 'fnox exec -- go tool seo inspect "${usage_page:-/}" -json=${usage_json:-false} -open=${usage_open:-false}'
 
+["seo:lighthouse"]
+description = "Lighthouse on the live site, on Google's servers through PageSpeed Insights: every page of the sitemap (seo.toml's pages), or one; performance, accessibility, best practices and SEO out of 100, what fails and on which elements, real users' Core Web Vitals; fails under seo.toml's min (90)"
+tools = { fnox = "1.40.0" }
+usage = '''
+arg "[page]" help="one page, a path like /de/board or a full URL; default every page"
+flag "--json" help="one JSON document on stdout"
+flag "--desktop" help="score the desktop page instead of the mobile one Google indexes"
+'''
+run = 'fnox exec -- go tool seo lighthouse ${usage_page:+"$usage_page"} -json=${usage_json:-false} $([ "${usage_desktop:-false}" = true ] && echo -strategy=desktop)'
+
 ["seo:status"]
 description = "The sitemap's status in Search Console and Google's index status for every URL in it"
 depends = ["seo:access"]
@@ -57,40 +67,47 @@ confirm = "Submit the sitemap to Google Search Console?"
 tools = { fnox = "1.40.0" }
 run = "fnox exec -- go tool seo submit"
 
-# Once per person, not per site: one service account serves every site it is added to. With its key already in fnox
-# this only names the account to add. Otherwise it needs `gcloud auth login` first, and makes a Google Cloud project
-# ($SEO_PROJECT, else "$APP_NAME-search"), enables the Search Console API, and stores a service account key.
-# gcloud is installed when this task runs, not by `mise install`; its installer needs Python >= 3.10.
+# Once per person, not per site: one service account serves every site it is added to, and Lighthouse
+# (PageSpeed Insights). It needs `gcloud auth login`: it makes the Google Cloud project ($SEO_PROJECT, else the key's
+# own, else "$APP_NAME-search"), enables the Search Console and PageSpeed Insights APIs, and stores a service account
+# key in fnox unless one is there. gcloud is installed when this task runs, not by `mise install`; its installer needs
+# Python >= 3.10.
 ["seo:setup"]
-description = "Once: a service account for the Search Console API and its key in fnox (needs gcloud auth login if there is no key yet)"
-confirm = "Make or check the Search Console service account?"
+description = "Once: the Google Cloud project, the Search Console and PageSpeed Insights APIs, and a service account key in fnox (needs gcloud auth login)"
+confirm = "Make or check the Google Cloud project, its APIs and the service account?"
 tools = { fnox = "1.40.0", "asdf:mise-plugins/mise-gcloud" = "584.0.0", python = "3.13.15" }
 env = { CLOUDSDK_PYTHON = "python3" }
 run = '''
 #!/usr/bin/env bash
 set -euo pipefail
 email() { python3 -c 'import json, sys; print(json.load(sys.stdin)["client_email"])'; }
-if key=$(fnox get GOOGLE_SEARCH_CONSOLE_KEY 2>/dev/null) && [ -n "$key" ]; then
+# gcloud's update checks and usage reporting stall every command for minutes on some machines.
+gcloud config set component_manager/disable_update_check true --quiet >/dev/null 2>&1
+gcloud config set core/disable_usage_reporting true --quiet >/dev/null 2>&1
+gcloud config set survey/disable_prompts true --quiet >/dev/null 2>&1
+account=$(gcloud auth list --filter=status:ACTIVE --format="value(account)" 2>/dev/null)
+[ -n "$account" ] || { echo "✗ run gcloud auth login first"; exit 1; }
+key=$(fnox get GOOGLE_SEARCH_CONSOLE_KEY 2>/dev/null || true)
+if [ -n "$key" ]; then
   sa=$(email <<<"$key")
-  echo "✓ GOOGLE_SEARCH_CONSOLE_KEY is in fnox: service account $sa"
+  p=${SEO_PROJECT:-$(sed -n 's/^[^@]*@\([^.]*\)\.iam\.gserviceaccount\.com$/\1/p' <<<"$sa")}
 else
-  # gcloud's update checks and usage reporting stall every command for minutes on some machines.
-  gcloud config set component_manager/disable_update_check true --quiet >/dev/null 2>&1
-  gcloud config set core/disable_usage_reporting true --quiet >/dev/null 2>&1
-  gcloud config set survey/disable_prompts true --quiet >/dev/null 2>&1
-  account=$(gcloud auth list --filter=status:ACTIVE --format="value(account)" 2>/dev/null)
-  [ -n "$account" ] || { echo "✗ run gcloud auth login first"; exit 1; }
   p=${SEO_PROJECT:-${APP_NAME:?set APP_NAME or SEO_PROJECT}-search}
   sa=search-console@$p.iam.gserviceaccount.com
-  echo "· gcloud account $account, project $p"
-  gcloud projects describe "$p" --quiet >/dev/null 2>&1 || gcloud projects create "$p" --name="$p" --quiet
-  gcloud services enable searchconsole.googleapis.com --project "$p" --quiet
+fi
+echo "· gcloud account $account, project $p"
+gcloud projects describe "$p" --quiet >/dev/null 2>&1 || gcloud projects create "$p" --name="$p" --quiet
+gcloud services enable searchconsole.googleapis.com pagespeedonline.googleapis.com --project "$p" --quiet
+echo "✓ project $p: the Search Console and PageSpeed Insights APIs"
+if [ -n "$key" ]; then
+  echo "✓ GOOGLE_SEARCH_CONSOLE_KEY is in fnox: service account $sa"
+else
   gcloud iam service-accounts describe "$sa" --project "$p" --quiet >/dev/null 2>&1 ||
     gcloud iam service-accounts create search-console --project "$p" --display-name="Search Console" --quiet
   file=$(mktemp); trap 'rm -f "$file"' EXIT
   gcloud iam service-accounts keys create "$file" --iam-account "$sa" --project "$p" --quiet >/dev/null
   fnox set -g GOOGLE_SEARCH_CONSOLE_KEY --from-file "$file" -p keychain -d "Search Console API key ($sa)" >/dev/null
-  echo "✓ project $p, the Search Console API, service account $sa, its key in fnox as GOOGLE_SEARCH_CONSOLE_KEY"
+  echo "✓ service account $sa, its key in fnox as GOOGLE_SEARCH_CONSOLE_KEY"
 fi
 if fnox exec -- go tool seo sites >/dev/null 2>&1; then
   echo "✓ $sa has Full access to the property"
