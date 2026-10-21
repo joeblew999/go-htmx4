@@ -72,16 +72,19 @@ func (p *Project) Generate(log io.Writer) error {
 			return fmt.Errorf("intl: keys %s and %s both become %s", prev, m.Key, fn)
 		}
 		names[fn] = m.Key
-		var params, args []string
-		for _, a := range m.parsed.order {
-			pn := paramName(a)
+		// Each argument has its own type parameter: a number argument takes any Go number (len(items)), a text
+		// argument a string, a Msg or a Value (another message, an Intl result), made text when the message renders.
+		var tparams, params, args []string
+		for k, a := range m.parsed.order {
+			pn, tp := paramName(a), fmt.Sprintf("T%d", k)
 			if m.parsed.args[a] == argNumber {
-				params = append(params, pn+" float64")
+				tparams = append(tparams, tp+" intl.NumberArg")
 				args = append(args, "intl.Num("+pn+")")
 			} else {
-				params = append(params, pn+" string")
+				tparams = append(tparams, tp+" intl.TextArg")
 				args = append(args, "intl.Str("+pn+")")
 			}
+			params = append(params, pn+" "+tp)
 		}
 		doc := fmt.Sprintf("// %s is %q: %s\n", fn, m.Key, strings.ReplaceAll(m.Text, "\n", " "))
 		if len(params) == 0 {
@@ -89,7 +92,7 @@ func (p *Project) Generate(log io.Writer) error {
 			fmt.Fprintf(&b, "%svar %s = intl.M(%d)\n\n", doc, fn, i)
 			continue
 		}
-		fmt.Fprintf(&b, "%sfunc %s(%s) intl.Msg { return intl.M(%d%s) }\n\n", doc, fn, strings.Join(params, ", "), i, prefixComma(args))
+		fmt.Fprintf(&b, "%sfunc %s[%s](%s) intl.Msg { return intl.M(%d%s) }\n\n", doc, fn, strings.Join(tparams, ", "), strings.Join(params, ", "), i, prefixComma(args))
 	}
 	if err := writeGo(filepath.Join(dir, "intl_gen.go"), b.String()); err != nil {
 		return err

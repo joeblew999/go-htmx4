@@ -85,7 +85,7 @@ func TestUntranslatedNoindex(t *testing.T) {
 		if !intl.Complete(ld.ID()) {
 			want = "noindex"
 		}
-		if got := get(t, h, views.LocalePrefix(ld)+"/about").Header().Get("X-Robots-Tag"); got != want {
+		if got := get(t, h, intl.Prefix(ld)+"/about").Header().Get("X-Robots-Tag"); got != want {
 			t.Errorf("%s (complete catalog: %v) X-Robots-Tag = %q, want %q", ld.ID(), intl.Complete(ld.ID()), got, want)
 		}
 	}
@@ -96,7 +96,7 @@ func TestLocaleCookie(t *testing.T) {
 	rec := get(t, h, "/ja/about")
 	var set *http.Cookie
 	for _, c := range rec.Result().Cookies() {
-		if c.Name == localeCookie {
+		if c.Name == intl.LocaleCookie {
 			set = c
 		}
 	}
@@ -109,7 +109,7 @@ func TestLocaleCookie(t *testing.T) {
 	if rec := get(t, h, "/about", set); rec.Code != 200 {
 		t.Errorf("/about with locale=ja: %d, want 200 (only the bare / follows the cookie)", rec.Code)
 	}
-	if rec := get(t, h, "/", &http.Cookie{Name: localeCookie, Value: "en"}); rec.Code != 200 {
+	if rec := get(t, h, "/", &http.Cookie{Name: intl.LocaleCookie, Value: "en"}); rec.Code != 200 {
 		t.Errorf("/ with locale=en: %d, want 200", rec.Code)
 	}
 	// Choosing the default locale in the language list overrides the remembered one.
@@ -123,7 +123,7 @@ func TestLocaleCookie(t *testing.T) {
 	if body := get(t, h, "/de/").Body.String(); !strings.Contains(body, `href="/?locale=en"`) {
 		t.Errorf("the English link on /de/ must carry ?locale=en")
 	}
-	if rec := get(t, h, "/", &http.Cookie{Name: localeCookie, Value: "<script>"}); rec.Code != 200 {
+	if rec := get(t, h, "/", &http.Cookie{Name: intl.LocaleCookie, Value: "<script>"}); rec.Code != 200 {
 		t.Errorf("/ with a junk cookie: %d, want 200", rec.Code)
 	}
 	for _, path := range []string{"/de/fragments/stats", "/de/healthz"} {
@@ -142,7 +142,7 @@ func TestLocalizedURLs(t *testing.T) {
 	h := newServer().routes()
 	shared := []string{"/static/", "/assets/", "/gsxui/", "/live/"}
 	for _, ld := range locales.Shipped[1:] {
-		prefix := views.LocalePrefix(ld)
+		prefix := intl.Prefix(ld)
 		for _, page := range []string{"/", "/about", "/formats", "/board"} {
 			rec := get(t, h, prefix+page)
 			if rec.Code != 200 {
@@ -445,7 +445,7 @@ func TestCanonicalAndHreflang(t *testing.T) {
 	for _, page := range []string{"/", "/about", "/formats", "/board", "/board?topic=roadmap"} {
 		var first map[string]string
 		for _, ld := range locales.Shipped {
-			url := views.LocalePrefix(ld) + page
+			url := intl.Prefix(ld) + page
 			body := get(t, h, url).Body.String()
 			canonical, alts, desc := headLinks(t, body)
 			if want := "http://example.com" + url; canonical != want {

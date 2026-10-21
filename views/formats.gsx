@@ -1,6 +1,7 @@
 package views
 
 import (
+	"github.com/joeblew999/go-htmx4/intl"
 	"github.com/joeblew999/go-htmx4/locales"
 	"github.com/joeblew999/go-htmx4/ui"
 )
@@ -134,7 +135,7 @@ component TryIt() {
 				<ui.CardDescription>{ locales.FormatsTryDescription }</ui.CardDescription>
 			</ui.CardHeader>
 			<ui.CardContent class="flex flex-col gap-6">
-				<form hx-post={URL(ctx, "/formats/try")} hx-target="#try-result" class="flex flex-col gap-4">
+				<form hx-post={"/formats/try" |> localize} hx-target="#try-result" class="flex flex-col gap-4">
 					<ui.FieldGroup>
 						<ui.Field>
 							<ui.FieldLabel for="try-number">{ locales.FormatsTryNumber }</ui.FieldLabel>
@@ -205,7 +206,7 @@ component LocaleCard(facts LocaleFacts) {
 			<ui.Badge variant="secondary" translate="no">{ facts.ID }</ui.Badge>
 			<ui.Badge variant="outline" translate="no">{ facts.Maximal }</ui.Badge>
 			<ui.Badge variant="outline">{ locales.FormatsDirection(facts.Dir) }</ui.Badge>
-			<ui.Badge variant="outline">{ locales.FormatsTimeZone(TimeZone(ctx)) }</ui.Badge>
+			<ui.Badge variant="outline">{ locales.FormatsTimeZone(intl.TimeZone(ctx)) }</ui.Badge>
 		</ui.CardContent>
 	</ui.Card>
 }

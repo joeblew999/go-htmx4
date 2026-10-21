@@ -7,28 +7,60 @@ import (
 )
 
 // Msg is a translated message, written in markup where its text goes: gsx renders it (Translate, registered in
-// gsx.toml [renderers]) in the request's language. go tool intl gen writes one constructor per catalog key, so a
-// missing key is a compile error:
+// gsx.toml [renderers]) in the request's language. go tool intl gen writes one per catalog key, so a missing key is a
+// compile error: a value for a message without arguments, a constructor for one with.
 //
-//	<h1>{ locales.HomeHeading() }</h1>
-//	<p title={ locales.GreetHello(name) }>…</p>
+//	<h1>{ locales.HomeHeading }</h1>
+//	<p title={ locales.GreetHello(name) }>{ locales.CartItems(len(items)) }</p>
+//	<title>{ locales.PageTitle(title) }</title>   (title a Msg: a message can be another's argument)
 type Msg struct {
 	index int
 	args  []Arg
 }
 
-// Arg is a message argument: text, or a number (Num).
+// Arg is a message argument: text (Str), or a number (Num).
 type Arg struct {
-	s   string
-	num bool
+	s    string
+	num  bool
+	text Textual // a Msg or Value argument, made text in the request's language when the message renders
+}
+
+// TextArg is what a message's text argument can be: a string, another message, or an Intl Value ({ zone } in
+// "Automatic ({zone})" as the viewer's zone's name), the last two in the request's language.
+type TextArg interface {
+	string | Msg | Value | Plain
+}
+
+// NumberArg is what a message's number argument can be: any Go number.
+type NumberArg interface {
+	~int | ~int8 | ~int16 | ~int32 | ~int64 | ~uint | ~uint8 | ~uint16 | ~uint32 | ~uint64 | ~float32 | ~float64
 }
 
 // Str is a text argument. Where its direction differs from the page's (an Arabic name in an English sentence) it is
 // wrapped in Unicode isolates, so it can't reorder the words around it.
-func Str(s string) Arg { return Arg{s: s} }
+func Str[T TextArg](v T) Arg {
+	switch x := any(v).(type) {
+	case Msg:
+		return Arg{text: x}
+	case Value:
+		return Arg{text: x}
+	case Plain:
+		return Arg{text: Value(x)}
+	case string:
+		return Arg{s: x}
+	}
+	return Arg{}
+}
 
 // Num is a number argument, formatted by Intl.NumberFormat in the message's language.
-func Num(f float64) Arg {
+func Num[N NumberArg](n N) Arg {
+	switch x := any(n).(type) {
+	case int:
+		return Arg{s: strconv.Itoa(x), num: true}
+	case int64:
+		return Arg{s: strconv.FormatInt(x, 10), num: true}
+	}
+	f := float64(n)
 	s := strconv.FormatFloat(f, 'f', -1, 64)
 	switch {
 	case math.IsInf(f, 1):
@@ -59,8 +91,11 @@ func Translate(ctx context.Context, m Msg) string {
 	args := make([]string, len(m.args))
 	for i, a := range m.args {
 		args[i] = a.s
+		if a.text != nil {
+			args[i] = a.text.text(ctx)
+		}
 		if !a.num {
-			args[i] = isolate(loc.Dir(), a.s)
+			args[i] = isolate(loc.Dir(), args[i])
 		}
 	}
 	return loc.Message(catalog, m.index, args...)

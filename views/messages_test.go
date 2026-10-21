@@ -40,12 +40,3 @@ func TestJSOptions(t *testing.T) {
 		}
 	}
 }
-
-func TestValidTimeZone(t *testing.T) {
-	for id, want := range map[string]bool{"Europe/Berlin": true, "America/Argentina/Buenos_Aires": true, "UTC": true, "Etc/GMT+5": true,
-		"": false, "../etc/passwd": false, "Europe/Berlin\"": false, "<script>": false, "a/b/c/d": false} {
-		if got := ValidTimeZone(id); got != want {
-			t.Errorf("ValidTimeZone(%q) = %v, want %v", id, got, want)
-		}
-	}
-}

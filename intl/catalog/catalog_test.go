@@ -128,8 +128,8 @@ func TestGenerate(t *testing.T) {
 	goSrc := a.read("cat/intl_gen.go")
 	for _, want := range []string{"package cat", `var Shipped = intl.Locales{intl.NewLocale("en"), intl.NewLocale("en-IN"), intl.NewLocale("de")}`,
 		"func init() { intl.Use(Shipped, []bool{true, true, false}) }",
-		"func Hello(name string) intl.Msg { return intl.M(1, intl.Str(name)) }",
-		"func FilesCount(n float64) intl.Msg { return intl.M(0, intl.Num(n)) }",
+		"func Hello[T0 intl.TextArg](name T0) intl.Msg { return intl.M(1, intl.Str(name)) }",
+		"func FilesCount[T0 intl.NumberArg](n T0) intl.Msg { return intl.M(0, intl.Num(n)) }",
 		"var Title = intl.M(2)"} {
 		if !strings.Contains(goSrc, want) {
 			t.Errorf("intl_gen.go lacks %q:\n%s", want, goSrc)

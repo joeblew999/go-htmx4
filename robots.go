@@ -36,7 +36,7 @@ func robotsTxt(w http.ResponseWriter, r *http.Request) {
 // noindexNonPages marks every response that isn't a page X-Robots-Tag: noindex: fragments
 // under /fragments/, the health check, and every request that isn't GET or HEAD (form posts, now and future). One
 // rule around the mux instead of per-handler wrapping, so a new fragment or POST route can't forget it. It runs
-// inside withLocale, so /de/fragments/… is matched on its unprefixed path. Pages (every /board topic included),
+// inside site.Handler, so /de/fragments/… is matched on its unprefixed path. Pages (every /board topic included),
 // /robots.txt and /sitemap.xml stay indexable, except on a Worker Preview (APP_PREVIEW set by `mise run preview`),
 // where nothing is: a preview must never compete with production in search results.
 func noindexNonPages(h http.Handler) http.Handler {

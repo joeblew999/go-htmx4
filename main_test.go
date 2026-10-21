@@ -5,8 +5,8 @@ package main
 import (
 	"cmp"
 	"context"
+	"github.com/joeblew999/go-htmx4/intl"
 	"github.com/joeblew999/go-htmx4/locales"
-	"github.com/joeblew999/go-htmx4/views"
 	"html"
 	"net/http"
 	"net/http/httptest"
@@ -291,7 +291,7 @@ func TestWorkerJSMatchesLive(t *testing.T) {
 		t.Errorf("worker/room.mjs must tag sockets with ?%s=", live.LocaleParam)
 	}
 	for _, ld := range locales.Shipped {
-		if key := views.LocaleKey(ld); !live.ValidLocale(key) || !regexp.MustCompile(live.LocalePattern).MatchString(key) {
+		if key := intl.Key(ld); !live.ValidLocale(key) || !regexp.MustCompile(live.LocalePattern).MatchString(key) {
 			t.Errorf("shipped locale key %q fails internal/live's locale rule", key)
 		}
 	}

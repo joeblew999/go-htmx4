@@ -9,6 +9,7 @@
 //	{ "JP" |> intl("DisplayNames", "of", `{"type":"region"}`) }
 //	title={ v |> plain }                               a Value's text, for an attribute
 //	title={ locales.BoardTitle |> text }               a message's text, for a component's string input
+//	href={ "/about" |> localize }                      an in-app path in the request's locale: /de/about
 //
 // Each returns an intl.Value (rendered by intl.Render, in the request's language and redone by the browser in the
 // viewer's zone), except plain and text. Options are an Intl options object as JSON, optional.
@@ -52,6 +53,10 @@ func Zone(id string) intl.Value { return intl.Zone(id) }
 func Intl(v any, api, method string, opts ...string) intl.Value {
 	return intl.Of(api, method, first(opts), argJSON(v))
 }
+
+// Localize is an in-app path in the request's locale (intl.Site): href={ "/about" |> localize } is "/de/about" in
+// German. Whole literals too: hx-post={ f`/cart/add?id=@{id}` |> localize }.
+func Localize(ctx context.Context, path string) string { return intl.URL(ctx, path) }
 
 // Plain is a Value's text alone, for an attribute (which takes no markup): title={ v |> plain }.
 func Plain(v intl.Value) intl.Plain { return v.Plain() }

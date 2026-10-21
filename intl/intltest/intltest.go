@@ -33,6 +33,13 @@ import (
 // CompatibilityDate is the Workers compatibility date the test Worker runs on.
 const CompatibilityDate = "2026-09-11"
 
+// Workerd is the workerd release intl is tested with: go tool intl init pins it in the app's mise.toml, and intl's
+// mise tasks pin it for themselves.
+const Workerd = "1.20261019.1"
+
+// noWorkerd says how to get workerd.
+const noWorkerd = "workerd, the Workers runtime whose Intl the tests use, is not installed: add it to mise.toml's [tools] (workerd = \"" + Workerd + "\"; go tool intl init does) and run the tests through mise"
+
 // Main starts workerd, runs the tests with it as intl.Runtime, and stops it.
 func Main(m *testing.M) int {
 	stop, err := Start()
@@ -63,7 +70,7 @@ func StartIntl() (stop func(), err error) { return start([]byte("export default 
 func start(catalogs []byte) (stop func(), err error) {
 	workerd, err := exec.LookPath("workerd")
 	if err != nil {
-		return nil, errors.New("workerd is not on PATH: run the tests through mise")
+		return nil, errors.New(noWorkerd)
 	}
 	dir, err := os.MkdirTemp("", "intltest-")
 	if err != nil {
@@ -111,14 +118,17 @@ const config :Workerd.Config = (
 			return nil, err
 		}
 	}
+	var errs bytes.Buffer
 	cmd := exec.Command(workerd, "serve", filepath.Join(dir, "config.capnp"))
-	cmd.Stderr = os.Stderr
+	cmd.Stderr = io.MultiWriter(os.Stderr, &errs)
 	if err := cmd.Start(); err != nil {
 		return nil, err
 	}
+	exited := make(chan struct{})
+	go func() { cmd.Wait(); close(exited) }()
 	stop = func() {
 		cmd.Process.Kill()
-		cmd.Wait()
+		<-exited
 		os.RemoveAll(dir)
 	}
 	base = "http://" + addr
@@ -126,6 +136,15 @@ const config :Workerd.Config = (
 		if resp, err := client.Get(base); err == nil {
 			resp.Body.Close()
 			break
+		}
+		select {
+		case <-exited: // it didn't start: a mise shim without a version, a bad config
+			os.RemoveAll(dir)
+			if strings.Contains(errs.String(), "No version is set") {
+				return nil, errors.New(noWorkerd)
+			}
+			return nil, fmt.Errorf("workerd exited: %s", strings.TrimSpace(errs.String()))
+		default:
 		}
 		if time.Now().After(deadline) {
 			stop()

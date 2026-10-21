@@ -1,6 +1,8 @@
 // Command intl is go tool intl: an app's languages, from its intl.toml (found up from the working directory). Every
 // workflow of intl's mise tasks (intl/mise/tasks.toml) is one of these commands.
 //
+//	go tool intl init [-locales en,de] [-catalogs locales] [-gsxui ui]   set the app up: intl.toml, catalogs, gsx.toml,
+//	                                       .gitignore, the mise tasks, the skill
 //	go tool intl gen                       compile the catalogs: intl_gen.go, intl-messages.mjs, the gsxui translator,
 //	                                       intl.sum
 //	go tool intl status                    per locale: translated, inherited, stale, missing (exit 1 if one is incomplete)
@@ -15,6 +17,8 @@
 //	go tool intl tasks [-o file]           write intl's mise tasks into the app (.mise/tasks/intl.toml)
 //	go tool intl assets -worker dir -browser dir    the JavaScript a Worker and a page import
 //	go tool intl locales                   the shipped locales, comma-separated
+//	go tool intl catalogs                  the catalogs' Go package name (locales), for scripts
+//	go tool intl markup                    the app's own .gsx directories: not gsxui's, not nested modules
 //
 // todo, check, add and export ask Intl itself (plural categories, language names): they run workerd.
 package main
@@ -35,12 +39,17 @@ import (
 	"github.com/joeblew999/go-htmx4/intl/intltest"
 	intljs "github.com/joeblew999/go-htmx4/intl/js"
 	intlmise "github.com/joeblew999/go-htmx4/intl/mise"
+	"github.com/joeblew999/go-htmx4/intl/setup"
 	"github.com/joeblew999/go-htmx4/intl/skills"
 )
 
 func main() {
 	if len(os.Args) < 2 {
 		usage()
+	}
+	if os.Args[1] == "init" {
+		initApp(os.Args[2:])
+		return
 	}
 	c, err := config.Find(".")
 	check(err)
@@ -145,29 +154,12 @@ func main() {
 		}
 		check(read(c).Generate(os.Stderr))
 	case "skill":
-		dir := filepath.Join(c.Root, ".claude", "skills")
-		check(fs.WalkDir(skills.FS, ".", func(path string, d fs.DirEntry, err error) error {
-			if err != nil || d.IsDir() {
-				return err
-			}
-			b, err := skills.FS.ReadFile(path)
-			if err != nil {
-				return err
-			}
-			dst := filepath.Join(dir, path)
-			if err := os.MkdirAll(filepath.Dir(dst), 0o755); err != nil {
-				return err
-			}
-			fmt.Println(dst)
-			return os.WriteFile(dst, b, 0o644)
-		}))
+		check(writeSkill(c.Root))
 	case "tasks":
 		f := flag.NewFlagSet("tasks", flag.ExitOnError)
 		out := f.String("o", filepath.Join(c.Root, ".mise", "tasks", "intl.toml"), "the task file to write")
 		f.Parse(args)
-		check(os.MkdirAll(filepath.Dir(*out), 0o755))
-		check(os.WriteFile(*out, intlmise.Tasks, 0o644))
-		fmt.Println(*out)
+		check(writeTasks(*out))
 	case "assets":
 		f := flag.NewFlagSet("assets", flag.ExitOnError)
 		worker := f.String("worker", "", "directory for the Worker's modules")
@@ -187,9 +179,116 @@ func main() {
 		}
 	case "locales":
 		fmt.Println(strings.Join(c.Locales, ","))
+	case "catalogs":
+		fmt.Println(filepath.Base(c.CatalogDir()))
+	case "markup":
+		dirs, err := markup(c)
+		check(err)
+		for _, d := range dirs {
+			fmt.Println(d)
+		}
 	default:
 		usage()
 	}
+}
+
+// initApp is go tool intl init, from the app's go.mod directory.
+func initApp(args []string) {
+	f := flag.NewFlagSet("init", flag.ExitOnError)
+	locales := f.String("locales", "en", "BCP 47 ids, comma-separated, the source first")
+	catalogs := f.String("catalogs", "locales", "the catalogs' directory")
+	gsxui := f.String("gsxui", "", "where gsxui add vendors components (default: gsxui.json's ui)")
+	f.Parse(args)
+	root, err := os.Getwd()
+	check(err)
+	if *gsxui == "" {
+		var g struct{ UI string }
+		if b, err := os.ReadFile(filepath.Join(root, "gsxui.json")); err == nil && json.Unmarshal(b, &g) == nil {
+			*gsxui = g.UI
+		}
+	}
+	o := setup.Options{Locales: strings.Split(*locales, ","), Catalogs: *catalogs, Gsxui: *gsxui}
+	if c, err := config.Find(root); err == nil && c.Root == root {
+		o = setup.Options{Locales: c.Locales, Catalogs: c.Catalogs, Gsxui: c.Gsxui} // already set up: keep its choices
+	}
+	check(setup.Init(root, o, os.Stdout))
+	check(writeTasks(filepath.Join(root, ".mise", "tasks", "intl.toml")))
+	check(writeSkill(root))
+	c, err := config.Find(root)
+	check(err)
+	check(read(c).Generate(os.Stderr))
+	fmt.Print(`
+Set up. What is left is your code (intl/README.md, "Set up an app"):
+  - the middleware:   var site = intl.Site{IsPage: …}; http.ListenAndServe(…, site.Handler(mux))
+  - the layout:       <html { intl.HTML(ctx)... }>, <intl.Head page={…}/>, <script type="module" src="/static/intl-browser.mjs">
+  - the Worker entry: import { goIntl } from "./build/intl-worker.mjs"; globalThis.goIntl = goIntl;
+                      after the build: go tool intl assets -worker build -browser <static dir>
+  - every package that renders, in its tests: func TestMain(m *testing.M) { os.Exit(intltest.Main(m)) }
+  - mise run intl before gsx generate; mise run intl:check in CI
+`)
+}
+
+// markup is every directory of the app's module with .gsx files, relative to its root: the app's own markup, so
+// not intl.toml's gsxui directory (vendored components) nor a nested module's.
+func markup(c config.Config) ([]string, error) {
+	seen := map[string]bool{}
+	var out []string
+	gsxui := filepath.Join(c.Root, c.Gsxui)
+	err := filepath.WalkDir(c.Root, func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		if d.IsDir() {
+			name := d.Name()
+			if path != c.Root && (strings.HasPrefix(name, ".") || name == "node_modules" || name == "vendor" || name == "testdata" ||
+				c.Gsxui != "" && path == gsxui) {
+				return filepath.SkipDir
+			}
+			if path != c.Root {
+				if _, err := os.Stat(filepath.Join(path, "go.mod")); err == nil {
+					return filepath.SkipDir
+				}
+			}
+			return nil
+		}
+		if dir := filepath.Dir(path); strings.HasSuffix(path, ".gsx") && !seen[dir] {
+			seen[dir] = true
+			rel, err := filepath.Rel(c.Root, dir)
+			if err != nil {
+				return err
+			}
+			out = append(out, rel)
+		}
+		return nil
+	})
+	return out, err
+}
+
+func writeTasks(path string) error {
+	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+		return err
+	}
+	fmt.Println(path)
+	return os.WriteFile(path, intlmise.Tasks, 0o644)
+}
+
+func writeSkill(root string) error {
+	dir := filepath.Join(root, ".claude", "skills")
+	return fs.WalkDir(skills.FS, ".", func(path string, d fs.DirEntry, err error) error {
+		if err != nil || d.IsDir() {
+			return err
+		}
+		b, err := skills.FS.ReadFile(path)
+		if err != nil {
+			return err
+		}
+		dst := filepath.Join(dir, path)
+		if err := os.MkdirAll(filepath.Dir(dst), 0o755); err != nil {
+			return err
+		}
+		fmt.Println(dst)
+		return os.WriteFile(dst, b, 0o644)
+	})
 }
 
 // todoLocale is a locale in go tool intl todo -json.
@@ -372,8 +471,8 @@ func fail(err error) {
 }
 
 func usage() {
-	fmt.Fprintln(os.Stderr, "usage: go tool intl gen | status | todo [-json] [locale…] | check | add <locale>… | confirm <locale>[:<key>]… |\n"+
+	fmt.Fprintln(os.Stderr, "usage: go tool intl init [-locales en,de] [-catalogs dir] [-gsxui dir] | gen | status | todo [-json] [locale…] | check | add <locale>… | confirm <locale>[:<key>]… |\n"+
 		"       export [-all] [-o dir] [locale…] | import <file.xlf>… | skill | tasks [-o file] | assets [-worker dir] [-browser dir] |\n"+
-		"       locales")
+		"       locales | catalogs | markup")
 	os.Exit(2)
 }
