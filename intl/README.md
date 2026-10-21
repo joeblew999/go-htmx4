@@ -171,13 +171,15 @@ de = "Address the reader as Sie."
 | `{ items \|> list(opts) }` | `Intl.ListFormat` |
 | `{ id \|> zone }` | a time zone's name: `Europe/Berlin · Mitteleuropäische Zeit (GMT+2)` |
 | `{ v \|> intl(api, method, opts…) }` | any call: `new Intl[api](lang, opts)[method](v)`; api `"Intl"` for `Intl.supportedValuesOf` and the like |
+| `{ intl.Args{a, b} \|> intl(api, method, opts…) }` | a call with several arguments, or none (`intl.Args{}`): `Collator.compare`, `formatRange`, `Locale.getWeekInfo` |
 | `title={ v \|> plain }` | a Value's text alone: attributes take no markup |
 | `title={ locales.Key \|> text }` | a message's text, for a component input typed `string` (gsxui's `Toast title`) |
 | `<option { v.Attrs()... }>{ v \|> plain }</option>` | an element that can't hold the Value's own, still redone by the browser |
+| `<option { intl.Clock("h12").Attrs()... }>{ intl.Clock("h12") \|> plain }</option>` | a clock choice labelled by a time in that clock (`""`: the language's own) |
 | `href={ "/about" \|> localize }`, `hx-post={ f`/cart/add?id=@{id}` \|> localize }` | an in-app path in the request's locale: `/de/about` |
 
 Options are Intl's own option names and values, in pairs (`"maximumFractionDigits", "0"`: a number or true/false
-is one), or one JSON object. Results that aren't strings (`resolvedOptions`, `select`, `compare`, `segment`) render as
+is one); `v.JSOptions()` shows them as JavaScript writes them. Results that aren't strings (`resolvedOptions`, `select`, `compare`, `segment`) render as
 JSON.
 
 In Go, the same values are `intl.Date(t, opts)`, `intl.Of(api, method, opts, args…)` and the rest, with options

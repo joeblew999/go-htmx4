@@ -2,7 +2,7 @@
 
 ## Runtime and build
 
-- **One Go app** (`main.go` and the root package) serves pages and fragments rendered from gsx (`views/`, `ui/`). On
+- **One Go app** (`app/`, started by `main.go`) serves pages and fragments rendered from gsx (`views/`, `ui/`). On
   Cloudflare it is a Worker: [charter](https://github.com/joeblew999/charter)'s runtime (`transport.Run`) over
   workers-go keeps Go runtimes alive between requests and warms two while the Worker loads (`worker/index.mjs`,
   `build/go.mjs`).
@@ -61,7 +61,7 @@ served `noindex`.
   locale with `hreflang` alternates.
 - Every page has a translated title and description, a canonical URL, reciprocal `hreflang` with `x-default`, and Open
   Graph tags. Fragments, `/healthz`, form posts and previews send `X-Robots-Tag: noindex`.
-- The Worker's `*.workers.dev` URL redirects to the custom domain (`host.go`), so one host is indexed.
+- The Worker's `*.workers.dev` URL redirects to the custom domain (`app/host.go`), so one host is indexed.
 - `mise run deploy` then audits robots.txt and every sitemap URL live as Googlebot (`search:audit`, charter's
   `go tool searchconsole`); `search:todo` gives Google's verdict per URL.
 
@@ -69,14 +69,15 @@ served `noindex`.
 
 ```
 .
-├── main.go board.go locale.go host.go robots.go handlers, locale URLs, redirect, crawl rules
-├── store_{sql,mem}.go platform_{js,other}.go    D1 / memory stores; Cloudflare-only calls and their twins
-├── views/  ui/  web/gsxui/  static/             pages (gsx), gsxui components and behaviours, vendored htmx
+├── main.go                                      the entry point: transport.Run(app.Handler())
+├── app/                                         handlers, locale URLs, redirect, crawl rules, D1 / memory stores,
+│                                                Cloudflare-only calls (platform_js.go) and their twins
+├── views/  ui/  web/gsxui/  web/htmx/           pages (gsx), gsxui components and behaviours, vendored htmx
 ├── intl/  intl.toml                             Intl for gsx (its own module); the app's languages
 ├── locales/                                     UI messages (*.toml) and their generated package
 ├── internal/                                    httpx, live (Room publish), ratelimit, wsload, classmerge
 ├── cmd/                                         wsload (live-board check)
-├── worker/  workerd/                            the deployed JS (entry, Room); local workerd config
+├── worker/  worker/local/                       the deployed JS (entry, Room); workerd config and shims, locally
 ├── migrations/                                  D1 schema
 ├── e2e/                                         smoke (HTTP) and browser tests: its own module
 ├── ci/  tasks/  mise.toml                       scripts, mise tasks, pinned tools

@@ -81,12 +81,13 @@ committed), `.claude/skills/intl-translate` (`mise run intl:skill`; committed), 
 - `mise run intl:check` also runs gsx's own checks on the app's markup: `gsx generate`, `gsx fmt` and the `gsx` skill's
   smell finder. Write what the `gsx` skill says, not what older code does.
 - Every in-app `href`/`hx-*` URL goes through intl's `localize` filter, `href={ "/path" |> localize }` (not
-  `/static/`, `/assets/`, `/gsxui/`, `/live/`). Locale URLs, cookies and preferences are `intl.Site` (`locale.go`).
+  `/static/`, `/assets/`, `/gsxui/`, `/live/`). Locale URLs, cookies and preferences are `intl.Site` (`app/locale.go`).
   Logical Tailwind classes only (`ms-`, `pe-`, `start-`, `text-end`, …) so RTL mirrors (`TestLogicalClasses`).
 - Dates and numbers for readers go through Intl, never `time.Format` or `strconv`: intl's gsx filters in markup,
   `{ t |> date(opts) }`, `{ t |> since }`, `{ n |> number(opts) }`, `{ d |> duration }`, `{ v |> intl(api, method,
-  opts) }`, and `{ v |> plain }` in an attribute. Every Intl API is reachable that way: add no Go formatting of our
-  own.
+  opts) }` (several arguments: `{ intl.Args{a, b} |> intl(…) }`), and `{ v |> plain }` in an attribute. Every Intl
+  API is reachable that way: add no Go formatting of our own. Options are always pairs, as Intl names them:
+  `date("dateStyle", "long")` in markup, `intl.Options("dateStyle", "long")` in Go; never a JSON string.
 - A new page: a translated title and its own translated `description` key to `Layout`, an entry in
   `views.SitemapPages`. A query parameter that makes a different page goes in `pageKey`. Titles ≤ 60 and descriptions
   ≤ 160 wide (`TestSnippetWidths`).
@@ -104,11 +105,11 @@ committed), `.claude/skills/intl-translate` (`mise run intl:skill`; committed), 
   `mise run check` after changing handlers: `go test` can't see TinyGo.
 - **Memory between requests is a cache, never state:** any request may start a new runtime. Package variables hold
   only what is the same for every request; shared state needs a Cloudflare binding.
-- `cloudflare/*` packages import `syscall/js`: call them from `platform_js.go` with a `platform_other.go` twin.
+- `cloudflare/*` packages import `syscall/js`: call them from `app/platform_js.go` with an `app/platform_other.go` twin.
   Cloudflare's request data is `transport.CFOf(r)`; workers-go's `fetch.NewIncomingProperties` panics under charter's
   runtime.
 - JS only in `worker/index.mjs` (entry), `worker/room.mjs` (Durable Object), `intl/js/` (Intl, and what Go calls of
-  it) and `workerd/` (local shims). Keep it logic-free; logic stays in Go. The topic and locale rules are
+  it) and `worker/local/` (local shims). Keep it logic-free; logic stays in Go. The topic and locale rules are
   `internal/live`'s (`TestWorkerJSMatchesLive`).
 
 ## Cloudflare: outward-facing

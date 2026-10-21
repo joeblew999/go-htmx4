@@ -1,6 +1,9 @@
 package views
 
 import (
+	"strings"
+
+	"github.com/gsxhq/gsx"
 	"github.com/joeblew999/go-htmx4/intl"
 	"github.com/joeblew999/go-htmx4/locales"
 	"github.com/joeblew999/go-htmx4/ui"
@@ -18,12 +21,10 @@ component Formats() {
 			<p class="text-muted-foreground">{ locales.FormatsIntro }</p>
 		</div>
 		<HowItWorks/>
-		<LocaleCard facts={Facts(ctx)}/>
-		<IntlNav apis={IntlAPIs(ctx)}/>
+		<LocaleCard/>
+		<IntlNav/>
 		<TryIt/>
-		{ for _, api := range IntlAPIs(ctx) {
-			<IntlAPICard api={api}/>
-		} }
+		<IntlAPIs/>
 	</Layout>
 }
 
@@ -52,22 +53,22 @@ component HowItWorks() {
 }
 
 // IntlNav links every section of the page; it wraps on narrow screens.
-component IntlNav(apis []IntlAPI) {
+component IntlNav() {
 	<nav aria-label={locales.FormatsOnThisPage} class="flex flex-col gap-2">
 		<h2 class="text-sm font-medium text-muted-foreground">{ locales.FormatsOnThisPage }</h2>
 		<ul class="flex flex-wrap gap-2">
 			<li>
 				<a href="#try" class="inline-flex rounded-md border px-2 py-1 text-sm hover:bg-muted">{ locales.FormatsTryTitle }</a>
 			</li>
-			{ for _, api := range apis {
+			{ for _, name := range intlAPINames {
 				<li>
 					<a
-						href=f`#@{api.ID}`
+						href=f`#@{apiID(name)}`
 						class="inline-flex rounded-md border px-2 py-1 font-mono text-xs hover:bg-muted"
 						translate="no"
 						dir="ltr"
 					>
-						{ api.Name }
+						{ name }
 					</a>
 				</li>
 			} }
@@ -75,50 +76,166 @@ component IntlNav(apis []IntlAPI) {
 	</nav>
 }
 
-// IntlAPICard is one Intl API: its name, then each group of examples with a heading and description.
-component IntlAPICard(api IntlAPI) {
-	<section id={api.ID} class="scroll-mt-4">
+// IntlAPIs is every Intl API with its examples, each a call written here with intl's filters on formats.go's data.
+component IntlAPIs() {
+	<IntlAPI name="Intl.DateTimeFormat">
+		<Examples title={locales.FormatsDatesTitle} description={locales.FormatsDatesDescription}>
+			{ for _, o := range dateOptions {
+				<Example in={intl.ISO(sampleInstant)} v={sampleInstant |> date(o...)}/>
+			} }
+		</Examples>
+		<Examples title={locales.FormatsZonesTitle} description={locales.FormatsZonesDescription}>
+			{ for _, z := range zoneSamples {
+				<Example
+					in={z.In}
+					v={
+						sampleInstant |> date(append(pairs("hour", "numeric", "minute", "2-digit", "timeZone", z.In), z.Opts...)...)
+					}
+				/>
+			} }
+		</Examples>
+		<Examples title={locales.FormatsRangesTitle} description={locales.FormatsRangesDescription}>
+			{ for _, r := range rangeEnds {
+				<Example
+					in={intl.ISO(sampleInstant) + " – " + intl.ISO(r.End)}
+					v={sampleInstant |> dateRange(r.End, r.Opts...)}
+				/>
+			} }
+		</Examples>
+	</IntlAPI>
+	<IntlAPI name="Intl.RelativeTimeFormat">
+		<Examples title={locales.FormatsRelativeTitle} description={locales.FormatsRelativeDescription}>
+			{ for _, r := range relativeSamples {
+				<Example in={r.N + " " + r.Unit} v={intl.Args{r.N, r.Unit} |> intl("RelativeTimeFormat", "", r.Opts...)}/>
+			} }
+		</Examples>
+	</IntlAPI>
+	<IntlAPI name="Intl.NumberFormat">
+		<Examples title={locales.FormatsNumbersTitle} description={locales.FormatsNumbersDescription}>
+			{ for _, n := range numberSamples {
+				<Example in={n.In} v={n.In |> number(n.Opts...)}/>
+			} }
+			{ for _, r := range numberRanges {
+				<Example in={r.In()} v={intl.Args{r.From, r.To} |> intl("NumberFormat", "formatRange", r.Opts...)}/>
+			} }
+		</Examples>
+		<Examples title={locales.FormatsCurrencyTitle} description={locales.FormatsCurrencyDescription(showcaseCurrency)}>
+			{ for _, c := range currencySamples {
+				<Example in={c.In} v={c.In |> number(c.Opts...)}/>
+			} }
+		</Examples>
+		<Examples title={locales.FormatsUnitsTitle} description={locales.FormatsUnitsDescription}>
+			{ for _, u := range unitSamples {
+				<Example in={u.In} v={u.In |> number(u.Opts...)}/>
+			} }
+		</Examples>
+	</IntlAPI>
+	<IntlAPI name="Intl.PluralRules">
+		<Examples title={locales.FormatsPluralsTitle} description={locales.FormatsPluralsDescription}>
+			<Example in="pluralCategories" v={intl.Args{} |> intl("PluralRules", "resolvedOptions", "type", "cardinal")}/>
+			<Example in="pluralCategories" v={intl.Args{} |> intl("PluralRules", "resolvedOptions", "type", "ordinal")}/>
+			{ for _, n := range pluralSamples {
+				<Example in={n.In} v={n.In |> intl("PluralRules", "select", n.Opts...)}/>
+			} }
+			<Example in="1 – 5" v={intl.Args{1, 5} |> intl("PluralRules", "selectRange")}/>
+		</Examples>
+	</IntlAPI>
+	<IntlAPI name="Intl.ListFormat">
+		<Examples title={locales.FormatsListsTitle} description={locales.FormatsListsDescription}>
+			{ for _, l := range listSamples {
+				<Example in={strings.Join(listWords(ctx)[:l.N], " · ")} v={listWords(ctx)[:l.N] |> list(l.Opts...)}/>
+			} }
+		</Examples>
+	</IntlAPI>
+	<IntlAPI name="Intl.DurationFormat">
+		<Examples title={locales.FormatsDurationsTitle} description={locales.FormatsDurationsDescription}>
+			{ for _, o := range durationOptions {
+				<Example in="1d 2h 5m 30s" v={sampleDuration |> duration(o...)}/>
+			} }
+		</Examples>
+	</IntlAPI>
+	<IntlAPI name="Intl.DisplayNames">
+		<Examples title={locales.FormatsDisplayNamesTitle} description={locales.FormatsDisplayNamesDescription}>
+			{ for _, n := range displayNameSamples {
+				<Example in={n.In} v={n.In |> intl("DisplayNames", "of", n.Opts...)}/>
+			} }
+		</Examples>
+	</IntlAPI>
+	<IntlAPI name="Intl.Collator">
+		<Examples title={locales.FormatsCollationTitle} description={locales.FormatsCollationDescription}>
+			{ for _, c := range comparisons {
+				<Example in={c.From + " · " + c.To} v={intl.Args{c.From, c.To} |> intl("Collator", "compare", c.Opts...)}/>
+			} }
+		</Examples>
+	</IntlAPI>
+	<IntlAPI name="Intl.Segmenter">
+		<Examples title={locales.FormatsSegmentsTitle} description={locales.FormatsSegmentsDescription}>
+			{ for _, s := range segmentSamples {
+				<Example in={s.In} v={s.In |> intl("Segmenter", "segment", s.Opts...)}/>
+			} }
+		</Examples>
+	</IntlAPI>
+	<IntlAPI name="Intl.Locale">
+		<Examples title={locales.FormatsLocaleTitle} description={locales.FormatsLocaleDescription}>
+			{ for _, m := range localeMethods {
+				<Example in={m + "()"} v={intl.Args{} |> intl("Locale", m)}/>
+			} }
+		</Examples>
+	</IntlAPI>
+	<IntlAPI name="Intl.supportedValuesOf">
+		<Examples title={locales.FormatsSupportedTitle} description={locales.FormatsSupportedDescription}>
+			{ for _, key := range supportedKeys {
+				<Example in={key} v={key |> intl("Intl", "supportedValuesOf")}/>
+			} }
+		</Examples>
+	</IntlAPI>
+}
+
+// IntlAPI is one Intl API's card: its name, then its groups of examples.
+component IntlAPI(name string, children gsx.Node) {
+	<section id={apiID(name)} class="scroll-mt-4">
 		<ui.Card>
 			<ui.CardHeader>
 				<ui.CardTitle>
-					<h2 class="font-mono text-lg" translate="no" dir="ltr">{ api.Name }</h2>
+					<h2 class="font-mono text-lg" translate="no" dir="ltr">{ name }</h2>
 				</ui.CardTitle>
 			</ui.CardHeader>
 			<ui.CardContent class="flex flex-col gap-6">
-				{ for _, g := range api.Groups {
-					<div class="flex flex-col gap-2">
-						<div class="flex flex-col gap-1">
-							<h3 class="font-medium">{ g.Title }</h3>
-							<p class="text-sm text-muted-foreground">{ g.Description }</p>
-						</div>
-						<ul class="flex flex-col divide-y rounded-md border">
-							{ for _, r := range g.Rows {
-								<IntlExample r={r}/>
-							} }
-						</ul>
-					</div>
-				} }
+				{ children }
 			</ui.CardContent>
 		</ui.Card>
 	</section>
 }
 
-// IntlExample is one example: what it formats and how, then the Worker's result and the browser's (the same call,
-// redone in the viewer's zone).
-component IntlExample(r Example) {
+// Examples is a group of examples under a heading and a description.
+component Examples(title intl.Msg, description intl.Msg, children gsx.Node) {
+	<div class="flex flex-col gap-2">
+		<div class="flex flex-col gap-1">
+			<h3 class="font-medium">{ title }</h3>
+			<p class="text-sm text-muted-foreground">{ description }</p>
+		</div>
+		<ul class="flex flex-col divide-y rounded-md border">
+			{ children }
+		</ul>
+	</div>
+}
+
+// Example is one call: its input and options, then the Worker's result and the browser's (the same call, redone in
+// the viewer's zone).
+component Example(in string, v intl.Value) {
 	<li class="flex flex-col gap-1.5 px-3 py-2.5">
 		<div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-			<code dir="ltr" translate="no" class="text-sm font-medium break-all">{ r.Label }</code>
-			<code dir="ltr" translate="no" class="text-xs text-muted-foreground break-all">{ r.Options }</code>
+			<code dir="ltr" translate="no" class="text-sm font-medium break-all">{ in }</code>
+			<code dir="ltr" translate="no" class="text-xs text-muted-foreground break-all">{ callLabel(v) }</code>
 		</div>
 		<dl class="grid grid-cols-[auto_1fr] items-baseline gap-x-3 gap-y-0.5 text-sm">
 			<dt class="text-xs text-muted-foreground">{ locales.FormatsServer }</dt>
 			<dd class="break-all">
-				<bdi data-intl-text>{ r.V |> plain }</bdi>
+				<bdi data-intl-text>{ v |> plain }</bdi>
 			</dd>
 			<dt class="text-xs text-muted-foreground">{ locales.FormatsBrowser }</dt>
 			<dd class="break-all">
-				<bdi>{ r.V }</bdi>
+				<bdi>{ v }</bdi>
 			</dd>
 		</dl>
 	</li>
@@ -197,15 +314,16 @@ component TryRowView(row TryRow, code bool) {
 	</li>
 }
 
-component LocaleCard(facts LocaleFacts) {
+// LocaleCard is what Intl.Locale says of the request's locale, and the zone the page formats in.
+component LocaleCard() {
 	<ui.Card>
 		<ui.CardHeader>
-			<ui.CardTitle translate="no">{ facts.Name }</ui.CardTitle>
+			<ui.CardTitle translate="no">{ intl.Current(ctx).Name() }</ui.CardTitle>
 		</ui.CardHeader>
 		<ui.CardContent class="flex flex-wrap gap-2">
-			<ui.Badge variant="secondary" translate="no">{ facts.ID }</ui.Badge>
-			<ui.Badge variant="outline" translate="no">{ facts.Maximal }</ui.Badge>
-			<ui.Badge variant="outline">{ locales.FormatsDirection(facts.Dir) }</ui.Badge>
+			<ui.Badge variant="secondary" translate="no">{ intl.Current(ctx).ID() }</ui.Badge>
+			<ui.Badge variant="outline" translate="no">{ intl.Current(ctx).Maximal() }</ui.Badge>
+			<ui.Badge variant="outline">{ locales.FormatsDirection(intl.Current(ctx).Dir()) }</ui.Badge>
 			<ui.Badge variant="outline">{ locales.FormatsTimeZone(intl.TimeZone(ctx)) }</ui.Badge>
 		</ui.CardContent>
 	</ui.Card>

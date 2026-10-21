@@ -195,7 +195,7 @@ func Plurals(t testing.TB) {
 // "other" for Russian) and ordinal.
 func Categories(id string) (cardinal, ordinal []string, err error) {
 	get := func(typ string) ([]string, error) {
-		s, ok := intl.NewLocale(id).Intl(intl.Call{API: "PluralRules", Method: "resolvedOptions", Opts: `{"type":"` + typ + `"}`}, "", "")
+		s, ok := intl.NewLocale(id).Intl(intl.Call{API: "PluralRules", Method: "resolvedOptions", Opts: intl.Options("type", typ)}, "", "")
 		var o struct{ PluralCategories []string }
 		if !ok || json.Unmarshal([]byte(s), &o) != nil || len(o.PluralCategories) == 0 {
 			return nil, fmt.Errorf("intl: Intl has no %s plural categories for %s", typ, id)

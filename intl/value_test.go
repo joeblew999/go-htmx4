@@ -31,16 +31,16 @@ func TestValue(t *testing.T) {
 		v    intl.Value
 		want string
 	}{
-		{intl.Date(at, `{"dateStyle":"full","timeStyle":"short"}`),
+		{intl.Date(at, intl.Options("dateStyle", "full", "timeStyle", "short")),
 			`<time datetime="2026-07-04T15:30:00Z" data-intl="DateTimeFormat" data-opts="{&#34;dateStyle&#34;:&#34;full&#34;,&#34;timeStyle&#34;:&#34;short&#34;}" data-args="[1783179000000]">Samstag, 4. Juli 2026 um 17:30</time>`},
-		{intl.Number("1234.5", `{"style":"currency","currency":"EUR"}`), ">1.234,50\u00a0€</data>"},
+		{intl.Number("1234.5", intl.Options("style", "currency", "currency", "EUR")), ">1.234,50\u00a0€</data>"},
 		{intl.Int(1234567), `<data value="1234567" data-intl="NumberFormat" data-args="[&#34;1234567&#34;]">1.234.567</data>`},
 		{intl.List([]string{"Go", "htmx", "gsx"}, ""), `>Go, htmx und gsx</span>`},
-		{intl.Duration(26*time.Hour+5*time.Minute, `{"style":"long"}`), `>1 Tag, 2 Stunden und 5 Minuten</data>`},
+		{intl.Duration(26*time.Hour+5*time.Minute, intl.Options("style", "long")), `>1 Tag, 2 Stunden und 5 Minuten</data>`},
 		{intl.Duration(400*time.Millisecond, ""), `>0 Sek.</data>`},
-		{intl.Duration(0, `{"style":"long"}`), `>0 Sekunden</data>`},
-		{intl.Of("DisplayNames", "of", `{"type":"region"}`, intl.JSON("JP")), `>Japan</span>`},
-		{intl.Of("PluralRules", "select", `{"type":"ordinal"}`, "2"), `>other</span>`},
+		{intl.Duration(0, intl.Options("style", "long")), `>0 Sekunden</data>`},
+		{intl.Of("DisplayNames", "of", intl.Options("type", "region"), intl.JSON("JP")), `>Japan</span>`},
+		{intl.Of("PluralRules", "select", intl.Options("type", "ordinal"), "2"), `>other</span>`},
 		{intl.Of("Intl", "getCanonicalLocales", "", intl.JSON("EN-us")), `>[&#34;en-US&#34;]</span>`},
 		{intl.Zone("Asia/Tokyo"), `data-intl="zone" data-args="[&#34;Asia/Tokyo&#34;]">Asia/Tokyo · Japanische Normalzeit (GMT+9)</span>`},
 	} {
@@ -58,6 +58,31 @@ func TestValue(t *testing.T) {
 }
 
 // TestCalendar: a month calendar's words come from Intl, per language.
+// TestJSOptions: options shown as JavaScript writes them.
+func TestJSOptions(t *testing.T) {
+	for want, opts := range map[string]string{
+		"{}":                                     "",
+		`{dateStyle: "full", timeStyle: "long"}`: intl.Options("dateStyle", "full", "timeStyle", "long"),
+		`{maximumFractionDigits: 0}`:             intl.Options("maximumFractionDigits", "0"),
+		`{hour: "numeric", timeZone: "America/New_York", hour12: true}`: intl.Options("hour", "numeric", "timeZone", "America/New_York", "hour12", "true"),
+		`{type: "a, \"b\": c"}`: intl.Options("type", `a, "b": c`),
+	} {
+		if got := (intl.Call{Opts: opts}).JSOptions(); got != want {
+			t.Errorf("JSOptions(%s) = %s, want %s", opts, got, want)
+		}
+	}
+}
+
+// TestClock: the hour-cycle labels, in a language whose own clock is 12-hour, whatever clock the viewer chose.
+func TestClock(t *testing.T) {
+	ctx := intl.WithRequest(context.Background(), intl.Request{Locale: intl.NewLocale("en"), HourCycle: "h23"})
+	for hc, want := range map[string]string{"": "1:05 PM", "h12": "1:05 PM", "h23": "13:05"} {
+		if got := intl.Text(ctx, intl.Clock(hc)); got != want {
+			t.Errorf("Clock(%q) = %q, want %q", hc, got, want)
+		}
+	}
+}
+
 func TestCalendar(t *testing.T) {
 	intl.Use(intl.Locales{intl.NewLocale("en"), intl.NewLocale("de"), intl.NewLocale("ar"), intl.NewLocale("ru"), intl.NewLocale("ja"), intl.NewLocale("ar-EG")}, []bool{true, true, true, true, true, true})
 	in := func(id string) context.Context {
