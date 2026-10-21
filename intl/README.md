@@ -24,6 +24,30 @@ code in the viewer's own time zone and clock:
 Go decides nothing about a language: no CLDR tables, no formatting of its own. Outside a Worker, `go test` and the
 tooling use workerd's Intl.
 
+## Using it day to day
+
+Every task runs with no arguments (a click in an editor's mise panel), taking what it needs from `intl.toml`;
+arguments only narrow it, straight after the task name. `mise run <task> --help` explains any task.
+
+```sh
+mise run intl                # compile the catalogs after editing them (gsx generate needs this first)
+mise run intl:status         # how far along each language is
+mise run intl:translate      # Claude Code translates everything missing or stale, in every language
+mise run intl:check          # everything, for CI: catalogs, plurals, unused messages, gsx's own checks
+mise run intl:todo           # what is left to translate, for a person (--json for an agent)
+mise run intl:confirm        # the source changed but not its meaning (a typo fixed): keep the stale translations
+mise run intl:export         # xliff/<locale>.xlf for human translators: what is left (--all: everything)
+mise run intl:import         # their work back, from xliff/
+mise run intl:tasks          # after upgrading intl: these tasks again
+mise run intl:skill          # after upgrading intl: Claude's translation skill again
+
+mise run intl:translate de ja         # only German and Japanese
+mise run intl:confirm de:cart.items   # only one translation
+```
+
+The usual loop: write or change messages in the source catalog, `mise run intl:translate`, `mise run intl:check`.
+A new language is a line: add its id to `locales` in `intl.toml`, then `mise run intl:translate`.
+
 ## It is gsx
 
 intl uses gsx's own mechanisms, so `gsx generate`, the gsx language server and `gsx info` see it like any project
@@ -151,9 +175,9 @@ and the rest, and `intl.Text(ctx, x)` is the text (an HTTP error, a log line).
 |---|---|
 | You added or changed messages in the source catalog | `mise run intl`, then `mise run intl:translate` (Claude Code) or translate what `mise run intl:todo` lists |
 | A translation's source changed | it is **stale**: `intl:todo` shows the old translation beside the new source. Update it, or keep it: `mise run intl:confirm de:order.items` |
-| You add a language | `mise run intl:add -- fr-CA`, then `intl:translate` (fr-CA inherits from fr what it doesn't translate) |
+| You add a language | add its id to `intl.toml`'s `locales`, then `mise run intl:translate` (fr-CA inherits from fr what it doesn't translate) |
 | `gsxui add pagination` | `mise run intl` names each new text with the line to add under `[gsxui]`; add them, then translate |
-| A person translates | `mise run intl:export` writes XLIFF 2.0 per locale for their tool; `mise run intl:import -- xliff/de.xlf` reads it back, checking each target |
+| A person translates | `mise run intl:export` writes XLIFF 2.0 per locale into `xliff/` for their tool; `mise run intl:import` reads it back, checking each target |
 | CI | `mise run intl:check` |
 | Leftover English in the UI | `intl.Pseudo = true` renders the `en-XA` catalog: accented, bracketed (`⟦Ĥéļļó⟧`), 40% longer |
 
@@ -189,9 +213,8 @@ interactive session ("translate the new messages").
 | `intl:todo [--json] [locale…]` | what is left to translate, with what a translator needs |
 | `intl:translate [locale…]` | translate it with Claude Code |
 | `intl:check` | every problem, for CI |
-| `intl:add <locale>…` | add a language |
-| `intl:confirm <locale>[:<key>]…` | keep stale translations that are still right |
-| `intl:export [--all] [-o dir] [locale…]`, `intl:import <file>…` | XLIFF 2.0 for human translators |
+| `intl:confirm [locale[:key]…]` | keep stale translations that are still right (all by default) |
+| `intl:export [--all] [locale…]`, `intl:import [file…]` | XLIFF 2.0 for human translators, in `xliff/` |
 | `intl:skill` | install or update the agent skill |
 | `intl:tasks` | write these tasks again, after upgrading intl |
 

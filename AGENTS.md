@@ -70,7 +70,7 @@ committed), `.claude/skills/intl-translate` (`mise run intl:skill`; committed), 
   names, code and machine values get `translate="no"`. `TestNoHardcodedText` checks.
 - **Every message change is translated in the same PR.** A new or changed source message: `mise run intl:translate`
   (Claude Code with the `intl-translate` skill), or translate what `mise run intl:todo` lists by that skill's rules.
-  A stale translation that is still right: `mise run intl:confirm -- <locale>:<key>`. `mise run intl:check` (in
+  A stale translation that is still right: `mise run intl:confirm <locale>:<key>`. `mise run intl:check` (in
   `test:go`) fails on anything missing, stale, unused or wrongly plural. How each language reads is `intl.toml`'s
   `[notes]`: change them there, not per message.
 - Text arguments are bidi-isolated by the renderer; user text in its own element gets `dir="auto"`.

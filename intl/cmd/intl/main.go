@@ -10,9 +10,10 @@
 //	go tool intl check                     every problem, for CI: syntax, arguments, plural categories, completeness,
 //	                                       unused messages, gsxui text, intl.sum (exit 1 if any)
 //	go tool intl add <locale>…             add a language: intl.toml and its catalog
-//	go tool intl confirm <locale>[:<key>]… keep stale translations that are still right
-//	go tool intl export [-all] [-o dir] [locale…]   XLIFF 2.0 for translators: what is left (or everything)
-//	go tool intl import <file.xlf>…        read translators' XLIFF back into the catalogs
+//	go tool intl confirm [<locale>[:<key>]…] keep stale translations that are still right (all of them by default)
+//	go tool intl export [-all] [-o dir] [locale…]   XLIFF 2.0 for translators: what is left (or everything), into
+//	                                       intl.toml's xliff directory (xliff/)
+//	go tool intl import [file.xlf…]        read translators' XLIFF back into the catalogs (all of xliff/ by default)
 //	go tool intl skill                     install the intl-translate agent skill into .claude/skills
 //	go tool intl tasks [-o file]           write intl's mise tasks into the app (.mise/tasks/intl.toml)
 //	go tool intl assets -worker dir -browser dir    the JavaScript a Worker and a page import
@@ -98,10 +99,12 @@ func main() {
 		p := read(c)
 		check(p.Generate(os.Stderr))
 	case "confirm":
-		if len(args) == 0 {
-			usage()
-		}
 		p := read(c)
+		if len(args) == 0 { // every stale translation: the source's change didn't change their meaning
+			for _, l := range p.Locales[1:] {
+				args = append(args, l.ID)
+			}
+		}
 		keys := map[*catalog.Locale][]string{}
 		for _, a := range args {
 			id, key, _ := strings.Cut(a, ":")
@@ -124,7 +127,7 @@ func main() {
 	case "export":
 		f := flag.NewFlagSet("export", flag.ExitOnError)
 		all := f.Bool("all", false, "every message, not only what is left to translate")
-		out := f.String("o", "xliff", "directory for <locale>.xlf")
+		out := f.String("o", c.XLIFFDir(), "directory for <locale>.xlf")
 		f.Parse(args)
 		p := read(c)
 		stop := startIntl()
@@ -141,8 +144,13 @@ func main() {
 			fmt.Printf("%s: %d messages\n", path, n)
 		}
 	case "import":
-		if len(args) == 0 {
-			usage()
+		if len(args) == 0 { // everything export wrote
+			files, err := filepath.Glob(filepath.Join(c.XLIFFDir(), "*.xlf"))
+			check(err)
+			if len(files) == 0 {
+				fail(fmt.Errorf("intl: no .xlf files in %s", c.XLIFFDir()))
+			}
+			args = files
 		}
 		for _, file := range args {
 			b, err := os.ReadFile(file)
@@ -400,9 +408,15 @@ func checkAll(c config.Config) int {
 	}
 	stop := startIntl()
 	pl, err := intltest.PluralProblems(p)
-	stop()
 	check(err)
 	add(pl...)
+	for _, id := range c.Locales { // as Intl writes it: fr-CA, zh-Hant
+		canon, ok := intl.NewLocale("en").Intl(intl.Call{API: "Intl", Method: "getCanonicalLocales", Args: []string{intl.JSON(id)}}, "", "")
+		if want := `["` + id + `"]`; !ok || canon != want {
+			add(fmt.Sprintf("%s: %q isn't a locale id as Intl writes it (%s)", config.File, id, canon))
+		}
+	}
+	stop()
 	for _, s := range problems {
 		fmt.Println("✗", s)
 	}
@@ -471,8 +485,8 @@ func fail(err error) {
 }
 
 func usage() {
-	fmt.Fprintln(os.Stderr, "usage: go tool intl init [-locales en,de] [-catalogs dir] [-gsxui dir] | gen | status | todo [-json] [locale…] | check | add <locale>… | confirm <locale>[:<key>]… |\n"+
-		"       export [-all] [-o dir] [locale…] | import <file.xlf>… | skill | tasks [-o file] | assets [-worker dir] [-browser dir] |\n"+
+	fmt.Fprintln(os.Stderr, "usage: go tool intl init [-locales en,de] [-catalogs dir] [-gsxui dir] | gen | status | todo [-json] [locale…] | check | add <locale>… | confirm [<locale>[:<key>]…] |\n"+
+		"       export [-all] [-o dir] [locale…] | import [file.xlf…] | skill | tasks [-o file] | assets [-worker dir] [-browser dir] |\n"+
 		"       locales | catalogs | markup")
 	os.Exit(2)
 }

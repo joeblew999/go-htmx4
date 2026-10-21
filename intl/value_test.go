@@ -56,3 +56,30 @@ func TestValue(t *testing.T) {
 		t.Errorf("ar facts: %q %q %q", ar.Dir(), ar.Name(), ar.Maximal())
 	}
 }
+
+// TestCalendar: a month calendar's words come from Intl, per language.
+func TestCalendar(t *testing.T) {
+	intl.Use(intl.Locales{intl.NewLocale("en"), intl.NewLocale("de"), intl.NewLocale("ar"), intl.NewLocale("ru"), intl.NewLocale("ja"), intl.NewLocale("ar-EG")}, []bool{true, true, true, true, true, true})
+	in := func(id string) context.Context {
+		return intl.WithRequest(context.Background(), intl.Request{Locale: intl.NewLocale(id)})
+	}
+	for id, want := range map[string]struct {
+		month, weekday, caption, day, digits string
+		first                                time.Weekday
+	}{
+		"en":    {"January", "Sunday", "{month} {year}", "{weekday}, {month} {day}, {year}", "", time.Sunday},
+		"de":    {"Januar", "Sonntag", "{month} {year}", "{weekday}, {day}. {month} {year}", "", time.Monday},
+		"ru":    {"январь", "воскресенье", "{month} {year} г.", "{weekday}, {day} {month} {year} г.", "", time.Monday},
+		"ja":    {"1", "日曜日", "{year}年{month}月", "{year}年{month}月{day}日{weekday}", "", time.Sunday},
+		"ar":    {"يناير", "الأحد", "{month} {year}", "{weekday}، {day} {month} {year}", "", time.Saturday},
+		"ar-EG": {"يناير", "الأحد", "{month} {year}", "{weekday}، {day} {month} {year}", "٠١٢٣٤٥٦٧٨٩", time.Saturday},
+	} {
+		c := intl.CalendarOf(in(id))
+		if c.Months[0] != want.month || c.Weekdays[0] != want.weekday || c.Caption != want.caption || c.DayLabel != want.day || c.Digits != want.digits {
+			t.Errorf("%s: %q %q %q %q %q", id, c.Months[0], c.Weekdays[0], c.Caption, c.DayLabel, c.Digits)
+		}
+		if got := intl.WeekStart(in(id)); got != want.first {
+			t.Errorf("%s: week starts %v, want %v", id, got, want.first)
+		}
+	}
+}

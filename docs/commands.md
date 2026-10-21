@@ -111,17 +111,7 @@ go tool gsx generate (after intl: views write the generated messages); intl/'s o
 
 - **Usage:** `intl`
 
-Compile the catalogs (intl.toml): the Go package of messages, intl-messages.mjs, the gsxui translator and intl.sum. Run it after editing a catalog; gsx generate needs it first
-
-### `intl:add`
-
-Add a language: its BCP 47 id to intl.toml, and its catalog; then mise run intl:translate
-
-
-- **Usage:** `intl:add <locale>…`
-
-### Arguments
-- **`<locale>…`** — BCP 47 ids, e.g. fr-CA ja
+Compile the catalogs (intl.toml): the Go package of messages, intl-messages.mjs, the gsxui translator and intl.sum; a language just added to intl.toml's locales gets its catalog. Run it after editing a catalog; gsx generate needs it first
 
 ### `intl:check`
 
@@ -133,39 +123,36 @@ Every problem, for CI: the catalogs (ICU syntax, arguments, a case for each plur
 
 ### `intl:confirm`
 
-Keep stale translations that are still right after their source changed: <locale> (all of its stale ones) or <locale>:<key>
+Keep stale translations as they are: the source changed, their meaning didn't (a typo fixed). All of them, or only some: de, or de:board.notes
 
 
-- **Usage:** `intl:confirm <which>…`
+- **Usage:** `intl:confirm [which]…`
 
 ### Arguments
-- **`<which>…`** — de, or de:board.notes
+- **`[which]…`** — de, or de:board.notes (default: every stale translation)
 
 ### `intl:export`
 
-XLIFF 2.0 per locale for human translators and translation-management systems: what is left to translate (--all: every message)
+XLIFF 2.0 per locale into xliff/ (intl.toml's xliff), for human translators and translation-management systems: what is left to translate (--all: every message)
 
 
-- **Usage:** `intl:export [--all] [-o --out <dir>] [locale]…`
+- **Usage:** `intl:export [--all] [locale]…`
 
 ### Arguments
 - **`[locale]…`** — only these locales (default: all)
 
 ### Flags
 - **`--all`** — every message, not only what is left
-- **`-o --out <dir>`** — directory for &lt;locale>.xlf
-
-  **Default:** `xliff`
 
 ### `intl:import`
 
-Read translators' XLIFF 2.0 back into the catalogs (each target checked against its source), then compile
+Read translators' XLIFF 2.0 back into the catalogs, each target checked against its source: every file in xliff/, or the ones named; then compile
 
 
-- **Usage:** `intl:import <file>…`
+- **Usage:** `intl:import [file]…`
 
 ### Arguments
-- **`<file>…`** — &lt;locale>.xlf files
+- **`[file]…`** — &lt;locale>.xlf files (default: all of xliff/)
 
 ### `intl:skill`
 

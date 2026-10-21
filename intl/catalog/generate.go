@@ -2,6 +2,7 @@ package catalog
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"go/format"
 	"io"
@@ -31,6 +32,16 @@ func (p *Project) Generate(log io.Writer) error {
 		log = io.Discard
 	}
 	dir := p.Config.CatalogDir()
+	// A language just added to intl.toml gets its catalog, for whoever translates it to fill.
+	for _, l := range p.Locales[1:] {
+		if _, err := os.Stat(l.File); errors.Is(err, os.ErrNotExist) {
+			head := "# " + l.ID + ": the translations of " + p.Locales[0].ID + ".toml, same tables and keys. go tool intl todo lists what is left.\n"
+			if err := os.WriteFile(l.File, []byte(head), 0o644); err != nil {
+				return err
+			}
+			fmt.Fprintf(log, "wrote %s\n", l.File)
+		}
+	}
 	catalogs := map[string][]any{}
 	var ids []string
 	for _, l := range p.Locales {

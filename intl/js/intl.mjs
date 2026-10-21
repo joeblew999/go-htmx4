@@ -176,3 +176,40 @@ export function parseNumber(lang, text) {
   }
   return /^-?(\d+(\.\d+)?|\.\d+)$/.test(out) ? out : "";
 }
+
+// calendar is what a month calendar writes in lang, from Intl.DateTimeFormat, Intl.NumberFormat and Intl.Locale: the
+// fields of gsxui's CalendarLocale and the first day of the week, joined by U+001E (lists inside by U+001F) for Go.
+//   months, short months (January first), weekdays, narrow weekdays (Sunday first), the caption pattern
+//   ("{month} {year}"), the day label pattern ("{weekday}, {month} {day}, {year}"), the ten digits ("" for 0-9), and
+//   the first day of the week (1 Monday … 7 Sunday).
+export function calendar(lang) {
+  const fmt = (o) => make(Intl.DateTimeFormat, lang, { timeZone: "UTC", ...o });
+  const months = [], short = [], weekdays = [], narrow = [];
+  // A month's name is its part of the caption itself ("1" in Japanese "2026年1月", whose 月 is the pattern's), so name
+  // and pattern always fit together.
+  const part = (o, d, type) => fmt(o).formatToParts(d).find((p) => p.type === type)?.value ?? "";
+  for (let m = 0; m < 12; m++) {
+    const d = Date.UTC(2026, m, 15);
+    months.push(part({ month: "long", year: "numeric" }, d, "month"));
+    short.push(fmt({ month: "short" }).format(d));
+  }
+  for (let w = 0; w < 7; w++) { // 2026-01-04 is a Sunday
+    const d = Date.UTC(2026, 0, 4 + w);
+    weekdays.push(fmt({ weekday: "long" }).format(d));
+    narrow.push(fmt({ weekday: "narrow" }).format(d));
+  }
+  // A pattern is a date formatted to parts, each field replaced by its placeholder.
+  const pattern = (o) => fmt(o).formatToParts(Date.UTC(2026, 0, 15))
+    .map((p) => (["weekday", "month", "day", "year"].includes(p.type) ? "{" + p.type + "}" : p.value)).join("");
+  let digits = make(Intl.NumberFormat, lang, { useGrouping: false }).format(1234567890);
+  digits = digits.slice(9) + digits.slice(0, 9); // 0…9
+  if (digits === "0123456789") digits = "";
+  let first = 7;
+  try {
+    const loc = new Intl.Locale(lang).maximize();
+    first = (loc.getWeekInfo?.() ?? loc.weekInfo)?.firstDay ?? 7;
+  } catch {}
+  return [months.join("\u001f"), short.join("\u001f"), weekdays.join("\u001f"), narrow.join("\u001f"),
+    pattern({ month: "long", year: "numeric" }), pattern({ weekday: "long", month: "long", day: "numeric", year: "numeric" }),
+    digits, String(first)].join("\u001e");
+}

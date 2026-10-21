@@ -9,6 +9,7 @@ export const goIntl = {
   since: (lang, ms) => intl.since(lang, ms),
   zoneName: (lang, id) => intl.zoneName(lang, id),
   parseNumber: (lang, text) => intl.parseNumber(lang, text),
+  calendar: (lang) => intl.calendar(lang),
   // Message index of catalog (a locale id, or "en-XA": pseudo-localized) in lang.
   message: (lang, catalog, index, ...args) => intl.message(lang, catalogs[catalog]?.[Number(index)], args),
 };
