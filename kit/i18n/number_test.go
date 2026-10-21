@@ -9,8 +9,8 @@ import (
 	"github.com/joeblew999/go-htmx4/kit/i18n/cldr"
 )
 
-// TestFormatNumberGolden: numbers in messages match what the full Intl-conformant formatter in kit/i18n/legacy
-// outputs (testdata/numbers.json, written with the locale table by `mise run i18n:generate`).
+// TestFormatNumberGolden: numbers in messages match what a full Intl-conformant formatter outputs
+// (testdata/numbers.json, written with the locale table by `mise run i18n:generate`).
 func TestFormatNumberGolden(t *testing.T) {
 	data, err := os.ReadFile("testdata/numbers.json")
 	if err != nil {

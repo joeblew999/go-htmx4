@@ -1,10 +1,10 @@
 package i18n
 
-// This file is the schema of the generated locale table (kit/i18n/cldr, written from CLDR by
-// kit/i18n/legacy/cmd/coregen). It holds only what the server itself needs: which locales ship, their
-// names and text direction, the plural rules that pick a message's wording, and the digits and separators
-// for numbers inside messages. Dates, times, currencies, units and the rest are formatted in the browser
-// with its own Intl (static/intl.js), so none of that data is here.
+// This file is the schema of the generated locale table (kit/i18n/cldr, written from CLDR by `mise run
+// i18n:generate`). It holds only what the server itself needs: which locales ship, their names and text direction,
+// the plural rules that pick a message's wording, and the digits and separators for numbers inside messages.
+// Dates, times, currencies, units and the rest go through the runtime's own Intl (Locale.Format), so none of that
+// data is here.
 
 // Data is the set of locales an app ships.
 type Data struct {
