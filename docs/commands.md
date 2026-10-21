@@ -125,9 +125,11 @@ Add a language: its BCP 47 id to intl.toml, and its catalog; then mise run intl:
 
 ### `intl:check`
 
+- Depends: intl
+
 - **Usage:** `intl:check`
 
-Every catalog problem, for CI: ICU syntax, arguments, a case for each plural category Intl says a language uses, missing and stale translations, unused messages, gsxui text, intl.sum committed; exits 1 on any
+Every problem, for CI: the catalogs (ICU syntax, arguments, a case for each plural category Intl says a language uses, missing and stale translations, unused messages, gsxui text, intl.sum), then gsx's own checks on the app's markup (gsx generate, gsx fmt, the gsx skill's find-smells.sh); exits 1 on any
 
 ### `intl:confirm`
 
