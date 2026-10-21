@@ -12,7 +12,7 @@ import (
 	"testing"
 
 	"github.com/joeblew999/go-htmx4/kit/i18n/cldr"
-	"github.com/joeblew999/go-htmx4/kit/searchconsole"
+	"github.com/joeblew999/charter/go/lib/searchconsole"
 )
 
 // Search plan Phase 1: every non-page response is noindex, every page (and the crawl files) isn't.
@@ -135,7 +135,7 @@ func TestOpenGraph(t *testing.T) {
 }
 
 // Search plan: every sitemap page's title and meta description fit in a Google result without being cut
-// (widths from kit/searchconsole, the same limits `mise run search:audit` checks live).
+// (widths from charter's searchconsole, the same limits `mise run search:audit` checks live).
 func TestSnippetWidths(t *testing.T) {
 	h := newServer().routes()
 	rec := get(t, h, "/sitemap.xml")
