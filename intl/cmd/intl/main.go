@@ -12,6 +12,7 @@
 //	go tool intl export [-all] [-o dir] [locale…]   XLIFF 2.0 for translators: what is left (or everything)
 //	go tool intl import <file.xlf>…        read translators' XLIFF back into the catalogs
 //	go tool intl skill                     install the intl-translate agent skill into .claude/skills
+//	go tool intl tasks [-o file]           write intl's mise tasks into the app (.mise/tasks/intl.toml)
 //	go tool intl assets -worker dir -browser dir    the JavaScript a Worker and a page import
 //	go tool intl locales                   the shipped locales, comma-separated
 //
@@ -33,6 +34,7 @@ import (
 	"github.com/joeblew999/go-htmx4/intl/config"
 	"github.com/joeblew999/go-htmx4/intl/intltest"
 	intljs "github.com/joeblew999/go-htmx4/intl/js"
+	intlmise "github.com/joeblew999/go-htmx4/intl/mise"
 	"github.com/joeblew999/go-htmx4/intl/skills"
 )
 
@@ -159,6 +161,13 @@ func main() {
 			fmt.Println(dst)
 			return os.WriteFile(dst, b, 0o644)
 		}))
+	case "tasks":
+		f := flag.NewFlagSet("tasks", flag.ExitOnError)
+		out := f.String("o", filepath.Join(c.Root, ".mise", "tasks", "intl.toml"), "the task file to write")
+		f.Parse(args)
+		check(os.MkdirAll(filepath.Dir(*out), 0o755))
+		check(os.WriteFile(*out, intlmise.Tasks, 0o644))
+		fmt.Println(*out)
 	case "assets":
 		f := flag.NewFlagSet("assets", flag.ExitOnError)
 		worker := f.String("worker", "", "directory for the Worker's modules")
@@ -280,6 +289,11 @@ func checkAll(c config.Config) int {
 	for _, k := range unused {
 		add(fmt.Sprintf("%s: no Go or gsx file uses it (%s.%s): remove it from every catalog", k, filepath.Base(c.CatalogDir()), catalog.GoName(k)))
 	}
+	for _, f := range []string{".mise/tasks/intl.toml", "mise-tasks/intl.toml"} {
+		if b, err := os.ReadFile(filepath.Join(c.Root, f)); err == nil && !bytes.Equal(b, intlmise.Tasks) {
+			add(f + " is not this intl's: go tool intl tasks")
+		}
+	}
 	if b, err := os.ReadFile(filepath.Join(c.Root, ".claude", "skills", "intl-translate", "SKILL.md")); err == nil {
 		if want, _ := skills.FS.ReadFile("intl-translate/SKILL.md"); !bytes.Equal(b, want) {
 			add(".claude/skills/intl-translate is not this intl's: go tool intl skill")
@@ -359,6 +373,7 @@ func fail(err error) {
 
 func usage() {
 	fmt.Fprintln(os.Stderr, "usage: go tool intl gen | status | todo [-json] [locale…] | check | add <locale>… | confirm <locale>[:<key>]… |\n"+
-		"       export [-all] [-o dir] [locale…] | import <file.xlf>… | skill | assets [-worker dir] [-browser dir] | locales")
+		"       export [-all] [-o dir] [locale…] | import <file.xlf>… | skill | tasks [-o file] | assets [-worker dir] [-browser dir] |\n"+
+		"       locales")
 	os.Exit(2)
 }

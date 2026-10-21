@@ -1,11 +1,7 @@
-# intl's mise tasks: an app's languages, every workflow a go tool intl command (intl/README.md). An app includes them
-# in its mise.toml (mise Task discovery guide: task_config.includes takes a path or a git:: URL pinned to a tag):
-#
-#   [task_config]
-#   includes = ["git::https://github.com/joeblew999/go-htmx4.git//intl/tasks.toml?ref=<tag>", "tasks"]
-#
-# The app's go.mod has the command as a tool: go get -tool github.com/joeblew999/go-htmx4/intl/cmd/intl. Intl itself
-# (plural categories, language names) runs on workerd, which these tasks pin.
+# intl's mise tasks: an app's languages, every workflow a go tool intl command (intl/README.md). In an app,
+# go tool intl tasks writes this file to .mise/tasks/intl.toml, one of mise's default task directories, from the intl
+# version in go.mod; intl:check says when an upgrade changed it. Intl itself (plural categories, language names) runs
+# on workerd, which these tasks pin.
 
 ["intl"]
 description = "Compile the catalogs (intl.toml): the Go package of messages, intl-messages.mjs, the gsxui translator and intl.sum. Run it after editing a catalog; gsx generate needs it first"
@@ -81,6 +77,10 @@ exec go tool intl export "${args[@]}" ${usage_locale:-}
 description = "Read translators' XLIFF 2.0 back into the catalogs (each target checked against its source), then compile"
 usage = 'arg "<file>" var=#true help="<locale>.xlf files"'
 run = "go tool intl import ${usage_file}"
+
+["intl:tasks"]
+description = "Write this file again from the intl version in go.mod: run it after upgrading intl (intl:check says when)"
+run = "go tool intl tasks"
 
 ["intl:skill"]
 description = "Install or update the intl-translate agent skill (.claude/skills), which Claude Code uses to translate"
