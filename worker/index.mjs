@@ -6,7 +6,7 @@
 import * as intl from "./intl.mjs";
 import { goWorker } from "./build/go.mjs";
 
-// The app's Intl formatter, for Go (kit/i18n Format): the same code the browser runs (static/intl.js).
+// The app's Intl formatter, for Go (internal/i18n Format): the same code the browser runs (static/intl.js).
 globalThis.goIntl = intl;
 
 export { Room } from "./room.mjs";
@@ -15,7 +15,7 @@ const go = goWorker();
 // Two runtimes, each warmed with a request that touches no binding.
 await go.warm({ paths: ["/healthz"] });
 
-// Same rules as kit/live (TopicPattern, LocalePattern); TestWorkerJSMatchesKitLive checks.
+// Same rules as internal/live (TopicPattern, LocalePattern); TestWorkerJSMatchesLive checks.
 const TOPIC = /^[a-z0-9-]{1,32}$/;
 const LOCALE = /^[a-z]{2,3}(-[a-z0-9]{2,8}){0,3}$/;
 

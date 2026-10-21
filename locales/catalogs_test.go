@@ -5,8 +5,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/joeblew999/go-htmx4/kit/i18n/cldr"
-	"github.com/joeblew999/go-htmx4/kit/i18n/msggen"
+	"github.com/joeblew999/go-htmx4/internal/i18n/cldr"
+	"github.com/joeblew999/go-htmx4/internal/i18n/msggen"
 )
 
 // TestGeneratedUpToDate fails when *_msg_gen.go doesn't match the catalogs: run mise run i18n:messages.

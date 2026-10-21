@@ -4,9 +4,9 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/joeblew999/go-htmx4/kit/httpx"
-	"github.com/joeblew999/go-htmx4/kit/i18n"
-	"github.com/joeblew999/go-htmx4/kit/i18n/cldr"
+	"github.com/joeblew999/go-htmx4/internal/httpx"
+	"github.com/joeblew999/go-htmx4/internal/i18n"
+	"github.com/joeblew999/go-htmx4/internal/i18n/cldr"
 )
 
 // robotsTxt answers /robots.txt. One `*`
@@ -33,7 +33,7 @@ func robotsTxt(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(body))
 }
 
-// noindexNonPages marks every response that isn't a page X-Robots-Tag: noindex (search plan Phase 1): fragments
+// noindexNonPages marks every response that isn't a page X-Robots-Tag: noindex: fragments
 // under /fragments/, the health check, and every request that isn't GET or HEAD (form posts, now and future). One
 // rule around the mux instead of per-handler wrapping, so a new fragment or POST route can't forget it. It runs
 // inside withLocale, so /de/fragments/… is matched on its unprefixed path. Pages (every /board topic included),

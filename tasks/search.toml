@@ -8,7 +8,6 @@
 #   Google's verdict:  mise run search:todo       # per URL: indexed / waiting / duplicate / problem; fails + opens only problems
 #                      mise run search:inspect /de/      # one URL in detail; opens its page for Google's Test live URL
 #                      mise run search:status     # full table: every sitemap URL's coverage, last crawl, canonical
-#                      mise run search:google     # links to Google's own reports (site: search, Pages, Sitemaps, Crawl stats)
 #
 # --json (sites, status, audit, todo, inspect): one JSON document on stdout for agents, CI and jq; never opens a browser.
 # Exit codes connect the tasks: 0 ok, 1 problems or no access. --no-open (todo, inspect): print links only.
@@ -23,7 +22,7 @@
 hide = true
 silent = true
 dir = "{{config_root}}"
-run = "fnox exec -- go run ./cmd/searchconsole sites"
+run = "fnox exec -- go tool searchconsole sites"
 
 ["search:sites"]
 description = "List the Search Console properties the service account can use; fails without Full access"
@@ -33,7 +32,7 @@ run = '''
 #!/usr/bin/env bash
 set -euo pipefail
 args=(); [ "${usage_json:-}" != true ] || args+=(-json)
-exec fnox exec -- go run ./cmd/searchconsole ${args[@]+"${args[@]}"} sites
+exec fnox exec -- go tool searchconsole ${args[@]+"${args[@]}"} sites
 '''
 
 ["search:submit"]
@@ -41,7 +40,7 @@ description = "Submit https://$APP_DOMAIN/sitemap.xml to Search Console (after a
 depends = ["search:access", "search:audit"]
 confirm = "Submit the sitemap to Google Search Console?"
 dir = "{{config_root}}"
-run = "fnox exec -- go run ./cmd/searchconsole submit"
+run = "fnox exec -- go tool searchconsole submit"
 
 ["search:status"]
 description = "Search Console: sitemap status and Google's index status for every URL in the sitemap"
@@ -52,7 +51,7 @@ run = '''
 #!/usr/bin/env bash
 set -euo pipefail
 args=(); [ "${usage_json:-}" != true ] || args+=(-json)
-exec fnox exec -- go run ./cmd/searchconsole ${args[@]+"${args[@]}"} status
+exec fnox exec -- go tool searchconsole ${args[@]+"${args[@]}"} status
 '''
 
 ["search:audit"]
@@ -63,27 +62,7 @@ run = '''
 #!/usr/bin/env bash
 set -euo pipefail
 args=(); [ "${usage_json:-}" != true ] || args+=(-json)
-exec go run ./cmd/searchconsole ${args[@]+"${args[@]}"} audit
-'''
-
-["search:google"]
-description = "Print links to Google's own reports: site: search, Search Console Pages, Sitemaps, Crawl stats, PageSpeed Insights"
-dir = "{{config_root}}"
-run = '''
-#!/usr/bin/env bash
-set -euo pipefail
-: "${APP_DOMAIN:?APP_DOMAIN is empty (mise.toml [env])}"
-enc() { jq -rn --arg v "$1" '$v|@uri'; }
-site="sc-domain:${APP_DOMAIN#*.}"
-home="https://$APP_DOMAIN/"
-links=(
-  "https://www.google.com/search?q=$(enc "site:$APP_DOMAIN")"
-  "https://search.google.com/search-console/index?resource_id=$site"
-  "https://search.google.com/search-console/sitemaps?resource_id=$site"
-  "https://search.google.com/search-console/settings/crawl-stats?resource_id=$site"
-  "https://pagespeed.web.dev/analysis?url=$(enc "$home")"
-)
-printf '%s\n' "${links[@]}"
+exec go tool searchconsole ${args[@]+"${args[@]}"} audit
 '''
 
 ["search:inspect"]
@@ -99,7 +78,7 @@ run = '''
 #!/usr/bin/env bash
 set -euo pipefail
 args=(); [ "${usage_json:-}" != true ] || args+=(-json); [ "${usage_no_open:-}" = true ] || args+=(-open)
-exec fnox exec -- go run ./cmd/searchconsole ${args[@]+"${args[@]}"} inspect "${usage_page}"
+exec fnox exec -- go tool searchconsole ${args[@]+"${args[@]}"} inspect "${usage_page}"
 '''
 
 ["search:todo"]
@@ -114,7 +93,7 @@ run = '''
 #!/usr/bin/env bash
 set -euo pipefail
 args=(); [ "${usage_json:-}" != true ] || args+=(-json); [ "${usage_no_open:-}" = true ] || args+=(-open)
-exec fnox exec -- go run ./cmd/searchconsole ${args[@]+"${args[@]}"} todo
+exec fnox exec -- go tool searchconsole ${args[@]+"${args[@]}"} todo
 '''
 
 # One-time setup, already done for this repo (2026-09-14). Only this task needs gcloud: its tools are installed when it
@@ -155,7 +134,7 @@ else
   fnox set -g GOOGLE_SEARCH_CONSOLE_KEY --from-file "$key" -p keychain -d "Search Console API key ($sa)" >/dev/null
   echo "✓ key stored in fnox as GOOGLE_SEARCH_CONSOLE_KEY"
 fi
-if fnox exec -- go run ./cmd/searchconsole sites 2>/dev/null | grep -q "siteOwner\|siteFullUser"; then
+if fnox exec -- go tool searchconsole sites 2>/dev/null | grep -q "siteOwner\|siteFullUser"; then
   echo "✓ $sa has Full access in Search Console (mise run search:sites)"
 else
   echo "Next: Search Console → your property → Settings → Users and permissions → Add user $sa (Full), then mise run search:sites"

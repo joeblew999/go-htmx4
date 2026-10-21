@@ -2,7 +2,7 @@
 
 package locales
 
-import "github.com/joeblew999/go-htmx4/kit/i18n"
+import "github.com/joeblew999/go-htmx4/internal/i18n"
 
 // AboutDescription is "about.description": The stack behind go-htmx4: Go with gsx and gsxui, htmx 4, TinyGo, and Cloudflare Workers with D1 and Durable Objects.
 func (m Messages) AboutDescription() string {

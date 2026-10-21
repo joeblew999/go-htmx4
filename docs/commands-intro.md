@@ -11,11 +11,11 @@ Every command is a mise task: `mise run <task>`; `mise tasks` lists them. Which 
   `tinygo` (smallest wasm, ~1–2 min builds) or `go` (seconds, a bigger wasm, ~50–90 ms slower per request).
   Override it for one run: `WORKER_COMPILER=go ci/check.sh`. `build:dev` is always standard Go, for `dev`.
 - **Test:** `check` before pushing (CI runs the same, `ci/check.sh`), then `e2e` for anything in the browser.
-  `smoke-remote` runs the smoke checks against the deployed Worker.
+  `SMOKE_BASE=https://… smoke` runs the smoke checks against a deployed Worker.
 - **Ship:** every pushed branch gets a preview and `main` deploys staging, both automatically (Workers Builds).
   Production: `release v1.3` (or a v* tag from GitHub's Releases page) → CI tests it and tags it → Workers Builds
   deploys it, with no Cloudflare credentials anywhere but Cloudflare. `deploy` does it by hand from a machine with fnox credentials.
-  All of them go through `ci/deploy.sh`.
+  All of them go through `ci/deploy.sh`: [deploy.md](deploy.md).
 
 ## Tasks
 

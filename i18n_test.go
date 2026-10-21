@@ -13,7 +13,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/joeblew999/go-htmx4/kit/i18n/cldr"
+	"github.com/joeblew999/go-htmx4/internal/i18n/cldr"
 	"github.com/joeblew999/go-htmx4/locales"
 	"github.com/joeblew999/go-htmx4/views"
 	nethtml "golang.org/x/net/html"
@@ -380,7 +380,7 @@ func TestTimeZonePreferences(t *testing.T) {
 	}
 }
 
-// TestLocalesMatchMise: kit/i18n/cldr ships the locales mise.toml's I18N_LOCALES names, in that order
+// TestLocalesMatchMise: internal/i18n/cldr ships the locales mise.toml's I18N_LOCALES names, in that order
 // (mise run i18n:generate regenerates it).
 func TestLocalesMatchMise(t *testing.T) {
 	mise, err := os.ReadFile("mise.toml")
@@ -393,7 +393,7 @@ func TestLocalesMatchMise(t *testing.T) {
 		ids = append(ids, ld.ID)
 	}
 	if m == nil || string(m[1]) != strings.Join(ids, ",") {
-		t.Errorf("mise.toml I18N_LOCALES = %q, kit/i18n/cldr has %s: mise run i18n:generate", m, strings.Join(ids, ","))
+		t.Errorf("mise.toml I18N_LOCALES = %q, internal/i18n/cldr has %s: mise run i18n:generate", m, strings.Join(ids, ","))
 	}
 }
 

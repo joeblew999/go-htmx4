@@ -5,11 +5,11 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/joeblew999/go-htmx4/kit/i18n"
-	"github.com/joeblew999/go-htmx4/kit/i18n/cldr"
+	"github.com/joeblew999/go-htmx4/internal/i18n"
+	"github.com/joeblew999/go-htmx4/internal/i18n/cldr"
 )
 
-// SEO (plan: full i18n Phase 8). Every page links its canonical URL and the same page in every locale (hreflang,
+// SEO. Every page links its canonical URL and the same page in every locale (hreflang,
 // reciprocal, plus x-default = the default locale), and /sitemap.xml lists every page with the same alternates.
 // URLs are absolute, built from the request's origin.
 
@@ -88,7 +88,7 @@ var xmlEscaper = strings.NewReplacer("&", "&amp;", "<", "&lt;", ">", "&gt;", `"`
 
 func xmlEscape(s string) string { return xmlEscaper.Replace(s) }
 
-// Open Graph (search plan Phase 2): link previews in chat apps and social sites. og:url is the canonical URL,
+// Open Graph: link previews in chat apps and social sites. og:url is the canonical URL,
 // og:title/og:description are the page's translated title and description, og:locale is the page's locale and
 // og:locale:alternate every other shipped locale.
 

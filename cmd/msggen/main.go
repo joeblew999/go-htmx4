@@ -1,4 +1,4 @@
-// Command msggen generates typed message accessors from ICU MessageFormat catalogs (kit/i18n/msggen).
+// Command msggen generates typed message accessors from ICU MessageFormat catalogs (internal/i18n/msggen).
 //
 //	go run ./cmd/msggen -dir locales -out locales -locales en,de,ar
 package main
@@ -9,7 +9,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/joeblew999/go-htmx4/kit/i18n/msggen"
+	"github.com/joeblew999/go-htmx4/internal/i18n/msggen"
 )
 
 func main() {

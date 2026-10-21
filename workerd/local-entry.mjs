@@ -9,7 +9,7 @@ import { d1Shim } from "./local-d1.mjs";
 export { Room } from "../room.mjs";
 export { LocalD1 } from "./local-d1.mjs";
 
-// Same settings as the deploy's -ratelimit WRITES=…:60/10 (tasks/app.toml). Same API: limit({key}) → {success}.
+// Same settings as the deploy's -ratelimit WRITES=…:60/10 (ci/deploy.sh). Same API: limit({key}) → {success}.
 function localRateLimit({ limit, period }) {
   const windows = new Map();
   return {

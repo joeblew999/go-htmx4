@@ -1,28 +1,36 @@
 # tasks/i18n.toml — locales and UI messages.
 #
 #   mise run i18n:messages   # locales/*.toml (ICU MessageFormat) → typed accessors in locales/*_msg_gen.go
-#   mise run i18n:generate   # kit/i18n/cldr (the shipped locales: names, direction, plural rules, digits) from CLDR
-#   mise run i18n:legacy     # test kit/i18n/legacy, the earlier server-side Intl (kept out of the build)
+#   mise run i18n:generate   # internal/i18n/cldr (the shipped locales: names, direction, plural rules, digits) from CLDR
 #
-# Dates, times, currencies, units and the rest are formatted in the browser with its own Intl (static/intl.js).
+# Dates, times, currencies, units and the rest go through the runtime's own Intl, on the server and in the browser:
+# internal/i18n/doc.go.
 
 ["i18n:messages"]
 description = "Generate locales/*_msg_gen.go from the UI message catalogs locales/*.toml (I18N_LOCALES, en first)"
 # Skipped when the catalogs, the generator and the locale list (mise.toml) are unchanged since the last run.
-sources = ["locales/*.toml", "cmd/msggen/**/*.go", "kit/i18n/msggen/**/*.go", "mise.toml"]
+sources = ["locales/*.toml", "cmd/msggen/**/*.go", "internal/i18n/msggen/**/*.go", "mise.toml"]
 outputs = ["locales/*_msg_gen.go"]
 dir = "{{config_root}}"
 run = "go run ./cmd/msggen -dir locales -out locales -locales \"$I18N_LOCALES\""
 
 ["i18n:generate"]
-description = "Regenerate kit/i18n/cldr for I18N_LOCALES from CLDR, via kit/i18n/legacy's generator (network on first run)"
-dir = "{{config_root}}/kit/i18n/legacy"
-run = """
+description = "Regenerate internal/i18n/cldr for I18N_LOCALES from CLDR, with the generator at the git tag i18n-generator (network on first run)"
+dir = "{{config_root}}"
+run = '''
+#!/usr/bin/env bash
+set -euo pipefail
+# The generator is the earlier server-side Intl and its CLDR tables (~160k lines), so it lives only at the tag
+# i18n-generator: checked out beside the repo for this run, removed after.
+root=$PWD tmp=$(mktemp -d)
+trap 'git -C "$root" worktree remove --force "$tmp/gen" 2>/dev/null || true; rm -rf "$tmp"' EXIT
+git rev-parse -q --verify i18n-generator >/dev/null || git fetch -q origin tag i18n-generator
+git worktree add -q --detach "$tmp/gen" i18n-generator
+cd "$tmp/gen/kit/i18n/legacy"
 go run ./cmd/cldrgen -locales "$I18N_LOCALES" -out cldr
-go run ./cmd/coregen -out ../cldr/data_cldr.go -golden ../testdata/numbers.json
-"""
-
-["i18n:legacy"]
-description = "Test kit/i18n/legacy, the earlier server-side Intl implementation (its own module, out of the build)"
-dir = "{{config_root}}/kit/i18n/legacy"
-run = "go test ./..."
+go run ./cmd/coregen -out "$root/internal/i18n/cldr/data_cldr.go" -golden "$root/internal/i18n/testdata/numbers.json"
+# The tagged generator writes the package path it had (go-htmx4/kit/i18n): point it at this module's.
+cd "$root"
+sed -i.bak -e "s#github.com/joeblew999/go-htmx4/kit/i18n\"#$(go list -m)/internal/i18n\"#" -e "s#(kit/i18n's schema)#(internal/i18n's schema)#" internal/i18n/cldr/data_cldr.go
+rm internal/i18n/cldr/data_cldr.go.bak
+'''

@@ -1,14 +1,14 @@
-# workerd config for the app (mise run serve, run from the repo root).
+# workerd config for the app (mise run serve, dev, smoke, e2e, load; run from the repo root).
 #
 #   :8913 → assets-first (workerd/assets-first.mjs)
 #             ├─ file in dist/site/ → disk service "public"         (stands in for Static Assets)
 #             └─ everything else → "app": workerd/local-entry.mjs
 #                                    ├─ /live/{topic} WebSocket → Room DO (worker/room.mjs, hibernation)
-#                                    └─ else → Go Worker (build/, TinyGo) with DB = LocalD1 shim
+#                                    └─ else → Go Worker (build/) with DB = LocalD1 shim
 #
 # Deployed, worker/index.mjs is the main module and DB is real D1; workerd/ is local-only.
 # Embed paths are relative to this file; disk paths to the working directory (the repo root). Module names mirror the
-# relative imports (and cmd/deploy's names).
+# relative imports (and the deploy's module names, ci/deploy.sh).
 
 using Workerd = import "/workerd/workerd.capnp";
 
@@ -58,6 +58,7 @@ const app :Workerd.Worker = (
     (name = "ROOM", durableObjectNamespace = "Room"),
     (name = "LOCAL_D1", durableObjectNamespace = "LocalD1"),
   ],
-  # Must not be newer than the workerd binary (1.20260911.1).
+  # Must not be newer than the workerd binary's date (mise.toml). Production runs on this date too: ci/deploy.sh
+  # reads it, and both compatibilityDate lines must match.
   compatibilityDate = "2026-09-11",
 );

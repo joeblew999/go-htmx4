@@ -11,11 +11,11 @@ Every command is a mise task: `mise run <task>`; `mise tasks` lists them. Which 
   `tinygo` (smallest wasm, ~1–2 min builds) or `go` (seconds, a bigger wasm, ~50–90 ms slower per request).
   Override it for one run: `WORKER_COMPILER=go ci/check.sh`. `build:dev` is always standard Go, for `dev`.
 - **Test:** `check` before pushing (CI runs the same, `ci/check.sh`), then `e2e` for anything in the browser.
-  `smoke-remote` runs the smoke checks against the deployed Worker.
+  `SMOKE_BASE=https://… smoke` runs the smoke checks against a deployed Worker.
 - **Ship:** every pushed branch gets a preview and `main` deploys staging, both automatically (Workers Builds).
   Production: `release v1.3` (or a v* tag from GitHub's Releases page) → CI tests it and tags it → Workers Builds
   deploys it, with no Cloudflare credentials anywhere but Cloudflare. `deploy` does it by hand from a machine with fnox credentials.
-  All of them go through `ci/deploy.sh`.
+  All of them go through `ci/deploy.sh`: [deploy.md](deploy.md).
 
 ## Tasks
 
@@ -37,7 +37,7 @@ CPU per request of the production build on local workerd, per page, repeated run
 
 ### `bench:variants`
 
-- Depends: vendor, generate, assets
+- Depends: generate, assets
 
 - **Usage:** `bench:variants`
 
@@ -45,7 +45,7 @@ Build the current code with each of charter's optimisations off in turn, measure
 
 ### `build`
 
-- Depends: vendor, generate, assets
+- Depends: generate, assets
 
 - **Usage:** `build`
 
@@ -53,7 +53,7 @@ Production build → build/ with WORKER_COMPILER (mise.toml: tinygo or go), size
 
 ### `build:dev`
 
-- Depends: vendor, generate, assets
+- Depends: generate, assets
 
 - **Usage:** `build:dev`
 
@@ -64,14 +64,6 @@ Dev build → build/: standard Go to wasm, seconds after an edit (mise run dev u
 - **Usage:** `cf:builds`
 
 Set up Workers Builds for $APP_REPO: every branch deploys (previews; production from the production branch), main deploys staging; idempotent
-
-### `check`
-
-- Depends: test
-
-- **Usage:** `check`
-
-Test the app: TinyGo build + workerd smoke + gsx fmt/gofmt + go vet + go test
 
 ### `deploy`
 
@@ -127,13 +119,7 @@ go tool gsx generate (after i18n:messages: views call the generated message meth
 
 - **Usage:** `i18n:generate`
 
-Regenerate kit/i18n/cldr for I18N_LOCALES from CLDR, via kit/i18n/legacy's generator (network on first run)
-
-### `i18n:legacy`
-
-- **Usage:** `i18n:legacy`
-
-Test kit/i18n/legacy, the earlier server-side Intl implementation (its own module, out of the build)
+Regenerate internal/i18n/cldr for I18N_LOCALES from CLDR, with the generator at the git tag i18n-generator (network on first run)
 
 ### `i18n:messages`
 
@@ -161,16 +147,6 @@ Test, then deploy a Worker Preview (e.g. pr-7) → its URL on stdout and in .pre
 ### Arguments
 - **`<name>`** — preview name, e.g. pr-7
 
-### `preview:delete`
-
-Delete a Worker Preview (e.g. pr-7) with its Durable Object storage
-
-
-- **Usage:** `preview:delete <name>`
-
-### Arguments
-- **`<name>`** — preview name, e.g. pr-7
-
 ### `release`
 
 Release main to production (e.g. v1.3): CI tests it, tags it, Workers Builds deploys it; no Cloudflare credentials needed
@@ -187,14 +163,6 @@ Release main to production (e.g. v1.3): CI tests it, tags it, Workers Builds dep
 
 Make this template yours: mise run rename -- &lt;module path> &lt;app name>  (e.g. github.com/you/board board)
 
-### `run`
-
-- Depends: generate, assets
-
-- **Usage:** `run`
-
-go run . (non-js fallback, dist/site served by Go) → http://localhost:9913
-
 ### `search:audit`
 
 Fetch robots.txt and every sitemap URL live as Googlebot: 200, indexable, self-canonical, lang, title, description, one h1, reciprocal hreflang
@@ -204,12 +172,6 @@ Fetch robots.txt and every sitemap URL live as Googlebot: 200, indexable, self-c
 
 ### Flags
 - **`--json`** — JSON on stdout
-
-### `search:google`
-
-- **Usage:** `search:google`
-
-Print links to Google's own reports: site: search, Search Console Pages, Sitemaps, Crawl stats, PageSpeed Insights
 
 ### `search:inspect`
 
@@ -282,7 +244,7 @@ Google's verdict for every sitemap URL (indexed, waiting, duplicate, problem); f
 
 - **Usage:** `serve`
 
-TinyGo build, then workerd with static files first → http://localhost:8913
+The production build (WORKER_COMPILER) on local workerd, static files first → http://localhost:8913
 
 ### `smoke`
 
@@ -290,13 +252,7 @@ TinyGo build, then workerd with static files first → http://localhost:8913
 
 - **Usage:** `smoke`
 
-Run the production build on local workerd and check every route over HTTP (e2e/smoke)
-
-### `smoke-remote`
-
-- **Usage:** `smoke-remote`
-
-The smoke checks (e2e/smoke) against the deployed Worker (.deploy-url, written by deploy)
+The production build on local workerd, every route checked over HTTP (e2e/smoke); SMOKE_BASE=https://… checks a deployed Worker
 
 ### `staging`
 
@@ -317,8 +273,9 @@ Stream the deployed Worker's live logs (requests, console, exceptions) → Ctrl-
 - Depends: smoke, test:go
 
 - **Usage:** `test`
+- **Aliases:** `check`
 
-TinyGo build + workerd smoke test + gsx fmt/gofmt check + go vet + kit/ import check + go test
+Everything before a push: the production build + workerd smoke, gsx fmt/gofmt, go vet, go test (mise run check is the same)
 
 ### `test:go`
 
@@ -326,65 +283,13 @@ TinyGo build + workerd smoke test + gsx fmt/gofmt check + go vet + kit/ import c
 
 - **Usage:** `test:go`
 
-gsx fmt/gofmt check + go vet + kit/ import check + go test (standard Go; runs beside the TinyGo build)
+gsx fmt/gofmt check + go vet + go test (standard Go; runs beside the production build)
 
 ### `token-check`
 
 - **Usage:** `token-check`
 
 Verify CLOUDFLARE_API_TOKEN (from fnox) against the Cloudflare API
-
-### `upstream:gsxui:css`
-
-- Depends: upstream:gsxui:deps, upstream:gsxui:generate
-
-- **Usage:** `upstream:gsxui:css`
-
-Compile the harness stylesheets with the standalone Tailwind CLI + link fonts
-
-### `upstream:gsxui:deps`
-
-- Depends: upstream:gsxui:fetch
-
-- **Usage:** `upstream:gsxui:deps`
-
-Fetch the lock-pinned packages the harness needs into node_modules (curl, no npm)
-
-### `upstream:gsxui:fetch`
-
-- **Usage:** `upstream:gsxui:fetch`
-
-Check out gsxhq/gsxui at the pinned commit into .upstream/gsxui
-
-### `upstream:gsxui:generate`
-
-- Depends: upstream:gsxui:fetch
-
-- **Usage:** `upstream:gsxui:generate`
-
-go tool gsx generate in the gsxui checkout
-
-### `upstream:gsxui:serve`
-
-- Depends: upstream:gsxui:css
-
-- **Usage:** `upstream:gsxui:serve`
-
-Serve gsxui's full demo via its Go harness → http://127.0.0.1:7799/
-
-### `upstream:gsxui:test`
-
-- Depends: upstream:gsxui:generate, upstream:gsxui:deps
-
-- **Usage:** `upstream:gsxui:test`
-
-gsxui's make test (generate + go vet + go test), Node-free
-
-### `upstream:workers-go:fetch`
-
-- **Usage:** `upstream:workers-go:fetch`
-
-Check out syumai/workers-go v0.36.0 into .upstream/workers-go (read-only source reference)
 
 ### `vendor`
 

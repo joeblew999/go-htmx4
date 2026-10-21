@@ -1,283 +1,111 @@
-# Plans and follow-ups: GitHub issues
+# Rules for agents
 
-- Plans, open work and follow-ups are GitHub issues on joeblew999/go-htmx4 (Claude has the GitHub connector). No plan
-  files in the repo.
-- Before starting non-trivial work, look for an existing issue on the topic and update it rather than opening a
-  duplicate. Write the plan, decisions and ramifications in the issue (or its PR), keep its checklist current, and
-  reference it from commits, PRs and code comments as `#N`.
-- Close an issue when its PR merges (`Closes #N` in the PR) or say why it's not planned.
+Binding. How the app works is in [docs/architecture.md](docs/architecture.md), how it ships in
+[docs/deploy.md](docs/deploy.md), every command in [docs/commands.md](docs/commands.md) (generated).
 
-# Reporting work: always show follow-ups
+## Work
 
-- Every time you finish a piece of work (a phase, a task, a fix), end your report with a **Follow-ups** list. Never
-  leave it out, even when the list is short.
-- Include:
-  - what's next in the plan
-  - anything that needs the user's OK (deploys, Cloudflare or GitHub writes, tags), and why
-  - bugs or risks you found but didn't fix, especially ones that affect what's live
-  - checks you skipped or couldn't run
-  - leftovers to clean up (processes, resources, stale docs)
-- Put the same follow-ups in the issue (checklist items or a comment), so they survive the conversation.
+- Plans, open work and follow-ups are GitHub issues on joeblew999/go-htmx4. No plan files in the repo. Before
+  non-trivial work, find the issue and update it rather than opening a duplicate; reference it as `#N` in commits, PRs
+  and code comments. Close it when its PR merges (`Closes #N`) or say why it's not planned.
+- Changes land by branch and PR. `main` is protected: a PR needs a green `check`. Squash merges only.
+- End every report of finished work with a **Follow-ups** list, even a short one: what's next, what needs the user's
+  OK and why (deploys, Cloudflare or GitHub writes, tags), bugs or risks found but not fixed, checks skipped, leftovers
+  (processes, resources, stale docs). Put the same list in the issue.
 
-# Toolchain
+## Toolchain and commands
 
-- All tools are pinned in `mise.toml` (Go 1.27.3, TinyGo 0.43.0, binaryen, Tailwind, gsxui, workerd, fnox, and
-  `chrome-headless-shell` for e2e: `mise run e2e` passes it as `E2E_CHROME`). Never rely on a browser installed by hand.
-  Run `mise install` first; use `mise run <task>` rather than ad-hoc commands.
-- gsx is pinned only in `go.mod` (builds run `go tool gsx`). The VS Code extension's language server needs a `gsx` binary
-  it can find: `mise install`'s postinstall hook runs `editor:gsx` (`tasks/editor.toml`), which installs go.mod's version
-  into `GOPATH/bin`. `.vscode/` is committed: shared settings only, never machine-specific paths.
-- When bumping Go, update `mise.toml`, `go.mod` (`go` + `toolchain` lines) and the README Stack table together.
-- The app is the Go module at the repo root (`github.com/joeblew999/go-htmx4`). Releases are `v*` tags (`git tag`; how: Production releases below).
+- Every tool is pinned: `mise.toml`, and Go in `go.mod`'s `toolchain` line (mise installs it). `mise install` first;
+  run `mise run <task>`, not ad-hoc commands. No browser installed by hand: e2e uses the pinned `chrome-headless-shell`.
+- **No Node anywhere:** no `node`, `npm`, `npx`, Vite or wrangler. CI is shell `run:` steps only: no `actions/checkout`,
+  `jdx/mise-action` or any JavaScript action. A new tool goes in `mise.toml`.
+- Commands are mise tasks. Don't hand-list them in docs: change the task's description, `docs/commands.md` is
+  generated from it (`test:go` fails when it's stale).
+- Before pushing: `mise run check` (what CI runs, `ci/check.sh`), then `mise run e2e` after UI, board or JS changes.
+  A task with `sources`/`outputs` is skipped when nothing it reads changed: a new input to the wasm goes in `sources`.
+- Shell lives in `ci/`, one script per job; tasks call them; checks are Go tests (`e2e/smoke`, `e2e`), not curl.
+- Stopping `gsx dev` can leave workerd on :8913; `ci/with-workerd.sh` then refuses to start. Stop it by PID.
+- `mise run rename -- <module path> <app name>` turns the template into a new project: keep it working when a file
+  mentions the module path or the app name.
+- macOS runs bash 3.2: an empty array is `${args[@]+"${args[@]}"}` under `set -u`.
 
-# Commands
+## Generated files: never edit
 
-Every command is a mise task, listed with when to use it in [docs/commands.md](docs/commands.md), generated from the
-task descriptions (`mise run docs:commands`; `test:go` fails when it's stale). Don't hand-list commands here or in the
-README: change a task's description. The rules:
+`*.x.go` (`go tool gsx generate`; not committed), `locales/*_msg_gen.go` (`mise run i18n:messages`),
+`internal/i18n/cldr/data_cldr.go` and `internal/i18n/testdata/numbers.json` (`mise run i18n:generate`),
+`docs/commands.md` (`mise run docs:commands`), and what `gsxui` manages (`gsxui.json` lists it).
 
-- Before pushing: `ci/check.sh`, exactly what CI runs (or `mise run check`, then `mise run e2e` after UI, board or JS
-  changes). CI (`.github/workflows/check.yml` →
-  `ci/check.sh`) runs the same on every push and PR: the build beside the Go tests, smoke, then Chrome, and prints
-  where the time went (also on the run's summary page). On CI it installs only the tools CI runs. `build` and `i18n:messages` have `sources`/`outputs` and are
-  skipped when nothing they read changed: a new input to the wasm (an embedded file, a new tool pin file) goes in
-  `sources`.
-- CI is strict no-Node: shell `run:` steps only. Don't add `actions/checkout`, `jdx/mise-action` or any JavaScript action;
-  new tools go in `mise.toml` so `ci/check.sh` picks them up.
-- Shell lives in `ci/`, one script per job: `wasm-build.sh` (both builds, one at a time: `.build.lock`),
-  `with-workerd.sh` (runs a command against local workerd and always stops it: smoke, e2e, load), `deploy.sh`
-  (production, staging, previews: modules, assets and bindings in one place; a new `worker/*.mjs` ships with no
-  edits), `check.sh` (CI), `workers-builds.sh` (Cloudflare's builds). Tasks call them; checks are Go tests
-  (`e2e/smoke`, `e2e`), not curl in bash.
-- Dev loops: `dev:native` for UI work (seconds, no Worker runtime), `dev` for the real runtime (`build:dev`, seconds per
-  save). Stopping `gsx dev` can leave workerd running: `with-workerd.sh` refuses to start then; stop it by PID.
-  JS/CSS-only edits need no Go build: `mise run assets`, reload.
-- `mise run rename -- <module path> <app name>` turns the template into a new project; keep it working when you add
-  files that mention the module path or the app name (it's verified by renaming a scratch clone and running `check`).
+## UI: gsx, gsxui, htmx 4
 
-# UI (gsx + gsxui + htmx 4)
+- **Nothing hand-written in the GUI.** Every visual piece is a gsxui component (`gsxui add <name>` at the repo root,
+  never copied by hand), the gsxui theme/preset, or a pattern from gsxui's own site (https://ui.gsxhq.dev; cite it).
+  No custom CSS files.
+- **htmx 4 syntax only:** explicit `:inherited`, `hx-ignore` (not `hx-disable`), `htmx:after:swap`-style event names,
+  no `hx-ext` / `hx-vars` / `hx-params`. gsx's completions still offer htmx 2 attributes: ignore them.
+- JS-valued attributes (`hx-on:*`, `hx-live`, `:text`, …) are gsx `` js`…` `` literals. Format `.gsx` with
+  `go tool gsx fmt -w .`.
+- Handlers render with `s.render(w, r, name, node)` (`httpx.Render`): never string-built HTML or `html/template`.
+- A full page must not render `hx-swap-oob` elements it wants kept: boosted navigation drops them. Only pushes and
+  POST responses carry `BoardFragment` (OOB).
+- Everything every page needs loads in `Layout` (`views/layout.gsx`): a boosted navigation doesn't run a page's own
+  head scripts. `<meta name="htmx-config">` stays before htmx's script.
 
-- **No Node.** No `node`, `npm`, `npx` or Vite. Use `go tool gsx`, `gsxui` and the standalone `tailwindcss` (all pinned in mise).
-- Never edit or commit `*.x.go`; they're generated by `go tool gsx generate`. Format `.gsx` with `go tool gsx fmt -w .`.
-- Nested Go modules with `.gsx` are fine since gsx v0.1.1: each resolves its own `gsx.toml` (walking up; an empty one opts
-  out of inheritance). Hidden directories (`.upstream/`) are skipped. No-Node mode is `no_web = true` in `gsx.toml`.
-- Add components with `gsxui add <name>` at the repo root. Don't hand-copy from upstream.
-- **htmx 4 syntax only:** explicit `:inherited`, `hx-ignore` (not `hx-disable`) to skip processing, `htmx:after:swap`-style
-  event names, no `hx-ext` / `hx-vars` / `hx-params`. gsx's editor completions still suggest htmx 2 attributes; ignore them.
-- JS-valued attributes (`hx-on:*`, `hx-live`, `:text`, …) use gsx `` js`…` `` literals.
-- **GUI: nothing hand-written.** Every visual piece is a gsxui component (`gsxui add`), the gsxui theme/preset, or a pattern
-  copied from gsxui's own site (cite the upstream path). No custom CSS files. The theme toggle is
-  `views/theme.gsx` (`ThemeScript`/`ThemeToggle`).
-- `.upstream/gsxui` is a gitignored upstream checkout (`mise run upstream:gsxui:serve`), the source for copied site patterns.
-  Never modify it.
-- Pages are gsx in `views/` and share `Layout`, which loads everything every page needs (htmx-config meta, htmx, hx-live,
-  hx-ws, the board's version guard, gsxui behaviours) because only the nav is boosted (`outerMorph`): a boosted navigation
-  doesn't run a page's own head scripts.
-- **Out-of-band content and boost don't mix on full pages:** a page must not render elements with `hx-swap-oob` it wants
-  kept (a boosted navigation treats them as OOB and drops them when the old page has no target). The board page renders
-  `#board` without it; only pushes and POST responses use `BoardFragment` (OOB).
-- Handlers render through `s.render(w, r, name, node)` (`kit/httpx.Render`): it buffers the HTML and sets `Content-Length`. Keep it: streamed
-  (chunked) responses broke htmx history restore (Back) under local workerd.
+## Languages and search
 
-# Search (crawl rules)
+- No literal user-facing text in `views/` or handlers: `M(ctx).Key(args)` in views, `locales.For(r.Context())` in
+  handlers, from `locales/*.toml` (ICU MessageFormat; `en.toml` is the source). Messages use only `{n, number}` and
+  `{n, number, integer}`. Brand names, code and machine values get `translate="no"`. `TestNoHardcodedText` checks.
+- A translation uses the source's arguments with the same kinds. `TestShippedLocalesComplete` keeps every shipped
+  locale complete; the locale list is `I18N_LOCALES` in `mise.toml`.
+- User text inside a message: `Isolate(Loc(ctx).Dir(), s)`; in its own element: `dir="auto"`.
+- Every in-app `href`/`hx-*` URL goes through `URL(ctx, "/path")` (not `/static/`, `/assets/`, `/gsxui/`, `/live/`).
+  Logical Tailwind classes only (`ms-`, `pe-`, `start-`, `text-end`, …) so RTL mirrors (`TestLogicalClasses`).
+- Dates and numbers for readers go through Intl, never `time.Format`: `LocalTime`, `RelativeTime`, `Elapsed`,
+  `IntlText` (`views/intl.gsx`). How: `internal/i18n/doc.go`.
+- A new page: a translated title and its own translated `description` key to `Layout`, an entry in
+  `views.SitemapPages`. A query parameter that makes a different page goes in `pageKey`. Titles ≤ 60 and descriptions
+  ≤ 160 wide (`TestSnippetWidths`).
+- `/robots.txt` keeps one `*` group with no `Disallow` (`TestRobotsTxt`); absolute URLs come from `httpx.Origin(r)`,
+  never a hard-coded host. No page routes under `/fragments/` (noindex) and no robots `Disallow` for them.
+- Search tasks talk through exit codes (0 ok, 1 problems) and `--json`: never scrape their text. Writes to Google
+  (`search:submit`, `search:setup`) ask first; agents pass `mise run --yes` only with the user's OK.
 
-- `/robots.txt` (`robots.go`) and `/sitemap.xml` are Go routes: absolute URLs come from `httpx.Origin(r)`, never a
-  hard-coded host, so they're right locally, on the custom domain and after `mise run rename`. robots.txt keeps exactly
-  one `*` group with no `Disallow` and no named Google groups (`TestRobotsTxt`); both answer only at the root.
-- Fragments go under `/fragments/`: `noindexNonPages` marks them, `/healthz` and every non-GET/HEAD request
-  `X-Robots-Tag: noindex`. Don't add page routes under `/fragments/`, and don't add a robots `Disallow` for them.
-- New pages: pass a translated title and a dedicated translated `description` key to `Layout` (not the visible intro;
-  canonical, hreflang and Open Graph follow), add them to `views.SitemapPages`, and keep `TestOpenGraph`,
-  `TestCanonicalAndHreflang`, `TestSitemap` and `TestSnippetWidths` green (title ≤ 60, description ≤ 160 wide, CJK
-  counts double: `kit/searchconsole.SnippetWidth`).
-- `mise run deploy` runs `search:audit` afterwards (`depends_post`): robots.txt and every sitemap URL fetched live as
-  Googlebot must pass.
-- Search tasks (`tasks/search.toml`, header lists them in order of use) connect through mise, not by hand: Search Console
-  tasks depend on the hidden `search:access` check, `search:submit` also on `search:audit`, and outward writes
-  (`search:submit`, `search:setup`) use `confirm` (agents pass `mise run --yes`). Exit codes are the contract (0 ok, 1
-  problems or no access); `--json` gives one JSON document on stdout for agents and CI. Don't scrape the text output.
-- No batch tab opening: `search:todo` opens Search Console only for real problems, `search:inspect /path` opens one URL
-  (Google's *Test live URL*), `search:google` only prints links.
-- Arrays in task scripts: macOS runs bash 3.2, where `"${args[@]}"` on an empty array fails under `set -u`; use
-  `${args[@]+"${args[@]}"}`.
+## Workers and TinyGo
 
-# Cloudflare Workers
+- **workers-go `v0.36.0` exactly** (`github.com/syumai/workers-go`). What ships is built by charter's
+  `go tool workerbuild` (TinyGo by default, `WORKER_COMPILER`); standard Go only for local code and `build:dev`.
+- **TinyGo gaps:** register plain paths (`"/greet"`) and check the method with `httpx.Allow`, never `"GET /x"` or
+  `{$}`; `html/template` panics. Reflection-heavy code needs the workerd smoke test, not just a build. Run
+  `mise run check` after changing handlers: `go test` can't see TinyGo.
+- **Memory between requests is a cache, never state:** any request may start a new runtime. Package variables hold
+  only what is the same for every request; shared state needs a Cloudflare binding.
+- `cloudflare/*` packages import `syscall/js`: call them from `platform_js.go` with a `platform_other.go` twin.
+  Cloudflare's request data is `transport.CFOf(r)`; workers-go's `fetch.NewIncomingProperties` panics under charter's
+  runtime.
+- JS only in `worker/index.mjs` (entry), `worker/room.mjs` (Durable Object), `worker/intl.mjs` (Intl) and `workerd/`
+  (local shims). Keep it logic-free; logic stays in Go. The topic and locale rules are `internal/live`'s
+  (`TestWorkerJSMatchesLive`).
 
-- **No Node, no wrangler.** No `npm create cloudflare`, `wrangler`, or miniflare. Run locally with `workerd`, deploy with
-  charter's `go tool workerdeploy` (Cloudflare REST API; `ci/deploy.sh`). Don't include the joeblew999 `tool-wrangler.toml` / `tool-cf.toml`.
-- **workers-go `v0.36.0` exactly**, module path `github.com/syumai/workers-go` (never the old `github.com/syumai/workers`).
-- **TinyGo for everything that ships to Workers, built by charter's `go tool workerbuild`**
-  (github.com/joeblew999/charter/go/lib, pinned in go.mod): TinyGo with the runtime patch for tinygo#5800, an 8 MB heap,
-  128 KB stacks, `-opt=z`, charter's Worker glue copied into `build/`, and a cache that gives back an unchanged build in
-  under a second. Standard Go only for local-only code and `build:dev`: `go run .`, `go test`/`go vet`, the deploy tool.
-- **charter's runtime** (`transport.Run` in `main.go`, `build/go.mjs` in `worker/index.mjs`): Go runtimes are kept between
-  requests and two are started while the Worker loads. Cloudflare's request data is `transport.CFOf(r)` (time zone,
-  country, …); workers-go's `fetch.NewIncomingProperties` panics under it. Measured on Workers, CPU per request:
-  charter's docs/self/benchmarks.md.
-- Tasks live in `tasks/app.toml`: `mise run {dev,serve,run,test,smoke,load,deploy,smoke-remote}`. The Worker and D1 name is
-  `APP_NAME` in `mise.toml` `[env]`.
-  `APP_DOMAIN` (same file) is the custom domain (go-htmx4.ubuntusoftware.net, zone ubuntusoftware.net): `mise run deploy`
-  attaches it as a Workers Custom Domain and passes it as a binding; `host.go` then 301s `*.workers.dev` GET/HEAD requests
-  to it (never `/healthz`, `/live/*` or form posts; never local hosts), so canonical, hreflang, og:url, sitemap and
-  robots.txt carry one host. The zone also hosts other projects (apex/www Pages site, remy, ifcsketch, auth): only ever
-  add `go-htmx4.*` records, and `workerdeploy` refuses hostnames attached to other Workers. `mise run rename` clears it.
-  `dev` is `gsx dev` driving the TinyGo build + workerd (`gsx.toml` `[dev]`). Static Assets are assembled into `dist/site`
-  (`mise run assets`: gsxui CSS via standalone Tailwind, `/gsxui/` behaviours, fonts). `<meta name="htmx-config">` must
-  render before htmx's script (it does, in `views/layout.gsx`), or hx-ws ignores it.
-  Always run `mise run test` after changing handlers: it curls the TinyGo build under workerd, which `go test` can't do.
-- **TinyGo 0.43 gaps:** its `net/http` `ServeMux` is pre-Go 1.22, so register plain paths (`"/greet"`) and check the method
-  with `allow(w, r, method)` (`kit/httpx.Allow`), never `"GET /x"` or `{$}`. `html/template` panics at runtime: render
-  markup with gsx (`s.render`), never string-built HTML. Anything reflection-heavy needs a workerd smoke test, not just a build.
-- **Memory between requests is a cache, never state:** a Go runtime serves many requests, but any one may be new (another
-  isolate, a full heap, a deploy). Keep only what is the same for every request in package variables (the page buffers,
-  merged classes); shared state needs a Cloudflare binding.
-- `cloudflare/*` packages import `syscall/js`: call them from `platform_js.go` (`//go:build js && wasm`) with a
-  `platform_other.go` (`//go:build !js`) twin.
-- **Credentials only via fnox:** `fnox exec -- go tool workerdeploy …` or `fnox exec -- sh -c '…$CLOUDFLARE_API_TOKEN…'`
-  (single-quoted so the variable expands after fnox injects it). Never print tokens or add `.env` files.
-- **Deploys and other Cloudflare writes are outward-facing:** get an explicit OK first.
-- **Worker Previews** (`mise run preview <name>`, run by Workers Builds for every pushed branch, PR #6):
-  `go tool workerdeploy -preview`/`-delete-preview` over the Previews REST API. Previews get `APP_DOMAIN=` (no redirect),
-  `APP_PREVIEW=1` (every response noindex: `TestPreviewNoindex`), the shared `$APP_NAME-preview` D1 and their own
-  Durable Object storage. Bindings for every deploy kind live in one place, `ci/deploy.sh`. Production deploys
-  keep previews enabled. Branch previews are pre-approved; production deploys still need an OK.
-  One build per commit: CI (`ci/check.sh`) runs `mise run build`, then `bin/deploy -publish-build` puts the build
-  (with a `preview-build.json` manifest) and the deploy tool on the `preview-builds` pre-release and
-  `-comment-pr` posts the URL. Workers Builds (`ci/workers-builds.sh`, trigger "$APP_NAME branch previews", set up
-  by `mise run cf:builds`) fetches the tool, `-fetch-build` verifies before extracting, deploys `<branch slug>`
-  and `-prune-previews` deletes previews of deleted branches. Fallback: compile on Cloudflare. Logic lives in
-  charter's `workerdeploy` (tested there with fake GitHub and Cloudflare APIs); keep the scripts thin.
-  The `main` trigger runs the same commands: main deploys staging, its own Worker `$APP_NAME-staging` (`mise run staging`: no domain, noindex, own D1).
-- **Production releases** (`mise run release v1.3`, which pushes a `release/v1.3` branch, or a v* tag from GitHub's
-  Releases page): CI tests the commit, checks it's on `main`, tags it (for a release branch, then deletes the branch),
-  then moves the `production` branch to it with its `GITHUB_TOKEN`; the branch
-  trigger fires for it like any branch, and `ci/workers-builds.sh` deploys production for that branch name with
-  Cloudflare's build token (Cloudflare limits a Worker to two triggers, so there's no third). No Cloudflare
-  credential is in GitHub or on a laptop. Roll back by tagging an older commit of main. Never push to `production`
-  by hand; `mise run deploy` (fnox credentials) stays as the manual path. A release is a production deploy: OK first.
-- **Shared board (live updates):** D1 is the source of truth; `worker/room.mjs` (one Durable Object per topic) only fans out.
-  - Every app write goes through a Go handler that writes D1 **then** publishes the whole `#board` fragment with its
-    `data-version`. Writes made straight to D1 (dashboard, REST) are not pushed.
-  - **`board.version` must never go backwards.** The Room drops publishes whose version isn't above its cache, so never
-    delete `board` rows or reset versions; to clear a topic, delete notes, zero `value` and bump `version`.
-  - D1 has no interactive transactions (`db.Begin` fails): use single statements with `RETURNING`.
-  - JS is allowed only for the Worker entry (`worker/index.mjs`), Durable Object classes (`worker/room.mjs`) and local-only workerd shims
-    (`workerd/`). Keep them logic-free; board logic stays in Go. The one exception is presence: only the Room knows its
-    sockets, so it renders `<span id="presence" hx-swap-oob="true">N online</span>` itself (coalesced like board pushes;
-    count sockets with `readyState < CLOSING`, or a lone visitor is never counted).
-    `webSocketClose` must answer 1005/1006 with `ws.close(1000)`: a bare browser `close()` (hx-ws on element removal or a
-    hidden tab) arrives as 1005, which can't be echoed, and the socket would stay half-closed and "online".
-  - Board markup is gsx (`views/board.gsx`: `BoardPage`, `BoardFragment`). `BoardFragment` is the wire format the Room and the
-    page's version guard rely on: `TestBoardFragmentWireFormat` must keep passing. Never edit or commit `*.x.go`
-    (`mise run generate`).
-  - **Abuse limits** (keep them in sync): the `WRITES` rate limit is 60 writes / 10 s per client IP in both the deploy
-    (`-ratelimit WRITES=1001:60/10`, `tasks/app.toml`) and the local stand-in (`workerd/local-entry.mjs`); every board
-    write handler calls `s.limited` before writing. Notes are pruned to `keepNotes` (50) per topic in the same request.
-    `worker/room.mjs` `MAX_SOCKETS` (1,000) refuses further sockets with 503; `mise run load` checks it. The smoke's
-    and e2e's 429 checks use up the local write budget: e2e's `TestE2E` runs every other check in parallel first, then
-    the write limit alone (`e2e/e2e_test.go`); add new browser checks to its list.
-  - Schema changes: add `migrations/NNNN_name.sql` (SQLite, idempotent). `workerdeploy -migrations` applies it
-    to D1 once (tracked in `_migrations`); `workerd/local-d1.mjs` must import it for local runs.
-  - Durable Object classes change through `-migration-tag`/`-new-sqlite-class` in the deploy task; bump the tag for a new class.
-  - Run `mise run test` (smoke includes a 2-socket push via `cmd/wsload`) after any board change; use
-    `mise run load` for the 1,000-socket check.
-- Ports: workerd 8913 / `go run .` 9913. 8787 and 8797 are often taken
-  by other projects' wrangler. Local Durable Object state lives in `.workerd-state/` (gitignored).
-- `.upstream/workers-go` is a gitignored read-only checkout (`mise run upstream:workers-go:fetch`); never modify or build in it.
+## Cloudflare: outward-facing
 
-# Project Structure
+- **Credentials only via fnox** (`fnox exec -- …`; single-quote `sh -c '…$CLOUDFLARE_API_TOKEN…'` so it expands after
+  fnox). Never print tokens or add `.env` files.
+- **Get an explicit OK before a production deploy, a release, or any Cloudflare write.** Branch previews are
+  pre-approved. Never push to `production` by hand: CI moves it on a release.
+- Deploy bindings for every kind (production, staging, preview) live in `ci/deploy.sh` only.
+- The zone hosts other projects: only ever add `go-htmx4.*` records.
 
-- repo root - the app (`main.go` + `board.go` handlers, `views/` pages + fragments (`.gsx`, package `views`), `ui/` vendored by gsxui,
-  `store_{sql,mem}.go`, `platform_{js,other}.go`, `worker/index.mjs` entry + `worker/room.mjs` Durable Object, `migrations/`, `static/` (vendored htmx + hx-ws, `intl.js`),
-  `web/gsxui/` (behaviours + CSS entry), `workerd/` (config.capnp + local-only shims), `cmd/` (wsload, searchconsole, msggen: flag parsing over kit/)).
-- `kit/` - importable packages: `searchconsole` (Search Console API), `wsload` (WebSocket checks), `live`
-  (Room publish, topic rule), `ratelimit` (rate limiting binding), `httpx` (TinyGo-safe HTTP helpers), `i18n` (locales, messages, plural rules;
-  `i18n/cldr` generated table, `i18n/msggen` message generator, `i18n/legacy` the earlier server-side Intl as its own
-  module). Deploying and live logs are charter's `go tool workerdeploy` / `workertail` (pinned in go.mod).
-- `tasks/` - mise task files included from `mise.toml`.
+## The shared board
 
-# kit/ (importable packages)
-
-- Other repos import `kit/*`: it must never import the app (`views`, `ui`, `cmd`, package main). `mise run test` fails if it
-  does. Keep exported APIs documented (`// Package …`, examples) and stable; errors are returned, not `log.Fatal`.
-- `kit/httpx`, `kit/live` and `kit/ratelimit` are compiled into the Worker: TinyGo-safe only (no reflection-heavy code, no regexp in hot
-  paths). `kit/wsload` and `kit/searchconsole` are local tooling (standard Go).
-- Tests never call Google or Cloudflare: `kit/searchconsole` uses `httptest` fakes of the API, `kit/wsload` a fake Room. Extend the
-  fakes when you add an API call.
-- `cmd/*` stay flag parsing only; logic goes in `kit/`.
-- The topic rule and version header live in `kit/live`; `TestWorkerJSMatchesKitLive` checks `worker/index.mjs` and
-  `worker/room.mjs` use the same.
-
-# kit/i18n
-
-- **One Intl, run twice.** Dates, times, zones, relative times, durations, numbers, currencies, units, lists, plural
-  rules, display names, sorting, segmentation and locale info all go through `worker/intl.mjs` (`format(lang, kind,
-  value, opts, extra)`):
-  - on the server, Go calls it with the Worker's own V8 Intl (`kit/i18n` `Locale.Format`, views `IntlText`), so pages
-    arrive finished, and emails or PDFs can use the same call; there is no CLDR formatting data in the wasm;
-  - in the browser, `static/intl.js` imports the same module (assets copy it to `/static/intl-core.mjs`) and
-    re-formats only what the server couldn't know: the viewer's own zone and relative times as time passes. A browser
-    without full data for the page's language keeps the server's text.
-  - Markup carries the raw value and options: `<time datetime data-intl="datetime" data-opts='{…}'>`,
-    `<data value data-intl="number">`; `data-opts` is a JSON object literal in the views (no JSON encoder in the
-    Worker). A translated message around a value uses `data-template` with `slot` as its argument.
-  - Under `go run`/`go test` there is no JS runtime: the text is a plain fallback (`2026-07-04 15:30 UTC`). The smoke
-    test (workerd) checks the real server output, `mise run e2e` the browser's.
-  - **Round trip:** forms send canonical values back (decimal strings, UTC instants, ISO codes). Intl doesn't
-    parse; `parseNumber` (`intl.parseNumber` in the browser, `Locale.ParseNumber` on the server) reads a number
-    typed the language's way ("1.234,5") back to "1234.5".
-  - The viewer's chosen zone and clock (`tz`/`hc` cookies, `POST /preferences`) reach the browser as
-    `<html data-tz data-hc>`; the server formats in them, else in the connection's zone (`connectionTimeZone`).
-- **The server keeps what chooses wording**: `kit/i18n` is the shipped locales, the request's locale, messages, plural
-  rules and plain numbers (`Num(ctx, n)`, `{n, number}`: the locale's digits and grouping). It compiles into the
-  Worker; `kit/i18n/cldr` is its generated table (a few KB).
-  - Never hand-edit `kit/i18n/cldr/data_cldr.go`. The locale list is `I18N_LOCALES` in `mise.toml`;
-    `mise run i18n:generate` regenerates it (and `kit/i18n/testdata/numbers.json`, which `TestFormatNumberGolden`
-    checks plain numbers against) with `kit/i18n/legacy`'s generator.
-  - Messages may use `{n, number}` and `{n, number, integer}` only; msggen rejects richer styles (they're the
-    browser's job).
-- **`kit/i18n/legacy`** is the earlier server-side Intl implementation (CLDR-exact formatting, conformance goldens,
-  browser drift checks), kept untouched as its own Go module: out of the build, out of `mise run check`.
-  `mise run i18n:legacy` runs its tests; its [README](kit/i18n/legacy/README.md) covers its reference data.
-- **Locale URLs in the app** (`i18n.go`):
-  - The default locale (`en`) is unprefixed; every other locale is `/<lowercase id>/…`.
-  - `/en/…` and mixed-case prefixes 301 to the canonical URL.
-  - No Accept-Language redirects. A page view remembers its locale in the `locale` cookie, and only the bare `/`
-    follows it.
-- Every in-app `href`/`hx-*` URL in views goes through `URL(ctx, "/path")`. `/static/`, `/assets/`, `/gsxui/` and
-  `/live/` don't. `TestLocalizedURLs` checks every page in every locale.
-- Views use logical Tailwind classes only (`ms-`/`me-`/`ps-`/`pe-`/`start-`/`end-`/`text-start`/`text-end`), so
-  `dir="rtl"` mirrors. `TestLogicalClasses` fails on physical ones.
-- **UI text** comes from `locales/*.toml` (ICU MessageFormat 1: `{name}`, `{n, number[, integer]}`, plural with `=N`
-  and `offset:`, selectordinal, select; flattened dotted keys). `en.toml` is the source.
-  - Views use `M(ctx).Key(args)`, handlers use `locales.For(r.Context())`. No literal user-facing text in `views/` or
-    handlers.
-  - Brand names, code and machine values carry `translate="no"`; browser-formatted values (`data-intl`) and
-    server-computed locale data (`data-i18n="cldr"`) are exempt too. `TestNoHardcodedText` renders everything with
-    en-XA pseudo messages and fails on any other ASCII word.
-  - User text inside a message is wrapped with `Isolate(Loc(ctx).Dir(), s)`; user text in its own element gets
-    `dir="auto"`.
-  - Never hand-edit `locales/*_msg_gen.go`: `mise run i18n:messages` (part of `mise run generate`) regenerates it,
-    and `TestGeneratedUpToDate` fails when it's stale.
-  - A translation must use the source's arguments with the same kinds. A missing key comes from the CLDR parent
-    chain (`en-IN.toml` holds only what differs from `en`).
-- A locale whose catalog isn't complete (`locales.Complete`) is served with `X-Robots-Tag: noindex`.
-  `TestShippedLocalesComplete` keeps every shipped locale complete.
-- The language list is plain links in the footer, outside the boosted nav: a locale switch must be a full page load.
-- **SEO head and sitemap** (`views/seo.go`):
-  - Every page renders through `Layout(title, description, path)` with a translated description.
-  - Layout emits the canonical URL and reciprocal `hreflang` links for all locales plus `x-default`, absolute from
-    `httpx.Origin`.
-  - Only `?topic=` (non-default) survives into a canonical URL. A new query parameter that makes a different page
-    must be added to `pageKey`.
-  - A new indexable page goes into `views.SitemapPages`.
-  - `TestCanonicalAndHreflang` and `TestSitemap` check reciprocity against the pages.
-- **Dates** are never formatted with `time.Format` for readers: views use `<LocalTime t={…} opts={`{"dateStyle":"full"}`}/>`,
-  `<RelativeTime …/>` and `<Elapsed d={…}/>` (`views/intl.gsx`), whose UTC/plain text is only the fallback.
-  Fragments pushed to every viewer (the board) work the same way: each browser words them for its viewer.
-
-# Code Style
-
-- Follow standard Go conventions (Effective Go); standard library only unless there is a clear need.
-- htmx endpoints return HTML fragments rendered from gsx components via `s.render(...)`. No string-built HTML, no
-  `html/template` (it panics under TinyGo).
+- D1 is the source of truth; the Room only fans out. Every write goes through a Go handler that writes D1 **then**
+  publishes the whole `#board` fragment with its `data-version`.
+- **`board.version` never goes backwards:** never delete `board` rows or reset versions; to clear a topic, delete
+  notes, zero `value` and bump `version`.
+- D1 has no interactive transactions: single statements with `RETURNING`.
+- `BoardFragment` is the wire format the Room and the version guard rely on: `TestBoardFragmentWireFormat` keeps it.
+- Limits stay in sync: the `WRITES` rate limit (60 / 10 s per IP) in `ci/deploy.sh` and `workerd/local-entry.mjs`;
+  every write handler calls `s.limited` first; `keepNotes` (50); `MAX_SOCKETS` (1,000) in `worker/room.mjs`.
+  New browser checks go into `TestE2E`'s parallel list: the write-limit check runs alone after it.
+- Schema changes: a new idempotent `migrations/NNNN_name.sql`, also imported by `workerd/local-d1.mjs`. A new Durable
+  Object class bumps `-migration-tag` in `ci/deploy.sh`.
+- After a board change: `mise run check`; `mise run load` for the 1,000-socket check.

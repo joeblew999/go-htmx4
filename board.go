@@ -12,8 +12,8 @@ import (
 	"bytes"
 	"context"
 	"errors"
-	"github.com/joeblew999/go-htmx4/kit/i18n"
-	"github.com/joeblew999/go-htmx4/kit/i18n/cldr"
+	"github.com/joeblew999/go-htmx4/internal/i18n"
+	"github.com/joeblew999/go-htmx4/internal/i18n/cldr"
 	"github.com/joeblew999/go-htmx4/locales"
 	"log"
 	"net/http"
@@ -21,9 +21,9 @@ import (
 	"strings"
 	"unicode/utf8"
 
-	"github.com/joeblew999/go-htmx4/kit/httpx"
-	"github.com/joeblew999/go-htmx4/kit/live"
-	"github.com/joeblew999/go-htmx4/kit/ratelimit"
+	"github.com/joeblew999/go-htmx4/internal/httpx"
+	"github.com/joeblew999/go-htmx4/internal/live"
+	"github.com/joeblew999/go-htmx4/internal/ratelimit"
 	"github.com/joeblew999/go-htmx4/views"
 )
 

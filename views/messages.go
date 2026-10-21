@@ -2,7 +2,6 @@ package views
 
 import (
 	"context"
-	"strconv"
 
 	"github.com/joeblew999/go-htmx4/locales"
 	uii18n "github.com/joeblew999/go-htmx4/ui/i18n"
@@ -22,9 +21,6 @@ func M(ctx context.Context) locales.Messages {
 	}
 	return locales.ForLocale(Loc(ctx))
 }
-
-// itoa is for attribute values that must stay ASCII digits (data-version, ids).
-func itoa(v int64) string { return strconv.FormatInt(v, 10) }
 
 // Isolate wraps user text placed inside a translated sentence in Unicode isolates (FSI … PDI) when its direction
 // differs from the page's (dir "ltr" or "rtl"), so an Arabic name in an English sentence (or a Latin one in

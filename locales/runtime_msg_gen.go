@@ -5,8 +5,8 @@ package locales
 import (
 	"context"
 
-	"github.com/joeblew999/go-htmx4/kit/i18n"
-	"github.com/joeblew999/go-htmx4/kit/i18n/cldr"
+	"github.com/joeblew999/go-htmx4/internal/i18n"
+	"github.com/joeblew999/go-htmx4/internal/i18n/cldr"
 )
 
 func defaultLocale() *i18n.Locale { return cldr.Data.MustLocale(catalogs[0].Locale) }
@@ -17,7 +17,7 @@ type Messages struct {
 	cat *i18n.Catalog
 }
 
-// For returns the messages for the request's locale (kit/i18n FromContext), or the source locale's.
+// For returns the messages for the request's locale (internal/i18n FromContext), or the source locale's.
 func For(ctx context.Context) Messages {
 	if r, ok := i18n.FromContext(ctx); ok {
 		return ForLocale(r.Locale)
