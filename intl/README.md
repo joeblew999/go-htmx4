@@ -73,7 +73,8 @@ code:
 - **gsxui:** its components' own text (`i18n.T`, the English as the id) is generated from the catalogs.
 - **gsx's own checks:** `intl:check` runs `gsx generate`, `gsx fmt` and the `gsx` skill's `find-smells.sh` on the
   app's markup. The smell finder can't tell one shape from a component call, a message with arguments alone on a line
-  (`{ locales.Notes(n) }`), and `intl:check` lets that one through. `gsx info` lists intl's filters and renderers.
+  (`{ locales.Notes(n) }`), and `intl:check` lets that one through
+  ([gsx#253](https://github.com/gsxhq/gsx/issues/253)). `gsx info` lists intl's filters and renderers.
 
 ## Set up an app
 
@@ -163,6 +164,7 @@ de = "Address the reader as Sie."
 | Write | Renders |
 |---|---|
 | `{ locales.Key }`, `{ locales.Key(args…) }` | a message, in text or an attribute; text arguments are bidi-isolated |
+| `{ locales.Placed(intl.Date(t, intl.Options("dateStyle", "long"))) }` | a formatted value inside a message. A text argument takes a `string`, another message or a Value; a `{n, number}` or `plural` one takes any Go number. gsx allows no pipeline inside a call's arguments, so the Value is written in Go |
 | `{ t \|> date }`, `{ t \|> date("dateStyle", "full", "calendar", "hebrew") }` | `Intl.DateTimeFormat`, in a `<time>` |
 | `{ start \|> dateRange(end, opts) }` | its `formatRange` |
 | `{ t \|> since }` | `Intl.RelativeTimeFormat` in the largest readable unit, kept fresh by the browser |

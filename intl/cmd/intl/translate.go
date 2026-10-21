@@ -24,7 +24,8 @@ func translate(c config.Config, ids []string) int {
 		fmt.Fprintln(os.Stderr, "✗ go tool intl translate runs Claude Code (https://code.claude.com): install it, or translate by hand (go tool intl todo)")
 		return 1
 	}
-	check(writeSkill(c.Root))
+	_, err = writeSkill(c.Root)
+	check(err)
 	p := read(c)
 	var work []*catalog.Locale
 	for _, l := range pick(p, ids) {
@@ -61,9 +62,10 @@ func translate(c config.Config, ids []string) int {
 				"messages of %[1]s, nothing else. Other languages are being translated at the same time, so edit only %[3]s, never run "+
 				"go tool intl gen, and check your work with go tool intl check %[1]s until it passes. Then say in one line what you did.",
 				l.ID, todo, rel)
-			// Fenced to its own language: it may edit only its catalog, and confirm only its own stale messages.
+			// Fenced to its own language: it may edit only its catalog (an Edit rule covers every file-editing tool,
+			// Write too), and confirm only its own stale messages.
 			args := []string{"-p", prompt, "--allowedTools",
-				"Edit(" + rel + ")", "Write(" + rel + ")", "Read", "Glob", "Grep",
+				"Edit(" + rel + ")", "Read", "Glob", "Grep",
 				"Bash(go tool intl todo -json " + l.ID + ")", "Bash(go tool intl check " + l.ID + ")", "Bash(go tool intl confirm " + l.ID + ":*)"}
 			if c.Translate.Model != "" {
 				args = append(args, "--model", c.Translate.Model)

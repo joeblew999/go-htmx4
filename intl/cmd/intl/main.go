@@ -194,12 +194,20 @@ func main() {
 		}
 		check(read(c).Generate(os.Stderr))
 	case "skill":
-		check(writeSkill(c.Root))
+		changed, err := writeSkill(c.Root)
+		check(err)
+		if !changed {
+			fmt.Println("✓ .claude/skills/intl-translate is up to date")
+		}
 	case "tasks":
 		f := flag.NewFlagSet("tasks", flag.ExitOnError)
 		out := f.String("o", filepath.Join(c.Root, ".mise", "tasks", "intl.toml"), "the task file to write")
 		f.Parse(args)
-		check(writeTasks(*out))
+		changed, err := writeTasks(c.Root, *out)
+		check(err)
+		if !changed {
+			fmt.Println("✓ " + *out + " is up to date")
+		}
 	case "assets":
 		f := flag.NewFlagSet("assets", flag.ExitOnError)
 		worker := f.String("worker", "", "directory for the Worker's modules")
@@ -252,8 +260,10 @@ func initApp(args []string) {
 		o = setup.Options{Locales: c.Locales, Catalogs: c.Catalogs, Gsxui: c.Gsxui} // already set up: keep its choices
 	}
 	check(setup.Init(root, o, os.Stdout))
-	check(writeTasks(filepath.Join(root, ".mise", "tasks", "intl.toml")))
-	check(writeSkill(root))
+	_, err = writeTasks(root, filepath.Join(root, ".mise", "tasks", "intl.toml"))
+	check(err)
+	_, err = writeSkill(root)
+	check(err)
 	c, err := config.Find(root)
 	check(err)
 	check(read(c).Generate(os.Stderr))
@@ -304,17 +314,13 @@ func markup(c config.Config) ([]string, error) {
 	return out, err
 }
 
-func writeTasks(path string) error {
-	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
-		return err
-	}
-	fmt.Println(path)
-	return os.WriteFile(path, intlmise.Tasks, 0o644)
-}
+// writeTasks writes intl's mise tasks to path, reporting whether they changed.
+func writeTasks(root, path string) (bool, error) { return writeChanged(root, path, intlmise.Tasks) }
 
-func writeSkill(root string) error {
+// writeSkill writes the intl-translate skill into root's .claude/skills, reporting whether it changed.
+func writeSkill(root string) (changed bool, err error) {
 	dir := filepath.Join(root, ".claude", "skills")
-	return fs.WalkDir(skills.FS, ".", func(path string, d fs.DirEntry, err error) error {
+	err = fs.WalkDir(skills.FS, ".", func(path string, d fs.DirEntry, err error) error {
 		if err != nil || d.IsDir() {
 			return err
 		}
@@ -322,13 +328,29 @@ func writeSkill(root string) error {
 		if err != nil {
 			return err
 		}
-		dst := filepath.Join(dir, path)
-		if err := os.MkdirAll(filepath.Dir(dst), 0o755); err != nil {
-			return err
-		}
-		fmt.Println(dst)
-		return os.WriteFile(dst, b, 0o644)
+		c, err := writeChanged(root, filepath.Join(dir, path), b)
+		changed = changed || c
+		return err
 	})
+	return changed, err
+}
+
+// writeChanged writes b to path unless it holds b already, and names what it wrote relative to root.
+func writeChanged(root, path string, b []byte) (bool, error) {
+	if old, err := os.ReadFile(path); err == nil && bytes.Equal(old, b) {
+		return false, nil
+	}
+	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+		return false, err
+	}
+	if err := os.WriteFile(path, b, 0o644); err != nil {
+		return false, err
+	}
+	if rel, err := filepath.Rel(root, path); err == nil {
+		path = rel
+	}
+	fmt.Println("wrote", path)
+	return true, nil
 }
 
 // todoLocale is a locale in go tool intl todo -json.
