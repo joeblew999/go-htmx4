@@ -187,8 +187,10 @@ unformatted=$(gofmt -l $(go list -json ./... | jq -r '.Dir as $d | (.GoFiles + (
 test -z "$unformatted" || { echo "$unformatted"; echo "✗ gofmt: files need formatting"; exit 1; }
 go vet ./...
 go test ./...
-# Every intl problem as CI sees it: the catalogs, then gsx's own checks on the markup (intl's intl:check).
+# Every intl problem as CI sees it: the catalogs, then gsx's own checks on the markup (intl's intl:check). generate
+# has already regenerated intl.sum, so a change to it means it wasn't committed.
 mise run -q intl:check
+git diff --quiet -- locales/intl.sum || { git --no-pager diff --stat -- locales/intl.sum; echo "✗ locales/intl.sum changed when generated: commit it"; exit 1; }
 # intl/ is its own module, for any gsx app: format, vet and test it too (its tests run Intl on workerd).
 test -z "$(gofmt -l intl)" || { gofmt -l intl; echo "✗ gofmt: intl/ needs formatting"; exit 1; }
 go vet -C intl ./...

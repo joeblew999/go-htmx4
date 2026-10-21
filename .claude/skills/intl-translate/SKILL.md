@@ -62,10 +62,11 @@ how many messages you translated and confirmed.
 ## Other tasks
 
 - **Add a language:** add its BCP 47 id (e.g. `fr-CA`) to `locales` in `intl.toml`, run `go tool intl gen` (it
-  writes the new catalog), then translate everything `todo` lists for it.
-  A regional locale inherits what it doesn't translate from its parent (fr-CA ← fr) when the parent ships.
+  writes the new catalog), then translate everything `todo` lists for it. A regional locale can take what it doesn't
+  translate from another of the same script: `[inherit] fr-CA = "fr"` in `intl.toml`.
 - **After `gsxui add`:** `go tool intl gen` names each text the new components write that has no message, with the
   line to add to the source catalog's `[gsxui]` table. Add those lines, then translate them.
 - **Review:** read each catalog beside the source and fix what reads wrong for a native speaker; then step 4.
-- **Human translators:** `go tool intl export` writes XLIFF 2.0 per locale; `go tool intl import <file.xlf>` reads
-  their work back.
+- **Human translators:** `go tool intl export` writes XLIFF 2.0 per locale into `xliff/out`; their files go in
+  `xliff/in`, and `go tool intl import` reads them back.
+- **A key the source no longer has:** `go tool intl check` names it; `go tool intl prune` removes it everywhere.

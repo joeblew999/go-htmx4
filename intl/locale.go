@@ -3,6 +3,7 @@ package intl
 import (
 	"strings"
 	"sync"
+	"time"
 )
 
 // Locale is a shipped locale: its BCP 47 id, and what Intl says about it (its name in its own language, text
@@ -15,6 +16,10 @@ type Locale struct {
 
 	mu    sync.Mutex
 	plain map[messageKey]string // messages without arguments, as Intl formatted them
+
+	calOnce   sync.Once
+	cal       Calendar
+	weekStart time.Weekday
 }
 
 // NewLocale returns the locale with a BCP 47 id, e.g. "pt-BR".

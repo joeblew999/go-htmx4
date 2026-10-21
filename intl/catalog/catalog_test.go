@@ -22,7 +22,7 @@ func TestParseAndFormat(t *testing.T) {
 		args        args
 		want        string
 	}{
-		{"en", "It''s {name}", args{"name": "Ada"}, "It's Ada"},
+		{"en", "It''s {name}", args{"name": "Ada"}, "It's \u2068Ada\u2069"},
 		{"en", "'{'literal'}' # {n, number}", args{"n": "1234.5"}, "{literal} # 1,234.5"},
 		{"en", "'{n}' is quoted, don't", nil, "{n} is quoted, don't"},
 		{"de", "{n, number}", args{"n": "1234.5"}, "1.234,5"},
@@ -37,13 +37,17 @@ func TestParseAndFormat(t *testing.T) {
 		{"ru", "{n, plural, one {# символ} few {# символа} many {# символов} other {# символа}}", args{"n": "3"}, "3 символа"},
 		{"ru", "{n, plural, one {# символ} few {# символа} many {# символов} other {# символа}}", args{"n": "5"}, "5 символов"},
 		{"ru", "{n, plural, one {# символ} few {# символа} many {# символов} other {# символа}}", args{"n": "1.5"}, "1,5 символа"},
-		{"en", "{n, plural, offset:1 =0 {nobody} =1 {{who}} one {{who} and # other} other {{who} and # others}}", args{"n": "1", "who": "Ada"}, "Ada"},
-		{"en", "{n, plural, offset:1 =0 {nobody} =1 {{who}} one {{who} and # other} other {{who} and # others}}", args{"n": "2", "who": "Ada"}, "Ada and 1 other"},
-		{"en", "{n, plural, offset:1 =0 {nobody} =1 {{who}} one {{who} and # other} other {{who} and # others}}", args{"n": "3", "who": "Ada"}, "Ada and 2 others"},
+		{"en", "{n, plural, offset:1 =0 {nobody} =1 {{who}} one {{who} and # other} other {{who} and # others}}", args{"n": "1", "who": "Ada"}, "\u2068Ada\u2069"},
+		{"en", "{n, plural, offset:1 =0 {nobody} =1 {{who}} one {{who} and # other} other {{who} and # others}}", args{"n": "2", "who": "Ada"}, "\u2068Ada\u2069 and 1 other"},
+		{"en", "{n, plural, offset:1 =0 {nobody} =1 {{who}} one {{who} and # other} other {{who} and # others}}", args{"n": "3", "who": "Ada"}, "\u2068Ada\u2069 and 2 others"},
 		{"en", "{n, selectordinal, one {#st} two {#nd} few {#rd} other {#th}}", args{"n": "22"}, "22nd"},
 		{"en", "{n, selectordinal, one {#st} two {#nd} few {#rd} other {#th}}", args{"n": "13"}, "13th"},
 		{"en", "{g, select, female {her} male {his} other {their}} turn", args{"g": "x"}, "their turn"},
 		{"en", "{g, select, female {her} male {his} other {their}} turn", args{"g": "female"}, "her turn"},
+		// select matches the value itself, in any direction; a text argument is isolated where it lands.
+		{"ar", "{role, select, admin {مدير} other {عضو}}", args{"role": "admin"}, "مدير"},
+		{"en", "{on, select, 1 {yes} other {no}}", args{"on": "1"}, "yes"},
+		{"ar", "مرحبا {name}", args{"name": "Ada"}, "مرحبا \u2068Ada\u2069"},
 	} {
 		tree, order, err := catalog.Tree(tc.src)
 		if err != nil {
@@ -104,7 +108,7 @@ func (a app) read(name string) string {
 
 func (a app) project(locales ...string) *catalog.Project {
 	a.t.Helper()
-	p, err := catalog.Read(config.Config{Locales: locales, Catalogs: "cat", Gsxui: "ui", Root: a.root})
+	p, err := catalog.Read(config.Config{Locales: locales, Catalogs: "cat", Gsxui: "ui", Root: a.root, Inherit: map[string]string{"en-IN": "en"}})
 	if err != nil {
 		a.t.Fatal(err)
 	}
@@ -150,8 +154,20 @@ func TestGenerate(t *testing.T) {
 		t.Errorf("fr.toml: %q", got)
 	}
 
-	// A translation must use the source's arguments, with the same kinds, and only the source's keys.
-	for _, bad := range []string{"hello = \"Hallo, {who}\"\n", "hello = \"Hallo, {name, number}\"\n", "bye = \"Tschüss\"\n"} {
+	// A key the source no longer has is obsolete, for go tool intl prune.
+	a.write("cat/de.toml", "hello = \"Hallo, {name}\"\nbye = \"Tschüss\"\n")
+	if de := a.project("en", "de").Locale("de"); !slices.Equal(de.Obsolete, []string{"bye"}) {
+		t.Errorf("obsolete = %v", de.Obsolete)
+	}
+	if err := catalog.RemoveMessages(filepath.Join(a.root, "cat/de.toml"), []string{"bye"}); err != nil {
+		t.Fatal(err)
+	}
+	if got := a.read("cat/de.toml"); got != "hello = \"Hallo, {name}\"\n" {
+		t.Errorf("pruned de.toml: %q", got)
+	}
+
+	// A translation must use the source's arguments, with the same kinds.
+	for _, bad := range []string{"hello = \"Hallo, {who}\"\n", "hello = \"Hallo, {name, number}\"\n"} {
 		a.write("cat/de.toml", bad)
 		if _, err := catalog.Read(config.Config{Locales: []string{"en", "de"}, Catalogs: "cat", Root: a.root}); err == nil {
 			t.Errorf("de.toml %q: Read succeeded, want an error", bad)
@@ -174,7 +190,7 @@ func TestStale(t *testing.T) {
 	a.write("cat/en.toml", "hello = \"Hi, {name}!\"\nbye = \"Goodbye\"\n")
 	p := a.project("en", "de")
 	de := p.Locale("de")
-	if de.Count(catalog.Stale) != 2 || de.Complete() {
+	if de.Count(catalog.Stale) != 2 || de.Current() || !de.Complete() {
 		t.Fatalf("de: %s", de.Summary(2))
 	}
 	todo := de.Todo(p)
@@ -194,7 +210,7 @@ func TestStale(t *testing.T) {
 	if err := p.Generate(nil); err != nil {
 		t.Fatal(err)
 	}
-	if de := a.project("en", "de").Locale("de"); !de.Complete() {
+	if de := a.project("en", "de").Locale("de"); !de.Current() {
 		t.Errorf("de after update and confirm: %s", de.Summary(2))
 	}
 }
@@ -207,6 +223,14 @@ func TestSetMessages(t *testing.T) {
 		"title": "Neu", "board.long": "eine", "board.post": "Senden \"jetzt\"", "nav.about": "Über", "help.faq": "FAQ",
 	}); err != nil {
 		t.Fatal(err)
+	}
+	// A dotted key inside a table keeps its name, and a header's comment isn't part of the table's name.
+	a.write("cat/fr.toml", "[board] # the board\nnotes.title = \"Vieux\"\n")
+	if err := catalog.SetMessages(filepath.Join(a.root, "cat/fr.toml"), map[string]string{"board.notes.title": "Neuf", "board.post": "Envoyer"}); err != nil {
+		t.Fatal(err)
+	}
+	if got := a.read("cat/fr.toml"); got != "[board] # the board\nnotes.title = \"Neuf\"\npost = \"Envoyer\"\n" {
+		t.Errorf("fr.toml:\n%s", got)
 	}
 	want := "# Deutsch\ntitle = \"Neu\"\n\n# The board.\n[board]\nnotes = \"x\"\nlong = \"eine\"\npost = \"Senden \\\"jetzt\\\"\"\n\n[nav]\nhome = \"Start\"\nabout = \"Über\"\n\n[help]\nfaq = \"FAQ\"\n"
 	if got := a.read("cat/de.toml"); got != want {

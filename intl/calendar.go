@@ -35,7 +35,13 @@ func WeekStart(ctx context.Context) time.Weekday {
 	return first
 }
 
+// calendar is asked once per locale and kept: it is the same for every request.
 func (l *Locale) calendar() (Calendar, time.Weekday) {
+	l.calOnce.Do(func() { l.cal, l.weekStart = l.askCalendar() })
+	return l.cal, l.weekStart
+}
+
+func (l *Locale) askCalendar() (Calendar, time.Weekday) {
 	var c Calendar
 	s, ok := call("calendar", l.id)
 	f := strings.Split(s, "\u001e")

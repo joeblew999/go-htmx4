@@ -82,7 +82,7 @@ func testLocaleSwitchKeepsPreferences(t *testing.T) {
 	b.eval(`document.querySelector('#languages a[hreflang="en"]').click()`, nil)
 	b.waitJS(8*time.Second, `location.pathname === "/" && document.documentElement.lang === "en"`)
 	b.open("/formats")
-	check(t, "back in English, still the chosen zone", b.is(`document.documentElement.dataset.tz === "Asia/Tokyo" && document.body.textContent.includes("time zone Asia/Tokyo")`))
+	check(t, "back in English, still the chosen zone", b.is(`document.documentElement.dataset.tz === "Asia/Tokyo" && document.body.textContent.includes("time zone \u2068Asia/Tokyo\u2069")`))
 	b.noProblems()
 }
 

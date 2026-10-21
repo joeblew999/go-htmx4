@@ -1,6 +1,7 @@
 package intl
 
 import (
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -69,6 +70,9 @@ func JSON(s string) string {
 	return b.String()
 }
 
+// jsonNumber is a number as JSON writes it: "0", "-1.5", "1e3", never "02" or "Infinity".
+var jsonNumber = regexp.MustCompile(`^-?(0|[1-9][0-9]*)(\.[0-9]+)?([eE][+-]?[0-9]+)?$`)
+
 // Options is an Intl options object from its names and values in pairs, as Intl names them:
 // Options("dateStyle", "full", "calendar", "hebrew") is {"dateStyle":"full","calendar":"hebrew"}. A value that is a
 // number or true/false is one ("maximumFractionDigits", "0"); the rest are strings. One argument that is already a
@@ -88,7 +92,7 @@ func Options(pairs ...string) string {
 		}
 		b.WriteString(JSON(pairs[i]) + ":")
 		v := pairs[i+1]
-		if _, err := strconv.ParseFloat(v, 64); err == nil || v == "true" || v == "false" {
+		if jsonNumber.MatchString(v) || v == "true" || v == "false" {
 			b.WriteString(v)
 		} else {
 			b.WriteString(JSON(v))

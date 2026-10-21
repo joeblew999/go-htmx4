@@ -18,7 +18,7 @@ type Value struct {
 	kind     string // "" for the Call, "since" or "zone"
 	tag      string // "time", "data" or "span"
 	machine  string // the time element's datetime, the data element's value
-	fallback string // the text where Intl can't
+	fallback string // where Intl can't: the value's machine form (an ISO instant, a decimal, JSON), never Go's formatting
 	since    time.Time
 	zone     string
 }
@@ -31,18 +31,18 @@ func Of(api, method, opts string, args ...string) Value {
 
 // Date is t with Intl.DateTimeFormat and opts ("" for the language's default date).
 func Date(t time.Time, opts string) Value {
-	return Value{Call: Call{API: "DateTimeFormat", Opts: opts, Args: []string{Millis(t)}}, tag: "time", machine: ISO(t), fallback: utc(t)}
+	return Value{Call: Call{API: "DateTimeFormat", Opts: opts, Args: []string{Millis(t)}}, tag: "time", machine: ISO(t), fallback: ISO(t)}
 }
 
 // DateRange is a to b with Intl.DateTimeFormat's formatRange.
 func DateRange(a, b time.Time, opts string) Value {
 	return Value{Call: Call{API: "DateTimeFormat", Method: "formatRange", Opts: opts, Args: []string{Millis(a), Millis(b)}},
-		tag: "time", machine: ISO(a), fallback: utc(a) + " – " + utc(b)}
+		tag: "time", machine: ISO(a), fallback: ISO(a) + "/" + ISO(b)}
 }
 
 // Since is t relative to now ("3 minutes ago", Intl.RelativeTimeFormat), kept fresh in the browser.
 func Since(t time.Time) Value {
-	return Value{kind: "since", tag: "time", machine: ISO(t), fallback: utc(t), since: t}
+	return Value{kind: "since", tag: "time", machine: ISO(t), fallback: ISO(t), since: t}
 }
 
 // Number is a plain decimal ("1234.5", exact: never a float) with Intl.NumberFormat and opts.
@@ -66,7 +66,7 @@ func Duration(d time.Duration, opts string) Value {
 			opts = `{"secondsDisplay":"always"}`
 		}
 	}
-	return Value{Call: Call{API: "DurationFormat", Opts: opts, Args: []string{j}}, tag: "data", machine: j, fallback: d.Round(time.Second).String()}
+	return Value{Call: Call{API: "DurationFormat", Opts: opts, Args: []string{j}}, tag: "data", machine: j, fallback: j}
 }
 
 // List is items with Intl.ListFormat and opts.
@@ -75,7 +75,8 @@ func List(items []string, opts string) Value {
 	for i, s := range items {
 		q[i] = JSON(s)
 	}
-	return Value{Call: Call{API: "ListFormat", Opts: opts, Args: []string{"[" + strings.Join(q, ",") + "]"}}, tag: "span", fallback: strings.Join(items, ", ")}
+	list := "[" + strings.Join(q, ",") + "]"
+	return Value{Call: Call{API: "ListFormat", Opts: opts, Args: []string{list}}, tag: "span", fallback: list}
 }
 
 // Zone is a time zone's name in the language: "Europe/Berlin · Mitteleuropäische Zeit (GMT+2)".
@@ -110,6 +111,12 @@ func (v Value) text(ctx context.Context) string {
 	return s
 }
 
+// Slot marks where js/intl-browser.mjs puts a value in an element's data-template: a translated message rendered with
+// Slot as its argument, so the browser's value lands inside the translator's wording:
+//
+//	<option data-intl="browser-zone" data-template={ locales.Automatic(intl.Slot) }>…</option>
+const Slot = "\ue000"
+
 // Plain is a Value as plain text (PlainText, registered in gsx.toml [renderers]): for attributes, which take no
 // markup, and for text the browser leaves alone. A type has one renderer, so this is a second type (the gsx
 // Translation keys pattern).
@@ -128,5 +135,3 @@ func ISO(t time.Time) string {
 	}
 	return t.UTC().Format(time.RFC3339)
 }
-
-func utc(t time.Time) string { return t.UTC().Format("2006-01-02 15:04 UTC") }

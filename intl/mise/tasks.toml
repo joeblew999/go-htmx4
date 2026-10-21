@@ -35,13 +35,14 @@ run = "go tool intl translate ${usage_locale:-}"
 
 ["intl:check"]
 description = "Every problem, for CI: the catalogs (ICU syntax, arguments, a case for each plural category Intl says a language uses, missing and stale translations, unused messages, gsxui text, intl.sum), then gsx's own checks on the app's markup (gsx generate, gsx fmt, the gsx skill's find-smells.sh); exits 1 on any"
-depends = ["intl"]
 tools = { workerd = "1.20261019.1" }
 run = '''
 #!/usr/bin/env bash
 set -uo pipefail
 status=0
+# The catalogs first, before anything regenerates intl.sum: a commit missing its intl.sum must fail here.
 go tool intl check || status=1
+go tool intl gen >/dev/null 2>&1 || status=1
 # gsx's own tools on the app's markup (go tool intl markup: not gsxui's vendored components, not nested modules):
 # every renderer and filter resolves, the formatting is gsx fmt's, and the gsx skill's smell finder has nothing to say.
 dirs=$(go tool intl markup)
@@ -68,11 +69,12 @@ exit $status
 
 ["intl:confirm"]
 description = "Keep stale translations as they are: the source changed, their meaning didn't (a typo fixed). All of them, or only some: de, or de:board.notes"
+confirm = "Keep the stale translations as they are? (Only when the English changed and the meaning didn't.)"
 usage = 'arg "[which]" var=#true help="de, or de:board.notes (default: every stale translation)"'
 run = "go tool intl confirm ${usage_which:-}"
 
 ["intl:export"]
-description = "XLIFF 2.0 per locale into xliff/ (intl.toml's xliff), for human translators and translation-management systems: what is left to translate (--all: every message)"
+description = "XLIFF 2.0 per locale into xliff/out (intl.toml's xliff), for human translators and translation-management systems: what is left to translate (--all: every message)"
 tools = { workerd = "1.20261019.1" }
 usage = '''
 flag "--all" help="every message, not only what is left"
@@ -86,9 +88,13 @@ exec go tool intl export ${args[@]+"${args[@]}"} ${usage_locale:-}
 '''
 
 ["intl:import"]
-description = "Read translators' XLIFF 2.0 back into the catalogs, each target checked against its source: every file in xliff/, or the ones named; then compile"
+description = "Read translators' XLIFF 2.0 back into the catalogs, each target checked against its source: every file in xliff/in, or the ones named; then compile"
 usage = 'arg "[file]" var=#true help="<locale>.xlf files (default: all of xliff/)"'
 run = "go tool intl import ${usage_file:-}"
+
+["intl:prune"]
+description = "Remove from every catalog the keys the source no longer has (intl:check names them)"
+run = "go tool intl prune"
 
 ["intl:tasks"]
 description = "Write this file again from the intl version in go.mod: run it after upgrading intl (intl:check says when)"

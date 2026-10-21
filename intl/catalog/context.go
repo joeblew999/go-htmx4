@@ -33,7 +33,7 @@ func contexts(path string) (map[string]string, error) {
 		case t[0] == '#':
 			block = append(block, strings.TrimSpace(strings.TrimPrefix(t, "#")))
 		case t[0] == '[':
-			table = strings.Trim(strings.TrimSpace(strings.Trim(t, "[]")), `"`)
+			table = tableName(t)
 			tableNote, block = strings.Join(block, " "), nil
 		default:
 			name, value, ok := strings.Cut(t, "=")

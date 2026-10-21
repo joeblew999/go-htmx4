@@ -108,7 +108,7 @@ func TestPages(t *testing.T) {
 	has(t, "home: hx-live counter", page, `hx-on:click="data.count++"`)
 	has(t, "theme toggle in header", page, "data-site-theme-toggle")
 	has(t, "about page", get(t, "/about").body, "About go-htmx4")
-	has(t, "POST form, escaped", post(t, "/greet", "name="+url.QueryEscape("<b>Ada")).body, "Hello, &lt;b&gt;Ada.")
+	has(t, "POST form, escaped", post(t, "/greet", "name="+url.QueryEscape("<b>Ada")).body, "Hello, \u2068&lt;b&gt;Ada\u2069.")
 	has(t, "POST form, OOB toast", post(t, "/greet", "name=Ada").body, `hx-swap-oob="beforeend:#gsxui-toaster"`)
 	has(t, "POST form empty", post(t, "/greet", "name=").body, "Please enter a name.")
 	has(t, "DELETE /greet", do(t, "DELETE", "/greet", "").body, "Cleared")

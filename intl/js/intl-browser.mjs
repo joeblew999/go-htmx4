@@ -65,7 +65,7 @@ function redo(el) {
   }
   if (!text) return; // this browser can't: keep the server's text
   const tpl = el.dataset.template;
-  if (tpl && tpl.includes(SLOT)) text = tpl.replace(SLOT, text);
+  if (tpl && tpl.includes(SLOT)) text = tpl.replace(SLOT, () => text);
   if (el.textContent !== text) el.textContent = text;
   if (!el.hasAttribute("data-intl-done")) el.setAttribute("data-intl-done", ""); // redone by this browser
 }
@@ -101,6 +101,9 @@ const observer = new MutationObserver((records) => {
 });
 
 update();
+// An htmx morph rewrites a value's text in place (a characterData change the observer doesn't see) and drops
+// data-intl-done: redo what each swap brought, in the viewer's zone again.
+document.addEventListener("htmx:after:swap", (e) => update(e.target));
 observer.observe(document.body, {
   childList: true,
   subtree: true,

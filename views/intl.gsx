@@ -50,7 +50,7 @@ component PreferencesForm(returnTo string, connectionZone string) {
 						value=""
 						selected={intl.ChosenTimeZone(ctx) == ""}
 						data-intl="browser-zone"
-						data-template={locales.PreferencesTimeZoneAuto(slot)}
+						data-template={locales.PreferencesTimeZoneAuto(intl.Slot)}
 					>
 						{ locales.PreferencesTimeZoneAuto(connectionZone) }
 					</ui.NativeSelectOption>
@@ -72,7 +72,7 @@ component PreferencesForm(returnTo string, connectionZone string) {
 						value=""
 						selected={intl.HourCycle(ctx) == ""}
 						{ clockExample(`,"viewerClock":false`).Attrs()... }
-						data-template={locales.PreferencesHourCycleAuto(slot)}
+						data-template={locales.PreferencesHourCycleAuto(intl.Slot)}
 					>
 						{ locales.PreferencesHourCycleAuto(clockExample(`,"viewerClock":false`)) }
 					</ui.NativeSelectOption>

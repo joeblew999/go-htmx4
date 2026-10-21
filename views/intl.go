@@ -12,10 +12,6 @@ import (
 // element the browser (intl/js/intl-browser.mjs) redoes in the viewer's own zone. This file is the views' own Intl
 // helpers; the viewer's time zone and clock are intl's (intl.TimeZone, intl.HourCycle).
 
-// slot marks where intl-browser.mjs puts the formatted value in a data-template: a translated message rendered with
-// slot as its argument, so the browser's value lands inside the translator's wording.
-const slot = "\ue000"
-
 // jsOptions shows JSON Intl options as a JavaScript object literal: {"dateStyle":"full"} → {dateStyle: "full"}. The
 // options are the views' own literals: flat, keys plain identifiers.
 func jsOptions(opts string) string {

@@ -2,10 +2,11 @@
 // <locale>.toml per shipped locale, ICU MessageFormat, the source locale first): read and checked against the source
 // (Read), compiled for package intl (Generate), and what is left to translate (Locale.Todo).
 //
-// A key missing from a translation comes from the nearest shipped locale its id shortens to (en-IN → en), so a
-// regional catalog holds only what differs; inheriting from the source locale counts as translated. A key with no
-// ancestor is missing, and shows the source text. intl.sum, beside the catalogs, records the source text each
-// translation was made from: when the source changes, the translation is stale until it is updated or confirmed.
+// A key missing from a translation comes from the locale intl.toml's [inherit] names for it (en-IN = "en"), so a
+// regional catalog holds only what differs; inheriting from the source locale counts as translated. A key with
+// nowhere to come from is missing, and shows the source text. intl.sum, beside the catalogs, records the source text
+// each translation was made from: when the source changes, the translation is stale until it is updated or
+// confirmed. A key the source no longer has is obsolete until go tool intl prune removes it.
 package catalog
 
 import (
@@ -58,9 +59,10 @@ type Arg struct {
 
 // Locale is one shipped locale's text for every message.
 type Locale struct {
-	ID      string
-	File    string  // its catalog
-	Entries []Entry // one per Project.Messages
+	ID       string
+	File     string   // its catalog
+	Entries  []Entry  // one per Project.Messages
+	Obsolete []string // keys its catalog has that the source no longer does (go tool intl prune)
 }
 
 // Entry is a locale's text for one message.
@@ -82,8 +84,12 @@ func (l *Locale) Count(s State) int {
 	return n
 }
 
-// Complete reports whether every message is translated and none is stale.
-func (l *Locale) Complete() bool { return l.Count(Missing) == 0 && l.Count(Stale) == 0 }
+// Complete reports whether every message is translated (some may be stale): a page in the locale has no source
+// text on it.
+func (l *Locale) Complete() bool { return l.Count(Missing) == 0 }
+
+// Current reports whether every message is translated from the source as it is now: complete, and nothing stale.
+func (l *Locale) Current() bool { return l.Complete() && l.Count(Stale) == 0 }
 
 // Locale is the shipped locale id, compared case-insensitively, or nil.
 func (p *Project) Locale(id string) *Locale {
@@ -137,6 +143,7 @@ func Read(c config.Config) (*Project, error) {
 	}
 
 	own := map[string]map[string]string{source: src}
+	obsolete := map[string][]string{}
 	for _, id := range c.Locales[1:] {
 		tr, err := readCatalog(filepath.Join(dir, id+".toml"))
 		if errors.Is(err, os.ErrNotExist) {
@@ -144,9 +151,10 @@ func Read(c config.Config) (*Project, error) {
 		} else if err != nil {
 			return nil, err
 		}
-		for k := range tr {
+		for _, k := range sortedKeys(tr) {
 			if p.Message(k) == nil {
-				return nil, fmt.Errorf("intl: %s.toml has %s, which %s.toml doesn't", id, k, source)
+				obsolete[id] = append(obsolete[id], k)
+				delete(tr, k)
 			}
 		}
 		own[id] = tr
@@ -177,10 +185,11 @@ func Read(c config.Config) (*Project, error) {
 	}
 
 	for _, id := range c.Locales {
-		l := &Locale{ID: id, File: filepath.Join(dir, id+".toml")}
+		l := &Locale{ID: id, File: filepath.Join(dir, id+".toml"), Obsolete: obsolete[id]}
 		for _, m := range p.Messages {
 			e := Entry{Text: m.Text, From: source, State: Missing, parsed: m.parsed}
-			for from := id; from != ""; from = parent(from, c.Locales) {
+			for from, seen := id, map[string]bool{}; from != "" && !seen[from]; from = parent(c, from) {
+				seen[from] = true
 				text, ok := own[from][m.Key]
 				if !ok {
 					continue
@@ -332,16 +341,10 @@ func kindName(k argKind) string {
 	return "string"
 }
 
-// parent is the nearest shipped locale id shortens to by dropping subtags (en-IN → en), or "".
-func parent(id string, shipped []string) string {
-	for {
-		i := strings.LastIndexByte(id, '-')
-		if i < 0 {
-			return ""
-		}
-		id = id[:i]
-		if slices.Contains(shipped, id) {
-			return id
-		}
+// parent is the shipped locale id takes what it doesn't translate from (intl.toml's [inherit]), or "".
+func parent(c config.Config, id string) string {
+	if p := c.Inherit[id]; slices.Contains(c.Locales, p) {
+		return p
 	}
+	return ""
 }

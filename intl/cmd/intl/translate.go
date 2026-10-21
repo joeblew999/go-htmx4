@@ -61,8 +61,10 @@ func translate(c config.Config, ids []string) int {
 				"messages of %[1]s, nothing else. Other languages are being translated at the same time, so edit only %[3]s, never run "+
 				"go tool intl gen, and check your work with go tool intl check %[1]s until it passes. Then say in one line what you did.",
 				l.ID, todo, rel)
-			args := []string{"-p", prompt, "--permission-mode", "acceptEdits", "--allowedTools",
-				"Bash(go tool intl todo:*)", "Bash(go tool intl check:*)", "Bash(go tool intl confirm:*)", "Read", "Edit", "Write", "Glob", "Grep"}
+			// Fenced to its own language: it may edit only its catalog, and confirm only its own stale messages.
+			args := []string{"-p", prompt, "--allowedTools",
+				"Edit(" + rel + ")", "Write(" + rel + ")", "Read", "Glob", "Grep",
+				"Bash(go tool intl todo -json " + l.ID + ")", "Bash(go tool intl check " + l.ID + ")", "Bash(go tool intl confirm " + l.ID + ":*)"}
 			if c.Translate.Model != "" {
 				args = append(args, "--model", c.Translate.Model)
 			}

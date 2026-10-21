@@ -7,6 +7,9 @@
 //	gsxui = "ui"                   # optional: where gsxui add vendors components; gen translates their i18n.T
 //	xliff = "xliff"                # optional: where go tool intl export writes and import reads (default xliff)
 //
+//	[inherit]                      # optional: a locale that takes what it doesn't translate from another
+//	en-IN = "en"                   # (go tool intl check confirms with Intl that both write the same script)
+//
 //	[translate]                    # optional: go tool intl translate (Claude Code)
 //	model = "sonnet"               # the model it runs on (claude --model); default: Claude Code's
 //	workers = 6                    # languages translated at once (default 6)
@@ -35,6 +38,7 @@ type Config struct {
 	Gsxui     string            `toml:"gsxui"`
 	XLIFF     string            `toml:"xliff"`
 	Notes     map[string]string `toml:"notes"`
+	Inherit   map[string]string `toml:"inherit"`
 	Translate struct {
 		Model   string `toml:"model"`
 		Workers int    `toml:"workers"`

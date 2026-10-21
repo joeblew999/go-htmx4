@@ -34,7 +34,7 @@ func testPages(t *testing.T) {
 	// Server round-trip: fragment + out-of-band toast, escaped.
 	b.run(chromedp.SendKeys("#name", "Ada <b>", chromedp.ByID))
 	b.clickText("button", "Say hello")
-	ok := b.waitJS(5*time.Second, `document.getElementById("greeting").textContent.includes("Hello, Ada <b>.")`)
+	ok := b.waitJS(5*time.Second, `document.getElementById("greeting").textContent.includes("Hello, \u2068Ada <b>\u2069.")`) // the name is bidi-isolated
 	check(t, "POST /greet swaps #greeting, escaped", ok && b.num(`document.querySelectorAll("#greeting b").length`) == 0)
 	check(t, "OOB success toast", b.waitJS(3*time.Second, `[...document.querySelectorAll("#gsxui-toaster [data-gsxui-slot-toast]")].some(t => t.textContent.includes("Greeting rendered"))`))
 	b.clickText("button", "Clear")
