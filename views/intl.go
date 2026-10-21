@@ -1,12 +1,10 @@
 package views
 
 import (
-	"context"
 	"strings"
 	"time"
 
 	"github.com/joeblew999/go-htmx4/intl"
-	"github.com/joeblew999/go-htmx4/locales"
 )
 
 // Dates, numbers, durations and the rest of Intl are written in the views with intl's gsx filters
@@ -49,12 +47,6 @@ func jsOptions(opts string) string {
 		b.WriteByte(c)
 	}
 	return b.String()
-}
-
-// hourCycleAuto is the clock option "the language's (13:05)": the example time in the language's own clock is an
-// argument of the message.
-func hourCycleAuto(ctx context.Context) intl.Msg {
-	return locales.PreferencesHourCycleAuto(intl.Text(ctx, clockExample(`,"viewerClock":false`)))
 }
 
 // clockExample is the time the clock options show, 13:05 UTC, written in each clock (Intl.DateTimeFormat opts).

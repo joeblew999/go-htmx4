@@ -33,12 +33,12 @@ component Layout(title intl.Msg, description intl.Msg, path string, children gsx
 		<head>
 			<meta charset="utf-8"/>
 			<meta name="viewport" content="width=device-width, initial-scale=1"/>
-			<title>{ pageTitle(ctx, title) }</title>
+			<title>{ locales.PageTitle(title) }</title>
 			<meta name="description" content={description}/>
 			<intl.Head page={pageKey(ctx)}/>
 			<meta property="og:type" content="website"/>
 			<meta property="og:site_name" content="go-htmx4"/>
-			<meta property="og:title" content={pageTitle(ctx, title)}/>
+			<meta property="og:title" content={locales.PageTitle(title)}/>
 			<meta property="og:description" content={description}/>
 			<ThemeScript/>
 			<link rel="stylesheet" href="/assets/gsxui.css"/>

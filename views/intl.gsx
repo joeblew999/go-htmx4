@@ -74,7 +74,7 @@ component PreferencesForm(returnTo string, connectionZone string) {
 						{ clockExample(`,"viewerClock":false`).Attrs()... }
 						data-template={locales.PreferencesHourCycleAuto(slot)}
 					>
-						{ hourCycleAuto(ctx) }
+						{ locales.PreferencesHourCycleAuto(clockExample(`,"viewerClock":false`)) }
 					</ui.NativeSelectOption>
 					<ui.NativeSelectOption
 						value="h12"
