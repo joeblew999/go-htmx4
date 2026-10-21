@@ -1,0 +1,3 @@
+# intl is a library other modules import: its .x.go is generated here (go -C intl tool gsx generate) and
+# committed, as the gsx Package renderers guide says for a renderer package outside the consuming module. This file
+# also stops the app's gsx.toml from being inherited.

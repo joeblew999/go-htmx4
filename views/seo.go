@@ -5,7 +5,7 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/joeblew999/go-htmx4/internal/i18n"
+	"github.com/joeblew999/go-htmx4/intl"
 	"github.com/joeblew999/go-htmx4/locales"
 )
 
@@ -21,7 +21,7 @@ var SitemapPages = []string{"/", "/board", "/formats", "/about"}
 // only ?topic= on /board survives, and not for the default topic. "/board?topic=lobby&utm_source=x" → "/board".
 func pageKey(ctx context.Context) string {
 	path, query := "/", ""
-	if r, ok := i18n.FromContext(ctx); ok && r.Path != "" {
+	if r, ok := intl.FromContext(ctx); ok && r.Path != "" {
 		path, query, _ = strings.Cut(r.Path, "?")
 	}
 	if path == "/board" && query != "" {
@@ -35,13 +35,13 @@ func pageKey(ctx context.Context) string {
 }
 
 func origin(ctx context.Context) string {
-	r, _ := i18n.FromContext(ctx)
+	r, _ := intl.FromContext(ctx)
 	return r.Origin
 }
 
 // CanonicalURL is the request's page in its own locale, absolute.
 func CanonicalURL(ctx context.Context) string {
-	return origin(ctx) + LocalePrefix(Loc(ctx)) + pageKey(ctx)
+	return origin(ctx) + LocalePrefix(intl.Current(ctx)) + pageKey(ctx)
 }
 
 // Alternate is one hreflang link.
@@ -94,7 +94,7 @@ func xmlEscape(s string) string { return xmlEscaper.Replace(s) }
 
 // OGLocale is a locale in Open Graph's language_TERRITORY form, from its likely subtags (Intl.Locale maximize):
 // "en" (en-Latn-US) → "en_US", "pt-BR" → "pt_BR", "zh-Hant" (zh-Hant-TW) → "zh_TW".
-func OGLocale(ld *i18n.Locale) string {
+func OGLocale(ld *intl.Locale) string {
 	tags := strings.Split(ld.Maximal(), "-")
 	for _, t := range tags[1:] {
 		if len(t) == 2 || len(t) == 3 && t[0] >= '0' && t[0] <= '9' {
@@ -106,7 +106,7 @@ func OGLocale(ld *i18n.Locale) string {
 
 // OGLocaleAlternates are every shipped locale except the request's, in data order.
 func OGLocaleAlternates(ctx context.Context) []string {
-	self := Loc(ctx)
+	self := intl.Current(ctx)
 	out := make([]string, 0, len(locales.Shipped)-1)
 	for _, ld := range locales.Shipped {
 		if ld != self {

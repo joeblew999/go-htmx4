@@ -1,6 +1,8 @@
 package views
 
 import (
+	"github.com/joeblew999/go-htmx4/intl"
+	"github.com/joeblew999/go-htmx4/locales"
 	"github.com/joeblew999/go-htmx4/ui"
 	"github.com/joeblew999/go-htmx4/ui/icon"
 )
@@ -10,36 +12,36 @@ import (
 // the online count into #presence (the label next to it is rendered here, in the page's language). Without it (go test, no Durable Objects) only the poster's own response
 // updates the board, and a badge says so.
 component BoardPage(topic string, b Board, live bool) {
-	<Layout title={M(ctx).BoardTitle()} description={M(ctx).BoardIntro()} path="/board">
+	<Layout title={locales.BoardTitle()} description={locales.BoardIntro()} path="/board">
 		<div class="flex flex-col gap-2">
-			<h1 class="text-3xl font-semibold tracking-tight">{ M(ctx).BoardTitle() }</h1>
-			<p class="text-muted-foreground">{ M(ctx).BoardIntro() }</p>
+			<h1 class="text-3xl font-semibold tracking-tight">{ locales.BoardTitle() }</h1>
+			<p class="text-muted-foreground">{ locales.BoardIntro() }</p>
 		</div>
 		<ui.Card>
 			<ui.CardHeader>
 				<ui.CardTitle>
-					{ M(ctx).BoardTopic() }
+					{ locales.BoardTopic() }
 					<code translate="no">{ topic }</code>
 				</ui.CardTitle>
-				<ui.CardDescription>{ M(ctx).BoardHint() }</ui.CardDescription>
+				<ui.CardDescription>{ locales.BoardHint() }</ui.CardDescription>
 				<ui.CardAction>
 					{ if live {
 						<ui.Badge variant="secondary">
 							<icon.Users/>
 							<span id="presence">…</span>
-							<span>{ M(ctx).BoardOnline() }</span>
+							<span>{ locales.BoardOnline() }</span>
 						</ui.Badge>
 					} else {
 						<ui.Badge variant="outline">
 							<icon.WifiOff/>
-							{ M(ctx).BoardNoLive() }
+							{ locales.BoardNoLive() }
 						</ui.Badge>
 					} }
 				</ui.CardAction>
 			</ui.CardHeader>
 			<ui.CardContent>
 				{ if live {
-					<div hx-ws:connect={"/live/" + topic + "?locale=" + LocaleKey(Loc(ctx))} hx-swap="none">
+					<div hx-ws:connect={"/live/" + topic + "?locale=" + LocaleKey(intl.Current(ctx))} hx-swap="none">
 						<boardSection b={b}/>
 					</div>
 				} else {
@@ -52,7 +54,7 @@ component BoardPage(topic string, b Board, live bool) {
 						type="button"
 						variant="outline"
 						size="icon"
-						aria-label={M(ctx).BoardDecrement()}
+						aria-label={locales.BoardDecrement()}
 						hx-post={URL(ctx, "/board/add?topic="+topic+"&delta=-1")}
 						hx-swap="none"
 					>
@@ -62,7 +64,7 @@ component BoardPage(topic string, b Board, live bool) {
 						type="button"
 						variant="outline"
 						size="icon"
-						aria-label={M(ctx).BoardIncrement()}
+						aria-label={locales.BoardIncrement()}
 						hx-post={URL(ctx, "/board/add?topic="+topic+"&delta=1")}
 						hx-swap="none"
 					>
@@ -78,14 +80,14 @@ component BoardPage(topic string, b Board, live bool) {
 					<ui.Input
 						name="body"
 						maxlength="280"
-						placeholder={M(ctx).BoardNotePlaceholder()}
+						placeholder={locales.BoardNotePlaceholder()}
 						autocomplete="off"
-						aria-label={M(ctx).BoardNoteLabel()}
+						aria-label={locales.BoardNoteLabel()}
 						required
 					/>
 					<ui.Button type="submit">
 						<icon.Send/>
-						{ M(ctx).BoardPost() }
+						{ locales.BoardPost() }
 					</ui.Button>
 				</form>
 			</ui.CardFooter>
@@ -97,7 +99,13 @@ component BoardPage(topic string, b Board, live bool) {
 // both use it. The Room and the page's version guard rely on its id="board", hx-swap-oob="true" and
 // data-version (see TestBoardFragmentWireFormat).
 component BoardFragment(b Board) {
-	<section id="board" hx-swap-oob="true" data-version={b.Version} lang={Loc(ctx).Lang()} class="flex flex-col gap-6">
+	<section
+		id="board"
+		hx-swap-oob="true"
+		data-version={b.Version}
+		lang={intl.Current(ctx).ID()}
+		class="flex flex-col gap-6"
+	>
 		<boardBody b={b}/>
 	</section>
 }
@@ -105,15 +113,15 @@ component BoardFragment(b Board) {
 // boardSection is #board as the page renders it: no hx-swap-oob, or a boosted navigation to /board
 // would treat the board as out-of-band content and drop it (no #board on the page it came from).
 component boardSection(b Board) {
-	<section id="board" data-version={b.Version} lang={Loc(ctx).Lang()} class="flex flex-col gap-6">
+	<section id="board" data-version={b.Version} lang={intl.Current(ctx).ID()} class="flex flex-col gap-6">
 		<boardBody b={b}/>
 	</section>
 }
 
 component boardBody(b Board) {
 	<div class="flex items-baseline gap-3">
-		<output class="text-6xl font-semibold tracking-tight tabular-nums">{ Num(ctx, b.Value) }</output>
-		<span class="text-sm text-muted-foreground">{ M(ctx).BoardVersion(float64(b.Version)) }</span>
+		<output class="text-6xl font-semibold tracking-tight tabular-nums">{ intl.Int(b.Value) }</output>
+		<span class="text-sm text-muted-foreground">{ locales.BoardVersion(float64(b.Version)) }</span>
 	</div>
 	{ if len(b.Notes) == 0 {
 		<ui.Empty>
@@ -121,8 +129,8 @@ component boardBody(b Board) {
 				<ui.EmptyMedia variant="icon">
 					<icon.MessageSquare/>
 				</ui.EmptyMedia>
-				<ui.EmptyTitle>{ M(ctx).BoardEmptyTitle() }</ui.EmptyTitle>
-				<ui.EmptyDescription>{ M(ctx).BoardEmptyDescription() }</ui.EmptyDescription>
+				<ui.EmptyTitle>{ locales.BoardEmptyTitle() }</ui.EmptyTitle>
+				<ui.EmptyDescription>{ locales.BoardEmptyDescription() }</ui.EmptyDescription>
 			</ui.EmptyHeader>
 		</ui.Empty>
 	} else {
@@ -138,7 +146,7 @@ component boardBody(b Board) {
 					<ui.ItemContent>
 						<ui.ItemTitle dir="auto">{ n.Body }</ui.ItemTitle>
 						<ui.ItemDescription>
-							<RelativeTime iso={NoteISO(n.CreatedAt)} fallback={NoteUTC(n.CreatedAt)}/>
+							{ NoteAge(n.CreatedAt) }
 						</ui.ItemDescription>
 					</ui.ItemContent>
 				</ui.Item>

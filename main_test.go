@@ -18,11 +18,11 @@ import (
 
 	"github.com/joeblew999/go-htmx4/internal/live"
 
-	"github.com/joeblew999/go-htmx4/internal/i18n/i18ntest"
+	"github.com/joeblew999/go-htmx4/intl/intltest"
 )
 
-// TestMain runs the tests with the Worker's Intl: worker/gointl.mjs on workerd (internal/i18n/i18ntest).
-func TestMain(m *testing.M) { os.Exit(i18ntest.Main(m)) }
+// TestMain runs the tests with the Worker's Intl, on workerd (intl/intltest).
+func TestMain(m *testing.M) { os.Exit(intltest.Main(m)) }
 
 func TestRoutes(t *testing.T) {
 	h := newServer().routes()
@@ -43,7 +43,7 @@ func TestRoutes(t *testing.T) {
 		"about":                {method: "GET", path: "/about", want: []string{"About go-htmx4", "hx-live", "Durable Objects"}},
 		"greet":                {method: "POST", path: "/greet", body: "name=Ada&flavour=gsxui", want: []string{"Hello, Ada.", `hx-swap-oob="beforeend:#gsxui-toaster"`, "data-gsxui-slot-toast"}},
 		"greet escape":         {method: "POST", path: "/greet", body: "name=%3Cb%3E", want: []string{"Hello, &lt;b&gt;."}},
-		"greet shout":          {method: "POST", path: "/greet", body: "name=Ada&shout=on", want: []string{"HELLO, ADA!"}},
+		"greet shout":          {method: "POST", path: "/greet", body: "name=Ada&shout=on", want: []string{`<strong class="uppercase">HELLO, Ada!</strong>`}},
 		"greet no name":        {method: "POST", path: "/greet", body: "name=+", want: []string{"Please enter a name."}},
 		"greet clear":          {method: "DELETE", path: "/greet", want: []string{`hx-swap-oob="beforeend:#gsxui-toaster"`, "Cleared"}},
 		"server info":          {method: "GET", path: "/fragments/server-info", want: []string{"Uptime"}},
@@ -169,9 +169,9 @@ func TestBoard(t *testing.T) {
 		t.Errorf("board page renders #board with hx-swap-oob; boosted navigation to /board would drop it")
 	}
 
-	expect(do("POST", "/board/add?topic=t-add", "delta=1"), http.StatusOK, `data-version="1"`, `>1</output>`, `hx-swap-oob="true"`)
-	expect(do("POST", "/board/add?topic=t-add", "delta=1"), http.StatusOK, `data-version="2"`, `>2</output>`)
-	expect(do("POST", "/board/add?topic=t-add", "delta=-1"), http.StatusOK, `data-version="3"`, `>1</output>`)
+	expect(do("POST", "/board/add?topic=t-add", "delta=1"), http.StatusOK, `data-version="1"`, `>1</data></output>`, `hx-swap-oob="true"`)
+	expect(do("POST", "/board/add?topic=t-add", "delta=1"), http.StatusOK, `data-version="2"`, `>2</data></output>`)
+	expect(do("POST", "/board/add?topic=t-add", "delta=-1"), http.StatusOK, `data-version="3"`, `>1</data></output>`)
 
 	expect(do("POST", "/board/note?topic=t-note", "body=%3Cb%3Ehi"), http.StatusOK, `data-version="1"`, `&lt;b&gt;hi`)
 	for i := range maxNotes + 2 {
@@ -237,7 +237,7 @@ func TestBoardFragmentWireFormat(t *testing.T) {
 		}
 		for _, want := range []string{
 			html.EscapeString(`<img src=x onerror="alert(1)"> & 'quotes'`),
-			html.EscapeString("2026-09-14 <b>"),
+			`<time datetime="2026-09-14T00:00:00Z" data-intl="since">`,
 			"unicode ✓ 日本",
 			"42",
 			"</section>",
@@ -246,7 +246,7 @@ func TestBoardFragmentWireFormat(t *testing.T) {
 				t.Errorf("%s: fragment missing %q", key, want)
 			}
 		}
-		if strings.Contains(got, "<img") {
+		if strings.Contains(got, "<img") || strings.Contains(got, "<b>") {
 			t.Errorf("%s: note body not escaped: %q", key, got)
 		}
 		if strings.Count(got, `id="board"`) != 1 {
@@ -258,7 +258,7 @@ func TestBoardFragmentWireFormat(t *testing.T) {
 			t.Errorf("fragment %s lacks lang=%q", key, lang)
 		}
 	}
-	if !strings.Contains(set.Fragments["en"], ">-3</output>") {
+	if !strings.Contains(set.Fragments["en"], ">-3</data></output>") {
 		t.Errorf("en fragment lacks the value")
 	}
 	// The publish body the Room parses.

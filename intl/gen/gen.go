@@ -1,16 +1,16 @@
-// Package msggen generates the app's message catalogs from ICU MessageFormat catalogs: one TOML file per locale
-// (locales/en.toml, locales/de.toml…), the source locale first. Messages are parsed and checked at generate time
-// (arguments and kinds must match the source) and written as data for worker/intl.mjs's message (the JS module
-// worker/messages_gen.mjs), which formats them with the runtime's Intl, plus a Go package of typed accessors (one
-// method per key, so a missing key is a compile error) that ask it.
+// Package gen is go tool intl gen: it compiles an app's catalogs (intl.toml's catalogs directory, one
+// <locale>.toml per shipped locale, ICU MessageFormat, the source locale first) into what intl needs:
 //
-//	go run ./cmd/msggen -dir locales -out locales -js worker/messages_gen.mjs -locales en,de,ar
+//	intl-messages.mjs  every catalog as data for js/intl.mjs's message, which formats it with Intl
+//	intl_gen.go        one constructor per key returning an intl.Msg (so a missing key is a compile error), the
+//	                   shipped locales, and their registration with intl
+//	<gsxui>/i18n/intl_gen.go  with intl.toml's gsxui: the renderer for the text gsxui components write themselves
 //
-// A key missing from a translation comes from the nearest shipped locale its id shortens to (en-IN → en), so a
-// regional catalog holds only what differs; inheriting from the source locale counts as translated. Keys with no
-// ancestor fall back to the source text, and [Complete] in the generated package is false for that locale. Local
-// tooling (standard Go).
-package msggen
+// Messages are parsed and checked here (arguments and kinds must match the source's). A key missing from a
+// translation comes from the nearest shipped locale its id shortens to (en-IN → en), so a regional catalog holds only
+// what differs; inheriting from the source locale counts as translated. Keys with no ancestor fall back to the
+// source text, and intl.Complete is false for that locale.
+package gen
 
 import (
 	"encoding/json"
@@ -25,18 +25,11 @@ import (
 	"unicode"
 
 	"github.com/BurntSushi/toml"
+	"github.com/joeblew999/go-htmx4/intl/config"
 )
 
-// Config is one generation run.
-type Config struct {
-	Dir     string   // catalog directory holding <locale>.toml
-	Out     string   // output Go package directory
-	JS      string   // the catalogs' JS module, e.g. worker/messages_gen.mjs
-	Package string   // default: base of Out
-	Source  string   // source locale (default: first of Locales)
-	Locales []string // shipped locale ids, e.g. "en", "pt-BR"
-	Log     io.Writer
-}
+// ImportPath is the intl package, which the generated code imports.
+const ImportPath = "github.com/joeblew999/go-htmx4/intl"
 
 // PseudoCatalog is the en-XA catalog: the source, pseudo-localized (accented, bracketed, ~40% longer).
 const PseudoCatalog = "en-XA"
@@ -48,21 +41,16 @@ type message struct {
 	index  map[string]int8
 }
 
-// Generate reads the catalogs and writes the JS module and the Go package.
-func Generate(cfg Config) error {
-	if len(cfg.Locales) == 0 || cfg.Dir == "" || cfg.Out == "" || cfg.JS == "" {
-		return errors.New("msggen: Dir, Out, JS and Locales are required")
+// Generate reads c's catalogs and writes intl-messages.mjs and intl_gen.go beside them.
+func Generate(c config.Config, log io.Writer) error {
+	if len(c.Locales) == 0 || c.Catalogs == "" {
+		return errors.New("intl gen: locales and catalogs are required")
 	}
-	if cfg.Source == "" {
-		cfg.Source = cfg.Locales[0]
+	if log == nil {
+		log = io.Discard
 	}
-	if cfg.Package == "" {
-		cfg.Package = filepath.Base(cfg.Out)
-	}
-	if cfg.Log == nil {
-		cfg.Log = io.Discard
-	}
-	src, err := readCatalog(filepath.Join(cfg.Dir, cfg.Source+".toml"))
+	dir, locales, source := c.CatalogDir(), c.Locales, c.Locales[0]
+	src, err := readCatalog(filepath.Join(dir, source+".toml"))
 	if err != nil {
 		return err
 	}
@@ -70,7 +58,7 @@ func Generate(cfg Config) error {
 	for _, key := range sortedKeys(src) {
 		p, err := parse(src[key])
 		if err != nil {
-			return fmt.Errorf("msggen: %s.toml %s: %w", cfg.Source, key, err)
+			return fmt.Errorf("intl gen: %s.toml %s: %w", source, key, err)
 		}
 		idx := map[string]int8{}
 		for i, name := range p.order {
@@ -79,27 +67,27 @@ func Generate(cfg Config) error {
 		msgs = append(msgs, &message{key: key, src: src[key], parsed: p, index: idx})
 	}
 	if len(msgs) == 0 {
-		return fmt.Errorf("msggen: %s.toml has no messages", cfg.Source)
+		return fmt.Errorf("intl gen: %s.toml has no messages", source)
 	}
 
 	trs := map[string]map[string]string{}
-	for _, id := range cfg.Locales {
-		tr, err := readCatalog(filepath.Join(cfg.Dir, id+".toml"))
-		if errors.Is(err, os.ErrNotExist) && id != cfg.Source {
+	for _, id := range locales {
+		tr, err := readCatalog(filepath.Join(dir, id+".toml"))
+		if errors.Is(err, os.ErrNotExist) && id != source {
 			tr = map[string]string{}
 		} else if err != nil {
 			return err
 		}
 		for k := range tr {
 			if !slices.ContainsFunc(msgs, func(m *message) bool { return m.key == k }) {
-				return fmt.Errorf("msggen: %s.toml has %s, which %s.toml doesn't", id, k, cfg.Source)
+				return fmt.Errorf("intl gen: %s.toml has %s, which %s.toml doesn't", id, k, source)
 			}
 		}
 		trs[id] = tr
 	}
 	// lookup finds key in id's catalog or its nearest shipped ancestor's, reporting which one.
 	lookup := func(id, key string) (text, from string, ok bool) {
-		for ; id != ""; id = parent(id, cfg.Locales) {
+		for ; id != ""; id = parent(id, locales) {
 			if text, ok := trs[id][key]; ok {
 				return text, id, true
 			}
@@ -108,7 +96,7 @@ func Generate(cfg Config) error {
 	}
 	catalogs := map[string][]any{}
 	var complete []bool
-	for _, id := range cfg.Locales {
+	for _, id := range locales {
 		var out []any
 		missing, inherited := 0, 0
 		for _, m := range msgs {
@@ -120,15 +108,15 @@ func Generate(cfg Config) error {
 				}
 				var err error
 				if p, err = parse(text); err != nil {
-					return fmt.Errorf("msggen: %s.toml %s: %w", from, m.key, err)
+					return fmt.Errorf("intl gen: %s.toml %s: %w", from, m.key, err)
 				}
 				for name, kind := range p.args {
 					want, known := m.parsed.args[name]
 					if !known {
-						return fmt.Errorf("msggen: %s.toml %s: argument {%s} isn't in the %s message", from, m.key, name, cfg.Source)
+						return fmt.Errorf("intl gen: %s.toml %s: argument {%s} isn't in the %s message", from, m.key, name, source)
 					}
 					if kind != want {
-						return fmt.Errorf("msggen: %s.toml %s: argument {%s} is used as a %s, %s uses it as a %s", from, m.key, name, kindName(kind), cfg.Source, kindName(want))
+						return fmt.Errorf("intl gen: %s.toml %s: argument {%s} is used as a %s, %s uses it as a %s", from, m.key, name, kindName(kind), source, kindName(want))
 					}
 				}
 			} else {
@@ -138,11 +126,11 @@ func Generate(cfg Config) error {
 		}
 		catalogs[id] = out
 		complete = append(complete, missing == 0)
-		fmt.Fprintf(cfg.Log, "%-8s %d/%d messages translated", id, len(msgs)-missing, len(msgs))
+		fmt.Fprintf(log, "%-8s %d/%d messages translated", id, len(msgs)-missing, len(msgs))
 		if inherited > 0 {
-			fmt.Fprintf(cfg.Log, " (%d inherited)", inherited)
+			fmt.Fprintf(log, " (%d inherited)", inherited)
 		}
-		fmt.Fprintln(cfg.Log)
+		fmt.Fprintln(log)
 	}
 	var pseudo []any
 	for _, m := range msgs {
@@ -150,134 +138,54 @@ func Generate(cfg Config) error {
 	}
 	catalogs[PseudoCatalog] = pseudo
 
-	absDir, err := filepath.Abs(cfg.Dir)
-	if err != nil {
+	name := filepath.Base(dir)
+	if err := writeJS(filepath.Join(dir, "intl-messages.mjs"), name, append(slices.Clone(locales), PseudoCatalog), catalogs); err != nil {
 		return err
 	}
-	dir := filepath.Base(absDir)
-	if err := writeJS(cfg.JS, dir, append(slices.Clone(cfg.Locales), PseudoCatalog), catalogs); err != nil {
-		return err
-	}
-
-	if err := os.MkdirAll(cfg.Out, 0o755); err != nil {
-		return err
-	}
-	old, _ := filepath.Glob(filepath.Join(cfg.Out, "*_msg_gen.go"))
-	for _, f := range old {
-		os.Remove(f)
-	}
-	header := "// Code generated by msggen from " + dir + "/*.toml. DO NOT EDIT.\n\npackage " + cfg.Package + "\n\n"
 
 	var b strings.Builder
-	b.WriteString(header)
-	b.WriteString(runtimeSource)
-	b.WriteString("\n// Shipped are the app's locales (I18N_LOCALES), the source first.\nvar Shipped = i18n.Locales{")
-	for _, id := range cfg.Locales {
-		fmt.Fprintf(&b, "i18n.NewLocale(%q), ", id)
+	b.WriteString("// Code generated by go tool intl gen from " + name + "/*.toml (intl.toml). DO NOT EDIT.\n\npackage " + name + "\n\n")
+	b.WriteString("import \"" + ImportPath + "\"\n\n")
+	b.WriteString("// Shipped are the app's locales (intl.toml), the source first.\nvar Shipped = intl.Locales{")
+	for _, id := range locales {
+		fmt.Fprintf(&b, "intl.NewLocale(%q), ", id)
 	}
-	b.WriteString("}\n\n// catalogs are the catalogs in " + filepath.Base(cfg.JS) + ", in Shipped's order.\nvar catalogs = []string{")
-	for _, id := range cfg.Locales {
-		fmt.Fprintf(&b, "%q, ", id)
-	}
-	b.WriteString("}\n\n// complete lists, per catalog, whether every message is translated.\nvar complete = []bool{")
+	b.WriteString("}\n\nfunc init() { intl.Use(Shipped, []bool{")
 	for _, c := range complete {
 		fmt.Fprintf(&b, "%v, ", c)
 	}
-	b.WriteString("}\n")
-	if err := writeGo(filepath.Join(cfg.Out, "runtime_msg_gen.go"), b.String()); err != nil {
-		return err
-	}
-
-	b.Reset()
-	b.WriteString(header)
-	b.WriteString("import \"github.com/joeblew999/go-htmx4/internal/i18n\"\n\nvar _ = i18n.Num\n\n")
+	b.WriteString("}) }\n\n")
 	names := map[string]string{}
 	for i, m := range msgs {
-		name := goName(m.key)
-		if prev, dup := names[name]; dup {
-			return fmt.Errorf("msggen: keys %s and %s both become method %s", prev, m.key, name)
+		fn := goName(m.key)
+		if prev, dup := names[fn]; dup {
+			return fmt.Errorf("intl gen: keys %s and %s both become %s", prev, m.key, fn)
 		}
-		names[name] = m.key
+		names[fn] = m.key
 		var params, args []string
 		for _, a := range m.parsed.order {
 			pn := paramName(a)
 			if m.parsed.args[a] == argNumber {
 				params = append(params, pn+" float64")
-				args = append(args, "i18n.Num("+pn+")")
+				args = append(args, "intl.Num("+pn+")")
 			} else {
 				params = append(params, pn+" string")
-				args = append(args, pn)
+				args = append(args, "intl.Str("+pn+")")
 			}
 		}
-		fmt.Fprintf(&b, "// %s is %q: %s\nfunc (m Messages) %s(%s) string {\n\treturn m.format(%d%s)\n}\n\n",
-			name, m.key, strings.ReplaceAll(m.src, "\n", " "), name, strings.Join(params, ", "), i, prefixComma(args))
+		fmt.Fprintf(&b, "// %s is %q: %s\nfunc %s(%s) intl.Msg { return intl.M(%d%s) }\n\n",
+			fn, m.key, strings.ReplaceAll(m.src, "\n", " "), fn, strings.Join(params, ", "), i, prefixComma(args))
 	}
-	return writeGo(filepath.Join(cfg.Out, "messages_msg_gen.go"), b.String())
+	if err := writeGo(filepath.Join(dir, "intl_gen.go"), b.String()); err != nil {
+		return err
+	}
+	if c.Gsxui == "" {
+		return nil
+	}
+	return writeGsxui(c, msgs)
 }
 
-// runtimeSource is the generated package's lookup code.
-const runtimeSource = `import (
-	"context"
-
-	"github.com/joeblew999/go-htmx4/internal/i18n"
-)
-
-// Messages are the app's UI strings in one locale, formatted by worker/intl.mjs's message with the runtime's Intl.
-// Get them with For (the request's locale) or ForLocale.
-type Messages struct {
-	loc *i18n.Locale
-	cat string // the catalog: the locale's own, the source's, or the pseudo-localized one
-}
-
-// For returns the messages for the request's locale (internal/i18n FromContext), or the source locale's.
-func For(ctx context.Context) Messages {
-	if r, ok := i18n.FromContext(ctx); ok {
-		return ForLocale(r.Locale)
-	}
-	return ForLocale(Shipped[0])
-}
-
-// ForLocale returns the messages for a resolved locale (the source catalog for one without its own).
-func ForLocale(loc *i18n.Locale) Messages {
-	if loc == nil {
-		loc = Shipped[0]
-	}
-	for _, c := range catalogs {
-		if c == loc.ID() {
-			return Messages{loc: loc, cat: c}
-		}
-	}
-	return Messages{loc: loc, cat: catalogs[0]}
-}
-
-// Pseudo returns en-XA pseudo-localized messages (accented, bracketed, ~40% longer) formatted for loc: render pages
-// with them to find text that doesn't go through a catalog.
-func Pseudo(loc *i18n.Locale) Messages {
-	if loc == nil {
-		loc = Shipped[0]
-	}
-	return Messages{loc: loc, cat: "en-XA"}
-}
-
-// Complete reports whether the locale's catalog translates every message.
-func Complete(id string) bool {
-	for i, c := range catalogs {
-		if c == id {
-			return complete[i]
-		}
-	}
-	return false
-}
-
-func (m Messages) format(i int, args ...string) string {
-	if m.loc == nil {
-		m = ForLocale(nil)
-	}
-	return m.loc.Message(m.cat, i, args...)
-}
-`
-
-// jsMessage encodes a message for worker/intl.mjs's message: a string when it is all text, else its parts (see
+// jsMessage encodes a message for js/intl.mjs's message: a string when it is all text, else its parts (see
 // message there), arguments by their index in the source message.
 func jsMessage(nodes []node, m *message) any {
 	switch {
@@ -331,8 +239,8 @@ func jsCases(cases []caseNode, m *message) map[string][]any {
 // as a diff.
 func writeJS(path, dir string, ids []string, catalogs map[string][]any) error {
 	var b strings.Builder
-	b.WriteString("// Code generated by msggen from " + dir + "/*.toml. DO NOT EDIT.\n")
-	b.WriteString("// The message catalogs for worker/intl.mjs's message: per catalog, its messages in key order (the index the\n// typed accessors pass).\n")
+	b.WriteString("// Code generated by go tool intl gen from " + dir + "/*.toml (intl.toml). DO NOT EDIT.\n")
+	b.WriteString("// The catalogs for intl.mjs's message: per catalog, its messages in key order (the index the generated\n// constructors pass).\n")
 	b.WriteString("export default {\n")
 	for i, id := range ids {
 		fmt.Fprintf(&b, "  %q: [\n", id)
@@ -363,7 +271,7 @@ func readCatalog(path string) (map[string]string, error) {
 	}
 	var raw map[string]any
 	if _, err := toml.Decode(string(b), &raw); err != nil {
-		return nil, fmt.Errorf("msggen: %s: %w", path, err)
+		return nil, fmt.Errorf("intl gen: %s: %w", path, err)
 	}
 	out := map[string]string{}
 	var walk func(prefix string, m map[string]any) error
@@ -381,7 +289,7 @@ func readCatalog(path string) (map[string]string, error) {
 					return err
 				}
 			default:
-				return fmt.Errorf("msggen: %s: %s is not a string", path, key)
+				return fmt.Errorf("intl gen: %s: %s is not a string", path, key)
 			}
 		}
 		return nil
@@ -497,7 +405,7 @@ func writeGo(path, src string) error {
 	out, err := format.Source([]byte(src))
 	if err != nil {
 		os.WriteFile(path+".broken", []byte(src), 0o644)
-		return fmt.Errorf("msggen: %s: %w", path, err)
+		return fmt.Errorf("intl gen: %s: %w", path, err)
 	}
 	return os.WriteFile(path, out, 0o644)
 }

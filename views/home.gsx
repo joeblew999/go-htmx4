@@ -1,6 +1,7 @@
 package views
 
 import (
+	"github.com/joeblew999/go-htmx4/locales"
 	"github.com/joeblew999/go-htmx4/ui"
 	"github.com/joeblew999/go-htmx4/ui/icon"
 )
@@ -9,17 +10,17 @@ import (
 // out-of-band toast, lazily loaded dialog and tab content, client-side state with hx-live, and the live
 // board.
 component HomePage(target string, env string, flavours []string, components []string) {
-	<Layout title={M(ctx).HomeTitle()} description={M(ctx).HomeDescription()} path="/">
+	<Layout title={locales.HomeTitle()} description={locales.HomeDescription()} path="/">
 		<div class="flex flex-col gap-2">
-			<h1 class="text-3xl font-semibold tracking-tight">{ M(ctx).HomeHeading() }</h1>
-			<p class="text-muted-foreground">{ M(ctx).HomeIntro() }</p>
+			<h1 class="text-3xl font-semibold tracking-tight">{ locales.HomeHeading() }</h1>
+			<p class="text-muted-foreground">{ locales.HomeIntro() }</p>
 			<div class="flex flex-wrap gap-2">
 				<ui.Badge variant="secondary">
-					{ M(ctx).HomeServedBy() }
+					{ locales.HomeServedBy() }
 					<span id="target" translate="no">{ target }</span>
 				</ui.Badge>
 				<ui.Badge variant="outline">
-					{ M(ctx).HomeEnv() }
+					{ locales.HomeEnv() }
 					<span id="env" translate="no">{ env }</span>
 				</ui.Badge>
 			</div>
@@ -37,18 +38,18 @@ component HomePage(target string, env string, flavours []string, components []st
 component GreetCard(flavours []string) {
 	<ui.Card>
 		<ui.CardHeader>
-			<ui.CardTitle>{ M(ctx).HomeGreetTitle() }</ui.CardTitle>
-			<ui.CardDescription>{ M(ctx).HomeGreetDescription() }</ui.CardDescription>
+			<ui.CardTitle>{ locales.HomeGreetTitle() }</ui.CardTitle>
+			<ui.CardDescription>{ locales.HomeGreetDescription() }</ui.CardDescription>
 		</ui.CardHeader>
 		<ui.CardContent class="flex flex-col gap-4">
 			<form hx-post={URL(ctx, "/greet")} hx-target="#greeting" class="flex flex-col gap-4">
 				<ui.FieldGroup>
 					<ui.Field>
-						<ui.FieldLabel for="name">{ M(ctx).HomeGreetName() }</ui.FieldLabel>
-						<ui.Input id="name" name="name" placeholder={M(ctx).HomeGreetNamePlaceholder()} required/>
+						<ui.FieldLabel for="name">{ locales.HomeGreetName() }</ui.FieldLabel>
+						<ui.Input id="name" name="name" placeholder={locales.HomeGreetNamePlaceholder()} required/>
 					</ui.Field>
 					<ui.Field>
-						<ui.FieldLabel for="flavour">{ M(ctx).HomeGreetFlavour() }</ui.FieldLabel>
+						<ui.FieldLabel for="flavour">{ locales.HomeGreetFlavour() }</ui.FieldLabel>
 						<ui.NativeSelect id="flavour" name="flavour" translate="no">
 							{ for _, f := range flavours {
 								<ui.NativeSelectOption value={f}>{ f }</ui.NativeSelectOption>
@@ -57,13 +58,13 @@ component GreetCard(flavours []string) {
 					</ui.Field>
 					<ui.Field orientation="horizontal">
 						<ui.Switch id="shout" name="shout" value="on"/>
-						<ui.FieldLabel for="shout">{ M(ctx).HomeGreetShout() }</ui.FieldLabel>
+						<ui.FieldLabel for="shout">{ locales.HomeGreetShout() }</ui.FieldLabel>
 					</ui.Field>
 				</ui.FieldGroup>
 				<div class="flex gap-2">
 					<ui.Button type="submit">
 						<icon.Send/>
-						{ M(ctx).HomeGreetSubmit() }
+						{ locales.HomeGreetSubmit() }
 					</ui.Button>
 					<ui.Button
 						variant="ghost"
@@ -72,7 +73,7 @@ component GreetCard(flavours []string) {
 						hx-method="delete"
 						hx-target="#greeting"
 					>
-						{ M(ctx).HomeGreetClear() }
+						{ locales.HomeGreetClear() }
 					</ui.Button>
 				</div>
 			</form>
@@ -86,8 +87,8 @@ component GreetCard(flavours []string) {
 component DialogCard() {
 	<ui.Card>
 		<ui.CardHeader>
-			<ui.CardTitle>{ M(ctx).HomeDialogTitle() }</ui.CardTitle>
-			<ui.CardDescription>{ M(ctx).HomeDialogDescription() }</ui.CardDescription>
+			<ui.CardTitle>{ locales.HomeDialogTitle() }</ui.CardTitle>
+			<ui.CardDescription>{ locales.HomeDialogDescription() }</ui.CardDescription>
 		</ui.CardHeader>
 		<ui.CardContent>
 			<ui.Dialog>
@@ -99,17 +100,17 @@ component DialogCard() {
 					hx-get={URL(ctx, "/fragments/server-info")}
 					hx-target="#server-info"
 				>
-					{ M(ctx).HomeDialogOpen() }
+					{ locales.HomeDialogOpen() }
 				</ui.Button>
 				<ui.DialogContent hideCloseButton={true}>
 					<ui.DialogHeader>
-						<ui.DialogTitle>{ M(ctx).HomeDialogHeading() }</ui.DialogTitle>
-						<ui.DialogDescription>{ M(ctx).HomeDialogSubtitle() }</ui.DialogDescription>
+						<ui.DialogTitle>{ locales.HomeDialogHeading() }</ui.DialogTitle>
+						<ui.DialogDescription>{ locales.HomeDialogSubtitle() }</ui.DialogDescription>
 					</ui.DialogHeader>
-					<div id="server-info" class="text-sm text-muted-foreground">{ M(ctx).HomeDialogLoading() }</div>
+					<div id="server-info" class="text-sm text-muted-foreground">{ locales.HomeDialogLoading() }</div>
 					<ui.DialogFooter showCloseButton={false}>
 						<ui.Button variant="outline" data-gsxui-dialog-close data-gsxui-slot-dialog-footer-close>
-							{ M(ctx).HomeDialogClose() }
+							{ locales.HomeDialogClose() }
 						</ui.Button>
 					</ui.DialogFooter>
 				</ui.DialogContent>
@@ -121,27 +122,27 @@ component DialogCard() {
 component TabsCard() {
 	<ui.Card>
 		<ui.CardHeader>
-			<ui.CardTitle>{ M(ctx).HomeTabsTitle() }</ui.CardTitle>
-			<ui.CardDescription>{ M(ctx).HomeTabsDescription() }</ui.CardDescription>
+			<ui.CardTitle>{ locales.HomeTabsTitle() }</ui.CardTitle>
+			<ui.CardDescription>{ locales.HomeTabsDescription() }</ui.CardDescription>
 		</ui.CardHeader>
 		<ui.CardContent>
 			<ui.Tabs value="overview">
 				<ui.TabsList>
-					<ui.TabsTrigger value="overview" selected>{ M(ctx).HomeTabsOverview() }</ui.TabsTrigger>
+					<ui.TabsTrigger value="overview" selected>{ locales.HomeTabsOverview() }</ui.TabsTrigger>
 					<ui.TabsTrigger
 						value="stats"
 						hx-get={URL(ctx, "/fragments/stats")}
 						hx-target="#tab-stats"
 						hx-trigger="click once"
 					>
-						{ M(ctx).HomeTabsStats() }
+						{ locales.HomeTabsStats() }
 					</ui.TabsTrigger>
 				</ui.TabsList>
 				<ui.TabsContent value="overview" selected class="pt-3 text-sm">
-					{ M(ctx).HomeTabsOverviewBody() }
+					{ locales.HomeTabsOverviewBody() }
 				</ui.TabsContent>
 				<ui.TabsContent value="stats" class="pt-3 text-sm">
-					<div id="tab-stats" class="text-muted-foreground">{ M(ctx).HomeTabsLoading() }</div>
+					<div id="tab-stats" class="text-muted-foreground">{ locales.HomeTabsLoading() }</div>
 				</ui.TabsContent>
 			</ui.Tabs>
 		</ui.CardContent>
@@ -153,26 +154,26 @@ component TabsCard() {
 component LiveCard(components []string) {
 	<ui.Card>
 		<ui.CardHeader>
-			<ui.CardTitle>{ M(ctx).HomeLiveTitle() }</ui.CardTitle>
-			<ui.CardDescription>{ M(ctx).HomeLiveDescription() }</ui.CardDescription>
+			<ui.CardTitle>{ locales.HomeLiveTitle() }</ui.CardTitle>
+			<ui.CardDescription>{ locales.HomeLiveDescription() }</ui.CardDescription>
 		</ui.CardHeader>
 		<ui.CardContent class="flex flex-col gap-4">
 			<div data-count="0" class="flex items-center gap-3">
-				<ui.Button variant="outline" hx-on:click=js`data.count++`>{ M(ctx).HomeLiveIncrement() }</ui.Button>
+				<ui.Button variant="outline" hx-on:click=js`data.count++`>{ locales.HomeLiveIncrement() }</ui.Button>
 				<span class="text-sm">
-					{ M(ctx).HomeLiveCount() }
+					{ locales.HomeLiveCount() }
 					<ui.Badge variant="secondary" :text=js`data.count`>0</ui.Badge>
 				</span>
 			</div>
 			<div class="flex flex-wrap items-start gap-3">
 				<div data-open="false" class="relative" hx-on="click from:outside -> data.open = false">
-					<ui.Button variant="outline" hx-on:click=js`data.open = !data.open`>{ M(ctx).HomeLiveMenu() }</ui.Button>
+					<ui.Button variant="outline" hx-on:click=js`data.open = !data.open`>{ locales.HomeLiveMenu() }</ui.Button>
 					<div
 						hidden
 						:hidden=js`!data.open`
 						class="absolute z-10 mt-2 flex w-40 flex-col gap-1 rounded-md border bg-popover p-2 text-sm shadow-md"
 					>
-						<span>{ M(ctx).HomeLiveStateBag() }</span>
+						<span>{ locales.HomeLiveStateBag() }</span>
 						<code>data.open</code>
 					</div>
 				</div>
@@ -182,11 +183,11 @@ component LiveCard(components []string) {
 					hx-on:click=js`aria.pressed = !aria.pressed`
 					:class=js`{ 'font-bold underline': aria.pressed }`
 				>
-					{ M(ctx).HomeLiveBold() }
+					{ locales.HomeLiveBold() }
 				</ui.Button>
 			</div>
 			<div class="flex flex-col gap-2">
-				<ui.Input placeholder={M(ctx).HomeLiveFilterPlaceholder()} aria-label={M(ctx).HomeLiveFilterLabel()}/>
+				<ui.Input placeholder={locales.HomeLiveFilterPlaceholder()} aria-label={locales.HomeLiveFilterLabel()}/>
 				<ul
 					class="flex flex-wrap gap-2"
 					translate="no"
@@ -206,13 +207,13 @@ component LiveCard(components []string) {
 component BoardCard() {
 	<ui.Card>
 		<ui.CardHeader>
-			<ui.CardTitle>{ M(ctx).HomeBoardTitle() }</ui.CardTitle>
-			<ui.CardDescription>{ M(ctx).HomeBoardDescription() }</ui.CardDescription>
+			<ui.CardTitle>{ locales.HomeBoardTitle() }</ui.CardTitle>
+			<ui.CardDescription>{ locales.HomeBoardDescription() }</ui.CardDescription>
 		</ui.CardHeader>
 		<ui.CardContent>
 			<ui.Button href={URL(ctx, "/board")}>
 				<icon.Radio/>
-				{ M(ctx).HomeBoardOpen() }
+				{ locales.HomeBoardOpen() }
 			</ui.Button>
 		</ui.CardContent>
 	</ui.Card>

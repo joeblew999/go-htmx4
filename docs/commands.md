@@ -101,17 +101,17 @@ Install go.mod's gsx into GOPATH/bin for the VS Code gsx language server
 
 ### `generate`
 
-- Depends: i18n:messages
+- Depends: intl
 
 - **Usage:** `generate`
 
-go tool gsx generate (after i18n:messages: views call the generated message methods)
+go tool gsx generate (after intl: views write the generated messages)
 
-### `i18n:messages`
+### `intl`
 
-- **Usage:** `i18n:messages`
+- **Usage:** `intl`
 
-Generate worker/messages_gen.mjs (the catalogs Intl formats) and their typed accessors locales/*_msg_gen.go from locales/*.toml (I18N_LOCALES, en first)
+Compile locales/*.toml into the locales package, intl-messages.mjs and the gsxui translator (go tool intl gen, from intl.toml)
 
 ### `load`
 
@@ -269,7 +269,7 @@ Everything before a push: the production build + workerd smoke, gsx fmt/gofmt, g
 
 - **Usage:** `test:go`
 
-gsx fmt/gofmt check + go vet + go test (standard Go; runs beside the production build)
+gsx fmt/gofmt check + go vet + go test, the app and intl/ (standard Go; runs beside the production build)
 
 ### `token-check`
 

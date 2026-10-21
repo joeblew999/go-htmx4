@@ -10,9 +10,12 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"slices"
 	"strings"
 	"testing"
 
+	"github.com/joeblew999/go-htmx4/intl"
+	"github.com/joeblew999/go-htmx4/intl/config"
 	"github.com/joeblew999/go-htmx4/locales"
 	"github.com/joeblew999/go-htmx4/views"
 	nethtml "golang.org/x/net/html"
@@ -79,11 +82,11 @@ func TestUntranslatedNoindex(t *testing.T) {
 	}
 	for _, ld := range locales.Shipped[1:] {
 		want := ""
-		if !locales.Complete(ld.ID()) {
+		if !intl.Complete(ld.ID()) {
 			want = "noindex"
 		}
 		if got := get(t, h, views.LocalePrefix(ld)+"/about").Header().Get("X-Robots-Tag"); got != want {
-			t.Errorf("%s (complete catalog: %v) X-Robots-Tag = %q, want %q", ld.ID(), locales.Complete(ld.ID()), got, want)
+			t.Errorf("%s (complete catalog: %v) X-Robots-Tag = %q, want %q", ld.ID(), intl.Complete(ld.ID()), got, want)
 		}
 	}
 }
@@ -207,15 +210,16 @@ func TestLogicalClasses(t *testing.T) {
 	}
 }
 
-// TestFormatsPage: the examples reach the browser as raw values with their Intl options (static/intl.js formats
-// them), and the plural rows show each language's Intl.PluralRules categories with numbers that select them.
+// TestFormatsPage: every example is the Intl call itself, formatted on the server and carried to the browser
+// (data-intl, data-method, data-opts, data-args) for intl-browser.mjs to redo, and the plural rows show each
+// language's Intl.PluralRules categories.
 func TestFormatsPage(t *testing.T) {
 	h := newServer().routes()
 	for path, wants := range map[string][]string{
-		"/formats":    {`data-intl="number" data-value="1234567.891"`, `data-opts="{&#34;style&#34;:&#34;currency&#34;,&#34;currency&#34;:&#34;EUR&#34;}"`, `data-intl="datetime" data-value="2026-07-04T15:30:45.123Z"`, `data-intl="range"`, `data-end="2026-07-04T17:00:45.123Z"`, `data-intl="relative" data-value="-1" data-opts="{&#34;numeric&#34;:&#34;auto&#34;}" data-unit="day"`, `data-intl="list"`, `data-intl="duration"`, `data-intl="number-range"`, `data-intl="plural"`, `data-intl="display-name"`, `data-intl="collate"`, `data-intl="segment"`, `data-intl="locale" data-value="maximize"`, `data-intl="supported" data-value="unit"`, "cardinal · one", "ordinal · few", "Saturday, July 4, 2026"},
-		"/de/formats": {`&#34;currency&#34;:&#34;EUR&#34;`, "cardinal · one"},
-		"/ar/formats": {"cardinal · zero", "cardinal · two", "cardinal · few", "cardinal · many", `{&#34;numberingSystem&#34;:&#34;arab&#34;}`},
-		"/ru/formats": {"cardinal · few", "2, 3, 4, 22, 23"},
+		"/formats":    {`data-intl="NumberFormat" data-args="[&#34;1234567.891&#34;]"`, `data-opts="{&#34;style&#34;:&#34;currency&#34;,&#34;currency&#34;:&#34;EUR&#34;}"`, `<time datetime="2026-07-04T15:30:45.123Z" data-intl="DateTimeFormat"`, `data-method="formatRange"`, `data-intl="RelativeTimeFormat"`, `data-intl="ListFormat"`, `data-intl="DurationFormat"`, `data-intl="PluralRules"`, `data-intl="DisplayNames"`, `data-intl="Collator" data-method="compare"`, `data-intl="Segmenter" data-method="segment"`, `data-intl="Locale" data-method="maximize"`, `data-intl="Intl" data-method="supportedValuesOf"`, `&#34;pluralCategories&#34;:[&#34;one&#34;,&#34;other&#34;]`, "Saturday, July 4, 2026"},
+		"/de/formats": {`&#34;currency&#34;:&#34;EUR&#34;`, `&#34;pluralCategories&#34;:[&#34;one&#34;,&#34;other&#34;]`},
+		"/ar/formats": {`&#34;pluralCategories&#34;:[&#34;zero&#34;,&#34;one&#34;,&#34;two&#34;,&#34;few&#34;,&#34;many&#34;,&#34;other&#34;]`, `{&#34;numberingSystem&#34;:&#34;arab&#34;}`},
+		"/ru/formats": {`&#34;pluralCategories&#34;:[&#34;one&#34;,&#34;few&#34;,&#34;many&#34;,&#34;other&#34;]`},
 	} {
 		body := get(t, h, path).Body.String()
 		for _, w := range wants {
@@ -226,8 +230,8 @@ func TestFormatsPage(t *testing.T) {
 	}
 }
 
-// TestNoteRelativeTime: a note's time reaches the browser as an instant with a UTC fallback; static/intl.js words it
-// ("vor 2 Minuten") in the page's language.
+// TestNoteRelativeTime: a note's age is worded by Intl on the server in the page's language ("vor 2 Minuten") and
+// reaches the browser as an instant, which intl-browser.mjs keeps fresh.
 func TestNoteRelativeTime(t *testing.T) {
 	h := newServer().routes()
 	post := httptest.NewRequest("POST", "/de/board/note?topic=reltime", strings.NewReader("body=hallo"))
@@ -235,23 +239,23 @@ func TestNoteRelativeTime(t *testing.T) {
 	h.ServeHTTP(httptest.NewRecorder(), post)
 	page := get(t, h, "/de/board?topic=reltime").Body.String()
 	// Worded by Intl on the server in German ("vor 0 Sekunden", "jetzt"…), not the UTC fallback.
-	m := regexp.MustCompile(`<time datetime="20\d\d-\d\d-\d\dT\d\d:\d\d:\d\dZ" title="20\d\d-\d\d-\d\d \d\d:\d\d UTC" data-intl="relative">([^<]+)</time>`).FindStringSubmatch(page)
+	m := regexp.MustCompile(`<time datetime="20\d\d-\d\d-\d\dT\d\d:\d\d:\d\dZ" data-intl="since">([^<]+)</time>`).FindStringSubmatch(page)
 	if m == nil || strings.HasSuffix(m[1], "UTC") {
-		t.Errorf("board page lacks the note's <time data-intl=relative> worded by Intl: %q", m)
+		t.Errorf("board page lacks the note's <time data-intl=since> worded by Intl: %q", m)
 	}
-	if !strings.Contains(page, `src="/static/intl.js"`) {
-		t.Errorf("layout lacks static/intl.js")
+	if !strings.Contains(page, `src="/static/intl-browser.mjs"`) {
+		t.Errorf("layout lacks intl-browser.mjs")
 	}
 }
 
 // TestNoHardcodedText renders pages and fragments with en-XA pseudo-localized messages and fails on any
 // plain-ASCII word left in visible text or in placeholder/aria-label/title: such text doesn't come from
 // locales/*.toml. Brand and technical values opt out with translate="no" (or <code>, <time>); values the browser
-// formats (data-intl: their text is a fallback until static/intl.js replaces it) and server-computed locale data
+// redoes (data-intl: Intl's own words) and server-computed locale data
 // (data-i18n="intl") are skipped too. <template> is client-side markup (gsxui toaster).
 func TestNoHardcodedText(t *testing.T) {
-	views.PseudoMessages = true
-	defer func() { views.PseudoMessages = false }()
+	intl.Pseudo = true
+	defer func() { intl.Pseudo = false }()
 	h := newServer().routes()
 	word := regexp.MustCompile(`[A-Za-z]{3,}`)
 	pseudo := regexp.MustCompile(`⟦[^⟧]*⟧`) // a pseudo message, arguments included
@@ -311,7 +315,7 @@ func TestNoHardcodedText(t *testing.T) {
 	}
 }
 
-// TestTimeZonePreferences: the viewer's chosen zone and clock (the tz/hc cookies) reach static/intl.js as
+// TestTimeZonePreferences: the viewer's chosen zone and clock (the tz/hc cookies) reach intl-browser.mjs as
 // <html data-tz data-hc>; without a choice they're empty and the browser uses its own zone. The connection's zone
 // (Cloudflare's cf.timezone; a header under go test) only labels "Automatic (…)" in the form.
 func TestTimeZonePreferences(t *testing.T) {
@@ -340,10 +344,10 @@ func TestTimeZonePreferences(t *testing.T) {
 	has("no choice", page("/formats", "Asia/Tokyo"), `data-tz="" data-hc=""`)
 	has("chosen", page("/formats", "Asia/Tokyo", la, &http.Cookie{Name: "hc", Value: "h23"}), `data-tz="America/Los_Angeles" data-hc="h23"`)
 	has("bad cookies are ignored", page("/formats", "", &http.Cookie{Name: "tz", Value: "../nope"}, &http.Cookie{Name: "hc", Value: "h99"}), `data-tz="" data-hc=""`)
-	has("server-info", page("/fragments/server-info", ""), `data-intl="datetime" data-opts="{&#34;dateStyle&#34;:&#34;full&#34;,&#34;timeStyle&#34;:&#34;long&#34;}"`, `data-intl="duration"`)
+	has("server-info", page("/fragments/server-info", ""), `data-intl="DateTimeFormat" data-opts="{&#34;dateStyle&#34;:&#34;full&#34;,&#34;timeStyle&#34;:&#34;long&#34;}"`, `data-intl="DurationFormat"`)
 
 	form := page("/de/fragments/preferences", "Asia/Tokyo", &http.Cookie{Name: "tz", Value: "Europe/Berlin"}, &http.Cookie{Name: "hc", Value: "h12"})
-	has("preferences form", form, `action="/de/preferences"`, `data-intl-zones`, `<option value="Europe/Berlin" selected`, "Automatisch (Asia/Tokyo)", "data-template=\"Automatisch (\ue000)\"", `<option value="h12" selected`)
+	has("preferences form", form, `action="/de/preferences"`, `data-intl-zones`, `<option value="Europe/Berlin" selected`, "Automatisch (Asia/Tokyo)", "data-template=\"Automatisch (\u2068\ue000\u2069)\"", `<option value="h12" selected`)
 
 	post := func(body string) *httptest.ResponseRecorder {
 		req := httptest.NewRequest("POST", "/de/preferences", strings.NewReader(body))
@@ -378,20 +382,18 @@ func TestTimeZonePreferences(t *testing.T) {
 	}
 }
 
-// TestLocalesMatchMise: locales.Shipped is the locales mise.toml's I18N_LOCALES names, in that order
-// (mise run i18n:messages regenerates it).
-func TestLocalesMatchMise(t *testing.T) {
-	mise, err := os.ReadFile("mise.toml")
+// TestLocalesMatchConfig: locales.Shipped is intl.toml's locales, in that order (mise run intl regenerates it).
+func TestLocalesMatchConfig(t *testing.T) {
+	c, err := config.Find(".")
 	if err != nil {
 		t.Fatal(err)
 	}
-	m := regexp.MustCompile(`(?m)^I18N_LOCALES = "([^"]+)"`).FindSubmatch(mise)
 	var ids []string
-	for _, ld := range locales.Shipped {
-		ids = append(ids, ld.ID())
+	for _, l := range locales.Shipped {
+		ids = append(ids, l.ID())
 	}
-	if m == nil || string(m[1]) != strings.Join(ids, ",") {
-		t.Errorf("mise.toml I18N_LOCALES = %q, locales.Shipped has %s: mise run i18n:messages", m, strings.Join(ids, ","))
+	if !slices.Equal(ids, c.Locales) {
+		t.Errorf("intl.toml locales = %v, locales.Shipped has %v: mise run intl", c.Locales, ids)
 	}
 }
 

@@ -4,21 +4,12 @@ import (
 	"context"
 	"strings"
 
-	"github.com/joeblew999/go-htmx4/internal/i18n"
+	"github.com/joeblew999/go-htmx4/intl"
 	"github.com/joeblew999/go-htmx4/locales"
 )
 
-// Loc is the request's locale (set by the app's locale middleware), or the default locale when a view is
-// rendered without one (tests, fragments rendered outside a request).
-func Loc(ctx context.Context) *i18n.Locale {
-	if r, ok := i18n.FromContext(ctx); ok {
-		return r.Locale
-	}
-	return locales.Shipped[0]
-}
-
 // LocalePrefix is a locale's URL prefix: "" for the default locale, "/de", "/pt-br", "/zh-hant" otherwise.
-func LocalePrefix(ld *i18n.Locale) string {
+func LocalePrefix(ld *intl.Locale) string {
 	if ld == locales.Shipped[0] {
 		return ""
 	}
@@ -26,13 +17,13 @@ func LocalePrefix(ld *i18n.Locale) string {
 }
 
 // LocaleKey is a locale's id as URL prefixes, the Room's socket tags and live.Localized use it: "de", "pt-br".
-func LocaleKey(ld *i18n.Locale) string { return strings.ToLower(ld.ID()) }
+func LocaleKey(ld *intl.Locale) string { return strings.ToLower(ld.ID()) }
 
 // URL localizes an in-app path for the request's locale: URL(ctx, "/about") is "/about" in English and
 // "/de/about" in German. Every in-app href and hx-* URL goes through it; /static/, /assets/, /gsxui/ and
 // /live/ are not locale-specific and must not.
 func URL(ctx context.Context, path string) string {
-	return LocalePrefix(Loc(ctx)) + path
+	return LocalePrefix(intl.Current(ctx)) + path
 }
 
 // LocaleLink is the current page in one shipped locale, for the language list.
@@ -46,10 +37,10 @@ type LocaleLink struct {
 // LocaleLinks lists the current page in every shipped locale, in data order.
 func LocaleLinks(ctx context.Context) []LocaleLink {
 	path := "/"
-	if r, ok := i18n.FromContext(ctx); ok && r.Path != "" {
+	if r, ok := intl.FromContext(ctx); ok && r.Path != "" {
 		path = r.Path
 	}
-	cur := Loc(ctx)
+	cur := intl.Current(ctx)
 	out := make([]LocaleLink, 0, len(locales.Shipped))
 	for _, ld := range locales.Shipped {
 		href := LocalePrefix(ld) + path

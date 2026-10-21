@@ -7,7 +7,7 @@ import (
 	"slices"
 	"time"
 
-	"github.com/joeblew999/go-htmx4/locales"
+	"github.com/joeblew999/go-htmx4/intl"
 )
 
 // DefaultTopic is the board's topic without ?topic= (its canonical URL is plain /board).
@@ -31,7 +31,7 @@ type Note struct {
 // StackItem is one row on the About page.
 type StackItem struct {
 	Name, URL string
-	Role      func(locales.Messages) string // e.g. locales.Messages.AboutRolesGsx
+	Role      intl.Msg // e.g. locales.AboutRolesGsx()
 }
 
 // ServerInfo is what the home page's dialog shows about the process that rendered it.

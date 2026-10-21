@@ -5,8 +5,8 @@ import (
 	"time"
 )
 
-// testIntlKinds: every data-intl kind on /de/formats is formatted by Chrome's Intl in German (none left at its
-// fallback), and a few results are the German wording.
+// testIntlKinds: every Intl call on /de/formats is redone by Chrome's Intl in German (none left at the server's
+// text), and a few results are the German wording.
 func testIntlKinds(t *testing.T) {
 	b := newTab(t, "browser")
 	b.open("/de/formats")
@@ -14,22 +14,23 @@ func testIntlKinds(t *testing.T) {
 	left := b.str(`(() => {
 		const stuck = [];
 		for (const el of document.querySelectorAll("[data-intl]")) {
-			if (!el.hasAttribute("data-intl-done")) stuck.push(el.dataset.intl + ":" + el.dataset.value);
+			if (!el.hasAttribute("data-intl-done")) stuck.push(el.dataset.intl + "." + (el.dataset.method || "format"));
 		}
 		return stuck.join(", ");
 	})()`)
 	check(t, "every kind is formatted", left == "", " unformatted: ", left)
-	for kind, want := range map[string]string{
-		"display-name": "Japan",
-		"number-range": "3–5 kg",
-		"plural":       "one",
-		"collate":      "10 · 9",
-		"segment":      "Hello | world",
-		"locale":       "de-Latn-DE",
-		"supported":    "buddhist",
+	for call, want := range map[string]string{
+		`[data-intl="DisplayNames"]`:                              "Japan",
+		`[data-intl="NumberFormat"][data-method="formatRange"]`:   "3–5 kg",
+		`[data-intl="PluralRules"][data-method="select"]`:         "one",
+		`[data-intl="Collator"][data-method="compare"]`:           "-1",
+		`[data-intl="Segmenter"][data-method="segment"]`:          `"segment":"Smith arrived. "`,
+		`[data-intl="Locale"][data-method="maximize"]`:            "de-Latn-DE",
+		`[data-intl="Intl"][data-method="supportedValuesOf"]`:     "buddhist",
+		`[data-intl="DateTimeFormat"][data-method="formatRange"]`: "4. Juli – 20. August",
 	} {
-		js := `[...document.querySelectorAll('[data-intl="` + kind + `"]')].some(e => e.textContent.includes(` + "`" + want + "`" + `))`
-		check(t, kind+" in German", b.is(js), " want ", want)
+		js := `[...document.querySelectorAll('` + call + `')].some(e => e.textContent.includes(` + "`" + want + "`" + `))`
+		check(t, call+" in German", b.is(js), " want ", want)
 	}
 	b.noProblems()
 }

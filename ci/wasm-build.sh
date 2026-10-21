@@ -37,6 +37,8 @@ case $compiler in
   go) go tool workerbuild -compiler=go ;;
   *) echo "✗ WORKER_COMPILER=$compiler: tinygo or go"; exit 1 ;;
 esac
+# intl's Worker modules beside the build: intl.mjs, intl-worker.mjs and the catalogs (intl/README.md).
+go tool intl assets -worker build
 raw=$(wc -c <build/app.wasm | tr -d ' ')
 gz=$(gzip -9 -c build/app.wasm | wc -c | tr -d ' ')
 if [ "$profile" = prod ]; then

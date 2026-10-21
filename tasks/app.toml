@@ -32,8 +32,8 @@ echo "✓ htmx $version: static/htmx.min.js, static/hx-ws.js, static/hx-live.js"
 
 # gsx components (views/, ui/) → *.x.go, which are gitignored; every build/run/test path depends on this.
 ["generate"]
-description = "go tool gsx generate (after i18n:messages: views call the generated message methods)"
-depends = ["i18n:messages"]
+description = "go tool gsx generate (after intl: views write the generated messages)"
+depends = ["intl"]
 dir = "{{config_root}}"
 run = "go tool gsx generate"
 
@@ -51,8 +51,8 @@ tailwindcss -i web/gsxui/index.css -o dist/gsxui.css --minify 2>&1 | grep -v "^�
 rm -rf dist/site
 mkdir -p dist/site/static dist/site/gsxui dist/site/assets
 cp static/*.js dist/site/static/
-# The browser imports the same Intl formatter the Worker runs (worker/intl.mjs).
-cp worker/intl.mjs dist/site/static/intl-core.mjs
+# The browser's half of intl, with the same intl.mjs the Worker runs (/static/intl-browser.mjs).
+go tool intl assets -browser dist/site/static
 cp -R web/gsxui/. dist/site/gsxui/
 cp dist/gsxui.css dist/site/assets/
 cp web/gsxui/fonts/*.woff2 dist/site/assets/
@@ -67,8 +67,8 @@ dir = "{{config_root}}"
 # Inputs: every Go file (the generated *.x.go included), the module files, and mise.toml (a Go/TinyGo/workers-go pin
 # change must rebuild). Nothing else feeds the wasm: Static Assets are dist/site, served beside it. build/.prod marks a
 # production build; build:dev removes it, so a debug wasm is never skipped into a deploy.
-sources = ["**/*.go", "go.mod", "go.sum", "mise.toml"]
-outputs = ["build/app.wasm", "build/go.mjs", "build/worker.mjs", "build/runtime.mjs", "build/wasm_exec.js", "build/hub.mjs", "build/websocket.mjs", "build/tinygo-clock.mjs", "build/.prod"]
+sources = ["**/*.go", "go.mod", "go.sum", "intl/go.mod", "mise.toml", "intl/js/*.mjs", "locales/intl-messages.mjs"]
+outputs = ["build/app.wasm", "build/go.mjs", "build/worker.mjs", "build/runtime.mjs", "build/wasm_exec.js", "build/hub.mjs", "build/websocket.mjs", "build/tinygo-clock.mjs", "build/intl.mjs", "build/intl-worker.mjs", "build/intl-messages.mjs", "build/.prod"]
 env = { WASM_PROFILE = "prod" }
 run = "ci/wasm-build.sh"
 
@@ -76,14 +76,14 @@ run = "ci/wasm-build.sh"
 depends = ["generate", "assets"]
 description = "Dev build → build/: standard Go to wasm, seconds after an edit (mise run dev uses it; never deployed)"
 dir = "{{config_root}}"
-sources = ["**/*.go", "go.mod", "go.sum", "mise.toml"]
-outputs = ["build/app.wasm", "build/go.mjs", "build/worker.mjs", "build/runtime.mjs", "build/wasm_exec.js", "build/hub.mjs", "build/websocket.mjs", "build/tinygo-clock.mjs", "build/.dev"]
+sources = ["**/*.go", "go.mod", "go.sum", "intl/go.mod", "mise.toml", "intl/js/*.mjs", "locales/intl-messages.mjs"]
+outputs = ["build/app.wasm", "build/go.mjs", "build/worker.mjs", "build/runtime.mjs", "build/wasm_exec.js", "build/hub.mjs", "build/websocket.mjs", "build/tinygo-clock.mjs", "build/intl.mjs", "build/intl-worker.mjs", "build/intl-messages.mjs", "build/.dev"]
 env = { WASM_PROFILE = "dev" }
 run = "ci/wasm-build.sh"
 
 # The dev loop (gsx CLI, gsx.toml [dev]): the real runtime (Intl, Durable Objects, D1, the board), build:dev
 # (standard Go, seconds per save) + workerd.
-# JS and CSS edits (static/, worker/intl.mjs, web/gsxui) need no Go build: mise run assets, then reload.
+# JS and CSS edits (static/, intl/js, web/gsxui) need no Go build: mise run assets, then reload.
 ["dev"]
 description = "gsx dev → build:dev (standard Go, seconds) + CSS → workerd restart on every .gsx/.go save → http://localhost:8913"
 env = { APP_DEV_PORT = "8913" }
@@ -156,7 +156,7 @@ set -euo pipefail
 ulimit -n 8192
 load() {
   # Sockets spread over every shipped locale: each must get only its own locale's fragments.
-  locales=$(echo "$I18N_LOCALES" | tr 'A-Z' 'a-z')
+  locales=$(go tool intl locales | tr 'A-Z' 'a-z')
   go run ./cmd/wsload -base "$1" -n 1000 -locales "$locales" -topic load
   go run ./cmd/wsload -base "$1" -n 1000 -writes 50 -locales "$locales" -topic load-burst
   # The Room refuses socket 1,001 (worker/room.mjs MAX_SOCKETS).
@@ -174,7 +174,7 @@ depends = ["smoke", "test:go"]
 run = "echo '✓ test: smoke + test:go'"
 
 ["test:go"]
-description = "gsx fmt/gofmt check + go vet + go test (standard Go; runs beside the production build)"
+description = "gsx fmt/gofmt check + go vet + go test, the app and intl/ (standard Go; runs beside the production build)"
 depends = ["generate"]
 dir = "{{config_root}}"
 run = '''
@@ -187,6 +187,10 @@ unformatted=$(gofmt -l $(go list -json ./... | jq -r '.Dir as $d | (.GoFiles + (
 test -z "$unformatted" || { echo "$unformatted"; echo "✗ gofmt: files need formatting"; exit 1; }
 go vet ./...
 go test ./...
+# intl/ is its own module, for any gsx app: format, vet and test it too (its tests run Intl on workerd).
+test -z "$(gofmt -l intl)" || { gofmt -l intl; echo "✗ gofmt: intl/ needs formatting"; exit 1; }
+go vet -C intl ./...
+go test -C intl ./...
 # e2e/ is its own module (chromedp): format and vet it too; its tests need a server (mise run smoke / e2e).
 test -z "$(gofmt -l e2e)" || { gofmt -l e2e; echo "✗ gofmt: e2e/ needs formatting"; exit 1; }
 go vet -C e2e ./...
@@ -214,9 +218,8 @@ if [ -z "$module" ] || [ -z "$name" ]; then echo "usage: mise run rename -- <mod
 old_module=$(go list -m)
 old_name=$(sed -n 's/^APP_NAME = "\(.*\)"$/\1/p' mise.toml)
 [ "$old_module" != "$module" ] || [ "$old_name" != "$name" ] || { echo "· already $module / $name"; exit 0; }
-# Module path: every tracked Go, gsx and module file (untracked work is left alone).
-git ls-files -z -- '*.go' '*.gsx' 'gsx.toml' | xargs -0 perl -pi -e "s#\\Q$old_module\\E#$module#g"
-go mod edit -module "$module"
+# Module path: every tracked Go, gsx and module file (untracked work is left alone); intl/ moves with the app.
+git ls-files -z -- '*.go' '*.gsx' 'gsx.toml' 'go.mod' 'intl/go.mod' | xargs -0 perl -pi -e "s#\\Q$old_module\\E#$module#g"
 (cd e2e && go mod edit -module "$module/e2e")
 # App name: config, pages, tests and local Durable Object keys.
 perl -pi -e "s/^APP_NAME = \"\\Q$old_name\\E\"/APP_NAME = \"$name\"/" mise.toml
@@ -230,6 +233,7 @@ git ls-files -z -- views main.go main_test.go e2e tasks/app.toml workerd/config.
 # Import blocks re-sort under the new path.
 go tool gsx fmt -w . >/dev/null
 git ls-files -z -- '*.go' | xargs -0 gofmt -w
+go tool intl gen >/dev/null
 go tool gsx generate >/dev/null
 go build ./... && (cd e2e && go vet ./...)
 echo "✓ module $old_module → $module, app $old_name → $name"

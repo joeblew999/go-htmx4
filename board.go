@@ -12,7 +12,7 @@ import (
 	"bytes"
 	"context"
 	"errors"
-	"github.com/joeblew999/go-htmx4/internal/i18n"
+	"github.com/joeblew999/go-htmx4/intl"
 	"github.com/joeblew999/go-htmx4/locales"
 	"log"
 	"net/http"
@@ -82,7 +82,7 @@ func (s *server) boardRoutes(mux *http.ServeMux) {
 		}
 		delta, err := strconv.ParseInt(r.FormValue("delta"), 10, 64)
 		if err != nil || (delta != 1 && delta != -1) {
-			http.Error(w, locales.For(r.Context()).BoardErrorsDelta(), http.StatusBadRequest)
+			http.Error(w, intl.Text(r.Context(), locales.BoardErrorsDelta()), http.StatusBadRequest)
 			return
 		}
 		if s.limited(w, r) {
@@ -97,7 +97,7 @@ func (s *server) boardRoutes(mux *http.ServeMux) {
 		}
 		body := strings.TrimSpace(r.FormValue("body"))
 		if body == "" || utf8.RuneCountInString(body) > maxNoteRunes {
-			http.Error(w, locales.For(r.Context()).BoardErrorsNoteLength(maxNoteRunes), http.StatusBadRequest)
+			http.Error(w, intl.Text(r.Context(), locales.BoardErrorsNoteLength(maxNoteRunes)), http.StatusBadRequest)
 			return
 		}
 		if s.limited(w, r) {
@@ -136,7 +136,7 @@ func change(w http.ResponseWriter, r *http.Request, topic string, write func(sto
 	if err := publish(topic, b.Version, fragments); err != nil {
 		log.Printf("publish %s v%d: %v", topic, b.Version, err)
 	}
-	httpx.WriteHTML(w, []byte(fragments.Fragments[views.LocaleKey(views.Loc(r.Context()))]))
+	httpx.WriteHTML(w, []byte(fragments.Fragments[views.LocaleKey(intl.Current(r.Context()))]))
 }
 
 // topicOf reads ?topic= (default "lobby") and checks it with live.ValidTopic, the rule worker/index.mjs
@@ -147,7 +147,7 @@ func topicOf(w http.ResponseWriter, r *http.Request) (string, bool) {
 		topic = defaultTopic
 	}
 	if !live.ValidTopic(topic) {
-		http.Error(w, locales.For(r.Context()).BoardErrorsTopic(), http.StatusBadRequest)
+		http.Error(w, intl.Text(r.Context(), locales.BoardErrorsTopic()), http.StatusBadRequest)
 		return "", false
 	}
 	return topic, true
@@ -172,7 +172,7 @@ func renderBoard(ctx context.Context, b Board) string {
 func renderBoardLocales(ctx context.Context, b Board) live.Localized {
 	out := live.Localized{Default: views.LocaleKey(locales.Shipped[0]), Fragments: map[string]string{}}
 	for _, ld := range locales.Shipped {
-		lctx := i18n.WithRequest(ctx, i18n.Request{Locale: ld, Path: "/board"})
+		lctx := intl.WithRequest(ctx, intl.Request{Locale: ld, Path: "/board"})
 		out.Fragments[views.LocaleKey(ld)] = renderBoard(lctx, b)
 	}
 	return out

@@ -36,13 +36,14 @@ browser ─ hx-post /board/add|note ─────▶ worker/index.mjs ─▶ G
 
 ## Languages
 
-Intl is the one source of language. `worker/intl.mjs` formats every message (ICU MessageFormat from
-`worker/messages_gen.mjs`, plural forms by `Intl.PluralRules`), every value (dates, numbers, currencies, units,
-lists) and every locale fact (name, direction, likely subtags), with the runtime's V8 Intl: on the Worker, where Go
-calls it through `worker/gointl.mjs`, and in the browser, which re-formats only the viewer's own time zone and
-relative times as they age. Go routes and passes values (`internal/i18n`); `go test` uses workerd's Intl
-(`internal/i18n/i18ntest`). The catalogs are `locales/*.toml`; `mise run i18n:messages` compiles them into
-`worker/messages_gen.mjs` and the typed accessors Go calls (`M(ctx).Key(…)`).
+Intl is the one source of language, through `intl/`: its own Go module, which any gsx app can use
+([intl/README.md](../intl/README.md)). Views write messages and Intl calls in markup (`{ locales.BoardNotes(n) }`,
+`{ intl.Date(t, opts) }`), and gsx renders them through the type renderers in `gsx.toml`. `intl/js/intl.mjs` formats
+every message (ICU MessageFormat, plural forms by `Intl.PluralRules`), every value and every locale fact with the
+runtime's V8 Intl: on the Worker, where Go calls it, and in the browser, which redoes the viewer's own time zone and
+relative times as they age. Go routes and passes values; `go test` uses workerd's Intl (`intl/intltest`).
+`intl.toml` lists the languages and `locales/*.toml` holds their text; `mise run intl` compiles them into the
+`locales` package, the catalogs the formatter reads, and the translator for gsxui components' own text.
 
 URLs: the default locale is unprefixed, every other is `/<lowercase id>/…`, `/en/…` and mixed-case prefixes redirect;
 no Accept-Language redirects, and only `/` follows the `locale` cookie. A locale whose catalog isn't complete is
@@ -65,10 +66,11 @@ served `noindex`.
 ├── main.go board.go i18n.go host.go robots.go   handlers, locale URLs, redirect, crawl rules
 ├── store_{sql,mem}.go platform_{js,other}.go    D1 / memory stores; Cloudflare-only calls and their twins
 ├── views/  ui/  web/gsxui/  static/             pages (gsx), gsxui components and behaviours, vendored htmx
-├── locales/                                     UI messages (*.toml) and their generated accessors
-├── internal/                                    httpx, i18n, live (Room publish), ratelimit, wsload, classmerge
-├── cmd/                                         msggen (message accessors), wsload (live-board check)
-├── worker/  workerd/                            the deployed JS (entry, Room, Intl, message catalogs); local workerd config
+├── intl/  intl.toml                             Intl for gsx (its own module); the app's languages
+├── locales/                                     UI messages (*.toml) and their generated package
+├── internal/                                    httpx, live (Room publish), ratelimit, wsload, classmerge
+├── cmd/                                         wsload (live-board check)
+├── worker/  workerd/                            the deployed JS (entry, Room); local workerd config
 ├── migrations/                                  D1 schema
 ├── e2e/                                         smoke (HTTP) and browser tests: its own module
 ├── ci/  tasks/  mise.toml                       scripts, mise tasks, pinned tools
