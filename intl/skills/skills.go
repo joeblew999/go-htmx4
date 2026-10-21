@@ -4,7 +4,7 @@ package skills
 
 import "embed"
 
-// FS is every skill directory: intl-translate/SKILL.md.
+// FS is every skill directory: intl/SKILL.md.
 //
-//go:embed intl-translate
+//go:embed intl
 var FS embed.FS

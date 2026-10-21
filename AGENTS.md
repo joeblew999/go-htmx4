@@ -43,7 +43,7 @@ Binding. How the app works is in [docs/architecture.md](docs/architecture.md), h
 
 `*.x.go` (`go tool gsx generate`; not committed, except `intl/render.x.go`: apps import intl as a Go package),
 `intl_gen.go` and `intl-messages.mjs` (`mise run intl`; not committed), `locales/intl.sum` (`mise run intl`;
-committed), `.claude/skills/intl-translate` (`mise run intl:skill`; committed), `.claude/skills/seo`
+committed), `.claude/skills/intl` (`mise run intl:skill`; committed), `.claude/skills/seo`
 (`mise run seo:skill`; committed), `docs/commands.md`
 (`mise run docs:commands`), and what `gsxui` manages (`gsxui.json` lists it).
 
@@ -74,7 +74,7 @@ committed), `.claude/skills/intl-translate` (`mise run intl:skill`; committed), 
   (an HTTP error) takes `intl.Text(ctx, m)`. Messages use only `{n, number}` and `{n, number, integer}`. Brand
   names, code and machine values get `translate="no"`. `TestNoHardcodedText` checks.
 - **Every message change is translated in the same PR.** A new or changed source message: `mise run intl:translate`
-  (Claude Code with the `intl-translate` skill), or translate what `mise run intl:todo` lists by that skill's rules.
+  (Claude Code with the `intl` skill), or translate what `mise run intl:todo` lists by that skill's rules.
   A stale translation that is still right: `mise run intl:confirm <locale>:<key>`. `mise run intl:check` (in
   `test:go`) fails on anything missing, stale, unused or wrongly plural. How each language reads is `intl.toml`'s
   `[notes]`: change them there, not per message.

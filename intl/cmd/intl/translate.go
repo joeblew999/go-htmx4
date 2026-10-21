@@ -15,7 +15,7 @@ import (
 )
 
 // translate is go tool intl translate [locale…]: Claude Code translates what is missing or stale with the
-// intl-translate skill, one worker per language at once (intl.toml [translate] workers, default 6) on [translate]
+// intl skill, one worker per language at once (intl.toml [translate] workers, default 6) on [translate]
 // model. Each worker edits only its own catalog and checks it with go tool intl check <locale>, which writes nothing;
 // then gen and the full check run once.
 func translate(c config.Config, ids []string) int {
@@ -58,7 +58,7 @@ func translate(c config.Config, ids []string) int {
 			sem <- struct{}{}
 			defer func() { <-sem }()
 			rel, _ := filepath.Rel(c.Root, l.File)
-			prompt := fmt.Sprintf("Translate this app's messages into %[1]s with the intl-translate skill: the %[2]d missing and stale "+
+			prompt := fmt.Sprintf("Translate this app's messages into %[1]s with the intl skill: the %[2]d missing and stale "+
 				"messages of %[1]s, nothing else. Other languages are being translated at the same time, so edit only %[3]s, never run "+
 				"go tool intl gen, and check your work with go tool intl check %[1]s until it passes. Then say in one line what you did.",
 				l.ID, todo, rel)

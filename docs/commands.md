@@ -162,7 +162,7 @@ Remove from every catalog the keys the source no longer has (intl:check names th
 
 - **Usage:** `intl:skill`
 
-Install or update the intl-translate agent skill (.claude/skills), which Claude Code uses to translate
+Install or update the intl agent skill (.claude/skills/intl), which Claude Code uses to write and translate the app's text
 
 ### `intl:status`
 
@@ -191,7 +191,7 @@ What is left to translate, per locale: each message's source, context and argume
 
 ### `intl:translate`
 
-Translate every missing and stale message with Claude Code (the intl-translate skill), one worker per language at once (intl.toml [translate]), until intl:check passes. Needs claude on PATH
+Translate every missing and stale message with Claude Code (the intl skill), one worker per language at once (intl.toml [translate]), until intl:check passes. Needs claude on PATH
 
 
 - **Usage:** `intl:translate [locale]…`

@@ -26,7 +26,7 @@ exec go tool intl todo ${args[@]+"${args[@]}"} ${usage_locale:-}
 '''
 
 ["intl:translate"]
-description = "Translate every missing and stale message with Claude Code (the intl-translate skill), one worker per language at once (intl.toml [translate]), until intl:check passes. Needs claude on PATH"
+description = "Translate every missing and stale message with Claude Code (the intl skill), one worker per language at once (intl.toml [translate]), until intl:check passes. Needs claude on PATH"
 tools = { workerd = "1.20261019.1" }
 usage = '''
 arg "[locale]" var=#true help="only these locales (default: all)"
@@ -101,5 +101,5 @@ description = "Write this file again from the intl version in go.mod: run it aft
 run = "go tool intl tasks"
 
 ["intl:skill"]
-description = "Install or update the intl-translate agent skill (.claude/skills), which Claude Code uses to translate"
+description = "Install or update the intl agent skill (.claude/skills/intl), which Claude Code uses to write and translate the app's text"
 run = "go tool intl skill"
