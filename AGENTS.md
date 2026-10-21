@@ -10,7 +10,9 @@ Binding. How the app works is in [docs/architecture.md](docs/architecture.md), h
   and code comments. Close it when its PR merges (`Closes #N`) or say why it's not planned.
 - Changes land by branch and PR, squash-merged as soon as the local checks pass: `mise run check`, and `mise run e2e`
   after UI, board or JS changes. Merge with `gh pr merge --admin --squash`: nobody waits for CI, which runs the same
-  `check` on GitHub as a record (`main` requires it, but not of admins).
+  `check` on GitHub as a record (`main` requires it, but not of admins). `git status` must be clean first: the checks
+  ran on the working tree, so it has to be exactly what merges. When they couldn't run (the port is busy), use
+  `gh pr merge --auto --squash` and let CI's `check` decide.
 - End every report of finished work with a **Follow-ups** list, even a short one: what's next, what needs the user's
   OK and why, bugs or risks found but not fixed, checks skipped, leftovers (processes, resources, stale docs). Put the
   same list in the issue.
