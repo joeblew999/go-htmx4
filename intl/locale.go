@@ -45,7 +45,7 @@ func (l *Locale) ask() {
 			}
 			return none
 		}
-		l.name = get(Call{API: "DisplayNames", Method: "of", Opts: `{"type":"language"}`, Args: []string{JSON(l.id)}}, l.id)
+		l.name = get(Call{API: "DisplayNames", Method: "of", Opts: Options("type", "language"), Args: []string{JSON(l.id)}}, l.id)
 		l.dir = "ltr"
 		if strings.Contains(get(Call{API: "Locale", Method: "getTextInfo"}, ""), `"rtl"`) {
 			l.dir = "rtl"

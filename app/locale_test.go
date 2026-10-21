@@ -1,6 +1,6 @@
 //go:build !js
 
-package main
+package app
 
 import (
 	"encoding/xml"
@@ -196,7 +196,7 @@ func TestLanguageLinks(t *testing.T) {
 // TestLogicalClasses keeps views direction-neutral: physical left/right utilities don't mirror under dir="rtl".
 func TestLogicalClasses(t *testing.T) {
 	physical := regexp.MustCompile(`\b(ml|mr|pl|pr|left|right|border-l|border-r|rounded-l|rounded-r|scroll-ml|scroll-mr)-[\w\[]|\btext-(left|right)\b|\bfloat-(left|right)\b`)
-	files, _ := filepath.Glob("views/*.gsx")
+	files, _ := filepath.Glob("../views/*.gsx")
 	for _, f := range files {
 		b, err := os.ReadFile(f)
 		if err != nil {

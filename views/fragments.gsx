@@ -69,7 +69,7 @@ component ServerInfoView(info ServerInfo) {
 		<dd>{ info.Requests |> number }</dd>
 		<dt class="font-medium text-foreground">{ locales.ServerInfoRendered }</dt>
 		<dd>
-			{ info.Now |> date(`{"dateStyle":"full","timeStyle":"long"}`) }
+			{ info.Now |> date("dateStyle", "full", "timeStyle", "long") }
 		</dd>
 		{ if info.Note != "" {
 			<dt class="font-medium text-foreground">{ locales.ServerInfoNote }</dt>

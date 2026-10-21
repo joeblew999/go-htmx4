@@ -7,13 +7,14 @@
 //	{ order.Placed |> date("dateStyle", "long") }          4. Juli 2026
 //	{ total |> number("style", "currency", "currency", c) }
 //	{ "JP" |> intl("DisplayNames", "of", "type", "region") }
+//	{ intl.Args{"ä", "z"} |> intl("Collator", "compare") }  several arguments
 //	title={ v |> plain }                               a Value's text, for an attribute
 //	title={ locales.BoardTitle |> text }               a message's text, for a component's string input
 //	href={ "/about" |> localize }                      an in-app path in the request's locale: /de/about
 //
 // Each returns an intl.Value (rendered by intl.Render, in the request's language and redone by the browser in the
-// viewer's zone), except plain and text. Options are Intl's own option names and values, in pairs (intl.Options), or
-// one JSON object; none for Intl's defaults.
+// viewer's zone), except plain and text. Options are Intl's own option names and values, in pairs (intl.Options);
+// none for Intl's defaults.
 package filters
 
 import (
@@ -49,9 +50,17 @@ func List(items []string, opts ...string) intl.Value { return intl.List(items, f
 // Zone is a time zone's name in the language: { "Europe/Berlin" |> zone }.
 func Zone(id string) intl.Value { return intl.Zone(id) }
 
-// Intl is any Intl call with v as its argument: new Intl[api](lang, opts)[method](v).
-// { "JP" |> intl("DisplayNames", "of", "type", "region") }, { 2 |> intl("PluralRules", "select") }.
+// Intl is any Intl call with v as its argument, new Intl[api](lang, opts)[method](v), or with intl.Args as its
+// arguments: { "JP" |> intl("DisplayNames", "of", "type", "region") }, { 2 |> intl("PluralRules", "select") },
+// { intl.Args{3, 5} |> intl("NumberFormat", "formatRange") }, { intl.Args{} |> intl("Locale", "getWeekInfo") }.
 func Intl(v any, api, method string, opts ...string) intl.Value {
+	if a, ok := v.(intl.Args); ok {
+		args := make([]string, len(a))
+		for i, x := range a {
+			args[i] = argJSON(x)
+		}
+		return intl.Of(api, method, first(opts), args...)
+	}
 	return intl.Of(api, method, first(opts), argJSON(v))
 }
 

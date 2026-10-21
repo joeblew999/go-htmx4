@@ -9,240 +9,143 @@ import (
 	"github.com/joeblew999/go-htmx4/locales"
 )
 
-// The /formats page: Intl's APIs, each with examples. Every example is one intl.Value, a call to the runtime's own
-// Intl: the server's result, and the same call redone by the browser (js/intl-browser.mjs).
+// The /formats page's data: each example's input and its options, in pairs as Intl names them. The calls themselves
+// are written in formats.gsx with intl's filters, as on /components.
 
-// Example is one call: what it formats and how (Label, Options: shown as code), and the call itself.
-type Example struct {
-	Label, Options string
-	V              intl.Value
-}
+// intlAPINames are the Intl APIs the page shows, in page order: the section navigation (apiID is each card's anchor).
+var intlAPINames = []string{"Intl.DateTimeFormat", "Intl.RelativeTimeFormat", "Intl.NumberFormat", "Intl.PluralRules",
+	"Intl.ListFormat", "Intl.DurationFormat", "Intl.DisplayNames", "Intl.Collator", "Intl.Segmenter", "Intl.Locale",
+	"Intl.supportedValuesOf"}
 
-func ex(label string, v intl.Value) Example {
-	options := jsOptions(v.Opts)
-	if v.Method != "" && v.Method != "format" {
-		options = v.Method + " · " + options
-	}
-	return Example{Label: label, Options: options, V: v}
-}
+// apiID is an API's anchor: "Intl.NumberFormat" → "numberformat".
+func apiID(name string) string { return strings.ToLower(strings.TrimPrefix(name, "Intl.")) }
 
-// FormatSection groups examples under a heading.
-type FormatSection struct {
-	Title, Description intl.Msg
-	Rows               []Example
-}
-
-// IntlAPI is one Intl API on the /formats page: its name (code, not translated), an anchor, and its examples in
-// groups.
-type IntlAPI struct {
-	ID, Name string
-	Groups   []FormatSection
-}
-
-// sampleInstant is the instant the date sections format (a fixed one, so the page is stable for crawlers).
+// sampleInstant is the instant the date examples format (a fixed one, so the page is stable for crawlers).
 var sampleInstant = time.Date(2026, 7, 4, 15, 30, 45, 123e6, time.UTC)
 
 // showcaseCurrency is the currency the page formats in every language (Intl knows no region's currency).
 const showcaseCurrency = "EUR"
 
-// IntlAPIs are every Intl API with examples, in page order.
-func IntlAPIs(ctx context.Context) []IntlAPI {
-	return []IntlAPI{
-		{"datetimeformat", "Intl.DateTimeFormat", []FormatSection{dates(), zones(), ranges()}},
-		{"relativetimeformat", "Intl.RelativeTimeFormat", []FormatSection{relativeTimes()}},
-		{"numberformat", "Intl.NumberFormat", []FormatSection{numbers(), currency(), units()}},
-		{"pluralrules", "Intl.PluralRules", []FormatSection{plurals()}},
-		{"listformat", "Intl.ListFormat", []FormatSection{lists(intl.Current(ctx))}},
-		{"durationformat", "Intl.DurationFormat", []FormatSection{durations()}},
-		{"displaynames", "Intl.DisplayNames", []FormatSection{displayNames()}},
-		{"collator", "Intl.Collator", []FormatSection{collation()}},
-		{"segmenter", "Intl.Segmenter", []FormatSection{segments()}},
-		{"locale", "Intl.Locale", []FormatSection{localeInfo()}},
-		{"supportedvaluesof", "Intl.supportedValuesOf", []FormatSection{supported()}},
-	}
+// sample is an example's input and its options.
+type sample struct {
+	In   string
+	Opts []string
 }
 
-func dates() FormatSection {
-	sec := FormatSection{Title: locales.FormatsDatesTitle, Description: locales.FormatsDatesDescription}
-	for _, opts := range []string{
-		`{"dateStyle":"full"}`, `{"dateStyle":"long","timeStyle":"short"}`, `{"dateStyle":"medium","timeStyle":"medium"}`,
-		`{"dateStyle":"short","timeStyle":"full"}`, `{"weekday":"long","month":"long","day":"numeric"}`, `{"year":"numeric","month":"short"}`,
-		`{"hour":"numeric","minute":"2-digit","hour12":true}`, `{"hour":"numeric","minute":"2-digit","hourCycle":"h23"}`,
-		`{"hour":"numeric","dayPeriod":"long"}`, `{"era":"long","year":"numeric"}`, `{"minute":"2-digit","second":"2-digit","fractionalSecondDigits":3}`,
-		`{"dateStyle":"medium","numberingSystem":"arab"}`, `{"dateStyle":"medium","calendar":"japanese"}`,
-	} {
-		sec.Rows = append(sec.Rows, ex(intl.ISO(sampleInstant), intl.Date(sampleInstant, opts)))
-	}
-	return sec
+// span is a range's input: "2026-07-04T15:30:45.123Z – 2026-07-04T17:00:45.123Z".
+type span struct {
+	From, To string
+	Opts     []string
 }
 
-func zones() FormatSection {
-	sec := FormatSection{Title: locales.FormatsZonesTitle, Description: locales.FormatsZonesDescription}
-	for _, z := range [][2]string{{"Asia/Tokyo", "short"}, {"America/New_York", "longGeneric"}, {"America/Los_Angeles", "shortGeneric"},
-		{"Asia/Kolkata", "shortOffset"}, {"Australia/Lord_Howe", "longOffset"}, {"Europe/London", "long"}, {"Pacific/Chatham", "long"}} {
-		opts := `{"hour":"numeric","minute":"2-digit","timeZoneName":"` + z[1] + `","timeZone":"` + z[0] + `"}`
-		sec.Rows = append(sec.Rows, ex(z[0], intl.Date(sampleInstant, opts)))
-	}
-	return sec
-}
+func (s span) In() string { return s.From + " – " + s.To }
 
-func ranges() FormatSection {
-	sec := FormatSection{Title: locales.FormatsRangesTitle, Description: locales.FormatsRangesDescription}
-	for _, r := range []struct {
-		end  time.Time
-		opts string
+func pairs(p ...string) []string { return p }
+
+var (
+	dateOptions = [][]string{pairs("dateStyle", "full"), pairs("dateStyle", "long", "timeStyle", "short"),
+		pairs("dateStyle", "medium", "timeStyle", "medium"), pairs("dateStyle", "short", "timeStyle", "full"),
+		pairs("weekday", "long", "month", "long", "day", "numeric"), pairs("year", "numeric", "month", "short"),
+		pairs("hour", "numeric", "minute", "2-digit", "hour12", "true"), pairs("hour", "numeric", "minute", "2-digit", "hourCycle", "h23"),
+		pairs("hour", "numeric", "dayPeriod", "long"), pairs("era", "long", "year", "numeric"),
+		pairs("minute", "2-digit", "second", "2-digit", "fractionalSecondDigits", "3"),
+		pairs("dateStyle", "medium", "numberingSystem", "arab"), pairs("dateStyle", "medium", "calendar", "japanese")}
+
+	// zoneSamples are time zones (In), each with a timeZoneName style.
+	zoneSamples = []sample{{"Asia/Tokyo", pairs("timeZoneName", "short")}, {"America/New_York", pairs("timeZoneName", "longGeneric")},
+		{"America/Los_Angeles", pairs("timeZoneName", "shortGeneric")}, {"Asia/Kolkata", pairs("timeZoneName", "shortOffset")},
+		{"Australia/Lord_Howe", pairs("timeZoneName", "longOffset")}, {"Europe/London", pairs("timeZoneName", "long")},
+		{"Pacific/Chatham", pairs("timeZoneName", "long")}}
+
+	// rangeEnds are sampleInstant plus 90 minutes, 5 days, a month and 16 days, and 6 months and 11 days.
+	rangeEnds = []struct {
+		End  time.Time
+		Opts []string
 	}{
-		{sampleInstant.Add(90 * time.Minute), `{"hour":"numeric","minute":"2-digit"}`},
-		{sampleInstant.Add(90 * time.Minute), `{"dateStyle":"long","timeStyle":"short"}`},
-		{sampleInstant.AddDate(0, 0, 5), `{"dateStyle":"medium"}`},
-		{sampleInstant.AddDate(0, 1, 16), `{"month":"long","day":"numeric"}`},
-		{sampleInstant.AddDate(0, 6, 11), `{"year":"numeric","month":"short","day":"numeric"}`},
-	} {
-		sec.Rows = append(sec.Rows, ex(intl.ISO(sampleInstant)+" – "+intl.ISO(r.end), intl.DateRange(sampleInstant, r.end, r.opts)))
+		{sampleInstant.Add(90 * time.Minute), pairs("hour", "numeric", "minute", "2-digit")},
+		{sampleInstant.Add(90 * time.Minute), pairs("dateStyle", "long", "timeStyle", "short")},
+		{sampleInstant.AddDate(0, 0, 5), pairs("dateStyle", "medium")},
+		{sampleInstant.AddDate(0, 1, 16), pairs("month", "long", "day", "numeric")},
+		{sampleInstant.AddDate(0, 6, 11), pairs("year", "numeric", "month", "short", "day", "numeric")},
 	}
-	return sec
+
+	// relativeSamples are amounts of a unit, with options.
+	relativeSamples = []struct {
+		N, Unit string
+		Opts    []string
+	}{{"-1", "day", pairs("numeric", "auto")}, {"2", "day", pairs("numeric", "auto")}, {"-3", "hour", nil},
+		{"5", "minute", pairs("style", "short")}, {"-1.5", "week", pairs("style", "narrow")}, {"1", "quarter", pairs("numeric", "auto")},
+		{"-10", "year", nil}}
+
+	numberSamples = []sample{{"1234567.891", nil}, {"-0.256", pairs("style", "percent", "maximumFractionDigits", "1")},
+		{"1234567", pairs("notation", "compact")}, {"1234567", pairs("notation", "compact", "compactDisplay", "long")},
+		{"0.000123", pairs("notation", "scientific")}, {"1234567.891", pairs("notation", "engineering")},
+		{"1234.5678", pairs("maximumSignificantDigits", "3")}, {"2.5", pairs("maximumFractionDigits", "0", "roundingMode", "halfEven")},
+		{"0", pairs("signDisplay", "exceptZero")}, {"42", pairs("signDisplay", "always")}, {"7", pairs("minimumIntegerDigits", "3")},
+		{"1234567.891", pairs("numberingSystem", "arab")}, {"1234567.891", pairs("numberingSystem", "deva")}}
+
+	numberRanges = []span{{"3", "5", pairs("style", "unit", "unit", "kilogram")},
+		{"1000", "1500", pairs("style", "currency", "currency", showcaseCurrency, "maximumFractionDigits", "0")},
+		{"1200000", "1500000", pairs("notation", "compact")}, {"2.9", "3.1", pairs("maximumFractionDigits", "0")}}
+
+	currencySamples = []sample{{"1234.5", pairs("style", "currency", "currency", showcaseCurrency)},
+		{"-1234.5", pairs("style", "currency", "currency", showcaseCurrency, "currencySign", "accounting")},
+		{"1", pairs("style", "currency", "currency", showcaseCurrency, "currencyDisplay", "name")},
+		{"1234.5", pairs("style", "currency", "currency", showcaseCurrency, "currencyDisplay", "name")},
+		{"1234.5", pairs("style", "currency", "currency", showcaseCurrency, "currencyDisplay", "code")},
+		{"1234567", pairs("style", "currency", "currency", showcaseCurrency, "notation", "compact")},
+		{"9.99", pairs("style", "currency", "currency", "USD", "currencyDisplay", "narrowSymbol")},
+		{"1234.5", pairs("style", "currency", "currency", "JPY")}, {"1234.5", pairs("style", "currency", "currency", "BHD")}}
+
+	unitSamples = []sample{{"1", pairs("style", "unit", "unit", "kilometer", "unitDisplay", "long")},
+		{"2.5", pairs("style", "unit", "unit", "kilometer", "unitDisplay", "long")},
+		{"88", pairs("style", "unit", "unit", "kilometer-per-hour")}, {"21.5", pairs("style", "unit", "unit", "celsius")},
+		{"512", pairs("style", "unit", "unit", "megabyte", "unitDisplay", "narrow")},
+		{"3", pairs("style", "unit", "unit", "liter-per-kilometer", "unitDisplay", "long")},
+		{"1234567", pairs("style", "unit", "unit", "meter", "notation", "compact", "unitDisplay", "long")}}
+
+	// pluralSamples: which category a number selects (on the server they also pick a translated message's wording).
+	pluralSamples = []sample{{"1", nil}, {"2", nil}, {"5", nil}, {"1.5", nil}, {"22", pairs("type", "ordinal")}}
+
+	// listSamples join the first N of listWords.
+	listSamples = []struct {
+		N    int
+		Opts []string
+	}{{3, pairs("type", "conjunction")}, {3, pairs("type", "disjunction")}, {4, pairs("type", "unit", "style", "narrow")},
+		{2, pairs("style", "short")}}
+
+	// sampleDuration is what the duration examples format.
+	sampleDuration     = 26*time.Hour + 5*time.Minute + 30*time.Second
+	durationOptions    = [][]string{nil, pairs("style", "long"), pairs("style", "narrow"), pairs("style", "digital", "fractionalDigits", "2")}
+	displayNameSamples = []sample{{"de", pairs("type", "language")}, {"zh-Hant", pairs("type", "language")},
+		{"en-GB", pairs("type", "language", "languageDisplay", "standard")}, {"JP", pairs("type", "region")},
+		{"BR", pairs("type", "region")}, {"Cyrl", pairs("type", "script")}, {"EUR", pairs("type", "currency")},
+		{"JPY", pairs("type", "currency")}, {"islamic", pairs("type", "calendar")}, {"weekday", pairs("type", "dateTimeField")}}
+
+	// comparisons: which of two strings sorts first in the language (-1, 0, 1).
+	comparisons = []span{{"ä", "z", nil}, {"apfel", "Äpfel", nil}, {"9", "10", nil}, {"9", "10", pairs("numeric", "true")},
+		{"a", "A", pairs("caseFirst", "upper")}, {"résumé", "resume", pairs("sensitivity", "base")}, {"ch", "cz", nil}}
+
+	segmentSamples = []sample{{"👨‍👩‍👧 née", pairs("granularity", "grapheme")}, {"It's 3.14 o'clock.", pairs("granularity", "word")},
+		{"今日は良い天気", pairs("granularity", "word")}, {"Dr. Smith arrived. He sat down!", pairs("granularity", "sentence")}}
+
+	localeMethods = []string{"maximize", "minimize", "getCalendars", "getCollations", "getHourCycles", "getNumberingSystems",
+		"getTimeZones", "getTextInfo", "getWeekInfo"}
+
+	supportedKeys = []string{"calendar", "collation", "currency", "numberingSystem", "timeZone", "unit"}
+)
+
+// listWords are what the list examples join: the language's own name, then names that stay as they are.
+func listWords(ctx context.Context) []string {
+	return []string{intl.Current(ctx).Name(), "Go", "htmx", "Cloudflare"}
 }
 
-func relativeTimes() FormatSection {
-	sec := FormatSection{Title: locales.FormatsRelativeTitle, Description: locales.FormatsRelativeDescription}
-	for _, r := range [][3]string{{"-1", "day", `{"numeric":"auto"}`}, {"2", "day", `{"numeric":"auto"}`}, {"-3", "hour", ""},
-		{"5", "minute", `{"style":"short"}`}, {"-1.5", "week", `{"style":"narrow"}`}, {"1", "quarter", `{"numeric":"auto"}`}, {"-10", "year", ""}} {
-		sec.Rows = append(sec.Rows, ex(r[0]+" "+r[1], intl.Of("RelativeTimeFormat", "", r[2], r[0], intl.JSON(r[1]))))
+// callLabel shows an example's call: its options as JavaScript writes them, after its method unless that is format.
+func callLabel(v intl.Value) string {
+	if v.Method != "" && v.Method != "format" {
+		return v.Method + " · " + v.JSOptions()
 	}
-	return sec
-}
-
-func numbers() FormatSection {
-	sec := FormatSection{Title: locales.FormatsNumbersTitle, Description: locales.FormatsNumbersDescription}
-	for _, n := range [][2]string{
-		{"1234567.891", ""}, {"-0.256", `{"style":"percent","maximumFractionDigits":1}`}, {"1234567", `{"notation":"compact"}`},
-		{"1234567", `{"notation":"compact","compactDisplay":"long"}`}, {"0.000123", `{"notation":"scientific"}`},
-		{"1234567.891", `{"notation":"engineering"}`}, {"1234.5678", `{"maximumSignificantDigits":3}`},
-		{"2.5", `{"maximumFractionDigits":0,"roundingMode":"halfEven"}`}, {"0", `{"signDisplay":"exceptZero"}`},
-		{"42", `{"signDisplay":"always"}`}, {"7", `{"minimumIntegerDigits":3}`},
-		{"1234567.891", `{"numberingSystem":"arab"}`}, {"1234567.891", `{"numberingSystem":"deva"}`},
-	} {
-		sec.Rows = append(sec.Rows, ex(n[0], intl.Number(n[0], n[1])))
-	}
-	for _, r := range [][3]string{{"3", "5", `{"style":"unit","unit":"kilogram"}`},
-		{"1000", "1500", `{"style":"currency","currency":"` + showcaseCurrency + `","maximumFractionDigits":0}`},
-		{"1200000", "1500000", `{"notation":"compact"}`}, {"2.9", "3.1", `{"maximumFractionDigits":0}`}} {
-		sec.Rows = append(sec.Rows, ex(r[0]+" – "+r[1], intl.Of("NumberFormat", "formatRange", r[2], intl.JSON(r[0]), intl.JSON(r[1]))))
-	}
-	return sec
-}
-
-func currency() FormatSection {
-	sec := FormatSection{Title: locales.FormatsCurrencyTitle, Description: locales.FormatsCurrencyDescription(showcaseCurrency)}
-	for _, c := range [][3]string{{"1234.5", showcaseCurrency, ""}, {"-1234.5", showcaseCurrency, `,"currencySign":"accounting"`},
-		{"1", showcaseCurrency, `,"currencyDisplay":"name"`}, {"1234.5", showcaseCurrency, `,"currencyDisplay":"name"`},
-		{"1234.5", showcaseCurrency, `,"currencyDisplay":"code"`}, {"1234567", showcaseCurrency, `,"notation":"compact"`},
-		{"9.99", "USD", `,"currencyDisplay":"narrowSymbol"`}, {"1234.5", "JPY", ""}, {"1234.5", "BHD", ""}} {
-		sec.Rows = append(sec.Rows, ex(c[0]+" "+c[1], intl.Number(c[0], `{"style":"currency","currency":"`+c[1]+`"`+c[2]+`}`)))
-	}
-	return sec
-}
-
-func units() FormatSection {
-	sec := FormatSection{Title: locales.FormatsUnitsTitle, Description: locales.FormatsUnitsDescription}
-	for _, u := range [][3]string{{"1", "kilometer", `,"unitDisplay":"long"`}, {"2.5", "kilometer", `,"unitDisplay":"long"`},
-		{"88", "kilometer-per-hour", ""}, {"21.5", "celsius", ""}, {"512", "megabyte", `,"unitDisplay":"narrow"`},
-		{"3", "liter-per-kilometer", `,"unitDisplay":"long"`}, {"1234567", "meter", `,"notation":"compact","unitDisplay":"long"`}} {
-		sec.Rows = append(sec.Rows, ex(u[0]+" "+u[1], intl.Number(u[0], `{"style":"unit","unit":"`+u[1]+`"`+u[2]+`}`)))
-	}
-	return sec
-}
-
-// plurals: the categories this language has (resolvedOptions), and which one a number selects. On the server they
-// also pick a translated message's wording.
-func plurals() FormatSection {
-	sec := FormatSection{Title: locales.FormatsPluralsTitle, Description: locales.FormatsPluralsDescription}
-	for _, typ := range []string{`{"type":"cardinal"}`, `{"type":"ordinal"}`} {
-		sec.Rows = append(sec.Rows, ex("pluralCategories", intl.Of("PluralRules", "resolvedOptions", typ)))
-	}
-	for _, n := range [][2]string{{"1", ""}, {"2", ""}, {"5", ""}, {"1.5", ""}, {"22", `{"type":"ordinal"}`}} {
-		sec.Rows = append(sec.Rows, ex(n[0], intl.Of("PluralRules", "select", n[1], n[0])))
-	}
-	sec.Rows = append(sec.Rows, ex("1 – 5", intl.Of("PluralRules", "selectRange", "", "1", "5")))
-	return sec
-}
-
-func lists(loc *intl.Locale) FormatSection {
-	sec := FormatSection{Title: locales.FormatsListsTitle, Description: locales.FormatsListsDescription}
-	items := []string{loc.Name(), "Go", "htmx", "Cloudflare"}
-	for _, l := range []struct {
-		opts string
-		n    int
-	}{{`{"type":"conjunction"}`, 3}, {`{"type":"disjunction"}`, 3}, {`{"type":"unit","style":"narrow"}`, 4}, {`{"style":"short"}`, 2}} {
-		sec.Rows = append(sec.Rows, ex(strings.Join(items[:l.n], " · "), intl.List(items[:l.n], l.opts)))
-	}
-	return sec
-}
-
-func durations() FormatSection {
-	sec := FormatSection{Title: locales.FormatsDurationsTitle, Description: locales.FormatsDurationsDescription}
-	const d = `{"days":1,"hours":2,"minutes":5,"seconds":30,"milliseconds":250}`
-	for _, opts := range []string{"", `{"style":"long"}`, `{"style":"narrow"}`, `{"style":"digital","fractionalDigits":2}`} {
-		sec.Rows = append(sec.Rows, ex("1d 2h 5m 30.25s", intl.Of("DurationFormat", "", opts, d)))
-	}
-	return sec
-}
-
-func displayNames() FormatSection {
-	sec := FormatSection{Title: locales.FormatsDisplayNamesTitle, Description: locales.FormatsDisplayNamesDescription}
-	for _, n := range [][3]string{{"de", "language", ""}, {"zh-Hant", "language", ""}, {"en-GB", "language", `,"languageDisplay":"standard"`},
-		{"JP", "region", ""}, {"BR", "region", ""}, {"Cyrl", "script", ""}, {"EUR", "currency", ""}, {"JPY", "currency", ""},
-		{"islamic", "calendar", ""}, {"weekday", "dateTimeField", ""}} {
-		sec.Rows = append(sec.Rows, ex(n[0], intl.Of("DisplayNames", "of", `{"type":"`+n[1]+`"`+n[2]+`}`, intl.JSON(n[0]))))
-	}
-	return sec
-}
-
-// collation: which of two strings sorts first in this language (-1, 0, 1), with Intl.Collator's options.
-func collation() FormatSection {
-	sec := FormatSection{Title: locales.FormatsCollationTitle, Description: locales.FormatsCollationDescription}
-	for _, c := range [][3]string{{"ä", "z", ""}, {"apfel", "Äpfel", ""}, {"9", "10", ""}, {"9", "10", `{"numeric":true}`},
-		{"a", "A", `{"caseFirst":"upper"}`}, {"résumé", "resume", `{"sensitivity":"base"}`}, {"ch", "cz", ""}} {
-		sec.Rows = append(sec.Rows, ex(c[0]+" · "+c[1], intl.Of("Collator", "compare", c[2], intl.JSON(c[0]), intl.JSON(c[1]))))
-	}
-	return sec
-}
-
-func segments() FormatSection {
-	sec := FormatSection{Title: locales.FormatsSegmentsTitle, Description: locales.FormatsSegmentsDescription}
-	for _, s := range [][2]string{{"👨‍👩‍👧 née", `{"granularity":"grapheme"}`}, {"It's 3.14 o'clock.", `{"granularity":"word"}`},
-		{"今日は良い天気", `{"granularity":"word"}`}, {"Dr. Smith arrived. He sat down!", `{"granularity":"sentence"}`}} {
-		sec.Rows = append(sec.Rows, ex(s[0], intl.Of("Segmenter", "segment", s[1], intl.JSON(s[0]))))
-	}
-	return sec
-}
-
-func localeInfo() FormatSection {
-	sec := FormatSection{Title: locales.FormatsLocaleTitle, Description: locales.FormatsLocaleDescription}
-	for _, m := range []string{"maximize", "minimize", "getCalendars", "getCollations", "getHourCycles", "getNumberingSystems",
-		"getTimeZones", "getTextInfo", "getWeekInfo"} {
-		sec.Rows = append(sec.Rows, ex(m+"()", intl.Of("Locale", m, "")))
-	}
-	return sec
-}
-
-func supported() FormatSection {
-	sec := FormatSection{Title: locales.FormatsSupportedTitle, Description: locales.FormatsSupportedDescription}
-	for _, key := range []string{"calendar", "collation", "currency", "numberingSystem", "timeZone", "unit"} {
-		sec.Rows = append(sec.Rows, ex(key, intl.Of("Intl", "supportedValuesOf", "", intl.JSON(key))))
-	}
-	return sec
-}
-
-// LocaleFacts describes the request's locale for the /formats page, from Intl.
-type LocaleFacts struct {
-	ID, Name, Dir, Maximal string
-}
-
-// Facts returns the request locale's facts.
-func Facts(ctx context.Context) LocaleFacts {
-	loc := intl.Current(ctx)
-	return LocaleFacts{ID: loc.ID(), Name: loc.Name(), Dir: loc.Dir(), Maximal: loc.Maximal()}
+	return v.JSOptions()
 }
 
 // TryRow is one result of the round trip: the Intl call, shown as its options, and the Worker's text.
@@ -267,12 +170,14 @@ func RoundTrip(ctx context.Context, number, text string) TryResult {
 		res.Parsed, res.NumberOK = intl.Current(ctx).ParseNumber(number)
 	}
 	if res.NumberOK {
-		for _, o := range []string{"", `{"style":"currency","currency":"` + showcaseCurrency + `"}`, `{"notation":"compact","compactDisplay":"long"}`,
-			`{"style":"percent"}`, `{"notation":"scientific"}`} {
-			res.NumberRows = append(res.NumberRows, TryRow{"NumberFormat " + jsOptions(o), intl.Text(ctx, intl.Number(res.Parsed, o))})
+		for _, o := range []string{"", intl.Options("style", "currency", "currency", showcaseCurrency),
+			intl.Options("notation", "compact", "compactDisplay", "long"), intl.Options("style", "percent"), intl.Options("notation", "scientific")} {
+			v := intl.Number(res.Parsed, o)
+			res.NumberRows = append(res.NumberRows, TryRow{"NumberFormat " + v.JSOptions(), intl.Text(ctx, v)})
 		}
-		for _, o := range []string{"", `{"type":"ordinal"}`} {
-			res.NumberRows = append(res.NumberRows, TryRow{"PluralRules " + jsOptions(o), intl.Text(ctx, intl.Of("PluralRules", "select", o, res.Parsed))})
+		for _, o := range []string{"", intl.Options("type", "ordinal")} {
+			v := intl.Of("PluralRules", "select", o, res.Parsed)
+			res.NumberRows = append(res.NumberRows, TryRow{"PluralRules " + v.JSOptions(), intl.Text(ctx, v)})
 		}
 	}
 	if text != "" {
@@ -280,9 +185,9 @@ func RoundTrip(ctx context.Context, number, text string) TryResult {
 			label intl.Msg
 			opts  string
 		}{
-			{locales.FormatsTryGraphemes, `{"granularity":"grapheme"}`},
-			{locales.FormatsTryWords, `{"granularity":"word"}`},
-			{locales.FormatsTrySentences, `{"granularity":"sentence"}`},
+			{locales.FormatsTryGraphemes, intl.Options("granularity", "grapheme")},
+			{locales.FormatsTryWords, intl.Options("granularity", "word")},
+			{locales.FormatsTrySentences, intl.Options("granularity", "sentence")},
 		} {
 			res.TextRows = append(res.TextRows, TryRow{intl.Text(ctx, r.label), intl.Text(ctx, intl.Of("Segmenter", "segment", r.opts, intl.JSON(text)))})
 		}

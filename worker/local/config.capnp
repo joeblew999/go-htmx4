@@ -1,12 +1,12 @@
 # workerd config for the app (mise run serve, dev, smoke, e2e, load; run from the repo root).
 #
-#   :8913 → assets-first (workerd/assets-first.mjs)
+#   :8913 → assets-first (worker/local/assets-first.mjs)
 #             ├─ file in dist/site/ → disk service "public"         (stands in for Static Assets)
-#             └─ everything else → "app": workerd/local-entry.mjs
+#             └─ everything else → "app": worker/local/local-entry.mjs
 #                                    ├─ /live/{topic} WebSocket → Room DO (worker/room.mjs, hibernation)
 #                                    └─ else → Go Worker (build/) with DB = LocalD1 shim
 #
-# Deployed, worker/index.mjs is the main module and DB is real D1; workerd/ is local-only.
+# Deployed, worker/index.mjs is the main module and DB is real D1; worker/local/ is local-only.
 # Embed paths are relative to this file; disk paths to the working directory (the repo root). Module names mirror the
 # relative imports (and the deploy's module names, ci/deploy.sh).
 
@@ -36,19 +36,19 @@ const app :Workerd.Worker = (
   modules = [
     (name = "workerd/local-entry.mjs", esModule = embed "local-entry.mjs"),
     (name = "workerd/local-d1.mjs", esModule = embed "local-d1.mjs"),
-    (name = "migrations/0001_board.sql", text = embed "../migrations/0001_board.sql"),
-    (name = "index.mjs", esModule = embed "../worker/index.mjs"),
-    (name = "room.mjs", esModule = embed "../worker/room.mjs"),
-    (name = "build/go.mjs", esModule = embed "../build/go.mjs"),
-    (name = "build/worker.mjs", esModule = embed "../build/worker.mjs"),
-    (name = "build/tinygo-clock.mjs", esModule = embed "../build/tinygo-clock.mjs"),
-    (name = "build/websocket.mjs", esModule = embed "../build/websocket.mjs"),
-    (name = "build/intl.mjs", esModule = embed "../build/intl.mjs"),
-    (name = "build/intl-worker.mjs", esModule = embed "../build/intl-worker.mjs"),
-    (name = "build/intl-messages.mjs", esModule = embed "../build/intl-messages.mjs"),
-    (name = "build/wasm_exec.js", esModule = embed "../build/wasm_exec.js"),
-    (name = "build/runtime.mjs", esModule = embed "../build/runtime.mjs"),
-    (name = "build/app.wasm", wasm = embed "../build/app.wasm"),
+    (name = "migrations/0001_board.sql", text = embed "../../migrations/0001_board.sql"),
+    (name = "index.mjs", esModule = embed "../index.mjs"),
+    (name = "room.mjs", esModule = embed "../room.mjs"),
+    (name = "build/go.mjs", esModule = embed "../../build/go.mjs"),
+    (name = "build/worker.mjs", esModule = embed "../../build/worker.mjs"),
+    (name = "build/tinygo-clock.mjs", esModule = embed "../../build/tinygo-clock.mjs"),
+    (name = "build/websocket.mjs", esModule = embed "../../build/websocket.mjs"),
+    (name = "build/intl.mjs", esModule = embed "../../build/intl.mjs"),
+    (name = "build/intl-worker.mjs", esModule = embed "../../build/intl-worker.mjs"),
+    (name = "build/intl-messages.mjs", esModule = embed "../../build/intl-messages.mjs"),
+    (name = "build/wasm_exec.js", esModule = embed "../../build/wasm_exec.js"),
+    (name = "build/runtime.mjs", esModule = embed "../../build/runtime.mjs"),
+    (name = "build/app.wasm", wasm = embed "../../build/app.wasm"),
   ],
   durableObjectNamespaces = [
     (className = "Room", uniqueKey = "go-htmx4-room", enableSql = true),

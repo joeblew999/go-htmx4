@@ -15,8 +15,8 @@ name=${2:-}
 cf() { if [ -n "${CLOUDFLARE_API_TOKEN:-}" ] && [ -n "${CLOUDFLARE_ACCOUNT_ID:-}" ]; then "$@"; else fnox exec -- "$@"; fi; }
 read -r -a deploy <<<"${DEPLOY_CMD:-go tool workerdeploy}"
 # The compatibility date the Worker runs on in production is the one local workerd tests it with.
-compat=$(sed -n 's/.*compatibilityDate = "\(.*\)".*/\1/p' workerd/config.capnp | sort -u)
-[ "$(echo "$compat" | wc -l | tr -d ' ')" = 1 ] && [ -n "$compat" ] || { echo "✗ workerd/config.capnp: want one compatibilityDate, got: $compat"; exit 1; }
+compat=$(sed -n 's/.*compatibilityDate = "\(.*\)".*/\1/p' worker/local/config.capnp | sort -u)
+[ "$(echo "$compat" | wc -l | tr -d ' ')" = 1 ] && [ -n "$compat" ] || { echo "✗ worker/local/config.capnp: want one compatibilityDate, got: $compat"; exit 1; }
 
 # Every deploy: the entry module, every other worker/*.mjs next to it, Static Assets, D1 with migrations, the Room
 # Durable Object and the write limit.

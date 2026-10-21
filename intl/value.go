@@ -11,8 +11,8 @@ import (
 // [renderers]) with the request's language, time zone and clock, inside an element js/intl-browser.mjs redoes in
 // the viewer's own zone:
 //
-//	<p>{ intl.Date(note.CreatedAt, `{"dateStyle":"full"}`) }</p>
-//	<p>{ intl.Of("NumberFormat", "", `{"style":"percent"}`, intl.JSON("0.256")) }</p>
+//	<p>{ intl.Date(note.CreatedAt, intl.Options("dateStyle", "full")) }</p>
+//	<p>{ intl.Of("NumberFormat", "", intl.Options("style", "percent"), intl.JSON("0.256")) }</p>
 type Value struct {
 	Call
 	kind     string // "" for the Call, "since" or "zone"
@@ -22,6 +22,10 @@ type Value struct {
 	since    time.Time
 	zone     string
 }
+
+// Args are an Intl call's arguments when it takes several (or none), for the intl filter:
+// { intl.Args{"ä", "z"} |> intl("Collator", "compare") }. Each is a string, a number or a time.Time.
+type Args []any
 
 // Of is any Intl call: new Intl[api](lang, opts)[method](...args), method "" for "format", opts a JSON object, args
 // JSON values (JSON for strings, Millis for instants).
@@ -81,6 +85,17 @@ func List(items []string, opts string) Value {
 
 // Zone is a time zone's name in the language: "Europe/Berlin · Mitteleuropäische Zeit (GMT+2)".
 func Zone(id string) Value { return Value{kind: "zone", tag: "span", fallback: id, zone: id} }
+
+// Clock is 13:05 written in a clock, to label the choices of HourCycle: "h12", "h23", or "" for the language's own,
+// whichever clock the viewer chose. In an <option>: { intl.Clock("h12").Attrs()... } and { intl.Clock("h12") |> plain }.
+func Clock(hourCycle string) Value {
+	clock := []string{"viewerClock", "false"} // js/intl.mjs: the language's own clock, not the viewer's
+	if hourCycle != "" {
+		clock = []string{"hourCycle", hourCycle}
+	}
+	opts := Options(append([]string{"hour", "numeric", "minute", "2-digit", "timeZone", "UTC"}, clock...)...)
+	return Date(time.Date(2026, 1, 1, 13, 5, 0, 0, time.UTC), opts)
+}
 
 // Textual is a Msg or a Value: what has a text in the request's language.
 type Textual interface{ text(context.Context) string }

@@ -15,7 +15,7 @@ if curl -s -o /dev/null "$base/"; then
 fi
 mkdir -p .workerd-state build
 log=build/workerd-$name.log
-workerd serve workerd/config.capnp >"$log" 2>&1 &
+workerd serve worker/local/config.capnp >"$log" 2>&1 &
 pid=$!
 # workerd can ignore SIGTERM while it drains (seen with hibernated WebSockets): escalate so :8913 is freed.
 stop() {

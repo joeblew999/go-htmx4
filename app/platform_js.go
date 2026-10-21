@@ -1,6 +1,6 @@
 //go:build js && wasm
 
-package main
+package app
 
 import (
 	"database/sql"
@@ -29,7 +29,7 @@ func connectionTimeZone(r *http.Request) string { return transport.CFOf(r).Timez
 // request that reaches Go here is a real 404.
 func staticFiles() http.Handler { return http.NotFoundHandler() }
 
-// newStore opens the DB binding: D1 on Cloudflare, workerd/local-d1.mjs under workerd.
+// newStore opens the DB binding: D1 on Cloudflare, worker/local/local-d1.mjs under workerd.
 func newStore() (store, error) {
 	db, err := sql.Open("d1", "DB")
 	if err != nil {

@@ -19,6 +19,42 @@ type Call struct {
 // ArgsJSON is c's arguments as one JSON array.
 func (c Call) ArgsJSON() string { return "[" + strings.Join(c.Args, ",") + "]" }
 
+// JSOptions is c's options as JavaScript writes them, to show the call: {"dateStyle":"full"} is
+// {dateStyle: "full"}, none is {}. Options are flat, as Options writes them.
+func (c Call) JSOptions() string {
+	opts := c.Opts
+	if opts == "" {
+		return "{}"
+	}
+	var b strings.Builder
+	inString, key := false, false
+	for i := 0; i < len(opts); i++ {
+		ch := opts[i]
+		switch {
+		case ch == '\\' && inString && i+1 < len(opts): // an escape, kept as it is
+			b.WriteString(opts[i : i+2])
+			i++
+			continue
+		case ch == '"' && !inString && i > 0 && (opts[i-1] == '{' || opts[i-1] == ','):
+			key = true // a key: drop its quotes
+			continue
+		case ch == '"' && key:
+			key = false
+			continue
+		case ch == '"':
+			inString = !inString
+		case ch == ':' && !inString:
+			b.WriteString(": ")
+			continue
+		case ch == ',' && !inString:
+			b.WriteString(", ")
+			continue
+		}
+		b.WriteByte(ch)
+	}
+	return b.String()
+}
+
 // Intl makes c in the locale's language with the runtime's Intl, dates in timeZone and hourCycle unless c's options
 // set their own. The result is Intl's: a string, or JSON for anything else. ok is false when Intl can't.
 func (l *Locale) Intl(c Call, timeZone, hourCycle string) (s string, ok bool) {
@@ -73,14 +109,11 @@ func JSON(s string) string {
 // jsonNumber is a number as JSON writes it: "0", "-1.5", "1e3", never "02" or "Infinity".
 var jsonNumber = regexp.MustCompile(`^-?(0|[1-9][0-9]*)(\.[0-9]+)?([eE][+-]?[0-9]+)?$`)
 
-// Options is an Intl options object from its names and values in pairs, as Intl names them:
-// Options("dateStyle", "full", "calendar", "hebrew") is {"dateStyle":"full","calendar":"hebrew"}. A value that is a
-// number or true/false is one ("maximumFractionDigits", "0"); the rest are strings. One argument that is already a
-// JSON object is itself, and an odd one out is dropped.
+// Options is an Intl options object from its names and values in pairs, as Intl names them, the one way options are
+// written: Options("dateStyle", "full", "calendar", "hebrew") is {"dateStyle":"full","calendar":"hebrew"}. A value
+// that is a number or true/false is one ("maximumFractionDigits", "0"); the rest are strings. An odd one out is
+// dropped.
 func Options(pairs ...string) string {
-	if len(pairs) == 1 && strings.HasPrefix(strings.TrimSpace(pairs[0]), "{") {
-		return pairs[0]
-	}
 	if len(pairs) < 2 {
 		return ""
 	}

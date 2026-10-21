@@ -71,24 +71,24 @@ component PreferencesForm(returnTo string, connectionZone string) {
 					<ui.NativeSelectOption
 						value=""
 						selected={intl.HourCycle(ctx) == ""}
-						{ clockExample(`,"viewerClock":false`).Attrs()... }
+						{ intl.Clock("").Attrs()... }
 						data-template={locales.PreferencesHourCycleAuto(intl.Slot)}
 					>
-						{ locales.PreferencesHourCycleAuto(clockExample(`,"viewerClock":false`)) }
+						{ locales.PreferencesHourCycleAuto(intl.Clock("")) }
 					</ui.NativeSelectOption>
 					<ui.NativeSelectOption
 						value="h12"
 						selected={intl.HourCycle(ctx) == "h12"}
-						{ clockExample(`,"hourCycle":"h12"`).Attrs()... }
+						{ intl.Clock("h12").Attrs()... }
 					>
-						{ clockExample(`,"hourCycle":"h12"`) |> plain }
+						{ intl.Clock("h12") |> plain }
 					</ui.NativeSelectOption>
 					<ui.NativeSelectOption
 						value="h23"
 						selected={intl.HourCycle(ctx) == "h23"}
-						{ clockExample(`,"hourCycle":"h23"`).Attrs()... }
+						{ intl.Clock("h23").Attrs()... }
 					>
-						{ clockExample(`,"hourCycle":"h23"`) |> plain }
+						{ intl.Clock("h23") |> plain }
 					</ui.NativeSelectOption>
 				</ui.NativeSelect>
 			</ui.Field>
