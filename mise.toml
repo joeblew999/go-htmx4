@@ -4,7 +4,7 @@
 #   mise tasks          # every task; when to use which: docs/commands.md
 
 # The oldest mise that handles these pins (http: backend platforms, packslip tools). CI and Workers Builds install
-# this version (ci/check.sh, ci/workers-builds.sh read it from here).
+# this version (charter's .github/workflows/charter.yml and .mise/tasks/charter-builds read it from here).
 min_version = "2026.10.14"
 
 [settings]
@@ -46,7 +46,7 @@ macos-x64 = { url = "https://storage.googleapis.com/chrome-for-testing-public/{{
 # runtimes kept between requests; a new build takes minutes, an unchanged one comes from charter's cache) or "go" (the
 # standard compiler: seconds, a ~3x bigger wasm and a runtime per request, ~50–90 ms slower at the median on Workers,
 # measured 2026-10-20). Users pay that, so: tinygo. mise run dev always uses go.
-# Set WORKER_COMPILER in the environment to override it for one run: WORKER_COMPILER=go ci/check.sh
+# Set WORKER_COMPILER in the environment to override it for one run: WORKER_COMPILER=go mise run check
 WORKER_COMPILER = "{{ get_env(name='WORKER_COMPILER', default='tinygo') }}"
 # Copies of charter.toml's facts for the tasks and scripts that still read them from the environment (TestCharterToml
 # checks each): the Worker's name, its production custom domain ("" = workers.dev only; when set, *.workers.dev and

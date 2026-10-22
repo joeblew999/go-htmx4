@@ -9,8 +9,9 @@ Every command is a mise task: `mise run <task>`; `mise tasks` lists them. Which 
   with the fast `build:dev`.
 - **Build:** `build` is production (what ships and what the tests use), compiled by `WORKER_COMPILER` in mise.toml:
   `tinygo` (smallest wasm, ~1–2 min builds) or `go` (seconds, a bigger wasm, ~50–90 ms slower per request).
-  Override it for one run: `WORKER_COMPILER=go ci/check.sh`. `build:dev` is always standard Go, for `dev`.
-- **Test:** `check` before pushing (CI runs the same, `ci/check.sh`), then `e2e` for anything in the browser.
+  Override it for one run: `WORKER_COMPILER=go mise run check`. `build:dev` is always standard Go, for `dev`.
+- **Test:** `check` before pushing (CI runs the same, `go tool charter ci run` from `charter.toml`'s `[ci]`), then
+  `e2e` for anything in the browser.
   `SMOKE_BASE=https://… smoke` runs the smoke checks against a deployed Worker.
 - **Ship:** every pushed branch gets a preview and `main` deploys staging, both automatically (Workers Builds).
   Production: `release v1.3` (or a v* tag from GitHub's Releases page) → CI tests it and tags it → Workers Builds
@@ -59,17 +60,29 @@ Production build → build/ with WORKER_COMPILER (mise.toml: tinygo or go), size
 
 Dev build → build/: standard Go to wasm, seconds after an edit (mise run dev uses it; never deployed)
 
-### `cf:builds`
-
-- **Usage:** `cf:builds`
-
-Set up Workers Builds for $APP_REPO: every branch deploys (previews; production from the production branch), main deploys staging; idempotent
-
 ### `charter:build`
 
 - **Usage:** `charter:build`
 
 Build the Worker into build/ with TinyGo (go tool charter build); WORKER_COMPILER=go builds with the standard compiler, in seconds, never to deploy
+
+### `charter:builds-configure`
+
+- **Usage:** `charter:builds-configure`
+
+Set Workers Builds up for the Worker: the repository, .mise/tasks/charter-builds as its build and deploy commands (go tool charter builds configure; Cloudflare credentials)
+
+### `charter:check`
+
+- **Usage:** `charter:check`
+
+Everything charter.toml and charter's files in this app should be (go tool charter check): exits 1 on any problem
+
+### `charter:ci`
+
+- **Usage:** `charter:ci`
+
+What CI runs, here (go tool charter ci run, charter.toml's [ci]): the build and the checks; on GitHub also the preview's build and a release
 
 ### `charter:deploy`
 
@@ -88,11 +101,23 @@ Deploy the built Worker to production, staging or a preview <name>, as charter.t
 
 Run the built Worker on local workerd, on charter.toml's port (PORT overrides it), in your time zone (go tool charter serve)
 
+### `charter:skill`
+
+- **Usage:** `charter:skill`
+
+After upgrading charter: its agent skill again, into .claude/skills/charter (go tool charter skill)
+
 ### `charter:tail`
 
 - **Usage:** `charter:tail`
 
 Stream the deployed Worker's live logs until Ctrl-C (go tool charter tail)
+
+### `charter:tasks`
+
+- **Usage:** `charter:tasks`
+
+After upgrading charter: these tasks and the Workers Builds launcher again (go tool charter tasks)
 
 ### `charter:token`
 
@@ -109,6 +134,20 @@ Run a command against the built Worker on local workerd, a free port and fresh s
 
 ### Arguments
 - **`<command>…`** — the command and its arguments
+
+### `charter:workflow`
+
+- **Usage:** `charter:workflow`
+
+After upgrading charter: the CI workflow again, .github/workflows/charter.yml (go tool charter workflow)
+
+### `ci:bench`
+
+- Depends: build
+
+- **Usage:** `ci:bench`
+
+CI: one short CPU-per-request run of the build on workerd, into the GitHub run's summary (charter.toml [ci] test)
 
 ### `deploy`
 

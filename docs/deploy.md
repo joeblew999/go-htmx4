@@ -14,16 +14,19 @@ domain and subdomain (`TestCharterToml` checks them).
 
 ## One build per commit
 
-1. GitHub CI (`ci/check.sh`) builds the commit, runs the tests, and with `go tool charter ci publish` puts the build
-   and a static charter binary on the `preview-builds` pre-release (and the preview's URL on the pull request).
-2. Workers Builds (Cloudflare's GitHub app, `ci/workers-builds.sh`) downloads that charter, and with it the build,
+1. GitHub CI (`.github/workflows/charter.yml` → `go tool charter ci run`, from `charter.toml`'s `[ci]`) builds the
+   commit, puts the build and a static charter binary on the `preview-builds` pre-release (and the preview's URL on
+   the pull request), then runs the tests.
+2. Workers Builds (Cloudflare's GitHub app, `.mise/tasks/charter-builds`) downloads that charter, and with it the build,
    verified against its manifest (`go tool charter builds build`), then deploys what the branch deploys from
    `charter.toml` (`go tool charter builds deploy`): the branch's preview, or staging for `main`, or production for
    `production`. It then deletes previews of branches that no longer exist.
-3. If CI's build never comes (CI down, a fork, or `PREVIEW_BUILD=compile`), Workers Builds compiles it itself.
+3. If CI's build never comes (CI down, a fork, or `CHARTER_COMPILE=1`), Workers Builds builds it itself
+   (`go tool charter builds build -compile`: `[ci] tools`, then `[build] command`).
 
-No Cloudflare credential is in GitHub: Workers Builds deploys with its own build token. `mise run cf:builds` sets up
-its triggers once.
+No Cloudflare credential is in GitHub: Workers Builds deploys with its own build token. `mise run
+charter:builds-configure` sets up its triggers once. Both the workflow and the launcher are charter's (`go tool charter
+workflow`, `tasks`), and `go tool charter check` says when they're stale.
 
 ## Releasing
 

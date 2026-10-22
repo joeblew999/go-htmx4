@@ -49,3 +49,16 @@ note = "Own Durable Object storage, shared preview D1, not indexed."
 
 [local]
 vars = { APP_ENV = "workerd (local)" }
+
+# The build: the Worker (TinyGo), intl's Worker modules, the Static Assets (tasks/app.toml).
+[build]
+command = "mise run build"
+
+# CI (.github/workflows/charter.yml → go tool charter ci run): only the tools it runs; the build beside the Go tests and
+# the fresh apps, then published for the commit's preview; then workerd, Chrome and the CPU table; a release also tags
+# intl, seo and badge with their next versions before production moves.
+[ci]
+tools = ["go", "go@1.26", "tinygo", "github:WebAssembly/binaryen", "github:tailwindlabs/tailwindcss", "workerd", "http:chrome-headless-shell", "jq"]
+build = "mise run build ::: test:go ::: fresh"
+test = "mise run --skip-deps smoke && mise run --skip-deps e2e && mise run --skip-deps ci:bench"
+release_hook = "ci/module-tags.sh \"$GITHUB_SHA\""

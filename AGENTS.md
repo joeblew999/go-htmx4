@@ -33,10 +33,12 @@ contributor's pull request stops before them.
   `jdx/mise-action` or any JavaScript action. A new tool goes in `mise.toml`.
 - Commands are mise tasks. Don't hand-list them in docs: change the task's description, `docs/commands.md` is
   generated from it (`test:go` fails when it's stale).
-- Before pushing: `mise run check` (what CI runs, `ci/check.sh`), then `mise run e2e` after UI, board or JS changes.
+- Before pushing: `mise run check`, then `mise run e2e` after UI, board or JS changes. CI is charter's
+  (`.github/workflows/charter.yml` → `go tool charter ci run`, from `charter.toml`'s `[ci]`): the same build and checks.
   A task with `sources`/`outputs` is skipped when nothing it reads changed: a new input to the wasm goes in `sources`.
 - A task's own script is inline in its task. `ci/` holds the scripts CI runs or several tasks share (`check.sh`,
-  `wasm-build.sh`, `bench.sh`, `workers-builds.sh`, `upstream.sh`). Checks are Go
+  `wasm-build.sh`, `bench.sh`, `module-tags.sh`, `upstream.sh`). CI and Workers Builds are charter's, written by
+  `go tool charter tasks` and `workflow` (`go tool charter check` in `test:go`): never edit them. Checks are Go
   tests (`e2e/smoke`, `e2e`, `e2e/load`), never curl or a grep of a command's output.
 - **The Worker on Cloudflare is `charter.toml`** (charter's `go tool charter`): its name, modules, D1, Durable Objects,
   rate limit, vars and domain per environment. Deploys (`go tool charter deploy production|staging|preview`) and local
