@@ -3,7 +3,7 @@
 # what differs from its default.
 
 # The live site. Default: https://$APP_DOMAIN.
-# site = "https://app.example.com"
+site = "https://go-htmx4.ubuntusoftware.net"
 
 # Its Search Console property. Default: the site's Domain property (app.example.com → sc-domain:example.com).
 # property = "sc-domain:example.com"

@@ -329,7 +329,7 @@ The sitemap's status in Search Console and Google's index status for every URL i
 
 - **Usage:** `seo:submit`
 
-Submit https://$APP_DOMAIN/sitemap.xml to Search Console, after access and a passing live audit
+Submit the site's sitemap.xml (seo.toml's site) to Search Console, after access and a passing live audit
 
 ### `seo:tasks`
 

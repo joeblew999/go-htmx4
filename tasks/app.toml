@@ -247,6 +247,7 @@ git ls-files -z -- '*.go' '*.gsx' 'gsx.toml' 'go.mod' 'intl/go.mod' 'seo/go.mod'
 perl -pi -e "s/^APP_NAME = \"\\Q$old_name\\E\"/APP_NAME = \"$name\"/" mise.toml
 # The custom domain is the template owner's; a renamed copy has none until its owner sets APP_DOMAIN.
 perl -pi -e 's/^APP_DOMAIN = ".*"/APP_DOMAIN = ""/' mise.toml
+perl -pi -e 's/^site = ".*"/# site = "https:\/\/app.example.com"/' seo.toml
 # Preview builds and Workers Builds: the repository follows a github.com module path; the subdomain is the owner's.
 repo=""; [[ "$module" =~ ^github\.com/([^/]+/[^/]+)$ ]] && repo=${BASH_REMATCH[1]}
 perl -pi -e "s#^APP_REPO = \".*\"#APP_REPO = \"$repo\"#" mise.toml

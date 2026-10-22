@@ -11,7 +11,7 @@ reads is the app's own: canonical URLs, hreflang, `<html lang>`, titles and desc
 `intl.Sitemap`, `intl.HTML`, the catalogs' messages), the icon, structured data, the pages' text. Fix a problem there.
 The `seo` tools check it and ask Google; see its README for the whole map.
 
-Run every command from the app's root. The site is `https://$APP_DOMAIN`.
+Run every command from the app's root. The site is `seo.toml`'s `site`; every command prints it first, so check it.
 
 ## 1. Check what the app serves
 
