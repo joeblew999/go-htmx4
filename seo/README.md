@@ -13,10 +13,11 @@ Google ranks what the site serves. Every piece is made by the app, live on each 
 | `/sitemap.xml` | every page, in every language, with its other-language versions | `seo.Site`, writing `intl.Sitemap` of the app's pages (`app/site.go`) |
 | `X-Robots-Tag: noindex` | keeps fragments, posts, previews, incomplete languages and endless query pages out | `seo.Site` (the app's `isPage`, `indexable`) and `intl.Site` |
 | one address per page | other hosts and plain http move to `https://` the domain | `seo.Site` |
-| `<html lang>`, `<title>`, `<meta name="description">` | the page's language, and the blue link and text in a result | the layout, from the catalogs (`views/layout.gsx`) |
-| `<link rel="canonical">`, `hreflang` links, `og:` tags | which URL is the page, its versions in other languages, how a shared link looks | `intl.Head`, with the page key (`views/views.go`) |
-| `<link rel="icon">` | the icon beside the site's results | the layout |
-| `WebSite` structured data | the site's name in results | the home page (`views/views.go`, `webSite`) |
+| `<html lang>` | the page's language | `intl.HTML` |
+| `<title>`, `<meta name="description">`, `og:title`, `og:description` | the blue link and text in a result, and how a shared link looks | `seo.Head`, from the catalogs (`views/layout.gsx`) |
+| `<link rel="canonical">`, `hreflang` links, `og:url`, `og:locale` | which URL is the page, and its versions in other languages | `intl.Head`, with the page key (`views/views.go`) |
+| `<link rel="icon">` | the icon beside the site's results | `seo.Head` |
+| `WebSite` structured data | the site's name in results | `seo.Head`, on the home page |
 | one `<h1>`, real text | what the page is about; a thin page gets crawled and not indexed | each page |
 
 `seo` checks all of it, before a deploy and after, and asks Google what it made of it.
@@ -31,6 +32,20 @@ search := seo.Site{
 	Preview: os.Getenv("APP_PREVIEW") != "", // everything noindex
 }
 http.ListenAndServe(addr, search.Handler(languages.Handler(mux))) // outside intl.Site: it sees what crawlers ask for
+```
+
+And in the layout's `<head>`, beside `intl.Head`, what the audit checks on every page:
+
+```gsx
+<seo.Head
+	title={ locales.PageTitle(title) |> text }      // the page's own text, in its language
+	description={ description |> text }
+	siteName="Shop"
+	icon="/static/favicon.svg"
+	home={ homeURL(ctx, path) }                     // the home page's absolute URL there, "" on other pages
+	lang={ intl.Current(ctx).ID() }
+/>
+<intl.Head page={ path }/>
 ```
 
 Package `seo` is small enough for a Worker. The rest are tools: `seo/audit`, `seo/lighthouse`, `seo/searchconsole`
@@ -92,7 +107,7 @@ Google verdict means and where its fix is, and that `seo:submit` and `seo:setup`
 
 | Folder | What |
 |---|---|
-| `.` | package `seo`: `Site`, and `SnippetWidth` |
+| `.` | package `seo`: `Site`, `Head` (`head.gsx`, with its generated `head.x.go` committed: apps import seo as a Go package), and `SnippetWidth` |
 | `audit/` | the site as Googlebot reads it |
 | `lighthouse/` | Lighthouse through PageSpeed Insights |
 | `searchconsole/` | the Search Console API with a service account key |

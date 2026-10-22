@@ -111,7 +111,7 @@ A brand-new gsx app outside this repo, set up with intl from this checkout as in
 
 - **Usage:** `generate`
 
-go tool gsx generate (after intl: views write the generated messages); intl/'s own renderer too, which it commits for the apps that import it
+go tool gsx generate (after intl: views write the generated messages); intl/'s and seo/'s own components too, which they commit for the apps that import them
 
 ### `intl`
 

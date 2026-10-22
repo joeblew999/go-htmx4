@@ -34,6 +34,7 @@ intl-messages.mjs
 /.bench/
 # intl is a library other modules import: its renderer package is committed generated (gsx Package renderers)
 !/intl/*.x.go
+!/seo/*.x.go
 # go tool intl export: XLIFF for human translators (mise run intl:export / intl:import)
 /xliff/
 # This app on local upstream checkouts (mise run upstream:use; never committed): the workspace, the CLI built from a

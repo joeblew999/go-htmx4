@@ -4,6 +4,7 @@ import (
 	"github.com/gsxhq/gsx"
 	"github.com/joeblew999/go-htmx4/intl"
 	"github.com/joeblew999/go-htmx4/locales"
+	"github.com/joeblew999/go-htmx4/seo"
 	"github.com/joeblew999/go-htmx4/ui"
 	"github.com/joeblew999/go-htmx4/ui/icon"
 )
@@ -24,9 +25,9 @@ import (
 //
 // <html lang dir> come from the request's locale (intl.HTML), and every UI string from locales/*.toml (intl.Msg).
 // <html data-tz data-hc> are the viewer's chosen time zone and clock ("" = the browser's own and the language's), for
-// intl-browser.mjs, which redoes dates, times and rich numbers in the browser. The
-// head carries a translated description, the canonical URL, the page in every locale and Open Graph (intl.Head, with
-// pageKey in views.go), the site's icon, and on the home page the site's name for Google (WebSite structured data). The
+// intl-browser.mjs, which redoes dates, times and rich numbers in the browser. The head carries what search engines
+// and link previews read (seo.Head: the translated title and description, Open Graph, the site's icon, and on the home
+// page the site's name for Google) and the page's language versions (intl.Head, with pageKey in views.go). The
 // language links sit in the footer, outside the boosted nav: switching locale must be a full page load, since a
 // boosted swap keeps the old <html lang dir>.
 component Layout(title intl.Msg, description intl.Msg, path string, children gsx.Node) {
@@ -35,18 +36,15 @@ component Layout(title intl.Msg, description intl.Msg, path string, children gsx
 		<head>
 			<meta charset="utf-8"/>
 			<meta name="viewport" content="width=device-width, initial-scale=1"/>
-			<title>{ locales.PageTitle(title) }</title>
-			<meta name="description" content={description}/>
+			<seo.Head
+				title={locales.PageTitle(title) |> text}
+				description={description |> text}
+				siteName="go-htmx4"
+				icon="/static/favicon.svg"
+				home={homeURL(ctx, path)}
+				lang={intl.Current(ctx).ID()}
+			/>
 			<intl.Head page={pageKey(ctx)}/>
-			<meta property="og:type" content="website"/>
-			<meta property="og:site_name" content="go-htmx4"/>
-			<meta property="og:title" content={locales.PageTitle(title)}/>
-			<meta property="og:description" content={description}/>
-			<meta name="twitter:card" content="summary"/>
-			<link rel="icon" href="/static/favicon.svg" type="image/svg+xml"/>
-			{ if path == "/" {
-				<script type="application/ld+json">@{ webSite(ctx) }</script>
-			} }
 			<ThemeScript/>
 			<link rel="stylesheet" href="/assets/gsxui.css"/>
 			// The body font (gsxui.preset.json's fontSans), fetched with the stylesheet: no reflow when it arrives late.

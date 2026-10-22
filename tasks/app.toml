@@ -32,10 +32,10 @@ echo "✓ htmx $version: web/htmx/htmx.min.js, web/htmx/hx-ws.js, web/htmx/hx-li
 
 # gsx components (views/, ui/) → *.x.go, which are gitignored; every build/run/test path depends on this.
 ["generate"]
-description = "go tool gsx generate (after intl: views write the generated messages); intl/'s own renderer too, which it commits for the apps that import it"
+description = "go tool gsx generate (after intl: views write the generated messages); intl/'s and seo/'s own components too, which they commit for the apps that import them"
 depends = ["intl"]
 dir = "{{config_root}}"
-run = ["go -C intl tool gsx generate -q .", "go tool gsx generate"]
+run = ["go -C intl tool gsx generate -q .", "go -C seo tool gsx generate -q .", "go tool gsx generate"]
 
 # gsxui (npm-free mode): compile web/gsxui/index.css with the standalone Tailwind CLI, then assemble the
 # Static Assets directory: /static/ = web/htmx/ (htmx, hx-ws) and intl's browser module,

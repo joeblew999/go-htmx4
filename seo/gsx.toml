@@ -1,0 +1,3 @@
+# seo is a library other modules import: its .x.go (head.gsx's seo.Head) is generated here (go -C seo tool gsx
+# generate) and committed, as the gsx Package renderers guide says for a package outside the consuming module. This
+# file also stops the app's gsx.toml from being inherited.
