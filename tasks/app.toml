@@ -245,46 +245,6 @@ description = "Regenerate docs/commands.md from these task descriptions (mise ge
 dir = "{{config_root}}"
 run = "{ cat docs/commands-intro.md; mise generate task-docs | sed 's/^## /### /'; } >docs/commands.md"
 
-# ── rename ───────────────────────────────────────────────────────────────────
-# Make the template yours (GitHub "Use this template" or a clone): new Go module path and app name. The app name is
-# the Worker + D1 name (APP_NAME), the brand in the header/titles and the local Durable Object keys.
-["rename"]
-description = "Make this template yours: mise run rename -- <module path> <app name>  (e.g. github.com/you/board board)"
-run = '''
-#!/usr/bin/env bash
-set -euo pipefail
-module=${1:-}; name=${2:-}
-if [ -z "$module" ] || [ -z "$name" ]; then echo "usage: mise run rename -- <module path> <app name>"; exit 2; fi
-[[ "$name" =~ ^[a-z0-9][a-z0-9-]{0,52}$ ]] || { echo "✗ app name must be lowercase letters, digits and hyphens (it names the Worker)"; exit 1; }
-old_module=$(go list -m)
-old_name=$(sed -n 's/^APP_NAME = "\(.*\)"$/\1/p' mise.toml)
-[ "$old_module" != "$module" ] || [ "$old_name" != "$name" ] || { echo "· already $module / $name"; exit 0; }
-# Module path: every tracked Go, gsx and module file (untracked work is left alone); intl/ moves with the app.
-git ls-files -z -- '*.go' '*.gsx' '*.gsx.tmpl' 'gsx.toml' 'go.mod' 'intl/go.mod' 'seo/go.mod' 'badge/go.mod' 'e2e/go.mod' | xargs -0 perl -pi -e "s#\\Q$old_module\\E#$module#g"
-(cd e2e && go mod edit -module "$module/e2e")
-# App name: config, pages, tests and local Durable Object keys.
-perl -pi -e "s/^APP_NAME = \"\\Q$old_name\\E\"/APP_NAME = \"$name\"/" mise.toml
-# The custom domain is the template owner's; a renamed copy has none until its owner sets APP_DOMAIN.
-perl -pi -e 's/^APP_DOMAIN = ".*"/APP_DOMAIN = ""/' mise.toml
-perl -pi -e 's/^site = ".*"/# site = "https:\/\/app.example.com"/' seo.toml
-# Preview builds and Workers Builds: the repository follows a github.com module path; the subdomain is the owner's.
-repo=""; [[ "$module" =~ ^github\.com/([^/]+/[^/]+)$ ]] && repo=${BASH_REMATCH[1]}
-perl -pi -e "s#^APP_REPO = \".*\"#APP_REPO = \"$repo\"#" mise.toml
-perl -pi -e 's/^CF_SUBDOMAIN = ".*"/CF_SUBDOMAIN = ""/' mise.toml
-# charter.toml: the custom domain is the template owner's too (before the name changes in it).
-old_domain=$(sed -n 's/^domain = "\(.*\)"$/\1/p' charter.toml)
-[ -z "$old_domain" ] || perl -pi -e "s/\"\\Q$old_domain\\E\"/\"\"/g" charter.toml
-git ls-files -z -- views app main.go e2e tasks/app.toml charter.toml | xargs -0 perl -pi -e "s/\\b\\Q$old_name\\E\\b/$name/g"
-# Import blocks re-sort under the new path.
-go tool gsx fmt -w . >/dev/null
-git ls-files -z -- '*.go' | xargs -0 gofmt -w
-go tool intl gen >/dev/null
-go tool gsx generate >/dev/null
-go build ./... && (cd e2e && go vet ./...)
-echo "✓ module $old_module → $module, app $old_name → $name"
-echo "  next: mise run check; set CLOUDFLARE_API_TOKEN + CLOUDFLARE_ACCOUNT_ID in fnox; mise run deploy"
-'''
-
 # ── token-check ─────────────────────────────────────────────────
 # Credentials come from fnox via mise (global keychain config). The inner sh -c '…' is
 # single-quoted so $CLOUDFLARE_API_TOKEN expands after fnox has injected it.

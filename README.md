@@ -90,16 +90,27 @@ mise run check      # the production build under workerd, and go test
 `mise install` puts go.mod's gsx where its language server looks; then run **gsx: Restart Language Server**. Don't
 use the extension's *Install gsx* prompt: it installs `@latest`, not the pinned version.
 
-## Use it as a template
+## Start your own app
+
+Don't copy this repo: start from nothing and add the pieces, each with one command. It is what the fresh-app tests
+(`e2e/fresh`) do on every check, so it keeps working.
 
 ```sh
-mise run rename -- github.com/you/my-app my-app   # module path and app name (Worker, D1, brand)
-mise run check
+mkdir my-app && cd my-app && go mod init github.com/you/my-app
+go get -tool github.com/gsxhq/gsx/cmd/gsx github.com/joeblew999/charter/go/lib/cmd/charter \
+  github.com/joeblew999/go-htmx4/intl/cmd/intl github.com/joeblew999/go-htmx4/seo/cmd/seo
+gsxui init                        # gsxui's theme and components, npm-free (https://ui.gsxhq.dev)
+go tool charter init              # charter.toml: the Worker on Cloudflare, local workerd, deploys
+go tool intl init -locales en,de  # intl.toml, the catalogs, intl's tasks and skill
+go tool intl add language-list language-offer preferences   # intl's screens, already translated
+go tool seo init -base https://my-app.example.com          # seo.toml
 ```
 
-To deploy, put a Cloudflare API token (Workers Scripts, D1 and Workers Tail edit) and your account id in
-[fnox](https://github.com/jdx/fnox) as `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`, then `mise run deploy`.
-Every branch gets its own preview, `main` deploys staging, and a release deploys production: [docs/deploy.md](docs/deploy.md).
+Then [intl/README.md](intl/README.md), [seo/README.md](seo/README.md) and charter's
+[libraries page](https://github.com/joeblew999/charter/blob/main/docs/self/libraries.md) take it from there. To deploy,
+put a Cloudflare API token (Workers Scripts, D1 and Workers Tail edit) and your account id in the environment or in
+[fnox](https://github.com/jdx/fnox) as `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`, then `mise run
+charter:deploy production`. This repo's own previews, staging and releases: [docs/deploy.md](docs/deploy.md).
 
 ## Where things are
 
