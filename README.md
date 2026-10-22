@@ -33,13 +33,13 @@ Every page of the live site, scored by Lighthouse; each badge above is the lowes
 
 | Page | Performance | Accessibility | Best practices | SEO |
 |---|---:|---:|---:|---:|
-| [/](https://go-htmx4.ubuntusoftware.net/) | 99 | 100 | 100 | 100 |
-| [/board](https://go-htmx4.ubuntusoftware.net/board) | 99 | 95 | 96 | 100 |
-| [/formats](https://go-htmx4.ubuntusoftware.net/formats) | 99 | 100 | 100 | 100 |
-| [/components](https://go-htmx4.ubuntusoftware.net/components) | 98 | 84 | 100 | 100 |
-| [/about](https://go-htmx4.ubuntusoftware.net/about) | 93 | 100 | 100 | 100 |
+| [/](https://go-htmx4.ubuntusoftware.net/) | 98 | 100 | 100 | 100 |
+| [/board](https://go-htmx4.ubuntusoftware.net/board) | 98 | 95 | 96 | 100 |
+| [/formats](https://go-htmx4.ubuntusoftware.net/formats) | 98 | 100 | 100 | 100 |
+| [/components](https://go-htmx4.ubuntusoftware.net/components) | 99 | 84 | 100 | 100 |
+| [/about](https://go-htmx4.ubuntusoftware.net/about) | 98 | 100 | 100 | 100 |
 
-Lighthouse mobile on Google's servers (PageSpeed Insights), 2026-10-21: `mise run seo:badges` writes this table and the badges.
+Lighthouse mobile on Google's servers (PageSpeed Insights), 2026-10-22: `mise run seo:badges` writes this table and the badges.
 
 <!-- /seo:scores -->
 
