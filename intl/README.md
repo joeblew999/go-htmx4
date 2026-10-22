@@ -106,16 +106,20 @@ Translating with Claude also needs [Claude Code](https://code.claude.com) (`clau
    `intl:check` says when they're out of date.
 
 2. Serve every request through `intl.Site`. It handles the locale URLs (`/about`, `/de/about`), the locale cookie,
-   `Content-Language`, noindex while a catalog is incomplete, and the viewer's time zone and clock:
+   `Content-Language`, noindex while a catalog is incomplete, and the viewer's time zone and clock. `IsPage` names
+   the pages, by their path without the locale prefix: a GET of one is a page view.
 
    ```go
-   site := intl.Site{
-   	IsPage:             func(path string) bool { return !strings.HasPrefix(path, "/api/") },
-   	ConnectionTimeZone: func(r *http.Request) string { return transport.CFOf(r).Timezone }, // on Workers: Cloudflare's guess; nil elsewhere
-   }
-   mux.HandleFunc("POST /preferences", site.Preferences) // tz, hc, return: the viewer's choice
-   http.ListenAndServe(addr, site.Handler(mux))
+   pages := []string{"/", "/about"}
+   site := intl.Site{IsPage: func(path string) bool { return slices.Contains(pages, path) }}
+   // …
+   log.Fatal(http.ListenAndServe(addr, search.Handler(site.Handler(mux)))) // search is seo.Site; without seo, site.Handler(mux)
    ```
+
+   On Cloudflare Workers, with [charter](https://github.com/joeblew999/charter), give it Cloudflare's guess of the
+   viewer's zone too, `ConnectionTimeZone: func(r *http.Request) string { return transport.CFOf(r).Timezone }`
+   (charter's `transport`), and register plain paths, checking the method in the handler: TinyGo's `net/http` has the
+   ServeMux from before Go 1.22, which takes no `GET /x` patterns.
 
    The server renders in the reader's zone, so text doesn't change after it arrives: the zone they chose; else the one
    their browser reported on its first page (`intl-browser.mjs` sets the `browser_tz` cookie); else Cloudflare's guess
@@ -127,14 +131,19 @@ Translating with Claude also needs [Claude Code](https://code.claude.com) (`clau
    thanks" beside the offer. Never a redirect: Googlebot sends no `Accept-Language`, and a redirect would hide the
    other language versions from it. Every response is `Cache-Control: private`: it is written for one reader.
 
-3. In the layout:
+3. In the layout, `<html>` gets the page's `lang` and `dir` and the viewer's `data-tz` and `data-hc`, and
+   `intl.Head` writes the canonical URL, the hreflang alternates, `og:url` and `og:locale` of `path`, the page
+   without its locale prefix:
 
    ```gsx
-   <html { intl.HTML(ctx)... }>                  // lang, dir, and the viewer's data-tz / data-hc
-   <head>
-   	<intl.Head page="/about"/>                 // canonical, hreflang alternates, og:url, og:locale
-   	<script type="module" src="/static/intl-browser.mjs"></script>
+   <html { intl.HTML(ctx)... }>
+   	<head>
+   		// …
+   		<intl.Head page={ path }/>
+   		<script type="module" src="/static/intl-browser.mjs"></script>
    ```
+
+   No `//` comment after an element's `>` on the same line: in gsx markup that is text, and the page shows it.
 
    The browser redoes each `[data-intl]` element in the viewer's zone and clock, keeps `since` fresh, and redoes what
    htmx swaps in. A language list is `intl.Links(ctx)` (each locale's name in its own language, and the page's URL
@@ -172,7 +181,9 @@ Translating with Claude also needs [Claude Code](https://code.claude.com) (`clau
    go tool intl assets -worker build -browser dist/static
    ```
 
-   Either way, the browser needs `intl-browser.mjs` (`go tool intl assets -browser <dir>`).
+   Either way, the browser needs `intl-browser.mjs` and the `intl.mjs` it imports: `go tool intl assets -browser
+   static` copies them. Copy them in your build and keep them out of git, like other generated files: they come
+   with the intl version in `go.mod`.
 
 5. Test with workerd's Intl, in every package that renders:
 

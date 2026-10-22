@@ -1,0 +1,15 @@
+
+[page]
+title = "{title} · Shop"
+
+[home]
+heading = "Willkommen"
+description = "Notizen und Bestellungen, in jeder Sprache."
+
+[board]
+hint = "Notizen, die alle sehen"
+notes = "{n, plural, one {# Notiz} other {# Notizen}}"
+
+[about]
+title = "Über uns"
+description = "Wer den Shop betreibt, und wie."

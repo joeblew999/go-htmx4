@@ -1,12 +1,17 @@
-// Package fresh is the readiness test (#65): a gsx app made from nothing, outside this repo, with gsxui, set up with
-// intl from this checkout the way intl/README.md says, with intl's screens (go tool intl add), served by an ordinary
-// Go server (not a Worker), answering in two languages, and passing intl:check. If an outside developer couldn't get this far by following the README, neither can this test.
+// Package fresh is the readiness test (#65): a gsx app made from nothing, outside this repo, the way intl/README.md
+// and seo/README.md say, with gsxui and intl's screens (go tool intl add), served by an ordinary Go server (not a
+// Worker), answering in two languages, passing its own go test, seo's audit and intl:check. Its code is
+// testdata/app, and every go and gsx block in those READMEs is in it as they write it (TestREADMECode). If an outside
+// developer couldn't get this far by following the READMEs, neither can this test.
+//
+// intl, seo and badge come from this checkout; FRESH_VERSIONS=published takes the versions published on the Go
+// proxy instead (mise run fresh:published, after a release).
 package fresh
 
 import (
-	"bufio"
 	"context"
 	"io"
+	"net"
 	"net/http"
 	"os"
 	"os/exec"
@@ -16,9 +21,10 @@ import (
 	"syscall"
 	"testing"
 	"time"
+	"unicode"
 )
 
-const intlModule = "github.com/joeblew999/go-htmx4/intl"
+const module = "github.com/joeblew999/go-htmx4"
 
 func TestFreshApp(t *testing.T) {
 	repo, err := filepath.Abs("../..")
@@ -53,191 +59,96 @@ func TestFreshApp(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
-	appendTo := func(name, content string) {
-		t.Helper()
-		b, err := os.ReadFile(filepath.Join(app, name))
-		if err != nil {
-			t.Fatal(err)
-		}
-		write(name, string(b)+content)
-	}
 
-	// A new module with gsx and intl as tools, as intl/README.md's "Set up an app" starts. intl comes from this
-	// checkout (the replace), gsx at the version this repo builds with.
+	// A new module with gsx, intl and seo as tools, as the READMEs' "Set up an app" starts. gsx at the version this repo
+	// builds with; Go from this repo's toolchain, so mise (which reads go.mod's toolchain) wants a Go that's installed.
 	gomod := read(t, filepath.Join(repo, "go.mod"))
 	gsxVersion := regexp.MustCompile(`github.com/gsxhq/gsx (v\S+)`).FindStringSubmatch(gomod)[1]
 	goVersion := regexp.MustCompile(`(?m)^go (\S+)`).FindStringSubmatch(gomod)[1]
-	// The Go this repo builds with, so mise (which reads go.mod's toolchain) wants a Go that's installed.
 	toolchain := regexp.MustCompile(`(?m)^toolchain (\S+)`).FindStringSubmatch(gomod)[1]
 	write("go.mod", "module example.com/fresh\n\ngo "+goVersion+"\n\ntoolchain "+toolchain+"\n")
-	run("go", "mod", "edit", "-require="+intlModule+"@v0.0.0", "-replace="+intlModule+"="+filepath.Join(repo, "intl"),
-		"-replace=github.com/joeblew999/go-htmx4/seo="+filepath.Join(repo, "seo"),
-		"-replace=github.com/joeblew999/go-htmx4/badge="+filepath.Join(repo, "badge"),
-		"-require=github.com/gsxhq/gsx@"+gsxVersion, "-tool=github.com/gsxhq/gsx/cmd/gsx", "-tool="+intlModule+"/cmd/intl",
-		"-require=github.com/joeblew999/go-htmx4/seo@v0.0.0", "-tool=github.com/joeblew999/go-htmx4/seo/cmd/seo")
+	run("go", "mod", "edit", "-require=github.com/gsxhq/gsx@"+gsxVersion, "-tool=github.com/gsxhq/gsx/cmd/gsx")
+	if os.Getenv("FRESH_VERSIONS") == "published" {
+		run("go", "get", "-tool", module+"/intl/cmd/intl@latest", module+"/seo/cmd/seo@latest")
+	} else {
+		run("go", "mod", "edit",
+			"-require="+module+"/intl@v0.0.0", "-replace="+module+"/intl="+filepath.Join(repo, "intl"), "-tool="+module+"/intl/cmd/intl",
+			"-require="+module+"/seo@v0.0.0", "-replace="+module+"/seo="+filepath.Join(repo, "seo"), "-tool="+module+"/seo/cmd/seo",
+			"-replace="+module+"/badge="+filepath.Join(repo, "badge"))
+	}
 	run("go", "mod", "tidy")
 
 	// gsxui the npm-free way, with a component that brings its icon package (gsxui's own code, which intl:check must
-	// leave alone), then go tool intl init, intl's screens (go tool intl add runs gsxui add for the components they
-	// need, and writes their text in both languages), the app's own messages, a page and an ordinary server.
+	// leave alone) and the README's slider; go tool intl init; intl's screens (go tool intl add runs gsxui add for the
+	// components they need, and writes their text in both languages); the app's own messages and code
+	// (testdata/app); the browser's Intl (go tool intl assets).
 	run(gsxui, "init", "-rtl")
-	run(gsxui, "add", "accordion")
+	run(gsxui, "add", "accordion", "slider")
 	run("go", "tool", "intl", "init", "-locales", "en,de")
 	run("go", "tool", "intl", "add", "language-list", "language-offer", "preferences")
-	appendTo("locales/en.toml", "\n[home]\n# The page's heading.\ntitle = \"Welcome\"\n# The page's description, for search results.\n"+
-		"description = \"Notes, in every language.\"\n# How many notes there are.\nnotes = \"{n, plural, one {# note} other {# notes}}\"\n")
-	appendTo("locales/de.toml", "\n[home]\ntitle = \"Willkommen\"\ndescription = \"Notizen, in jeder Sprache.\"\n"+
-		"notes = \"{n, plural, one {# Notiz} other {# Notizen}}\"\n")
-	write("page.gsx", `package main
-
-import (
-	"example.com/fresh/locales"
-	intlui "example.com/fresh/views/intl"
-	"github.com/joeblew999/go-htmx4/intl"
-	"github.com/joeblew999/go-htmx4/seo"
-)
-
-component Page() {
-	<!DOCTYPE html>
-	<html { intl.HTML(ctx)... }>
-		<head>
-			<meta charset="utf-8"/>
-			<seo.Head
-				title={ locales.HomeTitle |> text }
-				description={ locales.HomeDescription |> text }
-				siteName="Fresh"
-				icon="/favicon.svg"
-				home={intl.Canonical(ctx, "/")}
-				lang={intl.Current(ctx).ID()}
-			/>
-			<intl.Head page="/"/>
-		</head>
-		<body>
-			<header>
-				<intlui.PreferencesDialog/>
-			</header>
-			<main>
-				<intlui.LanguageOffer/>
-				<h1>{ locales.HomeTitle }</h1>
-				<p>{ locales.HomeNotes(1234) }</p>
-				<p>{ 1234567.5 |> number }</p>
-			</main>
-			<footer>
-				<intlui.LanguageList/>
-			</footer>
-		</body>
-	</html>
-}
-`)
-	write("main.go", `package main
-
-import (
-	"context"
-	"fmt"
-	"log"
-	"net"
-	"net/http"
-	"os"
-	"os/signal"
-	"syscall"
-
-	"example.com/fresh/locales"
-	intlui "example.com/fresh/views/intl"
-	"github.com/joeblew999/go-htmx4/intl"
-	"github.com/joeblew999/go-htmx4/intl/workerd"
-	"github.com/joeblew999/go-htmx4/seo"
-)
-
-func main() {
-	stop, err := workerd.Start(locales.Messages)
-	if err != nil {
-		log.Fatal(err)
+	for _, l := range []string{"en", "de"} {
+		write("locales/"+l+".toml", read(t, filepath.Join(app, "locales", l+".toml"))+read(t, filepath.Join("testdata", l+".toml")))
 	}
-	defer stop()
-	site := intl.Site{IsPage: func(path string) bool { return path == "/" }}
-	mux := http.NewServeMux()
-	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path != "/" {
-			http.NotFound(w, r)
-			return
-		}
-		if err := Page().Render(r.Context(), w); err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-		}
-	})
-	// The time zone and clock dialog's form, and what it posts.
-	mux.HandleFunc("GET /fragments/preferences", func(w http.ResponseWriter, r *http.Request) {
-		if err := intlui.PreferencesForm(intl.ReturnTo(r), site.ConnectionZone(r)).Render(r.Context(), w); err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-		}
-	})
-	mux.HandleFunc("POST /preferences", site.Preferences)
-	ln, err := net.Listen("tcp", "127.0.0.1:0")
-	if err != nil {
-		log.Fatal(err)
+	for _, f := range []string{"main.go", "page.gsx", "main_test.go"} {
+		write(f, read(t, filepath.Join("testdata", "app", f)))
 	}
-	fmt.Println("listening", ln.Addr())
-	search := seo.Site{Sitemap: func(origin string) string { return intl.Sitemap(origin, []string{"/"}) }}
-	srv := &http.Server{Handler: search.Handler(site.Handler(mux))}
-	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
-	defer cancel()
-	go func() { <-ctx.Done(); srv.Shutdown(context.Background()) }()
-	if err := srv.Serve(ln); err != http.ErrServerClosed {
-		log.Fatal(err)
-	}
-}
-`)
-	run("go", "tool", "gsx", "fmt", "-w", "page.gsx")
+	write("static/favicon.svg", read(t, filepath.Join("testdata", "app", "favicon.svg")))
+	run("go", "tool", "intl", "assets", "-browser", "static")
 	run("go", "tool", "intl", "gen")
 	run("go", "tool", "gsx", "generate")
 	run("go", "build", "-o", "fresh", ".")
+	run("go", "test", "./...")
 
-	// Serve it, and read the page in both languages.
-	srv := exec.Command(filepath.Join(app, "fresh"))
-	srv.Dir = app
-	srv.Stderr = os.Stderr
-	stdout, err := srv.StdoutPipe()
+	// Serve it, and read the pages in both languages.
+	ln, err := net.Listen("tcp", "127.0.0.1:0")
 	if err != nil {
 		t.Fatal(err)
 	}
+	addr := ln.Addr().String()
+	ln.Close()
+	srv := exec.Command(filepath.Join(app, "fresh"))
+	srv.Dir, srv.Env, srv.Stderr = app, append(env, "ADDR="+addr), os.Stderr
 	if err := srv.Start(); err != nil {
 		t.Fatal(err)
 	}
 	defer func() { srv.Process.Signal(syscall.SIGTERM); srv.Wait() }()
-	addr := make(chan string, 1)
-	go func() {
-		s := bufio.NewScanner(stdout)
-		for s.Scan() {
-			if a, ok := strings.CutPrefix(s.Text(), "listening "); ok {
-				addr <- a
-			}
+	base := "http://" + addr
+	for deadline := time.Now().Add(60 * time.Second); ; {
+		if resp, err := http.Get(base + "/robots.txt"); err == nil {
+			resp.Body.Close()
+			break
 		}
-	}()
-	var base string
-	select {
-	case a := <-addr:
-		base = "http://" + a
-	case <-time.After(60 * time.Second):
-		t.Fatal("the fresh app didn't start")
+		if time.Now().After(deadline) {
+			t.Fatal("the fresh app didn't start")
+		}
+		time.Sleep(100 * time.Millisecond)
 	}
-	// intl's screens, in each language: the language list, the dialog's button, its form, and the offer of the page
-	// in the language the browser asks for.
+
+	// What intl/README.md says the home page renders for a German request, and intl's screens in each language: the
+	// language list, the dialog's button, its form, and the offer of the page in the language the browser asks for.
 	for _, tc := range []struct {
 		path, accept string
 		wants        []string
 	}{
-		{"/", "", []string{`lang="en"`, "Welcome", "1,234 notes", "1,234,567.5", `<meta name="description" content="Notes, in every language."`,
-			`hreflang="de"`, ">Deutsch<", `aria-label="Time zone and clock"`}},
-		{"/de/", "", []string{`lang="de"`, "Willkommen", "1.234 Notizen", "1.234.567,5", `"@type":"WebSite"`,
-			`aria-current="page"`, `aria-label="Zeitzone und Uhrzeitformat"`}},
+		{"/", "", []string{`lang="en"`, "<h1>Welcome</h1>", "1 note", "July 4, 2026 · €1,234.50", "3 minutes ago · Japan", "42 kilometers",
+			`<meta name="description" content="Notes and orders, in every language."`, `hreflang="de"`, ">Deutsch<", `aria-label="Time zone and clock"`}},
+		{"/de/", "", []string{`lang="de"`, "<h1>Willkommen</h1>", "1 Notiz", "4. Juli 2026 · 1.234,50 €", "vor 3 Minuten · Japan",
+			`"@type":"WebSite"`, `aria-current="page"`, `aria-label="Zeitzone und Uhrzeitformat"`}},
+		{"/about", "", []string{"<title>About · Shop</title>", `<link rel="canonical" href="` + base + `/about">`}},
 		{"/", "de", []string{"Diese Seite gibt es auch auf \u2068Deutsch\u2069.", "Nein danke"}},
 		{"/de/fragments/preferences", "", []string{`action="/de/preferences"`, "Zeitzone", "Uhrzeitformat", "Speichern", "Schließen"}},
+		{"/static/intl-browser.mjs", "", []string{"import"}},
 	} {
 		body := get(t, base+tc.path, tc.accept)
+		text := visible(body)
 		for _, want := range tc.wants {
-			if !strings.Contains(body, want) {
+			if !strings.Contains(body, want) && !strings.Contains(text, want) {
 				t.Errorf("GET %s (Accept-Language %q): no %q in\n%s", tc.path, tc.accept, want, body)
 			}
+		}
+		// A // comment after an element's > on the same line is text in gsx: none may reach a page.
+		if strings.HasSuffix(tc.path, "/") && strings.Contains(text, " // ") {
+			t.Errorf("GET %s: a comment rendered as text:\n%s", tc.path, text)
 		}
 	}
 
@@ -247,6 +158,113 @@ func main() {
 
 	// What the README says CI runs: the catalogs, then gsx's own checks on the app's markup, not gsxui's.
 	run("mise", "run", "intl:check")
+}
+
+// TestREADMECode: every go and gsx block in intl's and seo's READMEs is the fresh app's code, as the README writes it,
+// so the fresh-app test builds and runs it. A block's "// …" line stands for code it leaves out: the pieces around it
+// come in that order. Whitespace doesn't count (gsx fmt and gofmt lay the app's code out), and neither do comments in
+// a go block; a gsx block's do, since in markup some are text.
+func TestREADMECode(t *testing.T) {
+	var src strings.Builder
+	for _, f := range []string{"main.go", "page.gsx", "main_test.go"} {
+		src.WriteString(squeeze(stripComments(read(t, filepath.Join("testdata", "app", f)), strings.HasSuffix(f, ".go"))))
+	}
+	code := src.String()
+	n := 0
+	for _, readme := range []string{"../../intl/README.md", "../../seo/README.md"} {
+		for _, b := range blocks(read(t, readme)) {
+			n++
+			at := 0
+			for i, piece := range strings.Split(b.code, "// …") {
+				p := squeeze(stripComments(piece, b.lang == "go"))
+				if p == "" {
+					continue
+				}
+				j := strings.Index(code[at:], p)
+				if j < 0 {
+					t.Errorf("%s:%d: the %s block isn't the fresh app's code (testdata/app) as written; piece %d:\n%s", readme, b.line, b.lang, i+1, piece)
+					break
+				}
+				at += j + len(p)
+			}
+		}
+	}
+	if n < 9 {
+		t.Errorf("found %d go and gsx blocks in the READMEs, want at least 9", n)
+	}
+}
+
+type block struct {
+	lang, code string
+	line       int
+}
+
+// fence is a fenced code block's opening or closing line, indented as in a list item.
+var fence = regexp.MustCompile("^\\s*```(\\w*)\\s*$")
+
+// blocks are a Markdown file's go and gsx code blocks.
+func blocks(md string) []block {
+	var out []block
+	var cur *block
+	for i, line := range strings.Split(md, "\n") {
+		m := fence.FindStringSubmatch(line)
+		switch {
+		case m != nil && cur == nil:
+			cur = &block{lang: m[1], line: i + 1}
+		case m != nil:
+			if cur.lang == "go" || cur.lang == "gsx" {
+				out = append(out, *cur)
+			}
+			cur = nil
+		case cur != nil:
+			cur.code += line + "\n"
+		}
+	}
+	return out
+}
+
+// stripComments drops Go's // comments, outside strings, when goCode.
+func stripComments(s string, goCode bool) string {
+	if !goCode {
+		return s
+	}
+	var out strings.Builder
+	for _, line := range strings.Split(s, "\n") {
+		var quote byte
+		cut := len(line)
+		for i := 0; i < len(line) && cut == len(line); i++ {
+			switch c := line[i]; {
+			case quote != 0:
+				if c == '\\' && quote != '`' {
+					i++
+				} else if c == quote {
+					quote = 0
+				}
+			case c == '"' || c == '`' || c == '\'':
+				quote = c
+			case c == '/' && strings.HasPrefix(line[i:], "//"):
+				cut = i
+			}
+		}
+		out.WriteString(line[:cut] + "\n")
+	}
+	return out.String()
+}
+
+// squeeze is s without whitespace.
+func squeeze(s string) string {
+	return strings.Map(func(r rune) rune {
+		if unicode.IsSpace(r) {
+			return -1
+		}
+		return r
+	}, s)
+}
+
+// visible is a page's text, its tags removed and no-break spaces made spaces, as a reader sees it.
+func visible(html string) string {
+	text := regexp.MustCompile(`<[^>]*>`).ReplaceAllString(html, "")
+	return strings.NewReplacer("\u00a0", " ", "\u202f", " ").Replace(text)
 }
 
 // gsxuiBin is "" when the gsxui command is installed (mise's), else a directory to put first on PATH with a gsxui that

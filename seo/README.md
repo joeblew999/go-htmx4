@@ -24,8 +24,9 @@ Google ranks what the site serves. Every piece is made by the app, live on each 
 
 ## In an app
 
+`pages` are the app's pages, and `site` its [`intl.Site`](../intl/README.md):
+
 ```go
-pages := []string{"/", "/about"} // the pages people read; everything else is noindex
 search := seo.Site{
 	Host:    os.Getenv("APP_DOMAIN"), // the one address; "" in previews and locally
 	Sitemap: func(origin string) string { return intl.Sitemap(origin, pages) },
@@ -35,21 +36,27 @@ search := seo.Site{
 	},
 	Preview: os.Getenv("APP_PREVIEW") != "", // everything noindex
 }
-http.ListenAndServe(addr, search.Handler(languages.Handler(mux))) // outside intl.Site: it sees what crawlers ask for
+// …
+log.Fatal(http.ListenAndServe(addr, search.Handler(site.Handler(mux)))) // outside intl.Site: it sees what crawlers ask for
 ```
+
+On Cloudflare Workers, read `APP_DOMAIN` and `APP_PREVIEW` from the Worker's variables (workers-go's
+`cloudflare.Getenv`) rather than the process environment.
 
 `IsPage` has the shape of `intl.Site`'s, so one page table can answer both, as go-htmx4's does (its `pages`
 package: each page a Go type, with the routes, the links, the sitemap and both hooks coming from it).
 
-And in the layout's `<head>`, beside `intl.Head`, what the audit checks on every page:
+And in the layout's `<head>`, beside `intl.Head`, what the audit checks on every page: the page's own title and
+description in its language, the site's name and icon, and on the home page its absolute URL (`homeURL` is the
+app's: `intl.Canonical(ctx, "/")` there, `""` on every other page):
 
 ```gsx
 <seo.Head
-	title={ locales.PageTitle(title) |> text }      // the page's own text, in its language
+	title={ locales.PageTitle(title) |> text }
 	description={ description |> text }
 	siteName="Shop"
 	icon="/static/favicon.svg"
-	home={ homeURL(ctx, path) }                     // the home page's absolute URL there, "" on other pages
+	home={ homeURL(ctx, path) }
 	lang={ intl.Current(ctx).ID() }
 />
 <intl.Head page={ path }/>
