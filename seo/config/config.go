@@ -1,9 +1,10 @@
 // Package config reads an app's seo.toml: the live site, and how Lighthouse scores it. go tool seo finds it by walking
 // up from the working directory, so every seo:* task runs with no arguments; a flag still overrides each setting.
-// Every setting has a default, so the file only says what differs:
+// The site has no default (go tool seo init -base writes it): a default taken from the environment once audited the
+// wrong site. Every other setting has one, so the file only says what differs:
 //
 //	# seo.toml
-//	site = "https://app.example.com"     # the live site; default https://$APP_DOMAIN
+//	site = "https://app.example.com"     # the live site; no default
 //	property = "sc-domain:example.com"   # its Search Console property; default the site's Domain property
 //
 //	[lighthouse]
@@ -19,6 +20,7 @@ package config
 import (
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/BurntSushi/toml"
 )
@@ -64,9 +66,6 @@ func Find(dir string) (Config, error) {
 		}
 		dir = parent
 	}
-	if c.Site == "" && os.Getenv("APP_DOMAIN") != "" {
-		c.Site = "https://" + os.Getenv("APP_DOMAIN")
-	}
 	if c.Lighthouse.Strategy == "" {
 		c.Lighthouse.Strategy = "mobile"
 	}
@@ -87,7 +86,7 @@ const Template = `# seo.toml: this app and search engines, for go tool seo and t
 # The tasks read it, so none needs an argument; an argument still overrides it. Every line is optional: uncomment
 # what differs from its default.
 
-# The live site. Default: https://$APP_DOMAIN.
+# The live site, which every task works on. No default: go tool seo init -base https://app.example.com writes it.
 # site = "https://app.example.com"
 
 # Its Search Console property. Default: the site's Domain property (app.example.com → sc-domain:example.com).
@@ -107,3 +106,8 @@ const Template = `# seo.toml: this app and search engines, for go tool seo and t
 # The file whose <!-- seo:scores --> … <!-- /seo:scores --> seo:badges rewrites with every page's scores.
 # readme = "README.md"
 `
+
+// TemplateFor is Template with site set, for go tool seo init -base.
+func TemplateFor(site string) string {
+	return strings.Replace(Template, `# site = "https://app.example.com"`, `site = "`+site+`"`, 1)
+}

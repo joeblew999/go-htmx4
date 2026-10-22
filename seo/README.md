@@ -38,18 +38,20 @@ and `go tool seo`.
 
 ```sh
 go get -tool github.com/joeblew999/go-htmx4/seo/cmd/seo
-go tool seo init       # seo.toml, the mise tasks (.mise/tasks/seo.toml) and the agent skill (.claude/skills/seo)
+go tool seo init -base https://app.example.com   # seo.toml with your site, the mise tasks (.mise/tasks/seo.toml)
+                                                  # and the agent skill (.claude/skills/seo)
 ```
 
-`seo.toml` holds the settings the tasks read, each with a default, so it only says what differs: the live site
-(default `https://$APP_DOMAIN`), its Search Console property, and the pages, device and minimum score for Lighthouse
+`seo.toml` holds the settings the tasks read: the live site (no default: `init -base` writes it, and every run prints
+which site it works on), its Search Console property, and the pages, device and minimum score for Lighthouse
 (default: every page of the live sitemap, mobile, 90). An argument still overrides it for one run:
 `mise run seo:lighthouse /de/board --desktop`. After upgrading, `go tool seo tasks` and `go tool seo skill` write the
 tasks and the skill again.
 
 ## The tasks
 
-Every task runs with no arguments: the site is `https://$APP_DOMAIN`. Exit codes: 0 ok, 1 problems or no access.
+Every task runs with no arguments, on `seo.toml`'s site, and says which site first. Exit codes: 0 ok, 1 problems or
+no access.
 `--json` prints one JSON document for a program.
 
 | Task | Does | Needs |

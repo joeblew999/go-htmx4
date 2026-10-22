@@ -1,4 +1,4 @@
-# seo's mise tasks: how Google sees the app at https://$APP_DOMAIN, every workflow a go tool seo
+# seo's mise tasks: how Google sees the app at seo.toml's site, every workflow a go tool seo
 # command (seo/README.md). In an app, go tool seo tasks writes this file to
 # .mise/tasks/seo.toml, one of mise's default task directories, from the seo version in go.mod.
 # --json prints one JSON document for a program; exit codes: 0 ok, 1 problems or no access. A task brings what it
@@ -66,7 +66,7 @@ tools = { fnox = "1.40.0" }
 run = "fnox exec -- go tool seo sites -json=${usage_json:-false}"
 
 ["seo:submit"]
-description = "Submit https://$APP_DOMAIN/sitemap.xml to Search Console, after access and a passing live audit"
+description = "Submit the site's sitemap.xml (seo.toml's site) to Search Console, after access and a passing live audit"
 depends = ["seo:access", "seo:audit"]
 confirm = "Submit the sitemap to Google Search Console?"
 tools = { fnox = "1.40.0" }

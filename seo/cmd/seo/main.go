@@ -18,8 +18,8 @@
 // Exit codes are the contract between tasks: 0 ok, 1 problems (or no access), 2 usage.
 //
 // The key is GOOGLE_SEARCH_CONSOLE_KEY (a service account JSON key, e.g. from fnox); audit needs none. The settings
-// come from the app's seo.toml (package config), each overridden by its flag: -base defaults to its site, else
-// https://$APP_DOMAIN, and -site to its property, else the Domain property of the site's registrable domain
+// come from the app's seo.toml (package config), each overridden by its flag: -base defaults to its site (there is
+// no other default, and every run says which site it works on), and -site to its property, else the Domain property of the site's registrable domain
 // (app.example.com → sc-domain:example.com). Request indexing has no API: todo prints Google's link for each problem
 // (-open opens only those).
 package main
@@ -124,10 +124,14 @@ func main() {
 		return
 	}
 	if len(args) == 1 && args[0] == "init" {
-		if cfg.Path == "" {
-			writeFile(config.File, []byte(config.Template))
-		} else {
+		switch {
+		case cfg.Path != "":
 			fmt.Println("✓ " + cfg.Path + " is there: yours to edit")
+		case *base != "":
+			writeFile(config.File, []byte(config.TemplateFor(strings.TrimRight(*base, "/"))))
+		default:
+			writeFile(config.File, []byte(config.Template))
+			fmt.Println("· set site in " + config.File + " (or run go tool seo init -base https://your.site): every task works on it")
 		}
 		writeFile(*out, mise.Tasks)
 		writeSkill(filepath.Join(".claude", "skills"))
@@ -138,8 +142,16 @@ func main() {
 		os.Exit(2)
 	}
 	if *base == "" {
-		fail(fmt.Errorf("no site: set site in %s, or APP_DOMAIN, or pass -base", config.File))
+		fail(fmt.Errorf("no site: set site in %s, or pass -base", config.File))
 	}
+	// Which site, and where that came from, before anything else: a run against the wrong site must be obvious.
+	from := cfg.Path
+	flag.Visit(func(f *flag.Flag) {
+		if f.Name == "base" {
+			from = "-base"
+		}
+	})
+	fmt.Fprintf(os.Stderr, "seo: %s (from %s; Search Console property %s)\n", *base, from, *site)
 	if *jsonOut {
 		*open = false
 	}
