@@ -98,13 +98,13 @@ run = "go tool gsx dev"
 # Live logs of the deployed Worker (charter's workertail): requests, console output, exceptions. Ctrl-C deletes the tail.
 ["tail"]
 description = "Stream the deployed Worker's live logs (requests, console, exceptions) → Ctrl-C to stop"
-run = "fnox exec -- go tool workertail -name \"$APP_NAME\""
+run = "fnox exec -- go tool charter tail -name \"$APP_NAME\""
 
 ["serve"]
-description = "The production build (WORKER_COMPILER) on local workerd, static files first → http://localhost:8913"
+description = "The production build (WORKER_COMPILER) on local workerd (go tool charter serve: charter.toml's port, your time zone), static files first → http://localhost:8913"
 depends = ["build"]
 dir = "{{config_root}}"
-run = "mkdir -p .workerd-state && LOCAL_TIME_ZONE=$(ci/local-zone.sh) exec workerd serve worker/local/config.capnp"
+run = "exec go tool charter serve"
 
 # go test runs the handlers on standard Go, which hides TinyGo runtime gaps (html/template panics, pre-1.22
 # ServeMux). So also run the production build under workerd and check every route over HTTP. SMOKE_BASE=https://…
@@ -113,12 +113,12 @@ run = "mkdir -p .workerd-state && LOCAL_TIME_ZONE=$(ci/local-zone.sh) exec worke
 description = "The production build on local workerd, every route checked over HTTP (e2e/smoke); SMOKE_BASE=https://… checks a deployed Worker"
 depends = ["build"]
 dir = "{{config_root}}"
-env = { WORKERD_STRICT = "1" }
 run = '''
 #!/usr/bin/env bash
 set -euo pipefail
 if [ -n "${SMOKE_BASE:-}" ]; then echo "→ $SMOKE_BASE"; exec go test -C e2e -count=1 -v ./smoke; fi
-exec ci/with-workerd.sh smoke sh -c 'SMOKE_BASE=$BASE SMOKE_LOCAL=1 go test -C e2e -count=1 ./smoke'
+# On workerd (go tool charter with: a free port, fresh state); a panic or uncaught exception in its log fails it too.
+exec go tool charter with -strict sh -c 'SMOKE_BASE=$BASE SMOKE_LOCAL=1 go test -C e2e -count=1 ./smoke'
 '''
 
 # Real-browser checks (e2e/: Go + chromedp + headless Chrome, no Node): pages, the live board across two browsers,
@@ -133,7 +133,7 @@ run = '''
 set -euo pipefail
 # chromedp logs CDP events it doesn't model ("unhandled node event"); they're noise.
 e2e() { E2E_BASE=$1 E2E_CHROME="$(mise which chrome-headless-shell)" go test -C e2e -count=1 -v . 2>&1 | grep -v "unhandled node event"; return "${PIPESTATUS[0]}"; }
-if [ -n "${E2E_BASE:-}" ]; then echo "→ $E2E_BASE"; e2e "$E2E_BASE"; else export -f e2e; ci/with-workerd.sh e2e bash -c 'e2e "$BASE"'; fi
+if [ -n "${E2E_BASE:-}" ]; then echo "→ $E2E_BASE"; e2e "$E2E_BASE"; else export -f e2e; go tool charter with bash -c 'e2e "$BASE"'; fi
 '''
 
 # CPU per request on local workerd (charter's go tool workerbench): what Cloudflare bills a Worker for, measured
@@ -151,7 +151,8 @@ dir = "{{config_root}}"
 run = "ci/bench.sh variants"
 
 # Design size: 1,000 WebSockets on one topic, then a burst of 50 concurrent writes (coalescing), then socket 1,001
-# refused (e2e/load). Starts its own workerd on :8913 unless LOAD_BASE points somewhere else (e.g. the deployed URL).
+# refused (e2e/load). Starts its own workerd (go tool charter with) unless LOAD_BASE points somewhere else (e.g. the
+# deployed URL).
 ["load"]
 description = "1,000 WebSockets in every locale on one topic, a 50-write burst, socket 1,001 refused (e2e/load; local workerd, or LOAD_BASE=https://…)"
 depends = ["build"]
@@ -161,7 +162,7 @@ run = '''
 set -euo pipefail
 ulimit -n 8192
 if [ -n "${LOAD_BASE:-}" ]; then echo "→ $LOAD_BASE"; exec go test -C e2e -count=1 -v -timeout 10m ./load; fi
-exec ci/with-workerd.sh load sh -c 'LOAD_BASE=$BASE go test -C e2e -count=1 -v -timeout 10m ./load'
+exec go tool charter with sh -c 'LOAD_BASE=$BASE go test -C e2e -count=1 -v -timeout 10m ./load'
 '''
 
 ["test"]
@@ -269,7 +270,10 @@ perl -pi -e 's/^site = ".*"/# site = "https:\/\/app.example.com"/' seo.toml
 repo=""; [[ "$module" =~ ^github\.com/([^/]+/[^/]+)$ ]] && repo=${BASH_REMATCH[1]}
 perl -pi -e "s#^APP_REPO = \".*\"#APP_REPO = \"$repo\"#" mise.toml
 perl -pi -e 's/^CF_SUBDOMAIN = ".*"/CF_SUBDOMAIN = ""/' mise.toml
-git ls-files -z -- views app main.go e2e tasks/app.toml worker/local/config.capnp | xargs -0 perl -pi -e "s/\\b\\Q$old_name\\E\\b/$name/g"
+# charter.toml: the custom domain is the template owner's too (before the name changes in it).
+old_domain=$(sed -n 's/^domain = "\(.*\)"$/\1/p' charter.toml)
+[ -z "$old_domain" ] || perl -pi -e "s/\"\\Q$old_domain\\E\"/\"\"/g" charter.toml
+git ls-files -z -- views app main.go e2e tasks/app.toml charter.toml | xargs -0 perl -pi -e "s/\\b\\Q$old_name\\E\\b/$name/g"
 # Import blocks re-sort under the new path.
 go tool gsx fmt -w . >/dev/null
 git ls-files -z -- '*.go' | xargs -0 gofmt -w
@@ -295,16 +299,22 @@ fnox exec -- sh -c '
 '''
 
 # ── deploy ──────────────────────────────────────────────────────
-# Direct Upload via charter's workerdeploy (Go, no wrangler). Runs the full local test
-# (TinyGo build + workerd smoke + go test) and the token check first. The Worker and D1 names are
-# $APP_NAME (mise.toml [env]); updating an existing script of that name is allowed.
+# Direct Upload via go tool charter deploy (Go, no wrangler), from charter.toml: the Worker and its D1, Durable
+# Objects, rate limit, vars and domain. Runs the full local test (TinyGo build + workerd smoke + go test) and the token
+# check first. Credentials: CLOUDFLARE_API_TOKEN/CLOUDFLARE_ACCOUNT_ID from the environment, else fnox.
 ["deploy"]
 description = "Test, then deploy production → https://$APP_DOMAIN (or $APP_NAME.<subdomain>.workers.dev), then seo:audit live"
 depends = ["test", "token-check"]
 # Google must be able to crawl what was just deployed (seo/README.md).
 depends_post = ["seo:audit"]
 dir = "{{config_root}}"
-run = "ci/deploy.sh production"
+run = '''
+#!/usr/bin/env bash
+set -euo pipefail
+cf() { if [ -n "${CLOUDFLARE_API_TOKEN:-}" ] && [ -n "${CLOUDFLARE_ACCOUNT_ID:-}" ]; then "$@"; else fnox exec -- "$@"; fi; }
+# SMOKE_BASE/E2E_BASE/LOAD_BASE=$(cat .deploy-url): the custom domain when there is one.
+cf go tool charter deploy production | tee .deploy-url
+'''
 
 # ── staging ─────────────────────────────────────────────────────
 # Staging: its own Worker $APP_NAME-staging (https://$APP_NAME-staging.<subdomain>.workers.dev), exactly what's on main.
@@ -314,7 +324,12 @@ run = "ci/deploy.sh production"
 description = "Test, then deploy staging: the Worker $APP_NAME-staging → its URL on stdout and in .staging-url"
 depends = ["test"]
 dir = "{{config_root}}"
-run = "ci/deploy.sh staging"
+run = '''
+#!/usr/bin/env bash
+set -euo pipefail
+cf() { if [ -n "${CLOUDFLARE_API_TOKEN:-}" ] && [ -n "${CLOUDFLARE_ACCOUNT_ID:-}" ]; then "$@"; else fnox exec -- "$@"; fi; }
+cf go tool charter deploy staging | tee .staging-url
+'''
 
 # ── preview ─────────────────────────────────────────────────────
 # A Worker Preview of $APP_NAME (PR #6): its own URL, code and Durable
@@ -326,13 +341,20 @@ description = "Test, then deploy a Worker Preview named after the branch (or e.g
 depends = ["test"]
 dir = "{{config_root}}"
 usage = 'arg "[name]" help="preview name, e.g. pr-7; the branch unless named"'
-run = 'ci/deploy.sh preview "${usage_name:-$(git branch --show-current)}"'
+run = '''
+#!/usr/bin/env bash
+set -euo pipefail
+cf() { if [ -n "${CLOUDFLARE_API_TOKEN:-}" ] && [ -n "${CLOUDFLARE_ACCOUNT_ID:-}" ]; then "$@"; else fnox exec -- "$@"; fi; }
+ann=(-annotation "workers/commit_sha=$(git rev-parse HEAD)")
+[ -z "${APP_REPO:-}" ] || ann+=(-annotation "workers/repository_url=https://github.com/$APP_REPO")
+cf go tool charter deploy preview "${usage_name:-$(git branch --show-current)}" "${ann[@]}" | tee .preview-url
+'''
 
 # ── release ─────────────────────────────────────────────────────
 # Production without anyone's machine holding Cloudflare credentials: a v* tag (GitHub's Releases page) or a
 # release/v* branch (mise run release) on a commit that's on main. CI (ci/check.sh) tests it, then moves the production
 # branch to it, and Workers Builds' branch trigger deploys production
-# with its own build token (ci/workers-builds.sh sees the branch → ci/deploy.sh production). A tag from GitHub's Releases page does the same. Roll
+# with its own build token (ci/workers-builds.sh sees the branch → go tool charter deploy production). A tag from GitHub's Releases page does the same. Roll
 # back by tagging an older commit of main.
 ["release"]
 description = "Release main to production (e.g. v1.3): CI tests it, tags it (and intl/seo with their next version when they changed), Workers Builds deploys it; no Cloudflare credentials needed"

@@ -54,25 +54,26 @@ build)
 deploy)
   [ ! -e .superseded ] || { echo "· superseded by a newer push: no deploy"; exit 0; }
   branch=${WORKERS_CI_BRANCH:?WORKERS_CI_BRANCH is not set (Workers Builds sets it)}
-  if [ -x bin/deploy ]; then deploy=(bin/deploy); else mise install go; deploy=(mise exec -- go tool workerdeploy); fi
+  if [ -x bin/deploy ]; then deploy=(bin/deploy); else mise install go; deploy=(mise exec -- go tool charter deploy); fi
   # release/v*: a release request; CI tests it and moves production. Nothing to preview.
   if [[ "$branch" == release/* ]]; then echo "· $branch is a release request: CI releases it"; exit 0; fi
   # production: CI moved it to a tagged commit that passed check + e2e and is on main. Credentials stay here, at
   # Cloudflare (the build token); GitHub never holds them.
   if [ "$branch" = production ]; then
-    DEPLOY_CMD="${deploy[*]}" ci/deploy.sh production
+    "${deploy[@]}" production >.deploy-url
     echo "✓ production: $(cat .deploy-url)"
     exit 0
   fi
   # main is staging: its own Worker, https://$APP_NAME-staging.<subdomain>.workers.dev, exactly what's merged.
   if [ "$branch" = main ]; then
-    DEPLOY_CMD="${deploy[*]}" ci/deploy.sh staging
+    "${deploy[@]}" staging >.staging-url
     echo "✓ staging: $(cat .staging-url)"
     "${deploy[@]}" -name "$APP_NAME" -repo "$APP_REPO" -prune-previews || echo "· pruning previews failed (staging is live)"
     exit 0
   fi
   slug=$("${deploy[@]}" -name "$APP_NAME" -slug "$branch")
-  DEPLOY_CMD="${deploy[*]}" ci/deploy.sh preview "$slug"
+  "${deploy[@]}" preview "$slug" -annotation "workers/commit_sha=$(git rev-parse HEAD)" \
+    -annotation "workers/repository_url=https://github.com/$APP_REPO" >.preview-url
   echo "✓ preview for branch $branch: $(cat .preview-url)"
   "${deploy[@]}" -name "$APP_NAME" -repo "$APP_REPO" -prune-previews || echo "· pruning previews failed (the preview is live)"
   ;;

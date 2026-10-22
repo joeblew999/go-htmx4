@@ -26,7 +26,6 @@ intl-messages.mjs
 /.preview-url
 /.staging-url
 # Durable Object SQLite state for local workerd (Room cache, LocalD1 board data)
-/.workerd-state/
 # a Workers Build that a newer commit superseded (ci/workers-builds.sh)
 /.superseded
 

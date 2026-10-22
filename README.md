@@ -107,7 +107,7 @@ Every branch gets its own preview, `main` deploys staging, and a release deploys
 | `seo/`, `seo.toml` | search engines for Go apps, its own Go module ([seo/README.md](seo/README.md)): the middleware, the audit, Lighthouse, Search Console; this app's settings |
 | `badge/` | the README badges intl and seo draw (SVG, no service), a tiny module of its own so neither depends on the other |
 | `internal/` | httpx (rendering, origin), live (publishing to the Room), ratelimit, classmerge (gsx's class merger, cached) |
-| `worker/` | the deployed JavaScript: the Worker's entry and the board's Durable Object; `worker/local/` runs them under workerd |
+| `worker/`, `charter.toml` | the deployed JavaScript (the Worker's entry and the board's Durable Object), and everything about the Worker on Cloudflare, from which `go tool charter` deploys it and runs it on local workerd |
 | `migrations/` | D1's schema |
 | `e2e/` | the checks against a running server, its own Go module: `smoke/` over HTTP (`mise run smoke`), browser tests (`mise run e2e`), `load/` with 1,000 WebSockets (`mise run load`) |
 | `ci/`, `tasks/`, `mise.toml` | the scripts CI runs or several tasks share, the mise tasks, the pinned tools |

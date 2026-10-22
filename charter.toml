@@ -1,0 +1,46 @@
+# charter.toml: go-htmx4 on Cloudflare, every fact about the Worker once (github.com/joeblew999/charter: go doc
+# github.com/joeblew999/charter/go/lib/project). go tool charter reads it: deploy production|staging|preview, and
+# local, serve and with (.charter/, workerd's config and stand-ins, generated from it). TestCharterToml checks the copies
+# kept elsewhere against it (mise.toml's APP_NAME and APP_DOMAIN, the dev port).
+name = "go-htmx4"
+# Must not be newer than the workerd binary's date (mise.toml): workerd runs the Worker with it locally, Cloudflare in
+# production.
+compatibility_date = "2026-09-11"
+main = "worker/index.mjs"
+modules = ["worker/room.mjs"]
+assets = "dist/site"
+health = "/healthz"
+port = 8913
+
+# The board: D1 is the source of truth. A new migration is a new idempotent file here.
+[[d1]]
+binding = "DB"
+migrations = "migrations"
+
+# One Room per topic fans the board out over hibernated WebSockets (worker/room.mjs). A new class takes a new migration.
+[[durable_objects]]
+binding = "ROOM"
+class = "Room"
+migration = "v1"
+
+# Every write handler calls s.limited first: 60 writes per 10 s per IP.
+[[rate_limits]]
+binding = "WRITES"
+namespace_id = 1001
+limit = 60
+period = 10
+
+[production]
+domain = "go-htmx4.ubuntusoftware.net"
+vars = { APP_ENV = "cloudflare", APP_DOMAIN = "go-htmx4.ubuntusoftware.net" }
+
+# Exactly what's on main: its own Worker and D1, no custom domain, noindex (APP_PREVIEW).
+[staging]
+vars = { APP_ENV = "staging", APP_PREVIEW = "1" }
+
+# A Worker Preview per branch: the shared preview D1, noindex.
+[preview]
+vars = { APP_ENV = "preview {preview}", APP_PREVIEW = "1" }
+
+[local]
+vars = { APP_ENV = "workerd (local)" }

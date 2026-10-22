@@ -15,7 +15,7 @@ Every command is a mise task: `mise run <task>`; `mise tasks` lists them. Which 
 - **Ship:** every pushed branch gets a preview and `main` deploys staging, both automatically (Workers Builds).
   Production: `release v1.3` (or a v* tag from GitHub's Releases page) → CI tests it and tags it → Workers Builds
   deploys it, with no Cloudflare credentials anywhere but Cloudflare. `deploy` does it by hand from a machine with fnox credentials.
-  All of them go through `ci/deploy.sh`: [deploy.md](deploy.md).
+  All of them are `go tool charter deploy` with `charter.toml`: [deploy.md](deploy.md).
 
 ## Tasks
 
@@ -386,7 +386,7 @@ Google's verdict for every sitemap URL (indexed, waiting, duplicate, problem); f
 
 - **Usage:** `serve`
 
-The production build (WORKER_COMPILER) on local workerd, static files first → http://localhost:8913
+The production build (WORKER_COMPILER) on local workerd (go tool charter serve: charter.toml's port, your time zone), static files first → http://localhost:8913
 
 ### `smoke`
 
