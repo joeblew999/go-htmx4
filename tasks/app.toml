@@ -104,7 +104,7 @@ run = "fnox exec -- go tool workertail -name \"$APP_NAME\""
 description = "The production build (WORKER_COMPILER) on local workerd, static files first → http://localhost:8913"
 depends = ["build"]
 dir = "{{config_root}}"
-run = "mkdir -p .workerd-state && exec workerd serve worker/local/config.capnp"
+run = "mkdir -p .workerd-state && LOCAL_TIME_ZONE=$(ci/local-zone.sh) exec workerd serve worker/local/config.capnp"
 
 # go test runs the handlers on standard Go, which hides TinyGo runtime gaps (html/template panics, pre-1.22
 # ServeMux). So also run the production build under workerd and check every route over HTTP. SMOKE_BASE=https://…

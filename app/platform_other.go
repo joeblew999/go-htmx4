@@ -9,6 +9,7 @@ import (
 
 	"github.com/joeblew999/go-htmx4/internal/httpx"
 	"github.com/joeblew999/go-htmx4/internal/live"
+	"github.com/joeblew999/go-htmx4/views"
 )
 
 // platformNote is shown in the server-info fragment; under go test the process keeps its state.
@@ -24,6 +25,11 @@ func getenv(name string) string { return os.Getenv(name) }
 // connectionTimeZone guesses the viewer's time zone from the connection: go test has no Cloudflare cf
 // object, so a request header stands in for it (tests and local checks); "" = unknown.
 func connectionTimeZone(r *http.Request) string { return r.Header.Get("X-Test-Connection-Time-Zone") }
+
+// connection stands in for Cloudflare's view of the connection, from the same test header: only its zone.
+func connection(r *http.Request) views.Connection {
+	return views.Connection{Timezone: connectionTimeZone(r)}
+}
 
 // staticFiles serves the assembled static assets (dist/site: htmx, gsxui behaviours, compiled
 // gsxui CSS + fonts) from disk, standing in for Workers Static Assets under go test.

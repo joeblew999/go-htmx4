@@ -8,6 +8,7 @@ import (
 
 	"github.com/joeblew999/charter/go/lib/transport"
 	"github.com/joeblew999/go-htmx4/internal/live"
+	"github.com/joeblew999/go-htmx4/views"
 	"github.com/syumai/workers-go/cloudflare"
 	_ "github.com/syumai/workers-go/cloudflare/d1" // registers the "d1" database/sql driver
 )
@@ -24,6 +25,12 @@ func getenv(name string) string { return cloudflare.Getenv(name) }
 // connectionTimeZone is Cloudflare's guess of the viewer's IANA time zone from their IP (request.cf.timezone);
 // "" when the runtime has no cf object (local workerd).
 func connectionTimeZone(r *http.Request) string { return transport.CFOf(r).Timezone }
+
+// connection is Cloudflare's view of the request's connection (request.cf), for /formats to show.
+func connection(r *http.Request) views.Connection {
+	cf := transport.CFOf(r)
+	return views.Connection{Country: cf.Country, City: cf.City, Colo: cf.Colo, Timezone: cf.Timezone}
+}
 
 // staticFiles: on Workers, dist/site is served by Static Assets before the Worker runs, so a
 // request that reaches Go here is a real 404.

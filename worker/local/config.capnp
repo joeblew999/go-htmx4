@@ -59,6 +59,9 @@ const app :Workerd.Worker = (
     (name = "APP_ENV", text = "workerd (local)"),
     (name = "ROOM", durableObjectNamespace = "Room"),
     (name = "LOCAL_D1", durableObjectNamespace = "LocalD1"),
+    # The developer's own zone, standing in for Cloudflare's request.cf.timezone (local-entry.mjs): mise run serve
+    # and dev set it (ci/local-zone.sh); the test servers don't, so tests run in UTC on every machine.
+    (name = "LOCAL_TIME_ZONE", fromEnvironment = "LOCAL_TIME_ZONE"),
   ],
   # Must not be newer than the workerd binary's date (mise.toml). Production runs on this date too: ci/deploy.sh
   # reads it, and both compatibilityDate lines must match.

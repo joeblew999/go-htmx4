@@ -24,6 +24,26 @@ type Request struct {
 	// Preferred is the shipped locale the reader's browser asks for (Accept-Language), on their first page view;
 	// nil otherwise. Suggested offers the page in it.
 	Preferred *Locale
+	// Decision is how Site decided the locale and zone, for showing it (DecisionOf).
+	Decision Decision
+}
+
+// Decision is everything Site decided a request's language and time zone from, and what won: for a page that shows
+// a reader why it is in their language and time.
+type Decision struct {
+	LanguageFrom   string // "url" (the address's prefix, /de/…) or "default" (no prefix: the source locale)
+	AcceptLanguage string // what the reader's browser asks for
+	LastViewed     string // the locale of the last page they viewed (the locale cookie); "" on a first visit
+	ZoneFrom       string // where TimeZone came from: "chosen", "browser", "connection" or "default" (UTC)
+	ChosenZone     string // the zone the reader chose (the tz cookie), "" for none
+	BrowserZone    string // the zone their browser reported (the browser_tz cookie), "" until it has
+	ConnectionZone string // the connection's guess (Cloudflare's, from the IP), "" for none
+}
+
+// DecisionOf is how the request's language and zone were decided; the zero Decision without a request.
+func DecisionOf(ctx context.Context) Decision {
+	r, _ := FromContext(ctx)
+	return r.Decision
 }
 
 // WithRequest returns ctx carrying r. The app's locale middleware calls it once per request; the renderers (Value,

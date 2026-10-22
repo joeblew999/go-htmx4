@@ -14,7 +14,7 @@ import (
 // Cloudflare's V8 Intl, and the reader's browser's, redone live (intl-browser.mjs). They match, except where the
 // browser knows more (the reader's time zone) or words things its own way (Firefox, Safari). The Try it card
 // round-trips values typed the reader's way through the server.
-component Formats() {
+component Formats(conn Connection) {
 	<Layout title={locales.FormatsTitle} description={locales.FormatsDescription} path="/formats">
 		<div class="flex flex-col gap-2">
 			<h1 class="text-3xl font-semibold tracking-tight">{ locales.FormatsTitle }</h1>
@@ -22,6 +22,7 @@ component Formats() {
 		</div>
 		<HowItWorks/>
 		<LocaleCard/>
+		<RequestCard conn={conn}/>
 		<IntlNav/>
 		<TryIt/>
 		<IntlAPIs/>
@@ -327,4 +328,99 @@ component LocaleCard() {
 			<ui.Badge variant="outline">{ locales.FormatsTimeZone(intl.TimeZone(ctx)) }</ui.Badge>
 		</ui.CardContent>
 	</ui.Card>
+}
+
+// RequestCard shows how this page chose the reader's language and time zone: everything intl.Site had (the address,
+// their browser's languages, their cookies, Cloudflare's view of their connection) and what won (intl.DecisionOf).
+component RequestCard(conn Connection) {
+	<section id="request" class="scroll-mt-4">
+		<ui.Card>
+			<ui.CardHeader>
+				<ui.CardTitle>
+					<h2 class="text-lg">{ locales.FormatsRequestTitle }</h2>
+				</ui.CardTitle>
+				<ui.CardDescription>{ locales.FormatsRequestDescription }</ui.CardDescription>
+			</ui.CardHeader>
+			<ui.CardContent>
+				<ui.Table>
+					<ui.TableBody>
+						<FactGroup title={locales.FormatsRequestLanguage}/>
+						<Fact label={locales.FormatsRequestPageLanguage}>
+							<span translate="no">{ intl.Current(ctx).Name() }</span>
+							<code class="ms-1" translate="no">{ intl.Current(ctx).ID() }</code>
+							<div class="text-xs text-muted-foreground">{ languageFrom(intl.DecisionOf(ctx)) }</div>
+						</Fact>
+						<Fact label={locales.FormatsRequestBrowserAsks}>
+							{ if a := intl.DecisionOf(ctx).AcceptLanguage; a != "" {
+								<code class="break-all" translate="no" dir="ltr">{ a }</code>
+							} else {
+								{ locales.FormatsRequestNothing }
+							} }
+						</Fact>
+						<Fact label={locales.FormatsRequestLastViewed}>
+							{ if v := intl.DecisionOf(ctx).LastViewed; v != "" {
+								<code translate="no">{ v }</code>
+							} else {
+								{ locales.FormatsRequestFirstVisit }
+							} }
+						</Fact>
+						<FactGroup title={locales.FormatsRequestZone}/>
+						<Fact label={locales.FormatsRequestPageZone}>
+							{ intl.Zone(intl.TimeZone(ctx)) }
+							<div class="text-xs text-muted-foreground">{ zoneFrom(intl.DecisionOf(ctx)) }</div>
+						</Fact>
+						<Fact label={locales.FormatsRequestChosen}>
+							{ if z := intl.DecisionOf(ctx).ChosenZone; z != "" {
+								<code translate="no">{ z }</code>
+							} else {
+								{ locales.FormatsRequestNotChosen }
+							} }
+						</Fact>
+						<Fact label={locales.FormatsRequestBrowserReported}>
+							{ if z := intl.DecisionOf(ctx).BrowserZone; z != "" {
+								<code translate="no">{ z }</code>
+							} else {
+								{ locales.FormatsRequestNotReported }
+							} }
+						</Fact>
+						<Fact label={locales.FormatsRequestBrowserNow}>
+							<code data-intl="browser-zone">{ locales.FormatsRequestNeedsScript }</code>
+						</Fact>
+						<Fact label={locales.FormatsRequestConnection}>
+							{ if conn.Timezone != "" {
+								<code translate="no">{ conn.Timezone }</code>
+								{ if conn.Country != "" {
+									<div class="text-muted-foreground">
+										{ locales.FormatsRequestWhere(conn.City, countryName(conn.Country), conn.Colo) }
+									</div>
+								} }
+							} else {
+								{ locales.FormatsRequestNoConnection }
+							} }
+						</Fact>
+						<Fact label={locales.FormatsRequestClock}>{ clockOf(ctx) }</Fact>
+					</ui.TableBody>
+				</ui.Table>
+			</ui.CardContent>
+		</ui.Card>
+	</section>
+}
+
+// FactGroup heads a group of RequestCard's rows.
+component FactGroup(title intl.Msg) {
+	<ui.TableRow>
+		<ui.TableHead colspan="2" class="pt-4 text-foreground">{ title }</ui.TableHead>
+	</ui.TableRow>
+}
+
+// Fact is one of RequestCard's rows: what it is, and its value (with what decided it, where something did).
+component Fact(label intl.Msg, children gsx.Node) {
+	<ui.TableRow>
+		<ui.TableHead scope="row" class="w-2/5 align-top font-normal whitespace-normal text-muted-foreground">
+			{ label }
+		</ui.TableHead>
+		<ui.TableCell class="align-top whitespace-normal">
+			{ children }
+		</ui.TableCell>
+	</ui.TableRow>
 }

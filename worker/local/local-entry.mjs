@@ -29,6 +29,11 @@ const writes = localRateLimit({ limit: 60, period: 10 });
 
 export default {
   fetch(request, env, ctx) {
+    // Cloudflare gives the Worker each visitor's zone from their IP (request.cf.timezone). Locally there is no
+    // Cloudflare: mise run serve and dev pass the developer's own zone, so the first page is in it, as in production.
+    if (env.LOCAL_TIME_ZONE && !request.cf?.timezone) {
+      request = new Request(request, { cf: { ...request.cf, timezone: env.LOCAL_TIME_ZONE } });
+    }
     return entry.fetch(request, { ...env, DB: env.DB ?? d1Shim(env.LOCAL_D1), WRITES: env.WRITES ?? writes }, ctx);
   },
 };

@@ -23,6 +23,6 @@ names = ["hx-action", "hx-ws:connect"]
 [dev]
 no_web = true
 build = ["mise", "run", "build:dev"]
-run = ["sh", "-c", "mkdir -p .workerd-state && exec workerd serve worker/local/config.capnp"]
+run = ["sh", "-c", "mkdir -p .workerd-state && LOCAL_TIME_ZONE=$(ci/local-zone.sh) exec workerd serve worker/local/config.capnp"]
 upstream = "http://127.0.0.1:${APP_DEV_PORT}"
 health = "/healthz"
