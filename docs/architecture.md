@@ -50,6 +50,8 @@ tasks (`intl/mise/tasks.toml`) are the workflow:
 - `intl:translate` translates what is missing or stale with Claude Code.
 - `intl:todo`, `intl:export` and `intl:import` serve people translating.
 - `intl:check` (in `test:go`) fails on anything missing, stale, unused or short of a plural case.
+- `intl:add` copies intl's screens into `views/intl/`: the language list, the language offer and the time zone and
+  clock dialog, with their text (`[intl]`) already translated. The layout uses them as they are (`TestIntlScreens`).
 
 URLs: the default locale is unprefixed, every other is `/<lowercase id>/…`, `/en/…` and mixed-case prefixes redirect;
 no Accept-Language redirects, and only `/` follows the `locale` cookie. A locale whose catalog isn't complete is
@@ -74,7 +76,8 @@ served `noindex`.
 ├── main.go                                      the entry point: transport.Run(app.Handler())
 ├── app/                                         server.go (routes), board.go + stores, site.go (intl.Site, seo.Site),
 │                                                Cloudflare-only calls (platform_js.go) and their twins
-├── views/  ui/  web/gsxui/  web/htmx/           pages (gsx), gsxui components and behaviours, vendored htmx
+├── views/  ui/  web/gsxui/  web/htmx/           pages (gsx; views/intl: intl's screens), gsxui components and
+│                                                behaviours, vendored htmx
 ├── intl/  intl.toml                             Intl for gsx (its own module); the app's languages
 ├── seo/                               the live audit and Google Search Console (its own module)
 ├── locales/                                     UI messages (*.toml) and their generated package

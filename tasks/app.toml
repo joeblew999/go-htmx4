@@ -252,7 +252,7 @@ old_module=$(go list -m)
 old_name=$(sed -n 's/^APP_NAME = "\(.*\)"$/\1/p' mise.toml)
 [ "$old_module" != "$module" ] || [ "$old_name" != "$name" ] || { echo "· already $module / $name"; exit 0; }
 # Module path: every tracked Go, gsx and module file (untracked work is left alone); intl/ moves with the app.
-git ls-files -z -- '*.go' '*.gsx' 'gsx.toml' 'go.mod' 'intl/go.mod' 'seo/go.mod' 'badge/go.mod' 'e2e/go.mod' | xargs -0 perl -pi -e "s#\\Q$old_module\\E#$module#g"
+git ls-files -z -- '*.go' '*.gsx' '*.gsx.tmpl' 'gsx.toml' 'go.mod' 'intl/go.mod' 'seo/go.mod' 'badge/go.mod' 'e2e/go.mod' | xargs -0 perl -pi -e "s#\\Q$old_module\\E#$module#g"
 (cd e2e && go mod edit -module "$module/e2e")
 # App name: config, pages, tests and local Durable Object keys.
 perl -pi -e "s/^APP_NAME = \"\\Q$old_name\\E\"/APP_NAME = \"$name\"/" mise.toml

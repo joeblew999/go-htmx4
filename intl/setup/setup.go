@@ -113,29 +113,39 @@ func DetectGsxui(root string) string {
 	return ""
 }
 
-var gsxuiKey, catalogsKey = regexp.MustCompile(`(?m)^gsxui\s*=`), regexp.MustCompile(`(?m)^catalogs\s*=.*\n`)
+var catalogsKey = regexp.MustCompile(`(?m)^catalogs\s*=.*\n`)
 
 // addGsxui writes gsxui = dir into an intl.toml set up before gsxui was: init run again after gsxui init.
 func addGsxui(path, dir string, log io.Writer) error {
 	if dir == "" {
 		return nil
 	}
+	return addKey(path, "gsxui", dir, "Where gsxui add vendors components: gen translates the text they write themselves from [gsxui].", log)
+}
+
+// UI writes ui = dir into the app's intl.toml when it has no ui: where go tool intl add put intl's screens.
+func UI(root, dir string, log io.Writer) error {
+	return addKey(filepath.Join(root, "intl.toml"), "ui", dir,
+		"Where go tool intl add copies intl's screens (package intlui): the language list, the language offer, the time zone\n# and clock dialog.", log)
+}
+
+// addKey writes key = value, below its comment, after intl.toml's catalogs line, unless the file sets key already.
+func addKey(path, key, value, comment string, log io.Writer) error {
 	b, err := os.ReadFile(path)
 	if err != nil {
 		return err
 	}
 	s := string(b)
-	if gsxuiKey.MatchString(s) {
+	if regexp.MustCompile(`(?m)^` + key + `\s*=`).MatchString(s) {
 		return nil
 	}
-	line := "# Where gsxui add vendors components: gen translates the text they write themselves from [gsxui].\n" +
-		"gsxui = \"" + dir + "\"\n"
+	line := "# " + comment + "\n" + key + " = \"" + value + "\"\n"
 	if loc := catalogsKey.FindStringIndex(s); loc != nil {
 		s = s[:loc[1]] + line + s[loc[1]:]
 	} else {
 		s = line + s
 	}
-	fmt.Fprintln(log, "updated intl.toml: gsxui =", dir)
+	fmt.Fprintf(log, "updated intl.toml: %s = %s\n", key, value)
 	return os.WriteFile(path, []byte(s), 0o644)
 }
 

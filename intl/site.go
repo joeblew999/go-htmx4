@@ -233,6 +233,12 @@ func SafeReturn(u string) string {
 	return out
 }
 
+// ReturnTo is the page an htmx request was made from (htmx's HX-Current-URL, else the Referer), kept by SafeReturn:
+// where a form loaded into that page sends the reader back to (the preferences form's return).
+func ReturnTo(r *http.Request) string {
+	return SafeReturn(cmp.Or(r.Header.Get("HX-Current-URL"), r.Referer()))
+}
+
 // sameSite is path with one leading slash: "//evil.example" or "/\evil.example" (which browsers read as another
 // host) become "/evil.example", a path of this site.
 func sameSite(path string) string {

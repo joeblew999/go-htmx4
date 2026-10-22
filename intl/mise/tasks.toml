@@ -17,6 +17,20 @@ tools = { workerd = "1.20261019.1" }
 usage = 'arg "<locale>" var=#true help="BCP 47 ids, e.g. fr or pt-BR"'
 run = 'go tool intl add-locale ${usage_locale}'
 
+["intl:add"]
+description = "Copy intl's screens into the app the way gsxui add copies components: language-list, language-offer, preferences (gsx files in intl.toml's ui, made of gsxui components, their text already translated into the catalogs). --diff shows how the app's copies differ; --overwrite replaces copies the app changed"
+usage = '''
+flag "--diff" help="show how intl's screens differ from the app's copies, writing nothing (exit 1 if they do)"
+flag "--overwrite" help="replace copies the app changed"
+arg "<screen>" var=#true help="language-list, language-offer or preferences"
+'''
+run = '''
+#!/usr/bin/env bash
+set -euo pipefail
+args=(); [ "${usage_diff:-}" != true ] || args+=(-diff); [ "${usage_overwrite:-}" != true ] || args+=(-overwrite)
+exec go tool intl add ${args[@]+"${args[@]}"} ${usage_screen}
+'''
+
 ["intl:todo"]
 description = "What is left to translate, per locale: each message's source, context and arguments, the plural categories the language needs, the style note (--json for agents)"
 tools = { workerd = "1.20261019.1" }

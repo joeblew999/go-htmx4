@@ -28,7 +28,7 @@ checkout = "Go to checkout"
 | `title={ v \|> plain }` | a formatted value in an attribute |
 | `locales.Placed(intl.Date(t, intl.Options("dateStyle", "long")))` | a formatted value inside a message's arguments (gsx allows no pipeline there) |
 | `href={ "/about" \|> localize }` | an in-app link, in the reader's language |
-| `{ locales.NavAlsoIn(s.Name).In(s.Lang) }` | a message written in another shipped language than the page's (the offer `intl.Suggested` makes, with `intl.Decline` beside it); the element around it gets `lang` |
+| `{ locales.IntlAlsoIn(s.Name).In(s.Lang) }` | a message written in another shipped language than the page's (the offer `intl.Suggested` makes, with `intl.Decline` beside it); the element around it gets `lang` |
 
 Options are Intl's own names and values, in pairs. Never format for a reader in Go (`time.Format`, `strconv`): the
 runtime's Intl does it. A new or changed message is translated in the same change: the steps below.
@@ -95,6 +95,10 @@ how many messages you translated and confirmed.
 - **Add a language:** `go tool intl add-locale fr-CA` (it checks the id with Intl, adds it to `intl.toml`'s
   `locales` and writes its catalog), then translate everything `todo` lists for it. A regional locale can take what it doesn't
   translate from another of the same script: `[inherit] fr-CA = "fr"` in `intl.toml`.
+- **A language list, the offer of the page in the reader's language, or a time zone and clock dialog:** don't write
+  them; `go tool intl add language-list language-offer preferences` copies intl's own (gsx files in `views/intl`,
+  package `intlui`, made of gsxui components) and writes their text, already translated, into the catalogs under
+  `[intl]`. It prints where each goes. A language intl doesn't ship: translate what `todo` lists for it.
 - **After `gsxui add`:** `go tool intl gen` names each text the new components write that has no message, with the
   line to add to the source catalog's `[gsxui]` table. Add those lines, then translate them.
 - **Review:** read each catalog beside the source and fix what reads wrong for a native speaker; then step 4.

@@ -44,6 +44,7 @@ mise run intl:translate      # Claude Code translates everything missing or stal
 mise run intl:check          # everything, for CI: catalogs, plurals, unused messages, gsx's own checks
 mise run intl:todo           # what is left to translate, for a person (--json for an agent)
 mise run intl:add-locale fr  # a new language: intl.toml and its catalog, the id checked by Intl
+mise run intl:add preferences  # one of intl's screens into the app (language-list, language-offer, preferences)
 mise run intl:confirm        # the source changed but not its meaning (a typo fixed): keep the stale translations
 mise run intl:export         # xliff/out/<locale>.xlf for human translators: what is left (--all: everything)
 mise run intl:import         # their work back, from xliff/in
@@ -120,8 +121,8 @@ Translating with Claude also needs [Claude Code](https://code.claude.com) (`clau
    their browser reported on its first page (`intl-browser.mjs` sets the `browser_tz` cookie); else Cloudflare's guess
    from their IP; else UTC. `intl.Suggested(ctx)` is the page in the language the reader wants, when the site has it
    and the page is in another: the one they chose, else the one their browser asks for (`Accept-Language`, matched by
-   Intl's likely subtags: `zh-TW` is zh-Hant). The layout offers it as a link, written in that language,
-   `{ locales.NavAlsoIn(s.Name).In(s.Lang) }`, on every page until they choose: following a link from a page in one
+   Intl's likely subtags: `zh-TW` is zh-Hant). intl's `language-offer` screen offers it as a link, written in that
+   language, `{ locales.IntlAlsoIn(s.Name).In(s.Lang) }`, on every page until they choose: following a link from a page in one
    language to one in another (the language list, the offer) is choosing, and so is `intl.Decline(ctx)`, the "No
    thanks" beside the offer. Never a redirect: Googlebot sends no `Accept-Language`, and a redirect would hide the
    other language versions from it. Every response is `Cache-Control: private`: it is written for one reader.
@@ -137,7 +138,8 @@ Translating with Claude also needs [Claude Code](https://code.claude.com) (`clau
 
    The browser redoes each `[data-intl]` element in the viewer's zone and clock, keeps `since` fresh, and redoes what
    htmx swaps in. A language list is `intl.Links(ctx)` (each locale's name in its own language, and the page's URL
-   in it); `intl.Sitemap(origin, pages)` is a sitemap.xml with every alternate.
+   in it), and intl ships one ready to use ([Its screens](#its-screens)); `intl.Sitemap(origin, pages)` is a
+   sitemap.xml with every alternate.
 
 4. Give intl its Intl.
 
@@ -187,11 +189,47 @@ Translating with Claude also needs [Claude Code](https://code.claude.com) (`clau
 locales = ["en", "de", "ar"]   # the source first
 catalogs = "locales"
 gsxui = "ui"
+ui = "views/intl"              # where go tool intl add puts intl's screens (the default)
 badge = "docs/badges/intl.svg" # "languages | 3, all translated": gen writes it, check says when it's stale
 
 [notes]
 "*" = "A shop. Keep brand names in English."
 de = "Address the reader as Sie."
+```
+
+## Its screens
+
+intl ships the screens a site with languages needs, the way gsxui ships components: gsx files copied into the app,
+made of gsxui components, with their text already translated into intl's 13 languages.
+
+| Screen | Component | What it is |
+|---|---|---|
+| `language-list` | `<intlui.LanguageList/>` | the page in every language, each named in its own: plain links, crawlable, for a footer |
+| `language-offer` | `<intlui.LanguageOffer/>` | the page in the reader's language, offered in that language until they choose (`intl.Suggested`) |
+| `preferences` | `<intlui.PreferencesDialog/>` | a header button and the time zone and clock dialog it opens |
+
+```sh
+go tool intl add language-list language-offer preferences   # or mise run intl:add …
+```
+
+`add` runs `gsxui add` for the components a screen needs that the app doesn't have (Button, Alert, Dialog, Field,
+NativeSelect), writes each screen to `views/intl/<screen>.gsx` (package `intlui`; `intl.toml`'s `ui` moves it) with
+its imports pointing at the app's catalogs and gsxui components, and adds their text to the catalogs: `[intl]`, and
+`[gsxui]` for what those components write themselves, in every language the app has that intl ships. The source
+catalog gets the comments translators read; a language intl doesn't ship goes through `mise run intl:translate` like
+the app's own text. Then it compiles the catalogs, runs `gsx generate`, and says where each screen goes.
+
+The files are the app's own: change them as you like. `add` records what it wrote in `intl.sum`, and never replaces a
+file the app changed: `--diff` shows how the app's copy differs from intl's, `--overwrite` replaces it. A message the
+app already has keeps its text.
+
+The dialog loads its form from two routes, which the app serves:
+
+```go
+mux.HandleFunc("GET /fragments/preferences", func(w http.ResponseWriter, r *http.Request) {
+	intlui.PreferencesForm(intl.ReturnTo(r), site.ConnectionZone(r)).Render(r.Context(), w)
+})
+mux.HandleFunc("POST /preferences", site.Preferences)
 ```
 
 ## In markup

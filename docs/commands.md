@@ -119,6 +119,20 @@ go tool gsx generate (after intl: views write the generated messages); intl/'s a
 
 Compile the catalogs (intl.toml): the Go package of messages, intl-messages.mjs, the gsxui translator, intl.sum and the languages badge (intl.toml's badge); a language just added to intl.toml's locales gets its catalog. Run it after editing a catalog; gsx generate needs it first
 
+### `intl:add`
+
+Copy intl's screens into the app the way gsxui add copies components: language-list, language-offer, preferences (gsx files in intl.toml's ui, made of gsxui components, their text already translated into the catalogs). --diff shows how the app's copies differ; --overwrite replaces copies the app changed
+
+
+- **Usage:** `intl:add [--diff] [--overwrite] <screen>…`
+
+### Arguments
+- **`<screen>…`** — language-list, language-offer or preferences
+
+### Flags
+- **`--diff`** — show how intl's screens differ from the app's copies, writing nothing (exit 1 if they do)
+- **`--overwrite`** — replace copies the app changed
+
 ### `intl:add-locale`
 
 Add a language: its id as Intl writes it (fr-ca → fr-CA) into intl.toml's locales, and its catalog; then mise run intl:translate

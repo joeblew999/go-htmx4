@@ -53,7 +53,8 @@ an ordinary Go server:
   server and again in the reader's browser, in their time zone, right-to-left included. `mise run intl:translate` has Claude translate every new message into
   every language, in parallel, in about two minutes; `mise run intl:check` keeps every catalog complete. Each language
   gets its own URLs, `hreflang` links and sitemap entries, so Google indexes every language version and shows it to
-  the people who read that language.
+  the people who read that language. Its screens (a language list, the offer of a page in the reader's language, a
+  time zone and clock dialog) come with it, already translated: `go tool intl add`.
 - **[seo](seo/README.md): what Google sees, checked.** One middleware answers robots.txt and the sitemap, keeps what
   isn't a page out of the index, and gives every page one https address. Every `mise run check` then fetches every
   page as Googlebot does and fails on anything that would keep a page out or look wrong in a result. After a deploy,
@@ -98,7 +99,7 @@ Every branch gets its own preview, `main` deploys staging, and a release deploys
 | --- | --- |
 | `main.go` | the entry point: `transport.Run(app.Handler())` |
 | `app/` | the server (`server.go`: routes), the board (`board.go`, its stores), the app on the web (`site.go`: its languages, `intl.Site`, and search engines, `seo.Site`, with the sitemap's pages), Cloudflare-only calls (`platform_js.go`) and their twins; each file's tests beside it |
-| `views/` | pages and fragments in gsx; a page's data in a `.go` file beside it |
+| `views/` | pages and fragments in gsx; a page's data in a `.go` file beside it; `views/intl/`, intl's screens, written by `go tool intl add` |
 | `ui/`, `web/gsxui/` | gsxui components and their behaviours, vendored by `gsxui add`: never edited by hand |
 | `web/htmx/` | htmx 4, hx-ws and hx-live, vendored by `mise run vendor` |
 | `locales/` | the messages: one catalog per language (`en.toml` is the source) and `intl.sum` |

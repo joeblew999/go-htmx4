@@ -7,6 +7,7 @@ import (
 	"github.com/joeblew999/go-htmx4/seo"
 	"github.com/joeblew999/go-htmx4/ui"
 	"github.com/joeblew999/go-htmx4/ui/icon"
+	intlui "github.com/joeblew999/go-htmx4/views/intl"
 )
 
 // Layout is the document shell, following gsxui's site layout: gsxui theme CSS, the theme toggle, a header of
@@ -27,9 +28,10 @@ import (
 // <html data-tz data-hc> are the viewer's chosen time zone and clock ("" = the browser's own and the language's), for
 // intl-browser.mjs, which redoes dates, times and rich numbers in the browser. The head carries what search engines
 // and link previews read (seo.Head: the translated title and description, Open Graph, the site's icon, and on the home
-// page the site's name for Google) and the page's language versions (intl.Head, with pageKey in views.go). The
-// language links sit in the footer, outside the boosted nav: switching locale must be a full page load, since a
-// boosted swap keeps the old <html lang dir>.
+// page the site's name for Google) and the page's language versions (intl.Head, with pageKey in views.go). intl's
+// screens (go tool intl add, in views/intl) offer the page in the reader's language above the content, list it in
+// every language in the footer, outside the boosted nav (switching locale must be a full page load, since a boosted
+// swap keeps the old <html lang dir>), and set the time zone and clock from the header.
 component Layout(title intl.Msg, description intl.Msg, path string, children gsx.Node) {
 	<!DOCTYPE html>
 	<html { intl.HTML(ctx)... }>
@@ -87,66 +89,25 @@ component Layout(title intl.Msg, description intl.Msg, path string, children gsx
 						size="icon-sm"
 						href="#languages"
 						hx-boost:inherited="false"
-						aria-label={locales.NavLanguages}
-						title={locales.NavLanguages}
+						aria-label={locales.IntlLanguages}
+						title={locales.IntlLanguages}
 					>
 						<icon.Languages/>
 					</ui.Button>
-					<PreferencesDialog/>
+					<intlui.PreferencesDialog/>
 					<ThemeToggle/>
 				</nav>
 			</header>
 			<main class="mx-auto flex max-w-3xl flex-col gap-6 p-4">
-				<LanguageSuggestion/>
+				<intlui.LanguageOffer/>
 				{ children }
 			</main>
-			<LanguageFooter/>
+			<footer id="languages" class="border-t">
+				<intlui.LanguageList class="mx-auto max-w-3xl p-4"/>
+			</footer>
 			<ui.Toaster/>
 		</body>
 	</html>
-}
-
-// LanguageSuggestion offers this page in the reader's own language, written in that language, on every page until
-// they choose one: the language they chose, or the one their browser asks for, when the site has it and the page is
-// in another (intl.Suggested). A link, never a redirect, so Google still reaches every language version. "No thanks"
-// (intl.Decline) keeps the page's language as their choice.
-component LanguageSuggestion() {
-	{ if s, ok := intl.Suggested(ctx); ok {
-		<ui.Alert lang={s.Lang} dir="auto">
-			<icon.Languages/>
-			<ui.AlertTitle>
-				<a href={s.Href} hreflang={s.Lang} class="underline underline-offset-4">{ locales.NavAlsoIn(s.Name).In(s.Lang) }</a>
-			</ui.AlertTitle>
-			<ui.AlertDescription>
-				<a href={intl.Decline(ctx)} rel="nofollow">{ locales.NavNoThanks.In(s.Lang) }</a>
-			</ui.AlertDescription>
-		</ui.Alert>
-	} }
-}
-
-// LanguageFooter lists the current page in every shipped locale: plain links (crawlable, no JS), each named in its
-// own language with lang and hreflang (and translate="no": a locale's own name must not be machine-translated).
-component LanguageFooter() {
-	<footer id="languages" class="border-t">
-		<nav aria-label={locales.NavLanguages} class="mx-auto flex max-w-3xl flex-wrap items-center gap-1 p-4">
-			<icon.Languages class="me-1 size-4 text-muted-foreground"/>
-			{ for _, l := range intl.Links(ctx) {
-				<ui.Button
-					variant={activeVariant(l.Current)}
-					size="sm"
-					href={l.Href}
-					hreflang={l.Lang}
-					lang={l.Lang}
-					translate="no"
-					{ if l.Current {
-						aria-current="page"
-					} }
-				>
-					{ l.Name }
-				</ui.Button>
-			} }
-		</nav>
-	</footer>
 }
 
 // VersionGuard keeps the board monotonic: HTTP responses and hx-ws pushes both go through htmx.swap and can

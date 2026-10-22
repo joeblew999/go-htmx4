@@ -1,14 +1,17 @@
-package views
+package intlui
 
 import (
+	"github.com/gsxhq/gsxui/ui"
+	"github.com/gsxhq/gsxui/ui/icon"
 	"github.com/joeblew999/go-htmx4/intl"
-	"github.com/joeblew999/go-htmx4/locales"
-	"github.com/joeblew999/go-htmx4/ui"
-	"github.com/joeblew999/go-htmx4/ui/icon"
+	"github.com/joeblew999/go-htmx4/intl/ui/locales"
 )
 
-// PreferencesDialog is the header's time zone and clock dialog. Its form loads when it opens, and the trigger swaps
-// it in with innerHTML: the header nav's inherited outerMorph would replace the target itself.
+// PreferencesDialog is a header button and the time zone and clock dialog it opens. The dialog's form loads when it
+// opens, from GET /fragments/preferences (PreferencesForm), swapped in with innerHTML: inside a boosted nav, an
+// inherited outerMorph would replace the target itself.
+//
+// From go tool intl add preferences: the app's own now, to change as it likes.
 component PreferencesDialog() {
 	<ui.Dialog>
 		<ui.Button
@@ -17,8 +20,8 @@ component PreferencesDialog() {
 			data-gsxui-slot-dialog-trigger
 			aria-haspopup="dialog"
 			aria-expanded="false"
-			aria-label={locales.NavPreferences}
-			title={locales.NavPreferences}
+			aria-label={locales.IntlPreferences}
+			title={locales.IntlPreferences}
 			hx-get={"/fragments/preferences" |> localize}
 			hx-target="#preferences"
 			hx-swap="innerHTML"
@@ -27,32 +30,36 @@ component PreferencesDialog() {
 		</ui.Button>
 		<ui.DialogContent hideCloseButton={true}>
 			<ui.DialogHeader>
-				<ui.DialogTitle>{ locales.PreferencesTitle }</ui.DialogTitle>
-				<ui.DialogDescription>{ locales.PreferencesDescription }</ui.DialogDescription>
+				<ui.DialogTitle>{ locales.IntlPreferences }</ui.DialogTitle>
+				<ui.DialogDescription>{ locales.IntlPreferencesDescription }</ui.DialogDescription>
 			</ui.DialogHeader>
-			<div id="preferences" class="text-sm text-muted-foreground">{ locales.PreferencesLoading }</div>
+			<div id="preferences" class="text-sm text-muted-foreground">{ locales.IntlLoading }</div>
 		</ui.DialogContent>
 	</ui.Dialog>
 }
 
-// PreferencesForm answers GET /fragments/preferences. A plain POST form: saving redirects back to the page, which
-// re-renders with the new <html data-tz data-hc>. The zone list is the browser's own (Intl.supportedValuesOf,
-// filled in by intl-browser.mjs), each named in the page's language; without JavaScript it offers automatic and the
-// current choice. The clock options are labelled by an example time in each clock, redone by intl-browser.mjs.
+// PreferencesForm answers GET /fragments/preferences:
+//
+//	intlui.PreferencesForm(intl.ReturnTo(r), site.ConnectionZone(r))
+//
+// A plain POST form to /preferences (site.Preferences): saving redirects back to the page, which re-renders with the
+// new <html data-tz data-hc>. The zone list is the browser's own (Intl.supportedValuesOf, filled in by
+// intl-browser.mjs), each named in the page's language; without JavaScript it offers automatic and the current
+// choice. The clock options are labelled by an example time in each clock, redone by intl-browser.mjs.
 component PreferencesForm(returnTo string, connectionZone string) {
 	<form method="post" action={"/preferences" |> localize} class="flex flex-col gap-4">
 		<input type="hidden" name="return" value={returnTo}/>
 		<ui.FieldGroup>
 			<ui.Field>
-				<ui.FieldLabel for="pref-tz">{ locales.PreferencesTimeZone }</ui.FieldLabel>
+				<ui.FieldLabel for="pref-tz">{ locales.IntlTimeZone }</ui.FieldLabel>
 				<ui.NativeSelect id="pref-tz" name="tz" class="w-full" data-intl-zones>
 					<ui.NativeSelectOption
 						value=""
 						selected={intl.ChosenTimeZone(ctx) == ""}
 						data-intl="browser-zone"
-						data-template={locales.PreferencesTimeZoneAuto(intl.Slot)}
+						data-template={locales.IntlTimeZoneAuto(intl.Slot)}
 					>
-						{ locales.PreferencesTimeZoneAuto(connectionZone) }
+						{ locales.IntlTimeZoneAuto(connectionZone) }
 					</ui.NativeSelectOption>
 					{ if intl.ChosenTimeZone(ctx) != "" {
 						<ui.NativeSelectOption
@@ -66,15 +73,15 @@ component PreferencesForm(returnTo string, connectionZone string) {
 				</ui.NativeSelect>
 			</ui.Field>
 			<ui.Field>
-				<ui.FieldLabel for="pref-hc">{ locales.PreferencesHourCycle }</ui.FieldLabel>
+				<ui.FieldLabel for="pref-hc">{ locales.IntlHourCycle }</ui.FieldLabel>
 				<ui.NativeSelect id="pref-hc" name="hc" class="w-full">
 					<ui.NativeSelectOption
 						value=""
 						selected={intl.HourCycle(ctx) == ""}
 						{ intl.Clock("").Attrs()... }
-						data-template={locales.PreferencesHourCycleAuto(intl.Slot)}
+						data-template={locales.IntlHourCycleAuto(intl.Slot)}
 					>
-						{ locales.PreferencesHourCycleAuto(intl.Clock("")) }
+						{ locales.IntlHourCycleAuto(intl.Clock("")) }
 					</ui.NativeSelectOption>
 					<ui.NativeSelectOption
 						value="h12"
@@ -95,9 +102,9 @@ component PreferencesForm(returnTo string, connectionZone string) {
 		</ui.FieldGroup>
 		<ui.DialogFooter showCloseButton={false}>
 			<ui.Button variant="outline" type="button" data-gsxui-dialog-close data-gsxui-slot-dialog-footer-close>
-				{ locales.HomeDialogClose }
+				{ locales.IntlClose }
 			</ui.Button>
-			<ui.Button type="submit">{ locales.PreferencesSave }</ui.Button>
+			<ui.Button type="submit">{ locales.IntlSave }</ui.Button>
 		</ui.DialogFooter>
 	</form>
 }

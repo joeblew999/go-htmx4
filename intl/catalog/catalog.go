@@ -36,9 +36,10 @@ func (s State) String() string { return [...]string{"translated", "inherited", "
 // Project is an app's catalogs, read and checked.
 type Project struct {
 	Config   config.Config
-	Messages []*Message // the source's messages in key order: their index in intl-messages.mjs
-	Locales  []*Locale  // the shipped locales, the source first
-	sum      sum        // intl.sum as it is now
+	Messages []*Message        // the source's messages in key order: their index in intl-messages.mjs
+	Locales  []*Locale         // the shipped locales, the source first
+	sum      sum               // intl.sum as it is now
+	files    map[string]string // intl.sum's files go tool intl add wrote: path → hash
 }
 
 // Message is one message of the source catalog.
@@ -158,10 +159,11 @@ func Read(c config.Config) (*Project, error) {
 
 	// Staleness: a translation is of the source text intl.sum recorded with it. A changed translation is taken to
 	// be of the current source.
-	old, err := readSum(p.SumFile())
+	old, files, err := readSum(p.SumFile())
 	if err != nil {
 		return nil, err
 	}
+	p.files = files
 	stale := map[string]bool{} // "id key"
 	for _, id := range c.Locales[1:] {
 		for _, m := range p.Messages {
