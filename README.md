@@ -117,8 +117,10 @@ Every branch gets its own preview, `main` deploys staging, and a release deploys
 
 **Adding something, one way each:**
 
-- **A page:** a component in `views/<page>.gsx` inside `Layout`, with its own translated title and description; a
-  route in `app/server.go` that renders it with `s.render`; its path in `sitemapPages` (`app/site.go`).
+- **A page:** a type in the page table (`pages/pages.go`: its `Path`, an entry in `pages.All`), a component in
+  `views/<page>.gsx` inside `Layout` with its own translated title and description, and a route in `app/server.go`
+  (`pages.Route`) that renders it with `s.render`. Links to it are `{ pages.About{} |> url }`; the sitemap and the
+  noindex rules follow from the table.
 - **Text:** a key in `locales/en.toml`, written `{ locales.Key }`, then `mise run intl:translate` and
   `mise run intl:check`.
 - **A date, a number, any Intl call:** a filter in markup, `{ t |> date("dateStyle", "long") }`, its options in pairs.

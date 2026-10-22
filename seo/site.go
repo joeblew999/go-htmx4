@@ -27,9 +27,10 @@ type Site struct {
 	Host string
 	// Sitemap writes the sitemap for origin ("https://app.example.com"), e.g. intl.Sitemap. nil: no /sitemap.xml.
 	Sitemap func(origin string) string
-	// IsPage reports whether a GET or HEAD request is for a page people read and Google may index; everything else
-	// gets X-Robots-Tag: noindex. nil: every GET and HEAD is a page.
-	IsPage func(r *http.Request) bool
+	// IsPage reports whether a GET or HEAD of path, the URL's path and query as the request has them
+	// ("/de/board?topic=games"), is for a page people read and Google may index; everything else gets X-Robots-Tag:
+	// noindex. The same shape as intl.Site's IsPage, so one page table answers both. nil: every GET and HEAD is a page.
+	IsPage func(path string) bool
 	// Preview marks every response noindex: a preview must never compete with production.
 	Preview bool
 	// ContentSignal is robots.txt's Content-Signal line (Cloudflare's content signals: what crawlers may use the
@@ -46,7 +47,7 @@ func (s Site) Handler(next http.Handler) http.Handler {
 		read := r.Method == http.MethodGet || r.Method == http.MethodHead
 		robots := read && r.URL.Path == "/robots.txt"
 		sitemap := read && r.URL.Path == "/sitemap.xml" && s.Sitemap != nil
-		page := read && !robots && !sitemap && (s.IsPage == nil || s.IsPage(r))
+		page := read && !robots && !sitemap && (s.IsPage == nil || s.IsPage(r.URL.RequestURI()))
 		origin := s.origin(r)
 		if (page || robots || sitemap) && s.Host != "" && !loopback(r) && origin != "https://"+s.Host {
 			target := "https://" + s.Host + r.URL.EscapedPath()

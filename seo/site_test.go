@@ -13,7 +13,7 @@ func site() http.Handler {
 	s := seo.Site{
 		Host:          "app.example.com",
 		Sitemap:       func(origin string) string { return "<urlset>" + origin + "</urlset>" },
-		IsPage:        func(r *http.Request) bool { return !strings.HasPrefix(r.URL.Path, "/fragments/") },
+		IsPage:        func(path string) bool { return !strings.HasPrefix(path, "/fragments/") },
 		ContentSignal: "search=yes",
 	}
 	return s.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { w.Write([]byte("app " + r.URL.Path)) }))

@@ -3,6 +3,7 @@ package views
 import (
 	"github.com/joeblew999/go-htmx4/intl"
 	"github.com/joeblew999/go-htmx4/locales"
+	"github.com/joeblew999/go-htmx4/pages"
 	"github.com/joeblew999/go-htmx4/ui"
 	"github.com/joeblew999/go-htmx4/ui/icon"
 )
@@ -12,7 +13,7 @@ import (
 // the online count into #presence (the label next to it is rendered here, in the page's language). Without it (go test, no Durable Objects) only the poster's own response
 // updates the board, and a badge says so.
 component BoardPage(topic string, b Board, live bool) {
-	<Layout title={locales.BoardTitle} description={locales.BoardIntro} path="/board">
+	<Layout title={locales.BoardTitle} description={locales.BoardIntro} page={pages.Board{Topic: topic}}>
 		<div class="flex flex-col gap-2">
 			<h1 class="text-3xl font-semibold tracking-tight">{ locales.BoardTitle }</h1>
 			<p class="text-muted-foreground">{ locales.BoardIntro }</p>

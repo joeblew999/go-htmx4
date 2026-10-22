@@ -11,6 +11,7 @@
 //	title={ v |> plain }                               a Value's text, for an attribute
 //	title={ locales.BoardTitle |> text }               a message's text, for a component's string input
 //	href={ "/about" |> localize }                      an in-app path in the request's locale: /de/about
+//	href={ pages.About{} |> url }                      a page's address in the request's locale: /de/about
 //
 // Each returns an intl.Value (rendered by intl.Render, in the request's language and redone by the browser in the
 // viewer's zone), except plain and text. Options are Intl's own option names and values, in pairs (intl.Options);
@@ -67,6 +68,13 @@ func Intl(v any, api, method string, opts ...string) intl.Value {
 // Localize is an in-app path in the request's locale (intl.Site): href={ "/about" |> localize } is "/de/about" in
 // German. Whole literals too: hx-post={ f`/cart/add?id=@{id}` |> localize }.
 func Localize(ctx context.Context, path string) string { return intl.URL(ctx, path) }
+
+// Url is a page's address in the request's locale: href={ pages.Board{Topic: t} |> url } is
+// "/de/board?topic=games" in German. A page is any type with a Path, its address without the locale prefix: an app's
+// page table, as structpages' URLFor reads one (gsxui's site), and with no reflection, so TinyGo builds it.
+func Url(ctx context.Context, page interface{ Path() string }) string {
+	return intl.URL(ctx, page.Path())
+}
 
 // Plain is a Value's text alone, for an attribute (which takes no markup): title={ v |> plain }.
 func Plain(v intl.Value) intl.Plain { return v.Plain() }

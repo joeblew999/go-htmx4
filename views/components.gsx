@@ -6,6 +6,7 @@ import (
 	"github.com/gsxhq/gsx"
 	"github.com/joeblew999/go-htmx4/intl"
 	"github.com/joeblew999/go-htmx4/locales"
+	"github.com/joeblew999/go-htmx4/pages"
 	"github.com/joeblew999/go-htmx4/ui"
 	"github.com/joeblew999/go-htmx4/ui/icon"
 )
@@ -14,12 +15,12 @@ import (
 // numbers, dates, sorting, segmenting and plural forms (views/components.go). Each card names its component and says
 // what Intl does for it; the interactive ones round-trip through the Worker's Intl over htmx.
 component Components() {
-	<Layout title={locales.ComponentsTitle} description={locales.ComponentsDescription} path="/components">
+	<Layout title={locales.ComponentsTitle} description={locales.ComponentsDescription} page={pages.Components{}}>
 		<section class="flex flex-col gap-3">
 			<ui.Breadcrumb>
 				<ui.BreadcrumbList>
 					<ui.BreadcrumbItem>
-						<ui.BreadcrumbLink href={"/" |> localize}>{ locales.NavHome }</ui.BreadcrumbLink>
+						<ui.BreadcrumbLink href={pages.Home{} |> url}>{ locales.NavHome }</ui.BreadcrumbLink>
 					</ui.BreadcrumbItem>
 					<ui.BreadcrumbSeparator/>
 					<ui.BreadcrumbItem>
@@ -563,15 +564,15 @@ component CommandDemo() {
 				</ui.CommandGroup>
 				<ui.CommandSeparator/>
 				<ui.CommandGroup heading={locales.ComponentsCommandPages |> text}>
-					<ui.CommandItem value="board" data-href={"/board" |> localize}>
+					<ui.CommandItem value="board" data-href={pages.Board{} |> url}>
 						<icon.LayoutGrid/>
 						<span>{ locales.NavBoard }</span>
 					</ui.CommandItem>
-					<ui.CommandItem value="formats" data-href={"/formats" |> localize}>
+					<ui.CommandItem value="formats" data-href={pages.Formats{} |> url}>
 						<icon.Globe/>
 						<span>{ locales.NavFormats }</span>
 					</ui.CommandItem>
-					<ui.CommandItem value="about" data-href={"/about" |> localize}>
+					<ui.CommandItem value="about" data-href={pages.About{} |> url}>
 						<icon.Info/>
 						<span>{ locales.NavAbout }</span>
 					</ui.CommandItem>
@@ -895,7 +896,6 @@ component ComponentsSidebar() {
 		<head>
 			<meta charset="utf-8"/>
 			<meta name="viewport" content="width=device-width, initial-scale=1"/>
-			<meta name="robots" content="noindex"/>
 			<title>{ locales.ComponentsSidebarFrame }</title>
 			<ThemeScript/>
 			<link rel="stylesheet" href="/assets/gsxui.css"/>

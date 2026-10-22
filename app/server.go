@@ -20,6 +20,7 @@ import (
 	"github.com/joeblew999/go-htmx4/internal/httpx"
 	"github.com/joeblew999/go-htmx4/intl"
 	"github.com/joeblew999/go-htmx4/locales"
+	"github.com/joeblew999/go-htmx4/pages"
 	"github.com/joeblew999/go-htmx4/views"
 	intlui "github.com/joeblew999/go-htmx4/views/intl"
 )
@@ -63,8 +64,9 @@ func newServer() *server {
 
 func (s *server) routes() http.Handler {
 	mux := http.NewServeMux()
+	// The home page, and the static files at every other path no route takes.
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path != "/" {
+		if r.URL.Path != pages.Route(pages.Home{}) {
 			staticFiles().ServeHTTP(w, r)
 			return
 		}
@@ -73,14 +75,14 @@ func (s *server) routes() http.Handler {
 			s.render(w, r, "home", views.HomePage(target(), env, flavours, components))
 		}
 	})
-	mux.HandleFunc("/formats", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc(pages.Route(pages.Formats{}), func(w http.ResponseWriter, r *http.Request) {
 		if allow(w, r, http.MethodGet) {
 			s.render(w, r, "formats", views.Formats(connection(r)))
 		}
 	})
 	// /components: every gsxui component with Intl (views/components.gsx). The sidebar runs in its own document, and
 	// the text box counts on the Worker; everything else on the page is redone by the browser's Intl.
-	mux.HandleFunc("/components", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc(pages.Route(pages.Components{}), func(w http.ResponseWriter, r *http.Request) {
 		if allow(w, r, http.MethodGet) {
 			s.render(w, r, "components", views.Components())
 		}
@@ -106,7 +108,7 @@ func (s *server) routes() http.Handler {
 			s.render(w, r, "components-week", views.Week())
 		}
 	})
-	mux.HandleFunc("/about", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc(pages.Route(pages.About{}), func(w http.ResponseWriter, r *http.Request) {
 		if allow(w, r, http.MethodGet) {
 			s.render(w, r, "about", views.About(stack))
 		}
