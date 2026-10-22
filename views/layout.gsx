@@ -49,7 +49,7 @@ component Layout(title intl.Msg, description intl.Msg, page pages.Page, children
 				lang={intl.Current(ctx).ID()}
 			/>
 			<intl.Head page={pages.Key(ctx)}/>
-			<meta name="htmx-config" content="ws.reconnectDelay:2s ws.reconnectJitter:0.5"/>
+			<meta name="htmx-config" content={htmxConfig(ctx)}/>
 			<script src="/static/htmx.js" defer></script>
 			<VersionGuard/>
 			<documentAssets/>

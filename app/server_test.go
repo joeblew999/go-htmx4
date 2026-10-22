@@ -144,7 +144,7 @@ func TestHeadOrder(t *testing.T) {
 		rec := httptest.NewRecorder()
 		h.ServeHTTP(rec, httptest.NewRequest("GET", path, nil))
 		page := rec.Body.String()
-		meta, htmx := strings.Index(page, `name="htmx-config" content="ws.reconnectDelay:2s ws.reconnectJitter:0.5"`), strings.Index(page, `src="/static/htmx.js" defer`)
+		meta, htmx := strings.Index(page, `name="htmx-config" content="ws.reconnectDelay:2s ws.reconnectJitter:0.5 inlineScriptNonce:`), strings.Index(page, `src="/static/htmx.js" defer`)
 		if meta < 0 || htmx < 0 || meta > htmx {
 			t.Errorf("%s: head order must be htmx-config meta (%d) < htmx.js, deferred (%d)", path, meta, htmx)
 		}
