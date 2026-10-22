@@ -51,6 +51,9 @@ func TestEndsWithItsProcess(t *testing.T) {
 	app.Wait()
 	for deadline := time.Now().Add(5 * time.Second); ; time.Sleep(50 * time.Millisecond) {
 		if err := syscall.Kill(-group, 0); errors.Is(err, syscall.ESRCH) {
+			if dirs := owned(app.Process.Pid); len(dirs) > 0 {
+				t.Errorf("workerd's temp folder outlived it: %v", dirs)
+			}
 			return
 		}
 		if time.Now().After(deadline) {
@@ -76,4 +79,19 @@ func groupOf(t *testing.T, pid int) int {
 	}
 	t.Fatalf("no workerd started by process %d", pid)
 	return 0
+}
+
+// owned are the temp folders of workerds that process pid started.
+func owned(pid int) []string {
+	var out []string
+	dirs, _ := filepath.Glob(filepath.Join(os.TempDir(), "intl-workerd-*"))
+	for _, d := range dirs {
+		var owner int
+		if b, err := os.ReadFile(filepath.Join(d, "owner")); err == nil {
+			if _, err := fmt.Sscan(string(b), &owner); err == nil && owner == pid {
+				out = append(out, d)
+			}
+		}
+	}
+	return out
 }

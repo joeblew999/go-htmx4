@@ -104,7 +104,7 @@ const config :Workerd.Config = (
 	}
 	var errs bytes.Buffer
 	reapOrphans()
-	c, err := launch(workerd, filepath.Join(dir, "config.capnp"), io.MultiWriter(os.Stderr, &errs))
+	c, err := launch(workerd, dir, io.MultiWriter(os.Stderr, &errs))
 	if err != nil {
 		return nil, err
 	}
