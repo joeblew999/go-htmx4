@@ -346,8 +346,8 @@ component RequestCard(conn Connection) {
 					<ui.TableBody>
 						<FactGroup title={locales.FormatsRequestLanguage}/>
 						<Fact label={locales.FormatsRequestPageLanguage}>
-							<span translate="no">{ intl.Current(ctx).Name() }</span>
-							<code class="ms-1" translate="no">{ intl.Current(ctx).ID() }</code>
+							<span translate="no">{ intl.Current(ctx).Name() }</span>{ " " }
+							<code translate="no">{ intl.Current(ctx).ID() }</code>
 							<div class="text-xs text-muted-foreground">{ languageFrom(intl.DecisionOf(ctx)) }</div>
 						</Fact>
 						<Fact label={locales.FormatsRequestBrowserAsks}>
