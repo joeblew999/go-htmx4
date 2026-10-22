@@ -91,9 +91,10 @@ run = "ci/wasm-build.sh"
 # (standard Go, seconds per save) + workerd.
 # JS and CSS edits (web/htmx/, intl/js, web/gsxui) need no Go build: mise run assets, then reload.
 ["dev"]
-description = "gsx dev → build:dev (standard Go, seconds) + CSS → workerd restart on every .gsx/.go save → http://localhost:8913"
-env = { APP_DEV_PORT = "8913" }
-run = "go tool gsx dev"
+description = "gsx dev → build:dev (standard Go, seconds) + CSS → workerd restart on every .gsx/.go save → http://localhost:8913 (PORT: another port)"
+# go tool charter serve (gsx.toml's [dev] run) listens on PORT, gsx dev proxies APP_DEV_PORT: the same port, charter.toml's
+# 8913 by default (TestCharterToml).
+run = 'export PORT=${PORT:-8913} && export APP_DEV_PORT=$PORT && exec go tool gsx dev'
 
 # Live logs of the deployed Worker (charter's workertail): requests, console output, exceptions. Ctrl-C deletes the tail.
 ["tail"]
