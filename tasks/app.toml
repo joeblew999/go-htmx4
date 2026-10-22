@@ -247,10 +247,11 @@ for m in badge intl seo gsxkit; do
   (cd "$m" && env -u GOROOT GOTOOLCHAIN=local mise exec "go@$floor" -- go vet ./...) ||
     { echo "✗ $m/ doesn't build with Go $floor, the minimum its go.mod declares"; exit 1; }
 done
-# gsx's skill is installed from the gsx version in go.mod and committed: a gsx upgrade must install and commit it.
+# The skills gsx and structpages ship are installed at the versions in go.mod and committed: an upgrade must install
+# and commit them.
 go tool gsxkit skill >/dev/null
-{ git diff --quiet -- .claude/skills/gsx && test -z "$(git ls-files --others --exclude-standard -- .claude/skills/gsx)"; } ||
-  { git status --short -- .claude/skills/gsx; echo "✗ .claude/skills/gsx is not gsx's skill at go.mod's gsx: mise run gsx:skill, and commit it"; exit 1; }
+{ git diff --quiet -- .claude/skills && test -z "$(git ls-files --others --exclude-standard -- .claude/skills)"; } ||
+  { git status --short -- .claude/skills; echo "✗ .claude/skills isn't what go tool gsxkit skill installs: mise run gsx:skill, and commit it"; exit 1; }
 # Its agent skill is installed from seo/ and committed: a change there must be installed and committed too.
 go tool seo skill >/dev/null
 { git diff --quiet -- .claude/skills/seo && test -z "$(git ls-files --others --exclude-standard -- .claude/skills/seo)"; } ||

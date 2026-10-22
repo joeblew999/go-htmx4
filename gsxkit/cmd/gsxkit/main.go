@@ -1,9 +1,9 @@
-// Command gsxkit is go tool gsxkit: gsx's and gsxui's mise tasks and gsx's own agent skill, written into a gsx app the
-// way intl and seo write theirs. The skill is gsx's (its repository's skills/gsx); gsxkit only delivers it, at the gsx
-// version the app's go.mod requires.
+// Command gsxkit is go tool gsxkit: gsx's and gsxui's mise tasks, and the agent skills Jackie Li's projects ship
+// (gsx's, structpages'), written into a gsx app the way intl and seo write theirs. The skills are theirs (each
+// repository's skills/); gsxkit only copies them, at the versions the app's go.mod requires.
 //
 //	go tool gsxkit tasks [-o file]   write the gsx and gsxui mise tasks into the app (.mise/tasks/gsx.toml)
-//	go tool gsxkit skill             copy gsx's agent skill into .claude/skills/gsx
+//	go tool gsxkit skill             copy the skills of every such project in go.mod into .claude/skills
 package main
 
 import (
@@ -40,14 +40,29 @@ func main() {
 			fmt.Println("✓ the gsx tasks are up to date")
 		}
 	case "skill":
-		src, err := gsxSkill(root)
-		if err != nil {
-			fail(err)
+		changed := false
+		for _, module := range skillModules {
+			dir, ok, err := moduleDir(root, module)
+			if err != nil {
+				fail(err)
+			}
+			if !ok {
+				continue // the app doesn't use it
+			}
+			skills, err := skillDirs(filepath.Join(dir, "skills"))
+			if err != nil {
+				fail(err)
+			}
+			for _, name := range skills {
+				c, err := copySkill(root, filepath.Join(dir, "skills", name), filepath.Join(root, ".claude", "skills", name))
+				if err != nil {
+					fail(err)
+				}
+				changed = changed || c
+			}
 		}
-		if changed, err := copySkill(root, src, filepath.Join(root, ".claude", "skills", "gsx")); err != nil {
-			fail(err)
-		} else if !changed {
-			fmt.Println("✓ gsx's skill is up to date")
+		if !changed {
+			fmt.Println("✓ the skills are up to date")
 		}
 	default:
 		usage()
@@ -77,33 +92,52 @@ func appRoot() (string, error) {
 	return filepath.Dir(mod), nil
 }
 
-// gsxSkill is gsx's skill directory in the module the app's go.mod requires, downloading it if needed.
-func gsxSkill(root string) (string, error) {
-	var m struct{ Dir, Version string }
+// skillModules are the projects whose own agent skills gsxkit copies, each from its repository's skills/: gsx's (gsx,
+// templ-to-gsx-migration) and structpages'. gsxui's joins them once it publishes one (gsxhq/gsxui#36).
+var skillModules = []string{"github.com/gsxhq/gsx", "github.com/jackielii/structpages"}
+
+// moduleDir is module's directory at the version the app's go.mod requires, downloading it if needed; ok is false
+// when the app doesn't require it.
+func moduleDir(root, module string) (dir string, ok bool, err error) {
+	var m struct{ Dir string }
 	for range 2 {
-		cmd := exec.Command("go", "list", "-m", "-json", "github.com/gsxhq/gsx")
+		cmd := exec.Command("go", "list", "-m", "-json", module)
 		cmd.Dir = root
 		out, err := cmd.Output()
 		if err != nil {
-			return "", fmt.Errorf("go list -m github.com/gsxhq/gsx: the app's go.mod needs gsx: %w", err)
+			return "", false, nil
 		}
 		if err := json.Unmarshal(out, &m); err != nil {
-			return "", err
+			return "", false, err
 		}
 		if m.Dir != "" {
-			break
+			return m.Dir, true, nil
 		}
-		dl := exec.Command("go", "mod", "download", "github.com/gsxhq/gsx")
+		dl := exec.Command("go", "mod", "download", module)
 		dl.Dir = root
 		if out, err := dl.CombinedOutput(); err != nil {
-			return "", fmt.Errorf("go mod download github.com/gsxhq/gsx: %w\n%s", err, out)
+			return "", false, fmt.Errorf("go mod download %s: %w\n%s", module, err, out)
 		}
 	}
-	src := filepath.Join(m.Dir, "skills", "gsx")
-	if _, err := os.Stat(filepath.Join(src, "SKILL.md")); err != nil {
-		return "", fmt.Errorf("gsx %s has no skills/gsx/SKILL.md", m.Version)
+	return "", false, fmt.Errorf("go mod download %s left no directory", module)
+}
+
+// skillDirs are the skills in dir: its subdirectories with a SKILL.md.
+func skillDirs(dir string) ([]string, error) {
+	entries, err := os.ReadDir(dir)
+	if os.IsNotExist(err) {
+		return nil, nil
 	}
-	return src, nil
+	if err != nil {
+		return nil, err
+	}
+	var names []string
+	for _, e := range entries {
+		if _, err := os.Stat(filepath.Join(dir, e.Name(), "SKILL.md")); e.IsDir() && err == nil {
+			names = append(names, e.Name())
+		}
+	}
+	return names, nil
 }
 
 // copySkill makes dst a copy of the skill directory src, removing what src no longer has, and reports whether it
