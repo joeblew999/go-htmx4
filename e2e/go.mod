@@ -21,3 +21,5 @@ require (
 )
 
 replace github.com/joeblew999/go-htmx4/seo => ../seo
+
+replace github.com/joeblew999/go-htmx4/badge => ../badge

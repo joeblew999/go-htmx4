@@ -5,7 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/joeblew999/go-htmx4/seo/badge"
+	"github.com/joeblew999/go-htmx4/badge"
 )
 
 // The languages badge (intl.toml's badge) for a README: how many languages the app ships and whether every one is

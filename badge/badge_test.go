@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/joeblew999/go-htmx4/seo/badge"
+	"github.com/joeblew999/go-htmx4/badge"
 )
 
 // TestSVG: a well-formed SVG that names itself for screen readers, wider for a longer label, escaped.

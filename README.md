@@ -104,6 +104,7 @@ Every branch gets its own preview, `main` deploys staging, and a release deploys
 | `locales/` | the messages: one catalog per language (`en.toml` is the source) and `intl.sum` |
 | `intl/`, `intl.toml` | Intl for gsx apps, its own Go module ([intl/README.md](intl/README.md)); this app's languages |
 | `seo/`, `seo.toml` | search engines for Go apps, its own Go module ([seo/README.md](seo/README.md)): the middleware, the audit, Lighthouse, Search Console; this app's settings |
+| `badge/` | the README badges intl and seo draw (SVG, no service), a tiny module of its own so neither depends on the other |
 | `internal/` | httpx (rendering, origin), live (publishing to the Room), ratelimit, classmerge (gsx's class merger, cached) |
 | `worker/` | the deployed JavaScript: the Worker's entry and the board's Durable Object; `worker/local/` runs them under workerd |
 | `migrations/` | D1's schema |
