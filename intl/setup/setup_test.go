@@ -178,6 +178,16 @@ func TestTaskIncludes(t *testing.T) {
 		t.Errorf("includes = %q, want %q", m.TaskConfig.Includes, want)
 	}
 
+	// intl's tasks already listed from another file (this repo lists intl/mise/tasks.toml): no second copy.
+	listed := app(t, map[string]string{"mise.toml": "[task_config]\nincludes = [\"intl/mise/tasks.toml\"]\n",
+		"intl/mise/tasks.toml": "[\"intl:check\"]\nrun = \"go tool intl check\"\n"})
+	if err := setup.TaskIncludes(listed, ".mise/tasks/intl.toml", io.Discard); err != nil {
+		t.Fatal(err)
+	}
+	if s := read(t, listed, "mise.toml"); strings.Contains(s, ".mise/tasks") {
+		t.Errorf("intl's tasks listed twice:\n%s", s)
+	}
+
 	plain := app(t, map[string]string{"mise.toml": "[tools]\ngo = \"1.27\"\n"})
 	if err := setup.TaskIncludes(plain, ".mise/tasks/intl.toml", io.Discard); err != nil {
 		t.Fatal(err)

@@ -160,6 +160,11 @@ func TaskIncludes(root, rel string, log io.Writer) error {
 	if _, err := toml.Decode(string(b), &m); err != nil || m.TaskConfig.Includes == nil || slices.Contains(m.TaskConfig.Includes, rel) {
 		return err
 	}
+	for _, inc := range m.TaskConfig.Includes { // intl's tasks listed from elsewhere already (this repo lists intl/mise's)
+		if b, err := os.ReadFile(filepath.Join(root, inc)); err == nil && strings.Contains(string(b), `["intl:check"]`) {
+			return nil
+		}
+	}
 	s := string(b)
 	h := header(s, "task_config")
 	var at []int
