@@ -25,6 +25,17 @@ func site(t *testing.T, breakWith string) (base string, urls []string, client *h
 				body = "User-agent: *\nDisallow: /\n\nSitemap: " + b + "/sitemap.xml\n"
 			}
 			fmt.Fprint(w, body)
+		case "/llms.txt":
+			switch breakWith {
+			case "llms":
+				fmt.Fprint(w, "# Example\n\n> A site.\n\n## Pages\n\n- [Home]("+b+"/)\n- [Elsewhere](https://example.org/x)\n")
+			case "llms-broken-link":
+				fmt.Fprint(w, "# Example\n\n> A site.\n\n## Pages\n\n- [Gone]("+b+"/gone)\n")
+			case "llms-no-title":
+				fmt.Fprint(w, "Example\n\n> A site.\n")
+			default:
+				http.NotFound(w, r)
+			}
 		case "/", "/de/":
 			if breakWith == "redirect" && r.URL.Path == "/de/" {
 				http.Redirect(w, r, "/", http.StatusMovedPermanently)
@@ -84,20 +95,23 @@ func site(t *testing.T, breakWith string) (base string, urls []string, client *h
 
 func TestAudit(t *testing.T) {
 	cases := map[string]string{
-		"":                "",
-		"robots-disallow": `"Disallow: /" blocks the whole site`,
-		"redirect":        "HTTP 301 (sitemap URLs must answer 200, not redirect)",
-		"canonical":       "is not the page's own URL",
-		"two-h1":          "2 <h1> elements",
-		"one-way":         "does not link back",
-		"noindex-header":  "X-Robots-Tag: noindex",
-		"other-scheme":    "is not an absolute URL on https://",
-		"invisible":       "has invisible characters",
-		"no-icon":         `no <link rel="icon">`,
-		"no-og":           "no og:title or og:description",
-		"no-website":      "no WebSite structured data",
-		"soft-404":        "for a page that doesn't exist (want 404",
-		"plain-http":      "",
+		"":                 "",
+		"robots-disallow":  `"Disallow: /" blocks the whole site`,
+		"redirect":         "HTTP 301 (sitemap URLs must answer 200, not redirect)",
+		"canonical":        "is not the page's own URL",
+		"two-h1":           "2 <h1> elements",
+		"one-way":          "does not link back",
+		"noindex-header":   "X-Robots-Tag: noindex",
+		"other-scheme":     "is not an absolute URL on https://",
+		"invisible":        "has invisible characters",
+		"no-icon":          `no <link rel="icon">`,
+		"no-og":            "no og:title or og:description",
+		"no-website":       "no WebSite structured data",
+		"soft-404":         "for a page that doesn't exist (want 404",
+		"plain-http":       "",
+		"llms":             "",
+		"llms-broken-link": "/gone: HTTP 404",
+		"llms-no-title":    `llms.txt: doesn't start with a "# " title`,
 	}
 	for breakWith, want := range cases {
 		t.Run(cmp.Or(breakWith, "clean"), func(t *testing.T) {
