@@ -12,6 +12,7 @@ languages = "Языки"
 toggle_theme = "Сменить тему"
 preferences = "Часовой пояс и формат времени"
 also_in = "Эта страница доступна и на языке: {language}."
+no_thanks = "Нет, спасибо"
 
 [home]
 heading = "Go + htmx 4 + gsxui на Cloudflare Workers"

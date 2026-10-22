@@ -81,8 +81,9 @@ a release; committed), and what `gsxui` manages (`gsxui.json` lists it).
   `[notes]`: change them there, not per message.
 - Text arguments are bidi-isolated by the renderer (another message given as an argument isn't: it is in the page's
   language); user text in its own element gets `dir="auto"`. A message written in another language is `.In(id)`.
-- The server renders in the reader's zone and offers their language: `intl.Site` (the `browser_tz` cookie, Cloudflare's
-  guess; `Accept-Language` for `intl.Suggested`). Never redirect on `Accept-Language`.
+- The server renders in the reader's zone and offers their language until they choose one: `intl.Site` (the `browser_tz`
+  cookie, Cloudflare's guess; `Accept-Language` or their choice for `intl.Suggested`, `intl.Decline` to turn it down).
+  Never redirect on `Accept-Language`.
 - gsxui components' own text (`i18n.T`) is the catalogs' `[gsxui]` table: after `gsxui add`, `mise run intl` names
   every string that needs a message.
 - `mise run intl:check` also runs gsx's own checks on the app's markup: `gsx generate`, `gsx fmt` and the `gsx` skill's

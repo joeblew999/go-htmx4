@@ -15,8 +15,12 @@ import (
 //
 // There are no redirects from Accept-Language (Google: separate URLs per language and no automatic redirects;
 // Googlebot sends none). A page view remembers its locale in a cookie, and only the bare "/" follows it, so a
-// returning reader lands on their language's home page. A locale whose catalog is incomplete is served noindex. The
-// viewer's time zone and clock come from the cookies Preferences sets, else the connection's zone.
+// returning reader lands on their language's home page. Until the reader chooses a language, every page offers the
+// one their browser asks for (Suggested); following a link from a page of the site in one language to one in another
+// is choosing it, and so is "?locale=<id>" on any page (Decline, the language list's link to the source locale's
+// home page), which redirects to the clean URL. A locale whose catalog is incomplete is served noindex. The viewer's
+// time zone and clock come from the cookies Preferences sets, else the connection's zone. Every response is
+// Cache-Control: private (unless the app's handler says otherwise): it is this reader's.
 type Site struct {
 	// IsPage reports whether path (without its locale prefix) is a page people read; only a page view remembers
 	// its locale. nil: every path.
@@ -30,10 +34,11 @@ type Site struct {
 
 // The cookies Site reads and Preferences sets.
 const (
-	LocaleCookie          = "locale"     // the locale of the last page viewed
-	TimeZoneCookie        = "tz"         // the viewer's chosen IANA time zone
-	HourCycleCookie       = "hc"         // the viewer's chosen clock: "h12" or "h23"
-	BrowserTimeZoneCookie = "browser_tz" // the browser's own zone, which intl-browser.mjs reports from the first page
+	LocaleCookie          = "locale"        // the locale of the last page viewed
+	ChosenLocaleCookie    = "chosen_locale" // the locale the reader chose: from the language list, the offer, Decline
+	TimeZoneCookie        = "tz"            // the viewer's chosen IANA time zone
+	HourCycleCookie       = "hc"            // the viewer's chosen clock: "h12" or "h23"
+	BrowserTimeZoneCookie = "browser_tz"    // the browser's own zone, which intl-browser.mjs reports from the first page
 )
 
 // Handler resolves the request's locale from its URL prefix, strips the prefix, and puts Request in the context.
@@ -64,15 +69,31 @@ func (s Site) Handler(next http.Handler) http.Handler {
 				loc, path = found, rest
 			}
 		}
-		page := r.Method == http.MethodGet && r.Header.Get("HX-Request") == "" && (s.IsPage == nil || s.IsPage(path))
-		if path == "/" && loc == def && page {
-			// An explicit choice of the source locale from a language list ("/?locale=en"): remember it and redirect
-			// to the clean URL, so the parameter URL is never indexed as a duplicate.
-			if chosen := byPrefix(r.URL.Query().Get(LocaleCookie)); chosen != nil {
-				remember(w, r, chosen)
-				http.Redirect(w, r, Prefix(chosen)+"/", http.StatusFound)
+		// A page view: a GET of a page, loaded by the browser or by an htmx-boosted link (which swaps in the whole
+		// page, the offer included); not htmx's request for a part of one.
+		htmx := r.Header.Get("HX-Request") != "" && r.Header.Get("HX-Boosted") == ""
+		page := r.Method == http.MethodGet && !htmx && (s.IsPage == nil || s.IsPage(path))
+		chosen := cookieLocale(r, ChosenLocaleCookie)
+		if page {
+			// An explicit choice, "?locale=de" on any page (the language list's link to the source locale's home
+			// page, "/?locale=en", or Decline): kept, and a redirect to the page in it at its clean URL, so the
+			// parameter URL is never indexed as a duplicate.
+			if picked := byPrefix(r.URL.Query().Get(LocaleCookie)); picked != nil {
+				keep(w, r, ChosenLocaleCookie, picked)
+				keep(w, r, LocaleCookie, picked)
+				q := r.URL.Query()
+				q.Del(LocaleCookie)
+				http.Redirect(w, r, withQuery(Prefix(picked)+path, q.Encode()), http.StatusFound)
 				return
 			}
+			// Following a link from a page of this site in another language (the language list, the offer) is
+			// choosing this one.
+			if from := s.referrer(r); from != nil && from != loc && chosen != loc {
+				keep(w, r, ChosenLocaleCookie, loc)
+				chosen = loc
+			}
+		}
+		if path == "/" && loc == def && page {
 			if c, err := r.Cookie(LocaleCookie); err == nil {
 				if remembered := byPrefix(c.Value); remembered != nil && remembered != def {
 					w.Header().Add("Vary", "Cookie")
@@ -88,20 +109,26 @@ func (s Site) Handler(next http.Handler) http.Handler {
 		if c, err := r.Cookie(LocaleCookie); err == nil {
 			d.LastViewed = c.Value
 		}
-		var preferredLoc *Locale
+		if chosen != nil {
+			d.ChosenLanguage = chosen.ID()
+		}
+		// The language the reader wants, which Suggested offers on a page in another: the one they chose, else the
+		// one their browser asks for first.
+		var wanted *Locale
 		if page {
-			if _, err := r.Cookie(LocaleCookie); err != nil { // a first page view: no language picked yet
+			wanted = chosen
+			if wanted == nil {
 				w.Header().Add("Vary", "Accept-Language")
-				preferredLoc = preferred(r.Header.Get("Accept-Language"))
+				wanted = preferred(r.Header.Get("Accept-Language"))
 			}
-			remember(w, r, loc)
+			keep(w, r, LocaleCookie, loc)
 		}
 		w.Header().Set("Content-Language", loc.ID())
 		if !Complete(loc.ID()) {
 			// Part of the page would be in the source language: not indexed as this language, nor as a duplicate.
 			w.Header().Set("X-Robots-Tag", "noindex")
 		}
-		req := Request{Locale: loc, Path: withQuery(path, r.URL.RawQuery), Origin: s.origin(r), TimeZone: "UTC", Preferred: preferredLoc}
+		req := Request{Locale: loc, Path: withQuery(path, r.URL.RawQuery), Origin: s.origin(r), TimeZone: "UTC", Preferred: wanted}
 		if c, err := r.Cookie(HourCycleCookie); err == nil && (c.Value == "h12" || c.Value == "h23") {
 			req.HourCycle = c.Value
 		}
@@ -127,6 +154,11 @@ func (s Site) Handler(next http.Handler) http.Handler {
 			req.TimeZone, d.ZoneFrom = "UTC", "default"
 		}
 		req.Decision = d
+		// What follows is written for this reader (their cookies, their browser's languages, where they connect
+		// from): no shared cache may give it to another.
+		if w.Header().Get("Cache-Control") == "" {
+			w.Header().Set("Cache-Control", "private")
+		}
 		r2 := r.Clone(WithRequest(r.Context(), req))
 		r2.URL.Path, r2.URL.RawPath = path, ""
 		next.ServeHTTP(w, r2)
@@ -218,12 +250,35 @@ func byPrefix(seg string) *Locale {
 	return shipped.Find(seg)
 }
 
-func remember(w http.ResponseWriter, r *http.Request, l *Locale) {
-	if c, err := r.Cookie(LocaleCookie); err == nil && c.Value == l.ID() {
+// cookieLocale is the shipped locale the cookie name names, or nil.
+func cookieLocale(r *http.Request, name string) *Locale {
+	if c, err := r.Cookie(name); err == nil {
+		return byPrefix(c.Value)
+	}
+	return nil
+}
+
+// keep stores l in the cookie name (LocaleCookie or ChosenLocaleCookie), unless it holds l already.
+func keep(w http.ResponseWriter, r *http.Request, name string, l *Locale) {
+	if c, err := r.Cookie(name); err == nil && c.Value == l.ID() {
 		return
 	}
-	http.SetCookie(w, &http.Cookie{Name: LocaleCookie, Value: l.ID(), Path: "/", MaxAge: 365 * 24 * 3600,
+	http.SetCookie(w, &http.Cookie{Name: name, Value: l.ID(), Path: "/", MaxAge: 365 * 24 * 3600,
 		SameSite: http.SameSiteLaxMode, Secure: secure(r)})
+}
+
+// referrer is the locale of the page of this site whose link r followed (its Referer), nil when it came from
+// elsewhere or the browser didn't say.
+func (s Site) referrer(r *http.Request) *Locale {
+	u, err := url.Parse(r.Referer())
+	if err != nil || u.Host == "" || u.Scheme+"://"+u.Host != s.origin(r) {
+		return nil
+	}
+	seg, _, _ := strings.Cut(strings.TrimPrefix(u.Path, "/"), "/")
+	if l := byPrefix(seg); l != nil {
+		return l
+	}
+	return Default()
 }
 
 func secure(r *http.Request) bool {

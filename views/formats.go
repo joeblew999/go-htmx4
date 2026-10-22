@@ -205,6 +205,17 @@ func TryText(ctx context.Context) string { return intl.Text(ctx, locales.HomeHea
 // Empty off Cloudflare.
 type Connection struct{ Country, City, Colo, Timezone string }
 
+// chosenLanguage is the language the reader chose, named in itself; ok is false when they haven't chosen.
+func chosenLanguage(ctx context.Context) (intl.Link, bool) {
+	id := intl.DecisionOf(ctx).ChosenLanguage
+	for _, l := range intl.Links(ctx) {
+		if id != "" && l.Lang == id {
+			return l, true
+		}
+	}
+	return intl.Link{}, false
+}
+
 // languageFrom says where the page's language came from.
 func languageFrom(d intl.Decision) intl.Msg {
 	if d.LanguageFrom == "url" {

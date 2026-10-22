@@ -9,13 +9,13 @@ import (
 	"sync"
 )
 
-// The reader's language, from their browser (Accept-Language): on a first page view in another language, Site puts
-// it in the request, and the app offers that version (Suggested). Never a redirect: Googlebot sends no
-// Accept-Language, and a redirect would hide the other language versions from it.
+// The reader's language: the one they chose, else the one their browser asks for (Accept-Language). On a page in
+// another, Site puts it in the request, and the app offers that version (Suggested) until they choose. Never a
+// redirect: Googlebot sends no Accept-Language, and a redirect would hide the other language versions from it.
 
-// Suggested is the request's page in the language the reader's browser asks for first, when the site ships it, the
-// page is in another one, and this is their first page view (they haven't picked a language). The app links to it,
-// written in that language (Msg.In). ok is false otherwise.
+// Suggested is the request's page in the language the reader wants, when the site ships it and the page is in
+// another: the one they chose, else the one their browser asks for first. The app links to it, written in that
+// language (Msg.In), with Decline beside it. ok is false otherwise.
 func Suggested(ctx context.Context) (Link, bool) {
 	r, ok := FromContext(ctx)
 	if !ok || r.Preferred == nil || r.Preferred == r.Locale {
@@ -27,6 +27,20 @@ func Suggested(ctx context.Context) (Link, bool) {
 		}
 	}
 	return Link{}, false
+}
+
+// Decline is the link that turns Suggested's offer down: this page, its language kept as the reader's choice (Site
+// redirects it to the page's clean URL), so the offer stops.
+func Decline(ctx context.Context) string {
+	path := "/"
+	if r, ok := FromContext(ctx); ok && r.Path != "" {
+		path = r.Path
+	}
+	sep := "?"
+	if strings.Contains(path, "?") {
+		sep = "&"
+	}
+	return Prefix(Current(ctx)) + path + sep + LocaleCookie + "=" + Current(ctx).ID()
 }
 
 // preferred is the shipped locale Accept-Language asks for first, matched the way Intl matches: by language and

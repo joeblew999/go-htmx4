@@ -115,11 +115,13 @@ Translating with Claude also needs [Claude Code](https://code.claude.com) (`clau
 
    The server renders in the reader's zone, so text doesn't change after it arrives: the zone they chose; else the one
    their browser reported on its first page (`intl-browser.mjs` sets the `browser_tz` cookie); else Cloudflare's guess
-   from their IP; else UTC. On a reader's first page view, `intl.Suggested(ctx)` is the page in the language their
-   browser asks for (`Accept-Language`, matched by Intl's likely subtags: `zh-TW` is zh-Hant), when the site has it and
-   the page is in another. The layout offers it as a link, written in that language:
-   `{ locales.NavAlsoIn(s.Name).In(s.Lang) }`. Never a redirect: Googlebot sends no `Accept-Language`, and a redirect
-   would hide the other language versions from it.
+   from their IP; else UTC. `intl.Suggested(ctx)` is the page in the language the reader wants, when the site has it
+   and the page is in another: the one they chose, else the one their browser asks for (`Accept-Language`, matched by
+   Intl's likely subtags: `zh-TW` is zh-Hant). The layout offers it as a link, written in that language,
+   `{ locales.NavAlsoIn(s.Name).In(s.Lang) }`, on every page until they choose: following a link from a page in one
+   language to one in another (the language list, the offer) is choosing, and so is `intl.Decline(ctx)`, the "No
+   thanks" beside the offer. Never a redirect: Googlebot sends no `Accept-Language`, and a redirect would hide the
+   other language versions from it. Every response is `Cache-Control: private`: it is written for one reader.
 
 3. In the layout:
 

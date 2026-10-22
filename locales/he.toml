@@ -12,6 +12,7 @@ languages = "שפות"
 toggle_theme = "החלפת ערכת נושא"
 preferences = "אזור זמן ושעון"
 also_in = "הדף הזה זמין גם ב{language}."
+no_thanks = "לא תודה"
 
 [home]
 heading = "Go + htmx 4 + gsxui על Cloudflare Workers"

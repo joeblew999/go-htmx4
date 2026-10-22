@@ -38,17 +38,22 @@ func do(h http.Handler, path string, cookies ...*http.Cookie) *httptest.Response
 func TestSite(t *testing.T) {
 	h := site(t)
 	for path, want := range map[string]string{
-		"/about":         "200 en /about Asia/Tokyo guessed  http://example.com",
-		"/de/about?x=1":  "200 de /about?x=1 Asia/Tokyo guessed  http://example.com",
-		"/pt-br/":        "200 pt-BR / Asia/Tokyo guessed  http://example.com",
-		"/en/about":      "301 /about",
-		"/DE/about?x=1":  "301 /de/about?x=1",
-		"/pt-BR/":        "301 /pt-br/",
-		"/de":            "301 /de/",
-		"/?locale=de":    "302 /de/",
-		"/xx/about":      "200 en /xx/about Asia/Tokyo guessed  http://example.com",
-		"/de/api/thing":  "200 de /api/thing Asia/Tokyo guessed  http://example.com",
-		"/zh-hant/about": "200 en /zh-hant/about Asia/Tokyo guessed  http://example.com",
+		"/about":        "200 en /about Asia/Tokyo guessed  http://example.com",
+		"/de/about?x=1": "200 de /about?x=1 Asia/Tokyo guessed  http://example.com",
+		"/pt-br/":       "200 pt-BR / Asia/Tokyo guessed  http://example.com",
+		"/en/about":     "301 /about",
+		"/DE/about?x=1": "301 /de/about?x=1",
+		"/pt-BR/":       "301 /pt-br/",
+		"/de":           "301 /de/",
+		"/?locale=de":   "302 /de/",
+		// A choice on any page: kept (TestChoice), and the page in it at its clean URL.
+		"/about?locale=de&x=1": "302 /de/about?x=1",
+		"/de/about?locale=en":  "302 /about",
+		"/about?locale=xx":     "200 en /about?locale=xx Asia/Tokyo guessed  http://example.com",
+		"/de/api/x?locale=en":  "200 de /api/x?locale=en Asia/Tokyo guessed  http://example.com",
+		"/xx/about":            "200 en /xx/about Asia/Tokyo guessed  http://example.com",
+		"/de/api/thing":        "200 de /api/thing Asia/Tokyo guessed  http://example.com",
+		"/zh-hant/about":       "200 en /zh-hant/about Asia/Tokyo guessed  http://example.com",
 		// Never a redirect to another host (browsers read // and /\ as one).
 		"/en//evil.example/x": "301 /evil.example/x",
 		"/en/%5Cevil.example": "301 /evil.example",
@@ -81,8 +86,9 @@ func TestSite(t *testing.T) {
 		t.Errorf("/about with a German cookie: %d", w.Code)
 	}
 
-	// Headers: the language, and noindex for an incomplete catalog.
-	if w := do(h, "/pt-br/"); w.Header().Get("Content-Language") != "pt-BR" || w.Header().Get("X-Robots-Tag") != "noindex" {
+	// Headers: the language, noindex for an incomplete catalog, and never a shared cache's.
+	if w := do(h, "/pt-br/"); w.Header().Get("Content-Language") != "pt-BR" || w.Header().Get("X-Robots-Tag") != "noindex" ||
+		w.Header().Get("Cache-Control") != "private" {
 		t.Errorf("pt-BR headers: %v", w.Header())
 	}
 	if w := do(h, "/de/"); w.Header().Get("X-Robots-Tag") != "" {
@@ -199,19 +205,11 @@ func TestZoneOrder(t *testing.T) {
 	}
 }
 
-// TestSuggested: on a first page view, the page in the language the reader's browser asks for, matched by Intl's
-// likely subtags; never on a page already in it, after a language was picked, or for what isn't a page; never a
-// redirect.
+// TestSuggested: the page in the language the reader wants: the one they chose, else the one their browser asks for
+// first, matched by Intl's likely subtags; never on a page already in it, or for what isn't a page; never a redirect.
 func TestSuggested(t *testing.T) {
-	intl.Use(intl.Locales{intl.NewLocale("en"), intl.NewLocale("de"), intl.NewLocale("pt-BR"), intl.NewLocale("pt-PT"),
-		intl.NewLocale("zh-Hans"), intl.NewLocale("zh-Hant")}, []bool{true, true, true, true, true, true})
-	h := intl.Site{IsPage: func(path string) bool { return !strings.HasPrefix(path, "/api/") }}.Handler(
-		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			if l, ok := intl.Suggested(r.Context()); ok {
-				w.Write([]byte(l.Lang + " " + l.Href))
-			}
-		}))
-	for _, tc := range []struct{ path, accept, cookie, want string }{
+	h := suggesting()
+	for _, tc := range []struct{ path, accept, chosen, want string }{
 		{"/about", "de-AT,de;q=0.9,en;q=0.5", "", "de /de/about"},
 		{"/about", "zh-TW", "", "zh-Hant /zh-hant/about"},
 		{"/about", "zh", "", "zh-Hans /zh-hans/about"},
@@ -222,23 +220,106 @@ func TestSuggested(t *testing.T) {
 		{"/de/about", "de-CH", "", ""},
 		{"/about", "en-US,en;q=0.9", "", ""},
 		{"/about", "de", "en", ""},
+		{"/about", "en-US", "de", "de /de/about"},
+		{"/de/about", "en", "de", ""},
 		{"/api/x", "de", "", ""},
 		{"/about", "fr, *;q=0.5, <x>", "", ""},
 	} {
 		r := httptest.NewRequest("GET", tc.path, nil)
 		r.Header.Set("Accept-Language", tc.accept)
-		if tc.cookie != "" {
-			r.AddCookie(&http.Cookie{Name: intl.LocaleCookie, Value: tc.cookie})
+		if tc.chosen != "" {
+			r.AddCookie(&http.Cookie{Name: intl.ChosenLocaleCookie, Value: tc.chosen})
 		}
 		w := httptest.NewRecorder()
 		h.ServeHTTP(w, r)
 		if got := w.Body.String(); got != tc.want || w.Code != 200 {
-			t.Errorf("%s with Accept-Language %q, locale cookie %q: %d %q, want %q", tc.path, tc.accept, tc.cookie, w.Code, got, tc.want)
+			t.Errorf("%s with Accept-Language %q, chosen %q: %d %q, want %q", tc.path, tc.accept, tc.chosen, w.Code, got, tc.want)
 		}
-		if tc.cookie == "" && !strings.HasPrefix(tc.path, "/api/") && !strings.Contains(w.Header().Get("Vary"), "Accept-Language") {
+		if tc.chosen == "" && !strings.HasPrefix(tc.path, "/api/") && !strings.Contains(w.Header().Get("Vary"), "Accept-Language") {
 			t.Errorf("%s: no Vary: Accept-Language", tc.path)
 		}
 	}
+}
+
+// TestChoice: the offer stays until the reader chooses a language: by following a link from a page of the site in
+// another language, or by "?locale=" (Decline). Viewing a page isn't choosing its language.
+func TestChoice(t *testing.T) {
+	h := suggesting()
+	get := func(path, referer string, cookies ...*http.Cookie) *httptest.ResponseRecorder {
+		r := httptest.NewRequest("GET", path, nil)
+		r.Header.Set("Accept-Language", "de")
+		if referer != "" {
+			r.Header.Set("Referer", referer)
+		}
+		for _, c := range cookies {
+			r.AddCookie(c)
+		}
+		w := httptest.NewRecorder()
+		h.ServeHTTP(w, r)
+		return w
+	}
+	chosen := func(w *httptest.ResponseRecorder) string {
+		for _, c := range w.Result().Cookies() {
+			if c.Name == intl.ChosenLocaleCookie {
+				return c.Value
+			}
+		}
+		return ""
+	}
+	viewed := &http.Cookie{Name: intl.LocaleCookie, Value: "en"}
+	for _, tc := range []struct{ name, path, referer, offer, chosen string }{
+		{"a second English page", "/about", "http://example.com/", "de /de/about", ""},
+		{"from another site", "/about", "https://elsewhere.example/de/", "de /de/about", ""},
+		{"from the German page", "/about", "http://example.com/de/x", "", "en"},
+		{"to the German page", "/de/about", "http://example.com/about", "", "de"},
+	} {
+		w := get(tc.path, tc.referer, viewed)
+		if w.Body.String() != tc.offer || chosen(w) != tc.chosen {
+			t.Errorf("%s: offer %q, chosen %q; want %q, %q", tc.name, w.Body.String(), chosen(w), tc.offer, tc.chosen)
+		}
+	}
+	// A boosted link's request is a page view (htmx swaps in the whole page, the offer included); htmx's request for a
+	// part of a page isn't.
+	for _, boosted := range []bool{true, false} {
+		r := httptest.NewRequest("GET", "/about", nil)
+		r.Header.Set("Accept-Language", "de")
+		r.Header.Set("HX-Request", "true")
+		if boosted {
+			r.Header.Set("HX-Boosted", "true")
+		}
+		w := httptest.NewRecorder()
+		h.ServeHTTP(w, r)
+		if got, want := w.Body.String(), map[bool]string{true: "de /de/about", false: ""}[boosted]; got != want {
+			t.Errorf("htmx request, boosted %v: offer %q, want %q", boosted, got, want)
+		}
+	}
+	// Decline: "?locale=" keeps this page's language and redirects to its clean URL; the offer stops.
+	w := get("/about?x=1&locale=en", "", viewed)
+	if w.Code != http.StatusFound || w.Header().Get("Location") != "/about?x=1" || chosen(w) != "en" {
+		t.Errorf("decline: %d %q, chosen %q", w.Code, w.Header().Get("Location"), chosen(w))
+	}
+	if w := get("/about", "", viewed, &http.Cookie{Name: intl.ChosenLocaleCookie, Value: "en"}); w.Body.String() != "" {
+		t.Errorf("after declining: offer %q", w.Body.String())
+	}
+	var decline string
+	intl.Site{}.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		decline = intl.Decline(r.Context())
+	})).ServeHTTP(httptest.NewRecorder(), httptest.NewRequest("GET", "/de/about?x=1", nil))
+	if decline != "/de/about?x=1&locale=de" {
+		t.Errorf("Decline on /de/about?x=1: %q", decline)
+	}
+}
+
+// suggesting serves what intl.Suggested offers, as "<lang> <href>".
+func suggesting() http.Handler {
+	intl.Use(intl.Locales{intl.NewLocale("en"), intl.NewLocale("de"), intl.NewLocale("pt-BR"), intl.NewLocale("pt-PT"),
+		intl.NewLocale("zh-Hans"), intl.NewLocale("zh-Hant")}, []bool{true, true, true, true, true, true})
+	return intl.Site{IsPage: func(path string) bool { return !strings.HasPrefix(path, "/api/") }}.Handler(
+		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if l, ok := intl.Suggested(r.Context()); ok {
+				w.Write([]byte(l.Lang + " " + l.Href))
+			}
+		}))
 }
 
 // TestDecision: what Site decided from, and what won, for a page that shows it.
@@ -251,9 +332,10 @@ func TestDecision(t *testing.T) {
 	r.Header.Set("Accept-Language", "de-AT")
 	r.Header.Set("X-Zone", "Asia/Tokyo")
 	r.AddCookie(&http.Cookie{Name: intl.LocaleCookie, Value: "de"})
+	r.AddCookie(&http.Cookie{Name: intl.ChosenLocaleCookie, Value: "de"})
 	r.AddCookie(&http.Cookie{Name: intl.BrowserTimeZoneCookie, Value: "Asia/Bangkok"})
 	h.ServeHTTP(httptest.NewRecorder(), r)
-	want := intl.Decision{LanguageFrom: "url", AcceptLanguage: "de-AT", LastViewed: "de", ZoneFrom: "browser",
+	want := intl.Decision{LanguageFrom: "url", AcceptLanguage: "de-AT", LastViewed: "de", ChosenLanguage: "de", ZoneFrom: "browser",
 		BrowserZone: "Asia/Bangkok", ConnectionZone: "Asia/Tokyo"}
 	if got != want {
 		t.Errorf("/de/about: %+v, want %+v", got, want)

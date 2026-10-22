@@ -12,6 +12,7 @@ languages = "語言"
 toggle_theme = "切換主題"
 preferences = "時區與時鐘"
 also_in = "本頁面也提供{language}版本。"
+no_thanks = "不用了，謝謝"
 
 [home]
 heading = "在 Cloudflare Workers 上執行 Go + htmx 4 + gsxui"

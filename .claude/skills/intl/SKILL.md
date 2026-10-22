@@ -28,7 +28,7 @@ checkout = "Go to checkout"
 | `title={ v \|> plain }` | a formatted value in an attribute |
 | `locales.Placed(intl.Date(t, intl.Options("dateStyle", "long")))` | a formatted value inside a message's arguments (gsx allows no pipeline there) |
 | `href={ "/about" \|> localize }` | an in-app link, in the reader's language |
-| `{ locales.NavAlsoIn(s.Name).In(s.Lang) }` | a message written in another shipped language than the page's (the offer `intl.Suggested` makes); the element around it gets `lang` |
+| `{ locales.NavAlsoIn(s.Name).In(s.Lang) }` | a message written in another shipped language than the page's (the offer `intl.Suggested` makes, with `intl.Decline` beside it); the element around it gets `lang` |
 
 Options are Intl's own names and values, in pairs. Never format for a reader in Go (`time.Format`, `strconv`): the
 runtime's Intl does it. A new or changed message is translated in the same change: the steps below.

@@ -6,6 +6,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/chromedp/cdproto/emulation"
+	"github.com/chromedp/cdproto/network"
 	"github.com/chromedp/chromedp"
 )
 
@@ -157,4 +159,41 @@ func testMixedLocalePush(t *testing.T) {
 	check(t, "Arabic relative time", ar.waitJS(5*time.Second, rel+` === "قبل 5 دقائق"`), " ", ar.str(rel))
 	de.noProblems()
 	ar.noProblems()
+}
+
+// testLanguageOffer: a browser that asks for German, set to Tokyo time, reads the English site. Every English page
+// offers the German one, written in German, boosted links included, until it chooses: "Nein danke" keeps English, and
+// so does following the language list from the German page to an English one. On its first page, before the server
+// knows its zone, the zone badge already shows its own.
+func testLanguageOffer(t *testing.T) {
+	b := newTab(t, "german")
+	b.run(network.SetExtraHTTPHeaders(network.Headers{"Accept-Language": "de-DE,de;q=0.9"}), emulation.SetTimezoneOverride("Asia/Tokyo"))
+	offer := `document.querySelector('main [role=alert] a[hreflang="de"]') !== null`
+	ready := `document.readyState === "complete" && typeof htmx === "object"`
+
+	b.open("/formats")
+	check(t, "the first page offers German, in German", b.is(offer+` && document.querySelector("main [role=alert]").textContent.includes("Nein danke")`))
+	check(t, "the zone badge shows the browser's zone", b.waitJS(5*time.Second, `document.body.textContent.includes("time zone \u2068Asia/Tokyo\u2069")`))
+	b.waitJS(5*time.Second, ready)
+	b.eval(`document.querySelector('header a[href="/about"]').click()`, nil)
+	// The swapped-in page's own offer: its "Nein danke" is for /about (the URL changes before the swap ends).
+	check(t, "a boosted link's page offers it too", b.waitJS(8*time.Second,
+		`document.querySelector("main [role=alert] a[rel=nofollow]")?.getAttribute("href") === "/about?locale=en"`))
+
+	b.eval(`document.querySelector("main [role=alert] a[rel=nofollow]").click()`, nil)
+	check(t, "Nein danke keeps English and ends the offer", b.waitJS(8*time.Second,
+		`location.pathname === "/about" && location.search === "" && document.cookie.includes("chosen_locale=en") && !(`+offer+`)`),
+		" ", b.str(`location.href + " | " + document.cookie + " | offer: " + (`+offer+`)`))
+	b.open("/formats")
+	check(t, "no offer after Nein danke", !b.is(offer))
+
+	b.run(network.ClearBrowserCookies())
+	b.open("/about")
+	b.eval(`document.querySelector("main [role=alert] a[hreflang=de]").click()`, nil)
+	check(t, "the offer leads to the German page", b.waitJS(8*time.Second, `location.pathname === "/de/about" && document.querySelector("main [role=alert]") === null`))
+	b.waitJS(5*time.Second, ready)
+	b.eval(`document.querySelector('#languages a[hreflang="en"]').click()`, nil)
+	check(t, "English from the German page's language list is a choice", b.waitJS(8*time.Second,
+		`location.pathname === "/about" && document.cookie.includes("chosen_locale=en") && !(`+offer+`)`), " ", b.str(`document.cookie`))
+	b.noProblems()
 }
