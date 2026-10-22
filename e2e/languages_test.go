@@ -176,11 +176,14 @@ func testLanguageOffer(t *testing.T) {
 	check(t, "the zone badge shows the browser's zone", b.waitJS(5*time.Second, `document.body.textContent.includes("time zone \u2068Asia/Tokyo\u2069")`))
 	b.waitJS(5*time.Second, ready)
 	b.eval(`document.querySelector('header a[href="/about"]').click()`, nil)
-	check(t, "a boosted link's page offers it too", b.waitJS(8*time.Second, `location.pathname === "/about" && `+offer))
+	// The swapped-in page's own offer: its "Nein danke" is for /about (the URL changes before the swap ends).
+	check(t, "a boosted link's page offers it too", b.waitJS(8*time.Second,
+		`document.querySelector("main [role=alert] a[rel=nofollow]")?.getAttribute("href") === "/about?locale=en"`))
 
 	b.eval(`document.querySelector("main [role=alert] a[rel=nofollow]").click()`, nil)
 	check(t, "Nein danke keeps English and ends the offer", b.waitJS(8*time.Second,
-		`location.pathname === "/about" && location.search === "" && document.cookie.includes("chosen_locale=en") && !(`+offer+`)`))
+		`location.pathname === "/about" && location.search === "" && document.cookie.includes("chosen_locale=en") && !(`+offer+`)`),
+		" ", b.str(`location.href + " | " + document.cookie + " | offer: " + (`+offer+`)`))
 	b.open("/formats")
 	check(t, "no offer after Nein danke", !b.is(offer))
 
