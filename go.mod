@@ -9,7 +9,7 @@ require (
 	github.com/jackielii/tailwind-merge-go v0.0.0-20260726184505-8a911ed0cf9a
 	github.com/joeblew999/charter/go/lib v0.9.2-0.20261022011101-f13f5116026d
 	github.com/joeblew999/go-htmx4/intl v0.0.0
-	github.com/joeblew999/go-htmx4/seo v0.0.0
+	github.com/joeblew999/go-htmx4/seo v0.3.0
 	github.com/syumai/workers-go v0.36.0
 	golang.org/x/net v0.61.0
 )

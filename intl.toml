@@ -7,6 +7,8 @@ catalogs = "locales"
 # Where gsxui add vendors components: go tool intl gen writes the renderer for the text they write themselves
 # (i18n.T, "Close") to ui/i18n/intl_gen.go from the catalogs' [gsxui] messages, and names any it has no message for.
 gsxui = "ui"
+# The README's languages badge: go tool intl gen writes it from the catalogs, so it can't go stale.
+badge = "docs/badges/intl.svg"
 
 # A regional locale takes what it doesn't translate from another (same script: go tool intl check confirms it).
 [inherit]

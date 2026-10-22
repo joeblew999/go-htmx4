@@ -349,4 +349,43 @@ func TestGsxui(t *testing.T) {
 	if want := `ui/pagination.gsx writes i18n.T("More pages"): add gsxui.more_pages = "More pages" to cat/en.toml`; err == nil || !strings.Contains(err.Error(), want) {
 		t.Errorf("Generate = %v, want …%s", err, want)
 	}
+
+	// A placeholder gsxui's own script fills in is quoted, so ICU writes it as it is.
+	a.write("ui/pagination.gsx", "")
+	a.write("ui/calendar.gsx", "<b data-label={ i18n.T(\"Today, {date}\") }/>\n")
+	err = a.project("en").Generate(nil)
+	if want := `add gsxui.today_date = "Today, '{date}'"`; err == nil || !strings.Contains(err.Error(), want) {
+		t.Errorf("Generate = %v, want …%s", err, want)
+	}
+}
+
+// TestBadge: intl.toml's badge, written by gen from the catalogs: how many languages, and whether all are translated.
+func TestBadge(t *testing.T) {
+	a := newApp(t)
+	a.write("cat/en.toml", "hello = \"Hello\"\n")
+	a.write("cat/de.toml", "hello = \"Hallo\"\n")
+	project := func() *catalog.Project {
+		p, err := catalog.Read(config.Config{Locales: []string{"en", "de", "fr"}, Catalogs: "cat", Root: a.root, Badge: "docs/badges/intl.svg"})
+		if err != nil {
+			t.Fatal(err)
+		}
+		return p
+	}
+	a.write("cat/fr.toml", "")
+	if err := project().Generate(nil); err != nil {
+		t.Fatal(err)
+	}
+	if svg := a.read("docs/badges/intl.svg"); !strings.Contains(svg, "languages: 3, 1 not translated") {
+		t.Errorf("badge with fr missing:\n%s", svg)
+	}
+	a.write("cat/fr.toml", "hello = \"Bonjour\"\n")
+	if project().BadgeCurrent() {
+		t.Error("BadgeCurrent after fr was translated: want false until gen")
+	}
+	if err := project().Generate(nil); err != nil {
+		t.Fatal(err)
+	}
+	if svg := a.read("docs/badges/intl.svg"); !strings.Contains(svg, "languages: 3, all translated") || !project().BadgeCurrent() {
+		t.Errorf("badge with every language translated:\n%s", svg)
+	}
 }

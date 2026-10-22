@@ -111,7 +111,7 @@ go tool gsx generate (after intl: views write the generated messages); intl/'s o
 
 - **Usage:** `intl`
 
-Compile the catalogs (intl.toml): the Go package of messages, intl-messages.mjs, the gsxui translator and intl.sum; a language just added to intl.toml's locales gets its catalog. Run it after editing a catalog; gsx generate needs it first
+Compile the catalogs (intl.toml): the Go package of messages, intl-messages.mjs, the gsxui translator, intl.sum and the languages badge (intl.toml's badge); a language just added to intl.toml's locales gets its catalog. Run it after editing a catalog; gsx generate needs it first
 
 ### `intl:check`
 

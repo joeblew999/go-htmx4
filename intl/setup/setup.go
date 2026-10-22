@@ -57,6 +57,8 @@ func Init(root string, o Options, log io.Writer) error {
 		conf += "# Where gsxui add vendors components: gen translates the text they write themselves from [gsxui].\n" +
 			"gsxui = " + `"` + o.Gsxui + `"` + "\n"
 	}
+	conf += "# Optional: a README badge go tool intl gen keeps current, \"languages | 2, all translated\".\n" +
+		"# badge = \"docs/badges/intl.svg\"\n"
 	conf += "\n# Guidance for whoever translates, people or Claude (go tool intl todo shows it); \"*\" is for every language.\n" +
 		"[notes]\n\"*\" = \"\"\n"
 	if err := write("intl.toml", conf); err != nil {
