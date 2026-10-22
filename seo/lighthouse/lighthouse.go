@@ -17,6 +17,14 @@ import (
 // API has to be enabled in the account's Google Cloud project (seo:setup does).
 const Scope = "openid"
 
+// Auth is how a run identifies itself to PageSpeed Insights. An API key is all it needs: a free one, from the Google
+// Cloud console (APIs & Services → Credentials → API key, restricted to the PageSpeed Insights API). A service
+// account's token (Scope) works too. With neither, Google's small anonymous quota runs out quickly.
+type Auth struct {
+	Key   string // sent as ?key=
+	Token string // sent as Authorization: Bearer
+}
+
 // Report is one Lighthouse run.
 type Report struct {
 	URL        string     `json:"url"`
@@ -54,10 +62,13 @@ type Metric struct {
 // Endpoint is the PageSpeed Insights API.
 var Endpoint = "https://www.googleapis.com/pagespeedonline/v5/runPagespeed"
 
-// Run runs Lighthouse on page (an absolute URL) as strategy ("mobile", Google's index; or "desktop"), with token
-// (Scope). It takes Google 10 to 60 seconds.
-func Run(ctx context.Context, httpc *http.Client, token, page, strategy string) (Report, error) {
+// Run runs Lighthouse on page (an absolute URL) as strategy ("mobile", Google's index; or "desktop"), as auth. It
+// takes Google 10 to 60 seconds.
+func Run(ctx context.Context, httpc *http.Client, auth Auth, page, strategy string) (Report, error) {
 	q := url.Values{"url": {page}, "strategy": {strategy}}
+	if auth.Key != "" {
+		q.Set("key", auth.Key)
+	}
 	for _, c := range []string{"PERFORMANCE", "ACCESSIBILITY", "BEST_PRACTICES", "SEO"} {
 		q.Add("category", c)
 	}
@@ -65,7 +76,9 @@ func Run(ctx context.Context, httpc *http.Client, token, page, strategy string) 
 	if err != nil {
 		return Report{}, err
 	}
-	req.Header.Set("Authorization", "Bearer "+token)
+	if auth.Token != "" {
+		req.Header.Set("Authorization", "Bearer "+auth.Token)
+	}
 	res, err := httpc.Do(req)
 	if err != nil {
 		return Report{}, err

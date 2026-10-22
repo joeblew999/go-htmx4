@@ -72,8 +72,8 @@ no access.
 | Task | Does | Needs |
 |---|---|---|
 | `seo:audit` | fetches robots.txt, the sitemap and every page in it as Googlebot, and fails on whatever would keep a page out or look wrong in a result (below). `mise run deploy` runs it after every production deploy | nothing |
-| `seo:lighthouse` | Lighthouse on the live site (every page of the sitemap, `seo.toml`'s pages, or one: `/de/board`), on Google's servers through PageSpeed Insights: performance, accessibility, best practices and SEO out of 100, each failing check with the elements it failed on, and real Chrome users' Core Web Vitals once there are enough visits; fails under 90. `--desktop` for the desktop page | the key |
-| `seo:badges` | Lighthouse on every page and the audit, then badges for a README (an SVG per Lighthouse category, the lowest page's score; one for the audit) into `seo.toml`'s `[badges] dir`, and every page's scores into the README between `<!-- seo:scores -->` and `<!-- /seo:scores -->`. Run it after a release, and commit | the key |
+| `seo:lighthouse` | Lighthouse on the live site (every page of the sitemap, `seo.toml`'s pages, or one: `/de/board`), on Google's servers through PageSpeed Insights: performance, accessibility, best practices and SEO out of 100, each failing check with the elements it failed on, and real Chrome users' Core Web Vitals once there are enough visits; fails under 90. `--desktop` for the desktop page | a PageSpeed API key (or the service account key) |
+| `seo:badges` | Lighthouse on every page and the audit, then badges for a README (an SVG per Lighthouse category, the lowest page's score; one for the audit) into `seo.toml`'s `[badges] dir`, and every page's scores into the README between `<!-- seo:scores -->` and `<!-- /seo:scores -->`. Run it after a release, and commit | a PageSpeed API key (or the service account key) |
 | `seo:todo` | Google's verdict for every sitemap URL: indexed, waiting, duplicate or a problem; fails on problems; `--open` opens each problem's page | the key |
 | `seo:inspect` | one URL (the home page, or e.g. `/de/`): verdict, last crawl, Google's canonical and the app's | the key |
 | `seo:status` | the sitemap's status, and every URL's coverage, last crawl and canonical | the key |
@@ -92,13 +92,19 @@ build in every check, so a page Google couldn't index fails before it ships.
 Lighthouse's servers can't open WebSockets: a page with a live connection logs a console error there, which costs
 it a few best-practice points that real visitors don't see.
 
-## The key
+## The keys
 
-The tasks that ask Google use one service account key, `GOOGLE_SEARCH_CONSOLE_KEY` in fnox, for every site you own.
+**Lighthouse** (`seo:lighthouse`, `seo:badges`) needs only a PageSpeed Insights API key, `PAGESPEED_API_KEY` in fnox:
+a free key from the Google Cloud console (APIs & Services → Credentials → Create credentials → API key; restrict it to
+the PageSpeed Insights API), then `fnox set PAGESPEED_API_KEY`. Without one, Lighthouse uses the service account key
+below if there is one. Google's anonymous quota is too small to rely on.
+
+**Search Console** (every other task that asks Google) uses one service account key, `GOOGLE_SEARCH_CONSOLE_KEY` in
+fnox, for every site you own.
 `seo:setup` makes it once: a Google Cloud project (`$SEO_PROJECT`, else the key's own, else `$APP_NAME-search`), its
 Search Console and PageSpeed Insights APIs, the account and its key. Then, for each site: Search Console → the
 property → Settings → Users and permissions → add that account with **Full** permission, and `mise run seo:sites`
-confirms it. Lighthouse needs no property, only the PageSpeed Insights API.
+confirms it.
 
 ## The skill
 

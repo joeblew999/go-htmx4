@@ -13,7 +13,6 @@ import (
 	"github.com/joeblew999/go-htmx4/badge"
 	"github.com/joeblew999/go-htmx4/seo/audit"
 	"github.com/joeblew999/go-htmx4/seo/lighthouse"
-	"github.com/joeblew999/go-htmx4/seo/searchconsole"
 )
 
 // The README lines between these two are seo badges' to write.
@@ -28,8 +27,8 @@ var categories = []struct{ id, name, title string }{
 // badges runs Lighthouse on every page and the audit, writes an SVG badge per Lighthouse category into dir (the
 // lowest page's score: a badge never flatters) and one for the audit, and rewrites readme's scores block with every
 // page's scores.
-func badges(ctx context.Context, httpc *http.Client, key searchconsole.Key, base string, pages []string, strategy, dir, readme string) {
-	reports, errs := lighthouseAll(ctx, key, pages, strategy)
+func badges(ctx context.Context, httpc *http.Client, auth lighthouse.Auth, base string, pages []string, strategy, dir, readme string) {
+	reports, errs := lighthouseAll(ctx, auth, pages, strategy)
 	for i, err := range errs {
 		if err != nil {
 			fail(fmt.Errorf("%s: %w", pages[i], err))
