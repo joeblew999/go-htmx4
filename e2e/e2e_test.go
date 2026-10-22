@@ -21,6 +21,7 @@ func TestE2E(t *testing.T) {
 			{"MixedLocalePush", testMixedLocalePush},
 			{"IntlKinds", testIntlKinds},
 			{"Locales", testLocales},
+			{"LanguageOffer", testLanguageOffer},
 			{"Pages", testPages},
 			{"Components", testComponents},
 		} {

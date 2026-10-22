@@ -106,8 +106,8 @@ func TestLocaleCookie(t *testing.T) {
 	if rec.Code != http.StatusFound || rec.Header().Get("Location") != "/" {
 		t.Errorf("/?locale=en: %d %q, want 302 /", rec.Code, rec.Header().Get("Location"))
 	}
-	if c := rec.Result().Cookies(); len(c) != 1 || c[0].Value != "en" {
-		t.Errorf("/?locale=en cookies = %v, want locale=en", c)
+	if c := rec.Result().Cookies(); len(c) != 2 || c[0].Value != "en" || c[1].Value != "en" {
+		t.Errorf("/?locale=en cookies = %v, want chosen_locale=en and locale=en", c)
 	}
 	if body := get(t, h, "/de/").Body.String(); !strings.Contains(body, `href="/?locale=en"`) {
 		t.Errorf("the English link on /de/ must carry ?locale=en")
@@ -387,25 +387,28 @@ func TestLocalesMatchConfig(t *testing.T) {
 	}
 }
 
-// TestLanguageSuggestion: on a first visit whose browser asks for German, an English page offers the German one,
-// written in German; a German page, a reader who already picked a language, and a fragment don't. Never a redirect.
+// TestLanguageSuggestion: while a reader hasn't chosen a language, a page in another than the one their browser asks
+// for offers it, written in it, with "No thanks" beside it; a page in it, a reader who chose, and a fragment don't.
+// Never a redirect.
 func TestLanguageSuggestion(t *testing.T) {
 	h := newServer().routes()
 	for _, tc := range []struct {
 		path, accept string
-		cookie       bool
+		cookie       *http.Cookie
 		want         string
 	}{
-		{"/about", "de-AT,de;q=0.9", false, `<a href="/de/about" hreflang="de"`},
-		{"/about", "zh-TW", false, `href="/zh-hant/about" hreflang="zh-Hant"`},
-		{"/de/about", "de-CH", false, ""},
-		{"/about", "de", true, ""},
-		{"/about", "en-US", false, ""},
+		{"/about", "de-AT,de;q=0.9", nil, `<a href="/de/about" hreflang="de"`},
+		{"/about", "zh-TW", nil, `href="/zh-hant/about" hreflang="zh-Hant"`},
+		{"/about", "de", &http.Cookie{Name: intl.LocaleCookie, Value: "en"}, `<a href="/about?locale=en" rel="nofollow">Nein danke</a>`},
+		{"/about", "en-US", &http.Cookie{Name: intl.ChosenLocaleCookie, Value: "ja"}, `href="/ja/about" hreflang="ja"`},
+		{"/de/about", "de-CH", nil, ""},
+		{"/about", "de", &http.Cookie{Name: intl.ChosenLocaleCookie, Value: "en"}, ""},
+		{"/about", "en-US", nil, ""},
 	} {
 		r := httptest.NewRequest("GET", tc.path, nil)
 		r.Header.Set("Accept-Language", tc.accept)
-		if tc.cookie {
-			r.AddCookie(&http.Cookie{Name: intl.LocaleCookie, Value: "en"})
+		if tc.cookie != nil {
+			r.AddCookie(tc.cookie)
 		}
 		w := httptest.NewRecorder()
 		h.ServeHTTP(w, r)
@@ -413,11 +416,11 @@ func TestLanguageSuggestion(t *testing.T) {
 		if w.Code != 200 {
 			t.Errorf("%s (%s): status %d, want 200 (never a redirect)", tc.path, tc.accept, w.Code)
 		}
-		if tc.want == "" && strings.Contains(body, `data-gsxui-slot-alert`) && strings.Contains(body, `class="underline underline-offset-4"`) {
+		if tc.want == "" && strings.Contains(body, `rel="nofollow"`) {
 			t.Errorf("%s (%s, cookie %v): offers a language it shouldn't", tc.path, tc.accept, tc.cookie)
 		}
 		if tc.want != "" && !strings.Contains(body, tc.want) {
-			t.Errorf("%s (%s): no %q", tc.path, tc.accept, tc.want)
+			t.Errorf("%s (%s, cookie %v): no %q", tc.path, tc.accept, tc.cookie, tc.want)
 		}
 	}
 	r := httptest.NewRequest("GET", "/about", nil)
@@ -426,6 +429,11 @@ func TestLanguageSuggestion(t *testing.T) {
 	h.ServeHTTP(w, r)
 	if !strings.Contains(w.Body.String(), "Diese Seite gibt es auch auf \u2068Deutsch\u2069.") || !strings.Contains(w.Body.String(), `lang="de" dir="auto"`) {
 		t.Errorf("the offer isn't written in German:\n%s", w.Body.String()[:min(2000, len(w.Body.String()))])
+	}
+	// "No thanks" keeps English as the reader's choice and returns to the page.
+	if rec := get(t, h, "/about?locale=en"); rec.Code != http.StatusFound || rec.Header().Get("Location") != "/about" ||
+		!strings.Contains(rec.Header().Values("Set-Cookie")[0], intl.ChosenLocaleCookie+"=en") {
+		t.Errorf("No thanks: %d %q %v", rec.Code, rec.Header().Get("Location"), rec.Header().Values("Set-Cookie"))
 	}
 }
 
@@ -443,9 +451,20 @@ func TestRequestCard(t *testing.T) {
 	body := w.Body.String()
 	for _, want := range []string{`id="request"`, "How this page chose your language and time", "the site&#39;s main language: none in the address",
 		"th-TH,th;q=0.9,en;q=0.8", `<code translate="no">en</code>`, "what your browser reported", `<code translate="no">Asia/Bangkok</code>`,
-		"nothing: automatic", `data-intl="browser-zone"`, `<code translate="no">Asia/Tokyo</code>`, "the language&#39;s own"} {
+		"nothing: automatic", `data-intl="browser-zone"`, `<code translate="no">Asia/Tokyo</code>`, "the language&#39;s own",
+		// The zone badge: the browser puts its own zone in, since the reader chose none.
+		"data-template=\"time zone \u2068\ue000\u2069\""} {
 		if !strings.Contains(body, want) {
 			t.Errorf("/formats: no %q", want)
 		}
+	}
+	if cc := w.Header().Get("Cache-Control"); cc != "private" {
+		t.Errorf("/formats: Cache-Control %q, want private (it is this reader's)", cc)
+	}
+
+	// A language and a zone the reader chose: the card names the language, and the badge is theirs.
+	body = get(t, h, "/formats", &http.Cookie{Name: intl.ChosenLocaleCookie, Value: "de"}, &http.Cookie{Name: intl.TimeZoneCookie, Value: "Europe/Berlin"}).Body.String()
+	if !strings.Contains(body, `<span translate="no">Deutsch</span> <code translate="no">de</code>`) || strings.Contains(body, `data-template="time zone`) {
+		t.Errorf("/formats with a chosen language and zone: no chosen language, or a badge the browser would replace")
 	}
 }

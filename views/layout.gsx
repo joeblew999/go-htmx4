@@ -108,9 +108,10 @@ component Layout(title intl.Msg, description intl.Msg, path string, children gsx
 	</html>
 }
 
-// LanguageSuggestion offers this page in the reader's own language, written in that language: on their first page
-// view, when their browser asks for a language the site has and the page is in another (intl.Suggested). A link,
-// never a redirect, so Google still reaches every language version.
+// LanguageSuggestion offers this page in the reader's own language, written in that language, on every page until
+// they choose one: the language they chose, or the one their browser asks for, when the site has it and the page is
+// in another (intl.Suggested). A link, never a redirect, so Google still reaches every language version. "No thanks"
+// (intl.Decline) keeps the page's language as their choice.
 component LanguageSuggestion() {
 	{ if s, ok := intl.Suggested(ctx); ok {
 		<ui.Alert lang={s.Lang} dir="auto">
@@ -118,6 +119,9 @@ component LanguageSuggestion() {
 			<ui.AlertTitle>
 				<a href={s.Href} hreflang={s.Lang} class="underline underline-offset-4">{ locales.NavAlsoIn(s.Name).In(s.Lang) }</a>
 			</ui.AlertTitle>
+			<ui.AlertDescription>
+				<a href={intl.Decline(ctx)} rel="nofollow">{ locales.NavNoThanks.In(s.Lang) }</a>
+			</ui.AlertDescription>
 		</ui.Alert>
 	} }
 }

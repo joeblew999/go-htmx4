@@ -325,7 +325,17 @@ component LocaleCard() {
 			<ui.Badge variant="secondary" translate="no">{ intl.Current(ctx).ID() }</ui.Badge>
 			<ui.Badge variant="outline" translate="no">{ intl.Current(ctx).Maximal() }</ui.Badge>
 			<ui.Badge variant="outline">{ locales.FormatsDirection(intl.Current(ctx).Dir()) }</ui.Badge>
-			<ui.Badge variant="outline">{ locales.FormatsTimeZone(intl.TimeZone(ctx)) }</ui.Badge>
+			// The zone this page's times are in: unless the reader chose one, their browser's own, which
+			// intl-browser.mjs puts in (the server's was a guess on a first visit).
+			<ui.Badge
+				variant="outline"
+				{ if intl.ChosenTimeZone(ctx) == "" {
+					data-intl="browser-zone"
+					data-template={locales.FormatsTimeZone(intl.Slot)}
+				} }
+			>
+				{ locales.FormatsTimeZone(intl.TimeZone(ctx)) }
+			</ui.Badge>
 		</ui.CardContent>
 	</ui.Card>
 }
@@ -349,6 +359,14 @@ component RequestCard(conn Connection) {
 							<span translate="no">{ intl.Current(ctx).Name() }</span>{ " " }
 							<code translate="no">{ intl.Current(ctx).ID() }</code>
 							<div class="text-xs text-muted-foreground">{ languageFrom(intl.DecisionOf(ctx)) }</div>
+						</Fact>
+						<Fact label={locales.FormatsRequestChosen}>
+							{ if l, ok := chosenLanguage(ctx); ok {
+								<span translate="no">{ l.Name }</span>{ " " }
+								<code translate="no">{ l.Lang }</code>
+							} else {
+								{ locales.FormatsRequestNotChosen }
+							} }
 						</Fact>
 						<Fact label={locales.FormatsRequestBrowserAsks}>
 							{ if a := intl.DecisionOf(ctx).AcceptLanguage; a != "" {

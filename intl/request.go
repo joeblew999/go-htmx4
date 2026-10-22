@@ -21,8 +21,8 @@ type Request struct {
 	TimeZoneChosen bool
 	// HourCycle is the viewer's explicit clock, "h12" or "h23"; "" keeps the locale's.
 	HourCycle string
-	// Preferred is the shipped locale the reader's browser asks for (Accept-Language), on their first page view;
-	// nil otherwise. Suggested offers the page in it.
+	// Preferred is the shipped locale the reader wants, on a page view: the one they chose (ChosenLocaleCookie), else
+	// the one their browser asks for first (Accept-Language); nil when neither. Suggested offers the page in it.
 	Preferred *Locale
 	// Decision is how Site decided the locale and zone, for showing it (DecisionOf).
 	Decision Decision
@@ -34,6 +34,7 @@ type Decision struct {
 	LanguageFrom   string // "url" (the address's prefix, /de/…) or "default" (no prefix: the source locale)
 	AcceptLanguage string // what the reader's browser asks for
 	LastViewed     string // the locale of the last page they viewed (the locale cookie); "" on a first visit
+	ChosenLanguage string // the locale they chose (the chosen_locale cookie, or this page view), "" for none
 	ZoneFrom       string // where TimeZone came from: "chosen", "browser", "connection" or "default" (UTC)
 	ChosenZone     string // the zone the reader chose (the tz cookie), "" for none
 	BrowserZone    string // the zone their browser reported (the browser_tz cookie), "" until it has
