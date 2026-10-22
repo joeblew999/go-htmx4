@@ -5,9 +5,10 @@
 # and `mise run e2e` run, without repeating a step: the production build beside the Go tests, the workerd smoke test,
 # then headless Chrome (the chrome-headless-shell pinned in mise.toml). Runnable locally too: same command, same tools.
 #
-# On GitHub it also publishes the build for Cloudflare's preview of this commit, and for a pushed v* tag it releases:
-# once everything passed, it moves the production branch to the tagged commit and Workers Builds deploys production
-# (ci/workers-builds.sh). Every run ends with a table of where the time went.
+# On GitHub, for a push, it also publishes the build for Cloudflare's preview of this commit, and for a pushed v* tag
+# it releases: once everything passed, it moves the production branch to the tagged commit and Workers Builds deploys
+# production (ci/workers-builds.sh). A fork's pull request gets the checks only. Every run ends with a table of where
+# the time went.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
@@ -82,7 +83,9 @@ publish() {
 # TinyGo. Then the smoke test on workerd (= mise run check, whose build and tests have just run), then Chrome.
 compiler=$(mise env -s bash | sed -n 's/^export WORKER_COMPILER=//p' | tr -d "'\"")
 phase "build (${compiler:-tinygo}) + Go tests + fresh app" mise run build ::: test:go ::: fresh
-if [ -n "${GITHUB_ACTIONS:-}" ] && [ -n "${GITHUB_SHA:-}" ]; then
+# Only a push publishes: a fork's pull request runs read-only.
+pushed=; [ -n "${GITHUB_ACTIONS:-}" ] && [ "${GITHUB_EVENT_NAME:-push}" = push ] && pushed=1
+if [ -n "$pushed" ] && [ -n "${GITHUB_SHA:-}" ]; then
   phase "publish the build" publish
 fi
 phase "smoke (workerd)" mise run --skip-deps smoke
@@ -118,7 +121,7 @@ release() {
     curl -fsS "${auth[@]}" -X DELETE "$api/git/refs/heads/$GITHUB_REF_NAME" >/dev/null || true
   fi
 }
-if [ -n "${GITHUB_ACTIONS:-}" ]; then
+if [ -n "$pushed" ]; then
   case "${GITHUB_REF_TYPE:-}:${GITHUB_REF_NAME:-}" in
     tag:v*) phase "release $GITHUB_REF_NAME" release "$GITHUB_REF_NAME" ;;
     branch:release/v*) phase "release ${GITHUB_REF_NAME#release/}" release "${GITHUB_REF_NAME#release/}" ;;
