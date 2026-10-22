@@ -85,20 +85,35 @@ func Init(root string, o Options, log io.Writer) error {
 		{intlPkg + ".Value", intlPkg + ".Render"},
 		{intlPkg + ".Plain", intlPkg + ".PlainText"},
 	}
-	if o.Gsxui != "" {
-		pkg, err := catalog.PackagePath(filepath.Join(root, o.Gsxui, "i18n"))
-		if err != nil {
-			return err
-		}
-		renderers = append(renderers, [2]string{pkg + ".T", pkg + ".Translate"})
-	}
 	if err := gsxToml(filepath.Join(root, "gsx.toml"), renderers, log); err != nil {
+		return err
+	}
+	if err := GsxuiRenderer(root, o.Gsxui, log); err != nil {
 		return err
 	}
 	if err := gitignore(filepath.Join(root, ".gitignore"), log); err != nil {
 		return err
 	}
 	return miseTools(filepath.Join(root, "mise.toml"), log)
+}
+
+// GsxuiRenderer registers the renderer for the text gsxui components write themselves (i18n.T) in gsx.toml, once
+// the app has gsxui's i18n package: gsxui add vendors it with the first component that writes text, and until then
+// gsx would fail on a renderer for a package that isn't there. go tool intl gen calls it every time, so the renderer
+// arrives with the package.
+func GsxuiRenderer(root, gsxui string, log io.Writer) error {
+	if gsxui == "" {
+		return nil
+	}
+	dir := filepath.Join(root, gsxui, "i18n")
+	if _, err := os.Stat(dir); err != nil {
+		return nil
+	}
+	pkg, err := catalog.PackagePath(dir)
+	if err != nil {
+		return err
+	}
+	return gsxToml(filepath.Join(root, "gsx.toml"), [][2]string{{pkg + ".T", pkg + ".Translate"}}, log)
 }
 
 var workerdTool = regexp.MustCompile(`(?m)^"?workerd"?\s*=`)

@@ -1,6 +1,6 @@
-// Package fresh is the readiness test (#65): a gsx app made from nothing, outside this repo, set up with intl from
-// this checkout the way intl/README.md says, served by an ordinary Go server (not a Worker), answering in two
-// languages. If an outside developer couldn't get this far by following the README, neither can this test.
+// Package fresh is the readiness test (#65): a gsx app made from nothing, outside this repo, with gsxui, set up with
+// intl from this checkout the way intl/README.md says, served by an ordinary Go server (not a Worker), answering in
+// two languages, and passing intl:check. If an outside developer couldn't get this far by following the README, neither can this test.
 package fresh
 
 import (
@@ -30,7 +30,8 @@ func TestFreshApp(t *testing.T) {
 		t.Helper()
 		cmd := exec.Command(args[0], args[1:]...)
 		cmd.Dir = app
-		cmd.Env = append(os.Environ(), "GOWORK=off", "GOFLAGS=-mod=mod")
+		// mise runs the app's own tasks (intl init writes them) without asking to trust its config.
+		cmd.Env = append(os.Environ(), "GOWORK=off", "GOFLAGS=-mod=mod", "MISE_TRUSTED_CONFIG_PATHS="+app, "MISE_YES=1")
 		out, err := cmd.CombinedOutput()
 		if err != nil {
 			t.Fatalf("%s: %v\n%s", strings.Join(args, " "), err, out)
@@ -65,7 +66,10 @@ func TestFreshApp(t *testing.T) {
 		"-require=github.com/gsxhq/gsx@"+gsxVersion, "-tool=github.com/gsxhq/gsx/cmd/gsx", "-tool="+intlModule+"/cmd/intl")
 	run("go", "mod", "tidy")
 
-	// go tool intl init, then the app's own messages, a page and an ordinary server.
+	// gsxui the npm-free way, with a component that brings its icon package (gsxui's own code, which intl:check must
+	// leave alone), then go tool intl init, the app's own messages, a page and an ordinary server.
+	run("gsxui", "init", "-rtl")
+	run("gsxui", "add", "accordion")
 	run("go", "tool", "intl", "init", "-locales", "en,de")
 	appendTo("locales/en.toml", "\n[home]\n# The page's heading.\ntitle = \"Welcome\"\n# How many notes there are.\nnotes = \"{n, plural, one {# note} other {# notes}}\"\n")
 	appendTo("locales/de.toml", "\n[home]\ntitle = \"Willkommen\"\nnotes = \"{n, plural, one {# Notiz} other {# Notizen}}\"\n")
@@ -174,8 +178,8 @@ func main() {
 		}
 	}
 
-	// What the README says CI runs.
-	run("go", "tool", "intl", "check")
+	// What the README says CI runs: the catalogs, then gsx's own checks on the app's markup, not gsxui's.
+	run("mise", "run", "intl:check")
 }
 
 func read(t *testing.T, path string) string {

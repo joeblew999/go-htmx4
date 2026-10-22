@@ -59,9 +59,24 @@ func TestInitFresh(t *testing.T) {
 	if _, err := toml.Decode(read(t, root, "gsx.toml"), &g); err != nil {
 		t.Fatal(err)
 	}
+	// gsxui's text renderer waits for gsxui's i18n package: a renderer for a package that isn't there breaks gsx.
 	if len(g.FilterPackages) != 1 || g.Renderers["github.com/joeblew999/go-htmx4/intl.Msg"] != "github.com/joeblew999/go-htmx4/intl.Translate" ||
-		g.Renderers["example.com/shop/ui/i18n.T"] != "example.com/shop/ui/i18n.Translate" {
-		t.Errorf("gsx.toml: %+v", g)
+		g.Renderers["example.com/shop/ui/i18n.T"] != "" {
+		t.Errorf("gsx.toml before gsxui's i18n: %+v", g)
+	}
+	// gsxui add vendors ui/i18n with the first component that writes text; the next go tool intl gen registers it.
+	if err := os.MkdirAll(filepath.Join(root, "ui", "i18n"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(root, "ui", "i18n", "i18n.go"), []byte("package i18n\n\ntype T string\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := setup.GsxuiRenderer(root, "ui", io.Discard); err != nil {
+		t.Fatal(err)
+	}
+	g = gsxConfig{}
+	if _, err := toml.Decode(read(t, root, "gsx.toml"), &g); err != nil || g.Renderers["example.com/shop/ui/i18n.T"] != "example.com/shop/ui/i18n.Translate" {
+		t.Errorf("gsx.toml with gsxui's i18n: %+v %v", g, err)
 	}
 	if s := read(t, root, ".gitignore"); !strings.Contains(s, "\nintl_gen.go\nintl_messages_gen.go\nintl-messages.mjs\n") {
 		t.Errorf(".gitignore:\n%s", s)
