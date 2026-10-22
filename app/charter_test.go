@@ -6,6 +6,7 @@ import (
 	"os"
 	"regexp"
 	"slices"
+	"strconv"
 	"testing"
 
 	"github.com/joeblew999/charter/go/lib/project"
@@ -38,7 +39,7 @@ func TestCharterToml(t *testing.T) {
 		{"mise.toml's APP_REPO", value("../mise.toml", `(?m)^APP_REPO = "(.*)"`), p.Repo},
 		{"mise.toml's CF_SUBDOMAIN", value("../mise.toml", `(?m)^CF_SUBDOMAIN = "(.*)"`), p.Subdomain},
 		{"production's APP_DOMAIN var", p.Production.Vars["APP_DOMAIN"], p.Production.Domain},
-		{"mise run dev's APP_DEV_PORT", value("../tasks/app.toml", `APP_DEV_PORT = "(\d+)"`), p.LocalPort()},
+		{"mise run dev's default port", value("../tasks/app.toml", `export PORT=\$\{PORT:-(\d+)\}`), strconv.Itoa(p.Port)},
 	} {
 		if c.got != c.want {
 			t.Errorf("%s is %q, charter.toml says %q", c.what, c.got, c.want)

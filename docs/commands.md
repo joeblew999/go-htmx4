@@ -77,7 +77,7 @@ Test, then deploy production → https://$APP_DOMAIN (or $APP_NAME.&lt;subdomain
 
 - **Usage:** `dev`
 
-gsx dev → build:dev (standard Go, seconds) + CSS → workerd restart on every .gsx/.go save → http://localhost:8913
+gsx dev → build:dev (standard Go, seconds) + CSS → workerd restart on every .gsx/.go save → http://localhost:8913 (PORT: another port)
 
 ### `docs:commands`
 

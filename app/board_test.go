@@ -164,6 +164,12 @@ func TestWorkerJSMatchesLive(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	// The load test's design size (mise run load) is the Room's socket cap: it opens that many, then is refused one.
+	capJS := regexp.MustCompile(`const MAX_SOCKETS = (\d+);`).FindStringSubmatch(read(t, "../worker/room.mjs"))
+	capLoad := regexp.MustCompile(`flag\.Int\("n", (\d+),`).FindStringSubmatch(read(t, "../e2e/load/load_test.go"))
+	if capJS == nil || capLoad == nil || capJS[1] != capLoad[1] {
+		t.Errorf("worker/room.mjs's MAX_SOCKETS %v and e2e/load's -n %v differ", capJS, capLoad)
+	}
 	if !strings.Contains(string(index), "/"+live.TopicPattern+"/") {
 		t.Errorf("worker/index.mjs must validate topics with /%s/", live.TopicPattern)
 	}
@@ -216,4 +222,13 @@ func TestWriteLimitStandIn(t *testing.T) {
 	if allowWrite(r) {
 		t.Error("the 61st write in 10 s was allowed")
 	}
+}
+
+func read(t *testing.T, path string) string {
+	t.Helper()
+	b, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return string(b)
 }
