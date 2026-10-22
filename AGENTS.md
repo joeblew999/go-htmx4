@@ -51,7 +51,7 @@ Binding. How the app works is in [docs/architecture.md](docs/architecture.md), h
 
 ## Generated files: never edit
 
-`*.x.go` (`go tool gsx generate`; not committed, except `intl/render.x.go`: apps import intl as a Go package),
+`*.x.go` (`go tool gsx generate`; not committed, except intl's `render.x.go` and `head.x.go`: apps import intl as a Go package),
 `intl_gen.go` and `intl-messages.mjs` (`mise run intl`; not committed), `locales/intl.sum` and `docs/badges/intl.svg`
 (`mise run intl`; committed), `.claude/skills/intl` (`mise run intl:skill`; committed), `.claude/skills/seo`
 (`mise run seo:skill`; committed), `docs/commands.md`

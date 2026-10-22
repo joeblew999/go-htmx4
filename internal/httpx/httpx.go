@@ -1,7 +1,7 @@
 // Package httpx holds net/http helpers that work the same under standard Go and TinyGo on Cloudflare
 // Workers (workers-go).
 //
-// TinyGo 0.42's net/http ships the pre-Go 1.22 ServeMux: no "GET /path" method patterns and no {$}.
+// TinyGo 0.43's net/http ships the pre-Go 1.22 ServeMux: no "GET /path" method patterns and no {$}.
 // Register plain paths and check the method in the handler with [Allow]. Render HTML with [Render]:
 // workers-go streams unbuffered responses chunked, which broke htmx history restore under workerd, so
 // responses are buffered and carry a Content-Length.
