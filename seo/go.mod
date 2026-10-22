@@ -1,6 +1,6 @@
 module github.com/joeblew999/go-htmx4/seo
 
-go 1.27.1
+go 1.26.0
 
 toolchain go1.27.3
 

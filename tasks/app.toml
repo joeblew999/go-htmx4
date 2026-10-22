@@ -211,6 +211,13 @@ go test -C seo ./...
 test -z "$(gofmt -l badge)" || { gofmt -l badge; echo "✗ gofmt: badge/ needs formatting"; exit 1; }
 go vet -C badge ./...
 go test -C badge ./...
+# intl, seo and badge declare the oldest Go they work with (their go.mod's go line, gsx's minimum): they must still
+# build there, so the minimum can't creep up unnoticed.
+for m in badge intl seo; do
+  floor=$(sed -n 's/^go \([0-9]*\.[0-9]*\).*/\1/p' "$m/go.mod")
+  (cd "$m" && env -u GOROOT GOTOOLCHAIN=local mise exec "go@$floor" -- go vet ./...) ||
+    { echo "✗ $m/ doesn't build with Go $floor, the minimum its go.mod declares"; exit 1; }
+done
 # Its agent skill is installed from seo/ and committed: a change there must be installed and committed too.
 go tool seo skill >/dev/null
 { git diff --quiet -- .claude/skills/seo && test -z "$(git ls-files --others --exclude-standard -- .claude/skills/seo)"; } ||

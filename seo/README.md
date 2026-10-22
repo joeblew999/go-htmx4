@@ -48,7 +48,7 @@ And in the layout's `<head>`, beside `intl.Head`, what the audit checks on every
 <intl.Head page={ path }/>
 ```
 
-Package `seo` is small enough for a Worker. The rest are tools: `seo/audit`, `seo/lighthouse`, `seo/searchconsole`
+seo needs Go 1.26 or newer, the same as gsx. Package `seo` is small enough for a Worker. The rest are tools: `seo/audit`, `seo/lighthouse`, `seo/searchconsole`
 and `go tool seo`.
 
 ```sh

@@ -80,9 +80,9 @@ code:
 
 ## Set up an app
 
-[mise](https://mise.jdx.dev) brings every tool: Go (from `go.mod`'s `toolchain`, which `init` tells mise to use),
-gsx (a `go tool`), and [workerd](https://github.com/cloudflare/workerd), whose Intl the tooling, the tests and an
-ordinary Go server run on.
+intl needs Go 1.26 or newer, the same as gsx. [mise](https://mise.jdx.dev) brings every tool: Go (from `go.mod`'s
+`toolchain`, which `init` tells mise to use), gsx (a `go tool`), and [workerd](https://github.com/cloudflare/workerd),
+whose Intl the tooling, the tests and an ordinary Go server run on.
 Translating with Claude also needs [Claude Code](https://code.claude.com) (`claude`) installed.
 
 1. Add intl's command and set the app up, from the directory of its `go.mod`:

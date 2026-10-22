@@ -58,7 +58,8 @@ mise --version
 if [ -n "${CI:-}" ]; then
   # And don't let `mise run` install the rest before each task (its default): that compiled the gsxui CLI anyway.
   export MISE_TASK_RUN_AUTO_INSTALL=false
-  phase "mise install (CI tools)" mise install go tinygo github:WebAssembly/binaryen github:tailwindlabs/tailwindcss \
+  # go@1.26: the oldest Go intl, seo and badge declare, which test:go builds them with too.
+  phase "mise install (CI tools)" mise install go go@1.26 tinygo github:WebAssembly/binaryen github:tailwindlabs/tailwindcss \
     workerd http:chrome-headless-shell jq
 else
   phase "mise install (tools)" mise install
