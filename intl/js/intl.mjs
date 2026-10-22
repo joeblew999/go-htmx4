@@ -199,19 +199,22 @@ export function parseNumber(lang, text) {
 
 // calendar is what a month calendar writes in lang, from Intl.DateTimeFormat, Intl.NumberFormat and Intl.Locale: the
 // fields of gsxui's CalendarLocale and the first day of the week, joined by U+001E (lists inside by U+001F) for Go.
-//   months, short months (January first), weekdays, narrow weekdays (Sunday first), the caption pattern
+//   months, months inside a date, short months (January first), weekdays, narrow weekdays (Sunday first), the caption pattern
 //   ("{month} {year}"), the day label pattern ("{weekday}, {month} {day}, {year}"), the ten digits ("" for 0-9), and
 //   the first day of the week (1 Monday … 7 Sunday).
 export function calendar(lang) {
   // A month calendar is Gregorian: a locale whose default calendar is another (fa: Persian) still names Gregorian months.
   const fmt = (o) => make(Intl.DateTimeFormat, lang, { timeZone: "UTC", calendar: "gregory", ...o });
-  const months = [], short = [], weekdays = [], narrow = [];
-  // A month's name is its part of the caption itself ("1" in Japanese "2026年1月", whose 月 is the pattern's), so name
-  // and pattern always fit together.
+  const months = [], inDate = [], short = [], weekdays = [], narrow = [];
+  // A month's name is its part of the pattern it goes into ("1" in Japanese "2026年1月", whose 月 is the pattern's), so
+  // name and pattern always fit together: the caption's standalone name ("январь 2026"), and the day label's name
+  // inside a date ("15 января 2026 г.").
   const part = (o, d, type) => fmt(o).formatToParts(d).find((p) => p.type === type)?.value ?? "";
+  const dayLabel = { weekday: "long", month: "long", day: "numeric", year: "numeric" };
   for (let m = 0; m < 12; m++) {
     const d = Date.UTC(2026, m, 15);
     months.push(part({ month: "long", year: "numeric" }, d, "month"));
+    inDate.push(part(dayLabel, d, "month"));
     short.push(fmt({ month: "short" }).format(d));
   }
   for (let w = 0; w < 7; w++) { // 2026-01-04 is a Sunday
@@ -230,9 +233,8 @@ export function calendar(lang) {
     const loc = new Intl.Locale(lang).maximize();
     first = (loc.getWeekInfo?.() ?? loc.weekInfo)?.firstDay ?? 7;
   } catch {}
-  return [months.join("\u001f"), short.join("\u001f"), weekdays.join("\u001f"), narrow.join("\u001f"),
-    pattern({ month: "long", year: "numeric" }), pattern({ weekday: "long", month: "long", day: "numeric", year: "numeric" }),
-    digits, String(first)].join("\u001e");
+  return [months.join("\u001f"), inDate.join("\u001f"), short.join("\u001f"), weekdays.join("\u001f"), narrow.join("\u001f"),
+    pattern({ month: "long", year: "numeric" }), pattern(dayLabel), digits, String(first)].join("\u001e");
 }
 
 // segments is text split by Intl.Segmenter in lang: granularity "grapheme" (what a reader sees as one character),

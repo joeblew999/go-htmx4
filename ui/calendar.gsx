@@ -196,13 +196,15 @@ import (
 
 // CalendarLocale is the text Calendar composes itself. The zero value is
 // English; a partially filled value is a caller error and renders its empty
-// fields empty. Caption and DayLabel substitute exactly {month}, {year},
+// fields empty, except MonthsFormat, whose zero value means Months. Caption
+// and DayLabel substitute exactly {month}, {year},
 // {weekday} and {day}; other text is literal, and a part absent from the
 // call (a caption has no weekday) substitutes as "". calendar.js reads the
 // same values from the root's data-gsxui-calendar-locale attribute, so the
 // text it writes after navigation matches the server's by construction.
 type CalendarLocale struct {
-	Months        [12]string // wide names, January first: caption, day labels
+	Months        [12]string // wide stand-alone names, January first: caption
+	MonthsFormat  [12]string // wide names inside a date (ru "июня"): day labels; zero uses Months
 	MonthsShort   [12]string // dropdown caption's month <select>
 	Weekdays      [7]string  // wide names, Sunday first: day labels
 	WeekdaysShort [7]string  // header row
@@ -276,22 +278,34 @@ func (l CalendarLocale) caption(month time.Time) string {
 	return l.fill(l.Caption, l.Months[month.Month()-1], fmt.Sprintf("%04d", month.Year()), "", "")
 }
 
+// monthsInDate is the names day labels use: CLDR's format-context month,
+// which upstream reaches through date-fns "PPPP" while its caption uses the
+// stand-alone "LLLL". Months when MonthsFormat is unset.
+func (l CalendarLocale) monthsInDate() [12]string {
+	if l.MonthsFormat == ([12]string{}) {
+		return l.Months
+	}
+	return l.MonthsFormat
+}
+
 func (l CalendarLocale) dayLabel(d time.Time) string {
-	return l.fill(l.DayLabel, l.Months[d.Month()-1], fmt.Sprintf("%04d", d.Year()), l.Weekdays[d.Weekday()], strconv.Itoa(d.Day()))
+	return l.fill(l.DayLabel, l.monthsInDate()[d.Month()-1], fmt.Sprintf("%04d", d.Year()), l.Weekdays[d.Weekday()], strconv.Itoa(d.Day()))
 }
 
 // clientJSON is the root attribute calendar.js parses: only what the client
-// writes after navigation (the header row is server-only). Marshalling
+// writes after navigation (the header row is server-only), with
+// monthsFormat already resolved so the client has no fallback. Marshalling
 // fixed string arrays cannot fail, so the error is impossible by
 // construction and dropped deliberately.
 func (l CalendarLocale) clientJSON() string {
 	b, _ := json.Marshal(struct {
-		Months   [12]string `json:"months"`
-		Weekdays [7]string  `json:"weekdays"`
-		Caption  string     `json:"caption"`
-		DayLabel string     `json:"dayLabel"`
-		Digits   string     `json:"digits"`
-	}{l.Months, l.Weekdays, l.Caption, l.DayLabel, l.Digits})
+		Months       [12]string `json:"months"`
+		MonthsFormat [12]string `json:"monthsFormat"`
+		Weekdays     [7]string  `json:"weekdays"`
+		Caption      string     `json:"caption"`
+		DayLabel     string     `json:"dayLabel"`
+		Digits       string     `json:"digits"`
+	}{l.Months, l.monthsInDate(), l.Weekdays, l.Caption, l.DayLabel, l.Digits})
 	return string(b)
 }
 
@@ -420,8 +434,14 @@ func rangeFlags(mode string, d, from, to time.Time) (start, middle, end bool) {
 	if !to.IsZero() && sameDay(d, to) {
 		end = true
 	}
-	if !from.IsZero() && !to.IsZero() && dayOnly(d).After(dayOnly(from)) && dayOnly(d).Before(dayOnly(to)) {
-		middle = true
+	// A caller's reversed pair still spans the days between, as calendar.js's
+	// own lo/hi sort and react-day-picker's rangeIncludesDate both read it.
+	if !from.IsZero() && !to.IsZero() {
+		lo, hi := dayOnly(from), dayOnly(to)
+		if hi.Before(lo) {
+			lo, hi = hi, lo
+		}
+		middle = dayOnly(d).After(lo) && dayOnly(d).Before(hi)
 	}
 	return
 }
@@ -677,6 +697,15 @@ func firstFocusableIndex(grid [42]time.Time, year int, month time.Month) int {
 //     role="grid" suppresses a `<table>`'s implicit naming, so without it
 //     the grid is announced unnamed on entry. calendar.js's repaint rewrites
 //     it on every navigation, so the name follows the displayed month.
+//
+// Day labels carry upstream's labelDayButton decorations, "Today, {date}"
+// and then "{date}, selected" (react-day-picker 9.8.1), where {date} is
+// CalendarLocale's DayLabel. Each pattern is one whole i18n.T message on the
+// root (data-gsxui-calendar-label-today/-selected), so a translator can
+// reorder around the date, and calendar.js applies them: today is the
+// client's date, and selection changes without a server round trip. The
+// server writes the plain DayLabel, so first paint without JS has no
+// decoration.
 component Calendar(mode string, month time.Time, selected []time.Time, from time.Time, to time.Time, weekStartsOn time.Weekday, showOutsideDays bool, captionLayout string, fromYear int, toYear int, disabledBefore time.Time, disabledAfter time.Time, disabledDates []time.Time, disabledWeekdays []time.Weekday, name string, locale CalendarLocale, attrs gsx.Attrs) {
 	{{
 		// Every string this component composes itself — caption, day
@@ -808,6 +837,8 @@ component Calendar(mode string, month time.Time, selected []time.Time, from time
 		data-gsxui-calendar-show-outside-days={boolStr(showOutsideDays)}
 		data-caption-layout={captionLayout}
 		data-gsxui-calendar-locale={loc.clientJSON()}
+		data-gsxui-calendar-label-today={i18n.T("Today, {date}")}
+		data-gsxui-calendar-label-selected={i18n.T("{date}, selected")}
 		{ if selectedISO != "" {
 			data-gsxui-calendar-selected={selectedISO}
 		} }

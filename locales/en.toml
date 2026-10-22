@@ -249,8 +249,6 @@ loading = "Loading…"
 title = "Components"
 description = "Every gsxui component with Intl: calendars, tables, pickers, charts and menus in your language, named, sorted and formatted by Intl."
 intro = "The gsxui components, each fed by Intl in this page's language: names, numbers, dates, sorting, word breaks and plural forms. Switch language at the bottom of the page and they all follow."
-# The label screen readers hear for the breadcrumb trail.
-breadcrumb = "Breadcrumb"
 alert_title = "One page, every language"
 # language is the page's language, named in itself (Deutsch, 日本語).
 alert_body = "This page is in {language}. Everything on it that a language decides comes from Intl: on the server first, then in your browser, in your time zone."
@@ -273,9 +271,6 @@ popover_about = "A date picker, a tooltip and a hover card: short dates that ope
 # when is how long ago, already formatted ("3 months ago").
 hover_posted = "Posted {when}"
 carousel_about = "The same day in eleven calendar systems: each named by Intl.DisplayNames, each date written by Intl.DateTimeFormat."
-# What screen readers call the carousel and each of its slides.
-carousel_role = "carousel"
-carousel_slide = "slide"
 clocks_about = "World clocks named by their time zones, and a clock that shows seconds when you press the toggle."
 sheet_open = "World clocks"
 sheet_title = "World clocks"
@@ -309,9 +304,6 @@ amount_about = "Type an amount the way you write numbers: Intl reads it back and
 amount_label = "Amount"
 amount_formatted = "As euros"
 pagination_about = "Page numbers with this language's digits and grouping."
-pagination_label = "Pages"
-pagination_previous = "Previous page"
-pagination_next = "Next page"
 # page and total are page numbers.
 pagination_page = "Page {page, number} of {total, number}"
 otp_about = "A one-time code, with its length and its expiry written by Intl."
@@ -402,7 +394,6 @@ kbd_escape = "Esc"
 sidebar_about = "The sidebar owns its window, so it runs in a frame, as on gsxui's own site; its sections are this page's."
 # The frame's title, for screen readers, and its page's title.
 sidebar_frame = "Sidebar example"
-sidebar_toggle = "Show or hide the sidebar"
 sidebar_body = "The sidebar collapses to icons. Its labels, tooltips and today's date are in this page's language."
 
 # gsxui components' own text (ui/i18n.Translate)
@@ -427,3 +418,17 @@ year = "Year"
 toggle_sidebar = "Toggle Sidebar"
 sidebar = "Sidebar"
 displays_the_mobile_sidebar = "Displays the mobile sidebar."
+# Breadcrumb's and pagination's names as landmarks, and what screen readers call a carousel and each of its slides.
+breadcrumb = "breadcrumb"
+pagination = "pagination"
+carousel = "carousel"
+slide = "slide"
+# Pagination's arrow links, as screen readers name them.
+go_to_previous_page = "Go to previous page"
+go_to_next_page = "Go to next page"
+# A spinner, as screen readers name it.
+loading = "Loading"
+# The calendar's day buttons for today and for a selected day, as screen readers name them. '{date}' is literal, quotes
+# included: gsxui's calendar script puts the whole day there ("Thursday, July 9, 2026").
+today_date = "Today, '{date}'"
+date_selected = "'{date}', selected"

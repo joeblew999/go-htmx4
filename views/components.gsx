@@ -16,7 +16,7 @@ import (
 component Components() {
 	<Layout title={locales.ComponentsTitle} description={locales.ComponentsDescription} path="/components">
 		<section class="flex flex-col gap-3">
-			<ui.Breadcrumb aria-label={locales.ComponentsBreadcrumb}>
+			<ui.Breadcrumb>
 				<ui.BreadcrumbList>
 					<ui.BreadcrumbItem>
 						<ui.BreadcrumbLink href={"/" |> localize}>{ locales.NavHome }</ui.BreadcrumbLink>
@@ -190,10 +190,10 @@ component DatePickerDemo() {
 
 component CarouselDemo() {
 	<Demo name="ui.Carousel" about={locales.ComponentsCarouselAbout} wide={false}>
-		<ui.Carousel orientation="" class="mx-12" aria-roledescription={locales.ComponentsCarouselRole}>
+		<ui.Carousel orientation="" class="mx-12">
 			<ui.CarouselContent orientation="">
 				{ for _, c := range Calendars {
-					<ui.CarouselItem orientation="" aria-roledescription={locales.ComponentsCarouselSlide}>
+					<ui.CarouselItem orientation="">
 						<ui.Card data-size="sm">
 							<ui.CardContent class="flex min-h-28 flex-col items-center justify-center gap-2 text-center">
 								<span class="text-sm text-muted-foreground">{ c |> intl("DisplayNames", "of", "type", "calendar") }</span>
@@ -386,10 +386,10 @@ component AmountDemo() {
 
 component PaginationDemo() {
 	<Demo name="ui.Pagination" about={locales.ComponentsPaginationAbout} wide={false}>
-		<ui.Pagination aria-label={locales.ComponentsPaginationLabel}>
+		<ui.Pagination>
 			<ui.PaginationContent>
 				<ui.PaginationItem>
-					<ui.PaginationPrevious href="#numbers" aria-label={locales.ComponentsPaginationPrevious}/>
+					<ui.PaginationPrevious href="#numbers"/>
 				</ui.PaginationItem>
 				<ui.PaginationItem>
 					<ui.PaginationLink href="#numbers" size="sm">{ 1 |> number }</ui.PaginationLink>
@@ -407,7 +407,7 @@ component PaginationDemo() {
 					<ui.PaginationLink href="#numbers" size="sm">{ 5000 |> number }</ui.PaginationLink>
 				</ui.PaginationItem>
 				<ui.PaginationItem>
-					<ui.PaginationNext href="#numbers" aria-label={locales.ComponentsPaginationNext}/>
+					<ui.PaginationNext href="#numbers"/>
 				</ui.PaginationItem>
 			</ui.PaginationContent>
 		</ui.Pagination>
@@ -829,7 +829,7 @@ component LoadingDemo() {
 			class="flex flex-col gap-2"
 		>
 			<div class="flex items-center gap-2 text-sm text-muted-foreground">
-				<ui.Spinner aria-label={locales.ComponentsLoading}/>
+				<ui.Spinner/>
 				{ locales.ComponentsLoading }
 			</div>
 			<ui.Skeleton class="h-4 w-3/4"/>
@@ -928,7 +928,7 @@ component ComponentsSidebar() {
 							</ui.SidebarMenu>
 						</ui.SidebarGroup>
 					</ui.SidebarContent>
-					<ui.SidebarRail aria-label={locales.ComponentsSidebarToggle} title={locales.ComponentsSidebarToggle}/>
+					<ui.SidebarRail/>
 				</ui.Sidebar>
 				<ui.SidebarInset>
 					<header class="flex h-12 items-center gap-2 border-b px-4">

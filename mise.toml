@@ -20,7 +20,7 @@ tinygo = "0.43.0"      # workers-go TinyGo builds need >= 0.42.0 (net/http on wa
 # Tailwind standalone CLI — the npm-free path in https://ui.gsxhq.dev/docs/npm-free.
 "github:tailwindlabs/tailwindcss" = "v4.3.3"
 # gsxui has no tags yet: pin the commit (README: go install .../cmd/gsxui).
-"go:github.com/gsxhq/gsxui/cmd/gsxui" = "915241b"
+"go:github.com/gsxhq/gsxui/cmd/gsxui" = "e23aef1"
 # gsx itself is pinned in go.mod: builds use `go tool gsx` (gsx Status guide); the editor copy comes from `editor:gsx`.
 # Cloudflare Workers toolchain. No Node, no wrangler.
 # workerd: the standalone Workers runtime (what `wrangler dev` runs). Pin a release that has binaries.
