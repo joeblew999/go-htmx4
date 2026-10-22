@@ -6,35 +6,21 @@
 #   mise run build:dev  the standard Go compiler, always: seconds after an edit. mise run dev uses it; never deployed.
 #
 # WORKER_COMPILER (mise.toml [env]):
-#   tinygo  charter's go tool workerbuild: TinyGo patched for tinygo#5800, an 8 MB heap, 128 KB stacks, -opt=z, and
+#   tinygo  go tool charter build: TinyGo patched for tinygo#5800, an 8 MB heap, 128 KB stacks, -opt=z, and
 #           charter's Worker glue (go.mjs: Go runtimes kept between requests) in build/. An unchanged build comes
 #           from charter's cache in under a second. WORKERBUILD_FLAGS adds flags (mise run bench:variants turns
 #           each optimisation off in turn: -reuse=false, -patches=false, -heap=0).
-#   go      go tool workerbuild -compiler=go: the standard compiler, seconds per build, a bigger Wasm and a Go runtime
+#   go      go tool charter build -compiler=go: the standard compiler, seconds per build, a bigger Wasm and a Go runtime
 #           per request. mise run dev uses it; never deployed.
 set -euo pipefail
 profile=${WASM_PROFILE:-prod}
 compiler=${WORKER_COMPILER:-tinygo}
 [ "$profile" = dev ] && compiler=go
-# One build at a time: build and build:dev share build/. Two at once (mise run check while mise run dev rebuilds on a
-# save) left one's app.wasm beside the other's glue, with both markers, so mise skipped the next build as up to date.
-# The lock is a symlink to the builder's PID (made atomically); one whose builder is gone (kill -9) is taken over.
-# It lives outside build/: workers-assets-gen (run by workerbuild) deletes build/ first.
-lock=.build.lock
-until ln -s "$$" "$lock" 2>/dev/null; do
-  holder=$(readlink "$lock" || true)
-  if ! kill -0 "$holder" 2>/dev/null; then
-    [ "$(readlink "$lock" || true)" != "$holder" ] || rm -f "$lock"
-    continue
-  fi
-  [ -n "${waiting:-}" ] || { echo "· waiting for another build into build/ (pid $holder)"; waiting=1; }
-  sleep 0.2
-done
-trap 'rm -f "$lock"' EXIT
+# One build at a time into build/ (build and build:dev share it): go tool charter build holds a lock on it.
 rm -f build/.prod build/.dev
 case $compiler in
-  tinygo) go tool workerbuild ${WORKERBUILD_FLAGS:-} ;;
-  go) go tool workerbuild -compiler=go ;;
+  tinygo) go tool charter build ${WORKERBUILD_FLAGS:-} ;;
+  go) go tool charter build -compiler=go ;;
   *) echo "✗ WORKER_COMPILER=$compiler: tinygo or go"; exit 1 ;;
 esac
 # intl's Worker modules beside the build: intl.mjs, intl-worker.mjs and the catalogs (intl/README.md).

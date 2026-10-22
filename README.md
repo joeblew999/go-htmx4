@@ -1,6 +1,6 @@
 # go-htmx4
 
-[![check](https://github.com/joeblew999/go-htmx4/actions/workflows/check.yml/badge.svg)](https://github.com/joeblew999/go-htmx4/actions/workflows/check.yml)
+[![check](https://github.com/joeblew999/go-htmx4/actions/workflows/charter.yml/badge.svg)](https://github.com/joeblew999/go-htmx4/actions/workflows/charter.yml)
 [![release](https://img.shields.io/github/v/release/joeblew999/go-htmx4)](https://github.com/joeblew999/go-htmx4/releases)
 [![Go](https://img.shields.io/github/go-mod/go-version/joeblew999/go-htmx4)](go.mod)
 [![license](https://img.shields.io/github/license/joeblew999/go-htmx4)](LICENSE)

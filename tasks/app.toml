@@ -69,7 +69,7 @@ echo "✓ dist/site: $(find dist/site -type f | wc -l | tr -d ' ') files, gsxui.
 depends = ["generate", "assets"]
 description = "Production build → build/ with WORKER_COMPILER (mise.toml: tinygo or go), size-checked (deploy, staging, CI and the tests use it)"
 dir = "{{config_root}}"
-# Skipped when no input changed since the last production build, so `check` then `e2e` (CI, ci/check.sh) builds once.
+# Skipped when no input changed since the last production build, so `check` then `e2e` (CI: go tool charter ci run) builds once.
 # Inputs: every Go file (the generated *.x.go included), the module files, and mise.toml (a Go/TinyGo/workers-go pin
 # change must rebuild). Nothing else feeds the wasm: Static Assets are dist/site, served beside it. build/.prod marks a
 # production build; build:dev removes it, so a debug wasm is never skipped into a deploy.
@@ -124,7 +124,7 @@ exec go tool charter with -strict sh -c 'SMOKE_BASE=$BASE SMOKE_LOCAL=1 go test 
 
 # Real-browser checks (e2e/: Go + chromedp + headless Chrome, no Node): pages, the live board across two browsers,
 # boosted navigation ↔ board presence, bare-close presence, the write limit. Starts local workerd unless E2E_BASE
-# points at a deployed Worker. CI runs it too (ci/check.sh).
+# points at a deployed Worker. CI runs it too (charter.toml's [ci] test).
 ["e2e"]
 description = "Headless Chrome checks: pages, live board in two browsers, boost ↔ board, presence, Intl, write limit (local workerd, or E2E_BASE=https://…)"
 depends = ["build"]
@@ -144,6 +144,21 @@ description = "CPU per request of the production build on local workerd, per pag
 depends = ["build"]
 dir = "{{config_root}}"
 run = "ci/bench.sh"
+
+# CI's CPU table (charter.toml's [ci] test): one short run into the run's summary, so a slower page shows on every PR.
+# CI's machines vary: for spotting a jump, not for the numbers in docs/benchmarks.md.
+["ci:bench"]
+description = "CI: one short CPU-per-request run of the build on workerd, into the GitHub run's summary (charter.toml [ci] test)"
+depends = ["build"]
+dir = "{{config_root}}"
+run = '''
+#!/usr/bin/env bash
+set -euo pipefail
+BENCH_N=30 BENCH_RUNS=1 ci/bench.sh | tee build/bench.txt
+if [ -n "${GITHUB_STEP_SUMMARY:-}" ]; then
+  { echo; echo "CPU per request on workerd (ms, mise run bench):"; echo; echo '```'; grep -E "median|CPU per request" build/bench.txt; echo '```'; } >>"$GITHUB_STEP_SUMMARY"
+fi
+'''
 
 ["bench:variants"]
 description = "Build the current code with each of charter's optimisations off in turn, measure each, write docs/benchmarks.md"
@@ -205,6 +220,9 @@ go test ./...
 # has already regenerated intl.sum and the languages badge, so a change to either (or a new one) means it wasn't
 # committed.
 mise run -q intl:check
+# charter.toml and charter's files here (its tasks, Workers Builds' launcher, its skill, the CI workflow) as this
+# charter writes them.
+go tool charter check
 generated=$(git status --porcelain -- locales/intl.sum docs/badges/intl.svg)
 [ -z "$generated" ] || { echo "$generated"; echo "✗ go tool intl gen changed these: commit them"; exit 1; }
 # intl/ is its own module, for any gsx app: format, vet and test it too (its tests run Intl on workerd).
@@ -272,7 +290,7 @@ cf go tool charter deploy production | tee .deploy-url
 
 # ── staging ─────────────────────────────────────────────────────
 # Staging: its own Worker $APP_NAME-staging (https://$APP_NAME-staging.<subdomain>.workers.dev), exactly what's on main.
-# Workers Builds deploys it on every merge to main (ci/workers-builds.sh). Like production, but never production: no
+# Workers Builds deploys it on every merge to main (.mise/tasks/charter-builds → go tool charter builds deploy). Like production, but never production: no
 # custom domain (seo.Site never redirects), APP_PREVIEW=1 (noindex), its own D1 ($APP_NAME-staging) and Durable Objects.
 ["staging"]
 description = "Test, then deploy staging: the Worker $APP_NAME-staging → its URL on stdout and in .staging-url"
@@ -306,9 +324,9 @@ cf go tool charter deploy preview "${usage_name:-$(git branch --show-current)}" 
 
 # ── release ─────────────────────────────────────────────────────
 # Production without anyone's machine holding Cloudflare credentials: a v* tag (GitHub's Releases page) or a
-# release/v* branch (mise run release) on a commit that's on main. CI (ci/check.sh) tests it, then moves the production
+# release/v* branch (mise run release) on a commit that's on main. CI (go tool charter ci run) tests it, then moves the production
 # branch to it, and Workers Builds' branch trigger deploys production
-# with its own build token (ci/workers-builds.sh sees the branch → go tool charter deploy production). A tag from GitHub's Releases page does the same. Roll
+# with its own build token (go tool charter builds deploy sees the branch → production). A tag from GitHub's Releases page does the same. Roll
 # back by tagging an older commit of main.
 ["release"]
 description = "Release main to production (e.g. v1.3): CI tests it, tags it (and intl/seo with their next version when they changed), Workers Builds deploys it; no Cloudflare credentials needed"
@@ -323,22 +341,4 @@ git fetch -q origin main
 # A release/v* branch, not a tag: some places (Claude's cloud sandbox) can push branches but not tags. CI makes the tag.
 git push origin "origin/main:refs/heads/release/$v"
 echo "✓ release/$v → $(git rev-parse --short origin/main): CI tests it, tags $v, Workers Builds deploys production"
-'''
-
-# ── cf:builds ───────────────────────────────────────────────────
-# Workers Builds (Cloudflare's GitHub app) as code: the repository connection and the "$APP_NAME branch previews"
-# trigger running ci/workers-builds.sh, idempotent (PR #6). The one
-# manual step: create the build token "$APP_NAME build token" in the dashboard once (the API can't). Until then
-# it uses FALLBACK_BUILD_TOKEN if set.
-["cf:builds"]
-description = "Set up Workers Builds for $APP_REPO: every branch deploys (previews; production from the production branch), main deploys staging; idempotent"
-dir = "{{config_root}}"
-run = '''
-#!/usr/bin/env bash
-set -euo pipefail
-cf() { if [ -n "${CLOUDFLARE_API_TOKEN:-}" ] && [ -n "${CLOUDFLARE_ACCOUNT_ID:-}" ]; then "$@"; else fnox exec -- "$@"; fi; }
-cf sh -c 'exec go tool workerdeploy -name "$APP_NAME" -repo "$APP_REPO" -configure-builds \
-  -build-command "ci/workers-builds.sh build" -deploy-command "ci/workers-builds.sh deploy" \
-  -build-token "$APP_NAME build token" -fallback-build-token "${FALLBACK_BUILD_TOKEN:-}" \
-  -build-var "CLOUDFLARE_ACCOUNT_ID=$CLOUDFLARE_ACCOUNT_ID" -path-exclude "*.md"'
 '''

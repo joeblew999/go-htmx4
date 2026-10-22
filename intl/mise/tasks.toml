@@ -61,7 +61,9 @@ run = '''
 set -uo pipefail
 status=0
 # The catalogs first, before anything regenerates intl.sum: a commit missing its intl.sum must fail here.
-# INTL_MISSING=warn (CI, for a contributor's pull request): missing and stale translations are only reported.
+# A contributor's pull request (GitHub's pull_request run) may leave translations to the maintainer: missing and stale
+# ones are only reported there (INTL_MISSING=warn sets the same anywhere). Pushes and releases stay strict.
+[ "${GITHUB_EVENT_NAME:-}" != pull_request ] || INTL_MISSING=${INTL_MISSING:-warn}
 go tool intl check ${INTL_MISSING:+-missing=$INTL_MISSING} || status=1
 go tool intl gen >/dev/null 2>&1 || status=1
 # gsx's own tools on the app's markup (go tool intl markup: its own .gsx and .go files, file by file, so nothing

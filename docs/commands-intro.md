@@ -9,8 +9,9 @@ Every command is a mise task: `mise run <task>`; `mise tasks` lists them. Which 
   with the fast `build:dev`.
 - **Build:** `build` is production (what ships and what the tests use), compiled by `WORKER_COMPILER` in mise.toml:
   `tinygo` (smallest wasm, ~1–2 min builds) or `go` (seconds, a bigger wasm, ~50–90 ms slower per request).
-  Override it for one run: `WORKER_COMPILER=go ci/check.sh`. `build:dev` is always standard Go, for `dev`.
-- **Test:** `check` before pushing (CI runs the same, `ci/check.sh`), then `e2e` for anything in the browser.
+  Override it for one run: `WORKER_COMPILER=go mise run check`. `build:dev` is always standard Go, for `dev`.
+- **Test:** `check` before pushing (CI runs the same, `go tool charter ci run` from `charter.toml`'s `[ci]`), then
+  `e2e` for anything in the browser.
   `SMOKE_BASE=https://… smoke` runs the smoke checks against a deployed Worker.
 - **Ship:** every pushed branch gets a preview and `main` deploys staging, both automatically (Workers Builds).
   Production: `release v1.3` (or a v* tag from GitHub's Releases page) → CI tests it and tags it → Workers Builds
