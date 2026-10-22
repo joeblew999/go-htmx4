@@ -219,6 +219,24 @@ func TestFormatsPage(t *testing.T) {
 	}
 }
 
+// TestComponentsInRussian: gsxui's own words come from the catalogs and Intl. The calendar's caption names the month
+// alone ("июль 2026") and its day labels inside a date ("4 июля"); its today and selected labels keep gsxui's {date}
+// for its script; the landmarks and buttons gsxui names are in Russian, with no override on the page.
+func TestComponentsInRussian(t *testing.T) {
+	body := get(t, newServer().routes(), "/ru/components").Body.String()
+	for _, want := range []string{"июль 2026", "суббота, 4 июля 2026 г.", `data-gsxui-calendar-label-today="Сегодня, {date}"`,
+		`data-gsxui-calendar-label-selected="{date}, выбрано"`, `aria-label="Навигационная цепочка"`, `aria-roledescription="карусель"`,
+		`aria-label="Перейти на следующую страницу"`, `aria-label="Загрузка"`} {
+		if !strings.Contains(body, want) {
+			t.Errorf("/ru/components lacks %q", want)
+		}
+	}
+	// The sidebar demo is its own page, in an iframe.
+	if body := get(t, newServer().routes(), "/ru/components/sidebar").Body.String(); !strings.Contains(body, `aria-label="Переключить боковую панель"`) {
+		t.Errorf("/ru/components/sidebar: the rail isn't named in Russian")
+	}
+}
+
 // TestNoteRelativeTime: a note's age is worded by Intl on the server in the page's language ("vor 2 Minuten") and
 // reaches the browser as an instant, which intl-browser.mjs keeps fresh.
 func TestNoteRelativeTime(t *testing.T) {

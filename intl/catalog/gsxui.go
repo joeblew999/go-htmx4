@@ -62,9 +62,9 @@ func (p *Project) GsxuiProblems() ([]string, error) {
 	for _, t := range texts {
 		switch m := p.Message(t.Key); {
 		case m == nil:
-			out = append(out, fmt.Sprintf("%s writes i18n.T(%q): add %s = %q to %s/%s.toml", t.File, t.Text, t.Key, t.Text, p.Config.Catalogs, p.Config.Locales[0]))
+			out = append(out, fmt.Sprintf("%s writes i18n.T(%q): add %s = %q to %s/%s.toml", t.File, t.Text, t.Key, literal(t.Text), p.Config.Catalogs, p.Config.Locales[0]))
 		case len(m.Args) > 0:
-			out = append(out, fmt.Sprintf("%s is i18n.T(%q), which has no arguments", t.Key, t.Text))
+			out = append(out, fmt.Sprintf("%s is i18n.T(%q), which has no arguments: its braces are gsxui's, quoted in ICU, %s = %q", t.Key, t.Text, t.Key, literal(t.Text)))
 		}
 	}
 	return out, nil
@@ -146,4 +146,10 @@ func PackagePath(dir string) (string, error) {
 		}
 		root = parent
 	}
+}
+
+// literal is gsxui's text as an ICU message that formats to exactly it: a placeholder gsxui's own script fills in
+// ("Today, {date}") is quoted, "Today, '{date}'", since in ICU braces mark an argument.
+func literal(text string) string {
+	return strings.NewReplacer("{", "'{", "}", "}'").Replace(text)
 }

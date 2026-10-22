@@ -202,7 +202,7 @@ say:
 |---|---|
 | `intl.Order(ctx, names, opts)` | the order `Intl.Collator` sorts names in: sort rows by a name (Ägypten before Österreich in German, after it in Swedish) |
 | `intl.Segments(ctx, text, "grapheme" \| "word" \| "sentence")` | text split by `Intl.Segmenter`: count what a reader sees as characters, take initials, find words in Japanese |
-| `intl.CalendarOf(ctx)`, `intl.WeekStart(ctx)` | a month calendar's words and its first day: `<ui.Calendar locale={ ui.CalendarLocale(intl.CalendarOf(ctx)) } weekStartsOn={ intl.WeekStart(ctx) }/>` |
+| `intl.CalendarOf(ctx)`, `intl.WeekStart(ctx)` | a month calendar's words and its first day: `<ui.Calendar locale={ ui.CalendarLocale(intl.CalendarOf(ctx)) } weekStartsOn={ intl.WeekStart(ctx) }/>` (gsxui e23aef1 or later: months inside a date, Russian "4 июля") |
 | `intl.Current(ctx).ParseNumber(text)` | a number typed the language's way, as a plain decimal (`window.intl.parseNumber` in the browser) |
 
 ## Translating
