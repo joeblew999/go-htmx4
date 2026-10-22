@@ -31,12 +31,13 @@ echo "✓ htmx $version: web/htmx/htmx.min.js, web/htmx/hx-ws.js, web/htmx/hx-li
 '''
 
 # The app's components (gsx:generate, from gsxkit's tasks) and this repo's own modules' (intl/, seo/), which commit
-# theirs for the apps that import them; every build/run/test path depends on this.
+# theirs for the apps that import them; then the tables a TinyGo build of the pages reads (structpages-gen, after gsx:
+# the pages' Page methods are gsx's code). Every build/run/test path depends on this.
 ["generate"]
-description = "gsx:generate for the app, and intl's and seo's own components, which their modules commit for the apps that import them"
+description = "gsx:generate for the app, intl's and seo's own components (their modules commit them for the apps that import them), and structpages' tables for TinyGo"
 depends = ["intl", "gsx:generate"]
 dir = "{{config_root}}"
-run = ["go -C intl tool gsx generate -q .", "go -C seo tool gsx generate -q ."]
+run = ["go -C intl tool gsx generate -q .", "go -C seo tool gsx generate -q .", "go tool structpages-gen ./views"]
 
 # The Static Assets directory: /static/ = web/htmx/ (htmx, hx-ws) and intl's browser module, /gsxui/ = web/gsxui/
 # behaviours, /assets/ = gsxui's compiled CSS (gsxui:css) + fonts (fonts.css url()s are relative).
@@ -69,10 +70,11 @@ depends = ["generate", "assets"]
 description = "Production build → build/ with WORKER_COMPILER (mise.toml: tinygo or go), size-checked (deploy, staging, CI and the tests use it)"
 dir = "{{config_root}}"
 # Skipped when no input changed since the last production build, so `check` then `e2e` (CI: go tool charter ci run) builds once.
-# Inputs: every Go file (the generated *.x.go included), the module files, and mise.toml (a Go/TinyGo/workers-go pin
-# change must rebuild). Nothing else feeds the wasm: Static Assets are dist/site, served beside it. build/.prod marks a
-# production build; build:dev removes it, so a debug wasm is never skipped into a deploy.
-sources = ["**/*.go", "go.mod", "go.sum", "intl/go.mod", "mise.toml", "intl/js/*.mjs", "locales/intl-messages.mjs"]
+# Inputs: every Go file (the generated *.x.go included), the module files, mise.toml (a Go/TinyGo/workers-go pin
+# change must rebuild), and ci/wasm-build.sh (its build flags, such as the heap). Nothing else feeds the wasm: Static
+# Assets are dist/site, served beside it. build/.prod marks a production build; build:dev removes it, so a debug wasm is
+# never skipped into a deploy.
+sources = ["**/*.go", "go.mod", "go.sum", "intl/go.mod", "mise.toml", "ci/wasm-build.sh", "intl/js/*.mjs", "locales/intl-messages.mjs"]
 outputs = ["build/app.wasm", "build/go.mjs", "build/worker.mjs", "build/runtime.mjs", "build/wasm_exec.js", "build/hub.mjs", "build/websocket.mjs", "build/tinygo-clock.mjs", "build/intl.mjs", "build/intl-worker.mjs", "build/intl-messages.mjs", "build/.prod"]
 env = { WASM_PROFILE = "prod" }
 run = "ci/wasm-build.sh"

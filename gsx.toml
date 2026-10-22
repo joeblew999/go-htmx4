@@ -14,6 +14,14 @@ filter_packages = ["github.com/joeblew999/go-htmx4/intl/filters"]
 "github.com/joeblew999/go-htmx4/intl.Msg" = "github.com/joeblew999/go-htmx4/intl.Translate"
 "github.com/joeblew999/go-htmx4/intl.Plain" = "github.com/joeblew999/go-htmx4/intl.PlainText"
 
+# A page's link is its route in structpages' tree (views.Pages), in the request's language: { About{} |> url }.
+# Named filters win over filter_packages (intl's url takes a page with a Path; ours read the tree). id and target are
+# structpages' own: an element id for a page's component, and the htmx target selector for it.
+[filters]
+url = "github.com/joeblew999/go-htmx4/views/link.URL"
+id = "github.com/jackielii/structpages.ID"
+target = "github.com/jackielii/structpages.IDTarget"
+
 [url_attrs]
 names = ["hx-ws:connect"]
 

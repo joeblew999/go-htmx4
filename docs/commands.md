@@ -195,7 +195,7 @@ The fresh-app test with intl and seo as published on the Go proxy (@latest), not
 
 - **Usage:** `generate`
 
-gsx:generate for the app, and intl's and seo's own components, which their modules commit for the apps that import them
+gsx:generate for the app, intl's and seo's own components (their modules commit them for the apps that import them), and structpages' tables for TinyGo
 
 ### `gsx:editor`
 

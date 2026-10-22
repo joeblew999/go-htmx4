@@ -96,7 +96,8 @@ func TestRoutes(t *testing.T) {
 	}
 }
 
-// Plain-path routes (TinyGo's pre-Go 1.22 ServeMux) still enforce methods and exact paths.
+// Routes enforce methods and exact paths: the pages through their GET patterns (Allow: GET, HEAD, as net/http's mux
+// answers), the plain paths through allow.
 func TestRouteRules(t *testing.T) {
 	h := newServer().routes()
 	tests := []struct {
@@ -105,11 +106,11 @@ func TestRouteRules(t *testing.T) {
 		allow        string
 	}{
 		{"GET", "/greet", http.StatusMethodNotAllowed, "POST, DELETE"},
-		{"POST", "/", http.StatusMethodNotAllowed, "GET"},
-		{"POST", "/about", http.StatusMethodNotAllowed, "GET"},
+		{"POST", "/", http.StatusMethodNotAllowed, "GET, HEAD"},
+		{"POST", "/about", http.StatusMethodNotAllowed, "GET, HEAD"},
 		{"POST", "/static/htmx.min.js", http.StatusMethodNotAllowed, "GET"},
 		{"GET", "/board/add", http.StatusMethodNotAllowed, "POST"},
-		{"POST", "/board", http.StatusMethodNotAllowed, "GET"},
+		{"POST", "/board", http.StatusMethodNotAllowed, "GET, HEAD"},
 		{"GET", "/nope", http.StatusNotFound, ""},
 		{"GET", "/nope.txt", http.StatusNotFound, ""},
 		{"GET", "/fragments/nope", http.StatusNotFound, ""},

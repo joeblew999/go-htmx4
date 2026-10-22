@@ -120,7 +120,7 @@ charter:deploy production`. This repo's own previews, staging and releases: [doc
 | --- | --- |
 | `main.go` | the entry point: `transport.Run(app.Handler())` |
 | `app/` | the server (`server.go`: routes), the board (`board.go`, its stores), the app on the web (`site.go`: its languages, `intl.Site`, and search engines, `seo.Site`, with the sitemap's pages), what it takes from Cloudflare (`platform.go`, through charter's bindings, the same off Workers); each file's tests beside it |
-| `views/` | pages and fragments in gsx; a page's data in a `.go` file beside it; `views/intl/`, intl's screens, written by `go tool intl add` |
+| `views/` | pages and fragments in gsx; the page tree (`pages.go`, [structpages](https://github.com/jackielii/structpages)); a page's data in a `.go` file beside it; `views/intl/`, intl's screens, written by `go tool intl add` |
 | `ui/`, `web/gsxui/` | gsxui components and their behaviours, vendored by `gsxui add`: never edited by hand |
 | `web/htmx/` | htmx 4, hx-ws and hx-live, vendored by `mise run vendor` |
 | `locales/` | the messages: one catalog per language (`en.toml` is the source) and `intl.sum` |
@@ -139,10 +139,10 @@ charter:deploy production`. This repo's own previews, staging and releases: [doc
 
 **Adding something, one way each:**
 
-- **A page:** a type in the page table (`pages/pages.go`: its `Path`, an entry in `pages.All`), a component in
-  `views/<page>.gsx` inside `Layout` with its own translated title and description, and a route in `app/server.go`
-  (`pages.Route`) that renders it with `s.render`. Links to it are `{ pages.About{} |> url }`; the sitemap and the
-  noindex rules follow from the table.
+- **A page:** a type in structpages' page tree (`views/pages.go`: a field in `Pages` with its route, an entry in
+  `All`, its data through `Props`), its `Page` method (`views/pages.gsx`), and a component in `views/<page>.gsx`
+  inside `Layout` with its own translated title and description. Links to it are `{ About{} |> url }`; the sitemap
+  and the noindex rules follow from the tree.
 - **Text:** a key in `locales/en.toml`, written `{ locales.Key }`, then `mise run intl:translate` and
   `mise run intl:check`.
 - **A date, a number, any Intl call:** a filter in markup, `{ t |> date("dateStyle", "long") }`, its options in pairs.

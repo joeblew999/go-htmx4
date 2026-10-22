@@ -3,7 +3,6 @@ package views
 import (
 	"github.com/joeblew999/go-htmx4/intl"
 	"github.com/joeblew999/go-htmx4/locales"
-	"github.com/joeblew999/go-htmx4/pages"
 	"github.com/joeblew999/go-htmx4/ui"
 	"github.com/joeblew999/go-htmx4/ui/icon"
 )
@@ -12,8 +11,8 @@ import (
 // /live/{topic} with hx-ws (loaded by Layout); the Room Durable Object pushes BoardFragment on every change and
 // the online count into #presence (the label next to it is rendered here, in the page's language). Without it (go test, no Durable Objects) only the poster's own response
 // updates the board, and a badge says so.
-component BoardPage(topic string, b Board, live bool) {
-	<Layout title={locales.BoardTitle} description={locales.BoardIntro} page={pages.Board{Topic: topic}}>
+component BoardPage(topic string, b BoardState, live bool) {
+	<Layout title={locales.BoardTitle} description={locales.BoardIntro}>
 		<div class="flex flex-col gap-2">
 			<h1 class="text-3xl font-semibold tracking-tight">{ locales.BoardTitle }</h1>
 			<p class="text-muted-foreground">{ locales.BoardIntro }</p>
@@ -109,13 +108,13 @@ component BoardPage(topic string, b Board, live bool) {
 // BoardFragment is the #board element as an out-of-band swap: the poster's response and the hx-ws push
 // both use it. The Room and the page's version guard rely on its id="board", hx-swap-oob="true" and
 // data-version (see TestBoardFragmentWireFormat).
-component BoardFragment(b Board) {
+component BoardFragment(b BoardState) {
 	<boardSection b={b} oob={true}/>
 }
 
 // boardSection is #board; as the page renders it (oob false) it has no hx-swap-oob, or a boosted navigation to /board
 // would treat the board as out-of-band content and drop it (no #board on the page it came from).
-component boardSection(b Board, oob bool) {
+component boardSection(b BoardState, oob bool) {
 	<section
 		id="board"
 		{ if oob {
@@ -129,7 +128,7 @@ component boardSection(b Board, oob bool) {
 	</section>
 }
 
-component boardBody(b Board) {
+component boardBody(b BoardState) {
 	<div class="flex items-baseline gap-3">
 		<output class="text-6xl font-semibold tracking-tight tabular-nums">{ b.Value |> number }</output>
 		<span class="text-sm text-muted-foreground">{ locales.BoardVersion(float64(b.Version)) }</span>

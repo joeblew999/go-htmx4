@@ -4,7 +4,6 @@ import (
 	"github.com/gsxhq/gsx"
 	"github.com/joeblew999/go-htmx4/intl"
 	"github.com/joeblew999/go-htmx4/locales"
-	"github.com/joeblew999/go-htmx4/pages"
 	"github.com/joeblew999/go-htmx4/seo"
 	"github.com/joeblew999/go-htmx4/ui"
 	"github.com/joeblew999/go-htmx4/ui/icon"
@@ -34,7 +33,7 @@ import (
 // screens (go tool intl add, in views/intl) offer the page in the reader's language above the content, list it in
 // every language in the footer, outside the boosted nav (switching locale must be a full page load, since a boosted
 // swap keeps the old <html lang dir>), and set the time zone and clock from the header.
-component Layout(title intl.Msg, description intl.Msg, page pages.Page, children gsx.Node) {
+component Layout(title intl.Msg, description intl.Msg, children gsx.Node) {
 	<!DOCTYPE html>
 	<html { intl.HTML(ctx)... }>
 		<head>
@@ -45,10 +44,10 @@ component Layout(title intl.Msg, description intl.Msg, page pages.Page, children
 				description={description |> text}
 				siteName="go-htmx4"
 				icon="/static/favicon.svg"
-				home={homeURL(ctx, page)}
+				home={homeURL(ctx)}
 				lang={intl.Current(ctx).ID()}
 			/>
-			<intl.Head page={pages.Key(ctx)}/>
+			<intl.Head page={Key(ctx)}/>
 			<meta name="htmx-config" content={htmxConfig(ctx)}/>
 			<script src="/static/htmx.js" defer></script>
 			<VersionGuard/>
@@ -61,20 +60,20 @@ component Layout(title intl.Msg, description intl.Msg, page pages.Page, children
 					hx-boost:inherited="true"
 					hx-swap:inherited="outerMorph transition:true"
 				>
-					<a href={pages.Home{} |> url} class="me-auto font-semibold" translate="no">go-htmx4</a>
-					<ui.Button variant={navVariant(page, pages.Home{})} size="sm" href={pages.Home{} |> url}>
+					<a href={Home{} |> url} class="me-auto font-semibold" translate="no">go-htmx4</a>
+					<ui.Button variant={navVariant(ctx, Home{})} size="sm" href={Home{} |> url}>
 						{ locales.NavHome }
 					</ui.Button>
-					<ui.Button variant={navVariant(page, pages.Board{})} size="sm" href={pages.Board{} |> url}>
+					<ui.Button variant={navVariant(ctx, Board{})} size="sm" href={Board{} |> url}>
 						{ locales.NavBoard }
 					</ui.Button>
-					<ui.Button variant={navVariant(page, pages.Formats{})} size="sm" href={pages.Formats{} |> url}>
+					<ui.Button variant={navVariant(ctx, Formats{})} size="sm" href={Formats{} |> url}>
 						{ locales.NavFormats }
 					</ui.Button>
-					<ui.Button variant={navVariant(page, pages.Components{})} size="sm" href={pages.Components{} |> url}>
+					<ui.Button variant={navVariant(ctx, Components{})} size="sm" href={Components{} |> url}>
 						{ locales.NavComponents }
 					</ui.Button>
-					<ui.Button variant={navVariant(page, pages.About{})} size="sm" href={pages.About{} |> url}>
+					<ui.Button variant={navVariant(ctx, About{})} size="sm" href={About{} |> url}>
 						{ locales.NavAbout }
 					</ui.Button>
 					<ui.Button

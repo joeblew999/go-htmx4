@@ -2,7 +2,6 @@ package views
 
 import (
 	"github.com/joeblew999/go-htmx4/locales"
-	"github.com/joeblew999/go-htmx4/pages"
 	"github.com/joeblew999/go-htmx4/ui"
 	"github.com/joeblew999/go-htmx4/ui/icon"
 )
@@ -11,7 +10,7 @@ import (
 // out-of-band toast, lazily loaded dialog and tab content, client-side state with hx-live, and the live
 // board.
 component HomePage(target string, env string, flavours []string, components []string) {
-	<Layout title={locales.HomeHeading} description={locales.HomeDescription} page={pages.Home{}}>
+	<Layout title={locales.HomeHeading} description={locales.HomeDescription}>
 		<div class="flex flex-col gap-2">
 			<h1 class="text-3xl font-semibold tracking-tight">{ locales.HomeHeading }</h1>
 			<p class="text-muted-foreground">{ locales.HomeIntro }</p>
@@ -210,7 +209,7 @@ component BoardCard() {
 			<ui.CardDescription>{ locales.HomeBoardDescription }</ui.CardDescription>
 		</ui.CardHeader>
 		<ui.CardContent>
-			<ui.Button href={pages.Board{} |> url}>
+			<ui.Button href={Board{} |> url}>
 				<icon.Radio/>
 				{ locales.HomeBoardOpen }
 			</ui.Button>

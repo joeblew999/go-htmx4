@@ -68,6 +68,7 @@ contributor's pull request stops before them.
 ## Generated files: never edit
 
 `*.x.go` (`go tool gsx generate`; not committed, except intl's `render.x.go` and `head.x.go` and seo's `head.x.go`: apps import them as Go packages),
+`structpages_tables.go` (`go tool structpages-gen`, in `mise run generate`; not committed),
 `intl_gen.go` and `intl-messages.mjs` (`mise run intl`; not committed), `locales/intl.sum` and `docs/badges/intl.svg`
 (`mise run intl`; committed), `.claude/skills/intl` (`mise run intl:skill`; committed), `.claude/skills/seo`
 (`mise run seo:skill`; committed), the skills gsx and structpages ship (`.claude/skills/gsx`, `templ-to-gsx-migration`, `structpages`: `mise run gsx:skill`;
@@ -130,12 +131,13 @@ after a release; committed), what `gsxui` manages (`gsxui.json` lists it), and i
   opts) }` (several arguments: `{ intl.Args{a, b} |> intl(…) }`), and `{ v |> plain }` in an attribute. Every Intl
   API is reachable that way: add no Go formatting of our own. Options are always pairs, as Intl names them:
   `date("dateStyle", "long")` in markup, `intl.Options("dateStyle", "long")` in Go; never a JSON string.
-- **Pages are the page table, `pages/pages.go`:** each page a Go type with a `Path`. Its route (`pages.Route`), links to
-  it (`href={ pages.Board{Topic: t} |> url }`), the sitemap, intl's and seo's `IsPage` and the canonical page
-  (`pages.Key`) all come from it: never a page's path as a string. A new page: a type, an entry in `pages.All`, a
-  handler, and a translated title and its own translated `description` key to `Layout`. A query parameter that makes
-  a different page is part of its type (`Board.Topic`, `FromQuery`); one that makes endless pages (a board topic) is
-  `Noindex`. Titles ≤ 60 and descriptions ≤ 160 wide (`TestSnippetWidths`).
+- **Pages are the page tree, `views/pages.go`** (structpages, #132): each page a type in `views.Pages`, its route in
+  the field's tag, with a `Page` method (`views/pages.gsx`) and, for the app's data, `Props` (through `views.App`).
+  Links to it (`href={ Board{Topic: t} |> url }`, `views/link`), the sitemap, intl's and seo's `IsPage` and the
+  canonical page (`views.Key`) all come from the tree: never a page's path as a string. A new page: a type with a
+  `Page` method, a field in `Pages`, an entry in `All`, and a translated title and its own translated `description`
+  key to `Layout`. A query parameter that makes a different page is part of its type (`Board.Topic`, `Query`); one
+  that makes endless pages (a board topic) is `Noindex`. Titles ≤ 60 and descriptions ≤ 160 wide (`TestSnippetWidths`).
 - `/robots.txt` keeps one `*` group with no `Disallow` (`TestRobotsTxt`); absolute URLs come from `web.Origin(r)`,
   never a hard-coded host. No page routes under `/fragments/` (noindex) and no robots `Disallow` for them.
 - How Google sees the site is `seo/` (its own module, `seo/README.md`) and the `seo` skill: what Google reads is
@@ -148,8 +150,10 @@ after a release; committed), what `gsxui` manages (`gsxui.json` lists it), and i
 
 - **workers-go `v0.36.0` exactly** (`github.com/syumai/workers-go`). What ships is built by charter's
   `go tool charter build` (TinyGo by default, `WORKER_COMPILER`); standard Go only for local code and `build:dev`.
-- **TinyGo gaps:** register plain paths (`"/greet"`) and check the method with `allow` (charter's `web.Allow`), never `"GET /x"` or
-  `{$}`; `html/template` panics. Reflection-heavy code needs the workerd smoke test, not just a build. Run
+- **TinyGo gaps:** the mux is charter's `web.NewServeMux()`, which has Go 1.22 patterns under TinyGo too: the pages
+  use them, the other routes are plain paths (`"/greet"`) checking their method with `allow` (charter's `web.Allow`).
+  structpages calls the pages' methods through tables `structpages-gen` writes (`mise run generate`); `html/template`
+  panics. Reflection-heavy code needs the workerd smoke test, not just a build. Run
   `mise run check` after changing handlers: `go test` can't see TinyGo.
 - **Memory between requests is a cache, never state:** any request may start a new runtime. Package variables hold
   only what is the same for every request; shared state needs a Cloudflare binding.
