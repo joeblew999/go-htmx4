@@ -103,7 +103,13 @@ Install go.mod's gsx into GOPATH/bin for the VS Code gsx language server
 
 - **Usage:** `fresh`
 
-A brand-new gsx app outside this repo, set up with intl from this checkout as intl/README.md says, served by an ordinary Go server in English and German, intl:check passing (e2e/fresh)
+A brand-new gsx app outside this repo, made from intl's and seo's READMEs with this checkout's intl and seo (every go and gsx block in them is its code), with gsxui and intl's screens, served by an ordinary Go server in English and German; its go test, seo:audit and intl:check pass (e2e/fresh)
+
+### `fresh:published`
+
+- **Usage:** `fresh:published`
+
+The fresh-app test with intl and seo as published on the Go proxy (@latest), not this checkout: after a release, once the proxy has its tags, it shows the READMEs work for someone who runs go get
 
 ### `generate`
 

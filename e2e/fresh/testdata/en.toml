@@ -1,0 +1,22 @@
+
+[page]
+# A page's title in the browser and in search results: {title} is the page's own.
+title = "{title} · Shop"
+
+[home]
+# The home page's heading, and its title.
+heading = "Welcome"
+# The home page's description, for search results.
+description = "Notes and orders, in every language."
+
+[board]
+# The note count's tooltip.
+hint = "Notes everyone can see"
+# How many notes there are.
+notes = "{n, plural, one {# note} other {# notes}}"
+
+[about]
+# The about page's heading and title.
+title = "About"
+# The about page's description, for search results.
+description = "Who runs the shop, and how."

@@ -31,8 +31,10 @@ mise run release v1.3    # or push a v* tag from GitHub's Releases page
 
 CI tests the commit, checks it is on `main`, tags it, and moves the `production` branch to it; Workers Builds then
 deploys production. The same release tags `badge/`, `intl/` and `seo/` with their next version when they changed
-since their last tag (`ci/module-tags.sh`), so other apps get every fix with `go get`. `mise run release` releases the tip of `main`; to roll back, push a v* tag on an older commit of
-`main`. Never push to `production` by hand.
+since their last tag (`ci/module-tags.sh`), so other apps get every fix with `go get`. Once the Go proxy has those
+tags (a few minutes), `mise run fresh:published` builds the READMEs' app from them, as someone running `go get` would.
+`mise run release` releases the tip of `main`; to roll back, push a v* tag on an older commit of `main`. Never push to
+`production` by hand.
 
 `mise run deploy` deploys production from a machine with fnox credentials instead, after the full test and a token
 check, and then audits the live site as Googlebot.
