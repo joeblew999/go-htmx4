@@ -227,7 +227,7 @@ Test, then deploy a Worker Preview named after the branch (or e.g. pr-7) → its
 
 ### `release`
 
-Release main to production (e.g. v1.3): CI tests it, tags it, Workers Builds deploys it; no Cloudflare credentials needed
+Release main to production (e.g. v1.3): CI tests it, tags it (and intl/seo with their next version when they changed), Workers Builds deploys it; no Cloudflare credentials needed
 
 
 - **Usage:** `release <version>`

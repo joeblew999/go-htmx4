@@ -115,6 +115,8 @@ release() {
       { echo "✗ couldn't create tag $version (it may exist already)"; return 1; }
     echo "✓ tag $version → ${GITHUB_SHA:0:7}"
   fi
+  # intl and seo, which other apps use: a new version of each that changed since its last tag.
+  ci/module-tags.sh "$GITHUB_SHA"
   git push --force "https://x-access-token:$GITHUB_TOKEN@github.com/$GITHUB_REPOSITORY.git" "$GITHUB_SHA:refs/heads/production"
   echo "✓ $version: production → ${GITHUB_SHA:0:7}; Workers Builds deploys it (Cloudflare dashboard → Workers → Builds)"
   if [ "${GITHUB_REF_TYPE:-}" = branch ]; then

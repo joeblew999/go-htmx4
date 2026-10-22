@@ -318,7 +318,7 @@ run = 'ci/deploy.sh preview "${usage_name:-$(git branch --show-current)}"'
 # with its own build token (ci/workers-builds.sh sees the branch → ci/deploy.sh production). A tag from GitHub's Releases page does the same. Roll
 # back by tagging an older commit of main.
 ["release"]
-description = "Release main to production (e.g. v1.3): CI tests it, tags it, Workers Builds deploys it; no Cloudflare credentials needed"
+description = "Release main to production (e.g. v1.3): CI tests it, tags it (and intl/seo with their next version when they changed), Workers Builds deploys it; no Cloudflare credentials needed"
 dir = "{{config_root}}"
 usage = 'arg "<version>" help="the release, e.g. v1.3"'
 run = '''
