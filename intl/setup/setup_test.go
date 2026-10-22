@@ -4,6 +4,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 	"testing"
 
@@ -130,5 +131,75 @@ func TestInitExisting(t *testing.T) {
 	g = gsxConfig{}
 	if _, err := toml.Decode(read(t, root, "gsx.toml"), &g); err != nil || len(g.FilterPackages) != 1 || len(g.Renderers) != 3 {
 		t.Errorf("gsx.toml without tables: %v %+v\n%s", err, g, read(t, root, "gsx.toml"))
+	}
+}
+
+// TestInitAgain: init run again after gsxui init writes gsxui into intl.toml, once, beside catalogs.
+func TestInitAgain(t *testing.T) {
+	root := app(t, map[string]string{})
+	if err := setup.Init(root, setup.Options{Locales: []string{"en", "de"}, Catalogs: "locales"}, io.Discard); err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(read(t, root, "intl.toml"), "gsxui =") {
+		t.Fatal("intl.toml names gsxui before there is one")
+	}
+	write(t, root, "gsxui.json", `{"ui": "components"}`)
+	ui := setup.DetectGsxui(root)
+	if ui != "components" {
+		t.Fatalf("DetectGsxui = %q, want components", ui)
+	}
+	for range 2 {
+		if err := setup.Init(root, setup.Options{Locales: []string{"en", "de"}, Catalogs: "locales", Gsxui: ui}, io.Discard); err != nil {
+			t.Fatal(err)
+		}
+	}
+	s := read(t, root, "intl.toml")
+	if strings.Count(s, `gsxui = "components"`) != 1 || !strings.Contains(s, "catalogs = \"locales\"\n# Where gsxui add vendors") {
+		t.Errorf("intl.toml after init again:\n%s", s)
+	}
+}
+
+// TestTaskIncludes: an app that lists its task files in mise.toml gets intl's added to the list, once; an app that
+// doesn't is left alone (mise finds .mise/tasks itself).
+func TestTaskIncludes(t *testing.T) {
+	root := app(t, map[string]string{"mise.toml": "[tools]\ngo = \"1.27\"\n\n[task_config]\nincludes = [\"tasks/app.toml\"]\n"})
+	for range 2 {
+		if err := setup.TaskIncludes(root, ".mise/tasks/intl.toml", io.Discard); err != nil {
+			t.Fatal(err)
+		}
+	}
+	var m struct {
+		TaskConfig struct{ Includes []string } `toml:"task_config"`
+	}
+	if _, err := toml.Decode(read(t, root, "mise.toml"), &m); err != nil {
+		t.Fatal(err)
+	}
+	if want := []string{".mise/tasks/intl.toml", "tasks/app.toml"}; !slices.Equal(m.TaskConfig.Includes, want) {
+		t.Errorf("includes = %q, want %q", m.TaskConfig.Includes, want)
+	}
+
+	// intl's tasks already listed from another file (this repo lists intl/mise/tasks.toml): no second copy.
+	listed := app(t, map[string]string{"mise.toml": "[task_config]\nincludes = [\"intl/mise/tasks.toml\"]\n",
+		"intl/mise/tasks.toml": "[\"intl:check\"]\nrun = \"go tool intl check\"\n"})
+	if err := setup.TaskIncludes(listed, ".mise/tasks/intl.toml", io.Discard); err != nil {
+		t.Fatal(err)
+	}
+	if s := read(t, listed, "mise.toml"); strings.Contains(s, ".mise/tasks") {
+		t.Errorf("intl's tasks listed twice:\n%s", s)
+	}
+
+	plain := app(t, map[string]string{"mise.toml": "[tools]\ngo = \"1.27\"\n"})
+	if err := setup.TaskIncludes(plain, ".mise/tasks/intl.toml", io.Discard); err != nil {
+		t.Fatal(err)
+	}
+	if s := read(t, plain, "mise.toml"); s != "[tools]\ngo = \"1.27\"\n" {
+		t.Errorf("mise.toml without includes changed:\n%s", s)
+	}
+}
+
+func write(t *testing.T, root, name, s string) {
+	t.Helper()
+	if err := os.WriteFile(filepath.Join(root, name), []byte(s), 0o644); err != nil {
+		t.Fatal(err)
 	}
 }

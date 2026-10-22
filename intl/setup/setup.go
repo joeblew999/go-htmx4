@@ -3,13 +3,17 @@
 package setup
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
 	"os"
 	"path/filepath"
 	"regexp"
+	"slices"
 	"strings"
+
+	"github.com/BurntSushi/toml"
 
 	"github.com/joeblew999/go-htmx4/intl/catalog"
 	"github.com/joeblew999/go-htmx4/intl/workerd"
@@ -64,6 +68,9 @@ func Init(root string, o Options, log io.Writer) error {
 	if err := write("intl.toml", conf); err != nil {
 		return err
 	}
+	if err := addGsxui(filepath.Join(root, "intl.toml"), o.Gsxui, log); err != nil {
+		return err
+	}
 	source := o.Locales[0]
 	if err := write(filepath.Join(o.Catalogs, source+".toml"),
 		"# The source catalog: every message the app shows, in ICU MessageFormat. Translations are <locale>.toml beside\n"+
@@ -95,6 +102,81 @@ func Init(root string, o Options, log io.Writer) error {
 		return err
 	}
 	return miseTools(filepath.Join(root, "mise.toml"), log)
+}
+
+// DetectGsxui is where gsxui vendors components in the app at root (gsxui.json's ui), "" without gsxui.
+func DetectGsxui(root string) string {
+	var g struct{ UI string }
+	if b, err := os.ReadFile(filepath.Join(root, "gsxui.json")); err == nil && json.Unmarshal(b, &g) == nil {
+		return g.UI
+	}
+	return ""
+}
+
+var gsxuiKey, catalogsKey = regexp.MustCompile(`(?m)^gsxui\s*=`), regexp.MustCompile(`(?m)^catalogs\s*=.*\n`)
+
+// addGsxui writes gsxui = dir into an intl.toml set up before gsxui was: init run again after gsxui init.
+func addGsxui(path, dir string, log io.Writer) error {
+	if dir == "" {
+		return nil
+	}
+	b, err := os.ReadFile(path)
+	if err != nil {
+		return err
+	}
+	s := string(b)
+	if gsxuiKey.MatchString(s) {
+		return nil
+	}
+	line := "# Where gsxui add vendors components: gen translates the text they write themselves from [gsxui].\n" +
+		"gsxui = \"" + dir + "\"\n"
+	if loc := catalogsKey.FindStringIndex(s); loc != nil {
+		s = s[:loc[1]] + line + s[loc[1]:]
+	} else {
+		s = line + s
+	}
+	fmt.Fprintln(log, "updated intl.toml: gsxui =", dir)
+	return os.WriteFile(path, []byte(s), 0o644)
+}
+
+var includesKey = regexp.MustCompile(`(?m)^includes\s*=\s*\[`)
+
+// TaskIncludes lists the task file at rel (relative to root) in mise.toml's [task_config] includes, when the app
+// lists its task files there: mise then looks nowhere else, not even in .mise/tasks.
+func TaskIncludes(root, rel string, log io.Writer) error {
+	path := filepath.Join(root, "mise.toml")
+	b, err := os.ReadFile(path)
+	if err != nil {
+		if errors.Is(err, os.ErrNotExist) {
+			return nil
+		}
+		return err
+	}
+	var m struct {
+		TaskConfig struct {
+			Includes []string `toml:"includes"`
+		} `toml:"task_config"`
+	}
+	if _, err := toml.Decode(string(b), &m); err != nil || m.TaskConfig.Includes == nil || slices.Contains(m.TaskConfig.Includes, rel) {
+		return err
+	}
+	for _, inc := range m.TaskConfig.Includes { // intl's tasks listed from elsewhere already (this repo lists intl/mise's)
+		if b, err := os.ReadFile(filepath.Join(root, inc)); err == nil && strings.Contains(string(b), `["intl:check"]`) {
+			return nil
+		}
+	}
+	s := string(b)
+	h := header(s, "task_config")
+	var at []int
+	if h >= 0 {
+		at = includesKey.FindStringIndex(s[h:])
+	}
+	if at == nil {
+		return fmt.Errorf("%s: [task_config] includes isn't a list intl can add to: add %q to it", path, rel)
+	}
+	s = s[:h+at[1]] + `"` + rel + `", ` + s[h+at[1]:]
+	fmt.Fprintf(log, "updated mise.toml: %s in [task_config] includes\n", rel)
+	return os.WriteFile(path, []byte(s), 0o644)
 }
 
 // GsxuiRenderer registers the renderer for the text gsxui components write themselves (i18n.T) in gsx.toml, once

@@ -206,6 +206,9 @@ func main() {
 		f.Parse(args)
 		changed, err := writeTasks(c.Root, *out)
 		check(err)
+		if rel, err := filepath.Rel(c.Root, *out); err == nil {
+			check(setup.TaskIncludes(c.Root, filepath.ToSlash(rel), os.Stdout))
+		}
 		if !changed {
 			fmt.Println("✓ " + *out + " is up to date")
 		}
@@ -250,19 +253,17 @@ func initApp(args []string) {
 	f.Parse(args)
 	root, err := os.Getwd()
 	check(err)
-	if *gsxui == "" {
-		var g struct{ UI string }
-		if b, err := os.ReadFile(filepath.Join(root, "gsxui.json")); err == nil && json.Unmarshal(b, &g) == nil {
-			*gsxui = g.UI
-		}
-	}
 	o := setup.Options{Locales: strings.Split(*locales, ","), Catalogs: *catalogs, Gsxui: *gsxui}
 	if c, err := config.Find(root); err == nil && c.Root == root {
 		o = setup.Options{Locales: c.Locales, Catalogs: c.Catalogs, Gsxui: c.Gsxui} // already set up: keep its choices
 	}
+	if o.Gsxui == "" {
+		o.Gsxui = setup.DetectGsxui(root) // gsxui set up since: intl.toml gets it
+	}
 	check(setup.Init(root, o, os.Stdout))
 	_, err = writeTasks(root, filepath.Join(root, ".mise", "tasks", "intl.toml"))
 	check(err)
+	check(setup.TaskIncludes(root, ".mise/tasks/intl.toml", os.Stdout))
 	_, err = writeSkill(root)
 	check(err)
 	c, err := config.Find(root)
