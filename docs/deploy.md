@@ -13,11 +13,12 @@ wrangler), reading `charter.toml`: which Worker, bindings, D1, Durable Objects, 
 
 ## One build per commit
 
-1. GitHub CI (`ci/check.sh`) builds the commit, publishes the build and the deploy tool to the `preview-builds`
-   pre-release, and runs the tests.
-2. Workers Builds (Cloudflare's GitHub app, `ci/workers-builds.sh`) downloads them, verifies the build against its
-   manifest and deploys: the branch's preview, or staging for `main`, or production for `production`. It then
-   deletes previews of branches that no longer exist.
+1. GitHub CI (`ci/check.sh`) builds the commit, runs the tests, and with `go tool charter ci publish` puts the build
+   and a static charter binary on the `preview-builds` pre-release (and the preview's URL on the pull request).
+2. Workers Builds (Cloudflare's GitHub app, `ci/workers-builds.sh`) downloads that charter, and with it the build,
+   verified against its manifest (`go tool charter builds build`), then deploys what the branch deploys from
+   `charter.toml` (`go tool charter builds deploy`): the branch's preview, or staging for `main`, or production for
+   `production`. It then deletes previews of branches that no longer exist.
 3. If CI's build never comes (CI down, a fork, or `PREVIEW_BUILD=compile`), Workers Builds compiles it itself.
 
 No Cloudflare credential is in GitHub: Workers Builds deploys with its own build token. `mise run cf:builds` sets up
@@ -48,4 +49,4 @@ Workers Builds. Nothing reads a `.env` file.
 
 - `SMOKE_BASE=$(cat .deploy-url) mise run smoke`: every route of the deployed Worker.
 - `E2E_BASE=… mise run e2e` and `LOAD_BASE=… mise run load`: the browser checks and the 1,000-socket check against it.
-- `mise run tail`: its live logs (`go tool workertail`).
+- `mise run tail`: its live logs (`go tool charter tail`).

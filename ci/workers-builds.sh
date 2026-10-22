@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
 # Workers Builds (Cloudflare's GitHub app) runs this for every pushed branch: a branch deploys its preview, main
-# deploys staging, and production (moved there by CI when a v* tag is pushed: ci/check.sh) deploys production.
+# deploys staging, and production (moved there by CI when a v* tag is pushed: ci/check.sh) deploys production. It only
+# fetches charter: what to fetch and deploy is go tool charter builds, from the binary CI published for this commit.
 # `mise run cf:builds` sets the triggers up:
-#   build command:  ci/workers-builds.sh build    fetch the deploy tool CI published for this commit, then with it
-#                                                 the build (verified against its manifest). No compiling.
-#   deploy command: ci/workers-builds.sh deploy   deploy the preview <branch slug>, then delete previews of
-#                                                 branches that no longer exist.
+#   build command:  ci/workers-builds.sh build    fetch the charter CI published for this commit, then with it the
+#                                                 build (verified against its manifest). No compiling.
+#   deploy command: ci/workers-builds.sh deploy   go tool charter builds deploy: the branch's deploy, then delete
+#                                                 previews of branches that no longer exist.
 # Fallback, the old way: no tool from CI within 8 minutes (CI down, a fork) or PREVIEW_BUILD=compile → install the
 # tools and compile here. Workers Builds provides CLOUDFLARE_API_TOKEN, WORKERS_CI_BRANCH, WORKERS_CI_COMMIT_SHA;
 # CLOUDFLARE_ACCOUNT_ID is a build variable. APP_NAME and APP_REPO come from mise.toml.
@@ -28,10 +29,11 @@ sha=${WORKERS_CI_COMMIT_SHA:-}
 case "${1:-}" in
 build)
   # The tool is published after the build, so once it's there the build is too.
+  # The charter binary CI published (go tool charter ci publish, under the name deploy-<commit>).
   tool="https://github.com/$APP_REPO/releases/download/preview-builds/deploy-$sha"
   if [ "${PREVIEW_BUILD:-}" != compile ] && [ -n "$sha" ]; then
     for _ in $(seq 1 48); do   # 8 minutes; CI normally publishes in ~3
-      if curl -fsSL -o deploy.tmp "$tool" 2>/dev/null; then chmod +x deploy.tmp && mkdir -p bin && mv deploy.tmp bin/deploy; break; fi
+      if curl -fsSL -o deploy.tmp "$tool" 2>/dev/null; then chmod +x deploy.tmp && mkdir -p bin && mv deploy.tmp bin/charter; break; fi
       # A newer push cancels CI for this commit, so its build never comes: stop instead of compiling a stale commit.
       head=$(git ls-remote "https://github.com/$APP_REPO" "refs/heads/${WORKERS_CI_BRANCH:-}" 2>/dev/null | cut -f1)
       if [ -n "$head" ] && [ "$head" != "$sha" ]; then
@@ -42,40 +44,22 @@ build)
       sleep 10
     done
   fi
-  if [ -x bin/deploy ] && bin/deploy -h >/dev/null 2>&1; then
-    bin/deploy -name "$APP_NAME" -repo "$APP_REPO" -fetch-build "$sha" -wait 2m
+  if [ -x bin/charter ] && bin/charter builds build; then
+    :
   else
-    echo "· no deploy tool from CI for ${sha:-this commit}${PREVIEW_BUILD:+ (PREVIEW_BUILD=$PREVIEW_BUILD)}: compiling here"
-    rm -f bin/deploy
+    echo "· no build from CI for ${sha:-this commit}${PREVIEW_BUILD:+ (PREVIEW_BUILD=$PREVIEW_BUILD)}: compiling here"
+    rm -f bin/charter
     mise install go tinygo github:WebAssembly/binaryen github:tailwindlabs/tailwindcss
     mise run build
   fi
   ;;
 deploy)
   [ ! -e .superseded ] || { echo "· superseded by a newer push: no deploy"; exit 0; }
-  branch=${WORKERS_CI_BRANCH:?WORKERS_CI_BRANCH is not set (Workers Builds sets it)}
-  if [ -x bin/deploy ]; then deploy=(bin/deploy); else mise install go; deploy=(mise exec -- go tool charter deploy); fi
-  # release/v*: a release request; CI tests it and moves production. Nothing to preview.
-  if [[ "$branch" == release/* ]]; then echo "· $branch is a release request: CI releases it"; exit 0; fi
-  # production: CI moved it to a tagged commit that passed check + e2e and is on main. Credentials stay here, at
-  # Cloudflare (the build token); GitHub never holds them.
-  if [ "$branch" = production ]; then
-    "${deploy[@]}" production >.deploy-url
-    echo "✓ production: $(cat .deploy-url)"
-    exit 0
-  fi
-  # main is staging: its own Worker, https://$APP_NAME-staging.<subdomain>.workers.dev, exactly what's merged.
-  if [ "$branch" = main ]; then
-    "${deploy[@]}" staging >.staging-url
-    echo "✓ staging: $(cat .staging-url)"
-    "${deploy[@]}" -name "$APP_NAME" -repo "$APP_REPO" -prune-previews || echo "· pruning previews failed (staging is live)"
-    exit 0
-  fi
-  slug=$("${deploy[@]}" -name "$APP_NAME" -slug "$branch")
-  "${deploy[@]}" preview "$slug" -annotation "workers/commit_sha=$(git rev-parse HEAD)" \
-    -annotation "workers/repository_url=https://github.com/$APP_REPO" >.preview-url
-  echo "✓ preview for branch $branch: $(cat .preview-url)"
-  "${deploy[@]}" -name "$APP_NAME" -repo "$APP_REPO" -prune-previews || echo "· pruning previews failed (the preview is live)"
+  # What the branch deploys (production, staging for main, else its preview; charter.toml), then old previews go.
+  # Credentials stay here, at Cloudflare (the build token); GitHub never holds them.
+  if [ -x bin/charter ]; then exec bin/charter builds deploy; fi
+  mise install go
+  exec mise exec -- go tool charter builds deploy
   ;;
 *)
   echo "usage: ci/workers-builds.sh build|deploy" >&2
