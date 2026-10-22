@@ -35,3 +35,9 @@ intl-messages.mjs
 !/intl/*.x.go
 # go tool intl export: XLIFF for human translators (mise run intl:export / intl:import)
 /xliff/
+# This app on local upstream checkouts (mise run upstream:use; never committed): the workspace, the CLI built from a
+# gsxui checkout, and which projects are in use.
+/go.work
+/go.work.sum
+/.upstream/
+/.upstream-use

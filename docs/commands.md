@@ -397,6 +397,94 @@ gsx fmt/gofmt check + go vet + go test, the app and intl/ (standard Go; runs bes
 
 Verify CLOUDFLARE_API_TOKEN (from fnox) against the Cloudflare API
 
+### `upstream:branch`
+
+A new branch in an upstream checkout, from upstream's current main
+
+
+- **Usage:** `upstream:branch <repo> <name>`
+
+### Arguments
+- **`<repo>`** — gsx, gsxui or structpages
+- **`<name>`** — the branch, e.g. docs-calendar-from-cldr
+
+### `upstream:check`
+
+An upstream checkout's Go checks with its own pinned Go (gsx generate/fmt, its own check commands, vet, test), no npm; a failing package is re-run on upstream's main and reported as already failing there or new
+
+
+- **Usage:** `upstream:check <repo>`
+
+### Arguments
+- **`<repo>`** — gsx, gsxui or structpages
+
+### `upstream:fork`
+
+Create your fork of an upstream project on GitHub and add it as the checkout's origin
+
+
+- **Usage:** `upstream:fork <repo>`
+
+### Arguments
+- **`<repo>`** — gsx, gsxui or structpages
+
+### `upstream:review`
+
+An upstream checkout's commits and diff against upstream's main, to read before anything is sent
+
+
+- **Usage:** `upstream:review <repo>`
+
+### Arguments
+- **`<repo>`** — gsx, gsxui or structpages
+
+### `upstream:status`
+
+- **Usage:** `upstream:status`
+
+Every upstream checkout (gsx, gsxui, structpages): where it is on disk, its branch, local changes, how your fork's main differs
+
+### `upstream:sync`
+
+Clone or fetch the upstream checkouts (all, or one), adding your fork as origin when you have one; never pushes
+
+
+- **Usage:** `upstream:sync [repo]`
+
+### Arguments
+- **`[repo]`** — gsx, gsxui or structpages (default: all)
+
+### `upstream:tinygo`
+
+An upstream package's own tests compiled by this repo's TinyGo: whether it runs where Workers builds run (e.g. reflect)
+
+
+- **Usage:** `upstream:tinygo <repo> [package]`
+
+### Arguments
+- **`<repo>`** — gsx, gsxui or structpages
+- **`[package]`** — a package pattern in the checkout (default ./...)
+
+### `upstream:unuse`
+
+Back to the pinned version of an upstream project after upstream:use
+
+
+- **Usage:** `upstream:unuse <repo>`
+
+### Arguments
+- **`<repo>`** — gsx, gsxui or structpages
+
+### `upstream:use`
+
+Build and test this app with an upstream checkout instead of the pinned version (go.work for a Go module; gsxui re-vendored by the checkout's CLI). mise run check fails until upstream:unuse
+
+
+- **Usage:** `upstream:use <repo>`
+
+### Arguments
+- **`<repo>`** — gsx, gsxui or structpages
+
 ### `vendor`
 
 - **Usage:** `vendor`

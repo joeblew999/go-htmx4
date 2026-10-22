@@ -1,0 +1,75 @@
+# tasks/upstream.toml — work on the projects this app builds on (gsx, gsxui, structpages) with this repo's tools (#64).
+# The work is ci/upstream.sh's; its header says what each step does. Checkouts live where Go puts them,
+# $(go env GOPATH)/src/github.com/<owner>/<repo>. Nothing here opens a PR or an issue: that is done by hand, after the
+# user has read it (AGENTS.md).
+
+["upstream:status"]
+description = "Every upstream checkout (gsx, gsxui, structpages): where it is on disk, its branch, local changes, how your fork's main differs"
+dir = "{{config_root}}"
+run = "ci/upstream.sh status"
+
+["upstream:sync"]
+description = "Clone or fetch the upstream checkouts (all, or one), adding your fork as origin when you have one; never pushes"
+dir = "{{config_root}}"
+usage = '''
+arg "[repo]" help="gsx, gsxui or structpages (default: all)"
+'''
+run = 'ci/upstream.sh sync ${usage_repo:-}'
+
+["upstream:fork"]
+description = "Create your fork of an upstream project on GitHub and add it as the checkout's origin"
+dir = "{{config_root}}"
+usage = '''
+arg "<repo>" help="gsx, gsxui or structpages"
+'''
+run = 'ci/upstream.sh fork "$usage_repo"'
+
+["upstream:branch"]
+description = "A new branch in an upstream checkout, from upstream's current main"
+dir = "{{config_root}}"
+usage = '''
+arg "<repo>" help="gsx, gsxui or structpages"
+arg "<name>" help="the branch, e.g. docs-calendar-from-cldr"
+'''
+run = 'ci/upstream.sh branch "$usage_repo" "$usage_name"'
+
+["upstream:check"]
+description = "An upstream checkout's Go checks with its own pinned Go (gsx generate/fmt, its own check commands, vet, test), no npm; a failing package is re-run on upstream's main and reported as already failing there or new"
+dir = "{{config_root}}"
+usage = '''
+arg "<repo>" help="gsx, gsxui or structpages"
+'''
+run = 'ci/upstream.sh check "$usage_repo"'
+
+["upstream:tinygo"]
+description = "An upstream package's own tests compiled by this repo's TinyGo: whether it runs where Workers builds run (e.g. reflect)"
+dir = "{{config_root}}"
+usage = '''
+arg "<repo>" help="gsx, gsxui or structpages"
+arg "[package]" help="a package pattern in the checkout (default ./...)"
+'''
+run = 'ci/upstream.sh tinygo "$usage_repo" ${usage_package:-}'
+
+["upstream:use"]
+description = "Build and test this app with an upstream checkout instead of the pinned version (go.work for a Go module; gsxui re-vendored by the checkout's CLI). mise run check fails until upstream:unuse"
+dir = "{{config_root}}"
+usage = '''
+arg "<repo>" help="gsx, gsxui or structpages"
+'''
+run = 'ci/upstream.sh use "$usage_repo"'
+
+["upstream:unuse"]
+description = "Back to the pinned version of an upstream project after upstream:use"
+dir = "{{config_root}}"
+usage = '''
+arg "<repo>" help="gsx, gsxui or structpages"
+'''
+run = 'ci/upstream.sh unuse "$usage_repo"'
+
+["upstream:review"]
+description = "An upstream checkout's commits and diff against upstream's main, to read before anything is sent"
+dir = "{{config_root}}"
+usage = '''
+arg "<repo>" help="gsx, gsxui or structpages"
+'''
+run = 'ci/upstream.sh review "$usage_repo"'

@@ -32,12 +32,22 @@ Binding. How the app works is in [docs/architecture.md](docs/architecture.md), h
 - Before pushing: `mise run check` (what CI runs, `ci/check.sh`), then `mise run e2e` after UI, board or JS changes.
   A task with `sources`/`outputs` is skipped when nothing it reads changed: a new input to the wasm goes in `sources`.
 - A task's own script is inline in its task. `ci/` holds the scripts CI runs or several tasks share (`check.sh`,
-  `deploy.sh`, `wasm-build.sh`, `with-workerd.sh`, `bench.sh`, `workers-builds.sh`). Checks are Go tests (`e2e/smoke`,
-  `e2e`, `e2e/load`), never curl or a grep of a command's output.
+  `deploy.sh`, `wasm-build.sh`, `with-workerd.sh`, `bench.sh`, `workers-builds.sh`, `upstream.sh`). Checks are Go
+  tests (`e2e/smoke`, `e2e`, `e2e/load`), never curl or a grep of a command's output.
 - Stopping `gsx dev` can leave workerd on :8913; `ci/with-workerd.sh` then refuses to start. Stop it by PID.
 - `mise run rename -- <module path> <app name>` turns the template into a new project: keep it working when a file
   mentions the module path or the app name.
 - macOS runs bash 3.2: an empty array is `${args[@]+"${args[@]}"}` under `set -u`.
+
+## Upstream work: gsx, gsxui, structpages
+
+- Work on the projects this app builds on from here, with `mise run upstream:*` (`tasks/upstream.toml`): checkouts in
+  `$(go env GOPATH)/src/github.com/<owner>/<repo>` (remote `upstream` the original, `origin` the user's fork),
+  `upstream:check` with the project's own pinned Go, `upstream:tinygo` for what Workers builds would hit, and
+  `upstream:use` to build and test this app on a checkout (`mise run check` fails until `upstream:unuse`).
+- Nothing goes to another owner's repository (an issue, a PR, a comment) until the user has read it: the change, where
+  the checkout is, and the exact text. Check every claim, run `upstream:check`, read the rendered result, follow the
+  project's own conventions, and put links to our code in the PR's description, not in their docs.
 
 ## Generated files: never edit
 
