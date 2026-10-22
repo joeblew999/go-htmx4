@@ -7,9 +7,10 @@ import (
 )
 
 // ThemeScript goes in <head>. Both scripts are gsxui's showcase site, copied: the paint-blocking
-// theme init from site/pages/document.gsx and the toggle click handler from web/site.js (minus its
-// iframe-preview sync), gsxui c7fd6a8: both unchanged through e23aef1, the pin in mise.toml. The handler is delegated from <head>, so it registers
-// once even when htmx swaps the body.
+// theme init from site/pages/document.gsx and the toggle click handler from web/site.js, with its sync of
+// same-origin frames marked data-site-isolated-preview (the /components sidebar), on a toggle and when one loads;
+// gsxui e23aef1, the pin in mise.toml. The handler is delegated from <head>, so it registers once even when htmx
+// swaps the body.
 component ThemeScript() {
 	<script>
 		// Theme init — runs before first paint (blocking head script) so
@@ -24,6 +25,14 @@ component ThemeScript() {
 
 		// Header theme toggle (shadcn's site model: one click flips the resolved
 		// theme, no system/menu step).
+		const syncIsolatedPreviewTheme = (frame, dark) => {
+			try {
+				frame.contentDocument?.documentElement.classList.toggle("dark", dark);
+			} catch {
+				// The preview route is same-origin. If an embedding changes that contract,
+				// the parent theme must still toggle without throwing.
+			}
+		};
 		document.addEventListener("click", (event) => {
 			if (!event.target.closest("[data-site-theme-toggle]")) return;
 			const dark = document.documentElement.classList.toggle("dark");
@@ -33,7 +42,19 @@ component ThemeScript() {
 				// storage unavailable (private mode etc.) — the toggle still works
 				// for this page view, it just won't persist.
 			}
+			document.querySelectorAll("iframe[data-site-isolated-preview]").forEach((frame) => syncIsolatedPreviewTheme(frame, dark));
 		});
+		// A lazy iframe can finish loading after the parent theme changed. Sync it
+		// from the resolved parent class at the document boundary as well.
+		addEventListener(
+			"load",
+			(event) => {
+				const frame = event.target;
+				if (!(frame instanceof HTMLIFrameElement) || !frame.matches("[data-site-isolated-preview]")) return;
+				syncIsolatedPreviewTheme(frame, document.documentElement.classList.contains("dark"));
+			},
+			true,
+		);
 	</script>
 }
 

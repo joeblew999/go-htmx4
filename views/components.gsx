@@ -882,6 +882,7 @@ component SidebarDemo() {
 		<iframe
 			src={"/components/sidebar" |> localize}
 			title={locales.ComponentsSidebarFrame}
+			data-site-isolated-preview
 			loading="lazy"
 			class="h-96 w-full rounded-lg border"
 		></iframe>
@@ -897,10 +898,7 @@ component ComponentsSidebar() {
 			<meta charset="utf-8"/>
 			<meta name="viewport" content="width=device-width, initial-scale=1"/>
 			<title>{ locales.ComponentsSidebarFrame }</title>
-			<ThemeScript/>
-			<link rel="stylesheet" href="/assets/gsxui.css"/>
-			<script type="module" src="/static/intl-browser.mjs"></script>
-			<script type="module" src="/gsxui/index.js"></script>
+			<documentAssets/>
 		</head>
 		<body class="bg-background font-sans text-foreground antialiased">
 			<ui.SidebarProvider open={true}>
