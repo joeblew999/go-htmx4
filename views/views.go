@@ -84,9 +84,11 @@ func pageKey(ctx context.Context) string {
 	return path
 }
 
-// webSite is the home page's WebSite structured data (schema.org): the site's name Google shows beside its results,
-// for the home page in the request's language.
-func webSite(ctx context.Context) map[string]string {
-	return map[string]string{"@context": "https://schema.org", "@type": "WebSite", "name": "go-htmx4",
-		"url": intl.Canonical(ctx, "/"), "inLanguage": intl.Current(ctx).ID()}
+// homeURL is the home page's absolute URL in the request's language on the home page itself, "" elsewhere: seo.Head
+// puts the site's name there for Google (WebSite structured data).
+func homeURL(ctx context.Context, path string) string {
+	if path != "/" {
+		return ""
+	}
+	return intl.Canonical(ctx, "/")
 }

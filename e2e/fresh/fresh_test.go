@@ -67,7 +67,8 @@ func TestFreshApp(t *testing.T) {
 	run("go", "mod", "edit", "-require="+intlModule+"@v0.0.0", "-replace="+intlModule+"="+filepath.Join(repo, "intl"),
 		"-replace=github.com/joeblew999/go-htmx4/seo="+filepath.Join(repo, "seo"),
 		"-replace=github.com/joeblew999/go-htmx4/badge="+filepath.Join(repo, "badge"),
-		"-require=github.com/gsxhq/gsx@"+gsxVersion, "-tool=github.com/gsxhq/gsx/cmd/gsx", "-tool="+intlModule+"/cmd/intl")
+		"-require=github.com/gsxhq/gsx@"+gsxVersion, "-tool=github.com/gsxhq/gsx/cmd/gsx", "-tool="+intlModule+"/cmd/intl",
+		"-require=github.com/joeblew999/go-htmx4/seo@v0.0.0", "-tool=github.com/joeblew999/go-htmx4/seo/cmd/seo")
 	run("go", "mod", "tidy")
 
 	// gsxui the npm-free way, with a component that brings its icon package (gsxui's own code, which intl:check must
@@ -76,18 +77,33 @@ func TestFreshApp(t *testing.T) {
 	run(append(gsxui, "init", "-rtl")...)
 	run(append(gsxui, "add", "accordion")...)
 	run("go", "tool", "intl", "init", "-locales", "en,de")
-	appendTo("locales/en.toml", "\n[home]\n# The page's heading.\ntitle = \"Welcome\"\n# How many notes there are.\nnotes = \"{n, plural, one {# note} other {# notes}}\"\n")
-	appendTo("locales/de.toml", "\n[home]\ntitle = \"Willkommen\"\nnotes = \"{n, plural, one {# Notiz} other {# Notizen}}\"\n")
+	appendTo("locales/en.toml", "\n[home]\n# The page's heading.\ntitle = \"Welcome\"\n# The page's description, for search results.\n"+
+		"description = \"Notes, in every language.\"\n# How many notes there are.\nnotes = \"{n, plural, one {# note} other {# notes}}\"\n")
+	appendTo("locales/de.toml", "\n[home]\ntitle = \"Willkommen\"\ndescription = \"Notizen, in jeder Sprache.\"\n"+
+		"notes = \"{n, plural, one {# Notiz} other {# Notizen}}\"\n")
 	write("page.gsx", `package main
 
 import (
 	"example.com/fresh/locales"
 	"github.com/joeblew999/go-htmx4/intl"
+	"github.com/joeblew999/go-htmx4/seo"
 )
 
 component Page() {
 	<!DOCTYPE html>
 	<html { intl.HTML(ctx)... }>
+		<head>
+			<meta charset="utf-8"/>
+			<seo.Head
+				title={ locales.HomeTitle |> text }
+				description={ locales.HomeDescription |> text }
+				siteName="Fresh"
+				icon="/favicon.svg"
+				home={intl.Canonical(ctx, "/")}
+				lang={intl.Current(ctx).ID()}
+			/>
+			<intl.Head page="/"/>
+		</head>
 		<body>
 			<h1>{ locales.HomeTitle }</h1>
 			<p>{ locales.HomeNotes(1234) }</p>
@@ -111,6 +127,7 @@ import (
 	"example.com/fresh/locales"
 	"github.com/joeblew999/go-htmx4/intl"
 	"github.com/joeblew999/go-htmx4/intl/workerd"
+	"github.com/joeblew999/go-htmx4/seo"
 )
 
 func main() {
@@ -121,6 +138,10 @@ func main() {
 	defer stop()
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/" {
+			http.NotFound(w, r)
+			return
+		}
 		if err := Page().Render(r.Context(), w); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
@@ -130,7 +151,8 @@ func main() {
 		log.Fatal(err)
 	}
 	fmt.Println("listening", ln.Addr())
-	srv := &http.Server{Handler: intl.Site{}.Handler(mux)}
+	search := seo.Site{Sitemap: func(origin string) string { return intl.Sitemap(origin, []string{"/"}) }}
+	srv := &http.Server{Handler: search.Handler(intl.Site{}.Handler(mux))}
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer cancel()
 	go func() { <-ctx.Done(); srv.Shutdown(context.Background()) }()
@@ -139,6 +161,7 @@ func main() {
 	}
 }
 `)
+	run("go", "tool", "gsx", "fmt", "-w", "page.gsx")
 	run("go", "tool", "intl", "gen")
 	run("go", "tool", "gsx", "generate")
 	run("go", "build", "-o", "fresh", ".")
@@ -172,8 +195,8 @@ func main() {
 		t.Fatal("the fresh app didn't start")
 	}
 	for path, wants := range map[string][]string{
-		"/":    {`lang="en"`, "Welcome", "1,234 notes", "1,234,567.5"},
-		"/de/": {`lang="de"`, "Willkommen", "1.234 Notizen", "1.234.567,5"},
+		"/":    {`lang="en"`, "Welcome", "1,234 notes", "1,234,567.5", `<meta name="description" content="Notes, in every language."`},
+		"/de/": {`lang="de"`, "Willkommen", "1.234 Notizen", "1.234.567,5", `"@type":"WebSite"`},
 	} {
 		body := get(t, base+path)
 		for _, want := range wants {
@@ -182,6 +205,10 @@ func main() {
 			}
 		}
 	}
+
+	// seo's audit of the running app, as Googlebot reads it: robots.txt, the sitemap, every page's head.
+	run("go", "tool", "seo", "init", "-base", base)
+	run("mise", "run", "seo:audit")
 
 	// What the README says CI runs: the catalogs, then gsx's own checks on the app's markup, not gsxui's.
 	run("mise", "run", "intl:check")
