@@ -37,6 +37,7 @@ func TestCharterToml(t *testing.T) {
 		{"mise.toml's APP_NAME", value("../mise.toml", `(?m)^APP_NAME = "(.*)"`), p.Name},
 		{"mise.toml's APP_DOMAIN", value("../mise.toml", `(?m)^APP_DOMAIN = "(.*)"`), p.Production.Domain},
 		{"mise.toml's APP_REPO", value("../mise.toml", `(?m)^APP_REPO = "(.*)"`), p.Repo},
+		{"llms.go's repo", repo, p.Repo},
 		{"mise.toml's CF_SUBDOMAIN", value("../mise.toml", `(?m)^CF_SUBDOMAIN = "(.*)"`), p.Subdomain},
 		{"production's APP_DOMAIN var", p.Production.Vars["APP_DOMAIN"], p.Production.Domain},
 		{"mise run dev's default port", value("../tasks/app.toml", `export PORT=\$\{PORT:-(\d+)\}`), strconv.Itoa(p.Port)},

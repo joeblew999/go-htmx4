@@ -25,13 +25,14 @@ func withSite(mux http.Handler) http.Handler {
 // Content-Language, and noindex for a locale whose catalog is incomplete.
 var languages = intl.Site{IsPage: views.IsPage, ConnectionTimeZone: connectionTimeZone, Origin: web.Origin}
 
-// search is seo.Site, read per request from the Worker's bindings: robots.txt; the sitemap, every page search engines
+// search is seo.Site, read per request from the Worker's bindings: robots.txt; llms.txt (llms.go); the sitemap, every page search engines
 // may index in every locale with its alternates; noindex on whatever isn't such a page, and on everything in a
 // preview (APP_PREVIEW); one address per page, https on APP_DOMAIN, which only production has.
 func search() seo.Site {
 	return seo.Site{
 		Host:          bindings.Var("APP_DOMAIN"),
 		Sitemap:       func(origin string) string { return intl.Sitemap(origin, views.Sitemap()) },
+		LLMs:          llms,
 		IsPage:        views.Indexable,
 		Preview:       bindings.Var("APP_PREVIEW") != "",
 		ContentSignal: "search=yes, ai-input=yes, ai-train=yes",
