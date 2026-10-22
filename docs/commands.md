@@ -103,7 +103,7 @@ Install go.mod's gsx into GOPATH/bin for the VS Code gsx language server
 
 - **Usage:** `fresh`
 
-A brand-new gsx app outside this repo, made from intl's and seo's READMEs with this checkout's intl and seo (every go and gsx block in them is its code), with gsxui and intl's screens, served by an ordinary Go server in English and German; its go test, seo:audit and intl:check pass (e2e/fresh)
+Brand-new gsx apps outside this repo (e2e/fresh): one made from intl's and seo's READMEs (every go and gsx block in them is its code), with gsxui and intl's screens, on an ordinary Go server in English and German, its go test, seo:audit and intl:check passing; and one on Workers set up with go tool charter init, its go test on charter's stand-ins and its Worker on local workerd (FRESH_DEPLOY=1: on Cloudflare too)
 
 ### `fresh:published`
 

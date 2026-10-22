@@ -67,6 +67,13 @@ Code mise panel, and an argument still overrides it for one run. Each also insta
 knows how to use it. Both use gsx's own mechanisms (renderers, filters, `gsx fmt` and its checks); issues and pull
 requests that make them, or gsx, better are welcome.
 
+On Cloudflare Workers, [charter](https://github.com/joeblew999/charter)'s Go side is the platform, the same way:
+- **Setup:** `go tool charter init` writes `charter.toml`, the Worker's every fact.
+- **Running and shipping:** `go tool charter` builds it with TinyGo, runs it on local workerd, deploys it, and serves CI and Workers Builds.
+- **Bindings:** they come through its packages (`d1`, `bindings`, `hub`), which stand in for themselves off Workers, so `go test` runs the real SQL.
+
+`e2e/fresh`'s `TestFreshWorker` makes such an app from nothing.
+
 ## Quick start
 
 ```sh

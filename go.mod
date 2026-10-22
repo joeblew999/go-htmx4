@@ -7,7 +7,7 @@ toolchain go1.27.3
 require (
 	github.com/gsxhq/gsx v0.4.0
 	github.com/jackielii/tailwind-merge-go v0.0.0-20260726184505-8a911ed0cf9a
-	github.com/joeblew999/charter/go/lib v0.9.2-0.20261022060739-0e16fe6aed52
+	github.com/joeblew999/charter/go/lib v0.9.2-0.20261022061229-09ed75416ecc
 	github.com/joeblew999/go-htmx4/intl v0.0.0
 	github.com/joeblew999/go-htmx4/seo v0.3.0
 	golang.org/x/net v0.61.0

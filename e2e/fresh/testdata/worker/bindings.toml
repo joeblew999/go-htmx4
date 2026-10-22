@@ -1,0 +1,11 @@
+
+# The fresh Worker's bindings (TestFreshWorker adds them to what go tool charter init wrote).
+[[d1]]
+binding = "DB"
+migrations = "migrations"
+
+[[rate_limits]]
+binding = "VISITS"
+namespace_id = 1902
+limit = 3
+period = 60
