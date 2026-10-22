@@ -70,7 +70,8 @@ contributor's pull request stops before them.
 `*.x.go` (`go tool gsx generate`; not committed, except intl's `render.x.go` and `head.x.go` and seo's `head.x.go`: apps import them as Go packages),
 `intl_gen.go` and `intl-messages.mjs` (`mise run intl`; not committed), `locales/intl.sum` and `docs/badges/intl.svg`
 (`mise run intl`; committed), `.claude/skills/intl` (`mise run intl:skill`; committed), `.claude/skills/seo`
-(`mise run seo:skill`; committed), `docs/commands.md`
+(`mise run seo:skill`; committed), `.claude/skills/gsx` (gsx's own skill, `mise run gsx:skill`; committed), the
+`.mise/tasks/*.toml` files (`mise run intl:tasks`, `seo:tasks`, `gsx:tasks`; committed), `docs/commands.md`
 (`mise run docs:commands`), the other `docs/badges/` and the README's `<!-- seo:scores -->` table (`mise run seo:badges`,
 after a release; committed), what `gsxui` manages (`gsxui.json` lists it), and intl's screens in `views/intl/`
 (`go tool intl add`; committed): change `intl/ui/<screen>.gsx.tmpl`, then `go tool intl add -overwrite <screen>`
@@ -80,8 +81,8 @@ after a release; committed), what `gsxui` manages (`gsxui.json` lists it), and i
 
 - **Nothing hand-written in the GUI.** Every visual piece is a gsxui component (`gsxui add <name>` at the repo root,
   never copied by hand), the gsxui theme/preset, or a pattern from gsxui's own site (https://ui.gsxhq.dev; cite it).
-  No custom CSS files. The look is a gsxui theme: `mise run gsxui:theme <style|share code>` (gsxui's theme editor gives
-  codes). After moving gsxui's pin, `gsxui init --overwrite --preset gsxui.preset.json` refreshes its CSS, and
+  No custom CSS files. The look is gsxui's standard nova theme (gsxui's default), so everyone runs and tests the same
+  base; change it only with `mise run gsxui:theme <style|share code>` (gsxui's theme editor gives codes). After moving gsxui's pin, `gsxui init --overwrite --preset gsxui.preset.json` refreshes its CSS, and
   `gsxui add --overwrite` its components. `TestGsxuiFiles` fails on a hand edit to anything gsxui wrote.
 - **htmx 4 syntax only:** explicit `:inherited`, `hx-ignore` (not `hx-disable`), `htmx:after:swap`-style event names,
   no `hx-ext` / `hx-vars` / `hx-params`. gsx's completions still offer htmx 2 attributes: ignore them.

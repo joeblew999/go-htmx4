@@ -38,7 +38,7 @@ CPU per request of the production build on local workerd, per page, repeated run
 
 ### `bench:variants`
 
-- Depends: gsx:generate, assets
+- Depends: generate, assets
 
 - **Usage:** `bench:variants`
 
@@ -46,7 +46,7 @@ Build the current code with each of charter's optimisations off in turn, measure
 
 ### `build`
 
-- Depends: gsx:generate, assets
+- Depends: generate, assets
 
 - **Usage:** `build`
 
@@ -54,7 +54,7 @@ Production build → build/ with WORKER_COMPILER (mise.toml: tinygo or go), size
 
 ### `build:dev`
 
-- Depends: gsx:generate, assets
+- Depends: generate, assets
 
 - **Usage:** `build:dev`
 
@@ -189,6 +189,14 @@ Brand-new gsx apps outside this repo (e2e/fresh): one made from intl's and seo's
 
 The fresh-app test with intl and seo as published on the Go proxy (@latest), not this checkout: after a release, once the proxy has its tags, it shows the READMEs work for someone who runs go get
 
+### `generate`
+
+- Depends: intl, gsx:generate
+
+- **Usage:** `generate`
+
+gsx:generate for the app, and intl's and seo's own components, which their modules commit for the apps that import them
+
 ### `gsx:editor`
 
 - **Usage:** `gsx:editor`
@@ -197,7 +205,7 @@ Install go.mod's gsx into GOPATH/bin for the VS Code gsx language server
 
 ### `gsx:fmt`
 
-Format every .gsx file with gsx fmt; --check lists what isn't formatted and fails, writing nothing (test:go)
+Format every .gsx file with gsx fmt; --check lists what isn't formatted and fails, writing nothing (for CI)
 
 
 - **Usage:** `gsx:fmt [--check]`
@@ -207,21 +215,37 @@ Format every .gsx file with gsx fmt; --check lists what isn't formatted and fail
 
 ### `gsx:generate`
 
-- Depends: intl
-
 - **Usage:** `gsx:generate`
 
-go tool gsx generate (after intl: views write the generated messages); intl/'s and seo/'s own components too, which they commit for the apps that import them
+go tool gsx generate: every .gsx file to its .x.go (after intl, when intl is running too: views write its messages)
+
+### `gsx:skill`
+
+- **Usage:** `gsx:skill`
+
+Install or update gsx's own agent skill (.claude/skills/gsx), from the gsx version in go.mod: how to write .gsx
+
+### `gsx:tasks`
+
+- **Usage:** `gsx:tasks`
+
+Write this file again from the gsxkit version in go.mod: run it after upgrading gsxkit
 
 ### `gsxui:css`
 
-- **Usage:** `gsxui:css`
+gsxui's CSS: its entry (gsxui.json's css) compiled by the standalone Tailwind CLI, into dist/gsxui.css by default
 
-gsxui's CSS: web/gsxui/index.css compiled by the standalone Tailwind CLI into dist/gsxui.css
+
+- **Usage:** `gsxui:css [out]`
+
+### Arguments
+- **`[out]`** — the compiled file
+
+  **Default:** `dist/gsxui.css`
 
 ### `gsxui:theme`
 
-Switch the app's look to a gsxui theme with gsxui apply: a style's standard theme by name (nova, gsxui's default and ours; vega, maia, lyra, mira, luma, sera, rhea), or any share code from gsxui's theme editor (https://ui.gsxhq.dev/theme). Then commit what it changed
+Switch the app's look to a gsxui theme with gsxui apply: a style's standard theme by name (nova, gsxui's default; vega, maia, lyra, mira, luma, sera, rhea), or any share code from gsxui's theme editor (https://ui.gsxhq.dev/theme). Then commit what it changed
 
 
 - **Usage:** `gsxui:theme <theme>`
@@ -525,11 +549,11 @@ Everything before a push: the production build + workerd smoke, gsx fmt/gofmt, g
 
 ### `test:go`
 
-- Depends: gsx:generate
+- Depends: generate
 
 - **Usage:** `test:go`
 
-gsx fmt/gofmt check + go vet + go test, the app and intl/ (standard Go; runs beside the production build)
+gsx fmt/gofmt check + go vet + go test, the app and its modules: intl/, seo/, badge/, gsxkit/ (standard Go; runs beside the production build)
 
 ### `token-check`
 
