@@ -22,8 +22,8 @@ github.com/jackielii/tailwind-merge-go v0.0.0-20260726184505-8a911ed0cf9a h1:sQ0
 github.com/jackielii/tailwind-merge-go v0.0.0-20260726184505-8a911ed0cf9a/go.mod h1:voVtdB9w9rAqShh8L7IMzv5ipGAeDCP9G3O0PqrKwnc=
 github.com/jmoiron/sqlx v1.4.0 h1:1PLqN7S1UYp5t4SrVVnt4nUVNemrDAtxlulVe+Qgm3o=
 github.com/jmoiron/sqlx v1.4.0/go.mod h1:ZrZ7UsYB/weZdl2Bxg6jCRO9c3YHl8r3ahlKmRT4JLY=
-github.com/joeblew999/charter/go/lib v0.9.2-0.20261022052059-a650aee25910 h1:4ixcCPmAAAHFT70Fq3a9hOU/+t52xuK+Si8ULh4dBfI=
-github.com/joeblew999/charter/go/lib v0.9.2-0.20261022052059-a650aee25910/go.mod h1:ubP7L3I7X4gkjD30Dt++9r7ZT0eVOl9fvGqDwz5oHTY=
+github.com/joeblew999/charter/go/lib v0.9.2-0.20261022053823-da0f4131810d h1:3BjIScrB7ib3OAtT/lJBQWvYCSdg6DrKo1aOZLD2bVk=
+github.com/joeblew999/charter/go/lib v0.9.2-0.20261022053823-da0f4131810d/go.mod h1:SSeH+7XywssRL2kErJY0yvTOaAgZXjsSZFX+xz+3NGU=
 github.com/lib/pq v1.10.9 h1:YXG7RB+JIjhP29X+OtkiDnYaXQwpS4JEWq7dtCCRUEw=
 github.com/lib/pq v1.10.9/go.mod h1:AlVN5x4E4T544tWzH6hKfbfQvm3HdbOxrmggDNAPY9o=
 github.com/mattn/go-sqlite3 v1.14.22 h1:2gZY6PC6kBnID23Tichd1K+Z0oS6nE/XwU+Vz/5o4kU=

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# CPU per request of the Worker on a local workerd, measured by charter's go tool workerbench (the operating
+# CPU per request of the Worker on a local workerd, measured by go tool charter bench (the operating
 # system's count of workerd's CPU time over repeated requests; no Cloudflare account needed):
 #
 #   ci/bench.sh             the current build (mise run bench; CI runs it and adds the table to its summary)
@@ -16,16 +16,16 @@ runs=${BENCH_RUNS:-3}
 # Reads go flat out; writes are paced (-every) to stay under the app's write limit (60 per 10 s). Waiting costs
 # no CPU, so pacing changes how long a run takes, never what it measures. With -json the two halves are one object.
 measure() {
-  go tool workerbench -n "$n" -runs "$runs" "$@" "${reads[@]}"
-  go tool workerbench -n "$n" -runs "$runs" -every 170ms "$@" "${writes[@]}"
+  go tool charter bench -n "$n" -runs "$runs" "$@" "${reads[@]}"
+  go tool charter bench -n "$n" -runs "$runs" -every 170ms "$@" "${writes[@]}"
 }
 bench() {
   export n runs
   export -f measure
   if [[ " $* " == *" -json "* ]]; then
-    ci/with-workerd.sh bench bash -c "$(declare -p reads writes); measure $(printf '%q ' "$@")" | sed -n '/^{/,$p' | jq -s '.[0] + {requests: (.[0].requests + .[1].requests)}'
+    go tool charter with bash -c "$(declare -p reads writes); measure $(printf '%q ' "$@")" | sed -n '/^{/,$p' | jq -s '.[0] + {requests: (.[0].requests + .[1].requests)}'
   else
-    ci/with-workerd.sh bench bash -c "$(declare -p reads writes); measure $(printf '%q ' "$@")"
+    go tool charter with bash -c "$(declare -p reads writes); measure $(printf '%q ' "$@")"
   fi
 }
 

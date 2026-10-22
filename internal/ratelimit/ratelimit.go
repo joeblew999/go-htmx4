@@ -3,8 +3,8 @@
 // Docs: https://developers.cloudflare.com/workers/runtime-apis/bindings/rate-limit/. The binding is a simple
 // fixed window per key (limit per 10 or 60 seconds), local to each Cloudflare location and eventually
 // consistent: good for stopping abuse, not for accounting. Configure it at deploy time (charter's
-// workerdeploy -ratelimit NAME=NAMESPACE_ID:LIMIT/PERIOD). Locally, plain workerd has no such binding: the go-htmx4 app's worker/local/local-entry.mjs
-// provides an in-memory stand-in with the same API.
+// charter.toml's [[rate_limits]]). Locally, plain workerd has no such binding: charter's local entry (.charter/,
+// go tool charter local) provides an in-memory stand-in with the same API.
 package ratelimit
 
 import (

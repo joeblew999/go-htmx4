@@ -1,7 +1,7 @@
 # Deploying
 
-Three kinds of deploy, all through `ci/deploy.sh` (which bindings, D1 and Durable Objects each gets) and charter's
-`go tool workerdeploy` (Cloudflare's REST API; no wrangler):
+Three kinds of deploy, all `go tool charter deploy production|staging|preview <name>` (Cloudflare's REST API; no
+wrangler), reading `charter.toml`: which Worker, bindings, D1, Durable Objects, vars and domain each gets:
 
 | Kind | Worker | When | URL |
 | --- | --- | --- | --- |

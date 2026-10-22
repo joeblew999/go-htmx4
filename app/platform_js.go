@@ -36,7 +36,7 @@ func connection(r *http.Request) views.Connection {
 // request that reaches Go here is a real 404.
 func staticFiles() http.Handler { return http.NotFoundHandler() }
 
-// newStore opens the DB binding: D1 on Cloudflare, worker/local/local-d1.mjs under workerd.
+// newStore opens the DB binding: D1 on Cloudflare, charter's stand-in (.charter/d1.mjs) under local workerd.
 func newStore() (store, error) {
 	db, err := sql.Open("d1", "DB")
 	if err != nil {
