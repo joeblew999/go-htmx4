@@ -15,7 +15,7 @@ import (
 
 // TestGsxuiFiles: the look is gsxui's alone. Every file gsxui wrote (gsxui.json's managed list: the theme, its CSS and
 // fonts, the components and their scripts) is still what gsxui wrote, and every CSS file in the repository is one of
-// them. Change the look with mise run theme, a component with gsxui add --overwrite.
+// them. Change the look with mise run gsxui:theme, a component with gsxui add --overwrite.
 func TestGsxuiFiles(t *testing.T) {
 	b, err := os.ReadFile("../gsxui.json")
 	if err != nil {
@@ -34,7 +34,7 @@ func TestGsxuiFiles(t *testing.T) {
 			continue
 		}
 		if sum := sha256.Sum256(b); hex.EncodeToString(sum[:]) != want {
-			t.Errorf("%s isn't what gsxui wrote: change the look with mise run theme, a component with gsxui add --overwrite", path)
+			t.Errorf("%s isn't what gsxui wrote: change the look with mise run gsxui:theme, a component with gsxui add --overwrite", path)
 		}
 	}
 	out, err := exec.Command("git", "-C", "..", "ls-files", "*.css").Output()

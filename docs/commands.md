@@ -22,11 +22,11 @@ Every command is a mise task: `mise run <task>`; `mise tasks` lists them. Which 
 
 ### `assets`
 
-- Depends: vendor
+- Depends: vendor, gsxui:css
 
 - **Usage:** `assets`
 
-Tailwind (gsxui CSS) + assemble dist/site (Static Assets for workerd and deploy)
+Assemble dist/site, the Static Assets for workerd and deploy: htmx, intl's browser module, gsxui's behaviours, CSS and fonts
 
 ### `bench`
 
@@ -38,7 +38,7 @@ CPU per request of the production build on local workerd, per page, repeated run
 
 ### `bench:variants`
 
-- Depends: generate, assets
+- Depends: gsx:generate, assets
 
 - **Usage:** `bench:variants`
 
@@ -46,7 +46,7 @@ Build the current code with each of charter's optimisations off in turn, measure
 
 ### `build`
 
-- Depends: generate, assets
+- Depends: gsx:generate, assets
 
 - **Usage:** `build`
 
@@ -54,7 +54,7 @@ Production build → build/ with WORKER_COMPILER (mise.toml: tinygo or go), size
 
 ### `build:dev`
 
-- Depends: generate, assets
+- Depends: gsx:generate, assets
 
 - **Usage:** `build:dev`
 
@@ -177,12 +177,6 @@ Regenerate docs/commands.md from these task descriptions (mise generate task-doc
 
 Headless Chrome checks: pages, live board in two browsers, boost ↔ board, presence, Intl, write limit (local workerd, or E2E_BASE=https://…)
 
-### `editor:gsx`
-
-- **Usage:** `editor:gsx`
-
-Install go.mod's gsx into GOPATH/bin for the VS Code gsx language server
-
 ### `fresh`
 
 - **Usage:** `fresh`
@@ -195,13 +189,45 @@ Brand-new gsx apps outside this repo (e2e/fresh): one made from intl's and seo's
 
 The fresh-app test with intl and seo as published on the Go proxy (@latest), not this checkout: after a release, once the proxy has its tags, it shows the READMEs work for someone who runs go get
 
-### `generate`
+### `gsx:editor`
+
+- **Usage:** `gsx:editor`
+
+Install go.mod's gsx into GOPATH/bin for the VS Code gsx language server
+
+### `gsx:fmt`
+
+Format every .gsx file with gsx fmt; --check lists what isn't formatted and fails, writing nothing (test:go)
+
+
+- **Usage:** `gsx:fmt [--check]`
+
+### Flags
+- **`--check`** — fail on an unformatted file, writing nothing
+
+### `gsx:generate`
 
 - Depends: intl
 
-- **Usage:** `generate`
+- **Usage:** `gsx:generate`
 
 go tool gsx generate (after intl: views write the generated messages); intl/'s and seo/'s own components too, which they commit for the apps that import them
+
+### `gsxui:css`
+
+- **Usage:** `gsxui:css`
+
+gsxui's CSS: web/gsxui/index.css compiled by the standalone Tailwind CLI into dist/gsxui.css
+
+### `gsxui:theme`
+
+Switch the app's look to a gsxui theme with gsxui apply: a style's standard theme by name (nova, gsxui's default and ours; vega, maia, lyra, mira, luma, sera, rhea), or any share code from gsxui's theme editor (https://ui.gsxhq.dev/theme). Then commit what it changed
+
+
+- **Usage:** `gsxui:theme <theme>`
+
+### Arguments
+- **`<theme>`** — a style (nova, vega, maia, lyra, mira, luma, sera, rhea) or a gsxui:p1:… share code
 
 ### `intl`
 
@@ -499,21 +525,11 @@ Everything before a push: the production build + workerd smoke, gsx fmt/gofmt, g
 
 ### `test:go`
 
-- Depends: generate
+- Depends: gsx:generate
 
 - **Usage:** `test:go`
 
 gsx fmt/gofmt check + go vet + go test, the app and intl/ (standard Go; runs beside the production build)
-
-### `theme`
-
-Switch the app's look to a gsxui theme with gsxui apply: a style's standard theme by name (nova, gsxui's default and ours; vega, maia, lyra, mira, luma, sera, rhea), or any share code from gsxui's theme editor (https://ui.gsxhq.dev/theme). Then commit what it changed
-
-
-- **Usage:** `theme <theme>`
-
-### Arguments
-- **`<theme>`** — a style (nova, vega, maia, lyra, mira, luma, sera, rhea) or a gsxui:p1:… share code
 
 ### `token-check`
 

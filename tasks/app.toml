@@ -30,24 +30,15 @@ rm -rf "$tgz" "$tmp"
 echo "✓ htmx $version: web/htmx/htmx.min.js, web/htmx/hx-ws.js, web/htmx/hx-live.js"
 '''
 
-# gsx components (views/, ui/) → *.x.go, which are gitignored; every build/run/test path depends on this.
-["generate"]
-description = "go tool gsx generate (after intl: views write the generated messages); intl/'s and seo/'s own components too, which they commit for the apps that import them"
-depends = ["intl"]
-dir = "{{config_root}}"
-run = ["go -C intl tool gsx generate -q .", "go -C seo tool gsx generate -q .", "go tool gsx generate"]
-
-# gsxui (npm-free mode): compile web/gsxui/index.css with the standalone Tailwind CLI, then assemble the
-# Static Assets directory: /static/ = web/htmx/ (htmx, hx-ws) and intl's browser module,
-# /gsxui/ = web/gsxui/ behaviours, /assets/ = compiled CSS + fonts (fonts.css url()s are relative).
+# The Static Assets directory: /static/ = web/htmx/ (htmx, hx-ws) and intl's browser module, /gsxui/ = web/gsxui/
+# behaviours, /assets/ = gsxui's compiled CSS (gsxui:css) + fonts (fonts.css url()s are relative).
 ["assets"]
-description = "Tailwind (gsxui CSS) + assemble dist/site (Static Assets for workerd and deploy)"
-depends = ["vendor"]
+description = "Assemble dist/site, the Static Assets for workerd and deploy: htmx, intl's browser module, gsxui's behaviours, CSS and fonts"
+depends = ["vendor", "gsxui:css"]
 dir = "{{config_root}}"
 run = '''
 #!/usr/bin/env bash
 set -euo pipefail
-tailwindcss -i web/gsxui/index.css -o dist/gsxui.css --minify 2>&1 | grep -v "^≈\|^$" || true
 rm -rf dist/site
 mkdir -p dist/site/static dist/site/gsxui dist/site/assets
 # htmx and its extensions as one deferred script (/static/htmx.js): out of the way of the first paint, and in one
@@ -65,30 +56,8 @@ find dist/site/static dist/site/gsxui -name '*.js' -o -name '*.mjs' | xargs go t
 echo "✓ dist/site: $(find dist/site -type f | wc -l | tr -d ' ') files, gsxui.css $(wc -c <dist/site/assets/gsxui.css | tr -d ' ')B"
 '''
 
-# The look is a gsxui theme (https://ui.gsxhq.dev/theming): gsxui.preset.json, applied by gsxui's own CLI, which
-# rewrites the preset, web/gsxui/theme.css and, for another style, the components from gsxui's sources. A style's
-# standard theme is the share code gsxui's theme editor (https://ui.gsxhq.dev/theme) gives when that style is picked;
-# any other look is a code from the same editor. Nothing here styles anything.
-["theme"]
-description = "Switch the app's look to a gsxui theme with gsxui apply: a style's standard theme by name (nova, gsxui's default and ours; vega, maia, lyra, mira, luma, sera, rhea), or any share code from gsxui's theme editor (https://ui.gsxhq.dev/theme). Then commit what it changed"
-dir = "{{config_root}}"
-usage = 'arg "<theme>" help="a style (nova, vega, maia, lyra, mira, luma, sera, rhea) or a gsxui:p1:… share code"'
-run = '''
-#!/usr/bin/env bash
-set -euo pipefail
-case "$usage_theme" in
-  nova) code=gsxui:p1:4GG ;; vega) code=gsxui:p1:4GI ;; maia) code=gsxui:p1:4GH ;; lyra) code=gsxui:p1:4GJ ;;
-  mira) code=gsxui:p1:4GK ;; luma) code=gsxui:p1:4GL ;; sera) code=gsxui:p1:4GM ;; rhea) code=gsxui:p1:4GN ;;
-  gsxui:*) code=$usage_theme ;;
-  *) echo "✗ $usage_theme: a style (nova, vega, maia, lyra, mira, luma, sera, rhea) or a share code from https://ui.gsxhq.dev/theme"; exit 1 ;;
-esac
-gsxui apply --preset "$code" --yes
-# A style's components may write text of their own: every message, in every language (mise run intl names any new one).
-mise run intl
-'''
-
 ["build"]
-depends = ["generate", "assets"]
+depends = ["gsx:generate", "assets"]
 description = "Production build → build/ with WORKER_COMPILER (mise.toml: tinygo or go), size-checked (deploy, staging, CI and the tests use it)"
 dir = "{{config_root}}"
 # Skipped when no input changed since the last production build, so `check` then `e2e` (CI: go tool charter ci run) builds once.
@@ -101,7 +70,7 @@ env = { WASM_PROFILE = "prod" }
 run = "ci/wasm-build.sh"
 
 ["build:dev"]
-depends = ["generate", "assets"]
+depends = ["gsx:generate", "assets"]
 description = "Dev build → build/: standard Go to wasm, seconds after an edit (mise run dev uses it; never deployed)"
 dir = "{{config_root}}"
 sources = ["**/*.go", "go.mod", "go.sum", "intl/go.mod", "mise.toml", "intl/js/*.mjs", "locales/intl-messages.mjs"]
@@ -184,7 +153,7 @@ fi
 
 ["bench:variants"]
 description = "Build the current code with each of charter's optimisations off in turn, measure each, write docs/benchmarks.md"
-depends = ["generate", "assets"]
+depends = ["gsx:generate", "assets"]
 dir = "{{config_root}}"
 run = "ci/bench.sh variants"
 
@@ -226,12 +195,12 @@ run = "go test -C e2e -count=1 -timeout 10m -run TestFreshApp ./fresh"
 
 ["test:go"]
 description = "gsx fmt/gofmt check + go vet + go test, the app and intl/ (standard Go; runs beside the production build)"
-depends = ["generate"]
+depends = ["gsx:generate"]
 dir = "{{config_root}}"
 run = '''
 #!/usr/bin/env bash
 set -euo pipefail
-go tool gsx fmt -l . || { echo "✗ gsx fmt: run 'go tool gsx fmt -w .'"; exit 1; }
+mise run gsx:fmt --check
 # Files of this module only (gofmt -l . would walk the nested modules too); IgnoredGoFiles
 # are the other platform's build-tagged files.
 unformatted=$(gofmt -l $(go list -json ./... | jq -r '.Dir as $d | (.GoFiles + (.TestGoFiles // []) + (.XTestGoFiles // []) + (.IgnoredGoFiles // []))[] | "\($d)/\(.)"'))
