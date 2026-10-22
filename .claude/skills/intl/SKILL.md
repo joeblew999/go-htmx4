@@ -44,7 +44,8 @@ ICU MessageFormat. Run every command from the app's root. `mise run intl:<comman
 go tool intl todo -json
 ```
 
-For each locale it gives:
+It is `{"source": "<source locale>", "locales": [ … ]}`, one entry for each other locale:
+- `id` (the BCP 47 id, e.g. `pt-BR`) and `name`.
 - `file`: the catalog to edit.
 - `note`: the app's guidance for that language: tone, formality, terms to keep. Follow it.
 - `plurals.cardinal` and `plurals.ordinal`: the categories this language's `Intl.PluralRules` uses.
