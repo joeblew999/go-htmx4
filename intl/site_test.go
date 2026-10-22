@@ -240,3 +240,26 @@ func TestSuggested(t *testing.T) {
 		}
 	}
 }
+
+// TestDecision: what Site decided from, and what won, for a page that shows it.
+func TestDecision(t *testing.T) {
+	intl.Use(intl.Locales{intl.NewLocale("en"), intl.NewLocale("de")}, []bool{true, true})
+	var got intl.Decision
+	h := intl.Site{ConnectionTimeZone: func(r *http.Request) string { return r.Header.Get("X-Zone") }}.Handler(
+		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { got = intl.DecisionOf(r.Context()) }))
+	r := httptest.NewRequest("GET", "/de/about", nil)
+	r.Header.Set("Accept-Language", "de-AT")
+	r.Header.Set("X-Zone", "Asia/Tokyo")
+	r.AddCookie(&http.Cookie{Name: intl.LocaleCookie, Value: "de"})
+	r.AddCookie(&http.Cookie{Name: intl.BrowserTimeZoneCookie, Value: "Asia/Bangkok"})
+	h.ServeHTTP(httptest.NewRecorder(), r)
+	want := intl.Decision{LanguageFrom: "url", AcceptLanguage: "de-AT", LastViewed: "de", ZoneFrom: "browser",
+		BrowserZone: "Asia/Bangkok", ConnectionZone: "Asia/Tokyo"}
+	if got != want {
+		t.Errorf("/de/about: %+v, want %+v", got, want)
+	}
+	h.ServeHTTP(httptest.NewRecorder(), httptest.NewRequest("GET", "/about", nil))
+	if want := (intl.Decision{LanguageFrom: "default", ZoneFrom: "default"}); got != want {
+		t.Errorf("/about, nothing known: %+v, want %+v", got, want)
+	}
+}

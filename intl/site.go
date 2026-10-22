@@ -81,6 +81,13 @@ func (s Site) Handler(next http.Handler) http.Handler {
 				}
 			}
 		}
+		d := Decision{LanguageFrom: "default", AcceptLanguage: r.Header.Get("Accept-Language")}
+		if loc != def || path != r.URL.Path {
+			d.LanguageFrom = "url"
+		}
+		if c, err := r.Cookie(LocaleCookie); err == nil {
+			d.LastViewed = c.Value
+		}
 		var preferredLoc *Locale
 		if page {
 			if _, err := r.Cookie(LocaleCookie); err != nil { // a first page view: no language picked yet
@@ -100,16 +107,26 @@ func (s Site) Handler(next http.Handler) http.Handler {
 		}
 		// The zone: the one the reader chose; else the one their browser reported (from their second page view on);
 		// else Cloudflare's guess from their IP (right unless a VPN, a proxy or travel misleads it); else UTC.
-		chosen, _ := r.Cookie(TimeZoneCookie)
-		browser, _ := r.Cookie(BrowserTimeZoneCookie)
-		switch {
-		case chosen != nil && ValidTimeZone(chosen.Value):
-			req.TimeZone, req.TimeZoneChosen = chosen.Value, true
-		case browser != nil && ValidTimeZone(browser.Value):
-			req.TimeZone = browser.Value
-		default:
-			req.TimeZone = s.ConnectionZone(r)
+		if c, err := r.Cookie(TimeZoneCookie); err == nil && ValidTimeZone(c.Value) {
+			d.ChosenZone = c.Value
 		}
+		if c, err := r.Cookie(BrowserTimeZoneCookie); err == nil && ValidTimeZone(c.Value) {
+			d.BrowserZone = c.Value
+		}
+		if s.ConnectionTimeZone != nil && ValidTimeZone(s.ConnectionTimeZone(r)) {
+			d.ConnectionZone = s.ConnectionTimeZone(r)
+		}
+		switch {
+		case d.ChosenZone != "":
+			req.TimeZone, req.TimeZoneChosen, d.ZoneFrom = d.ChosenZone, true, "chosen"
+		case d.BrowserZone != "":
+			req.TimeZone, d.ZoneFrom = d.BrowserZone, "browser"
+		case d.ConnectionZone != "":
+			req.TimeZone, d.ZoneFrom = d.ConnectionZone, "connection"
+		default:
+			req.TimeZone, d.ZoneFrom = "UTC", "default"
+		}
+		req.Decision = d
 		r2 := r.Clone(WithRequest(r.Context(), req))
 		r2.URL.Path, r2.URL.RawPath = path, ""
 		next.ServeHTTP(w, r2)

@@ -428,3 +428,24 @@ func TestLanguageSuggestion(t *testing.T) {
 		t.Errorf("the offer isn't written in German:\n%s", w.Body.String()[:min(2000, len(w.Body.String()))])
 	}
 }
+
+// TestRequestCard: /formats shows what the server decided from (the address, the browser's languages, the cookies,
+// Cloudflare's guess) and what won.
+func TestRequestCard(t *testing.T) {
+	h := newServer().routes()
+	r := httptest.NewRequest("GET", "/formats", nil)
+	r.Header.Set("Accept-Language", "th-TH,th;q=0.9,en;q=0.8")
+	r.Header.Set("X-Test-Connection-Time-Zone", "Asia/Tokyo")
+	r.AddCookie(&http.Cookie{Name: intl.LocaleCookie, Value: "en"})
+	r.AddCookie(&http.Cookie{Name: intl.BrowserTimeZoneCookie, Value: "Asia/Bangkok"})
+	w := httptest.NewRecorder()
+	h.ServeHTTP(w, r)
+	body := w.Body.String()
+	for _, want := range []string{`id="request"`, "How this page chose your language and time", "the site&#39;s main language: none in the address",
+		"th-TH,th;q=0.9,en;q=0.8", `<code translate="no">en</code>`, "what your browser reported", `<code translate="no">Asia/Bangkok</code>`,
+		"nothing: automatic", `data-intl="browser-zone"`, `<code translate="no">Asia/Tokyo</code>`, "the language&#39;s own"} {
+		if !strings.Contains(body, want) {
+			t.Errorf("/formats: no %q", want)
+		}
+	}
+}

@@ -200,3 +200,44 @@ func TrySample(ctx context.Context) string { return intl.Text(ctx, intl.Number("
 
 // TryText is the round trip's starting text: the home page's heading.
 func TryText(ctx context.Context) string { return intl.Text(ctx, locales.HomeHeading) }
+
+// Connection is Cloudflare's view of the request's connection (request.cf): where the server thinks the reader is.
+// Empty off Cloudflare.
+type Connection struct{ Country, City, Colo, Timezone string }
+
+// languageFrom says where the page's language came from.
+func languageFrom(d intl.Decision) intl.Msg {
+	if d.LanguageFrom == "url" {
+		return locales.FormatsRequestFromUrl
+	}
+	return locales.FormatsRequestFromDefault
+}
+
+// zoneFrom says where the page's time zone came from.
+func zoneFrom(d intl.Decision) intl.Msg {
+	switch d.ZoneFrom {
+	case "chosen":
+		return locales.FormatsRequestFromChosen
+	case "browser":
+		return locales.FormatsRequestFromBrowser
+	case "connection":
+		return locales.FormatsRequestFromConnection
+	}
+	return locales.FormatsRequestFromNone
+}
+
+// clockOf is the reader's clock: their choice, or the language's own.
+func clockOf(ctx context.Context) intl.Msg {
+	switch intl.HourCycle(ctx) {
+	case "h12":
+		return locales.FormatsRequestClock12
+	case "h23":
+		return locales.FormatsRequestClock24
+	}
+	return locales.FormatsRequestClockOwn
+}
+
+// countryName is a region code named in the request's language (Intl.DisplayNames).
+func countryName(code string) intl.Value {
+	return intl.Of("DisplayNames", "of", intl.Options("type", "region"), intl.JSON(code))
+}

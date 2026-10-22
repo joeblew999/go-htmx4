@@ -74,7 +74,7 @@ func (s *server) routes() http.Handler {
 	})
 	mux.HandleFunc("/formats", func(w http.ResponseWriter, r *http.Request) {
 		if allow(w, r, http.MethodGet) {
-			s.render(w, r, "formats", views.Formats())
+			s.render(w, r, "formats", views.Formats(connection(r)))
 		}
 	})
 	// /components: every gsxui component with Intl (views/components.gsx). The sidebar runs in its own document, and
