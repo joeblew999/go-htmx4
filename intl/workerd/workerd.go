@@ -12,7 +12,8 @@
 //	defer stop()
 //
 // workerd must be on PATH: mise installs it (go tool intl init pins Version), or put its release binary in the
-// server's image. Each Intl call is a request to it on 127.0.0.1, about 0.1 ms.
+// server's image. Each Intl call is a request to it on 127.0.0.1, about 0.1 ms. It ends with the process that started
+// it, however that process ends (launch).
 package workerd
 
 import (
@@ -27,7 +28,6 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
-	"syscall"
 	"time"
 
 	"github.com/joeblew999/go-htmx4/intl"
@@ -104,19 +104,16 @@ const config :Workerd.Config = (
 	}
 	var errs bytes.Buffer
 	reapOrphans()
-	cmd := exec.Command(workerd, "serve", filepath.Join(dir, "config.capnp"))
-	cmd.Stderr = io.MultiWriter(os.Stderr, &errs)
-	if err := cmd.Start(); err != nil {
+	c, err := launch(workerd, dir, io.MultiWriter(os.Stderr, &errs))
+	if err != nil {
 		return nil, err
 	}
-	// Who owns this workerd: a process that dies without stopping it (a panic, a kill) leaves it to the next Start's
-	// reapOrphans.
-	os.WriteFile(filepath.Join(dir, "owner"), []byte(fmt.Sprintf("%d %d", os.Getpid(), cmd.Process.Pid)), 0o644)
-	exited := make(chan struct{})
-	go func() { cmd.Wait(); close(exited) }()
+	// Who owns this workerd: launch ends it when this process ends, and a leftover (a system with no shell and no
+	// parent-death signal) goes at the next Start's reapOrphans.
+	os.WriteFile(filepath.Join(dir, "owner"), []byte(fmt.Sprintf("%d %d", os.Getpid(), c.pid())), 0o644)
+	exited := c.exited
 	stop = func() {
-		cmd.Process.Kill()
-		<-exited
+		c.stop()
 		os.RemoveAll(dir)
 	}
 	base = "http://" + addr
@@ -189,15 +186,9 @@ func reapOrphans() {
 		if _, err := fmt.Sscan(string(b), &owner, &worker); err != nil || alive(owner) {
 			continue
 		}
-		if p, err := os.FindProcess(worker); err == nil && alive(worker) {
-			p.Kill()
+		if alive(worker) {
+			killGroup(worker)
 		}
 		os.RemoveAll(d)
 	}
-}
-
-// alive reports whether process pid is running.
-func alive(pid int) bool {
-	p, err := os.FindProcess(pid)
-	return err == nil && p.Signal(syscall.Signal(0)) == nil
 }
