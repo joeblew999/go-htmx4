@@ -11,6 +11,7 @@ about = "परिचय"
 languages = "भाषाएँ"
 toggle_theme = "थीम बदलें"
 preferences = "टाइम ज़ोन और घड़ी"
+also_in = "यह पेज {language} में भी उपलब्ध है।"
 
 [home]
 heading = "Cloudflare Workers पर Go + htmx 4 + gsxui"

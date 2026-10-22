@@ -25,6 +25,14 @@ function browserZone() {
   }
 }
 
+// The browser tells the server its own zone, once and again when it changes (travel): from the next page on the
+// server renders in it (intl.Site), so the text doesn't change after it arrives. A chosen zone needs no report.
+// A zone id ("America/New_York") is all characters a cookie value may hold.
+if (!root.dataset.tz && !document.cookie.split("; ").includes("browser_tz=" + browserZone())) {
+  document.cookie = "browser_tz=" + browserZone() + "; path=/; max-age=31536000; samesite=lax" +
+    (location.protocol === "https:" ? "; secure" : "");
+}
+
 // viewerZone: the zone the viewer chose, if this browser knows it; else the browser's own.
 function viewerZone() {
   const chosen = root.dataset.tz;

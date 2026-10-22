@@ -179,3 +179,64 @@ func TestUnprefixed(t *testing.T) {
 		}
 	}
 }
+
+// TestZoneOrder: the zone the reader chose, else the one their browser reported, else the connection's guess, else
+// UTC; a cookie that isn't a zone is ignored.
+func TestZoneOrder(t *testing.T) {
+	h := site(t)
+	for _, tc := range []struct {
+		cookies []*http.Cookie
+		want    string
+	}{
+		{nil, "Asia/Tokyo guessed"},
+		{[]*http.Cookie{{Name: intl.BrowserTimeZoneCookie, Value: "America/New_York"}}, "America/New_York guessed"},
+		{[]*http.Cookie{{Name: intl.BrowserTimeZoneCookie, Value: "America/New_York"}, {Name: intl.TimeZoneCookie, Value: "Europe/Berlin"}}, "Europe/Berlin chosen"},
+		{[]*http.Cookie{{Name: intl.BrowserTimeZoneCookie, Value: "<script>"}}, "Asia/Tokyo guessed"},
+	} {
+		if got := do(h, "/about", tc.cookies...).Body.String(); !strings.Contains(got, " "+tc.want+" ") {
+			t.Errorf("%v: %q, want the zone %q", tc.cookies, got, tc.want)
+		}
+	}
+}
+
+// TestSuggested: on a first page view, the page in the language the reader's browser asks for, matched by Intl's
+// likely subtags; never on a page already in it, after a language was picked, or for what isn't a page; never a
+// redirect.
+func TestSuggested(t *testing.T) {
+	intl.Use(intl.Locales{intl.NewLocale("en"), intl.NewLocale("de"), intl.NewLocale("pt-BR"), intl.NewLocale("pt-PT"),
+		intl.NewLocale("zh-Hans"), intl.NewLocale("zh-Hant")}, []bool{true, true, true, true, true, true})
+	h := intl.Site{IsPage: func(path string) bool { return !strings.HasPrefix(path, "/api/") }}.Handler(
+		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if l, ok := intl.Suggested(r.Context()); ok {
+				w.Write([]byte(l.Lang + " " + l.Href))
+			}
+		}))
+	for _, tc := range []struct{ path, accept, cookie, want string }{
+		{"/about", "de-AT,de;q=0.9,en;q=0.5", "", "de /de/about"},
+		{"/about", "zh-TW", "", "zh-Hant /zh-hant/about"},
+		{"/about", "zh", "", "zh-Hans /zh-hans/about"},
+		{"/about", "pt", "", "pt-BR /pt-br/about"},
+		{"/about", "pt-PT,pt;q=0.8", "", "pt-PT /pt-pt/about"},
+		{"/about", "fr-FR,fr;q=0.9,de;q=0.8", "", "de /de/about"},
+		{"/de/about", "en-GB", "", "en /about"},
+		{"/de/about", "de-CH", "", ""},
+		{"/about", "en-US,en;q=0.9", "", ""},
+		{"/about", "de", "en", ""},
+		{"/api/x", "de", "", ""},
+		{"/about", "fr, *;q=0.5, <x>", "", ""},
+	} {
+		r := httptest.NewRequest("GET", tc.path, nil)
+		r.Header.Set("Accept-Language", tc.accept)
+		if tc.cookie != "" {
+			r.AddCookie(&http.Cookie{Name: intl.LocaleCookie, Value: tc.cookie})
+		}
+		w := httptest.NewRecorder()
+		h.ServeHTTP(w, r)
+		if got := w.Body.String(); got != tc.want || w.Code != 200 {
+			t.Errorf("%s with Accept-Language %q, locale cookie %q: %d %q, want %q", tc.path, tc.accept, tc.cookie, w.Code, got, tc.want)
+		}
+		if tc.cookie == "" && !strings.HasPrefix(tc.path, "/api/") && !strings.Contains(w.Header().Get("Vary"), "Accept-Language") {
+			t.Errorf("%s: no Vary: Accept-Language", tc.path)
+		}
+	}
+}

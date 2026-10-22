@@ -28,6 +28,13 @@ func testViewerTimeZone(t *testing.T) {
 	b.open("/formats")
 	check(t, "the formats page is in Tokyo time", b.waitJS(5*time.Second, `document.body.textContent.includes("Sunday, July 5, 2026")`))
 
+	// The browser reported its zone on its first page (the browser_tz cookie): now the server itself writes Tokyo time,
+	// so nothing changes after the page arrives. (Locally there is no Cloudflare guess: the server alone would say UTC.)
+	check(t, "the browser reported its zone", b.is(`document.cookie.includes("browser_tz=Asia/Tokyo")`), " ", b.str(`document.cookie`))
+	b.eval(`fetch(location.href).then((r) => r.text()).then((html) => { window.__served = html })`, nil)
+	b.waitJS(5*time.Second, `typeof window.__served === "string"`)
+	check(t, "the server's own page is in Tokyo time", b.is(`window.__served.includes("Sunday, July 5, 2026")`))
+
 	// A value this browser's Intl rejects keeps the server's fallback.
 	kept := b.str(`(() => {
 		const el = document.createElement("time");

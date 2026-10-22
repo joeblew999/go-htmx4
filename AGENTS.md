@@ -79,7 +79,10 @@ a release; committed), and what `gsxui` manages (`gsxui.json` lists it).
   A stale translation that is still right: `mise run intl:confirm <locale>:<key>`. `mise run intl:check` (in
   `test:go`) fails on anything missing, stale, unused or wrongly plural. How each language reads is `intl.toml`'s
   `[notes]`: change them there, not per message.
-- Text arguments are bidi-isolated by the renderer; user text in its own element gets `dir="auto"`.
+- Text arguments are bidi-isolated by the renderer (another message given as an argument isn't: it is in the page's
+  language); user text in its own element gets `dir="auto"`. A message written in another language is `.In(id)`.
+- The server renders in the reader's zone and offers their language: `intl.Site` (the `browser_tz` cookie, Cloudflare's
+  guess; `Accept-Language` for `intl.Suggested`). Never redirect on `Accept-Language`.
 - gsxui components' own text (`i18n.T`) is the catalogs' `[gsxui]` table: after `gsxui add`, `mise run intl` names
   every string that needs a message.
 - `mise run intl:check` also runs gsx's own checks on the app's markup: `gsx generate`, `gsx fmt` and the `gsx` skill's

@@ -386,3 +386,45 @@ func TestLocalesMatchConfig(t *testing.T) {
 		t.Errorf("intl.toml locales = %v, locales.Shipped has %v: mise run intl", c.Locales, ids)
 	}
 }
+
+// TestLanguageSuggestion: on a first visit whose browser asks for German, an English page offers the German one,
+// written in German; a German page, a reader who already picked a language, and a fragment don't. Never a redirect.
+func TestLanguageSuggestion(t *testing.T) {
+	h := newServer().routes()
+	for _, tc := range []struct {
+		path, accept string
+		cookie       bool
+		want         string
+	}{
+		{"/about", "de-AT,de;q=0.9", false, `<a href="/de/about" hreflang="de"`},
+		{"/about", "zh-TW", false, `href="/zh-hant/about" hreflang="zh-Hant"`},
+		{"/de/about", "de-CH", false, ""},
+		{"/about", "de", true, ""},
+		{"/about", "en-US", false, ""},
+	} {
+		r := httptest.NewRequest("GET", tc.path, nil)
+		r.Header.Set("Accept-Language", tc.accept)
+		if tc.cookie {
+			r.AddCookie(&http.Cookie{Name: intl.LocaleCookie, Value: "en"})
+		}
+		w := httptest.NewRecorder()
+		h.ServeHTTP(w, r)
+		body := w.Body.String()
+		if w.Code != 200 {
+			t.Errorf("%s (%s): status %d, want 200 (never a redirect)", tc.path, tc.accept, w.Code)
+		}
+		if tc.want == "" && strings.Contains(body, `data-gsxui-slot-alert`) && strings.Contains(body, `class="underline underline-offset-4"`) {
+			t.Errorf("%s (%s, cookie %v): offers a language it shouldn't", tc.path, tc.accept, tc.cookie)
+		}
+		if tc.want != "" && !strings.Contains(body, tc.want) {
+			t.Errorf("%s (%s): no %q", tc.path, tc.accept, tc.want)
+		}
+	}
+	r := httptest.NewRequest("GET", "/about", nil)
+	r.Header.Set("Accept-Language", "de")
+	w := httptest.NewRecorder()
+	h.ServeHTTP(w, r)
+	if !strings.Contains(w.Body.String(), "Diese Seite gibt es auch auf \u2068Deutsch\u2069.") || !strings.Contains(w.Body.String(), `lang="de" dir="auto"`) {
+		t.Errorf("the offer isn't written in German:\n%s", w.Body.String()[:min(2000, len(w.Body.String()))])
+	}
+}

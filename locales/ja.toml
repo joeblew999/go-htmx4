@@ -11,6 +11,7 @@ about = "概要"
 languages = "言語"
 toggle_theme = "テーマを切り替え"
 preferences = "タイムゾーンと時刻表示"
+also_in = "このページは{language}でもご覧いただけます。"
 
 [home]
 heading = "Cloudflare Workers で動く Go + htmx 4 + gsxui"

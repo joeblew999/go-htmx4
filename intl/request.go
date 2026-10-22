@@ -21,6 +21,9 @@ type Request struct {
 	TimeZoneChosen bool
 	// HourCycle is the viewer's explicit clock, "h12" or "h23"; "" keeps the locale's.
 	HourCycle string
+	// Preferred is the shipped locale the reader's browser asks for (Accept-Language), on their first page view;
+	// nil otherwise. Suggested offers the page in it.
+	Preferred *Locale
 }
 
 // WithRequest returns ctx carrying r. The app's locale middleware calls it once per request; the renderers (Value,
