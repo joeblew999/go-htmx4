@@ -30,8 +30,8 @@ github.com/jackielii/tailwind-merge-go v0.0.0-20260726184505-8a911ed0cf9a h1:sQ0
 github.com/jackielii/tailwind-merge-go v0.0.0-20260726184505-8a911ed0cf9a/go.mod h1:voVtdB9w9rAqShh8L7IMzv5ipGAeDCP9G3O0PqrKwnc=
 github.com/jmoiron/sqlx v1.4.0 h1:1PLqN7S1UYp5t4SrVVnt4nUVNemrDAtxlulVe+Qgm3o=
 github.com/jmoiron/sqlx v1.4.0/go.mod h1:ZrZ7UsYB/weZdl2Bxg6jCRO9c3YHl8r3ahlKmRT4JLY=
-github.com/joeblew999/charter/go/lib v0.9.2-0.20261022072935-9b0465b34364 h1:Fn9wZSVWVZ9O+IpPraKKCd08Lqr+nyOLaNoZV8m49rY=
-github.com/joeblew999/charter/go/lib v0.9.2-0.20261022072935-9b0465b34364/go.mod h1:U8qspUW8X0l6YtvHY7u/u2Ilt0Ud+MsdRzkSw0OW5Sk=
+github.com/joeblew999/charter/go/lib v0.9.2-0.20261022074405-81b059f7cf35 h1:nft4r6floFdzFKtaIT4IEzV0fx2/61+LsUMoJu6ELcU=
+github.com/joeblew999/charter/go/lib v0.9.2-0.20261022074405-81b059f7cf35/go.mod h1:U8qspUW8X0l6YtvHY7u/u2Ilt0Ud+MsdRzkSw0OW5Sk=
 github.com/lib/pq v1.10.9 h1:YXG7RB+JIjhP29X+OtkiDnYaXQwpS4JEWq7dtCCRUEw=
 github.com/lib/pq v1.10.9/go.mod h1:AlVN5x4E4T544tWzH6hKfbfQvm3HdbOxrmggDNAPY9o=
 github.com/mattn/go-isatty v0.0.24 h1:tGZZoVgT/KiqK1c8ocVLeDS8BSWMRd47J3Lbz7vsReI=
