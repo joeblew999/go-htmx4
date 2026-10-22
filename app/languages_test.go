@@ -256,7 +256,7 @@ func TestComponentsInRussian(t *testing.T) {
 	body := get(t, newServer().routes(), "/ru/components").Body.String()
 	for _, want := range []string{"июль 2026", "суббота, 4 июля 2026 г.", `data-gsxui-calendar-label-today="Сегодня, {date}"`,
 		`data-gsxui-calendar-label-selected="{date}, выбрано"`, `aria-label="Навигационная цепочка"`, `aria-roledescription="карусель"`,
-		`aria-label="Перейти на следующую страницу"`, `aria-label="Загрузка"`} {
+		`aria-label="Перейти на следующую страницу"`, `aria-label="Загрузка"`, `aria-label="Предложения"`, `aria-label="Открыть список"`} {
 		if !strings.Contains(body, want) {
 			t.Errorf("/ru/components lacks %q", want)
 		}

@@ -310,8 +310,6 @@ select_label = "Calendar system"
 command_about = "A command palette and a menu: every language named in itself, and this site's pages."
 command_placeholder = "Search languages and pages…"
 command_empty = "Nothing found."
-# The name a screen reader gives the command palette's list of results.
-command_results = "Languages and pages"
 command_languages = "Languages"
 command_pages = "Pages"
 dropdown_label = "Language"
@@ -415,6 +413,11 @@ loading = "Loading"
 # included: gsxui's calendar script puts the whole day there ("Thursday, July 9, 2026").
 today_date = "Today, '{date}'"
 date_selected = "'{date}', selected"
+# The combobox's icon buttons, as screen readers name them: the one that opens its list, and the one that clears it.
+open_popup = "Open popup"
+clear_selection = "Clear selection"
+# The command menu's list of matches, as screen readers name it.
+suggestions = "Suggestions"
 
 # intl's screens: the language list, the offer of the page in the reader's language, the time zone and clock dialog.
 [intl]
