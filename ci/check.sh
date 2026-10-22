@@ -77,7 +77,8 @@ publish() {
     [ "${GITHUB_REF_NAME:-}" != production ] && [[ "${GITHUB_REF_NAME:-}" != release/* ]]; then
     slug=$(bin/deploy -name "$APP_NAME" -slug "$GITHUB_REF_NAME")
     bin/deploy -repo "$GITHUB_REPOSITORY" -comment-pr "$GITHUB_REF_NAME" \
-      -url "https://$slug-$APP_NAME.$CF_SUBDOMAIN.workers.dev" || echo "· PR comment failed (the preview still deploys)"
+      -url "https://$slug-$APP_NAME.$CF_SUBDOMAIN.workers.dev" \
+      -comment-note "Own Durable Object storage, shared preview D1, not indexed." || echo "· PR comment failed (the preview still deploys)"
   fi
 }
 # The production build and the Go tests (formatting, vet, go test) run side by side: the build is mostly one core of

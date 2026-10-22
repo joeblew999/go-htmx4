@@ -362,6 +362,7 @@ run = '''
 set -euo pipefail
 cf() { if [ -n "${CLOUDFLARE_API_TOKEN:-}" ] && [ -n "${CLOUDFLARE_ACCOUNT_ID:-}" ]; then "$@"; else fnox exec -- "$@"; fi; }
 cf sh -c 'exec go tool workerdeploy -name "$APP_NAME" -repo "$APP_REPO" -configure-builds \
+  -build-command "ci/workers-builds.sh build" -deploy-command "ci/workers-builds.sh deploy" \
   -build-token "$APP_NAME build token" -fallback-build-token "${FALLBACK_BUILD_TOKEN:-}" \
   -build-var "CLOUDFLARE_ACCOUNT_ID=$CLOUDFLARE_ACCOUNT_ID" -path-exclude "*.md"'
 '''
