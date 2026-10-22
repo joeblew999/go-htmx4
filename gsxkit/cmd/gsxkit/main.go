@@ -4,6 +4,7 @@
 //
 //	go tool gsxkit tasks [-o file]   write the gsx and gsxui mise tasks into the app (.mise/tasks/gsx.toml)
 //	go tool gsxkit skill             copy the skills of every such project in go.mod into .claude/skills
+//	go tool gsxkit theme [name]      print a named gsxui theme's preset (gsxkit/themes), or list them with no name
 package main
 
 import (
@@ -19,11 +20,25 @@ import (
 	"strings"
 
 	"github.com/joeblew999/go-htmx4/gsxkit/mise"
+	"github.com/joeblew999/go-htmx4/gsxkit/themes"
 )
 
 func main() {
 	if len(os.Args) < 2 {
 		usage()
+	}
+	// theme needs no app: it only prints what gsxkit embeds.
+	if os.Args[1] == "theme" {
+		if len(os.Args) == 2 {
+			fmt.Println(strings.Join(themes.Names(), "\n"))
+			return
+		}
+		b, ok := themes.Get(os.Args[2])
+		if !ok {
+			fail(fmt.Errorf("no gsxkit theme %q (have: %s)", os.Args[2], strings.Join(themes.Names(), ", ")))
+		}
+		os.Stdout.Write(b)
+		return
 	}
 	root, err := appRoot()
 	if err != nil {
@@ -70,7 +85,7 @@ func main() {
 }
 
 func usage() {
-	fmt.Fprintln(os.Stderr, "usage: go tool gsxkit tasks [-o file] | skill")
+	fmt.Fprintln(os.Stderr, "usage: go tool gsxkit tasks [-o file] | skill | theme [name]")
 	os.Exit(2)
 }
 

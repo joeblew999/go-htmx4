@@ -60,10 +60,11 @@ tailwindcss -i "${css:-web/gsxui/index.css}" -o "$usage_out" --minify 2>&1 | gre
 # The look is a gsxui theme (https://ui.gsxhq.dev/theming): gsxui.preset.json, applied by gsxui's own CLI, which
 # rewrites the preset, its theme.css and, for another style, the components from gsxui's sources. A style's standard
 # theme is the share code gsxui's theme editor (https://ui.gsxhq.dev/theme) gives when that style is picked; any other
-# look is a code from the same editor.
+# look is a code from the same editor, or one of gsxkit's named themes (gsxkit/themes: a preset file, for a look whose
+# colours aren't in the editor's palettes, e.g. malfi).
 ["gsxui:theme"]
-description = "Switch the app's look to a gsxui theme with gsxui apply: a style's standard theme by name (nova, gsxui's default; vega, maia, lyra, mira, luma, sera, rhea), or any share code from gsxui's theme editor (https://ui.gsxhq.dev/theme). Then commit what it changed"
-usage = 'arg "<theme>" help="a style (nova, vega, maia, lyra, mira, luma, sera, rhea) or a gsxui:p1:… share code"'
+description = "Switch the app's look to a gsxui theme with gsxui apply: a style's standard theme by name (nova, gsxui's default; vega, maia, lyra, mira, luma, sera, rhea), one of gsxkit's named themes (go tool gsxkit theme lists them: malfi, Mailflare's look), or any share code from gsxui's theme editor (https://ui.gsxhq.dev/theme). Then commit what it changed"
+usage = 'arg "<theme>" help="a style (nova, vega, maia, lyra, mira, luma, sera, rhea), a gsxkit theme (malfi) or a gsxui:p1:… share code"'
 run = '''
 #!/usr/bin/env bash
 set -euo pipefail
@@ -71,9 +72,15 @@ case "$usage_theme" in
   nova) code=gsxui:p1:4GG ;; vega) code=gsxui:p1:4GI ;; maia) code=gsxui:p1:4GH ;; lyra) code=gsxui:p1:4GJ ;;
   mira) code=gsxui:p1:4GK ;; luma) code=gsxui:p1:4GL ;; sera) code=gsxui:p1:4GM ;; rhea) code=gsxui:p1:4GN ;;
   gsxui:*) code=$usage_theme ;;
-  *) echo "✗ $usage_theme: a style (nova, vega, maia, lyra, mira, luma, sera, rhea) or a share code from https://ui.gsxhq.dev/theme"; exit 1 ;;
+  *)
+    # gsxkit's named themes: the preset goes to gsxui apply on stdin.
+    if preset=$(go tool gsxkit theme "$usage_theme" 2>/dev/null); then code=-
+    else echo "✗ $usage_theme: a style (nova, vega, maia, lyra, mira, luma, sera, rhea), a gsxkit theme ($(go tool gsxkit theme | paste -sd, -)) or a share code from https://ui.gsxhq.dev/theme"; exit 1; fi ;;
 esac
-gsxui apply --preset "$code" --yes
+# gsxui apply runs gsx generate, which needs intl's renderer for gsxui's own text (<gsxui>/i18n/intl_gen.go,
+# gitignored): on a fresh clone it isn't there until intl has run once.
+[ ! -f intl.toml ] || mise run intl
+if [ "$code" = - ]; then printf '%s\n' "$preset" | gsxui apply --preset - --yes; else gsxui apply --preset "$code" --yes; fi
 # A style's components may write text of their own: with intl, every message in every language (it names any new one).
 [ ! -f intl.toml ] || mise run intl
 '''
