@@ -1,0 +1,130 @@
+# seo's mise tasks: how Google sees the app at seo.toml's site, every workflow a go tool seo
+# command (seo/README.md). In an app, go tool seo tasks writes this file to
+# .mise/tasks/seo.toml, one of mise's default task directories, from the seo version in go.mod.
+# --json prints one JSON document for a program; exit codes: 0 ok, 1 problems or no access. A task brings what it
+# runs (fnox for the key, gcloud for setup), so an app needs only mise.
+
+# Every task that talks to Search Console needs the key and Full access first. Silent, so --json stays one document.
+["seo:access"]
+hide = true
+silent = true
+tools = { fnox = "1.40.0" }
+run = "fnox exec -- go tool seo sites"
+
+["seo:audit"]
+description = "Fetch robots.txt and every sitemap URL live as Googlebot: 200, indexable, self-canonical, lang, title, description, one h1, reciprocal hreflang (no Google account needed)"
+usage = 'flag "--json" help="one JSON document on stdout"'
+run = "go tool seo audit -json=${usage_json:-false}"
+
+["seo:todo"]
+description = "Google's verdict for every sitemap URL (indexed, waiting, duplicate, problem); fails on problems"
+depends = ["seo:access"]
+usage = '''
+flag "--json" help="one JSON document on stdout"
+flag "--open" help="open Google's page for each problem (Test live URL, Request indexing)"
+'''
+tools = { fnox = "1.40.0" }
+run = "fnox exec -- go tool seo todo -json=${usage_json:-false} -open=${usage_open:-false}"
+
+["seo:inspect"]
+description = "One URL (the home page unless named): Google's verdict, last crawl and canonical, and the link to its Search Console page"
+depends = ["seo:access"]
+usage = '''
+arg "[page]" default="/" help="a path like /de/ or a full URL"
+flag "--json" help="one JSON document on stdout"
+flag "--open" help="open its Search Console page (Test live URL, Request indexing)"
+'''
+tools = { fnox = "1.40.0" }
+run = 'fnox exec -- go tool seo inspect "${usage_page:-/}" -json=${usage_json:-false} -open=${usage_open:-false}'
+
+["seo:lighthouse"]
+description = "Lighthouse on the live site, on Google's servers through PageSpeed Insights: every page of the sitemap (seo.toml's pages), or one; performance, accessibility, best practices and SEO out of 100, what fails and on which elements, real users' Core Web Vitals; fails under seo.toml's min (90)"
+tools = { fnox = "1.40.0" }
+usage = '''
+arg "[page]" help="one page, a path like /de/board or a full URL; default every page"
+flag "--json" help="one JSON document on stdout"
+flag "--desktop" help="score the desktop page instead of the mobile one Google indexes"
+'''
+run = 'fnox exec -- go tool seo lighthouse ${usage_page:+"$usage_page"} -json=${usage_json:-false} $([ "${usage_desktop:-false}" = true ] && echo -strategy=desktop)'
+
+["seo:badges"]
+description = "Lighthouse on every page and the audit, then the README's badges (seo.toml's [badges] dir: each Lighthouse category's lowest page, the audit) and its <!-- seo:scores --> table; run after a production release, then commit"
+tools = { fnox = "1.40.0" }
+run = "fnox exec -- go tool seo badges"
+
+["seo:status"]
+description = "The sitemap's status in Search Console and Google's index status for every URL in it"
+depends = ["seo:access"]
+usage = 'flag "--json" help="one JSON document on stdout"'
+tools = { fnox = "1.40.0" }
+run = "fnox exec -- go tool seo status -json=${usage_json:-false}"
+
+["seo:sites"]
+description = "The Search Console properties the service account can use; fails without Full access"
+usage = 'flag "--json" help="one JSON document on stdout"'
+tools = { fnox = "1.40.0" }
+run = "fnox exec -- go tool seo sites -json=${usage_json:-false}"
+
+["seo:submit"]
+description = "Submit the site's sitemap.xml (seo.toml's site) to Search Console, after access and a passing live audit"
+depends = ["seo:access", "seo:audit"]
+confirm = "Submit the sitemap to Google Search Console?"
+tools = { fnox = "1.40.0" }
+run = "fnox exec -- go tool seo submit"
+
+# Once per person, not per site: one service account serves every site it is added to (and Lighthouse, when there's
+# no PAGESPEED_API_KEY). It needs `gcloud auth login`: it makes the Google Cloud project ($SEO_PROJECT, else the key's
+# own, else "$APP_NAME-search"), enables the Search Console and PageSpeed Insights APIs, and stores a service account
+# key in fnox unless one is there. gcloud is installed when this task runs, not by `mise install`; its installer needs
+# Python >= 3.10.
+["seo:setup"]
+description = "Once: the Google Cloud project, the Search Console and PageSpeed Insights APIs, and a service account key in fnox (needs gcloud auth login)"
+confirm = "Make or check the Google Cloud project, its APIs and the service account?"
+tools = { fnox = "1.40.0", "asdf:mise-plugins/mise-gcloud" = "584.0.0", python = "3.13.15" }
+env = { CLOUDSDK_PYTHON = "python3" }
+run = '''
+#!/usr/bin/env bash
+set -euo pipefail
+email() { python3 -c 'import json, sys; print(json.load(sys.stdin)["client_email"])'; }
+# gcloud's update checks and usage reporting stall every command for minutes on some machines.
+gcloud config set component_manager/disable_update_check true --quiet >/dev/null 2>&1
+gcloud config set core/disable_usage_reporting true --quiet >/dev/null 2>&1
+gcloud config set survey/disable_prompts true --quiet >/dev/null 2>&1
+account=$(gcloud auth list --filter=status:ACTIVE --format="value(account)" 2>/dev/null)
+[ -n "$account" ] || { echo "✗ run gcloud auth login first"; exit 1; }
+key=$(fnox get GOOGLE_SEARCH_CONSOLE_KEY 2>/dev/null || true)
+if [ -n "$key" ]; then
+  sa=$(email <<<"$key")
+  p=${SEO_PROJECT:-$(sed -n 's/^[^@]*@\([^.]*\)\.iam\.gserviceaccount\.com$/\1/p' <<<"$sa")}
+else
+  p=${SEO_PROJECT:-${APP_NAME:?set APP_NAME or SEO_PROJECT}-search}
+  sa=search-console@$p.iam.gserviceaccount.com
+fi
+echo "· gcloud account $account, project $p"
+gcloud projects describe "$p" --quiet >/dev/null 2>&1 || gcloud projects create "$p" --name="$p" --quiet
+gcloud services enable searchconsole.googleapis.com pagespeedonline.googleapis.com --project "$p" --quiet
+echo "✓ project $p: the Search Console and PageSpeed Insights APIs"
+if [ -n "$key" ]; then
+  echo "✓ GOOGLE_SEARCH_CONSOLE_KEY is in fnox: service account $sa"
+else
+  gcloud iam service-accounts describe "$sa" --project "$p" --quiet >/dev/null 2>&1 ||
+    gcloud iam service-accounts create search-console --project "$p" --display-name="Search Console" --quiet
+  file=$(mktemp); trap 'rm -f "$file"' EXIT
+  gcloud iam service-accounts keys create "$file" --iam-account "$sa" --project "$p" --quiet >/dev/null
+  fnox set -g GOOGLE_SEARCH_CONSOLE_KEY --from-file "$file" -p keychain -d "Search Console API key ($sa)" >/dev/null
+  echo "✓ service account $sa, its key in fnox as GOOGLE_SEARCH_CONSOLE_KEY"
+fi
+if fnox exec -- go tool seo sites >/dev/null 2>&1; then
+  echo "✓ $sa has Full access to the property"
+else
+  echo "Next: Search Console → the property → Settings → Users and permissions → Add user $sa (Full), then mise run seo:sites"
+fi
+'''
+
+["seo:skill"]
+description = "Install or update the seo agent skill (.claude/skills/seo), which Claude Code uses to check and fix how Google sees the site"
+run = "go tool seo skill"
+
+["seo:tasks"]
+description = "Write this file again from the seo version in go.mod: run it after upgrading seo"
+run = "go tool seo tasks"

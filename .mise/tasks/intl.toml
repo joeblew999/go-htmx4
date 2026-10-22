@@ -1,0 +1,131 @@
+# intl's mise tasks: an app's languages, every workflow a go tool intl command (intl/README.md). In an app,
+# go tool intl tasks writes this file to .mise/tasks/intl.toml, one of mise's default task directories, from the intl
+# version in go.mod; intl:check says when an upgrade changed it. Intl itself (plural categories, language names) runs
+# on workerd, which these tasks pin.
+
+["intl"]
+description = "Compile the catalogs (intl.toml): the Go package of messages, intl-messages.mjs, the gsxui translator, intl.sum and the languages badge (intl.toml's badge); a language just added to intl.toml's locales gets its catalog. Run it after editing a catalog; gsx generate needs it first"
+run = "go tool intl gen"
+
+["intl:status"]
+description = "Per locale: translated, inherited, stale and missing messages; exits 1 when a locale is incomplete"
+run = "go tool intl status"
+
+["intl:add-locale"]
+description = "Add a language: its id as Intl writes it (fr-ca → fr-CA) into intl.toml's locales, and its catalog; then mise run intl:translate"
+tools = { workerd = "1.20261019.1" }
+usage = 'arg "<locale>" var=#true help="BCP 47 ids, e.g. fr or pt-BR"'
+run = 'go tool intl add-locale ${usage_locale}'
+
+["intl:add"]
+description = "Copy intl's screens into the app the way gsxui add copies components: language-list, language-offer, preferences (gsx files in intl.toml's ui, made of gsxui components, their text already translated into the catalogs). --diff shows how the app's copies differ; --overwrite replaces copies the app changed"
+usage = '''
+flag "--diff" help="show how intl's screens differ from the app's copies, writing nothing (exit 1 if they do)"
+flag "--overwrite" help="replace copies the app changed"
+arg "<screen>" var=#true help="language-list, language-offer or preferences"
+'''
+run = '''
+#!/usr/bin/env bash
+set -euo pipefail
+args=(); [ "${usage_diff:-}" != true ] || args+=(-diff); [ "${usage_overwrite:-}" != true ] || args+=(-overwrite)
+exec go tool intl add ${args[@]+"${args[@]}"} ${usage_screen}
+'''
+
+["intl:todo"]
+description = "What is left to translate, per locale: each message's source, context and arguments, the plural categories the language needs, the style note (--json for agents)"
+tools = { workerd = "1.20261019.1" }
+usage = '''
+flag "--json" help="JSON on stdout, for agents"
+arg "[locale]" var=#true help="only these locales (default: all)"
+'''
+run = '''
+#!/usr/bin/env bash
+set -euo pipefail
+args=(); [ "${usage_json:-}" != true ] || args+=(-json)
+exec go tool intl todo ${args[@]+"${args[@]}"} ${usage_locale:-}
+'''
+
+["intl:translate"]
+description = "Translate every missing and stale message with Claude Code (the intl skill), one worker per language at once (intl.toml [translate]), until intl:check passes. Needs claude on PATH"
+tools = { workerd = "1.20261019.1" }
+usage = '''
+arg "[locale]" var=#true help="only these locales (default: all)"
+'''
+run = "go tool intl translate ${usage_locale:-}"
+
+["intl:check"]
+description = "Every problem, for CI: the catalogs (ICU syntax, arguments, a case for each plural category Intl says a language uses, missing and stale translations, unused messages, gsxui text, intl.sum), then gsx's own checks on the app's markup (gsx generate, gsx fmt, the gsx skill's find-smells.sh); exits 1 on any"
+tools = { workerd = "1.20261019.1" }
+run = '''
+#!/usr/bin/env bash
+set -uo pipefail
+status=0
+# The catalogs first, before anything regenerates intl.sum: a commit missing its intl.sum must fail here.
+# INTL_MISSING=warn (CI, for a contributor's pull request): missing and stale translations are only reported.
+go tool intl check ${INTL_MISSING:+-missing=$INTL_MISSING} || status=1
+go tool intl gen >/dev/null 2>&1 || status=1
+# gsx's own tools on the app's markup (go tool intl markup: its own .gsx and .go files, file by file, so nothing
+# reaches gsxui's vendored components or nested modules): every renderer and filter resolves, the formatting is
+# gsx fmt's, and the gsx skill's smell finder has nothing to say.
+files=$(go tool intl markup)
+go tool gsx generate -q || status=1
+if [ -n "$files" ]; then
+  unformatted=$(go tool gsx fmt -l $(printf '%s\n' "$files" | grep '\.gsx$'))
+  [ -z "$unformatted" ] || { echo "✗ gsx fmt -w these: $unformatted"; status=1; }
+  smells="$(go list -m -f '{% raw %}{{.Dir}}{% endraw %}' github.com/gsxhq/gsx)/skills/gsx/scripts/find-smells.sh"
+  # The one shape the smell finder can't tell apart: a message with arguments alone on a line, { locales.X(arg) },
+  # is a typed value with a renderer, not a component called as a function.
+  msg="^[^:]+:[0-9]+:[[:space:]]*[{][[:space:]]*$(go tool intl catalogs)[.][A-Z][A-Za-z0-9]*[(]"
+  # The smell finder takes one directory and searches all of it: give it a copy holding only the app's own files,
+  # at their paths, so its report names them as they are.
+  own=$(mktemp -d)
+  for f in $files; do mkdir -p "$own/$(dirname "$f")" && cp "$f" "$own/$f"; done
+  found=$(cd "$own" && bash "$smells" .) || { echo "✗ gsx smells: find-smells.sh failed"; status=1; }
+  rm -rf "$own"
+  hits=$(printf '%s\n' "$found" | sed 's#^\./##' | awk -v msg="$msg" '
+    /^== / { section = $0; next }
+    /^$/ { next }
+    section ~ /component called as a Go function/ && $0 ~ msg { next }
+    { if (section != shown) { print section; shown = section } print }')
+  [ -z "$hits" ] || { echo "✗ gsx smells (find-smells.sh):"; echo "$hits"; status=1; }
+fi
+[ $status != 0 ] || echo "✓ gsx: generate, fmt, smells"
+exit $status
+'''
+
+["intl:confirm"]
+description = "Keep stale translations as they are: the source changed, their meaning didn't (a typo fixed). All of them, or only some: de, or de:board.notes"
+confirm = "Keep the stale translations as they are? (Only when the English changed and the meaning didn't.)"
+usage = 'arg "[which]" var=#true help="de, or de:board.notes (default: every stale translation)"'
+run = "go tool intl confirm ${usage_which:-}"
+
+["intl:export"]
+description = "XLIFF 2.0 per locale into xliff/out (intl.toml's xliff), for human translators and translation-management systems: what is left to translate (--all: every message)"
+tools = { workerd = "1.20261019.1" }
+usage = '''
+flag "--all" help="every message, not only what is left"
+arg "[locale]" var=#true help="only these locales (default: all)"
+'''
+run = '''
+#!/usr/bin/env bash
+set -euo pipefail
+args=(); [ "${usage_all:-}" != true ] || args+=(-all)
+exec go tool intl export ${args[@]+"${args[@]}"} ${usage_locale:-}
+'''
+
+["intl:import"]
+description = "Read translators' XLIFF 2.0 back into the catalogs, each target checked against its source: every file in xliff/in, or the ones named; then compile"
+usage = 'arg "[file]" var=#true help="<locale>.xlf files (default: every file in xliff/in)"'
+run = "go tool intl import ${usage_file:-}"
+
+["intl:prune"]
+description = "Remove from every catalog the keys the source no longer has (intl:check names them)"
+run = "go tool intl prune"
+
+["intl:tasks"]
+description = "Write this file again from the intl version in go.mod: run it after upgrading intl (intl:check says when)"
+run = "go tool intl tasks"
+
+["intl:skill"]
+description = "Install or update the intl agent skill (.claude/skills/intl), which Claude Code uses to write and translate the app's text"
+run = "go tool intl skill"

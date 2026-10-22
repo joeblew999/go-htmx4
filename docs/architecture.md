@@ -45,7 +45,7 @@ and in the browser, which redoes the viewer's own time zone and relative times a
 values; `go test` uses workerd's Intl (`intl/intltest`).
 
 `intl.toml` lists the languages and the translators' notes; `locales/*.toml` holds their text. intl's own mise
-tasks (`intl/mise/tasks.toml`) are the workflow:
+tasks (`.mise/tasks/intl.toml`, written by `go tool intl tasks` as in any app) are the workflow:
 - `intl` compiles the catalogs.
 - `intl:translate` translates what is missing or stale with Claude Code.
 - `intl:todo`, `intl:export` and `intl:import` serve people translating.

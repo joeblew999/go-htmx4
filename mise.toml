@@ -48,19 +48,20 @@ macos-x64 = { url = "https://storage.googleapis.com/chrome-for-testing-public/{{
 # measured 2026-10-20). Users pay that, so: tinygo. mise run dev always uses go.
 # Set WORKER_COMPILER in the environment to override it for one run: WORKER_COMPILER=go ci/check.sh
 WORKER_COMPILER = "{{ get_env(name='WORKER_COMPILER', default='tinygo') }}"
-# Worker script and D1 database name (mise run deploy): https://$APP_NAME.<subdomain>.workers.dev
+# Copies of charter.toml's facts for the tasks and scripts that still read them from the environment (TestCharterToml
+# checks each): the Worker's name, its production custom domain ("" = workers.dev only; when set, *.workers.dev and
+# plain http 301 to it: seo.Site, app/site.go) and its GitHub repository.
 APP_NAME = "go-htmx4"
-# Custom domain (Workers Custom Domain, zone in the same Cloudflare account); "" = workers.dev only. When set, deploy
-# attaches it, and *.workers.dev and plain http 301 to it (seo.Site, app/site.go). mise run rename clears it.
 APP_DOMAIN = "go-htmx4.ubuntusoftware.net"
-# GitHub repository (owner/name) for preview builds and Workers Builds; mise run rename sets it from the module path.
 APP_REPO = "joeblew999/go-htmx4"
 # The account's workers.dev subdomain: previews answer at https://<branch slug>-$APP_NAME.$CF_SUBDOMAIN.workers.dev
-# (CI posts that URL on the PR). The owner's; mise run rename clears it.
+# (CI posts that URL on the PR). A copy of charter.toml's subdomain (TestCharterToml).
 CF_SUBDOMAIN = "gedw99"
 
+# intl's, seo's and charter's tasks as an outside app has them: written by go tool intl tasks, seo tasks and charter
+# tasks into .mise/tasks/ (TestTaskFiles keeps them current).
 [task_config]
-includes = ["tasks/app.toml", "intl/mise/tasks.toml", "seo/mise/tasks.toml", "tasks/editor.toml", "tasks/upstream.toml"]
+includes = ["tasks/app.toml", ".mise/tasks/intl.toml", ".mise/tasks/seo.toml", ".mise/tasks/charter.toml", "tasks/editor.toml", "tasks/upstream.toml"]
 
 # The VS Code gsx language server needs the compiler where the extension looks (tasks/editor.toml).
 [hooks]
