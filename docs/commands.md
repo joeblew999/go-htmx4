@@ -34,7 +34,7 @@ Assemble dist/site, the Static Assets for workerd and deploy: htmx, intl's brows
 
 - **Usage:** `bench`
 
-CPU per request of the production build on local workerd, per page, repeated runs (charter's workerbench)
+CPU per request of the production build on local workerd, per page, repeated runs (go tool charter bench)
 
 ### `bench:variants`
 

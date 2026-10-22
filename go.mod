@@ -48,10 +48,6 @@ require (
 tool (
 	github.com/gsxhq/gsx/cmd/gsx
 	github.com/joeblew999/charter/go/lib/cmd/charter
-	github.com/joeblew999/charter/go/lib/cmd/workerbench
-	github.com/joeblew999/charter/go/lib/cmd/workerbuild
-	github.com/joeblew999/charter/go/lib/cmd/workerdeploy
-	github.com/joeblew999/charter/go/lib/cmd/workertail
 	github.com/joeblew999/go-htmx4/gsxkit/cmd/gsxkit
 	github.com/joeblew999/go-htmx4/intl/cmd/intl
 	github.com/joeblew999/go-htmx4/seo/cmd/seo
