@@ -65,6 +65,51 @@ Dev build → build/: standard Go to wasm, seconds after an edit (mise run dev u
 
 Set up Workers Builds for $APP_REPO: every branch deploys (previews; production from the production branch), main deploys staging; idempotent
 
+### `charter:build`
+
+- **Usage:** `charter:build`
+
+Build the Worker into build/ with TinyGo (go tool charter build); WORKER_COMPILER=go builds with the standard compiler, in seconds, never to deploy
+
+### `charter:deploy`
+
+Deploy the built Worker to production, staging or a preview <name>, as charter.toml says (go tool charter deploy); prints its URL
+
+
+- **Usage:** `charter:deploy <environment> [name]`
+
+### Arguments
+- **`<environment>`** — production, staging or preview
+- **`[name]`** — the preview's name, e.g. pr-7
+
+### `charter:serve`
+
+- **Usage:** `charter:serve`
+
+Run the built Worker on local workerd, on charter.toml's port (PORT overrides it), in your time zone (go tool charter serve)
+
+### `charter:tail`
+
+- **Usage:** `charter:tail`
+
+Stream the deployed Worker's live logs until Ctrl-C (go tool charter tail)
+
+### `charter:token`
+
+- **Usage:** `charter:token`
+
+Check the Cloudflare token is active (go tool charter token)
+
+### `charter:with`
+
+Run a command against the built Worker on local workerd, a free port and fresh state, BASE its URL (go tool charter with)
+
+
+- **Usage:** `charter:with <command>…`
+
+### Arguments
+- **`<command>…`** — the command and its arguments
+
 ### `deploy`
 
 - Depends: test, token-check
