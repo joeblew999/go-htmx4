@@ -555,6 +555,19 @@ Everything before a push: the production build + workerd smoke, gsx fmt/gofmt, g
 
 gsx fmt/gofmt check + go vet + go test, the app and its modules: intl/, seo/, badge/, gsxkit/ (standard Go; runs beside the production build)
 
+### `theme:try`
+
+Try a gsxui look (a style, a gsxkit theme such as mailflare, or a share code) on the committed code in a throwaway worktree, served on a free port: open the URL it prints, Ctrl-C ends it; --shots <dir> saves light and dark screenshots instead. Your working tree is untouched
+
+
+- **Usage:** `theme:try [--shots <dir>] <theme>`
+
+### Arguments
+- **`<theme>`** — what mise run gsxui:theme takes: a style (nova, luma, …), a gsxkit theme (mailflare) or a gsxui:p1:… share code
+
+### Flags
+- **`--shots <dir>`** — save light and dark screenshots of / and /components here, then stop
+
 ### `token-check`
 
 - **Usage:** `token-check`

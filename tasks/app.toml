@@ -97,6 +97,70 @@ description = "gsx dev → build:dev (standard Go, seconds) + CSS → workerd re
 # 8913 by default (TestCharterToml).
 run = 'export PORT=${PORT:-8913} && export APP_DEV_PORT=$PORT && exec go tool gsx dev'
 
+# Try a look without touching the working tree: the committed code in a throwaway git worktree, the theme applied there
+# (gsxui:theme), the app on its own free port. Without --shots it stays up for a browser until Ctrl-C; with --shots it
+# saves light and dark screenshots (the pinned chrome-headless-shell) and stops. Either way the worktree goes after.
+["theme:try"]
+description = "Try a gsxui look (a style, a gsxkit theme such as mailflare, or a share code) on the committed code in a throwaway worktree, served on a free port: open the URL it prints, Ctrl-C ends it; --shots <dir> saves light and dark screenshots instead. Your working tree is untouched"
+usage = '''
+arg "<theme>" help="what mise run gsxui:theme takes: a style (nova, luma, …), a gsxkit theme (mailflare) or a gsxui:p1:… share code"
+flag "--shots <dir>" help="save light and dark screenshots of / and /components here, then stop"
+'''
+dir = "{{config_root}}"
+run = """
+#!/usr/bin/env bash
+set -euo pipefail
+set -m # background jobs get their own process group, so stopping the dev server stops workerd too (macOS has no setsid)
+theme=$usage_theme shots=${usage_shots:-}
+tmp=$(mktemp -d)
+work="$tmp/app"
+pid=""
+port=""
+stop() {
+  if [ -n "$pid" ]; then kill -- "-$pid" 2>/dev/null || true; fi
+  # Stopping gsx dev can leave workerd on the port (AGENTS.md): stop it by PID.
+  if [ -n "$port" ]; then
+    left=$(lsof -t -i "TCP:$port" -s TCP:LISTEN 2>/dev/null || true)
+    if [ -n "$left" ]; then kill $left 2>/dev/null || true; fi
+  fi
+  git worktree remove --force "$work" 2>/dev/null || true
+  rm -rf "$tmp"
+}
+trap stop EXIT INT TERM
+git worktree add -q --detach "$work" HEAD
+echo "theme:try $theme on $(git rev-parse --short HEAD) (committed code only)"
+cd "$work"
+mise trust -q .
+mise run gsxui:theme "$theme" >"$tmp/apply.log" 2>&1 || { cat "$tmp/apply.log"; exit 1; }
+port=8930
+while [ "$(curl -s -o /dev/null -w '%{http_code}' "http://localhost:$port/" || true)" != 000 ]; do port=$((port + 1)); done
+PORT=$port mise run dev >"$tmp/dev.log" 2>&1 &
+pid=$!
+up=""
+for i in $(seq 1 180); do
+  if [ "$(curl -s -o /dev/null -w '%{http_code}' "http://localhost:$port/" || true)" = 200 ]; then up=1; break; fi
+  sleep 1
+done
+[ -n "$up" ] || { tail -20 "$tmp/dev.log"; echo "✗ the app didn't start on :$port"; exit 1; }
+if [ -z "$shots" ]; then
+  echo "✓ $theme → http://localhost:$port (Ctrl-C ends it and removes the worktree)"
+  wait "$pid" || true
+  exit 0
+fi
+mkdir -p "$shots"
+chrome=$(mise which chrome-headless-shell)
+for mode in light dark; do
+  scheme=1; [ "$mode" = dark ] && scheme=0
+  for page in home components; do
+    path=""; [ "$page" = components ] && path=components
+    "$chrome" --no-sandbox --hide-scrollbars --window-size=1280,1400 --blink-settings=preferredColorScheme=$scheme \
+      --screenshot="$shots/$theme-$mode-$page.png" "http://localhost:$port/$path" 2>/dev/null
+  done
+done
+echo "✓ $theme: screenshots in $shots"
+ls "$shots"/"$theme"-*.png
+"""
+
 # Live logs of the deployed Worker (go tool charter tail): requests, console output, exceptions. Ctrl-C deletes the tail.
 ["tail"]
 description = "Stream the deployed Worker's live logs (requests, console, exceptions) → Ctrl-C to stop"
