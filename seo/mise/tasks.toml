@@ -72,8 +72,8 @@ confirm = "Submit the sitemap to Google Search Console?"
 tools = { fnox = "1.40.0" }
 run = "fnox exec -- go tool seo submit"
 
-# Once per person, not per site: one service account serves every site it is added to, and Lighthouse
-# (PageSpeed Insights). It needs `gcloud auth login`: it makes the Google Cloud project ($SEO_PROJECT, else the key's
+# Once per person, not per site: one service account serves every site it is added to (and Lighthouse, when there's
+# no PAGESPEED_API_KEY). It needs `gcloud auth login`: it makes the Google Cloud project ($SEO_PROJECT, else the key's
 # own, else "$APP_NAME-search"), enables the Search Console and PageSpeed Insights APIs, and stores a service account
 # key in fnox unless one is there. gcloud is installed when this task runs, not by `mise install`; its installer needs
 # Python >= 3.10.

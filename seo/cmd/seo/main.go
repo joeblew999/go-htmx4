@@ -17,11 +17,12 @@
 // text (same data, for agents, CI and jq) and never opens a browser.
 // Exit codes are the contract between tasks: 0 ok, 1 problems (or no access), 2 usage.
 //
-// The key is GOOGLE_SEARCH_CONSOLE_KEY (a service account JSON key, e.g. from fnox); audit needs none. The settings
-// come from the app's seo.toml (package config), each overridden by its flag: -base defaults to its site (there is
-// no other default, and every run says which site it works on), and -site to its property, else the Domain property of the site's registrable domain
-// (app.example.com → sc-domain:example.com). Request indexing has no API: todo prints Google's link for each problem
-// (-open opens only those).
+// Lighthouse needs PAGESPEED_API_KEY (a free PageSpeed Insights API key), else GOOGLE_SEARCH_CONSOLE_KEY; the Search
+// Console commands need GOOGLE_SEARCH_CONSOLE_KEY (a service account JSON key, e.g. from fnox); audit needs none. The
+// settings come from the app's seo.toml (package config), each overridden by its flag: -base defaults to its site
+// (there is no other default, and every run says which site it works on), and -site to its property, else the Domain
+// property of the site's registrable domain (app.example.com → sc-domain:example.com). Request indexing has no API:
+// todo prints Google's link for each problem (-open opens only those).
 package main
 
 import (
@@ -190,15 +191,9 @@ func main() {
 		}
 		return
 	}
-	raw := os.Getenv("GOOGLE_SEARCH_CONSOLE_KEY")
-	if raw == "" {
-		fail(fmt.Errorf("GOOGLE_SEARCH_CONSOLE_KEY is not set (run through fnox exec)"))
-	}
-	key, err := searchconsole.ParseKey([]byte(raw))
-	if err != nil {
-		fail(err)
-	}
 	if args[0] == "lighthouse" || args[0] == "badges" {
+		auth := lighthouseAuth(ctx)
+		var err error
 		pages := cfg.Lighthouse.Pages
 		if len(args) == 2 {
 			pages = []string{args[1]}
@@ -214,11 +209,19 @@ func main() {
 			}
 		}
 		if args[0] == "badges" {
-			badges(ctx, httpc, key, *base, pages, *strategy, cfg.Badges.Dir, cfg.Badges.Readme)
+			badges(ctx, httpc, auth, *base, pages, *strategy, cfg.Badges.Dir, cfg.Badges.Readme)
 			return
 		}
-		lighthouseRun(ctx, key, pages, *strategy, *minScore, *jsonOut)
+		lighthouseRun(ctx, auth, pages, *strategy, *minScore, *jsonOut)
 		return
+	}
+	raw := os.Getenv("GOOGLE_SEARCH_CONSOLE_KEY")
+	if raw == "" {
+		fail(fmt.Errorf("GOOGLE_SEARCH_CONSOLE_KEY is not set (run through fnox exec)"))
+	}
+	key, err := searchconsole.ParseKey([]byte(raw))
+	if err != nil {
+		fail(err)
 	}
 	token, err := key.Token(ctx, httpc, searchconsole.Scope)
 	if err != nil {

@@ -12,11 +12,10 @@ import (
 	"github.com/joeblew999/go-htmx4/seo/searchconsole"
 )
 
-// lighthouseRun runs Lighthouse on pages through PageSpeed Insights with the service account's token, four at a time,
-// prints each page's four scores, what fails, and real users' Core Web Vitals, and exits 1 when a category of any
-// page scores under min.
-func lighthouseRun(ctx context.Context, key searchconsole.Key, pages []string, strategy string, min int, jsonOut bool) {
-	reports, errs := lighthouseAll(ctx, key, pages, strategy)
+// lighthouseRun runs Lighthouse on pages through PageSpeed Insights as auth, four at a time, prints each page's four
+// scores, what fails, and real users' Core Web Vitals, and exits 1 when a category of any page scores under min.
+func lighthouseRun(ctx context.Context, auth lighthouse.Auth, pages []string, strategy string, min int, jsonOut bool) {
+	reports, errs := lighthouseAll(ctx, auth, pages, strategy)
 	low := false
 	for i, r := range reports {
 		if errs[i] != nil {
@@ -41,13 +40,31 @@ func lighthouseRun(ctx context.Context, key searchconsole.Key, pages []string, s
 	}
 }
 
-// lighthouseAll runs Lighthouse on every page, four at a time.
-func lighthouseAll(ctx context.Context, key searchconsole.Key, pages []string, strategy string) ([]lighthouse.Report, []error) {
-	httpc := &http.Client{Timeout: 3 * time.Minute}
-	token, err := key.Token(ctx, httpc, lighthouse.Scope)
+// lighthouseAuth is how Lighthouse runs: with PAGESPEED_API_KEY when it's set (a free key is all it needs), else with
+// the Search Console service account's token (GOOGLE_SEARCH_CONSOLE_KEY).
+func lighthouseAuth(ctx context.Context) lighthouse.Auth {
+	if k := os.Getenv("PAGESPEED_API_KEY"); k != "" {
+		return lighthouse.Auth{Key: k}
+	}
+	raw := os.Getenv("GOOGLE_SEARCH_CONSOLE_KEY")
+	if raw == "" {
+		fail(fmt.Errorf("Lighthouse needs PAGESPEED_API_KEY (a free key: Google Cloud console → APIs & Services → " +
+			"Credentials → API key, restricted to the PageSpeed Insights API) or GOOGLE_SEARCH_CONSOLE_KEY, run through fnox exec"))
+	}
+	key, err := searchconsole.ParseKey([]byte(raw))
 	if err != nil {
 		fail(err)
 	}
+	token, err := key.Token(ctx, &http.Client{Timeout: time.Minute}, lighthouse.Scope)
+	if err != nil {
+		fail(err)
+	}
+	return lighthouse.Auth{Token: token}
+}
+
+// lighthouseAll runs Lighthouse on every page, four at a time.
+func lighthouseAll(ctx context.Context, auth lighthouse.Auth, pages []string, strategy string) ([]lighthouse.Report, []error) {
+	httpc := &http.Client{Timeout: 3 * time.Minute}
 	reports, errs := make([]lighthouse.Report, len(pages)), make([]error, len(pages))
 	var wg sync.WaitGroup
 	sem := make(chan struct{}, 4)
@@ -55,7 +72,7 @@ func lighthouseAll(ctx context.Context, key searchconsole.Key, pages []string, s
 		wg.Go(func() {
 			sem <- struct{}{}
 			defer func() { <-sem }()
-			reports[i], errs[i] = lighthouse.Run(ctx, httpc, token, page, strategy)
+			reports[i], errs[i] = lighthouse.Run(ctx, httpc, auth, page, strategy)
 		})
 	}
 	wg.Wait()

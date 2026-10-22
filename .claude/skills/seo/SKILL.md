@@ -89,8 +89,9 @@ elements or files they failed on. Real users' Core Web Vitals come in `field` on
 
 ## 4. What needs the person's OK
 
-`seo:submit` (sends the sitemap to Google) and `seo:setup` (a Google Cloud project, a service account, its key) write
-to Google: run them only when asked; both ask before they act. Every other task only reads. The key stays in fnox
+Lighthouse needs only `PAGESPEED_API_KEY` (a free PageSpeed Insights API key in fnox); the service account key is for
+Search Console. `seo:submit` (sends the sitemap to Google) and `seo:setup` (a Google Cloud project, a service account,
+its key) write to Google: run them only when asked; both ask before they act. Every other task only reads. The key stays in fnox
 (`fnox exec --`): never print it.
 
 ## Adding a page Google should index
