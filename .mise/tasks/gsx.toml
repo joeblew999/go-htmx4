@@ -63,10 +63,10 @@ tailwindcss -i "${css:-web/gsxui/index.css}" -o "$usage_out" --minify 2>&1 | gre
 # rewrites the preset, its theme.css and, for another style, the components from gsxui's sources. A style's standard
 # theme is the share code gsxui's theme editor (https://ui.gsxhq.dev/theme) gives when that style is picked; any other
 # look is a code from the same editor, or one of gsxkit's named themes (gsxkit/themes: a preset file, for a look whose
-# colours aren't in the editor's palettes, e.g. malfi).
+# colours aren't in the editor's palettes, e.g. mailflare).
 ["gsxui:theme"]
-description = "Switch the app's look to a gsxui theme with gsxui apply: a style's standard theme by name (nova, gsxui's default; vega, maia, lyra, mira, luma, sera, rhea), one of gsxkit's named themes (go tool gsxkit theme lists them: malfi, Mailflare's look), or any share code from gsxui's theme editor (https://ui.gsxhq.dev/theme). Then commit what it changed"
-usage = 'arg "<theme>" help="a style (nova, vega, maia, lyra, mira, luma, sera, rhea), a gsxkit theme (malfi) or a gsxui:p1:… share code"'
+description = "Switch the app's look to a gsxui theme with gsxui apply: a style's standard theme by name (nova, gsxui's default; vega, maia, lyra, mira, luma, sera, rhea), one of gsxkit's named themes (go tool gsxkit theme lists them: mailflare, Mailflare's look), or any share code from gsxui's theme editor (https://ui.gsxhq.dev/theme). Then commit what it changed"
+usage = 'arg "<theme>" help="a style (nova, vega, maia, lyra, mira, luma, sera, rhea), a gsxkit theme (mailflare) or a gsxui:p1:… share code"'
 run = '''
 #!/usr/bin/env bash
 set -euo pipefail

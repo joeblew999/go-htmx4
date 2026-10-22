@@ -245,13 +245,13 @@ gsxui's CSS: its entry (gsxui.json's css) compiled by the standalone Tailwind CL
 
 ### `gsxui:theme`
 
-Switch the app's look to a gsxui theme with gsxui apply: a style's standard theme by name (nova, gsxui's default; vega, maia, lyra, mira, luma, sera, rhea), one of gsxkit's named themes (go tool gsxkit theme lists them: malfi, Mailflare's look), or any share code from gsxui's theme editor (https://ui.gsxhq.dev/theme). Then commit what it changed
+Switch the app's look to a gsxui theme with gsxui apply: a style's standard theme by name (nova, gsxui's default; vega, maia, lyra, mira, luma, sera, rhea), one of gsxkit's named themes (go tool gsxkit theme lists them: mailflare, Mailflare's look), or any share code from gsxui's theme editor (https://ui.gsxhq.dev/theme). Then commit what it changed
 
 
 - **Usage:** `gsxui:theme <theme>`
 
 ### Arguments
-- **`<theme>`** — a style (nova, vega, maia, lyra, mira, luma, sera, rhea), a gsxkit theme (malfi) or a gsxui:p1:… share code
+- **`<theme>`** — a style (nova, vega, maia, lyra, mira, luma, sera, rhea), a gsxkit theme (mailflare) or a gsxui:p1:… share code
 
 ### `intl`
 

@@ -1,7 +1,7 @@
 // Package themes holds gsxkit's named gsxui themes: each <name>.json is a gsxui preset (https://ui.gsxhq.dev/theming)
 // that go tool gsxkit theme <name> prints and mise run gsxui:theme <name> applies with gsxui's own CLI.
 //
-//	malfi  Mailflare's look: luma (gsxui's soft style: filled inputs, pill buttons, round cards) with Mailflare's Gmail-style colours
+//	mailflare  Mailflare's look: luma (gsxui's soft style: filled inputs, pill buttons, round cards) with Mailflare's Gmail-style colours
 package themes
 
 import (
