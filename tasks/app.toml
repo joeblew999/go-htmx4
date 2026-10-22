@@ -169,7 +169,9 @@ description = "Everything before a push: the production build + workerd smoke, g
 alias = "check"
 # smoke (production build + workerd) and test:go (no wasm needed) run in parallel.
 depends = ["smoke", "test:go"]
-run = "echo '✓ test: smoke + test:go'"
+# Against upstream checkouts (mise run upstream:use) every step still runs, for trying them, but the check fails:
+# what merges must have passed with the pinned versions.
+run = '[ ! -s .upstream-use ] || { echo "✗ ran with upstream checkouts: $(tr "\\n" " " <.upstream-use)(mise run upstream:unuse <repo>)"; exit 1; }; echo "✓ test: smoke + test:go"'
 
 ["test:go"]
 description = "gsx fmt/gofmt check + go vet + go test, the app and intl/ (standard Go; runs beside the production build)"
