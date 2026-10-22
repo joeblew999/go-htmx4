@@ -14,6 +14,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"regexp"
 	"strings"
 	"sync"
 	"testing"
@@ -189,7 +190,8 @@ func TestLocales(t *testing.T) {
 }
 
 func TestSEO(t *testing.T) {
-	about := get(t, "/de/about").body
+	// gsx stamps every <link> with the response's CSP nonce (app/csp.go): compare the head without it.
+	about := regexp.MustCompile(` nonce="[^"]*"`).ReplaceAllString(get(t, "/de/about").body, "")
 	has(t, "canonical + hreflang", about, `<link rel="canonical" href="`+base+`/de/about">`)
 	has(t, "hreflang x-default", about, `<link rel="alternate" hreflang="x-default" href="`+base+`/about">`)
 	has(t, "Open Graph url + locale", about, `<meta property="og:url" content="`+base+`/de/about"><meta property="og:locale" content="de_DE">`)
