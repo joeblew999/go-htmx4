@@ -98,7 +98,7 @@ Every branch gets its own preview, `main` deploys staging, and a release deploys
 | Path | What it is |
 | --- | --- |
 | `main.go` | the entry point: `transport.Run(app.Handler())` |
-| `app/` | the server (`server.go`: routes), the board (`board.go`, its stores), the app on the web (`site.go`: its languages, `intl.Site`, and search engines, `seo.Site`, with the sitemap's pages), Cloudflare-only calls (`platform_js.go`) and their twins; each file's tests beside it |
+| `app/` | the server (`server.go`: routes), the board (`board.go`, its stores), the app on the web (`site.go`: its languages, `intl.Site`, and search engines, `seo.Site`, with the sitemap's pages), what it takes from Cloudflare (`platform.go`, through charter's bindings, the same off Workers); each file's tests beside it |
 | `views/` | pages and fragments in gsx; a page's data in a `.go` file beside it; `views/intl/`, intl's screens, written by `go tool intl add` |
 | `ui/`, `web/gsxui/` | gsxui components and their behaviours, vendored by `gsxui add`: never edited by hand |
 | `web/htmx/` | htmx 4, hx-ws and hx-live, vendored by `mise run vendor` |
@@ -106,7 +106,7 @@ Every branch gets its own preview, `main` deploys staging, and a release deploys
 | `intl/`, `intl.toml` | Intl for gsx apps, its own Go module ([intl/README.md](intl/README.md)); this app's languages |
 | `seo/`, `seo.toml` | search engines for Go apps, its own Go module ([seo/README.md](seo/README.md)): the middleware, the audit, Lighthouse, Search Console; this app's settings |
 | `badge/` | the README badges intl and seo draw (SVG, no service), a tiny module of its own so neither depends on the other |
-| `internal/` | httpx (rendering, origin), live (publishing to the Room), ratelimit, classmerge (gsx's class merger, cached) |
+| `internal/` | live (the board's message to the Room, topic and locale rules), classmerge (gsx's class merger, cached) |
 | `worker/`, `charter.toml` | the deployed JavaScript (the Worker's entry and the board's Durable Object), and everything about the Worker on Cloudflare, from which `go tool charter` deploys it and runs it on local workerd |
 | `migrations/` | D1's schema |
 | `e2e/` | the checks against a running server, its own Go module: `smoke/` over HTTP (`mise run smoke`), browser tests (`mise run e2e`), `load/` with 1,000 WebSockets (`mise run load`) |

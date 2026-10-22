@@ -75,7 +75,7 @@ after a release; committed), what `gsxui` manages (`gsxui.json` lists it), and i
   no `hx-ext` / `hx-vars` / `hx-params`. gsx's completions still offer htmx 2 attributes: ignore them.
 - JS-valued attributes (`hx-on:*`, `hx-live`, `:text`, …) are gsx `` js`…` `` literals. Format `.gsx` with
   `go tool gsx fmt -w .`.
-- Handlers render with `s.render(w, r, name, node)` (`httpx.Render`): never string-built HTML or `html/template`.
+- Handlers render with `s.render(w, r, name, node)` (charter's `web.Render`): never string-built HTML or `html/template`.
 - A full page must not render `hx-swap-oob` elements it wants kept: boosted navigation drops them. Only pushes and
   POST responses carry `BoardFragment` (OOB).
 - Everything every page needs loads in `Layout` (`views/layout.gsx`): a boosted navigation doesn't run a page's own
@@ -120,7 +120,7 @@ after a release; committed), what `gsxui` manages (`gsxui.json` lists it), and i
   handler, and a translated title and its own translated `description` key to `Layout`. A query parameter that makes
   a different page is part of its type (`Board.Topic`, `FromQuery`); one that makes endless pages (a board topic) is
   `Noindex`. Titles ≤ 60 and descriptions ≤ 160 wide (`TestSnippetWidths`).
-- `/robots.txt` keeps one `*` group with no `Disallow` (`TestRobotsTxt`); absolute URLs come from `httpx.Origin(r)`,
+- `/robots.txt` keeps one `*` group with no `Disallow` (`TestRobotsTxt`); absolute URLs come from `web.Origin(r)`,
   never a hard-coded host. No page routes under `/fragments/` (noindex) and no robots `Disallow` for them.
 - How Google sees the site is `seo/` (its own module, `seo/README.md`) and the `seo` skill: what Google reads is
   this app's own code (`app/site.go`, the layout, intl), and `mise run check` audits every page of the local build.
@@ -132,14 +132,16 @@ after a release; committed), what `gsxui` manages (`gsxui.json` lists it), and i
 
 - **workers-go `v0.36.0` exactly** (`github.com/syumai/workers-go`). What ships is built by charter's
   `go tool workerbuild` (TinyGo by default, `WORKER_COMPILER`); standard Go only for local code and `build:dev`.
-- **TinyGo gaps:** register plain paths (`"/greet"`) and check the method with `httpx.Allow`, never `"GET /x"` or
+- **TinyGo gaps:** register plain paths (`"/greet"`) and check the method with `allow` (charter's `web.Allow`), never `"GET /x"` or
   `{$}`; `html/template` panics. Reflection-heavy code needs the workerd smoke test, not just a build. Run
   `mise run check` after changing handlers: `go test` can't see TinyGo.
 - **Memory between requests is a cache, never state:** any request may start a new runtime. Package variables hold
   only what is the same for every request; shared state needs a Cloudflare binding.
-- `cloudflare/*` packages import `syscall/js`: call them from `app/platform_js.go` with an `app/platform_other.go` twin.
-  Cloudflare's request data is `transport.CFOf(r)`; workers-go's `fetch.NewIncomingProperties` panics under charter's
-  runtime.
+- **Cloudflare's bindings come through charter, never workers-go directly:** `bindings.Var`, `bindings.Allow`,
+  `bindings.StaticAssets`, `d1.Open`, `hub.DurableObject`, `transport.CFOf(r)` (`app/platform.go`). Each has its
+  stand-in off Workers built in, following `charter.toml` (D1 is SQLite in memory with the migrations; the write limit
+  counts), so there is no file per platform and `go test` runs the real SQL. A test sets `request.cf` with
+  `transport.WithCF`. workers-go's `fetch.NewIncomingProperties` panics under charter's runtime.
 - JS only in `worker/index.mjs` (entry), `worker/room.mjs` (Durable Object), `intl/js/` (Intl, and what Go calls of
   it). Keep it logic-free; logic stays in Go. The topic and locale rules are
   `internal/live`'s (`TestWorkerJSMatchesLive`).

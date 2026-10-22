@@ -74,14 +74,14 @@ served `noindex`.
 ```
 .
 ├── main.go                                      the entry point: transport.Run(app.Handler())
-├── app/                                         server.go (routes), board.go + stores, site.go (intl.Site, seo.Site),
-│                                                Cloudflare-only calls (platform_js.go) and their twins
+├── app/                                         server.go (routes), board.go + store.go (D1), site.go (intl.Site,
+│                                                seo.Site), platform.go (Cloudflare through charter's bindings)
 ├── views/  ui/  web/gsxui/  web/htmx/           pages (gsx; views/intl: intl's screens), gsxui components and
 │                                                behaviours, vendored htmx
 ├── intl/  intl.toml                             Intl for gsx (its own module); the app's languages
 ├── seo/                               the live audit and Google Search Console (its own module)
 ├── locales/                                     UI messages (*.toml) and their generated package
-├── internal/                                    httpx, live (Room publish), ratelimit, classmerge
+├── internal/                                    live (the Room's message, topic and locale rules), classmerge
 ├── worker/  charter.toml                        the deployed JS (entry, Room); the Worker on Cloudflare (go tool charter)
 ├── migrations/                                  D1 schema
 ├── e2e/                                         smoke/ (HTTP), browser tests, load/ (1,000 WebSockets): its own module

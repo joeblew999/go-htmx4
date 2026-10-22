@@ -2,7 +2,7 @@
 // ("Room") per topic holds the browsers' WebSockets (hibernation) and pushes every fragment Go publishes
 // to all of them. Browsers connect with htmx 4's hx-ws extension.
 //
-// The data stays in your database (D1): write it first, render the new fragment, then [Publish] it. The
+// The data stays in your database (D1): write it first, render the new fragment, then publish it as a [Message]. The
 // fragment should be the whole element with hx-swap-oob and a monotonically increasing version, so the
 // newest one is always complete state and late or out-of-order pushes can be dropped.
 //
@@ -12,27 +12,24 @@
 //   - Browsers: GET /live/{topic}?locale=de with Upgrade: websocket, routed by the Worker entry to the Room
 //     for that topic. Topics must match [TopicPattern] and locales [LocalePattern]; the entry and Go check
 //     the same rules. The Room tags each socket with its locale.
-//   - Go: POST https://room/publish to the Room stub, body = [Localized.JSON] (one fragment per locale),
-//     header [VersionHeader] = the version. The Room ignores versions it has already sent, coalesces
-//     bursts, caches the newest fragments for (re)connecting browsers, sends each socket its locale's
-//     fragment, and pushes presence as a bare count (<span id="presence" hx-swap-oob="true">N</span>),
-//     so the page renders its label in its own language.
-//
-// [Publish] needs js/wasm (TinyGo on Workers). Under standard Go there are no Durable Objects: handle
-// publishing in a platform file of your own (the go-htmx4 app makes it a no-op under go test).
+//   - Go: the Room's publish method with Workers RPC, charter's hub.DurableObject[json.RawMessage]("ROOM",
+//     topic).Publish(ctx, m.JSON()), one [Message]: a version and one fragment per locale. The Room ignores
+//     versions it has already sent, coalesces bursts, caches the newest fragments for (re)connecting browsers,
+//     sends each socket its locale's fragment, and pushes presence as a bare count
+//     (<span id="presence" hx-swap-oob="true">N</span>), so the page renders its label in its own language.
+//     Off Workers (go test) charter's hub is in memory, with no Room.
 package live
 
 import (
+	"encoding/json"
 	"slices"
+	"strconv"
 	"strings"
 )
 
 // TopicPattern is the topic rule as a regular expression, for the Worker entry's JavaScript:
 // 1 to 32 lowercase letters, digits or hyphens.
 const TopicPattern = `^[a-z0-9-]{1,32}$`
-
-// VersionHeader carries a published fragment's version to the Room.
-const VersionHeader = "X-Board-Version"
 
 // LocaleParam is the query parameter a browser's WebSocket URL carries its page locale in
 // (/live/{topic}?locale=de). The Room tags the socket with it and sends that locale's fragment.
@@ -61,23 +58,24 @@ func ValidLocale(s string) bool {
 	return true
 }
 
-// Localized is one version of a fragment rendered for every locale the app ships, keyed by LocaleParam
-// value. Sockets whose locale has no fragment get Default's.
-type Localized struct {
+// Message is one version of a fragment rendered for every locale the app ships, keyed by LocaleParam value. Sockets
+// whose locale has no fragment get Default's.
+type Message struct {
+	Version   int64
 	Default   string
 	Fragments map[string]string
 }
 
-// JSON is the publish body the Room reads: {"default":"en","fragments":{"de":"…","en":"…"}}, keys sorted,
-// HTML not escaped.
-func (l Localized) JSON() []byte {
+// JSON is what the Room's publish reads: {"version":7,"default":"en","fragments":{"de":"…","en":"…"}}, keys sorted,
+// HTML not escaped (written by hand: encoding/json is reflection-heavy under TinyGo, and escapes every <).
+func (l Message) JSON() json.RawMessage {
 	keys := make([]string, 0, len(l.Fragments))
 	for k := range l.Fragments {
 		keys = append(keys, k)
 	}
 	slices.Sort(keys)
 	var b strings.Builder
-	b.WriteString(`{"default":`)
+	b.WriteString(`{"version":` + strconv.FormatInt(l.Version, 10) + `,"default":`)
 	writeJSONString(&b, l.Default)
 	b.WriteString(`,"fragments":{`)
 	for i, k := range keys {
@@ -89,7 +87,7 @@ func (l Localized) JSON() []byte {
 		writeJSONString(&b, l.Fragments[k])
 	}
 	b.WriteString("}}")
-	return []byte(b.String())
+	return json.RawMessage(b.String())
 }
 
 // writeJSONString writes s as a JSON string (encoding/json is reflection-heavy under TinyGo).

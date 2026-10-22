@@ -3,8 +3,8 @@
 // the source of truth. "last" is only a cache so a (re)connecting browser gets the newest fragment
 // at once, without a D1 read.
 //
-// Locales: Go publishes one fragment per locale
-// ({default, fragments}); each socket is tagged with its page's ?locale= and gets that locale's fragment
+// Go publishes with Workers RPC (charter's hub.DurableObject: room.publish(message)), one fragment per locale
+// ({version, default, fragments}); each socket is tagged with its page's ?locale= and gets that locale's fragment
 // (or the default's). Presence is a bare count, so the page renders its label in its own language.
 //
 // Designed for ~1,000 sockets per topic:
@@ -36,8 +36,7 @@ export class Room extends DurableObject {
   }
 
   async fetch(request) {
-    // Only reachable from the Go Worker's stub; index.mjs forwards nothing but /live/* upgrades.
-    if (new URL(request.url).pathname === "/publish") return this.publish(request);
+    // index.mjs forwards nothing but /live/* upgrades.
     if (request.headers.get("Upgrade") !== "websocket") {
       return new Response("expected a WebSocket upgrade", { status: 426 });
     }
@@ -54,34 +53,24 @@ export class Room extends DurableObject {
     return new Response(null, { status: 101, webSocket: client });
   }
 
-  async publish(request) {
-    if (request.method !== "POST") return new Response("method not allowed", { status: 405 });
-    const version = Number(request.headers.get("X-Board-Version"));
-    if (!Number.isSafeInteger(version) || version < 1) {
-      return new Response("bad X-Board-Version", { status: 400 });
-    }
-    let body;
-    try {
-      body = await request.json();
-    } catch {
-      return new Response("bad publish body", { status: 400 });
-    }
-    if (typeof body?.default !== "string" || typeof body?.fragments?.[body.default] !== "string") {
-      return new Response("publish body needs fragments for its default locale", { status: 400 });
+  // publish is Go's call (Workers RPC): one version of the board as JSON, {"version": N, "default": "en",
+  // "fragments": {"de": "…", "en": "…"}} (internal/live's Message). A bad message throws, which Go gets as an error.
+  async publish(message) {
+    const body = JSON.parse(message);
+    const version = body?.version;
+    if (!Number.isSafeInteger(version) || version < 1) throw new Error("publish: bad version");
+    if (typeof body.default !== "string" || typeof body.fragments?.[body.default] !== "string") {
+      throw new Error("publish: no fragment for the default locale");
     }
     const storage = this.ctx.storage;
     const [last, pending] = await Promise.all([storage.get("last"), storage.get("pending")]);
-    if (version <= Math.max(last?.version ?? 0, pending?.version ?? 0)) {
-      return Response.json({ version, stale: true });
-    }
+    if (version <= Math.max(last?.version ?? 0, pending?.version ?? 0)) return { version, stale: true };
     const msg = { version, default: body.default, fragments: body.fragments, at: Date.now() };
-    if (!pending && msg.at - (last?.at ?? 0) >= FLUSH_MS) {
-      return Response.json({ version, sent: await this.broadcast(msg) });
-    }
+    if (!pending && msg.at - (last?.at ?? 0) >= FLUSH_MS) return { version, sent: await this.broadcast(msg) };
     // Within FLUSH_MS of the last broadcast: keep only the newest version and flush on the alarm.
     await storage.put("pending", msg);
     await this.scheduleFlush((last?.at ?? 0) + FLUSH_MS);
-    return Response.json({ version, queued: true });
+    return { version, queued: true };
   }
 
   async alarm() {

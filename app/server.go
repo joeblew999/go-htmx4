@@ -2,8 +2,8 @@
 // Pages and fragments are gsx components in views/, built from gsxui; their text and formats come from intl.
 //
 // Routes are plain paths with method checks: TinyGo 0.43's net/http has the pre-Go 1.22 ServeMux (no "GET /x"
-// patterns, no {$}). No html/template either: under TinyGo 0.43 it compiles but panics at execute time. Platform
-// calls live in platform_js.go, with platform_other.go standing in for go test.
+// patterns, no {$}). No html/template either: under TinyGo 0.43 it compiles but panics at execute time. What the app
+// takes from Cloudflare is platform.go, through charter, which stands in for it off Workers (go test).
 package app
 
 import (
@@ -17,7 +17,8 @@ import (
 	"time"
 
 	"github.com/gsxhq/gsx"
-	"github.com/joeblew999/go-htmx4/internal/httpx"
+	"github.com/joeblew999/charter/go/lib/bindings"
+	"github.com/joeblew999/charter/go/lib/web"
 	"github.com/joeblew999/go-htmx4/intl"
 	"github.com/joeblew999/go-htmx4/locales"
 	"github.com/joeblew999/go-htmx4/pages"
@@ -71,7 +72,7 @@ func (s *server) routes() http.Handler {
 			return
 		}
 		if allow(w, r, http.MethodGet) {
-			env := cmp.Or(getenv("APP_ENV"), "(APP_ENV not set)")
+			env := cmp.Or(bindings.Var("APP_ENV"), "(APP_ENV not set)")
 			s.render(w, r, "home", views.HomePage(target(), env, flavours, components))
 		}
 	})
@@ -186,20 +187,21 @@ func (s *server) routes() http.Handler {
 	return withSite(mux)
 }
 
-// render counts the request, then writes n with httpx.Render (buffered, Content-Length: chunked
+// render counts the request, then writes n with charter's web.Render (buffered, Content-Length: chunked
 // responses broke htmx history restore under workerd).
 func (s *server) render(w http.ResponseWriter, r *http.Request, name string, n gsx.Node) {
 	s.requests.Add(1)
 	s.mu.Lock()
 	s.stats[name]++
 	s.mu.Unlock()
-	if err := httpx.Render(w, r, n); err != nil {
+	if err := web.Render(w, r, n); err != nil {
 		log.Printf("render %s: %v", name, err)
 	}
 }
 
-// allow is httpx.Allow: plain-path routes check their method in the handler.
-var allow = httpx.Allow
+// allow is charter's web.Allow: plain-path routes check their method in the handler (TinyGo's ServeMux has no
+// method patterns).
+var allow = web.Allow
 
 // target reports which compiler and platform served the request, e.g. "tinygo js/wasm"
 // on Workers or "gc darwin/arm64" under go test.
