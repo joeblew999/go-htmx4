@@ -165,13 +165,19 @@ exec ci/with-workerd.sh load sh -c 'LOAD_BASE=$BASE go test -C e2e -count=1 -v -
 '''
 
 ["test"]
-description = "Everything before a push: the production build + workerd smoke, gsx fmt/gofmt, go vet, go test (mise run check is the same)"
+description = "Everything before a push: the production build + workerd smoke, gsx fmt/gofmt, go vet, go test, the fresh-app test (mise run check is the same)"
 alias = "check"
-# smoke (production build + workerd) and test:go (no wasm needed) run in parallel.
-depends = ["smoke", "test:go"]
+# smoke (production build + workerd), test:go (no wasm needed) and fresh run in parallel.
+depends = ["smoke", "test:go", "fresh"]
 # Against upstream checkouts (mise run upstream:use) every step still runs, for trying them, but the check fails:
 # what merges must have passed with the pinned versions.
-run = '[ ! -s .upstream-use ] || { echo "✗ ran with upstream checkouts: $(tr "\\n" " " <.upstream-use)(mise run upstream:unuse <repo>)"; exit 1; }; echo "✓ test: smoke + test:go"'
+run = '[ ! -s .upstream-use ] || { echo "✗ ran with upstream checkouts: $(tr "\\n" " " <.upstream-use)(mise run upstream:unuse <repo>)"; exit 1; }; echo "✓ test: smoke + test:go + fresh"'
+
+# The readiness test (#65): what an outside developer does, from nothing. If it fails, the repo isn't ready for them.
+["fresh"]
+description = "A brand-new gsx app outside this repo, set up with intl from this checkout as intl/README.md says, served by an ordinary Go server in English and German, intl:check passing (e2e/fresh)"
+dir = "{{config_root}}"
+run = "go test -C e2e -count=1 -timeout 10m ./fresh"
 
 ["test:go"]
 description = "gsx fmt/gofmt check + go vet + go test, the app and intl/ (standard Go; runs beside the production build)"

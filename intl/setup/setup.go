@@ -67,9 +67,10 @@ func Init(root string, o Options, log io.Writer) error {
 	source := o.Locales[0]
 	if err := write(filepath.Join(o.Catalogs, source+".toml"),
 		"# The source catalog: every message the app shows, in ICU MessageFormat. Translations are <locale>.toml beside\n"+
-			"# it, with the same tables and keys. A comment above a key or a table tells translators where the text appears.\n\n"+
-			"# The browser tab: a page's own title, then the app's name.\n"+
-			"page_title = \"{title}\"\n"); err != nil {
+			"# it, with the same tables and keys. A comment above a key or a table tells translators where the text appears.\n"+
+			"# For example, written { locales.HomeTitle } and { locales.HomeNotes(len(notes)) } in markup:\n#\n"+
+			"#   [home]\n#   # The page's heading.\n#   title = \"Welcome\"\n"+
+			"#   # How many notes there are.\n#   notes = \"{n, plural, one {# note} other {# notes}}\"\n"); err != nil {
 		return err
 	}
 	for _, id := range o.Locales[1:] {

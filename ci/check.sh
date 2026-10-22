@@ -81,7 +81,7 @@ publish() {
 # The production build and the Go tests (formatting, vet, go test) run side by side: the build is mostly one core of
 # TinyGo. Then the smoke test on workerd (= mise run check, whose build and tests have just run), then Chrome.
 compiler=$(mise env -s bash | sed -n 's/^export WORKER_COMPILER=//p' | tr -d "'\"")
-phase "build (${compiler:-tinygo}) + Go tests" mise run build ::: test:go
+phase "build (${compiler:-tinygo}) + Go tests + fresh app" mise run build ::: test:go ::: fresh
 if [ -n "${GITHUB_ACTIONS:-}" ] && [ -n "${GITHUB_SHA:-}" ]; then
   phase "publish the build" publish
 fi

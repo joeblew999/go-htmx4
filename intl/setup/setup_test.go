@@ -52,7 +52,7 @@ func TestInitFresh(t *testing.T) {
 	if s := read(t, root, "intl.toml"); !strings.Contains(s, `locales = ["en", "de"]`) || !strings.Contains(s, `gsxui = "ui"`) {
 		t.Errorf("intl.toml:\n%s", s)
 	}
-	if s := read(t, root, "locales/en.toml"); !strings.Contains(s, `page_title = "{title}"`) {
+	if s := read(t, root, "locales/en.toml"); !strings.Contains(s, `#   title = "Welcome"`) {
 		t.Errorf("en.toml:\n%s", s)
 	}
 	var g gsxConfig

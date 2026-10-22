@@ -99,6 +99,12 @@ Headless Chrome checks: pages, live board in two browsers, boost ↔ board, pres
 
 Install go.mod's gsx into GOPATH/bin for the VS Code gsx language server
 
+### `fresh`
+
+- **Usage:** `fresh`
+
+A brand-new gsx app outside this repo, set up with intl from this checkout as intl/README.md says, served by an ordinary Go server in English and German, intl:check passing (e2e/fresh)
+
 ### `generate`
 
 - Depends: intl
@@ -376,12 +382,12 @@ Stream the deployed Worker's live logs (requests, console, exceptions) → Ctrl-
 
 ### `test`
 
-- Depends: smoke, test:go
+- Depends: smoke, test:go, fresh
 
 - **Usage:** `test`
 - **Aliases:** `check`
 
-Everything before a push: the production build + workerd smoke, gsx fmt/gofmt, go vet, go test (mise run check is the same)
+Everything before a push: the production build + workerd smoke, gsx fmt/gofmt, go vet, go test, the fresh-app test (mise run check is the same)
 
 ### `test:go`
 
