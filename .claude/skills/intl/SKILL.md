@@ -92,8 +92,8 @@ how many messages you translated and confirmed.
 
 ## Other tasks
 
-- **Add a language:** add its BCP 47 id (e.g. `fr-CA`) to `locales` in `intl.toml`, run `go tool intl gen` (it
-  writes the new catalog), then translate everything `todo` lists for it. A regional locale can take what it doesn't
+- **Add a language:** `go tool intl add-locale fr-CA` (it checks the id with Intl, adds it to `intl.toml`'s
+  `locales` and writes its catalog), then translate everything `todo` lists for it. A regional locale can take what it doesn't
   translate from another of the same script: `[inherit] fr-CA = "fr"` in `intl.toml`.
 - **After `gsxui add`:** `go tool intl gen` names each text the new components write that has no message, with the
   line to add to the source catalog's `[gsxui]` table. Add those lines, then translate them.

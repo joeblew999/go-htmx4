@@ -11,7 +11,7 @@
 //	                                       unused messages, gsxui text, intl.sum (exit 1 if any); with locales, only
 //	                                       theirs, writing nothing
 //	go tool intl translate [locale…]       Claude Code translates what is missing or stale, a worker per language
-//	go tool intl add <locale>…             add a language: intl.toml and its catalog
+//	go tool intl add-locale <locale>…      add a language: its id as Intl writes it into intl.toml, its catalog
 //	go tool intl confirm [<locale>[:<key>]…] keep stale translations that are still right (all of them by default)
 //	go tool intl export [-all] [-o dir] [locale…]   XLIFF 2.0 for translators: what is left (or everything), into
 //	                                       xliff/out (intl.toml's xliff)
@@ -101,7 +101,7 @@ func main() {
 			fmt.Println("nothing to prune")
 		}
 		check(read(c).Generate(os.Stderr))
-	case "add":
+	case "add-locale":
 		if len(args) == 0 {
 			usage()
 		}
@@ -632,7 +632,7 @@ func fail(err error) {
 }
 
 func usage() {
-	fmt.Fprintln(os.Stderr, "usage: go tool intl init [-locales en,de] [-catalogs dir] [-gsxui dir] | gen | status | todo [-json] [locale…] | check [locale…] | translate [locale…] | prune | add <locale>… | confirm [<locale>[:<key>]…] |\n"+
+	fmt.Fprintln(os.Stderr, "usage: go tool intl init [-locales en,de] [-catalogs dir] [-gsxui dir] | gen | status | todo [-json] [locale…] | check [locale…] | translate [locale…] | prune | add-locale <locale>… | confirm [<locale>[:<key>]…] |\n"+
 		"       export [-all] [-o dir] [locale…] | import [file.xlf…] | skill | tasks [-o file] | assets [-worker dir] [-browser dir] |\n"+
 		"       locales | catalogs | markup")
 	os.Exit(2)

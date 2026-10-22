@@ -119,6 +119,16 @@ go tool gsx generate (after intl: views write the generated messages); intl/'s a
 
 Compile the catalogs (intl.toml): the Go package of messages, intl-messages.mjs, the gsxui translator, intl.sum and the languages badge (intl.toml's badge); a language just added to intl.toml's locales gets its catalog. Run it after editing a catalog; gsx generate needs it first
 
+### `intl:add-locale`
+
+Add a language: its id as Intl writes it (fr-ca → fr-CA) into intl.toml's locales, and its catalog; then mise run intl:translate
+
+
+- **Usage:** `intl:add-locale <locale>…`
+
+### Arguments
+- **`<locale>…`** — BCP 47 ids, e.g. fr or pt-BR
+
 ### `intl:check`
 
 - **Usage:** `intl:check`
