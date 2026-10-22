@@ -7,6 +7,7 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
+	"maps"
 	"os"
 	"path/filepath"
 	"slices"
@@ -19,6 +20,11 @@ import (
 // go.sum, and never edited by hand.
 //
 //	de board.notes 3f2a9c1b7e04 9d81c0aa5f13
+//
+// It also records each file go tool intl add copied into the app (one of intl's screens) with the hash of what it
+// wrote, so add can tell a file the app changed from one it may update:
+//
+//	file views/intl/preferences.gsx 5be0c2d9a7f1
 type sum map[string]map[string]sumEntry // locale → key → entry
 
 type sumEntry struct{ source, translation string }
@@ -45,13 +51,23 @@ func hash(s string) string {
 	return hex.EncodeToString(h[:6])
 }
 
-func readSum(path string) (sum, error) {
-	s := sum{}
+// FileHash is what intl.sum records of a file go tool intl add wrote.
+func FileHash(b []byte) string { return hash(string(b)) }
+
+// Copied is the hash intl.sum records for the file go tool intl add wrote at path (relative to the app's root), "" when
+// it didn't write it.
+func (p *Project) Copied(path string) string { return p.files[path] }
+
+// SetCopied records that go tool intl add wrote path, hash its FileHash; WriteSum saves it.
+func (p *Project) SetCopied(path, hash string) { p.files[path] = hash }
+
+func readSum(path string) (sum, map[string]string, error) {
+	s, files := sum{}, map[string]string{}
 	f, err := os.Open(path)
 	if errors.Is(err, os.ErrNotExist) {
-		return s, nil
+		return s, files, nil
 	} else if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	defer f.Close()
 	sc := bufio.NewScanner(f)
@@ -61,8 +77,12 @@ func readSum(path string) (sum, error) {
 			continue
 		}
 		fields := strings.Fields(line)
+		if len(fields) == 3 && fields[0] == "file" {
+			files[fields[1]] = fields[2]
+			continue
+		}
 		if len(fields) < 4 {
-			return nil, fmt.Errorf("intl: %s:%d: want <locale> <key> <source hash> <translation hash>", path, n)
+			return nil, nil, fmt.Errorf("intl: %s:%d: want <locale> <key> <source hash> <translation hash>", path, n)
 		}
 		// A key with spaces is quoted: the hashes are the last two fields.
 		key := strings.Join(fields[1:len(fields)-2], " ")
@@ -71,7 +91,7 @@ func readSum(path string) (sum, error) {
 		}
 		s.set(fields[0], key, sumEntry{source: fields[len(fields)-2], translation: fields[len(fields)-1]})
 	}
-	return s, sc.Err()
+	return s, files, sc.Err()
 }
 
 // sumBytes is intl.sum as it should be: the project's locales in intl.toml order, keys sorted.
@@ -92,6 +112,9 @@ func (p *Project) sumBytes() []byte {
 			}
 			fmt.Fprintf(&b, "%s %s %s %s\n", l.ID, key, e.source, e.translation)
 		}
+	}
+	for _, f := range slices.Sorted(maps.Keys(p.files)) {
+		fmt.Fprintf(&b, "file %s %s\n", f, p.files[f])
 	}
 	return b.Bytes()
 }

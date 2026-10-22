@@ -21,6 +21,7 @@ import (
 	"github.com/joeblew999/go-htmx4/intl"
 	"github.com/joeblew999/go-htmx4/locales"
 	"github.com/joeblew999/go-htmx4/views"
+	intlui "github.com/joeblew999/go-htmx4/views/intl"
 )
 
 var (
@@ -146,7 +147,7 @@ func (s *server) routes() http.Handler {
 		if !allow(w, r, http.MethodGet) {
 			return
 		}
-		s.render(w, r, "preferences", views.PreferencesForm(intl.SafeReturn(cmp.Or(r.Header.Get("HX-Current-URL"), r.Referer())), languages.ConnectionZone(r)))
+		s.render(w, r, "preferences", intlui.PreferencesForm(intl.ReturnTo(r), languages.ConnectionZone(r)))
 	})
 	mux.HandleFunc("/preferences", func(w http.ResponseWriter, r *http.Request) {
 		if allow(w, r, http.MethodPost) {

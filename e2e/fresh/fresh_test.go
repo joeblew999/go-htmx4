@@ -1,6 +1,6 @@
 // Package fresh is the readiness test (#65): a gsx app made from nothing, outside this repo, with gsxui, set up with
-// intl from this checkout the way intl/README.md says, served by an ordinary Go server (not a Worker), answering in
-// two languages, and passing intl:check. If an outside developer couldn't get this far by following the README, neither can this test.
+// intl from this checkout the way intl/README.md says, with intl's screens (go tool intl add), served by an ordinary
+// Go server (not a Worker), answering in two languages, and passing intl:check. If an outside developer couldn't get this far by following the README, neither can this test.
 package fresh
 
 import (
@@ -26,12 +26,18 @@ func TestFreshApp(t *testing.T) {
 		t.Fatal(err)
 	}
 	app := t.TempDir()
+	// mise runs the app's own tasks (intl init writes them) without asking to trust its config.
+	env := append(os.Environ(), "GOWORK=off", "GOFLAGS=-mod=mod", "MISE_TRUSTED_CONFIG_PATHS="+app, "MISE_YES=1")
+	gsxui := "gsxui"
+	if bin := gsxuiBin(t, repo); bin != "" {
+		env = append(env, "PATH="+bin+string(os.PathListSeparator)+os.Getenv("PATH"))
+		gsxui = filepath.Join(bin, "gsxui")
+	}
 	run := func(args ...string) string {
 		t.Helper()
 		cmd := exec.Command(args[0], args[1:]...)
 		cmd.Dir = app
-		// mise runs the app's own tasks (intl init writes them) without asking to trust its config.
-		cmd.Env = append(os.Environ(), "GOWORK=off", "GOFLAGS=-mod=mod", "MISE_TRUSTED_CONFIG_PATHS="+app, "MISE_YES=1")
+		cmd.Env = env
 		out, err := cmd.CombinedOutput()
 		if err != nil {
 			t.Fatalf("%s: %v\n%s", strings.Join(args, " "), err, out)
@@ -72,11 +78,12 @@ func TestFreshApp(t *testing.T) {
 	run("go", "mod", "tidy")
 
 	// gsxui the npm-free way, with a component that brings its icon package (gsxui's own code, which intl:check must
-	// leave alone), then go tool intl init, the app's own messages, a page and an ordinary server.
-	gsxui := gsxuiCommand(t, repo)
-	run(append(gsxui, "init", "-rtl")...)
-	run(append(gsxui, "add", "accordion")...)
+	// leave alone), then go tool intl init, intl's screens (go tool intl add runs gsxui add for the components they
+	// need, and writes their text in both languages), the app's own messages, a page and an ordinary server.
+	run(gsxui, "init", "-rtl")
+	run(gsxui, "add", "accordion")
 	run("go", "tool", "intl", "init", "-locales", "en,de")
+	run("go", "tool", "intl", "add", "language-list", "language-offer", "preferences")
 	appendTo("locales/en.toml", "\n[home]\n# The page's heading.\ntitle = \"Welcome\"\n# The page's description, for search results.\n"+
 		"description = \"Notes, in every language.\"\n# How many notes there are.\nnotes = \"{n, plural, one {# note} other {# notes}}\"\n")
 	appendTo("locales/de.toml", "\n[home]\ntitle = \"Willkommen\"\ndescription = \"Notizen, in jeder Sprache.\"\n"+
@@ -85,6 +92,7 @@ func TestFreshApp(t *testing.T) {
 
 import (
 	"example.com/fresh/locales"
+	intlui "example.com/fresh/views/intl"
 	"github.com/joeblew999/go-htmx4/intl"
 	"github.com/joeblew999/go-htmx4/seo"
 )
@@ -105,9 +113,18 @@ component Page() {
 			<intl.Head page="/"/>
 		</head>
 		<body>
-			<h1>{ locales.HomeTitle }</h1>
-			<p>{ locales.HomeNotes(1234) }</p>
-			<p>{ 1234567.5 |> number }</p>
+			<header>
+				<intlui.PreferencesDialog/>
+			</header>
+			<main>
+				<intlui.LanguageOffer/>
+				<h1>{ locales.HomeTitle }</h1>
+				<p>{ locales.HomeNotes(1234) }</p>
+				<p>{ 1234567.5 |> number }</p>
+			</main>
+			<footer>
+				<intlui.LanguageList/>
+			</footer>
 		</body>
 	</html>
 }
@@ -125,6 +142,7 @@ import (
 	"syscall"
 
 	"example.com/fresh/locales"
+	intlui "example.com/fresh/views/intl"
 	"github.com/joeblew999/go-htmx4/intl"
 	"github.com/joeblew999/go-htmx4/intl/workerd"
 	"github.com/joeblew999/go-htmx4/seo"
@@ -136,6 +154,7 @@ func main() {
 		log.Fatal(err)
 	}
 	defer stop()
+	site := intl.Site{IsPage: func(path string) bool { return path == "/" }}
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path != "/" {
@@ -146,13 +165,20 @@ func main() {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
 	})
+	// The time zone and clock dialog's form, and what it posts.
+	mux.HandleFunc("GET /fragments/preferences", func(w http.ResponseWriter, r *http.Request) {
+		if err := intlui.PreferencesForm(intl.ReturnTo(r), site.ConnectionZone(r)).Render(r.Context(), w); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+	})
+	mux.HandleFunc("POST /preferences", site.Preferences)
 	ln, err := net.Listen("tcp", "127.0.0.1:0")
 	if err != nil {
 		log.Fatal(err)
 	}
 	fmt.Println("listening", ln.Addr())
 	search := seo.Site{Sitemap: func(origin string) string { return intl.Sitemap(origin, []string{"/"}) }}
-	srv := &http.Server{Handler: search.Handler(intl.Site{}.Handler(mux))}
+	srv := &http.Server{Handler: search.Handler(site.Handler(mux))}
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer cancel()
 	go func() { <-ctx.Done(); srv.Shutdown(context.Background()) }()
@@ -194,14 +220,23 @@ func main() {
 	case <-time.After(60 * time.Second):
 		t.Fatal("the fresh app didn't start")
 	}
-	for path, wants := range map[string][]string{
-		"/":    {`lang="en"`, "Welcome", "1,234 notes", "1,234,567.5", `<meta name="description" content="Notes, in every language."`},
-		"/de/": {`lang="de"`, "Willkommen", "1.234 Notizen", "1.234.567,5", `"@type":"WebSite"`},
+	// intl's screens, in each language: the language list, the dialog's button, its form, and the offer of the page
+	// in the language the browser asks for.
+	for _, tc := range []struct {
+		path, accept string
+		wants        []string
+	}{
+		{"/", "", []string{`lang="en"`, "Welcome", "1,234 notes", "1,234,567.5", `<meta name="description" content="Notes, in every language."`,
+			`hreflang="de"`, ">Deutsch<", `aria-label="Time zone and clock"`}},
+		{"/de/", "", []string{`lang="de"`, "Willkommen", "1.234 Notizen", "1.234.567,5", `"@type":"WebSite"`,
+			`aria-current="page"`, `aria-label="Zeitzone und Uhrzeitformat"`}},
+		{"/", "de", []string{"Diese Seite gibt es auch auf \u2068Deutsch\u2069.", "Nein danke"}},
+		{"/de/fragments/preferences", "", []string{`action="/de/preferences"`, "Zeitzone", "Uhrzeitformat", "Speichern", "Schließen"}},
 	} {
-		body := get(t, base+path)
-		for _, want := range wants {
+		body := get(t, base+tc.path, tc.accept)
+		for _, want := range tc.wants {
 			if !strings.Contains(body, want) {
-				t.Errorf("GET %s: no %q in\n%s", path, want, body)
+				t.Errorf("GET %s (Accept-Language %q): no %q in\n%s", tc.path, tc.accept, want, body)
 			}
 		}
 	}
@@ -214,17 +249,23 @@ func main() {
 	run("mise", "run", "intl:check")
 }
 
-// gsxuiCommand runs the gsxui command: mise's when it's installed, else go run at the commit mise.toml pins (CI
-// installs only the tools it builds with, and this compiles beside its build).
-func gsxuiCommand(t *testing.T, repo string) []string {
-	if p, err := exec.LookPath("gsxui"); err == nil {
-		return []string{p}
+// gsxuiBin is "" when the gsxui command is installed (mise's), else a directory to put first on PATH with a gsxui that
+// is go run at the commit mise.toml pins: CI installs only the tools it builds with, and go tool intl add runs gsxui
+// itself.
+func gsxuiBin(t *testing.T, repo string) string {
+	if _, err := exec.LookPath("gsxui"); err == nil {
+		return ""
 	}
 	pin := regexp.MustCompile(`"go:(github.com/gsxhq/gsxui/cmd/gsxui)" = "([^"]+)"`).FindStringSubmatch(read(t, filepath.Join(repo, "mise.toml")))
 	if pin == nil {
 		t.Fatal("mise.toml pins no gsxui")
 	}
-	return []string{"go", "run", pin[1] + "@" + pin[2]}
+	bin := t.TempDir()
+	script := "#!/bin/sh\nexec go run " + pin[1] + "@" + pin[2] + " \"$@\"\n"
+	if err := os.WriteFile(filepath.Join(bin, "gsxui"), []byte(script), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	return bin
 }
 
 func read(t *testing.T, path string) string {
@@ -236,11 +277,15 @@ func read(t *testing.T, path string) string {
 	return string(b)
 }
 
-func get(t *testing.T, url string) string {
+// get is the body of url, asking for the language accept when it isn't "".
+func get(t *testing.T, url, accept string) string {
 	t.Helper()
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 	req, _ := http.NewRequestWithContext(ctx, "GET", url, nil)
+	if accept != "" {
+		req.Header.Set("Accept-Language", accept)
+	}
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		t.Fatal(err)

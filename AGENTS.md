@@ -58,7 +58,9 @@ Binding. How the app works is in [docs/architecture.md](docs/architecture.md), h
 (`mise run intl`; committed), `.claude/skills/intl` (`mise run intl:skill`; committed), `.claude/skills/seo`
 (`mise run seo:skill`; committed), `docs/commands.md`
 (`mise run docs:commands`), the other `docs/badges/` and the README's `<!-- seo:scores -->` table (`mise run seo:badges`,
-after a release; committed), and what `gsxui` manages (`gsxui.json` lists it).
+after a release; committed), what `gsxui` manages (`gsxui.json` lists it), and intl's screens in `views/intl/`
+(`go tool intl add`; committed): change `intl/ui/<screen>.gsx.tmpl`, then `go tool intl add -overwrite <screen>`
+(`TestIntlScreens` checks the demo's copies are intl's).
 
 ## UI: gsx, gsxui, htmx 4
 

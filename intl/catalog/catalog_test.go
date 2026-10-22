@@ -167,6 +167,15 @@ func TestGenerate(t *testing.T) {
 	if got := a.read("cat/de.toml"); got != "hello = \"Hallo, {name}\"\n" {
 		t.Errorf("pruned de.toml: %q", got)
 	}
+	// A key's comment goes with it, and so does a table left empty, with its header's comment; the next table's
+	// comment stays, and a table that was empty before stays too.
+	a.write("cat/de.toml", "hello = \"Hallo\"\n\n[old]\n# A key.\none = \"1\"\ntwo = \"2\"\n\n# The nav.\n[nav]\n# Gone.\nx = \"x\"\nhome = \"Start\"\n\n[kept]\n\n# Last.\n[last]\ny = \"y\"\n")
+	if err := catalog.RemoveMessages(filepath.Join(a.root, "cat/de.toml"), []string{"old.one", "old.two", "nav.x", "last.y"}); err != nil {
+		t.Fatal(err)
+	}
+	if got, want := a.read("cat/de.toml"), "hello = \"Hallo\"\n\n# The nav.\n[nav]\nhome = \"Start\"\n\n[kept]\n"; got != want {
+		t.Errorf("pruned de.toml:\n%s\nwant:\n%s", got, want)
+	}
 
 	// A translation must use the source's arguments, with the same kinds.
 	for _, bad := range []string{"hello = \"Hallo, {who}\"\n", "hello = \"Hallo, {name, number}\"\n"} {
@@ -237,6 +246,53 @@ func TestSetMessages(t *testing.T) {
 	want := "# Deutsch\ntitle = \"Neu\"\n\n# The board.\n[board]\nnotes = \"x\"\nlong = \"eine\"\npost = \"Senden \\\"jetzt\\\"\"\n\n[nav]\nhome = \"Start\"\nabout = \"Über\"\n\n[help]\nfaq = \"FAQ\"\n"
 	if got := a.read("cat/de.toml"); got != want {
 		t.Errorf("got:\n%s\nwant:\n%s", got, want)
+	}
+}
+
+// TestAddMessages: only keys the catalog doesn't have are written, after the last key of their table (not under the
+// next table's comment), with their comments; a new table goes at the end under its own.
+func TestAddMessages(t *testing.T) {
+	a := newApp(t)
+	a.write("cat/en.toml", "# The app.\n\n[intl]\nlanguages = \"Tongues\"\n\n# The board.\n[board]\nnotes = \"Notes\"\n")
+	added, err := catalog.AddMessages(filepath.Join(a.root, "cat/en.toml"), []catalog.NewMessage{
+		{Key: "intl.languages", Text: "Languages"},
+		{Key: "intl.no_thanks", Text: "No thanks", Note: []string{"Turns the offer down."}},
+		{Key: "gsxui.close", Text: "Close"},
+	}, map[string][]string{"gsxui": {"gsxui's own text."}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !slices.Equal(added, []string{"intl.no_thanks", "gsxui.close"}) {
+		t.Errorf("added %v", added)
+	}
+	want := "# The app.\n\n[intl]\nlanguages = \"Tongues\"\n# Turns the offer down.\nno_thanks = \"No thanks\"\n\n# The board.\n[board]\nnotes = \"Notes\"\n\n# gsxui's own text.\n[gsxui]\nclose = \"Close\"\n"
+	if got := a.read("cat/en.toml"); got != want {
+		t.Errorf("got:\n%s\nwant:\n%s", got, want)
+	}
+	if added, err := catalog.AddMessages(filepath.Join(a.root, "cat/en.toml"), []catalog.NewMessage{{Key: "intl.languages", Text: "x"}}, nil); err != nil || added != nil {
+		t.Errorf("again: %v, %v", added, err)
+	}
+}
+
+// TestCopiedFiles: intl.sum keeps the files go tool intl add wrote through gen.
+func TestCopiedFiles(t *testing.T) {
+	a := newApp(t)
+	a.write("cat/en.toml", "hi = \"Hi\"\n")
+	a.write("cat/de.toml", "hi = \"Hallo\"\n")
+	p := a.project("en", "de")
+	p.SetCopied("views/intl/language-list.gsx", catalog.FileHash([]byte("x")))
+	if err := p.WriteSum(); err != nil {
+		t.Fatal(err)
+	}
+	p = a.project("en", "de")
+	if err := p.WriteSum(); err != nil {
+		t.Fatal(err)
+	}
+	if got := p.Copied("views/intl/language-list.gsx"); got != catalog.FileHash([]byte("x")) {
+		t.Errorf("Copied = %q", got)
+	}
+	if s := a.read("cat/intl.sum"); !strings.HasSuffix(s, "de hi 3639efcd08ab 753692ec36ad\nfile views/intl/language-list.gsx 2d711642b726\n") {
+		t.Errorf("intl.sum:\n%s", s)
 	}
 }
 

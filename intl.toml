@@ -4,6 +4,9 @@ locales = ["en", "en-IN", "de", "fr", "es", "pt-BR", "pt-PT", "ar", "he", "ja", 
 # Their catalogs: <locale>.toml, ICU MessageFormat. go tool intl gen writes the Go package (intl_gen.go) and
 # intl-messages.mjs beside them.
 catalogs = "locales"
+# Where go tool intl add copies intl's screens (package intlui): the language list, the language offer, the time zone
+# and clock dialog.
+ui = "views/intl"
 # Where gsxui add vendors components: go tool intl gen writes the renderer for the text they write themselves
 # (i18n.T, "Close") to ui/i18n/intl_gen.go from the catalogs' [gsxui] messages, and names any it has no message for.
 gsxui = "ui"
