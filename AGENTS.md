@@ -80,7 +80,9 @@ after a release; committed), what `gsxui` manages (`gsxui.json` lists it), and i
 
 - **Nothing hand-written in the GUI.** Every visual piece is a gsxui component (`gsxui add <name>` at the repo root,
   never copied by hand), the gsxui theme/preset, or a pattern from gsxui's own site (https://ui.gsxhq.dev; cite it).
-  No custom CSS files.
+  No custom CSS files. The look is a gsxui theme: `mise run theme <style|share code>` (gsxui's theme editor gives
+  codes). After moving gsxui's pin, `gsxui init --overwrite --preset gsxui.preset.json` refreshes its CSS, and
+  `gsxui add --overwrite` its components. `TestGsxuiFiles` fails on a hand edit to anything gsxui wrote.
 - **htmx 4 syntax only:** explicit `:inherited`, `hx-ignore` (not `hx-disable`), `htmx:after:swap`-style event names,
   no `hx-ext` / `hx-vars` / `hx-params`. gsx's completions still offer htmx 2 attributes: ignore them.
 - JS-valued attributes (`hx-on:*`, `hx-live`, `:text`, …) are gsx `` js`…` `` literals. Format `.gsx` with
