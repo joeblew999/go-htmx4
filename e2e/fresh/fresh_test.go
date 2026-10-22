@@ -58,9 +58,12 @@ func TestFreshApp(t *testing.T) {
 
 	// A new module with gsx and intl as tools, as intl/README.md's "Set up an app" starts. intl comes from this
 	// checkout (the replace), gsx at the version this repo builds with.
-	gsxVersion := regexp.MustCompile(`github.com/gsxhq/gsx (v\S+)`).FindStringSubmatch(read(t, filepath.Join(repo, "go.mod")))[1]
-	goVersion := regexp.MustCompile(`(?m)^go (\S+)`).FindStringSubmatch(read(t, filepath.Join(repo, "go.mod")))[1]
-	write("go.mod", "module example.com/fresh\n\ngo "+goVersion+"\n")
+	gomod := read(t, filepath.Join(repo, "go.mod"))
+	gsxVersion := regexp.MustCompile(`github.com/gsxhq/gsx (v\S+)`).FindStringSubmatch(gomod)[1]
+	goVersion := regexp.MustCompile(`(?m)^go (\S+)`).FindStringSubmatch(gomod)[1]
+	// The Go this repo builds with, so mise (which reads go.mod's toolchain) wants a Go that's installed.
+	toolchain := regexp.MustCompile(`(?m)^toolchain (\S+)`).FindStringSubmatch(gomod)[1]
+	write("go.mod", "module example.com/fresh\n\ngo "+goVersion+"\n\ntoolchain "+toolchain+"\n")
 	run("go", "mod", "edit", "-require="+intlModule+"@v0.0.0", "-replace="+intlModule+"="+filepath.Join(repo, "intl"),
 		"-replace=github.com/joeblew999/go-htmx4/seo="+filepath.Join(repo, "seo"),
 		"-require=github.com/gsxhq/gsx@"+gsxVersion, "-tool=github.com/gsxhq/gsx/cmd/gsx", "-tool="+intlModule+"/cmd/intl")
@@ -68,8 +71,9 @@ func TestFreshApp(t *testing.T) {
 
 	// gsxui the npm-free way, with a component that brings its icon package (gsxui's own code, which intl:check must
 	// leave alone), then go tool intl init, the app's own messages, a page and an ordinary server.
-	run("gsxui", "init", "-rtl")
-	run("gsxui", "add", "accordion")
+	gsxui := gsxuiCommand(t, repo)
+	run(append(gsxui, "init", "-rtl")...)
+	run(append(gsxui, "add", "accordion")...)
 	run("go", "tool", "intl", "init", "-locales", "en,de")
 	appendTo("locales/en.toml", "\n[home]\n# The page's heading.\ntitle = \"Welcome\"\n# How many notes there are.\nnotes = \"{n, plural, one {# note} other {# notes}}\"\n")
 	appendTo("locales/de.toml", "\n[home]\ntitle = \"Willkommen\"\nnotes = \"{n, plural, one {# Notiz} other {# Notizen}}\"\n")
@@ -180,6 +184,19 @@ func main() {
 
 	// What the README says CI runs: the catalogs, then gsx's own checks on the app's markup, not gsxui's.
 	run("mise", "run", "intl:check")
+}
+
+// gsxuiCommand runs the gsxui command: mise's when it's installed, else go run at the commit mise.toml pins (CI
+// installs only the tools it builds with, and this compiles beside its build).
+func gsxuiCommand(t *testing.T, repo string) []string {
+	if p, err := exec.LookPath("gsxui"); err == nil {
+		return []string{p}
+	}
+	pin := regexp.MustCompile(`"go:(github.com/gsxhq/gsxui/cmd/gsxui)" = "([^"]+)"`).FindStringSubmatch(read(t, filepath.Join(repo, "mise.toml")))
+	if pin == nil {
+		t.Fatal("mise.toml pins no gsxui")
+	}
+	return []string{"go", "run", pin[1] + "@" + pin[2]}
 }
 
 func read(t *testing.T, path string) string {
