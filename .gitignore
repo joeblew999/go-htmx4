@@ -11,6 +11,7 @@
 *.x.go
 # go tool intl gen output (mise run intl)
 intl_gen.go
+intl_messages_gen.go
 intl-messages.mjs
 # workers-assets-gen + tinygo output (mise run build)
 /build/

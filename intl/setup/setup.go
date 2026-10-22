@@ -12,7 +12,7 @@ import (
 	"strings"
 
 	"github.com/joeblew999/go-htmx4/intl/catalog"
-	"github.com/joeblew999/go-htmx4/intl/intltest"
+	"github.com/joeblew999/go-htmx4/intl/workerd"
 )
 
 // Options are what the app ships.
@@ -67,9 +67,10 @@ func Init(root string, o Options, log io.Writer) error {
 	source := o.Locales[0]
 	if err := write(filepath.Join(o.Catalogs, source+".toml"),
 		"# The source catalog: every message the app shows, in ICU MessageFormat. Translations are <locale>.toml beside\n"+
-			"# it, with the same tables and keys. A comment above a key or a table tells translators where the text appears.\n\n"+
-			"# The browser tab: a page's own title, then the app's name.\n"+
-			"page_title = \"{title}\"\n"); err != nil {
+			"# it, with the same tables and keys. A comment above a key or a table tells translators where the text appears.\n"+
+			"# For example, written { locales.HomeTitle } and { locales.HomeNotes(len(notes)) } in markup:\n#\n"+
+			"#   [home]\n#   # The page's heading.\n#   title = \"Welcome\"\n"+
+			"#   # How many notes there are.\n#   notes = \"{n, plural, one {# note} other {# notes}}\"\n"); err != nil {
 		return err
 	}
 	for _, id := range o.Locales[1:] {
@@ -102,7 +103,8 @@ func Init(root string, o Options, log io.Writer) error {
 
 var workerdTool = regexp.MustCompile(`(?m)^"?workerd"?\s*=`)
 
-// miseTools pins workerd in mise.toml's [tools]: go test and the tooling run Intl on it (intltest).
+// miseTools pins workerd in mise.toml's [tools]: outside a Worker, the app, go test and the tooling run Intl on it
+// (intl/workerd).
 func miseTools(path string, log io.Writer) error {
 	b, err := os.ReadFile(path)
 	if err != nil && !errors.Is(err, os.ErrNotExist) {
@@ -111,9 +113,9 @@ func miseTools(path string, log io.Writer) error {
 	s := string(b)
 	before := s
 	if !workerdTool.MatchString(s) {
-		line := "# workerd: the Workers runtime; go test and go tool intl run Intl on it (intl/README.md).\nworkerd = \"" + intltest.Workerd + "\"\n"
+		line := "# workerd: the Workers runtime; outside a Worker the app, go test and go tool intl run Intl on it (intl/README.md).\nworkerd = \"" + workerd.Version + "\"\n"
 		s = addToTable(s, "tools", line)
-		fmt.Fprintln(log, "updated mise.toml: workerd", intltest.Workerd)
+		fmt.Fprintln(log, "updated mise.toml: workerd", workerd.Version)
 	}
 	// Go itself from go.mod's toolchain line (mise: idiomatic version files).
 	if !strings.Contains(s, "idiomatic_version_file_enable_tools") {
@@ -201,7 +203,7 @@ func gitignore(path string, log io.Writer) error {
 	}
 	s := string(b)
 	var add []string
-	for _, p := range []string{"intl_gen.go", "intl-messages.mjs", "/xliff/"} {
+	for _, p := range []string{"intl_gen.go", "intl_messages_gen.go", "intl-messages.mjs", "/xliff/"} {
 		if !regexp.MustCompile(`(?m)^/?` + regexp.QuoteMeta(p) + `$`).MatchString(s) {
 			add = append(add, p)
 		}

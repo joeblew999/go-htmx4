@@ -138,10 +138,6 @@ func Read(c config.Config) (*Project, error) {
 		}
 		p.Messages = append(p.Messages, m)
 	}
-	if len(p.Messages) == 0 {
-		return nil, fmt.Errorf("intl: %s.toml has no messages", source)
-	}
-
 	own := map[string]map[string]string{source: src}
 	obsolete := map[string][]string{}
 	for _, id := range c.Locales[1:] {
