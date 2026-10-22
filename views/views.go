@@ -8,6 +8,7 @@ import (
 	"slices"
 	"time"
 
+	"github.com/gsxhq/gsx"
 	"github.com/joeblew999/go-htmx4/intl"
 	"github.com/joeblew999/go-htmx4/pages"
 )
@@ -63,6 +64,16 @@ func activeVariant(active bool) string {
 
 func sortedKeys(m map[string]int) []string {
 	return slices.Sorted(maps.Keys(m))
+}
+
+// htmxConfig is htmx's settings (the layout's htmx-config meta). hx-ws spreads reconnects over 1–3 s. With the request's
+// CSP nonce (app/csp.go), htmx gives it to the scripts it swaps in, which the page's policy otherwise blocks.
+func htmxConfig(ctx context.Context) string {
+	config := "ws.reconnectDelay:2s ws.reconnectJitter:0.5"
+	if nonce := gsx.NonceFromContext(ctx); nonce != "" {
+		config += " inlineScriptNonce:" + nonce
+	}
+	return config
 }
 
 // homeURL is the home page's absolute URL in the request's language on the home page itself, "" elsewhere: seo.Head

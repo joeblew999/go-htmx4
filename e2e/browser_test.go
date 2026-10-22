@@ -15,6 +15,7 @@ import (
 	"testing"
 	"time"
 
+	cdplog "github.com/chromedp/cdproto/log"
 	"github.com/chromedp/cdproto/network"
 	"github.com/chromedp/cdproto/runtime"
 	"github.com/chromedp/chromedp"
@@ -38,7 +39,7 @@ type tab struct {
 	ctx  context.Context
 
 	mu       sync.Mutex
-	problems []string // console errors, exceptions, HTTP ≥ 400 (except favicon)
+	problems []string // console errors, exceptions, CSP violations, HTTP ≥ 400 (except favicon)
 	wsOpened int
 	wsFrames int
 	allow4xx bool // tests that expect 4xx responses
@@ -76,6 +77,11 @@ func newTab(t *testing.T, name string) *tab {
 				}
 				tb.problems = append(tb.problems, string(e.Type)+": "+strings.Join(parts, " "))
 			}
+		case *cdplog.EventEntryAdded:
+			// Chrome reports what the page's Content Security Policy blocked here, not on the console API.
+			if e.Entry.Source == cdplog.SourceSecurity || strings.Contains(e.Entry.Text, "Content Security Policy") {
+				tb.problems = append(tb.problems, "CSP: "+e.Entry.Text)
+			}
 		case *runtime.EventExceptionThrown:
 			tb.problems = append(tb.problems, "exception: "+e.ExceptionDetails.Error())
 		case *network.EventResponseReceived:
@@ -88,7 +94,7 @@ func newTab(t *testing.T, name string) *tab {
 			tb.wsFrames++
 		}
 	})
-	tb.run(network.Enable())
+	tb.run(network.Enable(), cdplog.Enable())
 	return tb
 }
 

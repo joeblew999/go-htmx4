@@ -184,7 +184,7 @@ func (s *server) routes() http.Handler {
 		s.render(w, r, "stats", views.Stats(snapshot))
 	})
 	s.boardRoutes(mux)
-	return withSite(mux)
+	return withCSP(withSite(mux))
 }
 
 // render counts the request, then writes n with charter's web.Render (buffered, Content-Length: chunked

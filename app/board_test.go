@@ -96,7 +96,9 @@ func TestBoard(t *testing.T) {
 		t.Errorf("Retry-After = %q, want 10", limited.Header().Get("Retry-After"))
 	}
 	expect(do("POST", "/board/note?topic=t-add", "body=spam"), http.StatusTooManyRequests)
-	if after := do("GET", "/board?topic=t-add", "").Body.String(); after != before {
+	// Every response has its own CSP nonce (app/csp.go): compare the pages without it.
+	nonce := regexp.MustCompile(`nonce="[^"]*"|inlineScriptNonce:[A-Z2-7]+`)
+	if after := do("GET", "/board?topic=t-add", "").Body.String(); nonce.ReplaceAllString(after, "") != nonce.ReplaceAllString(before, "") {
 		t.Errorf("a rate-limited write changed the board")
 	}
 	allowWrite = func(*http.Request) bool { return true }
