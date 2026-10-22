@@ -1,5 +1,6 @@
 // Package badge draws a small two-part SVG badge, label and value, as README badges look (shields.io's flat
-// style), with no service and no fonts to fetch: seo's Lighthouse and audit badges.
+// style), with no service and no fonts to fetch: seo's Lighthouse and audit badges, and intl's languages badge. A
+// module of its own, so neither of them depends on the other.
 package badge
 
 import (

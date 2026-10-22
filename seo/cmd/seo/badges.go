@@ -10,8 +10,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/joeblew999/go-htmx4/badge"
 	"github.com/joeblew999/go-htmx4/seo/audit"
-	"github.com/joeblew999/go-htmx4/seo/badge"
 	"github.com/joeblew999/go-htmx4/seo/lighthouse"
 	"github.com/joeblew999/go-htmx4/seo/searchconsole"
 )

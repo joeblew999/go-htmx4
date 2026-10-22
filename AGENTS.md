@@ -13,8 +13,8 @@ Binding. How the app works is in [docs/architecture.md](docs/architecture.md), h
   `check` on GitHub as a record (`main` requires it, but not of admins). `git status` must be clean first: the checks
   ran on the working tree, so it has to be exactly what merges. When they couldn't run (the port is busy), use
   `gh pr merge --auto --squash` and let CI's `check` decide.
-- `intl/` and `seo/` get their versions from a release: `mise run release vX` tags each that changed since its last tag
-  with its next version (`ci/module-tags.sh`). Never tag them by hand.
+- `intl/`, `seo/` and `badge/` (the README badge drawer both use) get their versions from a release: `mise run release
+  vX` tags each that changed since its last tag with its next version (`ci/module-tags.sh`). Never tag them by hand.
 - End every report of finished work with a **Follow-ups** list, even a short one: what's next, what needs the user's
   OK and why, bugs or risks found but not fixed, checks skipped, leftovers (processes, resources, stale docs). Put the
   same list in the issue.

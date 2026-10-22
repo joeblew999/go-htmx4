@@ -21,6 +21,7 @@ require (
 	github.com/editorconfig/editorconfig-core-go/v2 v2.6.4 // indirect
 	github.com/fsnotify/fsnotify v1.10.1 // indirect
 	github.com/jmoiron/sqlx v1.4.0 // indirect
+	github.com/joeblew999/go-htmx4/badge v0.1.0 // indirect
 	github.com/pelletier/go-toml v1.9.5 // indirect
 	github.com/tdewolff/argp v0.0.0-20260424074207-decde4f86440 // indirect
 	github.com/tdewolff/minify/v2 v2.24.13 // indirect
@@ -48,3 +49,5 @@ tool (
 replace github.com/joeblew999/go-htmx4/intl => ./intl
 
 replace github.com/joeblew999/go-htmx4/seo => ./seo
+
+replace github.com/joeblew999/go-htmx4/badge => ./badge

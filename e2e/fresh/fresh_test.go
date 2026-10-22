@@ -66,6 +66,7 @@ func TestFreshApp(t *testing.T) {
 	write("go.mod", "module example.com/fresh\n\ngo "+goVersion+"\n\ntoolchain "+toolchain+"\n")
 	run("go", "mod", "edit", "-require="+intlModule+"@v0.0.0", "-replace="+intlModule+"="+filepath.Join(repo, "intl"),
 		"-replace=github.com/joeblew999/go-htmx4/seo="+filepath.Join(repo, "seo"),
+		"-replace=github.com/joeblew999/go-htmx4/badge="+filepath.Join(repo, "badge"),
 		"-require=github.com/gsxhq/gsx@"+gsxVersion, "-tool=github.com/gsxhq/gsx/cmd/gsx", "-tool="+intlModule+"/cmd/intl")
 	run("go", "mod", "tidy")
 

@@ -95,7 +95,6 @@ Google verdict means and where its fix is, and that `seo:submit` and `seo:setup`
 | `.` | package `seo`: `Site`, and `SnippetWidth` |
 | `audit/` | the site as Googlebot reads it |
 | `lighthouse/` | Lighthouse through PageSpeed Insights |
-| `badge/` | README badges as SVG, no service |
 | `searchconsole/` | the Search Console API with a service account key |
 | `config/` | `seo.toml` |
 | `cmd/seo/` | `go tool seo`: audit, lighthouse, badges, todo, inspect, status, sites, submit, init, tasks, skill |

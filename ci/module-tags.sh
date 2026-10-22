@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# The Go modules other apps use (intl, seo): at a release, a new version of each that changed since its last tag, on
+# The Go modules other apps use (badge, intl, seo): at a release, a new version of each that changed since its last tag, on
 # the released commit (#69), so an app gets every fix with go get, never by pointing at main. While v0, the next minor
 # (intl/v0.5.0 → intl/v0.6.0) for any change.
 #
@@ -16,7 +16,7 @@ api="https://api.github.com/repos/${GITHUB_REPOSITORY:?}"
 auth=(-H "Authorization: Bearer ${GITHUB_TOKEN:?}" -H "Accept: application/vnd.github+json")
 jq() { mise exec -- jq "$@"; }
 
-for m in intl seo; do
+for m in badge intl seo; do # badge first: intl and seo require it
   last=$(curl -fsS "${auth[@]}" "$api/git/matching-refs/tags/$m/v" | jq -r '.[].ref | ltrimstr("refs/tags/")' | sort -V | tail -1)
   if [ -z "$last" ]; then
     next=$m/v0.1.0 why="its first version"
