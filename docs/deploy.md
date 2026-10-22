@@ -9,7 +9,8 @@ wrangler), reading `charter.toml`: which Worker, bindings, D1, Durable Objects, 
 | Staging | `$APP_NAME-staging`, its own D1, noindex | every merge to `main`, automatically | `https://$APP_NAME-staging.$CF_SUBDOMAIN.workers.dev` |
 | Production | `$APP_NAME`, custom domain `$APP_DOMAIN` | a release | `https://$APP_DOMAIN` |
 
-`APP_NAME`, `APP_DOMAIN` and `CF_SUBDOMAIN` are in `mise.toml` `[env]`; `mise run rename` resets them.
+`APP_NAME`, `APP_DOMAIN` and `CF_SUBDOMAIN` are in `mise.toml` `[env]`, copies of `charter.toml`'s name, production
+domain and subdomain (`TestCharterToml` checks them).
 
 ## One build per commit
 

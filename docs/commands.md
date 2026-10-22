@@ -265,12 +265,6 @@ Release main to production (e.g. v1.3): CI tests it, tags it (and intl/seo with 
 ### Arguments
 - **`<version>`** — the release, e.g. v1.3
 
-### `rename`
-
-- **Usage:** `rename`
-
-Make this template yours: mise run rename -- &lt;module path> &lt;app name>  (e.g. github.com/you/board board)
-
 ### `seo:audit`
 
 Fetch robots.txt and every sitemap URL live as Googlebot: 200, indexable, self-canonical, lang, title, description, one h1, reciprocal hreflang (no Google account needed)
