@@ -36,7 +36,7 @@ if [ "${1:-}" != variants ] && [ "${1:-}" != render ]; then
 fi
 
 # Each variant is the current code built with WORKERBUILD_FLAGS (ci/wasm-build.sh); the last is what ships.
-names=("A runtime per request, TinyGo as it ships" "B A + TinyGo patched (tinygo#5800), 16 MB heap" "C runtimes reused, TinyGo as it ships" "D what ships: runtimes reused + TinyGo patched")
+names=("A runtime per request, TinyGo as it ships" "B A + TinyGo patched (tinygo#5800), 12 MB heap" "C runtimes reused, TinyGo as it ships" "D what ships: runtimes reused + TinyGo patched")
 flags=("-reuse=false -patches=false -heap=0" "-reuse=false" "-patches=false" "")
 # ci/bench.sh render DIR writes docs/benchmarks.md again from a run's results (DIR/N.json) without measuring.
 if [ "$1" = render ]; then out=$2; else
