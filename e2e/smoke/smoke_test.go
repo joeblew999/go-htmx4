@@ -202,8 +202,12 @@ func TestSEO(t *testing.T) {
 
 // TestAudit: the whole site as Googlebot reads it (seo.Audit, what seo:audit runs after a deploy):
 // robots.txt, the sitemap, and every page in it 200, indexable, self-canonical, with lang, a title, a description, one
-// h1 and reciprocal hreflang. Here, before it ships.
+// h1 and reciprocal hreflang. Here, before it ships. A preview or staging is noindex throughout (APP_PREVIEW), so
+// there is nothing for Google to read: skipped.
 func TestAudit(t *testing.T) {
+	if get(t, "/").header.Get("X-Robots-Tag") == "noindex" {
+		t.Skip("a noindex deploy (a preview or staging): nothing for Google to index")
+	}
 	urls, problems, err := audit.Audit(context.Background(), &http.Client{Timeout: time.Minute}, base)
 	if err != nil {
 		t.Fatal(err)
