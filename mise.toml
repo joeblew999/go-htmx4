@@ -21,7 +21,7 @@ tinygo = "0.43.0"      # workers-go TinyGo builds need >= 0.42.0 (net/http on wa
 "github:tailwindlabs/tailwindcss" = "v4.3.3"
 # gsxui has no tags yet: pin the commit (README: go install .../cmd/gsxui).
 "go:github.com/gsxhq/gsxui/cmd/gsxui" = "ee41247"
-# gsx itself is pinned in go.mod: builds use `go tool gsx` (gsx Status guide); the editor copy comes from `editor:gsx`.
+# gsx itself is pinned in go.mod: builds use `go tool gsx` (gsx Status guide); the editor copy comes from `gsx:editor` (tasks/gsx.toml).
 # Cloudflare Workers toolchain. No Node, no wrangler.
 # workerd: the standalone Workers runtime (what `wrangler dev` runs). Pin a release that has binaries.
 workerd = "1.20261019.1"
@@ -61,9 +61,9 @@ CF_SUBDOMAIN = "gedw99"
 # intl's, seo's and charter's tasks as an outside app has them: written by go tool intl tasks, seo tasks and charter
 # tasks into .mise/tasks/ (TestTaskFiles keeps them current).
 [task_config]
-includes = ["tasks/app.toml", ".mise/tasks/intl.toml", ".mise/tasks/seo.toml", ".mise/tasks/charter.toml", "tasks/editor.toml", "tasks/upstream.toml"]
+includes = ["tasks/app.toml", "tasks/gsx.toml", ".mise/tasks/intl.toml", ".mise/tasks/seo.toml", ".mise/tasks/charter.toml", "tasks/upstream.toml"]
 
-# The VS Code gsx language server needs the compiler where the extension looks (tasks/editor.toml).
+# The VS Code gsx language server needs the compiler where the extension looks (gsx:editor, tasks/gsx.toml).
 [hooks]
-postinstall = { task = "editor:gsx" }
+postinstall = { task = "gsx:editor" }
 
