@@ -11,6 +11,7 @@ Google ranks what the site serves. Every piece is made by the app, live on each 
 |---|---|---|
 | `/robots.txt` | may it crawl, and where the sitemap is | `seo.Site` |
 | `/sitemap.xml` | every page, in every language, with its other-language versions | `seo.Site`, writing `intl.Sitemap` of the app's pages (`app/site.go`) |
+| `/llms.txt` | for agents and language models: what the site is and where to read more ([llmstxt.org](https://llmstxt.org)) | `seo.Site`'s `LLMs`, written with `seo.LLMsTxt` (a title, a summary, sections of links) |
 | `X-Robots-Tag: noindex` | keeps fragments, posts, previews, incomplete languages and endless query pages out | `seo.Site` (the app's `isPage`, `indexable`) and `intl.Site` |
 | one address per page | other hosts and plain http move to `https://` the domain | `seo.Site` |
 | `<html lang>` | the page's language | `intl.HTML` |

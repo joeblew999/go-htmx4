@@ -15,6 +15,9 @@ func site() http.Handler {
 		Sitemap:       func(origin string) string { return "<urlset>" + origin + "</urlset>" },
 		IsPage:        func(path string) bool { return !strings.HasPrefix(path, "/fragments/") },
 		ContentSignal: "search=yes",
+		LLMs: func(origin string) string {
+			return seo.LLMsTxt("App", "What it is.", "", seo.LLMsSection{Name: "Pages", Links: []seo.LLMsLink{{Title: "Home", URL: origin + "/"}}})
+		},
 	}
 	return s.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { w.Write([]byte("app " + r.URL.Path)) }))
 }
@@ -38,6 +41,38 @@ func TestRobotsAndSitemap(t *testing.T) {
 		if b := do(h, "GET", "https://app.example.com"+p).Body.String(); b != "app "+p {
 			t.Errorf("%s: answered %q, want the app's", p, b)
 		}
+	}
+}
+
+// TestLLMs: /llms.txt at the site's root, from the request's origin, as llmstxt.org lays it out; not marked noindex,
+// and on one address like the other files.
+func TestLLMs(t *testing.T) {
+	h := site()
+	w := do(h, "GET", "https://app.example.com/llms.txt")
+	if b := w.Body.String(); b != "# App\n\n> What it is.\n\n## Pages\n\n- [Home](https://app.example.com/)\n" {
+		t.Errorf("llms.txt:\n%s", b)
+	}
+	if ct, robots := w.Header().Get("Content-Type"), w.Header().Get("X-Robots-Tag"); ct != "text/plain; charset=utf-8" || robots != "" {
+		t.Errorf("llms.txt: Content-Type %q, X-Robots-Tag %q", ct, robots)
+	}
+	if w := do(h, "GET", "http://app.example.com/llms.txt"); w.Code != http.StatusMovedPermanently || w.Header().Get("Location") != "https://app.example.com/llms.txt" {
+		t.Errorf("http llms.txt: %d %q", w.Code, w.Header().Get("Location"))
+	}
+	if b := do(h, "GET", "https://app.example.com/de/llms.txt").Body.String(); b != "app /de/llms.txt" {
+		t.Errorf("/de/llms.txt answered %q, want the app's", b)
+	}
+	none := seo.Site{}.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { w.Write([]byte("app")) }))
+	if b := do(none, "GET", "https://app.example.com/llms.txt").Body.String(); b != "app" {
+		t.Errorf("no LLMs: /llms.txt answered %q, want the app's", b)
+	}
+}
+
+// TestLLMsTxt: the details and every link's note when there are some.
+func TestLLMsTxt(t *testing.T) {
+	got := seo.LLMsTxt("App", "Sum.", "More here.\n", seo.LLMsSection{Name: "Docs", Links: []seo.LLMsLink{
+		{Title: "A", URL: "https://a/", Note: "the first"}, {Title: "B", URL: "https://b/"}}})
+	if want := "# App\n\n> Sum.\n\nMore here.\n\n## Docs\n\n- [A](https://a/): the first\n- [B](https://b/)\n"; got != want {
+		t.Errorf("LLMsTxt:\n%s\nwant:\n%s", got, want)
 	}
 }
 

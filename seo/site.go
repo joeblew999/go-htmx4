@@ -1,4 +1,5 @@
-// Package seo is how a site answers search engines: Site, the middleware that serves robots.txt and the sitemap,
+// Package seo is how a site answers search engines: Site, the middleware that serves robots.txt, the sitemap and
+// llms.txt,
 // marks what isn't a page noindex and gives every page one address; and SnippetWidth, how wide Google shows a title.
 // It is small enough for a Worker. The tools are beside it: seo/audit (the site as Googlebot reads it),
 // seo/searchconsole (Google's Search Console API) and go tool seo (README.md).
@@ -15,18 +16,22 @@ import (
 //
 //   - /robots.txt: one group that lets every crawler read everything, and where the sitemap is;
 //   - /sitemap.xml: the app's Sitemap for the request's origin;
-//   - X-Robots-Tag: noindex on every response that isn't a page (IsPage) or one of those two files, and on
+//   - /llms.txt: the app's LLMs for the request's origin, the site as agents read it (https://llmstxt.org);
+//   - X-Robots-Tag: noindex on every response that isn't a page (IsPage) or one of those files, and on
 //     everything under Preview;
 //   - one address: a GET of a page or of those files on another host, or over plain http, is redirected (301) to
 //     https://Host with the same path and query.
 //
-// Both files are only at the site's root, as crawlers ask for them: /de/robots.txt goes on to the app.
+// The files are only at the site's root, as crawlers ask for them: /de/robots.txt goes on to the app.
 type Site struct {
 	// Host is the canonical host ("app.example.com"). Empty: nothing redirects (a preview, local, a test). A
 	// loopback host never redirects.
 	Host string
 	// Sitemap writes the sitemap for origin ("https://app.example.com"), e.g. intl.Sitemap. nil: no /sitemap.xml.
 	Sitemap func(origin string) string
+	// LLMs writes /llms.txt for origin: what the site is and where to read more, for agents (LLMsTxt writes the
+	// llmstxt.org layout). nil: no /llms.txt.
+	LLMs func(origin string) string
 	// IsPage reports whether a GET or HEAD of path, the URL's path and query as the request has them
 	// ("/de/board?topic=games"), is for a page people read and Google may index; everything else gets X-Robots-Tag:
 	// noindex. The same shape as intl.Site's IsPage, so one page table answers both. nil: every GET and HEAD is a page.
@@ -47,9 +52,11 @@ func (s Site) Handler(next http.Handler) http.Handler {
 		read := r.Method == http.MethodGet || r.Method == http.MethodHead
 		robots := read && r.URL.Path == "/robots.txt"
 		sitemap := read && r.URL.Path == "/sitemap.xml" && s.Sitemap != nil
-		page := read && !robots && !sitemap && (s.IsPage == nil || s.IsPage(r.URL.RequestURI()))
+		llms := read && r.URL.Path == "/llms.txt" && s.LLMs != nil
+		file := robots || sitemap || llms
+		page := read && !file && (s.IsPage == nil || s.IsPage(r.URL.RequestURI()))
 		origin := s.origin(r)
-		if (page || robots || sitemap) && s.Host != "" && !loopback(r) && origin != "https://"+s.Host {
+		if (page || file) && s.Host != "" && !loopback(r) && origin != "https://"+s.Host {
 			target := "https://" + s.Host + r.URL.EscapedPath()
 			if r.URL.RawQuery != "" {
 				target += "?" + r.URL.RawQuery
@@ -57,7 +64,7 @@ func (s Site) Handler(next http.Handler) http.Handler {
 			http.Redirect(w, r, target, http.StatusMovedPermanently)
 			return
 		}
-		if s.Preview || !page && !robots && !sitemap {
+		if s.Preview || !page && !file {
 			w.Header().Set("X-Robots-Tag", "noindex")
 		}
 		switch {
@@ -67,6 +74,9 @@ func (s Site) Handler(next http.Handler) http.Handler {
 		case sitemap:
 			w.Header().Set("Content-Type", "application/xml; charset=utf-8")
 			io.WriteString(w, s.Sitemap(origin))
+		case llms:
+			w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+			io.WriteString(w, s.LLMs(origin))
 		default:
 			next.ServeHTTP(w, r)
 		}
