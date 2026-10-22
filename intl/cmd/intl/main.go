@@ -22,7 +22,7 @@
 //	go tool intl assets -worker dir -browser dir    the JavaScript a Worker and a page import
 //	go tool intl locales                   the shipped locales, comma-separated
 //	go tool intl catalogs                  the catalogs' Go package name (locales), for scripts
-//	go tool intl markup                    the app's own .gsx directories: not gsxui's, not nested modules
+//	go tool intl markup                    the app's own markup files: the .gsx and .go files beside its .gsx (not gsxui's, not nested modules)
 //
 // todo, check, add and export ask Intl itself (plural categories, language names): they run workerd.
 package main
@@ -63,6 +63,7 @@ func main() {
 	case "gen":
 		p := read(c)
 		check(p.Generate(os.Stderr))
+		check(setup.GsxuiRenderer(c.Root, c.Gsxui, os.Stderr))
 	case "status":
 		p := read(c)
 		ok := true
@@ -230,10 +231,10 @@ func main() {
 	case "catalogs":
 		fmt.Println(filepath.Base(c.CatalogDir()))
 	case "markup":
-		dirs, err := markup(c)
+		files, err := markup(c)
 		check(err)
-		for _, d := range dirs {
-			fmt.Println(d)
+		for _, f := range files {
+			fmt.Println(f)
 		}
 	default:
 		usage()
@@ -271,39 +272,48 @@ func initApp(args []string) {
 Set up. What is left is your code (intl/README.md, "Set up an app"):
   - the middleware:   var site = intl.Site{IsPage: …}; http.ListenAndServe(…, site.Handler(mux))
   - the layout:       <html { intl.HTML(ctx)... }>, <intl.Head page={…}/>, <script type="module" src="/static/intl-browser.mjs">
-  - the Worker entry: import { goIntl } from "./build/intl-worker.mjs"; globalThis.goIntl = goIntl;
-                      after the build: go tool intl assets -worker build -browser <static dir>
+  - intl's Intl, on an ordinary Go server: stop, err := workerd.Start(locales.Messages) before serving, then stop() on exit
+                      on Cloudflare Workers: import { goIntl } from "./build/intl-worker.mjs"; globalThis.goIntl = goIntl;
+                      and after the build: go tool intl assets -worker build
+  - the browser's:    go tool intl assets -browser <static dir>, served at /static/
   - every package that renders, in its tests: func TestMain(m *testing.M) { os.Exit(intltest.Main(m)) }
   - mise run intl before gsx generate; mise run intl:check in CI
 `)
 }
 
-// markup is every directory of the app's module with .gsx files, relative to its root: the app's own markup, so
-// not intl.toml's gsxui directory (vendored components) nor a nested module's.
+// markup is the app's own markup, for gsx's checks: the .gsx files of every directory that has one, and the
+// hand-written .go files beside them, relative to the app's root. Not what gsxui vendored, not nested modules, and
+// never a directory, so a check on these files can't reach into either.
 func markup(c config.Config) ([]string, error) {
-	seen := map[string]bool{}
 	var out []string
 	gsxui := filepath.Join(c.Root, c.Gsxui)
 	err := filepath.WalkDir(c.Root, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
-		if d.IsDir() {
-			name := d.Name()
-			if path != c.Root && (strings.HasPrefix(name, ".") || name == "node_modules" || name == "vendor" || name == "testdata" ||
-				c.Gsxui != "" && path == gsxui) {
-				return filepath.SkipDir
-			}
-			if path != c.Root {
-				if _, err := os.Stat(filepath.Join(path, "go.mod")); err == nil {
-					return filepath.SkipDir
-				}
-			}
+		if !d.IsDir() {
 			return nil
 		}
-		if dir := filepath.Dir(path); strings.HasSuffix(path, ".gsx") && !seen[dir] {
-			seen[dir] = true
-			rel, err := filepath.Rel(c.Root, dir)
+		name := d.Name()
+		if path != c.Root && (strings.HasPrefix(name, ".") || name == "node_modules" || name == "vendor" || name == "testdata" ||
+			c.Gsxui != "" && path == gsxui) {
+			return filepath.SkipDir
+		}
+		if path != c.Root {
+			if _, err := os.Stat(filepath.Join(path, "go.mod")); err == nil {
+				return filepath.SkipDir
+			}
+		}
+		gsx, _ := filepath.Glob(filepath.Join(path, "*.gsx"))
+		if len(gsx) == 0 {
+			return nil
+		}
+		gofiles, _ := filepath.Glob(filepath.Join(path, "*.go"))
+		for _, f := range append(gsx, gofiles...) {
+			if strings.HasSuffix(f, ".x.go") {
+				continue
+			}
+			rel, err := filepath.Rel(c.Root, f)
 			if err != nil {
 				return err
 			}

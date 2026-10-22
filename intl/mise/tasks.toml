@@ -43,25 +43,30 @@ status=0
 # The catalogs first, before anything regenerates intl.sum: a commit missing its intl.sum must fail here.
 go tool intl check || status=1
 go tool intl gen >/dev/null 2>&1 || status=1
-# gsx's own tools on the app's markup (go tool intl markup: not gsxui's vendored components, not nested modules):
-# every renderer and filter resolves, the formatting is gsx fmt's, and the gsx skill's smell finder has nothing to say.
-dirs=$(go tool intl markup)
+# gsx's own tools on the app's markup (go tool intl markup: its own .gsx and .go files, file by file, so nothing
+# reaches gsxui's vendored components or nested modules): every renderer and filter resolves, the formatting is
+# gsx fmt's, and the gsx skill's smell finder has nothing to say.
+files=$(go tool intl markup)
 go tool gsx generate -q || status=1
-if [ -n "$dirs" ]; then
-  unformatted=$(go tool gsx fmt -l $dirs)
+if [ -n "$files" ]; then
+  unformatted=$(go tool gsx fmt -l $(printf '%s\n' "$files" | grep '\.gsx$'))
   [ -z "$unformatted" ] || { echo "✗ gsx fmt -w these: $unformatted"; status=1; }
   smells="$(go list -m -f '{% raw %}{{.Dir}}{% endraw %}' github.com/gsxhq/gsx)/skills/gsx/scripts/find-smells.sh"
   # The one shape the smell finder can't tell apart: a message with arguments alone on a line, { locales.X(arg) },
   # is a typed value with a renderer, not a component called as a function.
   msg="^[^:]+:[0-9]+:[[:space:]]*[{][[:space:]]*$(go tool intl catalogs)[.][A-Z][A-Za-z0-9]*[(]"
-  for dir in $dirs; do
-    hits=$(bash "$smells" "$dir" | awk -v msg="$msg" '
-      /^== / { section = $0; next }
-      /^$/ { next }
-      section ~ /component called as a Go function/ && $0 ~ msg { next }
-      { if (section != shown) { print section; shown = section } print }') || { echo "✗ gsx smells: find-smells.sh failed"; status=1; }
-    [ -z "$hits" ] || { echo "✗ gsx smells (find-smells.sh):"; echo "$hits"; status=1; }
-  done
+  # The smell finder takes one directory and searches all of it: give it a copy holding only the app's own files,
+  # at their paths, so its report names them as they are.
+  own=$(mktemp -d)
+  for f in $files; do mkdir -p "$own/$(dirname "$f")" && cp "$f" "$own/$f"; done
+  found=$(cd "$own" && bash "$smells" .) || { echo "✗ gsx smells: find-smells.sh failed"; status=1; }
+  rm -rf "$own"
+  hits=$(printf '%s\n' "$found" | sed 's#^\./##' | awk -v msg="$msg" '
+    /^== / { section = $0; next }
+    /^$/ { next }
+    section ~ /component called as a Go function/ && $0 ~ msg { next }
+    { if (section != shown) { print section; shown = section } print }')
+  [ -z "$hits" ] || { echo "✗ gsx smells (find-smells.sh):"; echo "$hits"; status=1; }
 fi
 [ $status != 0 ] || echo "✓ gsx: generate, fmt, smells"
 exit $status
