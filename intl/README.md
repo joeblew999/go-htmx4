@@ -252,6 +252,7 @@ mux.HandleFunc("POST /preferences", site.Preferences)
 | `<option { v.Attrs()... }>{ v \|> plain }</option>` | an element that can't hold the Value's own, still redone by the browser |
 | `<option { intl.Clock("h12").Attrs()... }>{ intl.Clock("h12") \|> plain }</option>` | a clock choice labelled by a time in that clock (`""`: the language's own) |
 | `href={ "/about" \|> localize }`, `hx-post={ f`/cart/add?id=@{id}` \|> localize }` | an in-app path in the request's locale: `/de/about` |
+| `href={ pages.About{} \|> url }` | a page's address in the request's locale, for an app whose pages are Go types with a `Path() string` (a page table, structpages' shape, TinyGo-safe): `/de/about` |
 
 Options are Intl's own option names and values, in pairs (`"maximumFractionDigits", "0"`: a number or true/false
 is one); `v.JSOptions()` shows them as JavaScript writes them. Results that aren't strings (`resolvedOptions`, `select`, `compare`, `segment`) render as

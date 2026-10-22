@@ -102,18 +102,20 @@ after a release; committed), what `gsxui` manages (`gsxui.json` lists it), and i
   every string that needs a message.
 - `mise run intl:check` also runs gsx's own checks on the app's markup: `gsx generate`, `gsx fmt` and the `gsx` skill's
   smell finder. Write what the `gsx` skill says, not what older code does.
-- Every in-app `href`/`hx-*` URL goes through intl's `localize` filter, `href={ "/path" |> localize }` (not
-  `/static/`, `/assets/`, `/gsxui/`, `/live/`). Locale URLs, cookies and preferences are `intl.Site`, search engines `seo.Site`, both in `app/site.go`.
+- Every in-app `href`/`hx-*` URL goes through intl: a page's through the `url` filter, `href={ pages.About{} |> url }`,
+  any other through `localize`, `hx-post={ "/greet" |> localize }` (not `/static/`, `/assets/`, `/gsxui/`, `/live/`). Locale URLs, cookies and preferences are `intl.Site`, search engines `seo.Site`, both in `app/site.go`.
   Logical Tailwind classes only (`ms-`, `pe-`, `start-`, `text-end`, …) so RTL mirrors (`TestLogicalClasses`).
 - Dates and numbers for readers go through Intl, never `time.Format` or `strconv`: intl's gsx filters in markup,
   `{ t |> date(opts) }`, `{ t |> since }`, `{ n |> number(opts) }`, `{ d |> duration }`, `{ v |> intl(api, method,
   opts) }` (several arguments: `{ intl.Args{a, b} |> intl(…) }`), and `{ v |> plain }` in an attribute. Every Intl
   API is reachable that way: add no Go formatting of our own. Options are always pairs, as Intl names them:
   `date("dateStyle", "long")` in markup, `intl.Options("dateStyle", "long")` in Go; never a JSON string.
-- A new page: a translated title and its own translated `description` key to `Layout`, an entry in
-  `sitemapPages` (`app/site.go`). A query parameter that makes a different page goes in `pageKey` (`views/views.go`); one that makes
-  endless pages (a board topic) is not `indexable`. Titles ≤ 60 and descriptions
-  ≤ 160 wide (`TestSnippetWidths`).
+- **Pages are the page table, `pages/pages.go`:** each page a Go type with a `Path`. Its route (`pages.Route`), links to
+  it (`href={ pages.Board{Topic: t} |> url }`), the sitemap, intl's and seo's `IsPage` and the canonical page
+  (`pages.Key`) all come from it: never a page's path as a string. A new page: a type, an entry in `pages.All`, a
+  handler, and a translated title and its own translated `description` key to `Layout`. A query parameter that makes
+  a different page is part of its type (`Board.Topic`, `FromQuery`); one that makes endless pages (a board topic) is
+  `Noindex`. Titles ≤ 60 and descriptions ≤ 160 wide (`TestSnippetWidths`).
 - `/robots.txt` keeps one `*` group with no `Disallow` (`TestRobotsTxt`); absolute URLs come from `httpx.Origin(r)`,
   never a hard-coded host. No page routes under `/fragments/` (noindex) and no robots `Disallow` for them.
 - How Google sees the site is `seo/` (its own module, `seo/README.md`) and the `seo` skill: what Google reads is

@@ -25,14 +25,21 @@ Google ranks what the site serves. Every piece is made by the app, live on each 
 ## In an app
 
 ```go
+pages := []string{"/", "/about"} // the pages people read; everything else is noindex
 search := seo.Site{
 	Host:    os.Getenv("APP_DOMAIN"), // the one address; "" in previews and locally
 	Sitemap: func(origin string) string { return intl.Sitemap(origin, pages) },
-	IsPage:  func(r *http.Request) bool { return isPage(intl.Unprefixed(r.URL.Path)) },
+	IsPage: func(path string) bool { // the request's path and query: "/de/about?ref=x"
+		path, _, _ = strings.Cut(intl.Unprefixed(path), "?")
+		return slices.Contains(pages, path)
+	},
 	Preview: os.Getenv("APP_PREVIEW") != "", // everything noindex
 }
 http.ListenAndServe(addr, search.Handler(languages.Handler(mux))) // outside intl.Site: it sees what crawlers ask for
 ```
+
+`IsPage` has the shape of `intl.Site`'s, so one page table can answer both, as go-htmx4's does (its `pages`
+package: each page a Go type, with the routes, the links, the sitemap and both hooks coming from it).
 
 And in the layout's `<head>`, beside `intl.Head`, what the audit checks on every page:
 

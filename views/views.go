@@ -5,16 +5,12 @@ package views
 import (
 	"context"
 	"maps"
-	"net/url"
 	"slices"
-	"strings"
 	"time"
 
 	"github.com/joeblew999/go-htmx4/intl"
+	"github.com/joeblew999/go-htmx4/pages"
 )
-
-// DefaultTopic is the board's topic without ?topic= (its canonical URL is plain /board).
-const DefaultTopic = "lobby"
 
 // Board is one topic's shared state as the board page and its pushed fragment show it.
 type Board struct {
@@ -53,7 +49,9 @@ type ServerInfo struct {
 }
 
 // navVariant highlights the current page's header button (as gsxui's site layout does).
-func navVariant(path, href string) string { return activeVariant(path == href) }
+func navVariant(page, nav pages.Page) string {
+	return activeVariant(pages.Route(page) == pages.Route(nav))
+}
 
 // activeVariant is a nav button's gsxui variant: secondary for the current page, else ghost.
 func activeVariant(active bool) string {
@@ -67,27 +65,10 @@ func sortedKeys(m map[string]int) []string {
 	return slices.Sorted(maps.Keys(m))
 }
 
-// pageKey is the request's page for its canonical URL and alternates (intl.Head): without locale prefix and without query parameters that don't make a different page:
-// only ?topic= on /board survives, and not for the default topic. "/board?topic=lobby&utm_source=x" → "/board".
-func pageKey(ctx context.Context) string {
-	path, query := "/", ""
-	if r, ok := intl.FromContext(ctx); ok && r.Path != "" {
-		path, query, _ = strings.Cut(r.Path, "?")
-	}
-	if path == "/board" && query != "" {
-		if q, err := url.ParseQuery(query); err == nil {
-			if topic := q.Get("topic"); topic != "" && topic != DefaultTopic {
-				return path + "?topic=" + url.QueryEscape(topic)
-			}
-		}
-	}
-	return path
-}
-
 // homeURL is the home page's absolute URL in the request's language on the home page itself, "" elsewhere: seo.Head
 // puts the site's name there for Google (WebSite structured data).
-func homeURL(ctx context.Context, path string) string {
-	if path != "/" {
+func homeURL(ctx context.Context, page pages.Page) string {
+	if pages.Route(page) != "/" {
 		return ""
 	}
 	return intl.Canonical(ctx, "/")

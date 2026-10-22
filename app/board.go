@@ -12,8 +12,6 @@ import (
 	"bytes"
 	"context"
 	"errors"
-	"github.com/joeblew999/go-htmx4/intl"
-	"github.com/joeblew999/go-htmx4/locales"
 	"log"
 	"net/http"
 	"strconv"
@@ -23,11 +21,14 @@ import (
 	"github.com/joeblew999/go-htmx4/internal/httpx"
 	"github.com/joeblew999/go-htmx4/internal/live"
 	"github.com/joeblew999/go-htmx4/internal/ratelimit"
+	"github.com/joeblew999/go-htmx4/intl"
+	"github.com/joeblew999/go-htmx4/locales"
+	"github.com/joeblew999/go-htmx4/pages"
 	"github.com/joeblew999/go-htmx4/views"
 )
 
 const (
-	defaultTopic = views.DefaultTopic
+	defaultTopic = pages.DefaultTopic
 	maxNotes     = 5  // shown on the board
 	keepNotes    = 50 // kept per topic; older notes are deleted as new ones arrive
 	maxNoteRunes = 280
@@ -58,7 +59,7 @@ type store interface {
 }
 
 func (s *server) boardRoutes(mux *http.ServeMux) {
-	mux.HandleFunc("/board", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc(pages.Route(pages.Board{}), func(w http.ResponseWriter, r *http.Request) {
 		topic, ok := topicOf(w, r)
 		if !ok || !allow(w, r, http.MethodGet) {
 			return

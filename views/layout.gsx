@@ -4,6 +4,7 @@ import (
 	"github.com/gsxhq/gsx"
 	"github.com/joeblew999/go-htmx4/intl"
 	"github.com/joeblew999/go-htmx4/locales"
+	"github.com/joeblew999/go-htmx4/pages"
 	"github.com/joeblew999/go-htmx4/seo"
 	"github.com/joeblew999/go-htmx4/ui"
 	"github.com/joeblew999/go-htmx4/ui/icon"
@@ -28,11 +29,11 @@ import (
 // <html data-tz data-hc> are the viewer's chosen time zone and clock ("" = the browser's own and the language's), for
 // intl-browser.mjs, which redoes dates, times and rich numbers in the browser. The head carries what search engines
 // and link previews read (seo.Head: the translated title and description, Open Graph, the site's icon, and on the home
-// page the site's name for Google) and the page's language versions (intl.Head, with pageKey in views.go). intl's
+// page the site's name for Google) and the page's language versions (intl.Head, with the page table's Key). intl's
 // screens (go tool intl add, in views/intl) offer the page in the reader's language above the content, list it in
 // every language in the footer, outside the boosted nav (switching locale must be a full page load, since a boosted
 // swap keeps the old <html lang dir>), and set the time zone and clock from the header.
-component Layout(title intl.Msg, description intl.Msg, path string, children gsx.Node) {
+component Layout(title intl.Msg, description intl.Msg, page pages.Page, children gsx.Node) {
 	<!DOCTYPE html>
 	<html { intl.HTML(ctx)... }>
 		<head>
@@ -43,10 +44,10 @@ component Layout(title intl.Msg, description intl.Msg, path string, children gsx
 				description={description |> text}
 				siteName="go-htmx4"
 				icon="/static/favicon.svg"
-				home={homeURL(ctx, path)}
+				home={homeURL(ctx, page)}
 				lang={intl.Current(ctx).ID()}
 			/>
-			<intl.Head page={pageKey(ctx)}/>
+			<intl.Head page={pages.Key(ctx)}/>
 			<ThemeScript/>
 			<link rel="stylesheet" href="/assets/gsxui.css"/>
 			// The body font (gsxui.preset.json's fontSans), fetched with the stylesheet: no reflow when it arrives late.
@@ -70,18 +71,20 @@ component Layout(title intl.Msg, description intl.Msg, path string, children gsx
 					hx-boost:inherited="true"
 					hx-swap:inherited="outerMorph transition:true"
 				>
-					<a href={"/" |> localize} class="me-auto font-semibold" translate="no">go-htmx4</a>
-					<ui.Button variant={navVariant(path, "/")} size="sm" href={"/" |> localize}>{ locales.NavHome }</ui.Button>
-					<ui.Button variant={navVariant(path, "/board")} size="sm" href={"/board" |> localize}>
+					<a href={pages.Home{} |> url} class="me-auto font-semibold" translate="no">go-htmx4</a>
+					<ui.Button variant={navVariant(page, pages.Home{})} size="sm" href={pages.Home{} |> url}>
+						{ locales.NavHome }
+					</ui.Button>
+					<ui.Button variant={navVariant(page, pages.Board{})} size="sm" href={pages.Board{} |> url}>
 						{ locales.NavBoard }
 					</ui.Button>
-					<ui.Button variant={navVariant(path, "/formats")} size="sm" href={"/formats" |> localize}>
+					<ui.Button variant={navVariant(page, pages.Formats{})} size="sm" href={pages.Formats{} |> url}>
 						{ locales.NavFormats }
 					</ui.Button>
-					<ui.Button variant={navVariant(path, "/components")} size="sm" href={"/components" |> localize}>
+					<ui.Button variant={navVariant(page, pages.Components{})} size="sm" href={pages.Components{} |> url}>
 						{ locales.NavComponents }
 					</ui.Button>
-					<ui.Button variant={navVariant(path, "/about")} size="sm" href={"/about" |> localize}>
+					<ui.Button variant={navVariant(page, pages.About{})} size="sm" href={pages.About{} |> url}>
 						{ locales.NavAbout }
 					</ui.Button>
 					<ui.Button

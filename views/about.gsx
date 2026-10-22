@@ -2,13 +2,14 @@ package views
 
 import (
 	"github.com/joeblew999/go-htmx4/locales"
+	"github.com/joeblew999/go-htmx4/pages"
 	"github.com/joeblew999/go-htmx4/ui"
 )
 
 // About lists the stack, and gives the boosted nav a third page to morph to. Names are brands (translate="no");
 // roles are translated (StackItem.Role is a message).
 component About(stack []StackItem) {
-	<Layout title={locales.AboutTitle} description={locales.AboutDescription} path="/about">
+	<Layout title={locales.AboutTitle} description={locales.AboutDescription} page={pages.About{}}>
 		<h1 class="text-3xl font-semibold tracking-tight">{ locales.AboutHeading }</h1>
 		<ui.Card>
 			<ui.CardHeader>

@@ -27,7 +27,7 @@ checkout = "Go to checkout"
 | `{ "JP" \|> intl("DisplayNames", "of", "type", "region") }`, `{ intl.Args{a, b} \|> intl("Collator", "compare") }` | any other Intl call, with one argument or several |
 | `title={ v \|> plain }` | a formatted value in an attribute |
 | `locales.Placed(intl.Date(t, intl.Options("dateStyle", "long")))` | a formatted value inside a message's arguments (gsx allows no pipeline there) |
-| `href={ "/about" \|> localize }` | an in-app link, in the reader's language |
+| `href={ "/about" \|> localize }`, `href={ pages.About{} \|> url }` | an in-app link, in the reader's language: a path, or a page type with a `Path()` |
 | `{ locales.IntlAlsoIn(s.Name).In(s.Lang) }` | a message written in another shipped language than the page's (the offer `intl.Suggested` makes, with `intl.Decline` beside it); the element around it gets `lang` |
 
 Options are Intl's own names and values, in pairs. Never format for a reader in Go (`time.Format`, `strconv`): the
