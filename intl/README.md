@@ -43,6 +43,7 @@ mise run intl:status         # how far along each language is
 mise run intl:translate      # Claude Code translates everything missing or stale, in every language
 mise run intl:check          # everything, for CI: catalogs, plurals, unused messages, gsx's own checks
 mise run intl:todo           # what is left to translate, for a person (--json for an agent)
+mise run intl:add-locale fr  # a new language: intl.toml and its catalog, the id checked by Intl
 mise run intl:confirm        # the source changed but not its meaning (a typo fixed): keep the stale translations
 mise run intl:export         # xliff/out/<locale>.xlf for human translators: what is left (--all: everything)
 mise run intl:import         # their work back, from xliff/in
@@ -55,7 +56,8 @@ mise run intl:confirm de:cart.items   # only one translation
 ```
 
 The usual loop: write or change messages in the source catalog, `mise run intl:translate`, `mise run intl:check`.
-A new language is a line: add its id to `locales` in `intl.toml`, then `mise run intl:translate`.
+A new language: `mise run intl:add-locale fr`, then `mise run intl:translate`. (Adding its id to `intl.toml`'s
+`locales` by hand works too: the next `mise run intl` writes its catalog.)
 
 ## It is gsx
 
@@ -234,7 +236,7 @@ say:
 |---|---|
 | You added or changed messages in the source catalog | `mise run intl`, then `mise run intl:translate` (Claude Code) or translate what `mise run intl:todo` lists |
 | A translation's source changed | it is **stale**: `intl:todo` shows the old translation beside the new source. Update it, or keep it: `mise run intl:confirm de:order.items` |
-| You add a language | add its id to `intl.toml`'s `locales`, then `mise run intl:translate`. A regional one can take what it doesn't translate from another: `[inherit] fr-CA = "fr"` |
+| You add a language | `mise run intl:add-locale fr`, then `mise run intl:translate`. A regional one can take what it doesn't translate from another: `[inherit] fr-CA = "fr"` |
 | You delete or rename a source message | `intl:check` names the keys left in the translations; `mise run intl:prune` removes them |
 | `gsxui add pagination` | `mise run intl` names each new text with the line to add under `[gsxui]`; add them, then translate |
 | A person translates | `mise run intl:export` writes XLIFF 2.0 per locale into `xliff/out` for their tool; put what comes back in `xliff/in`, and `mise run intl:import` reads it, checking each target (one translated from older English is refused) |
