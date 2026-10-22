@@ -65,7 +65,8 @@ Each is set up by one command (`go tool intl init`, `go tool seo init`), which w
 (`intl.toml`, `seo.toml`). Their mise tasks read it, so every task runs with no arguments, from a terminal or the VS
 Code mise panel, and an argument still overrides it for one run. Each also installs an agent skill, so Claude Code
 knows how to use it. Both use gsx's own mechanisms (renderers, filters, `gsx fmt` and its checks); issues and pull
-requests that make them, or gsx, better are welcome.
+requests that make them, or gsx, better are welcome. [CONTRIBUTING.md](CONTRIBUTING.md) says how; you can leave the 13 translations
+of any text you add to us.
 
 ## Quick start
 
