@@ -101,7 +101,7 @@ no `lang`; no title or description, or one wider than Google shows (`seo.Snippet
 them; not exactly one `<h1>`; hreflang that isn't reciprocal, misses x-default or points off the site; no icon; no
 `og:title`, `og:description`, or an `og:url` that isn't the page. For the site: robots.txt that keeps anything out;
 a page that doesn't exist answering 200 (a soft 404); plain http not moving to https; no `WebSite` name on the home
-page. In a Go test, `audit.Audit(ctx, client, base)` returns the same problems: go-htmx4's smoke test audits the local
+page; an llms.txt, when there is one, without a title and summary or with a link to the site that doesn't answer 200. In a Go test, `audit.Audit(ctx, client, base)` returns the same problems: go-htmx4's smoke test audits the local
 build in every check, so a page Google couldn't index fails before it ships.
 
 Lighthouse's servers can't open WebSockets: a page with a live connection logs a console error there, which costs

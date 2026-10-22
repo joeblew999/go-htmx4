@@ -8,6 +8,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"regexp"
 	"slices"
 	"strconv"
 	"strings"
@@ -69,6 +70,13 @@ func audit(ctx context.Context, httpc *http.Client, base, sitemap string, urls [
 	default:
 		for _, p := range robotsProblems(string(robots), sitemap) {
 			add("robots.txt: %s", p)
+		}
+	}
+
+	// llms.txt is optional; when the site has one, it has to be right.
+	if llms, status, err := fetch(ctx, httpc, strings.TrimRight(base, "/")+"/llms.txt"); err == nil && status == 200 {
+		for _, p := range llmsProblems(ctx, httpc, base, string(llms)) {
+			add("llms.txt: %s", p)
 		}
 	}
 
@@ -194,6 +202,36 @@ func pageProblems(p page, site *url.URL) []string {
 			if u, err := url.Parse(href); err != nil || u.Scheme != site.Scheme || u.Host != site.Host {
 				out = append(out, fmt.Sprintf("hreflang %s → %q is not an absolute URL on %s://%s", lang, href, site.Scheme, site.Host))
 			}
+		}
+	}
+	return out
+}
+
+// llmsLink is a Markdown link's absolute URL.
+var llmsLink = regexp.MustCompile(`\]\((https?://[^)\s]+)\)`)
+
+// llmsProblems checks an llms.txt as llmstxt.org lays it out: a "# " title first, a "> " summary, and every link to
+// this site answering 200 (links elsewhere aren't fetched).
+func llmsProblems(ctx context.Context, httpc *http.Client, base, body string) []string {
+	var out []string
+	if !strings.HasPrefix(body, "# ") {
+		out = append(out, `doesn't start with a "# " title`)
+	}
+	if !strings.Contains(body, "\n> ") {
+		out = append(out, `no "> " summary`)
+	}
+	site, err := url.Parse(base)
+	if err != nil {
+		return out
+	}
+	for _, m := range llmsLink.FindAllStringSubmatch(body, -1) {
+		if u, err := url.Parse(m[1]); err != nil || u.Host != site.Host {
+			continue
+		}
+		if _, status, err := fetch(ctx, httpc, m[1]); err != nil {
+			out = append(out, fmt.Sprintf("%s: %v", m[1], err))
+		} else if status != 200 {
+			out = append(out, fmt.Sprintf("%s: HTTP %d", m[1], status))
 		}
 	}
 	return out
