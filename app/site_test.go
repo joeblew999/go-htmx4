@@ -18,8 +18,8 @@ import (
 
 	"github.com/joeblew999/go-htmx4/intl"
 	"github.com/joeblew999/go-htmx4/locales"
-	"github.com/joeblew999/go-htmx4/pages"
 	"github.com/joeblew999/go-htmx4/seo"
+	"github.com/joeblew999/go-htmx4/views"
 	nethtml "golang.org/x/net/html"
 )
 
@@ -83,7 +83,7 @@ func TestSitemap(t *testing.T) {
 	if err := xml.Unmarshal(rec.Body.Bytes(), &set); err != nil {
 		t.Fatal(err)
 	}
-	if want := len(pages.Sitemap()) * len(locales.Shipped); len(set.URLs) != want {
+	if want := len(views.Sitemap()) * len(locales.Shipped); len(set.URLs) != want {
 		t.Fatalf("%d URLs, want %d", len(set.URLs), want)
 	}
 	for _, u := range set.URLs {
@@ -154,13 +154,13 @@ func TestNoIndexNonPages(t *testing.T) {
 	}
 }
 
-// TestPagesServed: every page in the page table has its route, in every language, and Google may index it (while
+// TestPagesServed: every page in the page tree has its route, in every language, and Google may index it (while
 // the language's catalog is complete).
 func TestPagesServed(t *testing.T) {
 	h := newServer().routes()
-	for _, p := range pages.All {
+	for _, p := range views.Sitemap() {
 		for _, l := range locales.Shipped {
-			path := intl.Prefix(l) + p.Path()
+			path := intl.Prefix(l) + p
 			rec := get(t, h, path)
 			if noindex := rec.Header().Get("X-Robots-Tag") != ""; rec.Code != http.StatusOK || noindex == intl.Complete(l.ID()) {
 				t.Errorf("GET %s: %d, X-Robots-Tag %q", path, rec.Code, rec.Header().Get("X-Robots-Tag"))

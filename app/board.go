@@ -23,12 +23,11 @@ import (
 	"github.com/joeblew999/go-htmx4/internal/live"
 	"github.com/joeblew999/go-htmx4/intl"
 	"github.com/joeblew999/go-htmx4/locales"
-	"github.com/joeblew999/go-htmx4/pages"
 	"github.com/joeblew999/go-htmx4/views"
 )
 
 const (
-	defaultTopic = pages.DefaultTopic
+	defaultTopic = views.DefaultTopic
 	maxNotes     = 5  // shown on the board
 	keepNotes    = 50 // kept per topic; older notes are deleted as new ones arrive
 	maxNoteRunes = 280
@@ -47,7 +46,7 @@ var allowWrite = func(r *http.Request) bool {
 
 // Board and Note are the view types: the store returns exactly what views renders.
 type (
-	Board = views.Board
+	Board = views.BoardState
 	Note  = views.Note
 )
 
@@ -58,24 +57,7 @@ type store interface {
 	AddNote(topic, body string) (Board, error)
 }
 
-func (s *server) boardRoutes(mux *http.ServeMux) {
-	mux.HandleFunc(pages.Route(pages.Board{}), func(w http.ResponseWriter, r *http.Request) {
-		topic, ok := topicOf(w, r)
-		if !ok || !allow(w, r, http.MethodGet) {
-			return
-		}
-		st, err := newStore()
-		if err != nil {
-			storeError(w, r, err)
-			return
-		}
-		b, err := st.Board(topic)
-		if err != nil {
-			storeError(w, r, err)
-			return
-		}
-		s.render(w, r, "board", views.BoardPage(topic, b, livePush))
-	})
+func (s *server) boardRoutes(mux web.ServeMux) {
 	mux.HandleFunc("/board/add", func(w http.ResponseWriter, r *http.Request) {
 		topic, ok := topicOf(w, r)
 		if !ok || !allow(w, r, http.MethodPost) {
@@ -142,6 +124,26 @@ func change(w http.ResponseWriter, r *http.Request, topic string, write func(sto
 
 // topicOf reads ?topic= (default "lobby") and checks it with live.ValidTopic, the rule worker/index.mjs
 // applies to /live/{topic}.
+// Board is views.App's: the request's topic and its board for the board page, or false when it answered the request
+// itself (a bad topic, a store error).
+func (s *server) Board(w http.ResponseWriter, r *http.Request) (views.BoardProps, bool) {
+	topic, ok := topicOf(w, r)
+	if !ok {
+		return views.BoardProps{}, false
+	}
+	st, err := newStore()
+	if err != nil {
+		storeError(w, r, err)
+		return views.BoardProps{}, false
+	}
+	b, err := st.Board(topic)
+	if err != nil {
+		storeError(w, r, err)
+		return views.BoardProps{}, false
+	}
+	return views.BoardProps{Topic: topic, State: b, Live: livePush}, true
+}
+
 func topicOf(w http.ResponseWriter, r *http.Request) (string, bool) {
 	topic := r.URL.Query().Get("topic")
 	if topic == "" {

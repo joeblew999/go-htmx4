@@ -6,7 +6,6 @@ import (
 	"github.com/gsxhq/gsx"
 	"github.com/joeblew999/go-htmx4/intl"
 	"github.com/joeblew999/go-htmx4/locales"
-	"github.com/joeblew999/go-htmx4/pages"
 	"github.com/joeblew999/go-htmx4/ui"
 	"github.com/joeblew999/go-htmx4/ui/icon"
 )
@@ -14,13 +13,13 @@ import (
 // Components is every gsxui component the other pages don't use, each fed by Intl in the page's language: names,
 // numbers, dates, sorting, segmenting and plural forms (views/components.go). Each card names its component and says
 // what Intl does for it; the interactive ones round-trip through the Worker's Intl over htmx.
-component Components() {
-	<Layout title={locales.ComponentsTitle} description={locales.ComponentsDescription} page={pages.Components{}}>
+component ComponentsPage() {
+	<Layout title={locales.ComponentsTitle} description={locales.ComponentsDescription}>
 		<section class="flex flex-col gap-3">
 			<ui.Breadcrumb>
 				<ui.BreadcrumbList>
 					<ui.BreadcrumbItem>
-						<ui.BreadcrumbLink href={pages.Home{} |> url}>{ locales.NavHome }</ui.BreadcrumbLink>
+						<ui.BreadcrumbLink href={Home{} |> url}>{ locales.NavHome }</ui.BreadcrumbLink>
 					</ui.BreadcrumbItem>
 					<ui.BreadcrumbSeparator/>
 					<ui.BreadcrumbItem>
@@ -561,15 +560,15 @@ component CommandDemo() {
 				</ui.CommandGroup>
 				<ui.CommandSeparator/>
 				<ui.CommandGroup heading={locales.ComponentsCommandPages |> text}>
-					<ui.CommandItem value="board" data-href={pages.Board{} |> url}>
+					<ui.CommandItem value="board" data-href={Board{} |> url}>
 						<icon.LayoutGrid/>
 						<span>{ locales.NavBoard }</span>
 					</ui.CommandItem>
-					<ui.CommandItem value="formats" data-href={pages.Formats{} |> url}>
+					<ui.CommandItem value="formats" data-href={Formats{} |> url}>
 						<icon.Globe/>
 						<span>{ locales.NavFormats }</span>
 					</ui.CommandItem>
-					<ui.CommandItem value="about" data-href={pages.About{} |> url}>
+					<ui.CommandItem value="about" data-href={About{} |> url}>
 						<icon.Info/>
 						<span>{ locales.NavAbout }</span>
 					</ui.CommandItem>

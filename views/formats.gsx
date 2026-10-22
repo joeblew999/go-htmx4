@@ -6,7 +6,6 @@ import (
 	"github.com/gsxhq/gsx"
 	"github.com/joeblew999/go-htmx4/intl"
 	"github.com/joeblew999/go-htmx4/locales"
-	"github.com/joeblew999/go-htmx4/pages"
 	"github.com/joeblew999/go-htmx4/ui"
 )
 
@@ -15,8 +14,8 @@ import (
 // Cloudflare's V8 Intl, and the reader's browser's, redone live (intl-browser.mjs). They match, except where the
 // browser knows more (the reader's time zone) or words things its own way (Firefox, Safari). The Try it card
 // round-trips values typed the reader's way through the server.
-component Formats(conn Connection) {
-	<Layout title={locales.FormatsTitle} description={locales.FormatsDescription} page={pages.Formats{}}>
+component FormatsPage(conn Connection) {
+	<Layout title={locales.FormatsTitle} description={locales.FormatsDescription}>
 		<div class="flex flex-col gap-2">
 			<h1 class="text-3xl font-semibold tracking-tight">{ locales.FormatsTitle }</h1>
 			<p class="text-muted-foreground">{ locales.FormatsIntro }</p>

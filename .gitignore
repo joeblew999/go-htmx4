@@ -9,6 +9,8 @@
 
 # gsx generated code (gsx Getting started: do not edit or commit)
 *.x.go
+# structpages-gen output (mise run generate): the tables a TinyGo build reads instead of method reflection
+structpages_tables.go
 # go tool intl gen output (mise run intl)
 intl_gen.go
 intl_messages_gen.go

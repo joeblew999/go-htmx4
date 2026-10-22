@@ -1,32 +1,34 @@
-package pages_test
+package views_test
 
 import (
 	"context"
+	"reflect"
 	"slices"
 	"testing"
 
 	"github.com/joeblew999/go-htmx4/intl"
 	_ "github.com/joeblew999/go-htmx4/locales" // the app's languages, for the locale prefix
-	"github.com/joeblew999/go-htmx4/pages"
+	"github.com/joeblew999/go-htmx4/views"
 )
 
-// TestPaths: a page's address carries only what makes it a different page, and its route is the address's path.
-func TestPaths(t *testing.T) {
-	for _, tc := range []struct {
-		page        pages.Page
-		path, route string
-	}{
-		{pages.Home{}, "/", "/"},
-		{pages.Board{}, "/board", "/board"},
-		{pages.Board{Topic: pages.DefaultTopic}, "/board", "/board"},
-		{pages.Board{Topic: "a b&c"}, "/board?topic=a+b%26c", "/board"},
-		{pages.About{}, "/about", "/about"},
-	} {
-		if got := tc.page.Path(); got != tc.path {
-			t.Errorf("%#v.Path() = %q, want %q", tc.page, got, tc.path)
-		}
-		if got := pages.Route(tc.page); got != tc.route {
-			t.Errorf("Route(%#v) = %q, want %q", tc.page, got, tc.route)
+// TestPages: All is every page in the tree (Pages' fields), in its order, and each page's address comes from its route.
+func TestPages(t *testing.T) {
+	var tree, all []reflect.Type
+	for i := range reflect.TypeOf(views.Pages{}).NumField() {
+		tree = append(tree, reflect.TypeOf(views.Pages{}).Field(i).Type)
+	}
+	for _, p := range views.All {
+		all = append(all, reflect.TypeOf(p))
+	}
+	if !slices.Equal(tree, all) {
+		t.Errorf("All is %v, the tree has %v", all, tree)
+	}
+	if got, want := views.Sitemap(), []string{"/", "/board", "/formats", "/components", "/about"}; !slices.Equal(got, want) {
+		t.Errorf("Sitemap() = %v, want %v", got, want)
+	}
+	for topic, want := range map[string]string{"": "", views.DefaultTopic: "", "a b&c": "?topic=a+b%26c"} {
+		if got := (views.Board{Topic: topic}).Query(); got != want {
+			t.Errorf("Board{%q}.Query() = %q, want %q", topic, got, want)
 		}
 	}
 }
@@ -35,7 +37,7 @@ func TestPaths(t *testing.T) {
 // A board topic anyone made is a page, but not one Google may index.
 func TestHooks(t *testing.T) {
 	for path, want := range map[string]bool{"/": true, "/board": true, "/about": true, "/fragments/stats": false, "/components/sidebar": false, "/greet": false} {
-		if got := pages.IsPage(path); got != want {
+		if got := views.IsPage(path); got != want {
 			t.Errorf("IsPage(%q) = %v, want %v", path, got, want)
 		}
 	}
@@ -43,12 +45,9 @@ func TestHooks(t *testing.T) {
 		"/": true, "/de/": true, "/board": true, "/board?topic=lobby": true, "/de/board?utm_source=x": true,
 		"/board?topic=games": false, "/de/board?topic=games": false, "/fragments/stats": false, "/de/fragments/stats": false,
 	} {
-		if got := pages.Indexable(path); got != want {
+		if got := views.Indexable(path); got != want {
 			t.Errorf("Indexable(%q) = %v, want %v", path, got, want)
 		}
-	}
-	if got, want := pages.Sitemap(), []string{"/", "/board", "/formats", "/components", "/about"}; !slices.Equal(got, want) {
-		t.Errorf("Sitemap() = %v, want %v", got, want)
 	}
 }
 
@@ -61,7 +60,7 @@ func TestKey(t *testing.T) {
 		"/components/sidebar":             "/components/sidebar",
 	} {
 		ctx := intl.WithRequest(context.Background(), intl.Request{Locale: intl.Default(), Path: path})
-		if got := pages.Key(ctx); got != want {
+		if got := views.Key(ctx); got != want {
 			t.Errorf("Key(%q) = %q, want %q", path, got, want)
 		}
 	}

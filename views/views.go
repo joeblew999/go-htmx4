@@ -9,12 +9,12 @@ import (
 	"time"
 
 	"github.com/gsxhq/gsx"
+	"github.com/jackielii/structpages"
 	"github.com/joeblew999/go-htmx4/intl"
-	"github.com/joeblew999/go-htmx4/pages"
 )
 
-// Board is one topic's shared state as the board page and its pushed fragment show it.
-type Board struct {
+// BoardState is one topic's shared state as the board page and its pushed fragment show it.
+type BoardState struct {
 	Topic   string
 	Value   int64
 	Version int64
@@ -49,9 +49,11 @@ type ServerInfo struct {
 	Note      string // platform caveat, e.g. per-request state on Workers
 }
 
-// navVariant highlights the current page's header button (as gsxui's site layout does).
-func navVariant(page, nav pages.Page) string {
-	return activeVariant(pages.Route(page) == pages.Route(nav))
+// navVariant highlights the current page's header button (as gsxui's site layout does): structpages knows which
+// page is being rendered.
+func navVariant(ctx context.Context, nav any) (string, error) {
+	in, err := structpages.Within(ctx, nav)
+	return activeVariant(in), err
 }
 
 // activeVariant is a nav button's gsxui variant: secondary for the current page, else ghost.
@@ -78,9 +80,9 @@ func htmxConfig(ctx context.Context) string {
 
 // homeURL is the home page's absolute URL in the request's language on the home page itself, "" elsewhere: seo.Head
 // puts the site's name there for Google (WebSite structured data).
-func homeURL(ctx context.Context, page pages.Page) string {
-	if pages.Route(page) != "/" {
-		return ""
+func homeURL(ctx context.Context) (string, error) {
+	if home, err := structpages.Within(ctx, Home{}); !home || err != nil {
+		return "", err
 	}
-	return intl.Canonical(ctx, "/")
+	return intl.Canonical(ctx, "/"), nil
 }

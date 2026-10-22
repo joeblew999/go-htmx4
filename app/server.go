@@ -1,27 +1,30 @@
 // Package app is the go-htmx4 app: its routes, handlers, stores and Cloudflare calls (the root main.go runs it).
 // Pages and fragments are gsx components in views/, built from gsxui; their text and formats come from intl.
 //
-// Routes are plain paths with method checks: TinyGo 0.43's net/http has the pre-Go 1.22 ServeMux (no "GET /x"
-// patterns, no {$}). No html/template either: under TinyGo 0.43 it compiles but panics at execute time. What the app
+// The pages are views.Pages, structpages' tree, mounted on charter's web.NewServeMux, which has Go 1.22 patterns under
+// TinyGo too. The other routes are plain paths with method checks (allow). No html/template: under TinyGo 0.43 it
+// compiles but panics at execute time. What the app
 // takes from Cloudflare is platform.go, through charter, which stands in for it off Workers (go test).
 package app
 
 import (
+	"bytes"
 	"cmp"
 	"log"
 	"net/http"
 	"runtime"
+	"strconv"
 	"strings"
 	"sync"
 	"sync/atomic"
 	"time"
 
 	"github.com/gsxhq/gsx"
+	"github.com/jackielii/structpages"
 	"github.com/joeblew999/charter/go/lib/bindings"
 	"github.com/joeblew999/charter/go/lib/web"
 	"github.com/joeblew999/go-htmx4/intl"
 	"github.com/joeblew999/go-htmx4/locales"
-	"github.com/joeblew999/go-htmx4/pages"
 	"github.com/joeblew999/go-htmx4/views"
 	intlui "github.com/joeblew999/go-htmx4/views/intl"
 )
@@ -64,30 +67,19 @@ func newServer() *server {
 }
 
 func (s *server) routes() http.Handler {
-	mux := http.NewServeMux()
-	// The home page, and the static files at every other path no route takes.
-	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path != pages.Route(pages.Home{}) {
-			staticFiles().ServeHTTP(w, r)
-			return
-		}
-		if allow(w, r, http.MethodGet) {
-			env := cmp.Or(bindings.Var("APP_ENV"), "(APP_ENV not set)")
-			s.render(w, r, "home", views.HomePage(target(), env, flavours, components))
-		}
-	})
-	mux.HandleFunc(pages.Route(pages.Formats{}), func(w http.ResponseWriter, r *http.Request) {
-		if allow(w, r, http.MethodGet) {
-			s.render(w, r, "formats", views.Formats(connection(r)))
-		}
-	})
-	// /components: every gsxui component with Intl (views/components.gsx). The sidebar runs in its own document, and
+	// charter's mux: Go 1.22 patterns under TinyGo too, which the pages' routes use.
+	mux := web.NewServeMux()
+	// The pages (views.Pages): structpages renders each with what its Props returns, from the app (views.App).
+	if _, err := structpages.Mount(mux, views.Pages{}, "/", "go-htmx4",
+		structpages.WithArgs(s), structpages.WithMiddlewares(s.pageMiddleware)); err != nil {
+		panic(err) // the page tree is code: every test catches a mistake in it
+	}
+	// The static files (dist/site): Workers' Static Assets answer them before the Worker runs; these are for off it.
+	for _, prefix := range []string{"/static/", "/gsxui/", "/assets/"} {
+		mux.Handle(prefix, staticFiles())
+	}
+	// /components (views/components.gsx) is every gsxui component with Intl. Its sidebar runs in its own document, and
 	// the text box counts on the Worker; everything else on the page is redone by the browser's Intl.
-	mux.HandleFunc(pages.Route(pages.Components{}), func(w http.ResponseWriter, r *http.Request) {
-		if allow(w, r, http.MethodGet) {
-			s.render(w, r, "components", views.Components())
-		}
-	})
 	mux.HandleFunc("/components/sidebar", func(w http.ResponseWriter, r *http.Request) {
 		if allow(w, r, http.MethodGet) {
 			s.render(w, r, "components-sidebar", views.ComponentsSidebar())
@@ -107,11 +99,6 @@ func (s *server) routes() http.Handler {
 	mux.HandleFunc("/fragments/components-week", func(w http.ResponseWriter, r *http.Request) {
 		if allow(w, r, http.MethodGet) {
 			s.render(w, r, "components-week", views.Week())
-		}
-	})
-	mux.HandleFunc(pages.Route(pages.About{}), func(w http.ResponseWriter, r *http.Request) {
-		if allow(w, r, http.MethodGet) {
-			s.render(w, r, "about", views.About(stack))
 		}
 	})
 	mux.HandleFunc("/healthz", func(w http.ResponseWriter, r *http.Request) {
@@ -190,14 +177,52 @@ func (s *server) routes() http.Handler {
 // render counts the request, then writes n with charter's web.Render (buffered, Content-Length: chunked
 // responses broke htmx history restore under workerd).
 func (s *server) render(w http.ResponseWriter, r *http.Request, name string, n gsx.Node) {
-	s.requests.Add(1)
-	s.mu.Lock()
-	s.stats[name]++
-	s.mu.Unlock()
+	s.count(name)
 	if err := web.Render(w, r, n); err != nil {
 		log.Printf("render %s: %v", name, err)
 	}
 }
+
+// count counts a request, by what it rendered: the server-info and stats fragments show them.
+func (s *server) count(name string) {
+	s.requests.Add(1)
+	s.mu.Lock()
+	s.stats[name]++
+	s.mu.Unlock()
+}
+
+// pageMiddleware is structpages' middleware for every page: it counts the view under the page's name, and sends the
+// page as web.Render does, buffered with a Content-Length (chunked responses broke htmx history restore under workerd).
+func (s *server) pageMiddleware(next http.Handler, pn *structpages.PageNode) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		s.count(pn.Name)
+		b := &buffered{ResponseWriter: w, status: http.StatusOK}
+		next.ServeHTTP(b, r)
+		w.Header().Set("Content-Length", strconv.Itoa(b.body.Len()))
+		w.WriteHeader(b.status)
+		w.Write(b.body.Bytes())
+	})
+}
+
+// buffered holds a page's response until it's complete.
+type buffered struct {
+	http.ResponseWriter
+	status int
+	body   bytes.Buffer
+}
+
+func (b *buffered) WriteHeader(status int)      { b.status = status }
+func (b *buffered) Write(p []byte) (int, error) { return b.body.Write(p) }
+
+// Home, Connection, Stack and Board (board.go) are views.App: the pages' data, which structpages hands to their Props.
+func (s *server) Home(*http.Request) views.HomeProps {
+	return views.HomeProps{Target: target(), Env: cmp.Or(bindings.Var("APP_ENV"), "(APP_ENV not set)"),
+		Flavours: flavours, Components: components}
+}
+
+func (s *server) Connection(r *http.Request) views.Connection { return connection(r) }
+
+func (s *server) Stack() []views.StackItem { return stack }
 
 // allow is charter's web.Allow: plain-path routes check their method in the handler (TinyGo's ServeMux has no
 // method patterns).

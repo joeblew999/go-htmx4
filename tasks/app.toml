@@ -31,12 +31,13 @@ echo "✓ htmx $version: web/htmx/htmx.min.js, web/htmx/hx-ws.js, web/htmx/hx-li
 '''
 
 # The app's components (gsx:generate, from gsxkit's tasks) and this repo's own modules' (intl/, seo/), which commit
-# theirs for the apps that import them; every build/run/test path depends on this.
+# theirs for the apps that import them; then the tables a TinyGo build of the pages reads (structpages-gen, after gsx:
+# the pages' Page methods are gsx's code). Every build/run/test path depends on this.
 ["generate"]
-description = "gsx:generate for the app, and intl's and seo's own components, which their modules commit for the apps that import them"
+description = "gsx:generate for the app, intl's and seo's own components (their modules commit them for the apps that import them), and structpages' tables for TinyGo"
 depends = ["intl", "gsx:generate"]
 dir = "{{config_root}}"
-run = ["go -C intl tool gsx generate -q .", "go -C seo tool gsx generate -q ."]
+run = ["go -C intl tool gsx generate -q .", "go -C seo tool gsx generate -q .", "go tool structpages-gen ./views"]
 
 # The Static Assets directory: /static/ = web/htmx/ (htmx, hx-ws) and intl's browser module, /gsxui/ = web/gsxui/
 # behaviours, /assets/ = gsxui's compiled CSS (gsxui:css) + fonts (fonts.css url()s are relative).

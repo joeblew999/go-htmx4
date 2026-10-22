@@ -2,7 +2,8 @@
 
 ## Runtime and build
 
-- **One Go app** (`app/`, started by `main.go`) serves pages and fragments rendered from gsx (`views/`, `ui/`). On
+- **One Go app** (`app/`, started by `main.go`) serves pages and fragments rendered from gsx (`views/`, `ui/`); the
+  pages are structpages' tree (`views/pages.go`) on charter's `web.NewServeMux`. On
   Cloudflare it is a Worker: [charter](https://github.com/joeblew999/charter)'s runtime (`transport.Run`) over
   workers-go keeps Go runtimes alive between requests and warms two while the Worker loads (`worker/index.mjs`,
   `build/go.mjs`).
@@ -76,7 +77,7 @@ served `noindex`.
 ├── main.go                                      the entry point: transport.Run(app.Handler())
 ├── app/                                         server.go (routes), board.go + store.go (D1), site.go (intl.Site,
 │                                                seo.Site), platform.go (Cloudflare through charter's bindings)
-├── views/  ui/  web/gsxui/  web/htmx/           pages (gsx; views/intl: intl's screens), gsxui components and
+├── views/  ui/  web/gsxui/  web/htmx/           pages (structpages' tree: pages.go; gsx; views/intl: intl's screens), gsxui components and
 │                                                behaviours, vendored htmx
 ├── intl/  intl.toml                             Intl for gsx (its own module); the app's languages
 ├── seo/                               the live audit and Google Search Console (its own module)
