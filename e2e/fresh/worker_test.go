@@ -10,7 +10,8 @@ import (
 )
 
 // TestFreshWorker is the proof of Step 3 (#90): a brand-new gsx app runs on Cloudflare Workers with charter alone,
-// set up as charter says: go tool charter init, its bindings in charter.toml, one main package (testdata/worker). Its
+// set up as charter says: go tool charter init (charter.toml, the mise tasks, Workers Builds' launcher, the skill, the CI
+// workflow, which go tool charter check then passes), its bindings in charter.toml, one main package (testdata/worker). Its
 // own go test runs on charter's stand-ins (D1 as SQLite, the rate limit counted); its Worker build runs on local
 // workerd (go tool charter with), where a probe checks the page, D1 and the rate limit.
 //
@@ -72,9 +73,13 @@ func TestFreshWorker(t *testing.T) {
 	if !strings.Contains(read(t, filepath.Join(app, ".gitignore")), "/build/") {
 		t.Error("charter init didn't ignore build/")
 	}
-	if _, err := os.Stat(filepath.Join(app, ".mise", "tasks", "charter.toml")); err != nil {
-		t.Errorf("charter init wrote no mise tasks: %v", err)
+	for _, f := range []string{".mise/tasks/charter.toml", ".mise/tasks/charter-builds", ".claude/skills/charter/SKILL.md", ".github/workflows/charter.yml"} {
+		if _, err := os.Stat(filepath.Join(app, f)); err != nil {
+			t.Errorf("charter init didn't write %s: %v", f, err)
+		}
 	}
+	// Everything init wrote, and the bindings added to charter.toml, as charter checks them.
+	run("go", "tool", "charter", "check")
 	run("go", "tool", "gsx", "generate")
 	run("go", "test", "-count=1", ".")
 
