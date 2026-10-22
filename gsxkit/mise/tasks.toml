@@ -1,0 +1,87 @@
+# gsx's and gsxui's mise tasks (gsxkit/README.md). In an app, go tool gsxkit tasks writes this file to
+# .mise/tasks/gsx.toml, one of mise's default task directories, from the gsxkit version in go.mod. Every task runs gsx's
+# or gsxui's own CLI: gsx from the app's go.mod (go tool gsx), the gsxui CLI from its mise.toml.
+
+# gsx components → *.x.go. When intl is running too, its messages come first: views write them.
+["gsx:generate"]
+description = "go tool gsx generate: every .gsx file to its .x.go (after intl, when intl is running too: views write its messages)"
+wait_for = ["intl"]
+run = "go tool gsx generate"
+
+["gsx:fmt"]
+description = "Format every .gsx file with gsx fmt; --check lists what isn't formatted and fails, writing nothing (for CI)"
+usage = 'flag "--check" help="fail on an unformatted file, writing nothing"'
+run = '''
+#!/usr/bin/env bash
+set -euo pipefail
+if [ "${usage_check:-false}" = true ]; then
+  go tool gsx fmt -l . || { echo "✗ gsx fmt: run mise run gsx:fmt"; exit 1; }
+else
+  go tool gsx fmt -w .
+fi
+'''
+
+# The VS Code gsx extension looks for the compiler on PATH, then GOBIN, then GOPATH/bin (gsx's Editor support guide:
+# https://github.com/gsxhq/gsx/blob/main/docs/guide/editor.md). VS Code's PATH rarely has a project's mise tools, and
+# the extension checks candidates outside the repo, where mise shims don't resolve. So install into GOPATH/bin, at the
+# gsx version go.mod pins. A shell that exports its own GOPATH (an agent, a CI job) may differ from the editor's, so
+# when GOPATH differs from Go's default, install into both. An app runs it after every mise install with
+# [hooks] postinstall = { task = "gsx:editor" }.
+["gsx:editor"]
+description = "Install go.mod's gsx into GOPATH/bin for the VS Code gsx language server"
+run = '''
+#!/usr/bin/env bash
+set -euo pipefail
+# CI has no editor (and compiling gsx costs ~10 s per run).
+[ -z "${CI:-}" ] || { echo "· CI: no editor, skipping"; exit 0; }
+bins=("$(go env GOPATH | cut -d: -f1)/bin")
+default="$(env -u GOPATH go env GOPATH | cut -d: -f1)/bin"
+[ "$default" = "${bins[0]}" ] || bins+=("$default")
+for bin in "${bins[@]}"; do
+  GOBIN="$bin" go install github.com/gsxhq/gsx/cmd/gsx
+  echo "✓ $("$bin/gsx" version | head -1) → $bin/gsx"
+done
+echo "  VS Code: run \"gsx: Restart Language Server\""
+'''
+
+# gsxui's npm-free mode: its CSS entry (gsxui.json's css, web/gsxui/index.css by default) compiled by the standalone
+# Tailwind CLI.
+["gsxui:css"]
+description = "gsxui's CSS: its entry (gsxui.json's css) compiled by the standalone Tailwind CLI, into dist/gsxui.css by default"
+tools = { "github:tailwindlabs/tailwindcss" = "v4.3.3" }
+usage = 'arg "[out]" help="the compiled file" default="dist/gsxui.css"'
+run = '''
+#!/usr/bin/env bash
+set -euo pipefail
+css=$(sed -n 's/^ *"css": *"\([^"]*\)".*/\1/p' gsxui.json)
+tailwindcss -i "${css:-web/gsxui/index.css}" -o "$usage_out" --minify 2>&1 | grep -v "^≈\|^$" || true
+'''
+
+# The look is a gsxui theme (https://ui.gsxhq.dev/theming): gsxui.preset.json, applied by gsxui's own CLI, which
+# rewrites the preset, its theme.css and, for another style, the components from gsxui's sources. A style's standard
+# theme is the share code gsxui's theme editor (https://ui.gsxhq.dev/theme) gives when that style is picked; any other
+# look is a code from the same editor.
+["gsxui:theme"]
+description = "Switch the app's look to a gsxui theme with gsxui apply: a style's standard theme by name (nova, gsxui's default; vega, maia, lyra, mira, luma, sera, rhea), or any share code from gsxui's theme editor (https://ui.gsxhq.dev/theme). Then commit what it changed"
+usage = 'arg "<theme>" help="a style (nova, vega, maia, lyra, mira, luma, sera, rhea) or a gsxui:p1:… share code"'
+run = '''
+#!/usr/bin/env bash
+set -euo pipefail
+case "$usage_theme" in
+  nova) code=gsxui:p1:4GG ;; vega) code=gsxui:p1:4GI ;; maia) code=gsxui:p1:4GH ;; lyra) code=gsxui:p1:4GJ ;;
+  mira) code=gsxui:p1:4GK ;; luma) code=gsxui:p1:4GL ;; sera) code=gsxui:p1:4GM ;; rhea) code=gsxui:p1:4GN ;;
+  gsxui:*) code=$usage_theme ;;
+  *) echo "✗ $usage_theme: a style (nova, vega, maia, lyra, mira, luma, sera, rhea) or a share code from https://ui.gsxhq.dev/theme"; exit 1 ;;
+esac
+gsxui apply --preset "$code" --yes
+# A style's components may write text of their own: with intl, every message in every language (it names any new one).
+[ ! -f intl.toml ] || mise run intl
+'''
+
+["gsx:tasks"]
+description = "Write this file again from the gsxkit version in go.mod: run it after upgrading gsxkit"
+run = "go tool gsxkit tasks"
+
+["gsx:skill"]
+description = "Install or update gsx's own agent skill (.claude/skills/gsx), from the gsx version in go.mod: how to write .gsx"
+run = "go tool gsxkit skill"

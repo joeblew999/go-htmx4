@@ -30,6 +30,14 @@ rm -rf "$tgz" "$tmp"
 echo "✓ htmx $version: web/htmx/htmx.min.js, web/htmx/hx-ws.js, web/htmx/hx-live.js"
 '''
 
+# The app's components (gsx:generate, from gsxkit's tasks) and this repo's own modules' (intl/, seo/), which commit
+# theirs for the apps that import them; every build/run/test path depends on this.
+["generate"]
+description = "gsx:generate for the app, and intl's and seo's own components, which their modules commit for the apps that import them"
+depends = ["intl", "gsx:generate"]
+dir = "{{config_root}}"
+run = ["go -C intl tool gsx generate -q .", "go -C seo tool gsx generate -q ."]
+
 # The Static Assets directory: /static/ = web/htmx/ (htmx, hx-ws) and intl's browser module, /gsxui/ = web/gsxui/
 # behaviours, /assets/ = gsxui's compiled CSS (gsxui:css) + fonts (fonts.css url()s are relative).
 ["assets"]
@@ -57,7 +65,7 @@ echo "✓ dist/site: $(find dist/site -type f | wc -l | tr -d ' ') files, gsxui.
 '''
 
 ["build"]
-depends = ["gsx:generate", "assets"]
+depends = ["generate", "assets"]
 description = "Production build → build/ with WORKER_COMPILER (mise.toml: tinygo or go), size-checked (deploy, staging, CI and the tests use it)"
 dir = "{{config_root}}"
 # Skipped when no input changed since the last production build, so `check` then `e2e` (CI: go tool charter ci run) builds once.
@@ -70,7 +78,7 @@ env = { WASM_PROFILE = "prod" }
 run = "ci/wasm-build.sh"
 
 ["build:dev"]
-depends = ["gsx:generate", "assets"]
+depends = ["generate", "assets"]
 description = "Dev build → build/: standard Go to wasm, seconds after an edit (mise run dev uses it; never deployed)"
 dir = "{{config_root}}"
 sources = ["**/*.go", "go.mod", "go.sum", "intl/go.mod", "mise.toml", "intl/js/*.mjs", "locales/intl-messages.mjs"]
@@ -153,7 +161,7 @@ fi
 
 ["bench:variants"]
 description = "Build the current code with each of charter's optimisations off in turn, measure each, write docs/benchmarks.md"
-depends = ["gsx:generate", "assets"]
+depends = ["generate", "assets"]
 dir = "{{config_root}}"
 run = "ci/bench.sh variants"
 
@@ -194,8 +202,8 @@ env = { FRESH_VERSIONS = "published" }
 run = "go test -C e2e -count=1 -timeout 10m -run TestFreshApp ./fresh"
 
 ["test:go"]
-description = "gsx fmt/gofmt check + go vet + go test, the app and intl/ (standard Go; runs beside the production build)"
-depends = ["gsx:generate"]
+description = "gsx fmt/gofmt check + go vet + go test, the app and its modules: intl/, seo/, badge/, gsxkit/ (standard Go; runs beside the production build)"
+depends = ["generate"]
 dir = "{{config_root}}"
 run = '''
 #!/usr/bin/env bash
@@ -228,13 +236,21 @@ go test -C seo ./...
 test -z "$(gofmt -l badge)" || { gofmt -l badge; echo "✗ gofmt: badge/ needs formatting"; exit 1; }
 go vet -C badge ./...
 go test -C badge ./...
-# intl, seo and badge declare the oldest Go they work with (their go.mod's go line, gsx's minimum): they must still
+# gsxkit/ is its own module (gsx's and gsxui's tasks and gsx's skill for any app): format, vet and test it.
+test -z "$(gofmt -l gsxkit)" || { gofmt -l gsxkit; echo "✗ gofmt: gsxkit/ needs formatting"; exit 1; }
+go vet -C gsxkit ./...
+go test -C gsxkit ./...
+# intl, seo, badge and gsxkit declare the oldest Go they work with (their go.mod's go line, gsx's minimum): they must still
 # build there, so the minimum can't creep up unnoticed.
-for m in badge intl seo; do
+for m in badge intl seo gsxkit; do
   floor=$(sed -n 's/^go \([0-9]*\.[0-9]*\).*/\1/p' "$m/go.mod")
   (cd "$m" && env -u GOROOT GOTOOLCHAIN=local mise exec "go@$floor" -- go vet ./...) ||
     { echo "✗ $m/ doesn't build with Go $floor, the minimum its go.mod declares"; exit 1; }
 done
+# gsx's skill is installed from the gsx version in go.mod and committed: a gsx upgrade must install and commit it.
+go tool gsxkit skill >/dev/null
+{ git diff --quiet -- .claude/skills/gsx && test -z "$(git ls-files --others --exclude-standard -- .claude/skills/gsx)"; } ||
+  { git status --short -- .claude/skills/gsx; echo "✗ .claude/skills/gsx is not gsx's skill at go.mod's gsx: mise run gsx:skill, and commit it"; exit 1; }
 # Its agent skill is installed from seo/ and committed: a change there must be installed and committed too.
 go tool seo skill >/dev/null
 { git diff --quiet -- .claude/skills/seo && test -z "$(git ls-files --others --exclude-standard -- .claude/skills/seo)"; } ||

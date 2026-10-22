@@ -60,7 +60,7 @@ func TestFreshApp(t *testing.T) {
 		}
 	}
 
-	// A new module with gsx, intl and seo as tools, as the READMEs' "Set up an app" starts. gsx at the version this repo
+	// A new module with gsx, intl, seo and gsxkit as tools, as the READMEs' "Set up an app" starts. gsx at the version this repo
 	// builds with; Go from this repo's toolchain, so mise (which reads go.mod's toolchain) wants a Go that's installed.
 	gomod := read(t, filepath.Join(repo, "go.mod"))
 	gsxVersion := regexp.MustCompile(`github.com/gsxhq/gsx (v\S+)`).FindStringSubmatch(gomod)[1]
@@ -69,11 +69,12 @@ func TestFreshApp(t *testing.T) {
 	write("go.mod", "module example.com/fresh\n\ngo "+goVersion+"\n\ntoolchain "+toolchain+"\n")
 	run("go", "mod", "edit", "-require=github.com/gsxhq/gsx@"+gsxVersion, "-tool=github.com/gsxhq/gsx/cmd/gsx")
 	if os.Getenv("FRESH_VERSIONS") == "published" {
-		run("go", "get", "-tool", module+"/intl/cmd/intl@latest", module+"/seo/cmd/seo@latest")
+		run("go", "get", "-tool", module+"/intl/cmd/intl@latest", module+"/seo/cmd/seo@latest", module+"/gsxkit/cmd/gsxkit@latest")
 	} else {
 		run("go", "mod", "edit",
 			"-require="+module+"/intl@v0.0.0", "-replace="+module+"/intl="+filepath.Join(repo, "intl"), "-tool="+module+"/intl/cmd/intl",
 			"-require="+module+"/seo@v0.0.0", "-replace="+module+"/seo="+filepath.Join(repo, "seo"), "-tool="+module+"/seo/cmd/seo",
+			"-require="+module+"/gsxkit@v0.0.0", "-replace="+module+"/gsxkit="+filepath.Join(repo, "gsxkit"), "-tool="+module+"/gsxkit/cmd/gsxkit",
 			"-replace="+module+"/badge="+filepath.Join(repo, "badge"))
 	}
 	run("go", "mod", "tidy")
@@ -85,6 +86,12 @@ func TestFreshApp(t *testing.T) {
 	run(gsxui, "init", "-rtl")
 	run(gsxui, "add", "accordion", "slider")
 	run("go", "tool", "intl", "init", "-locales", "en,de")
+	// gsx's and gsxui's tasks and gsx's own skill, as gsxkit writes them into any app.
+	run("go", "tool", "gsxkit", "tasks")
+	run("go", "tool", "gsxkit", "skill")
+	if _, err := os.Stat(filepath.Join(app, ".claude", "skills", "gsx", "SKILL.md")); err != nil {
+		t.Errorf("go tool gsxkit skill: %v", err)
+	}
 	run("go", "tool", "intl", "add", "language-list", "language-offer", "preferences")
 	for _, l := range []string{"en", "de"} {
 		write("locales/"+l+".toml", read(t, filepath.Join(app, "locales", l+".toml"))+read(t, filepath.Join("testdata", l+".toml")))
@@ -95,7 +102,11 @@ func TestFreshApp(t *testing.T) {
 	write("static/favicon.svg", read(t, filepath.Join("testdata", "app", "favicon.svg")))
 	run("go", "tool", "intl", "assets", "-browser", "static")
 	run("go", "tool", "intl", "gen")
-	run("go", "tool", "gsx", "generate")
+	run("mise", "run", "gsx:generate")
+	run("mise", "run", "gsxui:css")
+	if _, err := os.Stat(filepath.Join(app, "dist", "gsxui.css")); err != nil {
+		t.Errorf("mise run gsxui:css: %v", err)
+	}
 	run("go", "build", "-o", "fresh", ".")
 	run("go", "test", "./...")
 
