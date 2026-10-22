@@ -110,21 +110,21 @@ component BoardPage(topic string, b Board, live bool) {
 // both use it. The Room and the page's version guard rely on its id="board", hx-swap-oob="true" and
 // data-version (see TestBoardFragmentWireFormat).
 component BoardFragment(b Board) {
+	<boardSection b={b} oob={true}/>
+}
+
+// boardSection is #board; as the page renders it (oob false) it has no hx-swap-oob, or a boosted navigation to /board
+// would treat the board as out-of-band content and drop it (no #board on the page it came from).
+component boardSection(b Board, oob bool) {
 	<section
 		id="board"
-		hx-swap-oob="true"
+		{ if oob {
+			hx-swap-oob="true"
+		} }
 		data-version={b.Version}
 		lang={intl.Current(ctx).ID()}
 		class="flex flex-col gap-6"
 	>
-		<boardBody b={b}/>
-	</section>
-}
-
-// boardSection is #board as the page renders it: no hx-swap-oob, or a boosted navigation to /board
-// would treat the board as out-of-band content and drop it (no #board on the page it came from).
-component boardSection(b Board) {
-	<section id="board" data-version={b.Version} lang={intl.Current(ctx).ID()} class="flex flex-col gap-6">
 		<boardBody b={b}/>
 	</section>
 }

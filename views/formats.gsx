@@ -60,18 +60,13 @@ component IntlNav() {
 		<h2 class="text-sm font-medium text-muted-foreground">{ locales.FormatsOnThisPage }</h2>
 		<ul class="flex flex-wrap gap-2">
 			<li>
-				<a href="#try" class="inline-flex rounded-md border px-2 py-1 text-sm hover:bg-muted">{ locales.FormatsTryTitle }</a>
+				<ui.Button variant="outline" size="xs" href="#try">{ locales.FormatsTryTitle }</ui.Button>
 			</li>
 			{ for _, name := range intlAPINames {
 				<li>
-					<a
-						href=f`#@{apiID(name)}`
-						class="inline-flex rounded-md border px-2 py-1 font-mono text-xs hover:bg-muted"
-						translate="no"
-						dir="ltr"
-					>
+					<ui.Button variant="outline" size="xs" href=f`#@{apiID(name)}` class="font-mono" translate="no" dir="ltr">
 						{ name }
-					</a>
+					</ui.Button>
 				</li>
 			} }
 		</ul>

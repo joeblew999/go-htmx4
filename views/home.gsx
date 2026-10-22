@@ -109,11 +109,7 @@ component DialogCard() {
 						<ui.DialogDescription>{ locales.HomeDialogSubtitle }</ui.DialogDescription>
 					</ui.DialogHeader>
 					<div id="server-info" class="text-sm text-muted-foreground">{ locales.HomeDialogLoading }</div>
-					<ui.DialogFooter showCloseButton={false}>
-						<ui.Button variant="outline" data-gsxui-dialog-close data-gsxui-slot-dialog-footer-close>
-							{ locales.HomeDialogClose }
-						</ui.Button>
-					</ui.DialogFooter>
+					<ui.DialogFooter showCloseButton={true}/>
 				</ui.DialogContent>
 			</ui.Dialog>
 		</ui.CardContent>
@@ -167,6 +163,8 @@ component LiveCard(components []string) {
 				</span>
 			</div>
 			<div class="flex flex-wrap items-start gap-3">
+				// hx-live's own state, not gsxui's Popover: this card shows what data.open does on its own; the panel takes
+				// gsxui's popover colours (bg-popover, border, shadow-md).
 				<div data-open="false" class="relative" hx-on="click from:outside -> data.open = false">
 					<ui.Button variant="outline" hx-on:click=js`data.open = !data.open`>{ locales.HomeLiveMenu }</ui.Button>
 					<div

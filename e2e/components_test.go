@@ -50,5 +50,12 @@ func testComponents(t *testing.T) {
 	// The sidebar's own document, in German.
 	b.eval(`document.querySelector("iframe").scrollIntoView()`, nil) // it loads lazily
 	check(t, "the sidebar frame is German", b.waitJS(5*time.Second, `document.querySelector("iframe")?.contentDocument?.documentElement.lang === "de"`))
+	// The header's theme toggle reaches the frame too, both ways (gsxui's iframe sync, views/theme.gsx).
+	frameDark := `document.querySelector("iframe").contentDocument.documentElement.classList.contains("dark")`
+	pageDark := b.is(`document.documentElement.classList.contains("dark")`)
+	b.eval(`document.querySelector("[data-site-theme-toggle]").click()`, nil)
+	check(t, "the theme toggle reaches the frame", b.waitJS(3*time.Second, frameDark+` === `+map[bool]string{true: "false", false: "true"}[pageDark]))
+	b.eval(`document.querySelector("[data-site-theme-toggle]").click()`, nil)
+	check(t, "and back", b.waitJS(3*time.Second, frameDark+` === `+map[bool]string{true: "true", false: "false"}[pageDark]))
 	b.noProblems()
 }

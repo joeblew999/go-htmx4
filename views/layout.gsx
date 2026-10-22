@@ -18,7 +18,8 @@ import (
 // reconnects over 1–3 s: a deploy drops every socket at once, and hx-ws's defaults would bring 1,000 tabs back
 // within ~0.3 s, over a Room's ~1,000 requests/s soft limit). Then htmx with its extensions hx-live and hx-ws, one
 // deferred script (the assets task joins them, so they register before htmx starts), the board's version guard, and
-// the gsxui behaviours as native ES modules.
+// what every document loads (documentAssets): the theme, gsxui's CSS, and intl's and gsxui's modules, which run
+// after htmx, in that order.
 // Everything loads on every page, so a boosted navigation to /board has hx-ws ready.
 //
 // htmx 4 inheritance is explicit: only the nav links are boosted (morph + view transition), so the pages'
@@ -48,21 +49,10 @@ component Layout(title intl.Msg, description intl.Msg, page pages.Page, children
 				lang={intl.Current(ctx).ID()}
 			/>
 			<intl.Head page={pages.Key(ctx)}/>
-			<ThemeScript/>
-			<link rel="stylesheet" href="/assets/gsxui.css"/>
-			// The body font (gsxui.preset.json's fontSans), fetched with the stylesheet: no reflow when it arrives late.
-			<link
-				rel="preload"
-				href="/assets/geist-latin-wght-normal.woff2"
-				as="font"
-				type="font/woff2"
-				crossorigin="anonymous"
-			/>
 			<meta name="htmx-config" content="ws.reconnectDelay:2s ws.reconnectJitter:0.5"/>
 			<script src="/static/htmx.js" defer></script>
-			<script type="module" src="/static/intl-browser.mjs"></script>
 			<VersionGuard/>
-			<script type="module" src="/gsxui/index.js"></script>
+			<documentAssets/>
 		</head>
 		<body class="min-h-svh bg-background font-sans text-foreground antialiased">
 			<header class="border-b">
@@ -111,6 +101,24 @@ component Layout(title intl.Msg, description intl.Msg, page pages.Page, children
 			<ui.Toaster/>
 		</body>
 	</html>
+}
+
+// documentAssets is what every document of the app loads, the page (Layout) and the /components sidebar's frame
+// alike: the theme before the first paint, gsxui's CSS and its body font, then as modules the browser's Intl
+// (intl-browser.mjs) and gsxui's behaviours.
+component documentAssets() {
+	<ThemeScript/>
+	<link rel="stylesheet" href="/assets/gsxui.css"/>
+	// The body font (gsxui.preset.json's fontSans), fetched with the stylesheet: no reflow when it arrives late.
+	<link
+		rel="preload"
+		href="/assets/geist-latin-wght-normal.woff2"
+		as="font"
+		type="font/woff2"
+		crossorigin="anonymous"
+	/>
+	<script type="module" src="/static/intl-browser.mjs"></script>
+	<script type="module" src="/gsxui/index.js"></script>
 }
 
 // VersionGuard keeps the board monotonic: HTTP responses and hx-ws pushes both go through htmx.swap and can
