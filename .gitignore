@@ -13,11 +13,11 @@
 intl_gen.go
 intl_messages_gen.go
 intl-messages.mjs
-# workers-assets-gen + tinygo output (mise run build)
+# The Worker's build (mise run build: go tool charter build)
 /build/
-# held while ci/wasm-build.sh writes build/
+# held while go tool charter build writes build/
 /.build.lock
-# CI's deploy tool (ci/check.sh builds charter's workerdeploy here)
+# charter's own binary, built by CI (go tool charter ci run) to publish and release
 /bin/
 # Tailwind output + assembled Static Assets (mise run assets)
 /dist/
@@ -25,8 +25,7 @@ intl-messages.mjs
 /.deploy-url
 /.preview-url
 /.staging-url
-# Durable Object SQLite state for local workerd (Room cache, LocalD1 board data)
-# a Workers Build that a newer commit superseded (ci/workers-builds.sh)
+# a Workers Build that a newer commit superseded (charter's launcher, .mise/tasks/charter-builds)
 /.superseded
 
 # mise run bench:variants: the last run's results (ci/bench.sh render .bench writes docs/benchmarks.md from them)
