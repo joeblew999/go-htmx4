@@ -13,7 +13,7 @@ import (
 // TestTasks: every gsxkit command the tasks run is one gsxkit has, every task is there, and tasks writes them.
 func TestTasks(t *testing.T) {
 	for _, m := range regexp.MustCompile(`go tool gsxkit (\w+)`).FindAllStringSubmatch(string(mise.Tasks), -1) {
-		if !slices.Contains([]string{"tasks", "skill"}, m[1]) {
+		if !slices.Contains([]string{"tasks", "skill", "theme"}, m[1]) {
 			t.Errorf("mise/tasks.toml runs gsxkit %s, which it doesn't have", m[1])
 		}
 	}

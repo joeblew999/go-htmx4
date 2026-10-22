@@ -6,7 +6,9 @@
 ["gsx:generate"]
 description = "go tool gsx generate: every .gsx file to its .x.go (after intl, when intl is running too: views write its messages)"
 wait_for = ["intl"]
-run = "go tool gsx generate"
+# gsx generate needs intl's renderer for gsxui's own text (<gsxui>/i18n/intl_gen.go, gitignored): on a fresh clone it
+# isn't there yet, so with intl, intl gen first (0.3 s when nothing changed).
+run = "[ ! -f intl.toml ] || go tool intl gen >/dev/null; go tool gsx generate"
 
 ["gsx:fmt"]
 description = "Format every .gsx file with gsx fmt; --check lists what isn't formatted and fails, writing nothing (for CI)"

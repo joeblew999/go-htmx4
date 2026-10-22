@@ -205,7 +205,8 @@ run = "go test -C e2e -count=1 -timeout 10m -run TestFreshApp ./fresh"
 
 ["test:go"]
 description = "gsx fmt/gofmt check + go vet + go test, the app and its modules: intl/, seo/, badge/, gsxkit/ (standard Go; runs beside the production build)"
-depends = ["generate"]
+# assets: the route tests serve dist/site (CSS, htmx, gsxui's JS, fonts), which a fresh clone doesn't have yet.
+depends = ["generate", "assets"]
 dir = "{{config_root}}"
 run = '''
 #!/usr/bin/env bash
