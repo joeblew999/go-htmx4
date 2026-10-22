@@ -61,3 +61,18 @@ func TestSkill(t *testing.T) {
 		}
 	}
 }
+
+// TestDomainProperty: a site's Search Console Domain property from its host; none for an IP address or localhost.
+func TestDomainProperty(t *testing.T) {
+	for host, want := range map[string]string{
+		"go-htmx4.ubuntusoftware.net": "sc-domain:ubuntusoftware.net",
+		"example.com":                 "sc-domain:example.com",
+		"127.0.0.1":                   "",
+		"::1":                         "",
+		"localhost":                   "",
+	} {
+		if got := domainProperty(host); got != want {
+			t.Errorf("domainProperty(%q) = %q, want %q", host, got, want)
+		}
+	}
+}

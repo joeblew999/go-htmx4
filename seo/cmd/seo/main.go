@@ -32,6 +32,7 @@ import (
 	"flag"
 	"fmt"
 	"io/fs"
+	"net"
 	"net/http"
 	"net/url"
 	"os"
@@ -151,7 +152,11 @@ func main() {
 			from = "-base"
 		}
 	})
-	fmt.Fprintf(os.Stderr, "seo: %s (from %s; Search Console property %s)\n", *base, from, *site)
+	property := ""
+	if *site != "" {
+		property = "; Search Console property " + *site
+	}
+	fmt.Fprintf(os.Stderr, "seo: %s (from %s%s)\n", *base, from, property)
 	if *jsonOut {
 		*open = false
 	}
@@ -404,10 +409,11 @@ func status(ctx context.Context, c *searchconsole.Client, httpc *http.Client, si
 }
 
 // domainProperty is the Domain property of a host's registrable domain: app.example.com →
-// sc-domain:example.com (last two labels; good enough for .net/.com hosts, pass -site otherwise).
+// sc-domain:example.com (last two labels; good enough for .net/.com hosts, pass -site otherwise). An IP address or a
+// single-label host (localhost) has no Domain property: "".
 func domainProperty(host string) string {
 	labels := strings.Split(host, ".")
-	if len(labels) < 2 {
+	if len(labels) < 2 || net.ParseIP(host) != nil {
 		return ""
 	}
 	return "sc-domain:" + strings.Join(labels[len(labels)-2:], ".")
