@@ -55,6 +55,10 @@ mise --version
 
 # On CI, only the tools CI runs: not fnox (credentials), usage (shell completion) or the gsxui CLI (refreshing
 # components; compiling it took ~27 s per run). Locally, everything mise.toml pins. The editor hook skips itself on CI.
+# A contributor's pull request may leave its new text's translations to the maintainer, who translates after merging
+# (CONTRIBUTING.md): intl:check reports them without failing. Pushes, main and releases stay strict.
+[ "${GITHUB_EVENT_NAME:-}" != pull_request ] || export INTL_MISSING=warn
+
 if [ -n "${CI:-}" ]; then
   # And don't let `mise run` install the rest before each task (its default): that compiled the gsxui CLI anyway.
   export MISE_TASK_RUN_AUTO_INSTALL=false

@@ -61,7 +61,8 @@ run = '''
 set -uo pipefail
 status=0
 # The catalogs first, before anything regenerates intl.sum: a commit missing its intl.sum must fail here.
-go tool intl check || status=1
+# INTL_MISSING=warn (CI, for a contributor's pull request): missing and stale translations are only reported.
+go tool intl check ${INTL_MISSING:+-missing=$INTL_MISSING} || status=1
 go tool intl gen >/dev/null 2>&1 || status=1
 # gsx's own tools on the app's markup (go tool intl markup: its own .gsx and .go files, file by file, so nothing
 # reaches gsxui's vendored components or nested modules): every renderer and filter resolves, the formatting is

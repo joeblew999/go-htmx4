@@ -84,7 +84,7 @@ func translate(c config.Config, ids []string) int {
 	}
 	wg.Wait()
 	check(read(c).Generate(os.Stderr))
-	return checkAll(c)
+	return checkAll(c, false)
 }
 
 // locked runs f holding a lock file beside path, so concurrent go tool intl processes (translate's workers

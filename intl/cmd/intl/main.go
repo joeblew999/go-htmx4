@@ -7,9 +7,10 @@
 //	                                       intl.sum
 //	go tool intl status                    per locale: translated, inherited, stale, missing (exit 1 if one is incomplete)
 //	go tool intl todo [-json] [locale…]    what is left to translate, with what a translator needs (for people and agents)
-//	go tool intl check [locale…]           every problem, for CI: syntax, arguments, plural categories, completeness,
-//	                                       unused messages, gsxui text, intl.sum (exit 1 if any); with locales, only
-//	                                       theirs, writing nothing
+//	go tool intl check [-missing warn] [locale…]   every problem, for CI: syntax, arguments, plural categories,
+//	                                       completeness, unused messages, gsxui text, intl.sum (exit 1 if any); with
+//	                                       locales, only theirs, writing nothing; -missing warn only reports missing and
+//	                                       stale translations (a contributor's pull request)
 //	go tool intl translate [locale…]       Claude Code translates what is missing or stale, a worker per language
 //	go tool intl add-locale <locale>…      add a language: its id as Intl writes it into intl.toml, its catalog
 //	go tool intl add [-diff | -overwrite] <screen>…   copy intl's screens into the app (language-list, language-offer,
@@ -83,10 +84,13 @@ func main() {
 		f.Parse(args)
 		todo(c, read(c), *asJSON, f.Args())
 	case "check":
-		if len(args) > 0 {
-			os.Exit(checkLocales(c, args))
+		f := flag.NewFlagSet("check", flag.ExitOnError)
+		missing := f.String("missing", "fail", `missing or stale translations: "fail", or "warn" (a contributor's pull request, which the maintainer translates after merging)`)
+		f.Parse(args)
+		if f.NArg() > 0 {
+			os.Exit(checkLocales(c, f.Args()))
 		}
-		os.Exit(checkAll(c))
+		os.Exit(checkAll(c, *missing == "warn"))
 	case "translate":
 		os.Exit(translate(c, args))
 	case "prune":
@@ -509,15 +513,29 @@ func localeProblems(p *catalog.Project, locs []*catalog.Locale) []string {
 }
 
 // checkAll prints every problem and returns the exit status.
-func checkAll(c config.Config) int {
+// checkAll is every problem; with warnMissing, missing and stale translations are only reported.
+func checkAll(c config.Config, warnMissing bool) int {
 	p, err := catalog.Read(c)
 	if err != nil {
 		fmt.Println(err)
 		return 1
 	}
-	var problems []string
+	var problems, warnings []string
 	add := func(s ...string) { problems = append(problems, s...) }
-	add(localeProblems(p, p.Locales)...)
+	if warnMissing {
+		for _, l := range p.Locales {
+			if n := l.Count(catalog.Missing) + l.Count(catalog.Stale); n > 0 {
+				warnings = append(warnings, l.Summary(len(p.Messages))+": the maintainer translates it after merging")
+			}
+		}
+		for _, s := range localeProblems(p, p.Locales) {
+			if !strings.Contains(s, ": go tool intl translate ") {
+				add(s)
+			}
+		}
+	} else {
+		add(localeProblems(p, p.Locales)...)
+	}
 	if !p.SumCurrent() {
 		add(p.SumFile() + " is not up to date: go tool intl gen, and commit it")
 	}
@@ -568,6 +586,9 @@ func checkAll(c config.Config) int {
 		}
 	}
 	stop()
+	for _, s := range warnings {
+		fmt.Println("·", s)
+	}
 	for _, s := range problems {
 		fmt.Println("✗", s)
 	}
@@ -636,7 +657,7 @@ func fail(err error) {
 }
 
 func usage() {
-	fmt.Fprintln(os.Stderr, "usage: go tool intl init [-locales en,de] [-catalogs dir] [-gsxui dir] | gen | status | todo [-json] [locale…] | check [locale…] | translate [locale…] | prune | add-locale <locale>… | add [-diff | -overwrite] <screen>… | confirm [<locale>[:<key>]…] |\n"+
+	fmt.Fprintln(os.Stderr, "usage: go tool intl init [-locales en,de] [-catalogs dir] [-gsxui dir] | gen | status | todo [-json] [locale…] | check [-missing warn] [locale…] | translate [locale…] | prune | add-locale <locale>… | add [-diff | -overwrite] <screen>… | confirm [<locale>[:<key>]…] |\n"+
 		"       export [-all] [-o dir] [locale…] | import [file.xlf…] | skill | tasks [-o file] | assets [-worker dir] [-browser dir] |\n"+
 		"       locales | catalogs | markup")
 	os.Exit(2)
