@@ -42,7 +42,7 @@ macos-arm64 = { url = "https://storage.googleapis.com/chrome-for-testing-public/
 macos-x64 = { url = "https://storage.googleapis.com/chrome-for-testing-public/{{ version }}/mac-x64/chrome-headless-shell-mac-x64.zip", strip_components = 1, bin_path = "." }
 
 [env]
-# The production wasm's compiler (ci/wasm-build.sh): "tinygo" (charter's go tool workerbuild: the smallest wasm, Go
+# The production wasm's compiler (ci/wasm-build.sh): "tinygo" (go tool charter build: the smallest wasm, Go
 # runtimes kept between requests; a new build takes minutes, an unchanged one comes from charter's cache) or "go" (the
 # standard compiler: seconds, a ~3x bigger wasm and a runtime per request, ~50–90 ms slower at the median on Workers,
 # measured 2026-10-20). Users pay that, so: tinygo. mise run dev always uses go.

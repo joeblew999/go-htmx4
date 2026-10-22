@@ -147,7 +147,7 @@ after a release; committed), what `gsxui` manages (`gsxui.json` lists it), and i
 ## Workers and TinyGo
 
 - **workers-go `v0.36.0` exactly** (`github.com/syumai/workers-go`). What ships is built by charter's
-  `go tool workerbuild` (TinyGo by default, `WORKER_COMPILER`); standard Go only for local code and `build:dev`.
+  `go tool charter build` (TinyGo by default, `WORKER_COMPILER`); standard Go only for local code and `build:dev`.
 - **TinyGo gaps:** register plain paths (`"/greet"`) and check the method with `allow` (charter's `web.Allow`), never `"GET /x"` or
   `{$}`; `html/template` panics. Reflection-heavy code needs the workerd smoke test, not just a build. Run
   `mise run check` after changing handlers: `go test` can't see TinyGo.

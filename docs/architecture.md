@@ -6,7 +6,7 @@
   Cloudflare it is a Worker: [charter](https://github.com/joeblew999/charter)'s runtime (`transport.Run`) over
   workers-go keeps Go runtimes alive between requests and warms two while the Worker loads (`worker/index.mjs`,
   `build/go.mjs`).
-- **The build** is charter's `go tool workerbuild` (`ci/wasm-build.sh`): TinyGo, patched and tuned for Workers, cached,
+- **The build** is `go tool charter build` (`ci/wasm-build.sh`): TinyGo, patched and tuned for Workers, cached,
   so an unchanged build takes under a second. `WORKER_COMPILER=go` builds with the standard compiler instead (seconds,
   bigger, slower per request); `build:dev` always does, for `mise run dev`.
 - **Static files** (`dist/site`: htmx, gsxui CSS and behaviours, fonts) are Workers Static Assets, served before the
