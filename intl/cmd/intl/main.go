@@ -272,15 +272,15 @@ func initApp(args []string) {
 Set up. What is left is your code (intl/README.md, "Set up an app"):
   - the middleware:   var site = intl.Site{IsPage: …}; http.ListenAndServe(…, site.Handler(mux))
   - the layout:       <html { intl.HTML(ctx)... }>, <intl.Head page={…}/>, <script type="module" src="/static/intl-browser.mjs">
-  - the Worker entry: import { goIntl } from "./build/intl-worker.mjs"; globalThis.goIntl = goIntl;
-                      after the build: go tool intl assets -worker build -browser <static dir>
+  - intl's Intl, on an ordinary Go server: stop, err := workerd.Start(locales.Messages) before serving, then stop() on exit
+                      on Cloudflare Workers: import { goIntl } from "./build/intl-worker.mjs"; globalThis.goIntl = goIntl;
+                      and after the build: go tool intl assets -worker build
+  - the browser's:    go tool intl assets -browser <static dir>, served at /static/
   - every package that renders, in its tests: func TestMain(m *testing.M) { os.Exit(intltest.Main(m)) }
   - mise run intl before gsx generate; mise run intl:check in CI
 `)
 }
 
-// markup is every directory of the app's module with .gsx files, relative to its root: the app's own markup, so
-// not intl.toml's gsxui directory (vendored components) nor a nested module's.
 // markup is the app's own markup, for gsx's checks: the .gsx files of every directory that has one, and the
 // hand-written .go files beside them, relative to the app's root. Not what gsxui vendored, not nested modules, and
 // never a directory, so a check on these files can't reach into either.
