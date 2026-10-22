@@ -15,6 +15,9 @@ about = "About"
 languages = "Languages"
 toggle_theme = "Toggle theme"
 preferences = "Time zone and clock"
+# Above a page, on a reader's first visit, when their browser asks for another language the site has: written in
+# that language, linking to the page in it. {language} is the language's own name ("Deutsch").
+also_in = "This page is also in {language}."
 
 [home]
 heading = "Go + htmx 4 + gsxui on Cloudflare Workers"

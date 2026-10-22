@@ -98,11 +98,28 @@ component Layout(title intl.Msg, description intl.Msg, path string, children gsx
 					<ThemeToggle/>
 				</nav>
 			</header>
-			<main class="mx-auto flex max-w-3xl flex-col gap-6 p-4">{ children }</main>
+			<main class="mx-auto flex max-w-3xl flex-col gap-6 p-4">
+				<LanguageSuggestion/>
+				{ children }
+			</main>
 			<LanguageFooter/>
 			<ui.Toaster/>
 		</body>
 	</html>
+}
+
+// LanguageSuggestion offers this page in the reader's own language, written in that language: on their first page
+// view, when their browser asks for a language the site has and the page is in another (intl.Suggested). A link,
+// never a redirect, so Google still reaches every language version.
+component LanguageSuggestion() {
+	{ if s, ok := intl.Suggested(ctx); ok {
+		<ui.Alert lang={s.Lang} dir="auto">
+			<icon.Languages/>
+			<ui.AlertTitle>
+				<a href={s.Href} hreflang={s.Lang} class="underline underline-offset-4">{ locales.NavAlsoIn(s.Name).In(s.Lang) }</a>
+			</ui.AlertTitle>
+		</ui.Alert>
+	} }
 }
 
 // LanguageFooter lists the current page in every shipped locale: plain links (crawlable, no JS), each named in its

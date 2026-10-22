@@ -11,6 +11,7 @@ about = "حول"
 languages = "اللغات"
 toggle_theme = "تبديل السمة"
 preferences = "المنطقة الزمنية والساعة"
+also_in = "هذه الصفحة متوفرة أيضًا باللغة {language}."
 
 [home]
 heading = "Go و htmx 4 و gsxui على Cloudflare Workers"

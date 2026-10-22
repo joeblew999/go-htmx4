@@ -16,6 +16,14 @@ import (
 type Msg struct {
 	index int
 	args  []Arg
+	in    string // a shipped locale it is written in, whatever the request's (In)
+}
+
+// In is m written in the shipped language id, whatever the request's: "This page is also in German", in German,
+// beside the link to it (Suggested). The element around it says so: lang={id}.
+func (m Msg) In(id string) Msg {
+	m.in = id
+	return m
 }
 
 // Arg is a message argument: text (Str), or a number (Num).
@@ -85,6 +93,11 @@ var Pseudo bool
 
 // Translate is Msg's gsx renderer: the message in the request's language (the source's without a request).
 func Translate(ctx context.Context, m Msg) string {
+	if l := shipped.Find(m.in); m.in != "" && l != nil {
+		r, _ := FromContext(ctx)
+		r.Locale = l
+		ctx = WithRequest(ctx, r)
+	}
 	loc := Current(ctx)
 	catalog := shipped[0].id
 	switch {

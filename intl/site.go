@@ -30,9 +30,10 @@ type Site struct {
 
 // The cookies Site reads and Preferences sets.
 const (
-	LocaleCookie    = "locale" // the locale of the last page viewed
-	TimeZoneCookie  = "tz"     // the viewer's chosen IANA time zone
-	HourCycleCookie = "hc"     // the viewer's chosen clock: "h12" or "h23"
+	LocaleCookie          = "locale"     // the locale of the last page viewed
+	TimeZoneCookie        = "tz"         // the viewer's chosen IANA time zone
+	HourCycleCookie       = "hc"         // the viewer's chosen clock: "h12" or "h23"
+	BrowserTimeZoneCookie = "browser_tz" // the browser's own zone, which intl-browser.mjs reports from the first page
 )
 
 // Handler resolves the request's locale from its URL prefix, strips the prefix, and puts Request in the context.
@@ -80,7 +81,12 @@ func (s Site) Handler(next http.Handler) http.Handler {
 				}
 			}
 		}
+		var preferredLoc *Locale
 		if page {
+			if _, err := r.Cookie(LocaleCookie); err != nil { // a first page view: no language picked yet
+				w.Header().Add("Vary", "Accept-Language")
+				preferredLoc = preferred(r.Header.Get("Accept-Language"))
+			}
 			remember(w, r, loc)
 		}
 		w.Header().Set("Content-Language", loc.ID())
@@ -88,13 +94,20 @@ func (s Site) Handler(next http.Handler) http.Handler {
 			// Part of the page would be in the source language: not indexed as this language, nor as a duplicate.
 			w.Header().Set("X-Robots-Tag", "noindex")
 		}
-		req := Request{Locale: loc, Path: withQuery(path, r.URL.RawQuery), Origin: s.origin(r), TimeZone: "UTC"}
+		req := Request{Locale: loc, Path: withQuery(path, r.URL.RawQuery), Origin: s.origin(r), TimeZone: "UTC", Preferred: preferredLoc}
 		if c, err := r.Cookie(HourCycleCookie); err == nil && (c.Value == "h12" || c.Value == "h23") {
 			req.HourCycle = c.Value
 		}
-		if c, err := r.Cookie(TimeZoneCookie); err == nil && ValidTimeZone(c.Value) {
-			req.TimeZone, req.TimeZoneChosen = c.Value, true
-		} else {
+		// The zone: the one the reader chose; else the one their browser reported (from their second page view on);
+		// else Cloudflare's guess from their IP (right unless a VPN, a proxy or travel misleads it); else UTC.
+		chosen, _ := r.Cookie(TimeZoneCookie)
+		browser, _ := r.Cookie(BrowserTimeZoneCookie)
+		switch {
+		case chosen != nil && ValidTimeZone(chosen.Value):
+			req.TimeZone, req.TimeZoneChosen = chosen.Value, true
+		case browser != nil && ValidTimeZone(browser.Value):
+			req.TimeZone = browser.Value
+		default:
 			req.TimeZone = s.ConnectionZone(r)
 		}
 		r2 := r.Clone(WithRequest(r.Context(), req))
