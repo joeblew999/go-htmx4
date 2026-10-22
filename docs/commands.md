@@ -505,6 +505,16 @@ Everything before a push: the production build + workerd smoke, gsx fmt/gofmt, g
 
 gsx fmt/gofmt check + go vet + go test, the app and intl/ (standard Go; runs beside the production build)
 
+### `theme`
+
+Switch the app's look to a gsxui theme with gsxui apply: a style's standard theme by name (nova, gsxui's default and ours; vega, maia, lyra, mira, luma, sera, rhea), or any share code from gsxui's theme editor (https://ui.gsxhq.dev/theme). Then commit what it changed
+
+
+- **Usage:** `theme <theme>`
+
+### Arguments
+- **`<theme>`** — a style (nova, vega, maia, lyra, mira, luma, sera, rhea) or a gsxui:p1:… share code
+
 ### `token-check`
 
 - **Usage:** `token-check`
