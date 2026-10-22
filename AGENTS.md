@@ -53,9 +53,17 @@ contributor's pull request stops before them.
   `$(go env GOPATH)/src/github.com/<owner>/<repo>` (remote `upstream` the original, `origin` the user's fork),
   `upstream:check` with the project's own pinned Go, `upstream:tinygo` for what Workers builds would hit, and
   `upstream:use` to build and test this app on a checkout (`mise run check` fails until `upstream:unuse`).
-- Nothing goes to another owner's repository (an issue, a PR, a comment) until the user has read it: the change, where
-  the checkout is, and the exact text. Check every claim, run `upstream:check`, read the rendered result, follow the
-  project's own conventions, and put links to our code in the PR's description, not in their docs.
+- **The relationships with these projects matter more than any one change.** Nothing goes to another owner's
+  repository (an issue, a PR, a comment) until the user has read it: the change, where the checkout is, and the exact
+  text. The user's OK is for that text: change it, and they read it again.
+- A report is short: a repro checked on their `main` (name the commit), the cause with links to their code, and an
+  easy fix when there is one (gsxhq/gsx#255, gsxhq/gsxui#50).
+- A big change (structpages under TinyGo, #132) is never a question or a PR first: make it work fully in the user's
+  fork, for them and for us, prove it with their checks and ours, and only then show the user what would be sent.
+- Check every claim, run `upstream:check` (their pinned Go, their own checks, no npm), and read the rendered result
+  (gsx drops whitespace at a line break, so a missing `{ " " }` hides in the source). Follow the project's own
+  conventions: commit titles, wording, docs that link only to their own projects. Links to our code go in the PR's
+  description, not in their docs. Never imply in their docs that what they wrote is wrong: tell the user.
 
 ## Generated files: never edit
 
