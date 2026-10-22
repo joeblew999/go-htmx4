@@ -22,7 +22,7 @@ import (
 // own hx-* requests keep their default swaps. The nav wraps: translated labels don't fit one row on a phone
 // (e2e TestNoOverflow).
 //
-// <html lang dir> come from the request's locale (views/locale.go), and every UI string from locales/*.toml (intl.Msg).
+// <html lang dir> come from the request's locale (intl.HTML), and every UI string from locales/*.toml (intl.Msg).
 // <html data-tz data-hc> are the viewer's chosen time zone and clock ("" = the browser's own and the language's), for
 // intl-browser.mjs, which redoes dates, times and rich numbers in the browser. The
 // head carries a translated description, the canonical URL, the page in every locale and Open Graph (intl.Head, with

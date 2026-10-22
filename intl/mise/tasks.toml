@@ -94,7 +94,7 @@ exec go tool intl export ${args[@]+"${args[@]}"} ${usage_locale:-}
 
 ["intl:import"]
 description = "Read translators' XLIFF 2.0 back into the catalogs, each target checked against its source: every file in xliff/in, or the ones named; then compile"
-usage = 'arg "[file]" var=#true help="<locale>.xlf files (default: all of xliff/)"'
+usage = 'arg "[file]" var=#true help="<locale>.xlf files (default: every file in xliff/in)"'
 run = "go tool intl import ${usage_file:-}"
 
 ["intl:prune"]

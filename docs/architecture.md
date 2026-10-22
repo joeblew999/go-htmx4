@@ -57,7 +57,7 @@ served `noindex`.
 
 ## Search
 
-- `/robots.txt` and `/sitemap.xml` are Go routes built from the request's origin; the sitemap lists every page in every
+- `/robots.txt` and `/sitemap.xml` are answered by `seo.Site` (middleware), built from the request's origin; the sitemap lists every page in every
   locale with `hreflang` alternates.
 - Every page has a translated title and description, a canonical URL, reciprocal `hreflang` with `x-default`, and Open
   Graph tags. Fragments, `/healthz`, form posts and previews send `X-Robots-Tag: noindex`.

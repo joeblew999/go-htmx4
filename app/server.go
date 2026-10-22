@@ -1,8 +1,8 @@
 // Package app is the go-htmx4 app: its routes, handlers, stores and Cloudflare calls (the root main.go runs it).
 // Pages and fragments are gsx components in views/, built from gsxui; their text and formats come from intl.
 //
-// Routes are plain paths with method checks: TinyGo 0.42's net/http has the pre-Go 1.22 ServeMux (no "GET /x"
-// patterns, no {$}). No html/template either: under TinyGo 0.42 it compiles but panics at execute time. Platform
+// Routes are plain paths with method checks: TinyGo 0.43's net/http has the pre-Go 1.22 ServeMux (no "GET /x"
+// patterns, no {$}). No html/template either: under TinyGo 0.43 it compiles but panics at execute time. Platform
 // calls live in platform_js.go, with platform_other.go standing in for go test.
 package app
 

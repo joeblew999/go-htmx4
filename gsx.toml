@@ -1,7 +1,7 @@
 class_merger = "github.com/joeblew999/go-htmx4/internal/classmerge.Merge"
 
 # gsx config for the app (gsx Configuration guide).
-# gsx's htmx preset predates htmx 4: add hx-action, and hx-ws:connect, which also carries a URL.
+# gsx's htmx preset knows hx-action; add htmx 4's hx-ws:connect, which also carries a URL.
 url_presets = ["htmx"]
 # intl as gsx filters (intl/README.md): { t |> date(opts) }, { n |> number }, { t |> since }, title={ m |> text }.
 filter_packages = ["github.com/joeblew999/go-htmx4/intl/filters"]
@@ -15,7 +15,7 @@ filter_packages = ["github.com/joeblew999/go-htmx4/intl/filters"]
 "github.com/joeblew999/go-htmx4/intl.Plain" = "github.com/joeblew999/go-htmx4/intl.PlainText"
 
 [url_attrs]
-names = ["hx-action", "hx-ws:connect"]
+names = ["hx-ws:connect"]
 
 # gsx dev (gsx Configuration guide, [dev]): a .gsx/.go save regenerates, rebuilds, restarts the backend and probes
 # /healthz. mise run dev: build:dev (standard Go, seconds) → workerd on :8913 (Intl, Durable Objects, D1 shim, pushes);

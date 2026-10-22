@@ -156,7 +156,7 @@ Read translators' XLIFF 2.0 back into the catalogs, each target checked against 
 - **Usage:** `intl:import [file]…`
 
 ### Arguments
-- **`[file]…`** — &lt;locale>.xlf files (default: all of xliff/)
+- **`[file]…`** — &lt;locale>.xlf files (default: every file in xliff/in)
 
 ### `intl:prune`
 
