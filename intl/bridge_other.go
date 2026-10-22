@@ -2,13 +2,13 @@
 
 package intl
 
-// Runtime is goIntl (js/intl-worker.mjs) outside the Worker: intltest serves the same module from
-// workerd for go test. There is no Intl without it, so using intl panics.
+// Runtime is goIntl (js/intl-worker.mjs) outside a Worker: intl/workerd serves the same module from workerd, for an
+// ordinary Go server (workerd.Start) and for go test (intltest.Main). There is no Intl without it, so using intl panics.
 var Runtime func(method string, args ...string) string
 
 func call(method string, args ...string) (string, bool) {
 	if Runtime == nil {
-		panic("intl: no Intl: outside the Worker, tests start workerd's with intltest.Main")
+		panic("intl: no Intl: outside a Worker, start workerd's first (workerd.Start(locales.Messages); in tests intltest.Main)")
 	}
 	return Runtime(method, args...), true
 }

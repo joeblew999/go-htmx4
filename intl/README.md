@@ -12,8 +12,8 @@ Code, by people, or by both), finding stale translations, adding a language, and
 <p>{ note.Created |> since } · { "JP" |> intl("DisplayNames", "of", "type", "region") }</p>
 ```
 
-For a German request that renders `4. Juli 2026 · 1.234,50 €` and `vor 3 Minuten · Japan`, formatted by the
-Worker's V8 Intl. Each value arrives in an element that carries its call, and the browser redoes it with the same
+For a German request that renders `4. Juli 2026 · 1.234,50 €` and `vor 3 Minuten · Japan`, formatted by V8's
+Intl: a Cloudflare Worker's own, or workerd's on an ordinary Go server. Each value arrives in an element that carries its call, and the browser redoes it with the same
 code in the viewer's own time zone and clock:
 
 ```html
@@ -29,8 +29,8 @@ style, a slider whose value is written in kilometres, need no request and no Go:
 <output id="km">{ 42 |> number("style", "unit", "unit", "kilometer", "unitDisplay", "long") }</output>
 ```
 
-Go decides nothing about a language: no CLDR tables, no formatting of its own. Outside a Worker, `go test` and the
-tooling use workerd's Intl.
+Go decides nothing about a language: no CLDR tables, no formatting of its own. Outside a Worker (an ordinary Go
+server, `go test`, the tooling) the Intl is workerd's, the same V8, which intl starts itself (`intl/workerd`).
 
 ## Using it day to day
 
@@ -79,7 +79,8 @@ code:
 ## Set up an app
 
 [mise](https://mise.jdx.dev) brings every tool: Go (from `go.mod`'s `toolchain`, which `init` tells mise to use),
-gsx (a `go tool`), and [workerd](https://github.com/cloudflare/workerd), whose Intl the tooling and the tests run on.
+gsx (a `go tool`), and [workerd](https://github.com/cloudflare/workerd), whose Intl the tooling, the tests and an
+ordinary Go server run on.
 Translating with Claude also needs [Claude Code](https://code.claude.com) (`claude`) installed.
 
 1. Add intl's command and set the app up, from the directory of its `go.mod`:
@@ -107,7 +108,7 @@ Translating with Claude also needs [Claude Code](https://code.claude.com) (`clau
    ```go
    site := intl.Site{
    	IsPage:             func(path string) bool { return !strings.HasPrefix(path, "/api/") },
-   	ConnectionTimeZone: func(r *http.Request) string { return transport.CFOf(r).Timezone }, // Cloudflare's guess
+   	ConnectionTimeZone: func(r *http.Request) string { return transport.CFOf(r).Timezone }, // on Workers: Cloudflare's guess; nil elsewhere
    }
    mux.HandleFunc("POST /preferences", site.Preferences) // tz, hc, return: the viewer's choice
    http.ListenAndServe(addr, site.Handler(mux))
@@ -136,8 +137,22 @@ Translating with Claude also needs [Claude Code](https://code.claude.com) (`clau
    htmx swaps in. A language list is `intl.Links(ctx)` (each locale's name in its own language, and the page's URL
    in it); `intl.Sitemap(origin, pages)` is a sitemap.xml with every alternate.
 
-4. Wire the Worker: its entry module puts intl's formatter where Go calls it, and the build copies the JavaScript
-   (embedded in the module):
+4. Give intl its Intl.
+
+   On an ordinary Go server, start workerd's before serving, with the catalogs `go tool intl gen` embeds in your
+   messages package (`intl_messages_gen.go`). workerd must be on the server's PATH: mise's, or its release binary in
+   your image. Each formatted value is a request to it on 127.0.0.1, about 0.1 ms:
+
+   ```go
+   stop, err := workerd.Start(locales.Messages) // github.com/joeblew999/go-htmx4/intl/workerd
+   if err != nil {
+   	log.Fatal(err)
+   }
+   defer stop()
+   ```
+
+   On Cloudflare Workers, the Worker's own Intl: its entry module puts intl's formatter where Go calls it, and the
+   build copies the JavaScript (embedded in the module):
 
    ```js
    import { goIntl } from "./build/intl-worker.mjs";
@@ -147,6 +162,8 @@ Translating with Claude also needs [Claude Code](https://code.claude.com) (`clau
    ```sh
    go tool intl assets -worker build -browser dist/static
    ```
+
+   Either way, the browser needs `intl-browser.mjs` (`go tool intl assets -browser <dir>`).
 
 5. Test with workerd's Intl, in every package that renders:
 
@@ -276,6 +293,7 @@ Each one is a `go tool intl` command, so they also run without mise.
 | `cmd/intl/` | `go tool intl` |
 | `config/` | `intl.toml` |
 | `setup/` | `go tool intl init` |
-| `intltest/` | workerd's Intl for `go test` and the tooling |
+| `workerd/` | Intl outside a Worker: workerd serving intl's JS and the app's catalogs (an ordinary server, the tests, the tooling) |
+| `intltest/` | `go test` on `workerd/`, with the catalogs read from disk; the plural checks |
 | `skills/intl/` | the agent skill |
 | `mise/tasks.toml` | the mise tasks |

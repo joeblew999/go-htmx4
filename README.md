@@ -45,11 +45,12 @@ Lighthouse mobile on Google's servers (PageSpeed Insights), 2026-10-22: `mise ru
 
 ## Two tools that come with it
 
-The app is built on two Go modules from this repository, which any gsx app can use as well:
+The app is built on two Go modules from this repository, which any gsx app can use as well, on Cloudflare Workers or
+an ordinary Go server:
 
 - **[intl](intl/README.md): every language, done properly.** Text lives in ICU message catalogs; dates, numbers,
-  plurals, lists and names come from the runtime's own Intl, on the server and again in the reader's browser, in
-  their time zone, right-to-left included. `mise run intl:translate` has Claude translate every new message into
+  plurals, lists and names come from V8's Intl (a Worker's own, or workerd's beside an ordinary Go server), on the
+  server and again in the reader's browser, in their time zone, right-to-left included. `mise run intl:translate` has Claude translate every new message into
   every language, in parallel, in about two minutes; `mise run intl:check` keeps every catalog complete. Each language
   gets its own URLs, `hreflang` links and sitemap entries, so Google indexes every language version and shows it to
   the people who read that language.

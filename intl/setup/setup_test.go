@@ -8,9 +8,9 @@ import (
 	"testing"
 
 	"github.com/BurntSushi/toml"
-	"github.com/joeblew999/go-htmx4/intl/intltest"
 	intlmise "github.com/joeblew999/go-htmx4/intl/mise"
 	"github.com/joeblew999/go-htmx4/intl/setup"
+	"github.com/joeblew999/go-htmx4/intl/workerd"
 )
 
 func app(t *testing.T, files map[string]string) string {
@@ -63,10 +63,10 @@ func TestInitFresh(t *testing.T) {
 		g.Renderers["example.com/shop/ui/i18n.T"] != "example.com/shop/ui/i18n.Translate" {
 		t.Errorf("gsx.toml: %+v", g)
 	}
-	if s := read(t, root, ".gitignore"); !strings.Contains(s, "\nintl_gen.go\nintl-messages.mjs\n") {
+	if s := read(t, root, ".gitignore"); !strings.Contains(s, "\nintl_gen.go\nintl_messages_gen.go\nintl-messages.mjs\n") {
 		t.Errorf(".gitignore:\n%s", s)
 	}
-	if s := read(t, root, "mise.toml"); !strings.Contains(s, "[tools]\n") || !strings.Contains(s, `workerd = "`+intltest.Workerd+`"`) ||
+	if s := read(t, root, "mise.toml"); !strings.Contains(s, "[tools]\n") || !strings.Contains(s, `workerd = "`+workerd.Version+`"`) ||
 		!strings.Contains(s, `idiomatic_version_file_enable_tools = ["go"]`) {
 		t.Errorf("mise.toml:\n%s", s)
 	}
@@ -74,8 +74,8 @@ func TestInitFresh(t *testing.T) {
 
 // TestWorkerdPins: intl's mise tasks pin the workerd init pins.
 func TestWorkerdPins(t *testing.T) {
-	if n := strings.Count(string(intlmise.Tasks), `workerd = "`+intltest.Workerd+`"`); n == 0 || n != strings.Count(string(intlmise.Tasks), "workerd = ") {
-		t.Errorf("mise/tasks.toml pins workerd other than %s", intltest.Workerd)
+	if n := strings.Count(string(intlmise.Tasks), `workerd = "`+workerd.Version+`"`); n == 0 || n != strings.Count(string(intlmise.Tasks), "workerd = ") {
+		t.Errorf("mise/tasks.toml pins workerd other than %s", workerd.Version)
 	}
 }
 
@@ -103,7 +103,7 @@ func TestInitExisting(t *testing.T) {
 		Tools map[string]string `toml:"tools"`
 		Env   map[string]string `toml:"env"`
 	}
-	if _, err := toml.Decode(read(t, root, "mise.toml"), &m); err != nil || m.Tools["go"] == "" || m.Tools["workerd"] != intltest.Workerd || m.Env["X"] != "1" {
+	if _, err := toml.Decode(read(t, root, "mise.toml"), &m); err != nil || m.Tools["go"] == "" || m.Tools["workerd"] != workerd.Version || m.Env["X"] != "1" {
 		t.Errorf("mise.toml: %v %+v\n%s", err, m, read(t, root, "mise.toml"))
 	}
 
