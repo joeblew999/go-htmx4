@@ -35,6 +35,8 @@ func TestCharterToml(t *testing.T) {
 	for _, c := range []struct{ what, got, want string }{
 		{"mise.toml's APP_NAME", value("../mise.toml", `(?m)^APP_NAME = "(.*)"`), p.Name},
 		{"mise.toml's APP_DOMAIN", value("../mise.toml", `(?m)^APP_DOMAIN = "(.*)"`), p.Production.Domain},
+		{"mise.toml's APP_REPO", value("../mise.toml", `(?m)^APP_REPO = "(.*)"`), p.Repo},
+		{"mise.toml's CF_SUBDOMAIN", value("../mise.toml", `(?m)^CF_SUBDOMAIN = "(.*)"`), p.Subdomain},
 		{"production's APP_DOMAIN var", p.Production.Vars["APP_DOMAIN"], p.Production.Domain},
 		{"mise run dev's APP_DEV_PORT", value("../tasks/app.toml", `APP_DEV_PORT = "(\d+)"`), p.LocalPort()},
 	} {

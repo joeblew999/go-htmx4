@@ -431,7 +431,7 @@ gsx fmt/gofmt check + go vet + go test, the app and intl/ (standard Go; runs bes
 
 - **Usage:** `token-check`
 
-Verify CLOUDFLARE_API_TOKEN (from fnox) against the Cloudflare API
+Verify CLOUDFLARE_API_TOKEN (from fnox) against the Cloudflare API (go tool charter token)
 
 ### `upstream:branch`
 

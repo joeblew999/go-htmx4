@@ -11,6 +11,10 @@ modules = ["worker/room.mjs"]
 assets = "dist/site"
 health = "/healthz"
 port = 8913
+# Where CI publishes each commit's build for Workers Builds (go tool charter ci publish, builds), and the account's
+# workers.dev subdomain: a branch's preview is https://<branch>-go-htmx4.gedw99.workers.dev.
+repo = "joeblew999/go-htmx4"
+subdomain = "gedw99"
 
 # The board: D1 is the source of truth. A new migration is a new idempotent file here.
 [[d1]]
@@ -41,6 +45,7 @@ vars = { APP_ENV = "staging", APP_PREVIEW = "1" }
 # A Worker Preview per branch: the shared preview D1, noindex.
 [preview]
 vars = { APP_ENV = "preview {preview}", APP_PREVIEW = "1" }
+note = "Own Durable Object storage, shared preview D1, not indexed."
 
 [local]
 vars = { APP_ENV = "workerd (local)" }

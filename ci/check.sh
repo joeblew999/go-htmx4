@@ -66,20 +66,12 @@ else
 fi
 
 # GitHub Actions: build first and publish it for this commit's Cloudflare preview straight away (in parallel with
-# the tests below), so Cloudflare deploys this build instead of compiling it again (charter's workerdeploy; PR #6). The
-# deploy tool goes along (static linux/amd64): Cloudflare runs it to fetch, verify and deploy. A failing commit still
-# gets a preview; this check stays red.
+# the tests below), so Cloudflare deploys this build instead of compiling it again: go tool charter ci publish, from a
+# static linux/amd64 charter, which goes along so Workers Builds runs it to fetch, verify and deploy (go tool charter
+# builds, ci/workers-builds.sh). A failing commit still gets a preview; this check stays red.
 publish() {
-  eval "$(mise env -s bash)" # APP_NAME, APP_REPO, CF_SUBDOMAIN, WORKER_COMPILER
-  CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -o bin/deploy github.com/joeblew999/charter/go/lib/cmd/workerdeploy
-  bin/deploy -name "$APP_NAME" -assets dist/site -repo "$GITHUB_REPOSITORY" -publish-build "$GITHUB_SHA"
-  if [ -n "${CF_SUBDOMAIN:-}" ] && [ "${GITHUB_REF_TYPE:-branch}" = branch ] && [ "${GITHUB_REF_NAME:-main}" != main ] &&
-    [ "${GITHUB_REF_NAME:-}" != production ] && [[ "${GITHUB_REF_NAME:-}" != release/* ]]; then
-    slug=$(bin/deploy -name "$APP_NAME" -slug "$GITHUB_REF_NAME")
-    bin/deploy -repo "$GITHUB_REPOSITORY" -comment-pr "$GITHUB_REF_NAME" \
-      -url "https://$slug-$APP_NAME.$CF_SUBDOMAIN.workers.dev" \
-      -comment-note "Own Durable Object storage, shared preview D1, not indexed." || echo "· PR comment failed (the preview still deploys)"
-  fi
+  CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -o bin/charter github.com/joeblew999/charter/go/lib/cmd/charter
+  bin/charter ci publish
 }
 # The production build and the Go tests (formatting, vet, go test) run side by side: the build is mostly one core of
 # TinyGo. Then the smoke test on workerd (= mise run check, whose build and tests have just run), then Chrome.
@@ -103,27 +95,11 @@ bench_summary() {
 phase "bench (workerd CPU)" bench_summary
 
 # A release: a pushed v* tag (GitHub's Releases page, git push), or a pushed release/v* branch (mise run release: works
-# where only branches can be pushed). Only a commit that's on main, and only after everything above passed. For a
-# release branch CI makes the tag itself, then deletes the branch.
+# where only branches can be pushed). go tool charter ci release, after everything above passed: only a commit that's
+# on main; a release branch gets its tag, then goes. The hook tags intl, seo and badge, which other apps use, with
+# their next version when they changed, before production moves (Workers Builds deploys it).
 release() {
-  local version=$1 status api="https://api.github.com/repos/$GITHUB_REPOSITORY" auth=(-H "Authorization: Bearer $GITHUB_TOKEN")
-  status=$(curl -fsS "${auth[@]}" "$api/compare/$GITHUB_SHA...main" | mise exec -- jq -r .status)
-  case $status in
-    identical | ahead) ;; # the commit is main, or main is ahead of it: it was merged
-    *) echo "✗ $version (${GITHUB_SHA:0:7}) isn't on main ($status): not released"; return 1 ;;
-  esac
-  if [ "${GITHUB_REF_TYPE:-}" = branch ]; then
-    curl -fsS "${auth[@]}" -X POST "$api/git/refs" -d "{\"ref\":\"refs/tags/$version\",\"sha\":\"$GITHUB_SHA\"}" >/dev/null ||
-      { echo "✗ couldn't create tag $version (it may exist already)"; return 1; }
-    echo "✓ tag $version → ${GITHUB_SHA:0:7}"
-  fi
-  # intl and seo, which other apps use: a new version of each that changed since its last tag.
-  ci/module-tags.sh "$GITHUB_SHA"
-  git push --force "https://x-access-token:$GITHUB_TOKEN@github.com/$GITHUB_REPOSITORY.git" "$GITHUB_SHA:refs/heads/production"
-  echo "✓ $version: production → ${GITHUB_SHA:0:7}; Workers Builds deploys it (Cloudflare dashboard → Workers → Builds)"
-  if [ "${GITHUB_REF_TYPE:-}" = branch ]; then
-    curl -fsS "${auth[@]}" -X DELETE "$api/git/refs/heads/$GITHUB_REF_NAME" >/dev/null || true
-  fi
+  bin/charter ci release -hook "ci/module-tags.sh $GITHUB_SHA" "$1"
 }
 if [ -n "$pushed" ]; then
   case "${GITHUB_REF_TYPE:-}:${GITHUB_REF_NAME:-}" in

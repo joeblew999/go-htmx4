@@ -98,7 +98,7 @@ run = "go tool gsx dev"
 # Live logs of the deployed Worker (charter's workertail): requests, console output, exceptions. Ctrl-C deletes the tail.
 ["tail"]
 description = "Stream the deployed Worker's live logs (requests, console, exceptions) → Ctrl-C to stop"
-run = "fnox exec -- go tool charter tail -name \"$APP_NAME\""
+run = "fnox exec -- go tool charter tail"
 
 ["serve"]
 description = "The production build (WORKER_COMPILER) on local workerd (go tool charter serve: charter.toml's port, your time zone), static files first → http://localhost:8913"
@@ -288,15 +288,8 @@ echo "  next: mise run check; set CLOUDFLARE_API_TOKEN + CLOUDFLARE_ACCOUNT_ID i
 # Credentials come from fnox via mise (global keychain config). The inner sh -c '…' is
 # single-quoted so $CLOUDFLARE_API_TOKEN expands after fnox has injected it.
 ["token-check"]
-description = "Verify CLOUDFLARE_API_TOKEN (from fnox) against the Cloudflare API"
-run = '''
-fnox exec -- sh -c '
-  [ -n "$CLOUDFLARE_API_TOKEN" ] && [ -n "$CLOUDFLARE_ACCOUNT_ID" ] || { echo "✗ CLOUDFLARE_API_TOKEN / CLOUDFLARE_ACCOUNT_ID missing from fnox"; exit 1; }
-  curl -sS -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" https://api.cloudflare.com/client/v4/user/tokens/verify \
-    | jq -e ".success and .result.status == \"active\"" >/dev/null \
-    && echo "✓ token active" || { echo "✗ token invalid or not active"; exit 1; }
-'
-'''
+description = "Verify CLOUDFLARE_API_TOKEN (from fnox) against the Cloudflare API (go tool charter token)"
+run = "fnox exec -- go tool charter token"
 
 # ── deploy ──────────────────────────────────────────────────────
 # Direct Upload via go tool charter deploy (Go, no wrangler), from charter.toml: the Worker and its D1, Durable
