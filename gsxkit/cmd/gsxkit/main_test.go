@@ -65,3 +65,23 @@ func TestSkill(t *testing.T) {
 		t.Errorf("copying the same skill again: changed %v, %v", changed, err)
 	}
 }
+
+// TestSkillDirs: a project's skills are the subdirectories of its skills/ that have a SKILL.md; a project without
+// skills/ has none.
+func TestSkillDirs(t *testing.T) {
+	dir := t.TempDir()
+	for _, f := range []string{"gsx/SKILL.md", "templ-to-gsx-migration/SKILL.md", "notes/README.md"} {
+		if err := os.MkdirAll(filepath.Join(dir, filepath.Dir(f)), 0o755); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(filepath.Join(dir, f), nil, 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if got, err := skillDirs(dir); err != nil || !slices.Equal(got, []string{"gsx", "templ-to-gsx-migration"}) {
+		t.Errorf("skillDirs = %v, %v", got, err)
+	}
+	if got, err := skillDirs(filepath.Join(dir, "missing")); err != nil || got != nil {
+		t.Errorf("no skills/: %v, %v", got, err)
+	}
+}

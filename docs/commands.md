@@ -223,7 +223,7 @@ go tool gsx generate: every .gsx file to its .x.go (after intl, when intl is run
 
 - **Usage:** `gsx:skill`
 
-Install or update gsx's own agent skill (.claude/skills/gsx), from the gsx version in go.mod: how to write .gsx
+Install or update the agent skills Jackie Li's projects ship (gsx's, structpages'), from the versions in go.mod, into .claude/skills
 
 ### `gsx:tasks`
 
