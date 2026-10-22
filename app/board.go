@@ -18,9 +18,9 @@ import (
 	"strings"
 	"unicode/utf8"
 
-	"github.com/joeblew999/go-htmx4/internal/httpx"
+	"github.com/joeblew999/charter/go/lib/bindings"
+	"github.com/joeblew999/charter/go/lib/web"
 	"github.com/joeblew999/go-htmx4/internal/live"
-	"github.com/joeblew999/go-htmx4/internal/ratelimit"
 	"github.com/joeblew999/go-htmx4/intl"
 	"github.com/joeblew999/go-htmx4/locales"
 	"github.com/joeblew999/go-htmx4/pages"
@@ -35,11 +35,11 @@ const (
 )
 
 // allowWrite reports whether this client may change a board now: the WRITES rate limiting binding, keyed on
-// the client IP (60 writes per 10 s per Cloudflare location, see tasks/app.toml deploy). A var so tests can
-// refuse. A missing binding fails open.
+// the client IP (charter.toml's 60 writes per 10 s per Cloudflare location; off Workers, charter counts the same in
+// memory). A var so tests can refuse. A missing binding fails open.
 var allowWrite = func(r *http.Request) bool {
-	ok, err := ratelimit.Allow("WRITES", ratelimit.ClientKey(r))
-	if err != nil && !errors.Is(err, ratelimit.ErrNoBinding) {
+	ok, err := bindings.Allow("WRITES", bindings.ClientKey(r))
+	if err != nil && !errors.Is(err, bindings.ErrNoBinding) {
 		log.Printf("rate limit: %v", err)
 	}
 	return ok
@@ -51,7 +51,7 @@ type (
 	Note  = views.Note
 )
 
-// store is the board's source of truth: D1 on Workers (store_sql.go), memory under go test.
+// store is the board's source of truth: D1 (store.go), and off Workers charter's SQLite in its place.
 type store interface {
 	Board(topic string) (Board, error)
 	Add(topic string, delta int64) (Board, error)
@@ -133,11 +133,11 @@ func change(w http.ResponseWriter, r *http.Request, topic string, write func(sto
 		storeError(w, r, err)
 		return
 	}
-	fragments := renderBoardLocales(r.Context(), b)
-	if err := publish(topic, b.Version, fragments); err != nil {
+	m := renderBoardLocales(r.Context(), b)
+	if err := publish(r.Context(), topic, m); err != nil {
 		log.Printf("publish %s v%d: %v", topic, b.Version, err)
 	}
-	httpx.WriteHTML(w, []byte(fragments.Fragments[intl.Key(intl.Current(r.Context()))]))
+	web.WriteHTML(w, []byte(m.Fragments[intl.Key(intl.Current(r.Context()))]))
 }
 
 // topicOf reads ?topic= (default "lobby") and checks it with live.ValidTopic, the rule worker/index.mjs
@@ -170,8 +170,8 @@ func renderBoard(ctx context.Context, b Board) string {
 
 // renderBoardLocales renders the board once per shipped locale: the Room sends each browser the fragment
 // in its page's locale, and the poster gets its own from the same set.
-func renderBoardLocales(ctx context.Context, b Board) live.Localized {
-	out := live.Localized{Default: intl.Key(locales.Shipped[0]), Fragments: map[string]string{}}
+func renderBoardLocales(ctx context.Context, b Board) live.Message {
+	out := live.Message{Version: b.Version, Default: intl.Key(locales.Shipped[0]), Fragments: map[string]string{}}
 	for _, ld := range locales.Shipped {
 		lctx := intl.WithRequest(ctx, intl.Request{Locale: ld, Path: "/board"})
 		out.Fragments[intl.Key(ld)] = renderBoard(lctx, b)

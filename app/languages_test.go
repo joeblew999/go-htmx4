@@ -16,6 +16,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/joeblew999/charter/go/lib/transport"
 	"github.com/joeblew999/go-htmx4/intl"
 	"github.com/joeblew999/go-htmx4/intl/catalog"
 	"github.com/joeblew999/go-htmx4/intl/config"
@@ -354,13 +355,13 @@ func TestNoHardcodedText(t *testing.T) {
 
 // TestTimeZonePreferences: the viewer's chosen zone and clock (the tz/hc cookies) reach intl-browser.mjs as
 // <html data-tz data-hc>; without a choice they're empty and the browser uses its own zone. The connection's zone
-// (Cloudflare's cf.timezone; a header under go test) only labels "Automatic (…)" in the form.
+// (Cloudflare's cf.timezone; transport.WithCF under go test) only labels "Automatic (…)" in the form.
 func TestTimeZonePreferences(t *testing.T) {
 	h := newServer().routes()
 	page := func(path, connection string, cookies ...*http.Cookie) string {
 		req := httptest.NewRequest("GET", path, nil)
 		if connection != "" {
-			req.Header.Set("X-Test-Connection-Time-Zone", connection)
+			req = transport.WithCF(req, transport.CF{Timezone: connection})
 		}
 		for _, c := range cookies {
 			req.AddCookie(c)
@@ -490,7 +491,7 @@ func TestRequestCard(t *testing.T) {
 	h := newServer().routes()
 	r := httptest.NewRequest("GET", "/formats", nil)
 	r.Header.Set("Accept-Language", "th-TH,th;q=0.9,en;q=0.8")
-	r.Header.Set("X-Test-Connection-Time-Zone", "Asia/Tokyo")
+	r = transport.WithCF(r, transport.CF{Timezone: "Asia/Tokyo"})
 	r.AddCookie(&http.Cookie{Name: intl.LocaleCookie, Value: "en"})
 	r.AddCookie(&http.Cookie{Name: intl.BrowserTimeZoneCookie, Value: "Asia/Bangkok"})
 	w := httptest.NewRecorder()

@@ -42,14 +42,14 @@ func TestCharterToml(t *testing.T) {
 			t.Errorf("%s is %q, charter.toml says %q", c.what, c.got, c.want)
 		}
 	}
-	// The bindings board.go and platform_js.go open, and the Worker's entry routes /live/ to.
+	// The bindings board.go, store.go and platform.go open, and the Worker's entry routes /live/ to.
 	if _, ok := p.RateLimit("WRITES"); !ok {
 		t.Error("charter.toml has no WRITES rate limit (board.go's)")
 	}
 	if !slices.ContainsFunc(p.D1, func(d project.D1) bool { return d.Binding == "DB" }) {
-		t.Error("charter.toml has no DB database (platform_js.go's)")
+		t.Error("charter.toml has no DB database (store.go's)")
 	}
 	if !slices.ContainsFunc(p.DurableObjects, func(d project.DurableObject) bool { return d.Binding == "ROOM" && d.Class == "Room" }) {
-		t.Error("charter.toml has no ROOM Durable Object of class Room (platform_js.go's, worker/index.mjs's)")
+		t.Error("charter.toml has no ROOM Durable Object of class Room (platform.go's, worker/index.mjs's)")
 	}
 }

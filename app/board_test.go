@@ -15,6 +15,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/joeblew999/charter/go/lib/d1"
 	"github.com/joeblew999/go-htmx4/internal/live"
 	"github.com/joeblew999/go-htmx4/intl"
 	"github.com/joeblew999/go-htmx4/locales"
@@ -23,6 +24,9 @@ import (
 func TestBoard(t *testing.T) {
 	livePush = true // render the Workers page; the native one is checked at the end
 	defer func() { livePush = false }()
+	// More writes than charter.toml's limit allows in 10 s: the limit is TestWriteLimitStandIn's.
+	defer func(f func(*http.Request) bool) { allowWrite = f }(allowWrite)
+	allowWrite = func(*http.Request) bool { return true }
 	h := newServer().routes()
 	do := func(method, target, body string) *httptest.ResponseRecorder {
 		t.Helper()
@@ -78,7 +82,7 @@ func TestBoard(t *testing.T) {
 	for i := range keepNotes + 7 {
 		do("POST", "/board/note?topic=t-keep", "body=k"+strconv.Itoa(i))
 	}
-	if got := mem.kept("t-keep"); got != keepNotes {
+	if got := kept(t, "t-keep"); got != keepNotes {
 		t.Errorf("notes kept = %d, want %d", got, keepNotes)
 	}
 	expect(do("GET", "/board?topic=t-keep", ""), http.StatusOK, "k"+strconv.Itoa(keepNotes+6))
@@ -147,9 +151,9 @@ func TestBoardFragmentWireFormat(t *testing.T) {
 	if !strings.Contains(set.Fragments["en"], ">-3</data></output>") {
 		t.Errorf("en fragment lacks the value")
 	}
-	// The publish body the Room parses.
+	// The message the Room's publish parses.
 	body := string(set.JSON())
-	if !strings.HasPrefix(body, `{"default":"en","fragments":{"ar":"<section id=\"board\"`) || strings.Contains(body, `\u003c`) {
+	if !strings.HasPrefix(body, `{"version":42,"default":"en","fragments":{"ar":"<section id=\"board\"`) || strings.Contains(body, `\u003c`) {
 		t.Errorf("publish body %.120q: want sorted locales and unescaped HTML", body)
 	}
 }
@@ -170,8 +174,8 @@ func TestWorkerJSMatchesLive(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !strings.Contains(string(room), `"`+live.VersionHeader+`"`) {
-		t.Errorf("worker/room.mjs must read the %s header", live.VersionHeader)
+	if !strings.Contains(string(room), "async publish(message) {") {
+		t.Error("worker/room.mjs must take Go's publish over Workers RPC: async publish(message)")
 	}
 	if !strings.Contains(string(room), `searchParams.get("`+live.LocaleParam+`")`) {
 		t.Errorf("worker/room.mjs must tag sockets with ?%s=", live.LocaleParam)
@@ -180,5 +184,36 @@ func TestWorkerJSMatchesLive(t *testing.T) {
 		if key := intl.Key(ld); !live.ValidLocale(key) || !regexp.MustCompile(live.LocalePattern).MatchString(key) {
 			t.Errorf("shipped locale key %q fails internal/live's locale rule", key)
 		}
+	}
+}
+
+// kept is how many notes the store keeps for topic.
+func kept(t *testing.T, topic string) int {
+	t.Helper()
+	db, err := d1.Open("DB")
+	if err != nil {
+		t.Fatal(err)
+	}
+	n, err := d1.One[struct {
+		N int `json:"n"`
+	}](db, "SELECT count(*) AS n FROM note WHERE topic = ?", topic)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return n.N
+}
+
+// TestWriteLimitStandIn: off Workers, the write limit is charter's stand-in for the WRITES binding, counting
+// charter.toml's limit (60 per 10 s) in memory: the 61st write in a window is refused.
+func TestWriteLimitStandIn(t *testing.T) {
+	r := httptest.NewRequest("POST", "/board/add", nil)
+	r.Header.Set("CF-Connecting-IP", "203.0.113.61") // a client of its own
+	for i := range 60 {
+		if !allowWrite(r) {
+			t.Fatalf("write %d refused", i+1)
+		}
+	}
+	if allowWrite(r) {
+		t.Error("the 61st write in 10 s was allowed")
 	}
 }
