@@ -151,6 +151,11 @@ Translating with Claude also needs [Claude Code](https://code.claude.com) (`clau
    defer stop()
    ```
 
+   workerd ends with your server however the server ends: `stop`, `log.Fatal`, a panic, or a kill. It runs under a
+   small shell that ends it when your process goes; with no shell (a minimal image), Linux's parent-death signal does,
+   and anything left over goes at the next `Start`. Run the server binary itself under your process manager: `mise
+   exec -- ./server` doesn't pass a stop signal on to it.
+
    On Cloudflare Workers, the Worker's own Intl: its entry module puts intl's formatter where Go calls it, and the
    build copies the JavaScript (embedded in the module):
 
