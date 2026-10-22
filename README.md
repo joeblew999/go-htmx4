@@ -12,6 +12,7 @@
 [![best practices](docs/badges/lighthouse-best-practices.svg)](#lighthouse)
 [![seo](docs/badges/lighthouse-seo.svg)](#lighthouse)
 [![seo audit](docs/badges/seo-audit.svg)](seo/README.md)
+[![languages](docs/badges/intl.svg)](intl/README.md)
 
 Server-rendered web apps with [Go](https://go.dev), [htmx 4](https://four.htmx.org) and [gsxui](https://ui.gsxhq.dev) on
 Cloudflare Workers, compiled with TinyGo. No Node anywhere: no npm, no Vite, no wrangler.

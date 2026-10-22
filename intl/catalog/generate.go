@@ -25,6 +25,7 @@ const PseudoCatalog = "en-XA"
 //	                          without arguments, a constructor for one with; the shipped locales, and their
 //	                          registration with intl
 //	<gsxui>/i18n/intl_gen.go  with intl.toml's gsxui: the renderer for the text gsxui components write themselves
+//	<badge>                   with intl.toml's badge: the languages badge (badge.go)
 //
 // A file that would not change is left alone. log gets a line per locale.
 func (p *Project) Generate(log io.Writer) error {
@@ -109,6 +110,9 @@ func (p *Project) Generate(log io.Writer) error {
 		return err
 	}
 	if err := p.WriteSum(); err != nil {
+		return err
+	}
+	if err := p.WriteBadge(); err != nil {
 		return err
 	}
 	if p.Config.Gsxui == "" {

@@ -6,6 +6,7 @@
 //	catalogs = "locales"           # <locale>.toml (ICU MessageFormat), and the generated package
 //	gsxui = "ui"                   # optional: where gsxui add vendors components; gen translates their i18n.T
 //	xliff = "xliff"                # optional: where go tool intl export writes and import reads (default xliff)
+//	badge = "docs/badges/intl.svg" # optional: an SVG badge gen keeps current, "languages | 14, all translated"
 //
 //	[inherit]                      # optional: a locale that takes what it doesn't translate from another
 //	en-IN = "en"                   # (go tool intl check confirms with Intl that both write the same script)
@@ -37,6 +38,7 @@ type Config struct {
 	Catalogs  string            `toml:"catalogs"`
 	Gsxui     string            `toml:"gsxui"`
 	XLIFF     string            `toml:"xliff"`
+	Badge     string            `toml:"badge"`
 	Notes     map[string]string `toml:"notes"`
 	Inherit   map[string]string `toml:"inherit"`
 	Translate struct {

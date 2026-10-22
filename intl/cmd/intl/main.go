@@ -506,6 +506,9 @@ func checkAll(c config.Config) int {
 	if !p.SumCurrent() {
 		add(p.SumFile() + " is not up to date: go tool intl gen, and commit it")
 	}
+	if !p.BadgeCurrent() {
+		add(p.BadgeFile() + " is not up to date: go tool intl gen, and commit it")
+	}
 	gs, err := p.GsxuiProblems()
 	check(err)
 	add(gs...)

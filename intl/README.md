@@ -157,12 +157,13 @@ Translating with Claude also needs [Claude Code](https://code.claude.com) (`clau
 6. Day to day: `mise run intl` before `gsx generate` (make your generate task depend on it), and
    `mise run intl:check` in CI.
 
-`intl.toml` holds the languages, where the catalogs are, and notes for translators:
+`intl.toml` holds the languages, where the catalogs are, notes for translators and, if you want one, a README badge:
 
 ```toml
 locales = ["en", "de", "ar"]   # the source first
 catalogs = "locales"
 gsxui = "ui"
+badge = "docs/badges/intl.svg" # "languages | 3, all translated": gen writes it, check says when it's stale
 
 [notes]
 "*" = "A shop. Keep brand names in English."
