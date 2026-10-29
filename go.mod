@@ -5,9 +5,12 @@ go 1.27.1
 toolchain go1.27.3
 
 require (
+	github.com/Masterminds/semver/v3 v3.5.0
+	github.com/evanw/esbuild v0.28.2
 	github.com/gsxhq/gsx v0.4.0
+	github.com/jackielii/structpages v0.10.0
 	github.com/jackielii/tailwind-merge-go v0.0.0-20260726184505-8a911ed0cf9a
-	github.com/joeblew999/charter/go/lib v0.9.2-0.20261022094828-671ad6d8c9b8
+	github.com/joeblew999/charter v0.20.0
 	github.com/joeblew999/go-htmx4/intl v0.0.0
 	github.com/joeblew999/go-htmx4/seo v0.3.0
 	golang.org/x/net v0.61.0
@@ -15,16 +18,13 @@ require (
 
 require (
 	github.com/BurntSushi/toml v1.6.0 // indirect
-	github.com/Masterminds/semver/v3 v3.5.0 // indirect
 	github.com/coder/websocket v1.8.15 // indirect
 	github.com/djherbis/atime v1.1.0 // indirect
 	github.com/dustin/go-humanize v1.1.0 // indirect
 	github.com/editorconfig/editorconfig-core-go/v2 v2.6.4 // indirect
-	github.com/evanw/esbuild v0.28.2 // indirect
 	github.com/fsnotify/fsnotify v1.10.1 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/jackielii/ctxkey v1.0.1 // indirect
-	github.com/jackielii/structpages v0.10.0 // indirect
 	github.com/jmoiron/sqlx v1.4.0 // indirect
 	github.com/joeblew999/go-htmx4/badge v0.1.0 // indirect
 	github.com/joeblew999/go-htmx4/gsxkit v0.0.0 // indirect
@@ -52,7 +52,6 @@ require (
 tool (
 	github.com/gsxhq/gsx/cmd/gsx
 	github.com/jackielii/structpages/cmd/structpages-gen
-	github.com/joeblew999/charter/go/lib/cmd/charter
 	github.com/joeblew999/go-htmx4/gsxkit/cmd/gsxkit
 	github.com/joeblew999/go-htmx4/intl/cmd/intl
 	github.com/joeblew999/go-htmx4/seo/cmd/seo

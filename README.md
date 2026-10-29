@@ -68,9 +68,9 @@ knows how to use it. Both use gsx's own mechanisms (renderers, filters, `gsx fmt
 requests that make them, or gsx, better are welcome. [CONTRIBUTING.md](CONTRIBUTING.md) says how; you can leave the 13 translations
 of any text you add to us.
 
-On Cloudflare Workers, [charter](https://github.com/joeblew999/charter)'s Go side is the platform, the same way:
-- **Setup:** `go tool charter init` writes `charter.toml`, the Worker's every fact.
-- **Running and shipping:** `go tool charter` builds it with TinyGo, runs it on local workerd, deploys it, and serves CI and Workers Builds.
+On Cloudflare Workers, [charter](https://github.com/joeblew999/charter) is the platform, the same way:
+- **Setup:** `charter init` writes `charter.toml`, the Worker's every fact, and charter's tasks, skill and CI workflow.
+- **Running and shipping:** the `charter` command, pinned by mise, builds it with TinyGo, runs it on local workerd, deploys it, and serves CI and Workers Builds.
 - **Bindings:** they come through its packages (`d1`, `bindings`, `hub`), which stand in for themselves off Workers, so `go test` runs the real SQL.
 
 `e2e/fresh`'s `TestFreshWorker` makes such an app from nothing.
@@ -96,13 +96,14 @@ Don't copy this repo: start from nothing and add the pieces, each with one comma
 (`e2e/fresh`) do on every check, so it keeps working.
 
 ```sh
-mkdir my-app && cd my-app && go mod init github.com/you/my-app
-go get -tool github.com/gsxhq/gsx/cmd/gsx github.com/joeblew999/charter/go/lib/cmd/charter \
-  github.com/joeblew999/go-htmx4/intl/cmd/intl github.com/joeblew999/go-htmx4/seo/cmd/seo \
-  github.com/joeblew999/go-htmx4/gsxkit/cmd/gsxkit
+mkdir my-app && cd my-app && git init -q && go mod init github.com/you/my-app
+mise use github:joeblew999/charter  # the charter command, pinned in mise.toml
+go get github.com/joeblew999/charter@latest   # its library, at the same version
+go get -tool github.com/gsxhq/gsx/cmd/gsx github.com/joeblew999/go-htmx4/intl/cmd/intl \
+  github.com/joeblew999/go-htmx4/seo/cmd/seo github.com/joeblew999/go-htmx4/gsxkit/cmd/gsxkit
 gsxui init                        # gsxui's theme and components, npm-free (https://ui.gsxhq.dev)
 go tool gsxkit tasks && go tool gsxkit skill   # gsx's and gsxui's tasks, and the skills gsx and structpages ship
-go tool charter init              # charter.toml: the Worker on Cloudflare, local workerd, deploys
+charter init                      # charter.toml: the Worker on Cloudflare, local workerd, deploys; charter's files
 go tool intl init -locales en,de  # intl.toml, the catalogs, intl's tasks and skill
 go tool intl add language-list language-offer preferences   # intl's screens, already translated
 go tool seo init -base https://my-app.example.com          # seo.toml
@@ -129,7 +130,7 @@ charter:deploy production`. This repo's own previews, staging and releases: [doc
 | `gsxkit/` | gsx's and gsxui's mise tasks and the skills gsx and structpages ship, for any app, its own Go module ([gsxkit/README.md](gsxkit/README.md)) |
 | `badge/` | the README badges intl and seo draw (SVG, no service), a tiny module of its own so neither depends on the other |
 | `internal/` | live (the board's message to the Room, topic and locale rules), classmerge (gsx's class merger, cached) |
-| `worker/`, `charter.toml` | the deployed JavaScript (the Worker's entry and the board's Durable Object), and everything about the Worker on Cloudflare, from which `go tool charter` deploys it and runs it on local workerd |
+| `worker/`, `charter.toml` | the deployed JavaScript (the Worker's entry and the board's Durable Object), and everything about the Worker on Cloudflare, from which the `charter` command deploys it and runs it on local workerd |
 | `migrations/` | D1's schema |
 | `e2e/` | the checks against a running server, its own Go module: `smoke/` over HTTP (`mise run smoke`), browser tests (`mise run e2e`), `load/` with 1,000 WebSockets (`mise run load`) |
 | `ci/`, `tasks/`, `mise.toml` | the scripts CI runs or several tasks share, the mise tasks, the pinned tools |

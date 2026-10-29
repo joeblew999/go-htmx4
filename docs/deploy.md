@@ -1,6 +1,6 @@
 # Deploying
 
-Three kinds of deploy, all `go tool charter deploy production|staging|preview <name>` (Cloudflare's REST API; no
+Three kinds of deploy, all `charter deploy production|staging|preview <name>` (Cloudflare's REST API; no
 wrangler), reading `charter.toml`: which Worker, bindings, D1, Durable Objects, vars and domain each gets:
 
 | Kind | Worker | When | URL |
@@ -14,19 +14,19 @@ domain and subdomain (`TestCharterToml` checks them).
 
 ## One build per commit
 
-1. GitHub CI (`.github/workflows/charter.yml` → `go tool charter ci run`, from `charter.toml`'s `[ci]`) builds the
+1. GitHub CI (`.github/workflows/charter.yml` → `charter ci run`, from `charter.toml`'s `[ci]`) builds the
    commit, puts the build and a static charter binary on the `preview-builds` pre-release (and the preview's URL on
    the pull request), then runs the tests.
 2. Workers Builds (Cloudflare's GitHub app, `.mise/tasks/charter-builds`) downloads that charter, and with it the build,
-   verified against its manifest (`go tool charter builds build`), then deploys what the branch deploys from
-   `charter.toml` (`go tool charter builds deploy`): the branch's preview, or staging for `main`, or production for
+   verified against its manifest (`charter builds build`), then deploys what the branch deploys from
+   `charter.toml` (`charter builds deploy`): the branch's preview, or staging for `main`, or production for
    `production`. It then deletes previews of branches that no longer exist.
 3. If CI's build never comes (CI down, a fork, or `CHARTER_COMPILE=1`), Workers Builds builds it itself
-   (`go tool charter builds build -compile`: `[ci] tools`, then `[build] command`).
+   (`charter builds build -compile`: `[ci] tools`, then `[build] command`).
 
 No Cloudflare credential is in GitHub: Workers Builds deploys with its own build token. `mise run
-charter:builds-configure` sets up its triggers once. Both the workflow and the launcher are charter's (`go tool charter
-workflow`, `tasks`), and `go tool charter check` says when they're stale.
+charter:builds-configure` sets up its triggers once. Both the workflow and the launcher are charter's (`charter
+init` writes them), and `charter check` says when they're stale.
 
 ## Releasing
 
@@ -53,4 +53,4 @@ Workers Builds. Nothing reads a `.env` file.
 
 - `SMOKE_BASE=$(cat .deploy-url) mise run smoke`: every route of the deployed Worker.
 - `E2E_BASE=… mise run e2e` and `LOAD_BASE=… mise run load`: the browser checks and the 1,000-socket check against it.
-- `mise run tail`: its live logs (`go tool charter tail`).
+- `mise run tail`: its live logs (`charter tail`).

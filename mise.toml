@@ -12,10 +12,6 @@ min_version = "2026.10.14"
 idiomatic_version_file_enable_tools = ["go"]
 
 [tools]
-tinygo = "0.43.0"      # workers-go TinyGo builds need >= 0.42.0 (net/http on wasm); supports Go <= 1.27
-# wasm-opt, required by `tinygo build -target wasm`. The aqua registry lags (121),
-# so pull the upstream release directly.
-"github:WebAssembly/binaryen" = "version_133"
 # gsx / gsxui toolchain. No Node anywhere.
 # Tailwind standalone CLI — the npm-free path in https://ui.gsxhq.dev/docs/npm-free.
 "github:tailwindlabs/tailwindcss" = "v4.3.3"
@@ -31,6 +27,10 @@ fnox = "1.40.0"
 jq = "1.8.2"
 # usage: shell completion for task arguments and flags (mise run seo:inspect <TAB>, --json).
 usage = "7.0.2"
+# charter: the Worker's build, local workerd, deploys, CI and Workers Builds (charter.toml). Its library in go.mod is the
+# same version: move both together, then charter init. TinyGo and wasm-opt are charter's, at the versions its TinyGo
+# patch is for: .config/mise/conf.d/charter.toml, which charter init writes.
+"github:joeblew999/charter" = "0.20.0"
 
 # Chrome for `mise run e2e` (chromedp). Pinned so the Mac, CI and any other machine test the same browser; e2e gets
 # its path from `mise which chrome-headless-shell`. Chrome for Testing: https://googlechromelabs.github.io/chrome-for-testing/
@@ -42,7 +42,7 @@ macos-arm64 = { url = "https://storage.googleapis.com/chrome-for-testing-public/
 macos-x64 = { url = "https://storage.googleapis.com/chrome-for-testing-public/{{ version }}/mac-x64/chrome-headless-shell-mac-x64.zip", strip_components = 1, bin_path = "." }
 
 [env]
-# The production wasm's compiler (ci/wasm-build.sh): "tinygo" (go tool charter build: the smallest wasm, Go
+# The production wasm's compiler (ci/wasm-build.sh): "tinygo" (charter build: the smallest wasm, Go
 # runtimes kept between requests; a new build takes minutes, an unchanged one comes from charter's cache) or "go" (the
 # standard compiler: seconds, a ~3x bigger wasm and a runtime per request, ~50–90 ms slower at the median on Workers,
 # measured 2026-10-20). Users pay that, so: tinygo. mise run dev always uses go.
