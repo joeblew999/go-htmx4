@@ -3,7 +3,8 @@
 //
 // The glue only reads the elements' signals and writes data-* attributes on the page's sections; every label is
 // already in the page, translated, and Tailwind's group-data variants show the one that applies (views/live.gsx). It
-// decides no text, so Go and intl stay the one source of language.
+// decides no text, so Go and intl stay the one source of language: the connection details it writes are machine
+// values.
 import "@moq/watch/element";
 import "@moq/publish/element";
 
@@ -29,75 +30,61 @@ const RESUBSCRIBE_LIVE_MS = 3000;
 // on a weak uplink would attempt more than it can send. A fixed ceiling, as remy-sport's ENCODER.
 const ENCODER = { maxBitrate: 2_000_000, maxPixels: 1280 * 720 };
 
-// DIAGNOSTICS on screen (#156), for testing on phones; whether they stay is decided before #157 merges. Each card's
-// [data-moq-debug] shows the @moq versions and patches (__NPM_VERSIONS__, __NPM_PATCHED__: internal/jsbundle defines
-// them from the lock), the relay, the connection (status, transport, the session's protocol version), the browser and
-// its features, and @moq's last warning; the broadcast card also two WebTransport sessions to the relay, as is and
-// with @moq's options.
+// Each card's connection details (LiveDetails, while open): the @moq versions and patches the bundle was built from
+// (__NPM_VERSIONS__ and __NPM_PATCHED__, which internal/jsbundle defines from the lock and the patches), the relay and
+// the broadcast's name, the connection and its transport, what the card is doing, the browser and the features the
+// elements need, and @moq's last warning. Machine values, for testing on phones (#156).
 const moqVersions = Object.entries(__NPM_VERSIONS__)
 	.filter(([name]) => name.startsWith("@moq/"))
 	.map(([name, version]) => `${name.slice(5)}@${version}`)
 	.join(" ");
 const patched = __NPM_PATCHED__.length ? __NPM_PATCHED__.join(", ") : "none";
 
-function debug(section, el, extra) {
+function details(section, el, doing) {
 	const out = section.querySelector("[data-moq-debug]");
-	if (!out) return;
-	const peek = (s) => {
-		try {
-			return s?.peek?.();
-		} catch {
-			return undefined;
-		}
-	};
+	if (!out?.closest("details")?.open) return;
 	const c = el.connection;
-	const session = peek(c?.established);
-	const version = session?.version;
 	const url = el.getAttribute("url");
 	out.textContent = [
 		`moq ${moqVersions} | patched ${patched}`,
 		`relay ${url ? new URL(url).host : "-"} ${el.getAttribute("name") ?? "-"}`,
-		`conn ${peek(c?.status) ?? "-"} via ${peek(c?.transport) ?? "-"} | version ${typeof version === "number" ? "0x" + version.toString(16) : (version ?? "-")}${session?.constructor?.name ? " (" + session.constructor.name + ")" : ""} | error ${peek(c?.error) ?? "-"}`,
-		extra,
+		`connection ${peek(c?.status) ?? "-"} via ${peek(c?.transport) ?? "-"} | error ${peek(c?.error) ?? "-"}`,
+		doing,
 		`browser ${browser()} | ${features()}`,
 		`last warning ${warnings.at(-1) ?? "none"}`,
 	].join("\n");
 }
 
+// peek reads a signal of the elements' without subscribing to it.
+function peek(signal) {
+	try {
+		return signal?.peek?.();
+	} catch {
+		return undefined;
+	}
+}
+
 function browser() {
 	const ua = navigator.userAgent;
 	const os = ua.match(/iPhone|iPad|Android [\d.]+|Mac OS X|Windows|Linux/)?.[0] ?? "?";
-	const name = ua.match(/CriOS\/[\d.]+|FxiOS\/[\d.]+|EdgiOS\/[\d.]+|Edg\/[\d.]+|Firefox\/[\d.]+|Chrome\/[\d.]+|Version\/[\d.]+(?=.*Safari)/)?.[0] ?? "?";
+	const name =
+		ua.match(/CriOS\/[\d.]+|FxiOS\/[\d.]+|EdgiOS\/[\d.]+|Edg\/[\d.]+|Firefox\/[\d.]+|Chrome\/[\d.]+|Version\/[\d.]+(?=.*Safari)/)?.[0] ?? "?";
 	return `${os} ${name.replace("Version/", "Safari/")}`;
 }
 
 function features() {
 	const has = (k) => (k in globalThis ? "+" : "-");
-	return `WT${has("WebTransport")} VE${has("VideoEncoder")} VD${has("VideoDecoder")} AE${has("AudioEncoder")} AD${has("AudioDecoder")} MSTP${has("MediaStreamTrackProcessor")} COI${globalThis.crossOriginIsolated ? "+" : "-"}`;
+	return `WebTransport${has("WebTransport")} VideoEncoder${has("VideoEncoder")} VideoDecoder${has("VideoDecoder")} AudioEncoder${has("AudioEncoder")} AudioDecoder${has("AudioDecoder")}`;
 }
 
+// @moq reports connection errors only as console warnings: the last few are kept for the details.
 const warnings = [];
 const warn = console.warn.bind(console);
 console.warn = (...args) => {
-	const show = (a) => (a instanceof Error || a?.stack ? `${a.name}(${a.message}) code=${a.code ?? a.source ?? "-"} at ${String(a.stack).split("\n").slice(0, 3).join(" < ")}` : String(a));
-	warnings.push(args.map(show).join(" ").slice(0, 600));
+	warnings.push(args.map((a) => (a instanceof Error ? `${a.name}: ${a.message}` : String(a))).join(" ").slice(0, 300));
+	if (warnings.length > 5) warnings.shift();
 	warn(...args);
 };
-let probed = false;
-const probes = { plain: "…", moq: "…" };
-async function probe(name, url, options) {
-	try {
-		const wt = new WebTransport(url, options);
-		wt.closed.catch(() => {});
-		probes[name] = await Promise.race([
-			wt.ready.then(() => "ready"),
-			new Promise((r) => setTimeout(() => r("timeout 10s"), 10_000)),
-		]).catch((e) => "rejected " + (e?.message ?? e));
-		wt.close();
-	} catch (e) {
-		probes[name] = "throws " + (e?.message ?? e);
-	}
-}
 
 for (const section of document.querySelectorAll("[data-moq=watch]")) watch(section);
 for (const section of document.querySelectorAll("[data-moq=broadcast]")) broadcast(section);
@@ -143,7 +130,7 @@ function watch(section) {
 		section.dataset.state = state;
 		section.dataset.paused = String(paused);
 		section.dataset.muted = String(el.muted);
-		debug(section, el, `state ${state} | broadcast ${live ?? "-"} | frames ${count}`);
+		details(section, el, `watch ${state} | broadcast ${live ?? "-"} | frames ${count}`);
 	};
 	section.addEventListener("click", (event) => {
 		const action = event.target.closest("[data-moq-action]")?.dataset.moqAction;
@@ -189,13 +176,10 @@ function broadcast(section) {
 		section.dataset.state = state === "stopped" ? "idle" : state;
 		section.dataset.error = state === "error" ? errorKind(error) : "";
 		section.dataset.muted = String(el.muted);
-		if (started && !probed && "WebTransport" in globalThis) {
-			probed = true;
-			probe("plain", el.getAttribute("url"));
-			probe("moq", el.getAttribute("url"), { allowPooling: false, congestionControl: "low-latency", protocols: ["moq-lite-03", "moqt-16", "moqt-15"] });
-		}
-		debug(section, el, `state ${state} | camera ${media ? "on" : "off"} | producing ${producing} | probe plain ${probes.plain}, moq ${probes.moq}`);
+		details(section, el, `broadcast ${state} | camera ${media ? "on" : "off"} | producing ${producing}`);
 	};
+	const link = section.querySelector("[data-testid=moq-share]");
+	section.dataset.canShare = String(typeof navigator.share === "function");
 	section.addEventListener("click", (event) => {
 		const action = event.target.closest("[data-moq-action]")?.dataset.moqAction;
 		if (action === "start") {
@@ -206,10 +190,26 @@ function broadcast(section) {
 			el.source = undefined;
 		} else if (action === "mute") el.muted = true;
 		else if (action === "unmute") el.muted = false;
+		else if (action === "copy") copy(section, link);
+		else if (action === "share") navigator.share({ url: link.value }).catch(() => {});
 		read();
 	});
 	read();
 	setInterval(read, TICK);
+}
+
+// copy puts the link on the clipboard and shows "Copied" for COPIED_MS. Where the clipboard API refuses (no
+// permission, an insecure context), the link is selected and copied the old way.
+const COPIED_MS = 2000;
+async function copy(section, link) {
+	try {
+		await navigator.clipboard.writeText(link.value);
+	} catch {
+		link.select();
+		document.execCommand("copy");
+	}
+	section.dataset.copied = "true";
+	setTimeout(() => (section.dataset.copied = "false"), COPIED_MS);
 }
 
 // errorKind sorts a capture failure into the three the page explains: refused, no camera, anything else.

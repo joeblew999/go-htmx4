@@ -27,18 +27,26 @@ func testLiveVideo(t *testing.T) {
 	// broadcaster's own watcher logs it as "cleanup error".
 	// @moq/net 0.4.7 warns when Cloudflare's draft-14 relay forwards a subscription it has no announcement for, and
 	// serves it all the same: the viewer's frames are the proof.
-	caster.known = []string{"Failed to execute 'disconnect' on 'AudioNode'", "adapter: no announcement for namespace"}
+	// Without cross-origin isolation (app/live.go's Live says why) @moq's audio warns that it takes its postMessage path.
+	audio := "SharedArrayBuffer unavailable"
+	caster.known = []string{"Failed to execute 'disconnect' on 'AudioNode'", "adapter: no announcement for namespace", audio}
 	caster.open("/live")
 	check(t, "the broadcast starts idle", caster.waitJS(10*time.Second, `document.querySelector("[data-moq=broadcast]").dataset.state === "idle"`))
 	caster.clickText("[data-moq=broadcast] button", caster.str(`document.querySelector("[data-moq=broadcast] [data-moq-action=start]").textContent.trim()`))
 	onAir := caster.waitJS(60*time.Second, `document.querySelector("[data-moq=broadcast]").dataset.state === "live"`)
 	check(t, "the broadcaster goes on air", onAir, caster.str(liveState))
 
-	link := caster.str(`document.querySelector("[data-testid=moq-share]")?.getAttribute("href") ?? ""`)
-	check(t, "on air, the page gives the link to send", strings.Contains(link, "/live?stream="), link)
+	link := caster.str(`(() => { const u = new URL(document.querySelector("[data-testid=moq-share]")?.value ?? "", location.href); return u.origin === location.origin ? u.pathname + u.search : ""; })()`)
+	check(t, "on air, the page gives the link to send, on its own origin", strings.Contains(link, "/live?stream="), link)
 	check(t, "the link's page is not for search engines", noindex(caster, link), link)
+	caster.eval(`document.querySelector("[data-moq=broadcast] [data-moq-action=copy]").click()`, nil)
+	check(t, "copy says it copied", caster.waitJS(5*time.Second, `document.querySelector("[data-moq=broadcast]").dataset.copied === "true"`))
+	caster.eval(`document.querySelector("[data-moq=broadcast] details").open = true`, nil)
+	check(t, "the connection details show, once opened", caster.waitJS(5*time.Second, `document.querySelector("[data-moq=broadcast] [data-moq-debug]").textContent.includes("connection connected via webtransport")`),
+		caster.str(`document.querySelector("[data-moq=broadcast] [data-moq-debug]").textContent`))
 
 	viewer := newTabWith(t, "viewer", camera...)
+	viewer.known = []string{audio}
 	viewer.open(link)
 	playing := viewer.waitJS(60*time.Second, `document.querySelector("[data-moq=watch]").dataset.state === "playing"`)
 	check(t, "the viewer plays the broadcast", playing, viewer.str(liveState))

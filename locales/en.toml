@@ -147,6 +147,16 @@ stop = "Stop"
 mic_off = "Mute microphone"
 mic_on = "Unmute microphone"
 share = "Send this link to whoever should watch"
+# The button beside the link to send, on air: copies it.
+copy_link = "Copy link"
+# What the copy button says for a moment after copying.
+copied = "Copied"
+# The button beside the link to send, on phones: opens the system's share sheet.
+share_link = "Share"
+# Under the link to send, on air.
+keep_open = "Keep this page open while you're live: on a phone, switching apps or locking the screen pauses the broadcast until you come back."
+# The disclosure under each video that shows the connection's technical details.
+details = "Connection details"
 no_stream_title = "Nothing to watch yet"
 no_stream_description = "Open a link someone sent you to watch their broadcast, or start your camera and send yours."
 

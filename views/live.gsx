@@ -3,6 +3,7 @@ package views
 import (
 	"github.com/joeblew999/go-htmx4/locales"
 	"github.com/joeblew999/go-htmx4/ui"
+	"github.com/joeblew999/go-htmx4/ui/icon"
 )
 
 // LivePage is live video over MoQ (#156): the reader's own camera, broadcast on a stream of this page view's own
@@ -10,8 +11,9 @@ import (
 // <moq-watch>, vendored into /static/moq.js); everything around them is gsxui.
 //
 // Every label for every state is rendered here, translated; /static/moq.js only sets the section's data-state (and
-// data-paused, data-muted, data-error), and Tailwind's group-data variants show the one that applies. The script is
-// the page's own: the nav reaches this page with a full load, not a boosted swap.
+// data-paused, data-muted, data-error, data-copied, data-can-share), and Tailwind's group-data variants show the one
+// that applies. Each card's connection details (LiveDetails) are machine values the script writes. The script is the
+// page's own: the nav reaches this page with a full load, not a boosted swap.
 component LivePage(p LiveProps) {
 	<Layout title={locales.LiveTitle} description={locales.LiveDescription}>
 		<h1 class="text-3xl font-semibold tracking-tight">{ locales.LiveHeading }</h1>
@@ -21,7 +23,6 @@ component LivePage(p LiveProps) {
 		} }
 		<LiveBroadcast url={p.PublishURL} name={p.OwnName} share={Live{Stream: p.Own}} origin={p.Origin}/>
 		{ if p.Watch == "" {
-			<LiveWatch url={p.WatchURL} name={p.WatchName}/>
 			<ui.Empty class="border">
 				<ui.EmptyHeader>
 					<ui.EmptyTitle>{ locales.LiveNoStreamTitle }</ui.EmptyTitle>
@@ -68,7 +69,7 @@ component LiveWatch(url string, name string) {
 					</ui.Badge>
 				</ui.CardAction>
 			</ui.CardHeader>
-			<ui.CardContent>
+			<ui.CardContent class="flex flex-col gap-4">
 				<div class="aspect-video overflow-hidden rounded-lg bg-muted" data-moq-frame>
 					// announced="false": subscribe by name. Cloudflare's draft-14 relays don't answer namespace subscriptions, so a
 					// watcher waiting for the broadcast to be announced would wait forever (#156).
@@ -76,8 +77,7 @@ component LiveWatch(url string, name string) {
 						<canvas class="size-full object-contain" aria-label={locales.LiveWatchTitle |> text}></canvas>
 					</moq-watch>
 				</div>
-				// DIAGNOSTICS on screen (#156): what the watcher's element reports, filled in by /static/moq.js.
-				<p class="mt-3 whitespace-pre-wrap break-all font-mono text-xs text-muted-foreground" dir="ltr" translate="no" data-moq-debug></p>
+				<LiveDetails/>
 			</ui.CardContent>
 			<ui.CardFooter class="flex-wrap gap-2">
 				<ui.Button variant="outline" size="sm" data-moq-action="pause" class="group-data-[paused=true]/moq:hidden">
@@ -110,7 +110,14 @@ component LiveWatch(url string, name string) {
 
 // LiveBroadcast sends the reader's camera and microphone to the relay. Nothing is captured until they press start.
 component LiveBroadcast(url string, name string, share Live, origin string) {
-	<section class="group/moq" data-moq="broadcast" data-state="idle" data-muted="false">
+	<section
+		class="group/moq"
+		data-moq="broadcast"
+		data-state="idle"
+		data-muted="false"
+		data-copied="false"
+		data-can-share="false"
+	>
 		<ui.Card>
 			<ui.CardHeader>
 				<ui.CardTitle>{ locales.LiveBroadcastTitle }</ui.CardTitle>
@@ -147,24 +154,33 @@ component LiveBroadcast(url string, name string, share Live, origin string) {
 						<video muted autoplay playsinline class="size-full object-contain"></video>
 					</moq-publish>
 				</div>
-				// The link shows once the camera is on: on iOS Safari the broadcast flows while the page still reads
-				// "connecting" (#156).
-				<ui.Alert class="hidden group-data-[state=connecting]/moq:grid group-data-[state=live]/moq:grid group-data-[state=reconnecting]/moq:grid">
-					<ui.AlertTitle>{ locales.LiveShare }</ui.AlertTitle>
-					<ui.AlertDescription>
-						<a
-							href={share |> url}
-							class="break-all underline underline-offset-4"
+				// On air: the link to send, to copy or hand to the system's share sheet (where the browser has one).
+				<ui.Field class="hidden group-data-[state=live]/moq:flex group-data-[state=reconnecting]/moq:flex">
+					<ui.FieldLabel for="moq-share">{ locales.LiveShare }</ui.FieldLabel>
+					<ui.InputGroup>
+						<ui.InputGroupInput
+							id="moq-share"
+							value=f`@{origin}@{share |> url}`
+							readonly
 							dir="ltr"
 							translate="no"
 							data-testid="moq-share"
-						>
-							{ origin }{ share |> url }
-						</a>
-					</ui.AlertDescription>
-				</ui.Alert>
-				// DIAGNOSTICS on screen (#156): what the broadcaster's element reports, filled in by /static/moq.js.
-				<p class="whitespace-pre-wrap break-all font-mono text-xs text-muted-foreground" dir="ltr" translate="no" data-moq-debug></p>
+						/>
+						<ui.InputGroupAddon align="inline-end">
+							<ui.InputGroupButton data-moq-action="copy">
+								<icon.Copy class="group-data-[copied=true]/moq:hidden"/>
+								<icon.Check class="hidden group-data-[copied=true]/moq:block"/>
+								<span class="group-data-[copied=true]/moq:hidden">{ locales.LiveCopyLink }</span>
+								<span class="hidden group-data-[copied=true]/moq:inline">{ locales.LiveCopied }</span>
+							</ui.InputGroupButton>
+							<ui.InputGroupButton data-moq-action="share" class="hidden group-data-[can-share=true]/moq:inline-flex">
+								<icon.Share/>
+								{ locales.LiveShareLink }
+							</ui.InputGroupButton>
+						</ui.InputGroupAddon>
+					</ui.InputGroup>
+					<ui.FieldDescription>{ locales.LiveKeepOpen }</ui.FieldDescription>
+				</ui.Field>
 				<ui.Alert variant="destructive" class="hidden group-data-[error=denied]/moq:grid">
 					<ui.AlertDescription>{ locales.LiveErrorDenied }</ui.AlertDescription>
 				</ui.Alert>
@@ -174,6 +190,7 @@ component LiveBroadcast(url string, name string, share Live, origin string) {
 				<ui.Alert variant="destructive" class="hidden group-data-[error=failed]/moq:grid">
 					<ui.AlertDescription>{ locales.LiveErrorFailed }</ui.AlertDescription>
 				</ui.Alert>
+				<LiveDetails/>
 			</ui.CardContent>
 			<ui.CardFooter class="flex-wrap gap-2">
 				<ui.Button
@@ -205,4 +222,28 @@ component LiveBroadcast(url string, name string, share Live, origin string) {
 			</ui.CardFooter>
 		</ui.Card>
 	</section>
+}
+
+// LiveDetails is a card's connection details, closed until opened: the @moq versions, the relay, the connection and
+// its transport, the browser's features and @moq's last warning, for testing on phones (#156). /static/moq.js writes
+// them while it's open; they are machine values, not text to translate.
+component LiveDetails() {
+	<ui.Collapsible class="flex flex-col gap-2">
+		<ui.CollapsibleTrigger
+			class="flex cursor-pointer items-center justify-between gap-4 rounded-md border px-3 py-2 text-sm font-medium"
+		>
+			<span>{ locales.LiveDetails }</span>
+			<span aria-hidden="true">
+				<icon.ChevronsUpDown class="size-4"/>
+			</span>
+		</ui.CollapsibleTrigger>
+		<ui.CollapsibleContent>
+			<pre
+				class="whitespace-pre-wrap break-all rounded-md bg-muted p-3 font-mono text-xs text-muted-foreground"
+				dir="ltr"
+				translate="no"
+				data-moq-debug
+			></pre>
+		</ui.CollapsibleContent>
+	</ui.Collapsible>
 }

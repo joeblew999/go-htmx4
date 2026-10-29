@@ -164,7 +164,9 @@ after a release; committed), what `gsxui` manages (`gsxui.json` lists it), and i
   `transport.WithCF`. workers-go's `fetch.NewIncomingProperties` panics under charter's runtime.
 - JS only in `worker/index.mjs` (entry), `worker/room.mjs` (Durable Object), `intl/js/` (Intl, and what Go calls of
   it), and `web/moq/moq.mjs` (the live page's glue to @moq's elements, #156: browser media can't be Go; it only sets
-  `data-*` state and wires buttons, every label stays in the page). Keep it logic-free; logic stays in Go. The topic and locale rules are
+  `data-*` state, wires buttons (copy and share included) and writes the connection details' machine values; every
+  label stays in the page). Patches to the vendored npm packages are `web/moq/npm-patches.json`, each with its
+  reason. Keep it logic-free; logic stays in Go. The topic and locale rules are
   `internal/live`'s (`TestWorkerJSMatchesLive`).
 
 ## Cloudflare: outward-facing

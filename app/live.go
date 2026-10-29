@@ -35,7 +35,9 @@ func newStream() string { return strings.ToLower(rand.Text()[:10]) }
 // relay as a watcher and as the broadcaster reach it, and the address that is the link to send. A relay that takes
 // tokens (Cloudflare's draft-16 relays) gets the Worker's MOQ_SUBSCRIBE_TOKEN and MOQ_PUBLISH_TOKEN secrets in the
 // path.
-// The page is not cross-origin isolated (COOP/COEP): taken out while iOS Safari 27 stalled on "connecting" with it (#156).
+// The page is not cross-origin isolated (no COOP/COEP), so @moq's audio takes its postMessage path, not a
+// SharedArrayBuffer: a little more latency, and nothing the page loads needs CORP. (Isolation was taken out while
+// iPhones stayed on "connecting"; the cause was @moq/net's WebKit check, web/moq/npm-patches.json, #156.)
 func (s *server) Live(r *http.Request) views.LiveProps {
 	base := cmp.Or(bindings.Var("MOQ_RELAY_URL"), defaultRelay)
 	own := newStream()
@@ -48,10 +50,6 @@ func (s *server) Live(r *http.Request) views.LiveProps {
 	}
 	if watch := r.URL.Query().Get("stream"); validStream.MatchString(watch) {
 		p.Watch, p.WatchName = watch, streamName(watch)
-	} else {
-		// No link: the watch card shows the page's own stream, as it did before links. Its connection opens with the
-		// page, and the broadcast shares it: iOS Safari's broadcast stayed on "connecting" without one (#156).
-		p.WatchName = p.OwnName
 	}
 	return p
 }

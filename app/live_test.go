@@ -5,8 +5,8 @@ import (
 	"testing"
 )
 
-// TestLive: the live page (#156) is not cross-origin isolated (taken out while iOS Safari stalled with it); each view has a
-// stream of its own; ?stream= picks the one to watch, and a stream's page is noindex.
+// TestLive: the live page (#156) is not cross-origin isolated (Live says why); each view has a stream of its own, and
+// its link to send; ?stream= picks the one to watch, and a stream's page is noindex.
 func TestLive(t *testing.T) {
 	h := newServer().routes()
 	page := get(t, h, "/live")
@@ -17,8 +17,11 @@ func TestLive(t *testing.T) {
 	if !strings.Contains(body, `<moq-publish url="https://draft-14.cloudflare.mediaoverquic.com/" name="go-htmx4/live/`) {
 		t.Errorf("/live: no publisher on a stream of its own")
 	}
-	if !strings.Contains(body, `<moq-watch url="https://draft-14.cloudflare.mediaoverquic.com/" name="go-htmx4/live/`) {
-		t.Errorf("/live without ?stream= doesn't watch its own stream")
+	if strings.Contains(body, "<moq-watch") {
+		t.Errorf("/live without ?stream= has a watcher")
+	}
+	if !strings.Contains(body, `value="http://example.com/live?stream=`) {
+		t.Errorf("/live: no link to send")
 	}
 	if other := get(t, h, "/live").Body.String(); other == body {
 		t.Errorf("two views of /live got the same stream")
@@ -30,7 +33,7 @@ func TestLive(t *testing.T) {
 	if !strings.Contains(watch.Header().Get("X-Robots-Tag"), "noindex") {
 		t.Errorf("/live?stream=abc123: X-Robots-Tag %q, want noindex", watch.Header().Get("X-Robots-Tag"))
 	}
-	if strings.Contains(get(t, h, "/live?stream=no%20good").Body.String(), `name="go-htmx4/live/no`) {
+	if strings.Contains(get(t, h, "/live?stream=no%20good").Body.String(), "<moq-watch") {
 		t.Errorf("/live?stream=no good: a stream id outside [a-z0-9] got a watcher")
 	}
 }
