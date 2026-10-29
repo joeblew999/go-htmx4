@@ -1,6 +1,8 @@
 package e2e
 
 import (
+	"fmt"
+	"strings"
 	"testing"
 	"time"
 
@@ -8,7 +10,8 @@ import (
 )
 
 // testLiveVideo is the live page end to end (#156), through the real relay (Cloudflare's MoQ network, as the Worker
-// names it): one Chrome broadcasts its built-in test camera, a second watches, and frames must decode in the watcher.
+// names it): one Chrome broadcasts its built-in test camera, a second opens the link it gives, and frames must decode
+// in the second.
 // Chrome's fake camera is its own capture path with a synthetic picture, not a stand-in for MoQ: everything from the
 // encoder to the relay and back is the real thing.
 func testLiveVideo(t *testing.T) {
@@ -29,8 +32,12 @@ func testLiveVideo(t *testing.T) {
 	onAir := caster.waitJS(60*time.Second, `document.querySelector("[data-moq=broadcast]").dataset.state === "live"`)
 	check(t, "the broadcaster goes on air", onAir, caster.str(liveState))
 
+	link := caster.str(`document.querySelector("[data-testid=moq-share]")?.getAttribute("href") ?? ""`)
+	check(t, "on air, the page gives the link to send", strings.Contains(link, "/live?stream="), link)
+	check(t, "the link's page is not for search engines", noindex(caster, link), link)
+
 	viewer := newTabWith(t, "viewer", camera...)
-	viewer.open("/live")
+	viewer.open(link)
 	playing := viewer.waitJS(60*time.Second, `document.querySelector("[data-moq=watch]").dataset.state === "playing"`)
 	check(t, "the viewer plays the broadcast", playing, viewer.str(liveState))
 	frames := viewer.num(`document.querySelector("moq-watch").video.out.stats.peek()?.frameCount ?? 0`)
@@ -58,3 +65,8 @@ const liveState = `(() => {
 	if (p) out.publishElement = { conn: conn(p.connection), producing: !!peek(p.broadcast?.net), media: !!peek(peek(p.sources?.video)?.out?.source) };
 	return JSON.stringify(out);
 })()`
+
+// noindex is whether the page at path tells search engines not to index it (seo.Site's X-Robots-Tag).
+func noindex(tb *tab, path string) bool {
+	return tb.is(fmt.Sprintf(`fetch(%q).then((r) => (r.headers.get("X-Robots-Tag") ?? "").includes("noindex"))`, path))
+}

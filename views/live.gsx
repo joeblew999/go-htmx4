@@ -5,18 +5,29 @@ import (
 	"github.com/joeblew999/go-htmx4/ui"
 )
 
-// LivePage is live video over MoQ (#156): a broadcaster's camera and a watcher, through a MoQ relay. The media is
-// @moq's elements (<moq-publish>, <moq-watch>, vendored into /static/moq.js); everything around them is gsxui.
+// LivePage is live video over MoQ (#156): the reader's own camera, broadcast on a stream of this page view's own
+// with a link to send, and the stream a link they opened names. The media is @moq's elements (<moq-publish>,
+// <moq-watch>, vendored into /static/moq.js); everything around them is gsxui.
 //
 // Every label for every state is rendered here, translated; /static/moq.js only sets the section's data-state (and
-// data-paused, data-muted), and Tailwind's group-data variants show the one that applies. The script is the page's
-// own: the nav reaches this page with a full load, not a boosted swap.
+// data-paused, data-muted, data-error), and Tailwind's group-data variants show the one that applies. The script is
+// the page's own: the nav reaches this page with a full load, not a boosted swap.
 component LivePage(p LiveProps) {
 	<Layout title={locales.LiveTitle} description={locales.LiveDescription}>
 		<h1 class="text-3xl font-semibold tracking-tight">{ locales.LiveHeading }</h1>
 		<p class="text-muted-foreground">{ locales.LiveIntro }</p>
-		<LiveBroadcast url={p.PublishURL} name={p.Name}/>
-		<LiveWatch url={p.WatchURL} name={p.Name}/>
+		{ if p.Watch != "" {
+			<LiveWatch url={p.WatchURL} name={p.WatchName}/>
+		} }
+		<LiveBroadcast url={p.PublishURL} name={p.OwnName} share={Live{Stream: p.Own}} origin={p.Origin}/>
+		{ if p.Watch == "" {
+			<ui.Empty class="border">
+				<ui.EmptyHeader>
+					<ui.EmptyTitle>{ locales.LiveNoStreamTitle }</ui.EmptyTitle>
+					<ui.EmptyDescription>{ locales.LiveNoStreamDescription }</ui.EmptyDescription>
+				</ui.EmptyHeader>
+			</ui.Empty>
+		} }
 		<script type="module" src="/static/moq.js"></script>
 	</Layout>
 }
@@ -95,7 +106,7 @@ component LiveWatch(url string, name string) {
 }
 
 // LiveBroadcast sends the reader's camera and microphone to the relay. Nothing is captured until they press start.
-component LiveBroadcast(url string, name string) {
+component LiveBroadcast(url string, name string, share Live, origin string) {
 	<section class="group/moq" data-moq="broadcast" data-state="idle" data-muted="false">
 		<ui.Card>
 			<ui.CardHeader>
@@ -133,6 +144,20 @@ component LiveBroadcast(url string, name string) {
 						<video muted autoplay playsinline class="size-full object-contain"></video>
 					</moq-publish>
 				</div>
+				<ui.Alert class="hidden group-data-[state=live]/moq:grid">
+					<ui.AlertTitle>{ locales.LiveShare }</ui.AlertTitle>
+					<ui.AlertDescription>
+						<a
+							href={share |> url}
+							class="break-all underline underline-offset-4"
+							dir="ltr"
+							translate="no"
+							data-testid="moq-share"
+						>
+							{ origin }{ share |> url }
+						</a>
+					</ui.AlertDescription>
+				</ui.Alert>
 				<ui.Alert variant="destructive" class="hidden group-data-[error=denied]/moq:grid">
 					<ui.AlertDescription>{ locales.LiveErrorDenied }</ui.AlertDescription>
 				</ui.Alert>

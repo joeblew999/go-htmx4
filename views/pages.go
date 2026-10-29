@@ -56,8 +56,20 @@ type Formats struct{}
 // Components is every gsxui component, with Intl.
 type Components struct{}
 
-// Live is live video over MoQ (#156): a camera broadcast and its watchers, through Cloudflare's relay.
-type Live struct{}
+// Live is live video over MoQ (#156): the reader's own camera broadcast, and the stream ?stream= names, through
+// Cloudflare's relay. Every page view gets a stream of its own to broadcast on, and a link to it to send.
+type Live struct{ Stream string }
+
+// Query is what makes a stream's page a different page: ?stream=.
+func (l Live) Query() string {
+	if l.Stream == "" {
+		return ""
+	}
+	return "?stream=" + url.QueryEscape(l.Stream)
+}
+
+// Noindex: a stream's page is one person's broadcast for as long as it lasts.
+func (l Live) Noindex() bool { return l.Stream != "" }
 
 // About is the stack.
 type About struct{}
@@ -80,8 +92,12 @@ type App interface {
 type LiveProps struct {
 	// WatchURL and PublishURL are the relay as a watcher and as the broadcaster reach it.
 	WatchURL, PublishURL string
-	// Name is the broadcast's path on the relay; its .hang suffix selects the catalog format players read.
-	Name string
+	// Own is this page view's own stream, the one its camera broadcasts on; Watch the stream to play, "" for none.
+	Own, Watch string
+	// OwnName and WatchName are their broadcasts' paths on the relay; .hang selects the catalog format players read.
+	OwnName, WatchName string
+	// Origin is the site's origin ("https://…"): the link to send is it and Live{Stream: Own}'s address.
+	Origin string
 }
 
 // HomeProps is the home page's data.
@@ -146,6 +162,9 @@ func At(path string, query url.Values) (any, bool) {
 			if _, ok := p.(Board); ok {
 				return Board{Topic: query.Get("topic")}, true
 			}
+			if _, ok := p.(Live); ok {
+				return Live{Stream: query.Get("stream")}, true
+			}
 			return p, true
 		}
 	}
@@ -164,6 +183,9 @@ func Indexable(path string) bool {
 	q, _ := url.ParseQuery(query)
 	p, ok := At(intl.Unprefixed(path), q)
 	if b, isBoard := p.(Board); isBoard && b.Noindex() {
+		return false
+	}
+	if l, isLive := p.(Live); isLive && l.Noindex() {
 		return false
 	}
 	return ok
