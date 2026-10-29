@@ -31,12 +31,12 @@ var validStream = regexp.MustCompile(`^[a-z0-9]{1,32}$`)
 // newStream is a fresh stream id: 10 random characters, so a link is all it takes to find a broadcast.
 func newStream() string { return strings.ToLower(rand.Text()[:10]) }
 
-// Live is views.App's (and makes the page cross-origin isolated, isolate): a stream of the page view's own to broadcast on, the stream ?stream= names to watch, the
+// Live is views.App's: a stream of the page view's own to broadcast on, the stream ?stream= names to watch, the
 // relay as a watcher and as the broadcaster reach it, and the address that is the link to send. A relay that takes
 // tokens (Cloudflare's draft-16 relays) gets the Worker's MOQ_SUBSCRIBE_TOKEN and MOQ_PUBLISH_TOKEN secrets in the
 // path.
-func (s *server) Live(w http.ResponseWriter, r *http.Request) views.LiveProps {
-	isolate(w)
+// The page is not cross-origin isolated (COOP/COEP): taken out while iOS Safari 27 stalled on "connecting" with it (#156).
+func (s *server) Live(r *http.Request) views.LiveProps {
 	base := cmp.Or(bindings.Var("MOQ_RELAY_URL"), defaultRelay)
 	own := newStream()
 	p := views.LiveProps{
@@ -63,12 +63,4 @@ func relayURL(base, token string) string {
 	}
 	u.Path = "/" + url.PathEscape(token)
 	return u.String()
-}
-
-// isolate makes the live page cross-origin isolated, so the MoQ elements get SharedArrayBuffer: their audio then
-// plays from a shared ring buffer, not the higher-latency postMessage path they fall back to (and warn about). Every
-// file the page loads is the site's own, so require-corp blocks nothing.
-func isolate(w http.ResponseWriter) {
-	w.Header().Set("Cross-Origin-Opener-Policy", "same-origin")
-	w.Header().Set("Cross-Origin-Embedder-Policy", "require-corp")
 }

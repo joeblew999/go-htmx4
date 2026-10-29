@@ -5,13 +5,13 @@ import (
 	"testing"
 )
 
-// TestLive: the live page (#156) is cross-origin isolated, so @moq's audio gets SharedArrayBuffer; each view has a
+// TestLive: the live page (#156) is not cross-origin isolated (taken out while iOS Safari stalled with it); each view has a
 // stream of its own; ?stream= picks the one to watch, and a stream's page is noindex.
 func TestLive(t *testing.T) {
 	h := newServer().routes()
 	page := get(t, h, "/live")
-	if got := page.Header().Get("Cross-Origin-Opener-Policy") + " " + page.Header().Get("Cross-Origin-Embedder-Policy"); got != "same-origin require-corp" {
-		t.Errorf("/live: COOP and COEP %q, want same-origin require-corp", got)
+	if got := page.Header().Get("Cross-Origin-Opener-Policy") + page.Header().Get("Cross-Origin-Embedder-Policy"); got != "" {
+		t.Errorf("/live: COOP/COEP %q, want none", got)
 	}
 	body := page.Body.String()
 	if !strings.Contains(body, `<moq-publish url="https://draft-14.cloudflare.mediaoverquic.com/" name="go-htmx4/live/`) {

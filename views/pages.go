@@ -84,7 +84,7 @@ type App interface {
 	// error).
 	Board(w http.ResponseWriter, r *http.Request) (BoardProps, bool)
 	// Live is where the live video page's broadcast goes: the relay and the broadcast's name.
-	Live(w http.ResponseWriter, r *http.Request) LiveProps
+	Live(r *http.Request) LiveProps
 }
 
 // LiveProps is the live video page's data. The relay URLs carry a relay token when the Worker has one (Cloudflare's
@@ -125,7 +125,7 @@ func (Board) Props(w http.ResponseWriter, r *http.Request, app App) (BoardProps,
 
 func (Formats) Props(r *http.Request, app App) Connection { return app.Connection(r) }
 
-func (Live) Props(w http.ResponseWriter, r *http.Request, app App) LiveProps { return app.Live(w, r) }
+func (Live) Props(r *http.Request, app App) LiveProps { return app.Live(r) }
 
 func (About) Props(app App) []StackItem { return app.Stack() }
 
