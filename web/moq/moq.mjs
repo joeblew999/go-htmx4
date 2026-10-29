@@ -29,7 +29,8 @@ const ENCODER = { maxBitrate: 2_000_000, maxPixels: 1280 * 720 };
 const warnings = [];
 const warn = console.warn.bind(console);
 console.warn = (...args) => {
-	warnings.push(args.map((a) => a?.message ?? String(a)).join(" ").slice(0, 200));
+	const show = (a) => (a instanceof Error || a?.stack ? `${a.name}(${a.message}) code=${a.code ?? a.source ?? "-"} at ${String(a.stack).split("\n").slice(0, 3).join(" < ")}` : String(a));
+	warnings.push(args.map(show).join(" ").slice(0, 600));
 	warn(...args);
 };
 let probed = false;
