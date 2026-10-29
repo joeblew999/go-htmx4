@@ -115,12 +115,10 @@ function broadcast(section) {
 		const action = event.target.closest("[data-moq-action]")?.dataset.moqAction;
 		if (action === "start") {
 			started = true;
-			el.url = el.dataset.url;
 			el.source = "camera";
 		} else if (action === "stop") {
 			started = false;
 			el.source = undefined;
-			el.url = undefined;
 		} else if (action === "mute") el.muted = true;
 		else if (action === "unmute") el.muted = false;
 		read();

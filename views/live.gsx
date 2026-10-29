@@ -138,9 +138,9 @@ component LiveBroadcast(url string, name string, share Live, origin string) {
 			</ui.CardHeader>
 			<ui.CardContent class="flex flex-col gap-4">
 				<div class="aspect-video overflow-hidden rounded-lg bg-muted">
-					// No name until the camera is on (moq.mjs sets it): on every page an idle publisher holding the broadcast's
-					// name would be the broadcast its own watcher finds first, empty, instead of the relay's (#156).
-					<moq-publish url={url} data-name={name} announce="source" class="block size-full">
+					// The page view's own stream: an idle publisher on the connection its watcher shares holds a name no
+					// link watches, so it shadows nothing (#156).
+					<moq-publish url={url} name={name} announce="source" class="block size-full">
 						<video muted autoplay playsinline class="size-full object-contain"></video>
 					</moq-publish>
 				</div>
