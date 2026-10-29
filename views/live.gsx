@@ -145,7 +145,9 @@ component LiveBroadcast(url string, name string, share Live, origin string) {
 						<video muted autoplay playsinline class="size-full object-contain"></video>
 					</moq-publish>
 				</div>
-				<ui.Alert class="hidden group-data-[state=live]/moq:grid">
+				// The link shows once the camera is on: on iOS Safari the broadcast flows while the page still reads
+				// "connecting" (#156).
+				<ui.Alert class="hidden group-data-[state=connecting]/moq:grid group-data-[state=live]/moq:grid group-data-[state=reconnecting]/moq:grid">
 					<ui.AlertTitle>{ locales.LiveShare }</ui.AlertTitle>
 					<ui.AlertDescription>
 						<a
@@ -159,6 +161,8 @@ component LiveBroadcast(url string, name string, share Live, origin string) {
 						</a>
 					</ui.AlertDescription>
 				</ui.Alert>
+				// DIAGNOSTICS, preview only (#156): what the publisher's signals read, filled in by /static/moq.js.
+				<p class="text-xs text-muted-foreground break-all" dir="ltr" translate="no" data-moq-debug></p>
 				<ui.Alert variant="destructive" class="hidden group-data-[error=denied]/moq:grid">
 					<ui.AlertDescription>{ locales.LiveErrorDenied }</ui.AlertDescription>
 				</ui.Alert>

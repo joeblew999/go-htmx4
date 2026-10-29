@@ -110,6 +110,12 @@ function broadcast(section) {
 		section.dataset.state = state === "stopped" ? "idle" : state;
 		section.dataset.error = state === "error" ? errorKind(error) : "";
 		section.dataset.muted = String(el.muted);
+		// DIAGNOSTICS, preview only (#156): out before #157 merges.
+		const debug = section.querySelector("[data-moq-debug]");
+		if (debug && started) {
+			const c = el.connection;
+			debug.textContent = `status=${c?.status?.peek()} transport=${c?.transport?.peek()} error=${c?.error?.peek()} net=${typeof el.broadcast?.net?.peek()} media=${!!media} WT=${"WebTransport" in globalThis}`;
+		}
 	};
 	section.addEventListener("click", (event) => {
 		const action = event.target.closest("[data-moq-action]")?.dataset.moqAction;
