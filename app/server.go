@@ -196,9 +196,6 @@ func (s *server) count(name string) {
 func (s *server) pageMiddleware(next http.Handler, pn *structpages.PageNode) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		s.count(pn.Name)
-		if pn.Name == "Live" {
-			isolate(w)
-		}
 		b := &buffered{ResponseWriter: w, status: http.StatusOK}
 		next.ServeHTTP(b, r)
 		w.Header().Set("Content-Length", strconv.Itoa(b.body.Len()))

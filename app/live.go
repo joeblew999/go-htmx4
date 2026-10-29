@@ -31,11 +31,12 @@ var validStream = regexp.MustCompile(`^[a-z0-9]{1,32}$`)
 // newStream is a fresh stream id: 10 random characters, so a link is all it takes to find a broadcast.
 func newStream() string { return strings.ToLower(rand.Text()[:10]) }
 
-// Live is views.App's: a stream of the page view's own to broadcast on, the stream ?stream= names to watch, the
+// Live is views.App's (and makes the page cross-origin isolated, isolate): a stream of the page view's own to broadcast on, the stream ?stream= names to watch, the
 // relay as a watcher and as the broadcaster reach it, and the address that is the link to send. A relay that takes
 // tokens (Cloudflare's draft-16 relays) gets the Worker's MOQ_SUBSCRIBE_TOKEN and MOQ_PUBLISH_TOKEN secrets in the
 // path.
-func (s *server) Live(r *http.Request) views.LiveProps {
+func (s *server) Live(w http.ResponseWriter, r *http.Request) views.LiveProps {
+	isolate(w)
 	base := cmp.Or(bindings.Var("MOQ_RELAY_URL"), defaultRelay)
 	own := newStream()
 	p := views.LiveProps{

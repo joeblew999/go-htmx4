@@ -25,7 +25,9 @@ func testLiveVideo(t *testing.T) {
 	caster := newTabWith(t, "broadcaster", camera...)
 	// @moq/watch 0.6.6 disconnects an audio node twice when a broadcast stops (an upstream bug, to report): the
 	// broadcaster's own watcher logs it as "cleanup error".
-	caster.known = []string{"Failed to execute 'disconnect' on 'AudioNode'"}
+	// @moq/net 0.4.7 warns when Cloudflare's draft-14 relay forwards a subscription it has no announcement for, and
+	// serves it all the same: the viewer's frames are the proof.
+	caster.known = []string{"Failed to execute 'disconnect' on 'AudioNode'", "adapter: no announcement for namespace"}
 	caster.open("/live")
 	check(t, "the broadcast starts idle", caster.waitJS(10*time.Second, `document.querySelector("[data-moq=broadcast]").dataset.state === "idle"`))
 	caster.clickText("[data-moq=broadcast] button", caster.str(`document.querySelector("[data-moq=broadcast] [data-moq-action=start]").textContent.trim()`))
@@ -43,13 +45,14 @@ func testLiveVideo(t *testing.T) {
 	frames := viewer.num(`document.querySelector("moq-watch").video.out.stats.peek()?.frameCount ?? 0`)
 	check(t, "frames decode in the viewer", frames > 0, frames)
 
+	// Problems while the broadcast is live: stopping it below ends the viewer's subscription, which @moq logs.
+	caster.noProblems()
+	viewer.noProblems()
 	if !playing {
 		t.Logf("broadcaster while the viewer waited: %s", caster.str(liveState))
 	}
 	caster.clickText("[data-moq=broadcast] button", caster.str(`document.querySelector("[data-moq=broadcast] [data-moq-action=stop]").textContent.trim()`))
 	check(t, "stopping turns the camera off", caster.waitJS(10*time.Second, `document.querySelector("[data-moq=broadcast]").dataset.state === "idle"`))
-	caster.noProblems()
-	viewer.noProblems()
 }
 
 // liveState is what both elements say about themselves, for a failure's detail: the page's state, the connection
