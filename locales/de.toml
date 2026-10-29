@@ -147,6 +147,7 @@ copied = "Kopiert"
 share_link = "Teilen"
 keep_open = "Lassen Sie diese Seite geöffnet, solange Sie live sind: Auf dem Handy pausiert der Wechsel in eine andere App oder das Sperren des Bildschirms die Übertragung, bis Sie zurückkehren."
 details = "Verbindungsdetails"
+broadcast_own = "Eigene Übertragung starten"
 no_stream_title = "Noch nichts zu sehen"
 no_stream_description = "Öffnen Sie einen Link, den Ihnen jemand geschickt hat, um seine Übertragung zu sehen, oder starten Sie Ihre Kamera und senden Sie Ihren."
 

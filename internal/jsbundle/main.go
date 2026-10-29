@@ -30,6 +30,7 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"slices"
 	"sort"
 	"strings"
 
@@ -145,7 +146,8 @@ func main() {
 	fmt.Printf("✓ %s: %d packages, %d bytes\n", *out, len(lock.Packages), st.Size())
 }
 
-// applyPatches applies the patches listed in path to the packages unpacked under root, and returns the files patched.
+// applyPatches applies the patches listed in path to the packages unpacked under root, and returns the files patched,
+// each once.
 func applyPatches(root, path string) ([]string, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
@@ -168,7 +170,9 @@ func applyPatches(root, path string) ([]string, error) {
 		if err := os.WriteFile(file, []byte(strings.Replace(string(src), p.Old, p.New, 1)), 0o644); err != nil {
 			return nil, err
 		}
-		files = append(files, p.File)
+		if !slices.Contains(files, p.File) {
+			files = append(files, p.File)
+		}
 	}
 	return files, nil
 }

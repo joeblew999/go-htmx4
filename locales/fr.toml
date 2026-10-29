@@ -148,6 +148,7 @@ copied = "Copié"
 share_link = "Partager"
 keep_open = "Gardez cette page ouverte pendant votre direct : sur un téléphone, changer d’application ou verrouiller l’écran met la diffusion en pause jusqu’à votre retour."
 details = "Détails de la connexion"
+broadcast_own = "Démarrer votre propre diffusion"
 no_stream_title = "Rien à regarder pour l’instant"
 no_stream_description = "Ouvrez un lien qu’on vous a envoyé pour regarder sa diffusion, ou démarrez votre caméra et envoyez le vôtre."
 

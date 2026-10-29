@@ -176,7 +176,12 @@ function broadcast(section) {
 		section.dataset.state = state === "stopped" ? "idle" : state;
 		section.dataset.error = state === "error" ? errorKind(error) : "";
 		section.dataset.muted = String(el.muted);
-		details(section, el, `broadcast ${state} | camera ${media ? "on" : "off"} | producing ${producing}`);
+		const frame = peek(el.broadcast?.in?.display);
+		details(
+			section,
+			el,
+			`broadcast ${state} | camera ${media ? "on" : "off"} | producing ${producing} | frames ${frame ? `${frame.width}x${frame.height} rotation ${frame.rotation ?? "-"}` : "-"}`,
+		);
 	};
 	const link = section.querySelector("[data-testid=moq-share]");
 	section.dataset.canShare = String(typeof navigator.share === "function");

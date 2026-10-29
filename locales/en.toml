@@ -157,6 +157,8 @@ share_link = "Share"
 keep_open = "Keep this page open while you're live: on a phone, switching apps or locking the screen pauses the broadcast until you come back."
 # The disclosure under each video that shows the connection's technical details.
 details = "Connection details"
+# Under the video on a page opened from someone's link: goes to the page for broadcasting one's own camera.
+broadcast_own = "Start your own broadcast"
 no_stream_title = "Nothing to watch yet"
 no_stream_description = "Open a link someone sent you to watch their broadcast, or start your camera and send yours."
 

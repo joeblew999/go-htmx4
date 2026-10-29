@@ -7,7 +7,7 @@ import (
 )
 
 // LivePage is live video over MoQ (#156): the reader's own camera, broadcast on a stream of this page view's own
-// with a link to send, and the stream a link they opened names. The media is @moq's elements (<moq-publish>,
+// with a link to send; or, opened from such a link, the stream it names. The media is @moq's elements (<moq-publish>,
 // <moq-watch>, vendored into /static/moq.js); everything around them is gsxui.
 //
 // Every label for every state is rendered here, translated; /static/moq.js only sets the section's data-state (and
@@ -18,11 +18,18 @@ component LivePage(p LiveProps) {
 	<Layout title={locales.LiveTitle} description={locales.LiveDescription}>
 		<h1 class="text-3xl font-semibold tracking-tight">{ locales.LiveHeading }</h1>
 		<p class="text-muted-foreground">{ locales.LiveIntro }</p>
+		// A link someone sent: the broadcast it names, and a way to start one's own (a full load, so the page's module
+		// runs again). Without one: the reader's own camera.
 		{ if p.Watch != "" {
 			<LiveWatch url={p.WatchURL} name={p.WatchName}/>
-		} }
-		<LiveBroadcast url={p.PublishURL} name={p.OwnName} share={Live{Stream: p.Own}} origin={p.Origin}/>
-		{ if p.Watch == "" {
+			<div>
+				<ui.Button variant="outline" href={Live{} |> url} hx-boost:inherited="false" data-testid="moq-broadcast-own">
+					<icon.Video/>
+					{ locales.LiveBroadcastOwn }
+				</ui.Button>
+			</div>
+		} else {
+			<LiveBroadcast url={p.PublishURL} name={p.OwnName} share={Live{Stream: p.Own}} origin={p.Origin}/>
 			<ui.Empty class="border">
 				<ui.EmptyHeader>
 					<ui.EmptyTitle>{ locales.LiveNoStreamTitle }</ui.EmptyTitle>

@@ -148,6 +148,7 @@ copied = "Copiado"
 share_link = "Partilhar"
 keep_open = "Mantenha esta página aberta enquanto estiver em direto: num telemóvel, mudar de aplicação ou bloquear o ecrã coloca a transmissão em pausa até voltar."
 details = "Detalhes da ligação"
+broadcast_own = "Iniciar a sua própria transmissão"
 no_stream_title = "Ainda não há nada para ver"
 no_stream_description = "Abra uma ligação que alguém lhe enviou para ver a transmissão dessa pessoa, ou ligue a câmara e envie a sua."
 

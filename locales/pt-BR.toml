@@ -147,6 +147,7 @@ copied = "Copiado"
 share_link = "Compartilhar"
 keep_open = "Mantenha esta página aberta enquanto estiver ao vivo: no celular, trocar de app ou bloquear a tela pausa a transmissão até você voltar."
 details = "Detalhes da conexão"
+broadcast_own = "Iniciar sua própria transmissão"
 no_stream_title = "Nada para assistir ainda"
 no_stream_description = "Abra um link que alguém te enviou para assistir à transmissão dessa pessoa, ou ligue sua câmera e envie o seu."
 

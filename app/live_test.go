@@ -30,6 +30,9 @@ func TestLive(t *testing.T) {
 	if !strings.Contains(watch.Body.String(), `name="go-htmx4/live/abc123.hang"`) {
 		t.Errorf("/live?stream=abc123: doesn't watch the stream")
 	}
+	if strings.Contains(watch.Body.String(), "<moq-publish") {
+		t.Errorf("/live?stream=abc123: a viewer's page has a broadcast card")
+	}
 	if !strings.Contains(watch.Header().Get("X-Robots-Tag"), "noindex") {
 		t.Errorf("/live?stream=abc123: X-Robots-Tag %q, want noindex", watch.Header().Get("X-Robots-Tag"))
 	}

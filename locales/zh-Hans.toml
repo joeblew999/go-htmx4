@@ -147,6 +147,7 @@ copied = "已复制"
 share_link = "分享"
 keep_open = "直播期间请保持此页面打开：在手机上切换到其他应用或锁定屏幕会暂停直播，直到你回来。"
 details = "连接详情"
+broadcast_own = "开始你自己的直播"
 no_stream_title = "暂时没有可观看的内容"
 no_stream_description = "打开别人发给你的链接来观看他们的直播，或者开启摄像头并发送你的链接。"
 

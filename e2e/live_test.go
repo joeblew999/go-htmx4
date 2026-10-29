@@ -48,6 +48,8 @@ func testLiveVideo(t *testing.T) {
 	viewer := newTabWith(t, "viewer", camera...)
 	viewer.known = []string{audio}
 	viewer.open(link)
+	check(t, "the link's page is for watching: no broadcast card, a way to start one's own",
+		viewer.is(`!document.querySelector("[data-moq=broadcast]") && !!document.querySelector("[data-testid=moq-broadcast-own]")`))
 	playing := viewer.waitJS(60*time.Second, `document.querySelector("[data-moq=watch]").dataset.state === "playing"`)
 	check(t, "the viewer plays the broadcast", playing, viewer.str(liveState))
 	frames := viewer.num(`document.querySelector("moq-watch").video.out.stats.peek()?.frameCount ?? 0`)

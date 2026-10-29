@@ -147,6 +147,7 @@ copied = "已複製"
 share_link = "分享"
 keep_open = "直播期間請保持此頁面開啟：在手機上切換到其他應用程式或鎖定螢幕會暫停直播，直到你回來。"
 details = "連線詳細資料"
+broadcast_own = "開始你自己的直播"
 no_stream_title = "目前沒有可觀看的內容"
 no_stream_description = "開啟別人傳給你的連結來觀看他們的直播，或開啟攝影機並傳送你的連結。"
 

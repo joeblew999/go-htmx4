@@ -4,5 +4,17 @@
     "why": "go-htmx4 #156: let WebKit (iOS, Safari) use WebTransport. Cloudflare's relays refuse the WebSocket fallback, so without it an iPhone never connects. WebKit's stalls (bugs.webkit.org 319818, moq-dev/moq#2388) cut long sessions, mostly when watching on an iPhone.",
     "old": "    if (browser.getEngine().name === \"WebKit\" || browser.getOS().name === \"iOS\")\n        return false;\n",
     "new": "    // go-htmx4 #156: the WebKit/iOS refusal is patched out (web/moq/npm-patches.json).\n"
+  },
+  {
+    "file": "@moq/publish/encoder-wi3Mqpyi.js",
+    "why": "go-htmx4 #156: keep each camera frame's rotation (WebCodecs VideoFrame.rotation) with its size. iOS Safari hands over frames in the sensor's orientation with rotation set; @moq/publish dropped it, so a portrait iPhone broadcast arrived turned 90 degrees.",
+    "old": "\t\t\t\tthis.#e.display.set({\n\t\t\t\t\twidth: t.codedWidth,\n\t\t\t\t\theight: t.codedHeight,\n\t\t\t\t\tscale: r\n\t\t\t\t}), n.enqueue(t);",
+    "new": "\t\t\t\tthis.#e.display.set({\n\t\t\t\t\twidth: t.codedWidth,\n\t\t\t\t\theight: t.codedHeight,\n\t\t\t\t\tscale: r,\n\t\t\t\t\trotation: t.rotation ?? 0\n\t\t\t\t}), n.enqueue(t);"
+  },
+  {
+    "file": "@moq/publish/encoder-wi3Mqpyi.js",
+    "why": "go-htmx4 #156: write that rotation into the catalog (hang's video.rotation, which @moq/watch already draws by) and give the display size upright.",
+    "old": "\t\t\t\to && (t.display = {\n\t\t\t\t\twidth: l.u53(o.width),\n\t\t\t\t\theight: l.u53(o.height)\n\t\t\t\t}), s && (t.flip = !0), e.video = t;",
+    "new": "\t\t\t\to && (t.display = o.rotation % 180 ? {\n\t\t\t\t\twidth: l.u53(o.height),\n\t\t\t\t\theight: l.u53(o.width)\n\t\t\t\t} : {\n\t\t\t\t\twidth: l.u53(o.width),\n\t\t\t\t\theight: l.u53(o.height)\n\t\t\t\t}), o?.rotation && (t.rotation = o.rotation), s && (t.flip = !0), e.video = t;"
   }
 ]
