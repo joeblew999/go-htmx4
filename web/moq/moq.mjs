@@ -24,6 +24,30 @@ const RESUBSCRIBE_MS = 10_000;
 // on a weak uplink would attempt more than it can send. A fixed ceiling, as remy-sport's ENCODER.
 const ENCODER = { maxBitrate: 2_000_000, maxPixels: 1280 * 720 };
 
+// DIAGNOSTICS, preview only (#156): out before #157 merges. @moq's warnings (its connection errors), and two
+// WebTransport sessions to the relay, as is and with @moq's options.
+const warnings = [];
+const warn = console.warn.bind(console);
+console.warn = (...args) => {
+	warnings.push(args.map((a) => a?.message ?? String(a)).join(" ").slice(0, 200));
+	warn(...args);
+};
+let probed = false;
+const probes = { plain: "…", moq: "…" };
+async function probe(name, url, options) {
+	try {
+		const wt = new WebTransport(url, options);
+		wt.closed.catch(() => {});
+		probes[name] = await Promise.race([
+			wt.ready.then(() => "ready"),
+			new Promise((r) => setTimeout(() => r("timeout 10s"), 10_000)),
+		]).catch((e) => "rejected " + (e?.message ?? e));
+		wt.close();
+	} catch (e) {
+		probes[name] = "throws " + (e?.message ?? e);
+	}
+}
+
 for (const section of document.querySelectorAll("[data-moq=watch]")) watch(section);
 for (const section of document.querySelectorAll("[data-moq=broadcast]")) broadcast(section);
 
@@ -114,7 +138,12 @@ function broadcast(section) {
 		const debug = section.querySelector("[data-moq-debug]");
 		if (debug && started) {
 			const c = el.connection;
-			debug.textContent = `status=${c?.status?.peek()} transport=${c?.transport?.peek()} error=${c?.error?.peek()} net=${typeof el.broadcast?.net?.peek()} media=${!!media} WT=${"WebTransport" in globalThis}`;
+			if (!probed) {
+				probed = true;
+				probe("plain", el.getAttribute("url"));
+				probe("moq", el.getAttribute("url"), { allowPooling: false, congestionControl: "low-latency", protocols: ["moq-lite-03", "moqt-16", "moqt-15"] });
+			}
+			debug.textContent = `status=${c?.status?.peek()} media=${!!media} | probe plain: ${probes.plain} | probe moq: ${probes.moq} | last warning: ${warnings.at(-1) ?? "none"}`;
 		}
 	};
 	section.addEventListener("click", (event) => {
