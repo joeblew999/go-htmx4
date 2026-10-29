@@ -19,6 +19,10 @@ import (
 
 // defaultRelay is Cloudflare's open MoQ relay network (moq-transport draft-14): every Cloudflare city relays, and it
 // takes no token. MOQ_RELAY_URL names another, such as a token relay of the account's (draft-16).
+//
+// The @moq packages (web/moq/npm-lock.json) are held at the last releases that speak drafts 14 and 16. When
+// Cloudflare's relays ship draft-18, @moq moves to its next release and this relay with it, and the patches in
+// web/moq/npm-patches.json are dropped: the steps are #158.
 const defaultRelay = "https://draft-14.cloudflare.mediaoverquic.com/"
 
 // Each stream is its own broadcast on the relay, under the app's name: the open relay is shared by everyone who uses

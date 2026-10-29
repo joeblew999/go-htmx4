@@ -41,7 +41,7 @@ outputs = ["web/moq/moq.js"]
 run = "go run ./internal/jsbundle -entry web/moq/moq.mjs -out web/moq/moq.js -lock web/moq/npm-lock.json -patches web/moq/npm-patches.json"
 
 ["vendor:moq:update"]
-description = "Re-resolve the @moq packages (e.g. mise run vendor:moq:update @moq/watch@0.6.6 @moq/publish@0.5.3), rewrite web/moq/npm-lock.json and the bundle; keep a version Cloudflare's relays speak (#156)"
+description = "Re-resolve the @moq packages (e.g. mise run vendor:moq:update @moq/watch@0.6.6 @moq/publish@0.5.3), rewrite web/moq/npm-lock.json and the bundle; keep a version Cloudflare's relays speak; move on when they ship draft-18 (#158)"
 dir = "{{config_root}}"
 usage = 'arg "<packages>..." help="name@version of each root package"'
 run = 'go run ./internal/jsbundle -entry web/moq/moq.mjs -out web/moq/moq.js -lock web/moq/npm-lock.json -patches web/moq/npm-patches.json -update ${usage_packages}'

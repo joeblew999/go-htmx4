@@ -51,7 +51,7 @@ function details(section, el, doing) {
 		`connection ${peek(c?.status) ?? "-"} via ${peek(c?.transport) ?? "-"} | error ${peek(c?.error) ?? "-"}`,
 		doing,
 		`browser ${browser()} | ${features()}`,
-		`last warning ${warnings.at(-1) ?? "none"}`,
+		`last warning ${warnings.length ? `${Math.round((Date.now() - warnings.at(-1).at) / 1000)} s ago: ${warnings.at(-1).text}` : "none"}`,
 	].join("\n");
 }
 
@@ -77,11 +77,12 @@ function features() {
 	return `WebTransport${has("WebTransport")} VideoEncoder${has("VideoEncoder")} VideoDecoder${has("VideoDecoder")} AudioEncoder${has("AudioEncoder")} AudioDecoder${has("AudioDecoder")}`;
 }
 
-// @moq reports connection errors only as console warnings: the last few are kept for the details.
+// @moq reports connection errors only as console warnings: the last few are kept for the details, with when.
 const warnings = [];
 const warn = console.warn.bind(console);
 console.warn = (...args) => {
-	warnings.push(args.map((a) => (a instanceof Error ? `${a.name}: ${a.message}` : String(a))).join(" ").slice(0, 300));
+	const text = args.map((a) => (a instanceof Error ? `${a.name}: ${a.message}` : String(a))).join(" ").slice(0, 300);
+	warnings.push({ text, at: Date.now() });
 	if (warnings.length > 5) warnings.shift();
 	warn(...args);
 };
@@ -177,10 +178,11 @@ function broadcast(section) {
 		section.dataset.error = state === "error" ? errorKind(error) : "";
 		section.dataset.muted = String(el.muted);
 		const frame = peek(el.broadcast?.in?.display);
+		const mic = peek(peek(el.sources?.audio)?.out?.source);
 		details(
 			section,
 			el,
-			`broadcast ${state} | camera ${media ? "on" : "off"} | producing ${producing} | frames ${frame ? `${frame.width}x${frame.height} rotation ${frame.rotation ?? "-"}` : "-"}`,
+			`broadcast ${state} | camera ${media ? "on" : "off"} | mic ${mic ? (el.muted ? "muted" : "on") : "off"} | producing ${producing} | frames ${frame ? `${frame.width}x${frame.height} rotation ${frame.rotation ?? "-"}` : "-"}`,
 		);
 	};
 	const link = section.querySelector("[data-testid=moq-share]");

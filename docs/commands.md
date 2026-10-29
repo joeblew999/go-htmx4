@@ -663,7 +663,7 @@ Bundle the live page's @moq elements and their glue into web/moq/moq.js from the
 
 ### `vendor:moq:update`
 
-Re-resolve the @moq packages (e.g. mise run vendor:moq:update @moq/watch@0.6.6 @moq/publish@0.5.3), rewrite web/moq/npm-lock.json and the bundle; keep a version Cloudflare's relays speak (#156)
+Re-resolve the @moq packages (e.g. mise run vendor:moq:update @moq/watch@0.6.6 @moq/publish@0.5.3), rewrite web/moq/npm-lock.json and the bundle; keep a version Cloudflare's relays speak; move on when they ship draft-18 (#158)
 
 
 - **Usage:** `vendor:moq:update <packages>…`
