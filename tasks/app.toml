@@ -36,15 +36,15 @@ echo "✓ htmx $version: web/htmx/htmx.min.js, web/htmx/hx-ws.js, web/htmx/hx-li
 ["vendor:moq"]
 description = "Bundle the live page's @moq elements and their glue into web/moq/moq.js from the packages web/moq/npm-lock.json pins (no Node)"
 dir = "{{config_root}}"
-sources = ["web/moq/moq.mjs", "web/moq/npm-lock.json", "internal/jsbundle/*.go"]
+sources = ["web/moq/moq.mjs", "web/moq/npm-lock.json", "web/moq/npm-patches.json", "internal/jsbundle/*.go"]
 outputs = ["web/moq/moq.js"]
-run = "go run ./internal/jsbundle -entry web/moq/moq.mjs -out web/moq/moq.js -lock web/moq/npm-lock.json"
+run = "go run ./internal/jsbundle -entry web/moq/moq.mjs -out web/moq/moq.js -lock web/moq/npm-lock.json -patches web/moq/npm-patches.json"
 
 ["vendor:moq:update"]
 description = "Re-resolve the @moq packages (e.g. mise run vendor:moq:update @moq/watch@0.6.6 @moq/publish@0.5.3), rewrite web/moq/npm-lock.json and the bundle; keep a version Cloudflare's relays speak (#156)"
 dir = "{{config_root}}"
 usage = 'arg "<packages>..." help="name@version of each root package"'
-run = 'go run ./internal/jsbundle -entry web/moq/moq.mjs -out web/moq/moq.js -lock web/moq/npm-lock.json -update ${usage_packages}'
+run = 'go run ./internal/jsbundle -entry web/moq/moq.mjs -out web/moq/moq.js -lock web/moq/npm-lock.json -patches web/moq/npm-patches.json -update ${usage_packages}'
 
 # The app's components (gsx:generate, from gsxkit's tasks) and this repo's own modules' (intl/, seo/), which commit
 # theirs for the apps that import them; then the tables a TinyGo build of the pages reads (structpages-gen, after gsx:

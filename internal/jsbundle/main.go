@@ -8,6 +8,9 @@
 //
 // Without -update it installs exactly what the lock names. With -update it resolves the named packages and their
 // dependencies afresh (the highest published version each range allows) and rewrites the lock.
+//
+// -patches names a JSON list of {file, why, old, new}: each old must appear exactly once in its unpacked file, so a
+// new version of the package fails the bundle rather than dropping or misapplying a patch.
 package main
 
 import (
@@ -40,6 +43,14 @@ type Lock struct {
 	Packages map[string]Package `json:"packages"`
 }
 
+// Patch replaces old with new in file (a path under node_modules), for the reason why.
+type Patch struct {
+	File string `json:"file"`
+	Why  string `json:"why"`
+	Old  string `json:"old"`
+	New  string `json:"new"`
+}
+
 // Package is one resolved npm package.
 type Package struct {
 	Version   string `json:"version"`
@@ -55,6 +66,7 @@ func main() {
 	lockPath := flag.String("lock", "", "the lock file")
 	update := flag.Bool("update", false, "resolve the packages named as arguments (name@version) and rewrite the lock")
 	modules := flag.String("modules", "dist/npm", "where packages are unpacked (git-ignored)")
+	patches := flag.String("patches", "", "a JSON list of patches to the unpacked packages")
 	flag.Parse()
 	if *entry == "" || *out == "" || *lockPath == "" {
 		fail(errors.New("-entry, -out and -lock are required"))
@@ -93,6 +105,11 @@ func main() {
 			fail(err)
 		}
 	}
+	if *patches != "" {
+		if err := applyPatches(root, *patches); err != nil {
+			fail(err)
+		}
+	}
 
 	abs, _ := filepath.Abs(root)
 	result := api.Build(api.BuildOptions{
@@ -115,6 +132,32 @@ func main() {
 	}
 	st, _ := os.Stat(*out)
 	fmt.Printf("✓ %s: %d packages, %d bytes\n", *out, len(lock.Packages), st.Size())
+}
+
+// applyPatches applies the patches listed in path to the packages unpacked under root.
+func applyPatches(root, path string) error {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return err
+	}
+	var patches []Patch
+	if err := json.Unmarshal(data, &patches); err != nil {
+		return fmt.Errorf("%s: %w", path, err)
+	}
+	for _, p := range patches {
+		file := filepath.Join(root, filepath.FromSlash(p.File))
+		src, err := os.ReadFile(file)
+		if err != nil {
+			return err
+		}
+		if n := strings.Count(string(src), p.Old); n != 1 {
+			return fmt.Errorf("%s: patch %q: its old text appears %d times, want 1 (did the package change?)", path, p.File, n)
+		}
+		if err := os.WriteFile(file, []byte(strings.Replace(string(src), p.Old, p.New, 1)), 0o644); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // resolve resolves roots ("name@version") and everything they depend on, highest matching version first; one version

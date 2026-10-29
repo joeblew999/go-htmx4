@@ -1,0 +1,8 @@
+[
+  {
+    "file": "@moq/net/connection/browser.js",
+    "why": "go-htmx4 #156: let WebKit (iOS, Safari) use WebTransport. Cloudflare's relays refuse the WebSocket fallback, so without it an iPhone never connects. WebKit's stalls (bugs.webkit.org 319818, moq-dev/moq#2388) cut long sessions, mostly when watching on an iPhone.",
+    "old": "    if (browser.getEngine().name === \"WebKit\" || browser.getOS().name === \"iOS\")\n        return false;\n",
+    "new": "    // go-htmx4 #156: the WebKit/iOS refusal is patched out (web/moq/npm-patches.json).\n"
+  }
+]
