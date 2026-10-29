@@ -24,8 +24,53 @@ const RESUBSCRIBE_MS = 10_000;
 // on a weak uplink would attempt more than it can send. A fixed ceiling, as remy-sport's ENCODER.
 const ENCODER = { maxBitrate: 2_000_000, maxPixels: 1280 * 720 };
 
-// DIAGNOSTICS, preview only (#156): out before #157 merges. @moq's warnings (its connection errors), and two
-// WebTransport sessions to the relay, as is and with @moq's options.
+// DIAGNOSTICS on screen (#156), for testing on phones; whether they stay is decided before #157 merges. Each card's
+// [data-moq-debug] shows the @moq versions and patches (__NPM_VERSIONS__, __NPM_PATCHED__: internal/jsbundle defines
+// them from the lock), the relay, the connection (status, transport, the session's protocol version), the browser and
+// its features, and @moq's last warning; the broadcast card also two WebTransport sessions to the relay, as is and
+// with @moq's options.
+const moqVersions = Object.entries(__NPM_VERSIONS__)
+	.filter(([name]) => name.startsWith("@moq/"))
+	.map(([name, version]) => `${name.slice(5)}@${version}`)
+	.join(" ");
+const patched = __NPM_PATCHED__.length ? __NPM_PATCHED__.join(", ") : "none";
+
+function debug(section, el, extra) {
+	const out = section.querySelector("[data-moq-debug]");
+	if (!out) return;
+	const peek = (s) => {
+		try {
+			return s?.peek?.();
+		} catch {
+			return undefined;
+		}
+	};
+	const c = el.connection;
+	const session = peek(c?.established);
+	const version = session?.version;
+	const url = el.getAttribute("url");
+	out.textContent = [
+		`moq ${moqVersions} | patched ${patched}`,
+		`relay ${url ? new URL(url).host : "-"} ${el.getAttribute("name") ?? "-"}`,
+		`conn ${peek(c?.status) ?? "-"} via ${peek(c?.transport) ?? "-"} | version ${typeof version === "number" ? "0x" + version.toString(16) : (version ?? "-")}${session?.constructor?.name ? " (" + session.constructor.name + ")" : ""} | error ${peek(c?.error) ?? "-"}`,
+		extra,
+		`browser ${browser()} | ${features()}`,
+		`last warning ${warnings.at(-1) ?? "none"}`,
+	].join("\n");
+}
+
+function browser() {
+	const ua = navigator.userAgent;
+	const os = ua.match(/iPhone|iPad|Android [\d.]+|Mac OS X|Windows|Linux/)?.[0] ?? "?";
+	const name = ua.match(/CriOS\/[\d.]+|FxiOS\/[\d.]+|EdgiOS\/[\d.]+|Edg\/[\d.]+|Firefox\/[\d.]+|Chrome\/[\d.]+|Version\/[\d.]+(?=.*Safari)/)?.[0] ?? "?";
+	return `${os} ${name.replace("Version/", "Safari/")}`;
+}
+
+function features() {
+	const has = (k) => (k in globalThis ? "+" : "-");
+	return `WT${has("WebTransport")} VE${has("VideoEncoder")} VD${has("VideoDecoder")} AE${has("AudioEncoder")} AD${has("AudioDecoder")} MSTP${has("MediaStreamTrackProcessor")} COI${globalThis.crossOriginIsolated ? "+" : "-"}`;
+}
+
 const warnings = [];
 const warn = console.warn.bind(console);
 console.warn = (...args) => {
@@ -90,6 +135,7 @@ function watch(section) {
 		section.dataset.state = state;
 		section.dataset.paused = String(paused);
 		section.dataset.muted = String(el.muted);
+		debug(section, el, `state ${state} | broadcast ${live ?? "-"} | frames ${count}`);
 	};
 	section.addEventListener("click", (event) => {
 		const action = event.target.closest("[data-moq-action]")?.dataset.moqAction;
@@ -135,17 +181,12 @@ function broadcast(section) {
 		section.dataset.state = state === "stopped" ? "idle" : state;
 		section.dataset.error = state === "error" ? errorKind(error) : "";
 		section.dataset.muted = String(el.muted);
-		// DIAGNOSTICS, preview only (#156): out before #157 merges.
-		const debug = section.querySelector("[data-moq-debug]");
-		if (debug && started) {
-			const c = el.connection;
-			if (!probed) {
-				probed = true;
-				probe("plain", el.getAttribute("url"));
-				probe("moq", el.getAttribute("url"), { allowPooling: false, congestionControl: "low-latency", protocols: ["moq-lite-03", "moqt-16", "moqt-15"] });
-			}
-			debug.textContent = `status=${c?.status?.peek()} media=${!!media} | probe plain: ${probes.plain} | probe moq: ${probes.moq} | last warning: ${warnings.at(-1) ?? "none"}`;
+		if (started && !probed && "WebTransport" in globalThis) {
+			probed = true;
+			probe("plain", el.getAttribute("url"));
+			probe("moq", el.getAttribute("url"), { allowPooling: false, congestionControl: "low-latency", protocols: ["moq-lite-03", "moqt-16", "moqt-15"] });
 		}
+		debug(section, el, `state ${state} | camera ${media ? "on" : "off"} | producing ${producing} | probe plain ${probes.plain}, moq ${probes.moq}`);
 	};
 	section.addEventListener("click", (event) => {
 		const action = event.target.closest("[data-moq-action]")?.dataset.moqAction;

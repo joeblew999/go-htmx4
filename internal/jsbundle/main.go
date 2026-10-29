@@ -105,11 +105,20 @@ func main() {
 			fail(err)
 		}
 	}
+	patched := []string{}
 	if *patches != "" {
-		if err := applyPatches(root, *patches); err != nil {
+		files, err := applyPatches(root, *patches)
+		if err != nil {
 			fail(err)
 		}
+		patched = files
 	}
+	versions := map[string]string{}
+	for name, p := range lock.Packages {
+		versions[name] = p.Version
+	}
+	versionsJSON, _ := json.Marshal(versions)
+	patchedJSON, _ := json.Marshal(patched)
 
 	abs, _ := filepath.Abs(root)
 	result := api.Build(api.BuildOptions{
@@ -126,6 +135,8 @@ func main() {
 		LegalComments:     api.LegalCommentsEndOfFile,
 		NodePaths:         []string{abs},
 		LogLevel:          api.LogLevelWarning,
+		// What the bundle was built from, for the page to show: every package's version, and the files patched.
+		Define: map[string]string{"__NPM_VERSIONS__": string(versionsJSON), "__NPM_PATCHED__": string(patchedJSON)},
 	})
 	if len(result.Errors) > 0 {
 		os.Exit(1)
@@ -134,30 +145,32 @@ func main() {
 	fmt.Printf("✓ %s: %d packages, %d bytes\n", *out, len(lock.Packages), st.Size())
 }
 
-// applyPatches applies the patches listed in path to the packages unpacked under root.
-func applyPatches(root, path string) error {
+// applyPatches applies the patches listed in path to the packages unpacked under root, and returns the files patched.
+func applyPatches(root, path string) ([]string, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	var patches []Patch
 	if err := json.Unmarshal(data, &patches); err != nil {
-		return fmt.Errorf("%s: %w", path, err)
+		return nil, fmt.Errorf("%s: %w", path, err)
 	}
+	var files []string
 	for _, p := range patches {
 		file := filepath.Join(root, filepath.FromSlash(p.File))
 		src, err := os.ReadFile(file)
 		if err != nil {
-			return err
+			return nil, err
 		}
 		if n := strings.Count(string(src), p.Old); n != 1 {
-			return fmt.Errorf("%s: patch %q: its old text appears %d times, want 1 (did the package change?)", path, p.File, n)
+			return nil, fmt.Errorf("%s: patch %q: its old text appears %d times, want 1 (did the package change?)", path, p.File, n)
 		}
 		if err := os.WriteFile(file, []byte(strings.Replace(string(src), p.Old, p.New, 1)), 0o644); err != nil {
-			return err
+			return nil, err
 		}
+		files = append(files, p.File)
 	}
-	return nil
+	return files, nil
 }
 
 // resolve resolves roots ("name@version") and everything they depend on, highest matching version first; one version

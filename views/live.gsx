@@ -76,6 +76,8 @@ component LiveWatch(url string, name string) {
 						<canvas class="size-full object-contain" aria-label={locales.LiveWatchTitle |> text}></canvas>
 					</moq-watch>
 				</div>
+				// DIAGNOSTICS on screen (#156): what the watcher's element reports, filled in by /static/moq.js.
+				<p class="mt-3 whitespace-pre-wrap break-all font-mono text-xs text-muted-foreground" dir="ltr" translate="no" data-moq-debug></p>
 			</ui.CardContent>
 			<ui.CardFooter class="flex-wrap gap-2">
 				<ui.Button variant="outline" size="sm" data-moq-action="pause" class="group-data-[paused=true]/moq:hidden">
@@ -161,8 +163,8 @@ component LiveBroadcast(url string, name string, share Live, origin string) {
 						</a>
 					</ui.AlertDescription>
 				</ui.Alert>
-				// DIAGNOSTICS, preview only (#156): what the publisher's signals read, filled in by /static/moq.js.
-				<p class="text-xs text-muted-foreground break-all" dir="ltr" translate="no" data-moq-debug></p>
+				// DIAGNOSTICS on screen (#156): what the broadcaster's element reports, filled in by /static/moq.js.
+				<p class="whitespace-pre-wrap break-all font-mono text-xs text-muted-foreground" dir="ltr" translate="no" data-moq-debug></p>
 				<ui.Alert variant="destructive" class="hidden group-data-[error=denied]/moq:grid">
 					<ui.AlertDescription>{ locales.LiveErrorDenied }</ui.AlertDescription>
 				</ui.Alert>
