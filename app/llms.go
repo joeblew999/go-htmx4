@@ -18,6 +18,7 @@ var pageText = map[any][2]intl.Msg{
 	views.Board{}:      {locales.BoardTitle, locales.BoardIntro},
 	views.Formats{}:    {locales.FormatsTitle, locales.FormatsDescription},
 	views.Components{}: {locales.ComponentsTitle, locales.ComponentsDescription},
+	views.Live{}:       {locales.LiveTitle, locales.LiveDescription},
 	views.About{}:      {locales.AboutTitle, locales.AboutDescription},
 }
 

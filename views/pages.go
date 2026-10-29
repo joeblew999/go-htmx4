@@ -23,11 +23,12 @@ type Pages struct {
 	board      Board      `route:"GET /board Board"`
 	formats    Formats    `route:"GET /formats Formats"`
 	components Components `route:"GET /components Components"`
+	live       Live       `route:"GET /live Live"`
 	about      About      `route:"GET /about About"`
 }
 
 // All is every page, each with no parameters: the sitemap's pages (those search engines may index).
-var All = []any{Home{}, Board{}, Formats{}, Components{}, About{}}
+var All = []any{Home{}, Board{}, Formats{}, Components{}, Live{}, About{}}
 
 // Home is the home page.
 type Home struct{}
@@ -55,6 +56,9 @@ type Formats struct{}
 // Components is every gsxui component, with Intl.
 type Components struct{}
 
+// Live is live video over MoQ (#156): a camera broadcast and its watchers, through Cloudflare's relay.
+type Live struct{}
+
 // About is the stack.
 type About struct{}
 
@@ -67,6 +71,17 @@ type App interface {
 	// Board is the request's board, or false when the app has answered the request itself (a bad topic, a store
 	// error).
 	Board(w http.ResponseWriter, r *http.Request) (BoardProps, bool)
+	// Live is where the live video page's broadcast goes: the relay and the broadcast's name.
+	Live(r *http.Request) LiveProps
+}
+
+// LiveProps is the live video page's data. The relay URLs carry a relay token when the Worker has one (Cloudflare's
+// draft-16 relays take it in the path), so they are never logged.
+type LiveProps struct {
+	// WatchURL and PublishURL are the relay as a watcher and as the broadcaster reach it.
+	WatchURL, PublishURL string
+	// Name is the broadcast's path on the relay; its .hang suffix selects the catalog format players read.
+	Name string
 }
 
 // HomeProps is the home page's data.
@@ -93,6 +108,8 @@ func (Board) Props(w http.ResponseWriter, r *http.Request, app App) (BoardProps,
 }
 
 func (Formats) Props(r *http.Request, app App) Connection { return app.Connection(r) }
+
+func (Live) Props(r *http.Request, app App) LiveProps { return app.Live(r) }
 
 func (About) Props(app App) []StackItem { return app.Stack() }
 

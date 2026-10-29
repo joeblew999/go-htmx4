@@ -30,6 +30,22 @@ rm -rf "$tgz" "$tmp"
 echo "✓ htmx $version: web/htmx/htmx.min.js, web/htmx/hx-ws.js, web/htmx/hx-live.js"
 '''
 
+# The live page's MoQ elements (#156): @moq/watch and @moq/publish with the page's glue (web/moq/moq.mjs), bundled into
+# one module by internal/jsbundle (npm's registry over HTTP, integrity-checked, esbuild's Go API: no Node), from the
+# packages web/moq/npm-lock.json names. Skipped when none of its inputs changed; the bundle is committed, like htmx.
+["vendor:moq"]
+description = "Bundle the live page's @moq elements and their glue into web/moq/moq.js from the packages web/moq/npm-lock.json pins (no Node)"
+dir = "{{config_root}}"
+sources = ["web/moq/moq.mjs", "web/moq/npm-lock.json", "internal/jsbundle/*.go"]
+outputs = ["web/moq/moq.js"]
+run = "go run ./internal/jsbundle -entry web/moq/moq.mjs -out web/moq/moq.js -lock web/moq/npm-lock.json"
+
+["vendor:moq:update"]
+description = "Re-resolve the @moq packages (e.g. mise run vendor:moq:update @moq/watch@0.6.6 @moq/publish@0.5.3), rewrite web/moq/npm-lock.json and the bundle; keep a version Cloudflare's relays speak (#156)"
+dir = "{{config_root}}"
+usage = 'arg "<packages>..." help="name@version of each root package"'
+run = 'go run ./internal/jsbundle -entry web/moq/moq.mjs -out web/moq/moq.js -lock web/moq/npm-lock.json -update ${usage_packages}'
+
 # The app's components (gsx:generate, from gsxkit's tasks) and this repo's own modules' (intl/, seo/), which commit
 # theirs for the apps that import them; then the tables a TinyGo build of the pages reads (structpages-gen, after gsx:
 # the pages' Page methods are gsx's code). Every build/run/test path depends on this.
@@ -43,7 +59,7 @@ run = ["go -C intl tool gsx generate -q .", "go -C seo tool gsx generate -q .", 
 # behaviours, /assets/ = gsxui's compiled CSS (gsxui:css) + fonts (fonts.css url()s are relative).
 ["assets"]
 description = "Assemble dist/site, the Static Assets for workerd and deploy: htmx, intl's browser module, gsxui's behaviours, CSS and fonts"
-depends = ["vendor", "gsxui:css"]
+depends = ["vendor", "vendor:moq", "gsxui:css"]
 dir = "{{config_root}}"
 run = '''
 #!/usr/bin/env bash
@@ -53,6 +69,8 @@ mkdir -p dist/site/static dist/site/gsxui dist/site/assets
 # htmx and its extensions as one deferred script (/static/htmx.js): out of the way of the first paint, and in one
 # script, so the extensions register before htmx's start, which a deferred htmx runs on the next task (setTimeout).
 for f in htmx.min.js hx-live.js hx-ws.js; do cat "web/htmx/$f"; echo ";"; done >dist/site/static/htmx.js
+# The live page's MoQ elements and glue (/static/moq.js), its own module: only that page loads it.
+cp web/moq/moq.js dist/site/static/moq.js
 # The site's icon (<link rel="icon"> in the layout, which browsers and Google read).
 cp web/favicon.svg dist/site/static/
 # The browser's half of intl, with the same intl.mjs the Worker runs (/static/intl-browser.mjs).

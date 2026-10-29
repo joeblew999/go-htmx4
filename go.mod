@@ -15,10 +15,12 @@ require (
 
 require (
 	github.com/BurntSushi/toml v1.6.0 // indirect
+	github.com/Masterminds/semver/v3 v3.5.0 // indirect
 	github.com/coder/websocket v1.8.15 // indirect
 	github.com/djherbis/atime v1.1.0 // indirect
 	github.com/dustin/go-humanize v1.1.0 // indirect
 	github.com/editorconfig/editorconfig-core-go/v2 v2.6.4 // indirect
+	github.com/evanw/esbuild v0.28.2 // indirect
 	github.com/fsnotify/fsnotify v1.10.1 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/jackielii/ctxkey v1.0.1 // indirect

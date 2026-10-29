@@ -22,7 +22,7 @@ Every command is a mise task: `mise run <task>`; `mise tasks` lists them. Which 
 
 ### `assets`
 
-- Depends: vendor, gsxui:css
+- Depends: vendor, vendor:moq, gsxui:css
 
 - **Usage:** `assets`
 
@@ -654,3 +654,19 @@ Build and test this app with an upstream checkout instead of the pinned version 
 - **Usage:** `vendor`
 
 Vendor htmx 4.0.0 htmx.min.js + ext/hx-ws.js + ext/hx-live.js into web/htmx/ (curl, integrity-checked)
+
+### `vendor:moq`
+
+- **Usage:** `vendor:moq`
+
+Bundle the live page's @moq elements and their glue into web/moq/moq.js from the packages web/moq/npm-lock.json pins (no Node)
+
+### `vendor:moq:update`
+
+Re-resolve the @moq packages (e.g. mise run vendor:moq:update @moq/watch@0.6.6 @moq/publish@0.5.3), rewrite web/moq/npm-lock.json and the bundle; keep a version Cloudflare's relays speak (#156)
+
+
+- **Usage:** `vendor:moq:update <packages>…`
+
+### Arguments
+- **`<packages>…`** — name@version of each root package
