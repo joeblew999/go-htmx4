@@ -147,7 +147,14 @@ component LiveBroadcast(url string, name string, share Live, origin string) {
 				</ui.CardAction>
 			</ui.CardHeader>
 			<ui.CardContent class="flex flex-col gap-4">
-				<div class="aspect-video overflow-hidden rounded-lg bg-muted">
+				<div class="relative aspect-video overflow-hidden rounded-lg bg-muted">
+					// The camera's place, before it starts.
+					<div
+						class="absolute inset-0 hidden items-center justify-center text-muted-foreground group-data-[state=idle]/moq:flex"
+						aria-hidden="true"
+					>
+						<icon.VideoOff class="size-10"/>
+					</div>
 					// The page view's own stream: an idle publisher on the connection its watcher shares holds a name no
 					// link watches, so it shadows nothing (#156).
 					<moq-publish url={url} name={name} announce="source" class="block size-full">
@@ -170,12 +177,13 @@ component LiveBroadcast(url string, name string, share Live, origin string) {
 							<ui.InputGroupButton data-moq-action="copy">
 								<icon.Copy class="group-data-[copied=true]/moq:hidden"/>
 								<icon.Check class="hidden group-data-[copied=true]/moq:block"/>
-								<span class="group-data-[copied=true]/moq:hidden">{ locales.LiveCopyLink }</span>
-								<span class="hidden group-data-[copied=true]/moq:inline">{ locales.LiveCopied }</span>
+								// On a phone the buttons are their icons, so the link keeps the room; the words stay for screen readers.
+								<span class="sr-only sm:not-sr-only group-data-[copied=true]/moq:hidden">{ locales.LiveCopyLink }</span>
+								<span class="sr-only sm:not-sr-only hidden group-data-[copied=true]/moq:inline">{ locales.LiveCopied }</span>
 							</ui.InputGroupButton>
 							<ui.InputGroupButton data-moq-action="share" class="hidden group-data-[can-share=true]/moq:inline-flex">
 								<icon.Share/>
-								{ locales.LiveShareLink }
+								<span class="sr-only sm:not-sr-only">{ locales.LiveShareLink }</span>
 							</ui.InputGroupButton>
 						</ui.InputGroupAddon>
 					</ui.InputGroup>
@@ -239,7 +247,7 @@ component LiveDetails() {
 		</ui.CollapsibleTrigger>
 		<ui.CollapsibleContent>
 			<pre
-				class="whitespace-pre-wrap break-all rounded-md bg-muted p-3 font-mono text-xs text-muted-foreground"
+				class="whitespace-pre-wrap wrap-break-word rounded-md bg-muted p-3 font-mono text-xs text-muted-foreground"
 				dir="ltr"
 				translate="no"
 				data-moq-debug
