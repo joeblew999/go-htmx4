@@ -43,3 +43,11 @@ func relayURL(base, token string) string {
 	u.Path = "/" + url.PathEscape(token)
 	return u.String()
 }
+
+// isolate makes the live page cross-origin isolated, so the MoQ elements get SharedArrayBuffer: their audio then
+// plays from a shared ring buffer, not the higher-latency postMessage path they fall back to (and warn about). Every
+// file the page loads is the site's own, so require-corp blocks nothing.
+func isolate(w http.ResponseWriter) {
+	w.Header().Set("Cross-Origin-Opener-Policy", "same-origin")
+	w.Header().Set("Cross-Origin-Embedder-Policy", "require-corp")
+}

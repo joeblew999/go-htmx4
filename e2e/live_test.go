@@ -20,6 +20,9 @@ func testLiveVideo(t *testing.T) {
 		chromedp.Flag("disable-quic", false),
 	}
 	caster := newTabWith(t, "broadcaster", camera...)
+	// @moq/watch 0.6.6 disconnects an audio node twice when a broadcast stops (an upstream bug, to report): the
+	// broadcaster's own watcher logs it as "cleanup error".
+	caster.known = []string{"Failed to execute 'disconnect' on 'AudioNode'"}
 	caster.open("/live")
 	check(t, "the broadcast starts idle", caster.waitJS(10*time.Second, `document.querySelector("[data-moq=broadcast]").dataset.state === "idle"`))
 	caster.clickText("[data-moq=broadcast] button", caster.str(`document.querySelector("[data-moq=broadcast] [data-moq-action=start]").textContent.trim()`))

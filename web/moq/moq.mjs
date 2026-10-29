@@ -15,6 +15,11 @@ const TICK = 250;
 // broadcast behind it shows nothing. Ported from remy-sport's WatchProgress.
 const STALL_MS = 3000;
 
+// Without broadcast discovery (Cloudflare's draft-14 relays), a subscription made before the broadcast starts, or
+// one that ended with it, is not picked up again: the watcher subscribes afresh after this long with no frames, as
+// remy-sport re-mounted its element.
+const RESUBSCRIBE_MS = 10_000;
+
 // Cloudflare's IETF relays carry no bandwidth probe, so the encoder's automatic bitrate clamp never runs and a phone
 // on a weak uplink would attempt more than it can send. A fixed ceiling, as remy-sport's ENCODER.
 const ENCODER = { maxBitrate: 2_000_000, maxPixels: 1280 * 720 };
@@ -33,6 +38,7 @@ function watch(section) {
 	let frames = 0;
 	let progressed = 0;
 	let played = false;
+	let nudged = Date.now();
 	const read = () => {
 		const now = Date.now();
 		const paused = el.paused;
@@ -50,6 +56,12 @@ function watch(section) {
 		else if (played && now - progressed < STALL_MS) state = "playing";
 		else if (live === "offline") state = played ? "ended" : "waiting";
 		else state = played ? "reconnecting" : "waiting";
+		if ((state === "waiting" || state === "ended" || state === "reconnecting") && connected && !document.hidden) {
+			if (now - Math.max(progressed, nudged) >= RESUBSCRIBE_MS) {
+				nudged = now;
+				resubscribe(el);
+			}
+		}
 		section.dataset.state = state;
 		section.dataset.paused = String(paused);
 		section.dataset.muted = String(el.muted);
@@ -103,10 +115,12 @@ function broadcast(section) {
 		const action = event.target.closest("[data-moq-action]")?.dataset.moqAction;
 		if (action === "start") {
 			started = true;
+			el.name = el.dataset.name;
 			el.source = "camera";
 		} else if (action === "stop") {
 			started = false;
 			el.source = undefined;
+			el.name = "";
 		} else if (action === "mute") el.muted = true;
 		else if (action === "unmute") el.muted = false;
 		read();
@@ -121,4 +135,14 @@ function errorKind(error) {
 	if (error?.name === "NotFoundError" || error?.name === "NotReadableError" || error?.name === "OverconstrainedError")
 		return "unavailable";
 	return "failed";
+}
+
+// resubscribe takes the element out of the page and puts it back on the next task: it disconnects, which closes its
+// subscription, and connects again, which makes a new one. Its signals coalesce per microtask, so it has to be out
+// for a whole task for the element to see it.
+function resubscribe(el) {
+	const parent = el.parentNode;
+	const next = el.nextSibling;
+	el.remove();
+	setTimeout(() => parent.insertBefore(el, next), 0);
 }

@@ -58,7 +58,9 @@ component LiveWatch(url string, name string) {
 			</ui.CardHeader>
 			<ui.CardContent>
 				<div class="aspect-video overflow-hidden rounded-lg bg-muted" data-moq-frame>
-					<moq-watch url={url} name={name} muted class="block size-full">
+					// announced="false": subscribe by name. Cloudflare's draft-14 relays don't answer namespace subscriptions, so a
+					// watcher waiting for the broadcast to be announced would wait forever (#156).
+					<moq-watch url={url} name={name} muted announced="false" class="block size-full">
 						<canvas class="size-full object-contain" aria-label={locales.LiveWatchTitle |> text}></canvas>
 					</moq-watch>
 				</div>
@@ -125,7 +127,9 @@ component LiveBroadcast(url string, name string) {
 			</ui.CardHeader>
 			<ui.CardContent class="flex flex-col gap-4">
 				<div class="aspect-video overflow-hidden rounded-lg bg-muted">
-					<moq-publish url={url} name={name} announce="source" class="block size-full">
+					// No name until the camera is on (moq.mjs sets it): on every page an idle publisher holding the broadcast's
+					// name would be the broadcast its own watcher finds first, empty, instead of the relay's (#156).
+					<moq-publish url={url} data-name={name} announce="source" class="block size-full">
 						<video muted autoplay playsinline class="size-full object-contain"></video>
 					</moq-publish>
 				</div>

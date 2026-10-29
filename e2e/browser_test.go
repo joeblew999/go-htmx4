@@ -10,6 +10,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"slices"
 	"strings"
 	"sync"
 	"testing"
@@ -42,7 +43,8 @@ type tab struct {
 	problems []string // console errors, exceptions, CSP violations, HTTP ≥ 400 (except favicon)
 	wsOpened int
 	wsFrames int
-	allow4xx bool // tests that expect 4xx responses
+	allow4xx bool     // tests that expect 4xx responses
+	known    []string // problems a test expects (an upstream bug, named with its report), matched by substring
 }
 
 func newTab(t *testing.T, name string) *tab {
@@ -170,8 +172,14 @@ func (tb *tab) noProblems() {
 	tb.t.Helper()
 	tb.mu.Lock()
 	defer tb.mu.Unlock()
-	if len(tb.problems) > 0 {
-		tb.t.Errorf("%s: console errors, exceptions or HTTP errors: %v", tb.name, tb.problems)
+	var problems []string
+	for _, p := range tb.problems {
+		if !slices.ContainsFunc(tb.known, func(k string) bool { return strings.Contains(p, k) }) {
+			problems = append(problems, p)
+		}
+	}
+	if len(problems) > 0 {
+		tb.t.Errorf("%s: console errors, exceptions or HTTP errors: %v", tb.name, problems)
 	}
 }
 
