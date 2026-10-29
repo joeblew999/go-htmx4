@@ -21,8 +21,8 @@ import (
 
 	"github.com/gsxhq/gsx"
 	"github.com/jackielii/structpages"
-	"github.com/joeblew999/charter/go/lib/bindings"
-	"github.com/joeblew999/charter/go/lib/web"
+	"github.com/joeblew999/charter/bindings"
+	"github.com/joeblew999/charter/web"
 	"github.com/joeblew999/go-htmx4/intl"
 	"github.com/joeblew999/go-htmx4/locales"
 	"github.com/joeblew999/go-htmx4/views"

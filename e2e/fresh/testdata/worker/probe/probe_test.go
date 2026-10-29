@@ -1,4 +1,4 @@
-// Package probe checks a running fresh Worker at BASE: on local workerd (go tool charter with) or deployed.
+// Package probe checks a running fresh Worker at BASE: on local workerd (charter with) or deployed.
 package probe
 
 import (

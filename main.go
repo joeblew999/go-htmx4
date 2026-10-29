@@ -8,7 +8,7 @@
 package main
 
 import (
-	"github.com/joeblew999/charter/go/lib/transport"
+	"github.com/joeblew999/charter/transport"
 	"github.com/joeblew999/go-htmx4/app"
 )
 

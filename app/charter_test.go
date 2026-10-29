@@ -9,7 +9,7 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/joeblew999/charter/go/lib/project"
+	"github.com/joeblew999/charter/project"
 )
 
 // TestCharterToml: charter.toml is where the Worker's facts live (deploys and local workerd read it). The copies other

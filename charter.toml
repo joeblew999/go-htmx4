@@ -1,5 +1,5 @@
 # charter.toml: go-htmx4 on Cloudflare, every fact about the Worker once (github.com/joeblew999/charter: go doc
-# github.com/joeblew999/charter/go/lib/project). go tool charter reads it: deploy production|staging|preview, and
+# github.com/joeblew999/charter/project). charter reads it: deploy production|staging|preview, and
 # local, serve and with (.charter/, workerd's config and stand-ins, generated from it). TestCharterToml checks the copies
 # kept elsewhere against it (mise.toml's APP_NAME and APP_DOMAIN, the dev port).
 name = "go-htmx4"
@@ -11,7 +11,7 @@ modules = ["worker/room.mjs"]
 assets = "dist/site"
 health = "/healthz"
 port = 8913
-# Where CI publishes each commit's build for Workers Builds (go tool charter ci publish, builds), and the account's
+# Where CI publishes each commit's build for Workers Builds (charter ci publish, builds), and the account's
 # workers.dev subdomain: a branch's preview is https://<branch>-go-htmx4.gedw99.workers.dev.
 repo = "joeblew999/go-htmx4"
 subdomain = "gedw99"
@@ -54,11 +54,19 @@ vars = { APP_ENV = "workerd (local)" }
 [build]
 command = "mise run build"
 
-# CI (.github/workflows/charter.yml → go tool charter ci run): only the tools it runs; the build beside the Go tests and
+# CI (.github/workflows/charter.yml → charter ci run): only the tools it runs; the build beside the Go tests and
 # the fresh apps, then published for the commit's preview; then workerd, Chrome and the CPU table; a release also tags
 # intl, seo and badge with their next versions before production moves.
 [ci]
-tools = ["go", "go@1.26", "tinygo", "github:WebAssembly/binaryen", "github:tailwindlabs/tailwindcss", "workerd", "http:chrome-headless-shell", "jq"]
+tools = ["go", "go@1.26", "tinygo", "aqua:WebAssembly/binaryen", "github:tailwindlabs/tailwindcss", "workerd", "http:chrome-headless-shell", "jq"]
 build = "mise run build ::: test:go ::: fresh"
 test = "mise run --skip-deps smoke && mise run --skip-deps e2e && mise run --skip-deps ci:bench"
 release_hook = "ci/module-tags.sh \"$GITHUB_SHA\""
+
+# The repo, as charter init keeps it. No charter-ci.yml or charter-repo.yml: they run JavaScript actions
+# (actions/checkout, jdx/mise-action), and this repo's CI is shell steps only (AGENTS.md); .github/workflows/charter.yml
+# is. No renovate.json: it would merge minor and patch updates on its own, and some pins here are exact on purpose
+# (workers-go, workerd with the compatibility date, Chrome).
+[github]
+workflows = false
+renovate = false

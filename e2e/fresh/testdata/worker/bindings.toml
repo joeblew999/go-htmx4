@@ -1,5 +1,5 @@
 
-# The fresh Worker's bindings (TestFreshWorker adds them to what go tool charter init wrote).
+# The fresh Worker's bindings (TestFreshWorker adds them to what charter init wrote).
 [[d1]]
 binding = "DB"
 migrations = "migrations"

@@ -15,11 +15,11 @@ structpages_tables.go
 intl_gen.go
 intl_messages_gen.go
 intl-messages.mjs
-# The Worker's build (mise run build: go tool charter build)
+# The Worker's build (mise run build: charter build)
 /build/
-# held while go tool charter build writes build/
+# held while charter build writes build/
 /.build.lock
-# charter's own binary, built by CI (go tool charter ci run) to publish and release
+# charter's own binary, built by CI (charter ci run) to publish and release
 /bin/
 # Tailwind output + assembled Static Assets (mise run assets)
 /dist/

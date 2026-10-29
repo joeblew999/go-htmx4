@@ -2,7 +2,7 @@
 # docs/commands.md (generated from the descriptions: mise run docs:commands).
 #
 # TinyGo (or WORKER_COMPILER) for what ships to Workers; standard Go for local-only code: go test/vet,
-# go tool charter deploy and tail, e2e/. No Node. Tools come from mise.toml.
+# charter deploy and tail, e2e/. No Node. Tools come from mise.toml.
 
 # Vendor htmx 4.0.0 + the hx-ws and hx-live extensions from the npm registry tarball (integrity-checked,
 # no npm).
@@ -87,7 +87,7 @@ echo "✓ dist/site: $(find dist/site -type f | wc -l | tr -d ' ') files, gsxui.
 depends = ["generate", "assets"]
 description = "Production build → build/ with WORKER_COMPILER (mise.toml: tinygo or go), size-checked (deploy, staging, CI and the tests use it)"
 dir = "{{config_root}}"
-# Skipped when no input changed since the last production build, so `check` then `e2e` (CI: go tool charter ci run) builds once.
+# Skipped when no input changed since the last production build, so `check` then `e2e` (CI: charter ci run) builds once.
 # Inputs: every Go file (the generated *.x.go included), the module files, mise.toml (a Go/TinyGo/workers-go pin
 # change must rebuild), and ci/wasm-build.sh (its build flags, such as the heap). Nothing else feeds the wasm: Static
 # Assets are dist/site, served beside it. build/.prod marks a production build; build:dev removes it, so a debug wasm is
@@ -111,20 +111,20 @@ run = "ci/wasm-build.sh"
 # JS and CSS edits (web/htmx/, intl/js, web/gsxui) need no Go build: mise run assets, then reload.
 ["dev"]
 description = "gsx dev → build:dev (standard Go, seconds) + CSS → workerd restart on every .gsx/.go save → http://localhost:8913 (PORT: another port)"
-# go tool charter serve (gsx.toml's [dev] run) listens on PORT, gsx dev proxies APP_DEV_PORT: the same port, charter.toml's
+# charter serve (gsx.toml's [dev] run) listens on PORT, gsx dev proxies APP_DEV_PORT: the same port, charter.toml's
 # 8913 by default (TestCharterToml).
 run = 'export PORT=${PORT:-8913} && export APP_DEV_PORT=$PORT && exec go tool gsx dev'
 
-# Live logs of the deployed Worker (go tool charter tail): requests, console output, exceptions. Ctrl-C deletes the tail.
+# Live logs of the deployed Worker (charter tail): requests, console output, exceptions. Ctrl-C deletes the tail.
 ["tail"]
 description = "Stream the deployed Worker's live logs (requests, console, exceptions) → Ctrl-C to stop"
-run = "fnox exec -- go tool charter tail"
+run = "fnox exec -- charter tail"
 
 ["serve"]
-description = "The production build (WORKER_COMPILER) on local workerd (go tool charter serve: charter.toml's port, your time zone), static files first → http://localhost:8913"
+description = "The production build (WORKER_COMPILER) on local workerd (charter serve: charter.toml's port, your time zone), static files first → http://localhost:8913"
 depends = ["build"]
 dir = "{{config_root}}"
-run = "exec go tool charter serve"
+run = "exec charter serve"
 
 # go test runs the handlers on standard Go, which hides TinyGo runtime gaps (html/template panics, pre-1.22
 # ServeMux). So also run the production build under workerd and check every route over HTTP. SMOKE_BASE=https://…
@@ -137,8 +137,8 @@ run = '''
 #!/usr/bin/env bash
 set -euo pipefail
 if [ -n "${SMOKE_BASE:-}" ]; then echo "→ $SMOKE_BASE"; exec go test -C e2e -count=1 -v ./smoke; fi
-# On workerd (go tool charter with: a free port, fresh state); a panic or uncaught exception in its log fails it too.
-exec go tool charter with -strict sh -c 'SMOKE_BASE=$BASE SMOKE_LOCAL=1 go test -C e2e -count=1 ./smoke'
+# On workerd (charter with: a free port, fresh state); a panic or uncaught exception in its log fails it too.
+exec charter with -strict sh -c 'SMOKE_BASE=$BASE SMOKE_LOCAL=1 go test -C e2e -count=1 ./smoke'
 '''
 
 # Real-browser checks (e2e/: Go + chromedp + headless Chrome, no Node): pages, the live board across two browsers,
@@ -153,13 +153,13 @@ run = '''
 set -euo pipefail
 # chromedp logs CDP events it doesn't model ("unhandled node event"); they're noise.
 e2e() { E2E_BASE=$1 E2E_CHROME="$(mise which chrome-headless-shell)" go test -C e2e -count=1 -v . 2>&1 | grep -v "unhandled node event"; return "${PIPESTATUS[0]}"; }
-if [ -n "${E2E_BASE:-}" ]; then echo "→ $E2E_BASE"; e2e "$E2E_BASE"; else export -f e2e; go tool charter with bash -c 'e2e "$BASE"'; fi
+if [ -n "${E2E_BASE:-}" ]; then echo "→ $E2E_BASE"; e2e "$E2E_BASE"; else export -f e2e; charter with bash -c 'e2e "$BASE"'; fi
 '''
 
-# CPU per request on local workerd (go tool charter bench): what Cloudflare bills a Worker for, measured
+# CPU per request on local workerd (charter bench): what Cloudflare bills a Worker for, measured
 # without Cloudflare. CI runs `bench` and puts the table in its summary.
 ["bench"]
-description = "CPU per request of the production build on local workerd, per page, repeated runs (go tool charter bench)"
+description = "CPU per request of the production build on local workerd, per page, repeated runs (charter bench)"
 depends = ["build"]
 dir = "{{config_root}}"
 run = "ci/bench.sh"
@@ -186,7 +186,7 @@ dir = "{{config_root}}"
 run = "ci/bench.sh variants"
 
 # Design size: 1,000 WebSockets on one topic, then a burst of 50 concurrent writes (coalescing), then socket 1,001
-# refused (e2e/load). Starts its own workerd (go tool charter with) unless LOAD_BASE points somewhere else (e.g. the
+# refused (e2e/load). Starts its own workerd (charter with) unless LOAD_BASE points somewhere else (e.g. the
 # deployed URL).
 ["load"]
 description = "1,000 WebSockets in every locale on one topic, a 50-write burst, socket 1,001 refused (e2e/load; local workerd, or LOAD_BASE=https://…)"
@@ -197,7 +197,7 @@ run = '''
 set -euo pipefail
 ulimit -n 8192
 if [ -n "${LOAD_BASE:-}" ]; then echo "→ $LOAD_BASE"; exec go test -C e2e -count=1 -v -timeout 10m ./load; fi
-exec go tool charter with sh -c 'LOAD_BASE=$BASE go test -C e2e -count=1 -v -timeout 10m ./load'
+exec charter with sh -c 'LOAD_BASE=$BASE go test -C e2e -count=1 -v -timeout 10m ./load'
 '''
 
 ["test"]
@@ -211,7 +211,7 @@ run = '[ ! -s .upstream-use ] || { echo "✗ ran with upstream checkouts: $(tr "
 
 # The readiness test (#65): what an outside developer does, from nothing. If it fails, the repo isn't ready for them.
 ["fresh"]
-description = "Brand-new gsx apps outside this repo (e2e/fresh): one made from intl's and seo's READMEs (every go and gsx block in them is its code), with gsxui and intl's screens, on an ordinary Go server in English and German, its go test, seo:audit and intl:check passing; and one on Workers set up with go tool charter init, its go test on charter's stand-ins and its Worker on local workerd (FRESH_DEPLOY=1: on Cloudflare too)"
+description = "Brand-new gsx apps outside this repo (e2e/fresh): one made from intl's and seo's READMEs (every go and gsx block in them is its code), with gsxui and intl's screens, on an ordinary Go server in English and German, its go test, seo:audit and intl:check passing; and one on Workers set up with charter init, its go test on charter's stand-ins and its Worker on local workerd (FRESH_DEPLOY=1: on Cloudflare too)"
 dir = "{{config_root}}"
 run = "go test -C e2e -count=1 -timeout 10m ./fresh"
 
@@ -239,9 +239,9 @@ go test ./...
 # has already regenerated intl.sum and the languages badge, so a change to either (or a new one) means it wasn't
 # committed.
 mise run -q intl:check
-# charter.toml and charter's files here (its tasks, Workers Builds' launcher, its skill, the CI workflow) as this
-# charter writes them.
-go tool charter check
+# charter.toml and charter's files here (its tasks, Workers Builds' launcher, its skill, the CI workflow, TinyGo's pins,
+# and the repo's: docs/charter/, the issue forms) as this charter writes them.
+charter check
 generated=$(git status --porcelain -- locales/intl.sum docs/badges/intl.svg)
 [ -z "$generated" ] || { echo "$generated"; echo "✗ go tool intl gen changed these: commit them"; exit 1; }
 # intl/ is its own module, for any gsx app: format, vet and test it too (its tests run Intl on workerd).
@@ -295,11 +295,11 @@ run = "{ cat docs/commands-intro.md; mise generate task-docs | sed 's/^## /### /
 # Credentials come from fnox via mise (global keychain config). The inner sh -c '…' is
 # single-quoted so $CLOUDFLARE_API_TOKEN expands after fnox has injected it.
 ["token-check"]
-description = "Verify CLOUDFLARE_API_TOKEN (from fnox) against the Cloudflare API (go tool charter token)"
-run = "fnox exec -- go tool charter token"
+description = "Verify CLOUDFLARE_API_TOKEN (from fnox) against the Cloudflare API (charter token)"
+run = "fnox exec -- charter token"
 
 # ── deploy ──────────────────────────────────────────────────────
-# Direct Upload via go tool charter deploy (Go, no wrangler), from charter.toml: the Worker and its D1, Durable
+# Direct Upload via charter deploy (Go, no wrangler), from charter.toml: the Worker and its D1, Durable
 # Objects, rate limit, vars and domain. Runs the full local test (TinyGo build + workerd smoke + go test) and the token
 # check first. Credentials: CLOUDFLARE_API_TOKEN/CLOUDFLARE_ACCOUNT_ID from the environment, else fnox.
 ["deploy"]
@@ -313,12 +313,12 @@ run = '''
 set -euo pipefail
 cf() { if [ -n "${CLOUDFLARE_API_TOKEN:-}" ] && [ -n "${CLOUDFLARE_ACCOUNT_ID:-}" ]; then "$@"; else fnox exec -- "$@"; fi; }
 # SMOKE_BASE/E2E_BASE/LOAD_BASE=$(cat .deploy-url): the custom domain when there is one.
-cf go tool charter deploy production | tee .deploy-url
+cf charter deploy production | tee .deploy-url
 '''
 
 # ── staging ─────────────────────────────────────────────────────
 # Staging: its own Worker $APP_NAME-staging (https://$APP_NAME-staging.<subdomain>.workers.dev), exactly what's on main.
-# Workers Builds deploys it on every merge to main (.mise/tasks/charter-builds → go tool charter builds deploy). Like production, but never production: no
+# Workers Builds deploys it on every merge to main (.mise/tasks/charter-builds → charter builds deploy). Like production, but never production: no
 # custom domain (seo.Site never redirects), APP_PREVIEW=1 (noindex), its own D1 ($APP_NAME-staging) and Durable Objects.
 ["staging"]
 description = "Test, then deploy staging: the Worker $APP_NAME-staging → its URL on stdout and in .staging-url"
@@ -328,7 +328,7 @@ run = '''
 #!/usr/bin/env bash
 set -euo pipefail
 cf() { if [ -n "${CLOUDFLARE_API_TOKEN:-}" ] && [ -n "${CLOUDFLARE_ACCOUNT_ID:-}" ]; then "$@"; else fnox exec -- "$@"; fi; }
-cf go tool charter deploy staging | tee .staging-url
+cf charter deploy staging | tee .staging-url
 '''
 
 # ── preview ─────────────────────────────────────────────────────
@@ -347,14 +347,14 @@ set -euo pipefail
 cf() { if [ -n "${CLOUDFLARE_API_TOKEN:-}" ] && [ -n "${CLOUDFLARE_ACCOUNT_ID:-}" ]; then "$@"; else fnox exec -- "$@"; fi; }
 ann=(-annotation "workers/commit_sha=$(git rev-parse HEAD)")
 [ -z "${APP_REPO:-}" ] || ann+=(-annotation "workers/repository_url=https://github.com/$APP_REPO")
-cf go tool charter deploy preview "${usage_name:-$(git branch --show-current)}" "${ann[@]}" | tee .preview-url
+cf charter deploy preview "${usage_name:-$(git branch --show-current)}" "${ann[@]}" | tee .preview-url
 '''
 
 # ── release ─────────────────────────────────────────────────────
 # Production without anyone's machine holding Cloudflare credentials: a v* tag (GitHub's Releases page) or a
-# release/v* branch (mise run release) on a commit that's on main. CI (go tool charter ci run) tests it, then moves the production
+# release/v* branch (mise run release) on a commit that's on main. CI (charter ci run) tests it, then moves the production
 # branch to it, and Workers Builds' branch trigger deploys production
-# with its own build token (go tool charter builds deploy sees the branch → production). A tag from GitHub's Releases page does the same. Roll
+# with its own build token (charter builds deploy sees the branch → production). A tag from GitHub's Releases page does the same. Roll
 # back by tagging an older commit of main.
 ["release"]
 description = "Release main to production (e.g. v1.3): CI tests it, tags it (and intl/seo with their next version when they changed), Workers Builds deploys it; no Cloudflare credentials needed"

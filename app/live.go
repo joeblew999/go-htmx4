@@ -8,8 +8,8 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/joeblew999/charter/go/lib/bindings"
-	"github.com/joeblew999/charter/go/lib/web"
+	"github.com/joeblew999/charter/bindings"
+	"github.com/joeblew999/charter/web"
 	"github.com/joeblew999/go-htmx4/views"
 )
 

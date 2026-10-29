@@ -10,13 +10,13 @@ Every command is a mise task: `mise run <task>`; `mise tasks` lists them. Which 
 - **Build:** `build` is production (what ships and what the tests use), compiled by `WORKER_COMPILER` in mise.toml:
   `tinygo` (smallest wasm, ~1–2 min builds) or `go` (seconds, a bigger wasm, ~50–90 ms slower per request).
   Override it for one run: `WORKER_COMPILER=go mise run check`. `build:dev` is always standard Go, for `dev`.
-- **Test:** `check` before pushing (CI runs the same, `go tool charter ci run` from `charter.toml`'s `[ci]`), then
+- **Test:** `check` before pushing (CI runs the same, `charter ci run` from `charter.toml`'s `[ci]`), then
   `e2e` for anything in the browser.
   `SMOKE_BASE=https://… smoke` runs the smoke checks against a deployed Worker.
 - **Ship:** every pushed branch gets a preview and `main` deploys staging, both automatically (Workers Builds).
   Production: `release v1.3` (or a v* tag from GitHub's Releases page) → CI tests it and tags it → Workers Builds
   deploys it, with no Cloudflare credentials anywhere but Cloudflare. `deploy` does it by hand from a machine with fnox credentials.
-  All of them are `go tool charter deploy` with `charter.toml`: [deploy.md](deploy.md).
+  All of them are `charter deploy` with `charter.toml`: [deploy.md](deploy.md).
 
 ## Tasks
 
@@ -34,7 +34,7 @@ Assemble dist/site, the Static Assets for workerd and deploy: htmx, intl's brows
 
 - **Usage:** `bench`
 
-CPU per request of the production build on local workerd, per page, repeated runs (go tool charter bench)
+CPU per request of the production build on local workerd, per page, repeated runs (charter bench)
 
 ### `bench:variants`
 
@@ -64,29 +64,34 @@ Dev build → build/: standard Go to wasm, seconds after an edit (mise run dev u
 
 - **Usage:** `charter:build`
 
-Build the Worker into build/ with TinyGo (go tool charter build); WORKER_COMPILER=go builds with the standard compiler, in seconds, never to deploy
+Build the Worker into build/ (charter build): a Go one with TinyGo (WORKER_COMPILER=go: the standard compiler, in seconds, never to deploy), a TypeScript one bundled with esbuild
 
 ### `charter:builds-configure`
 
 - **Usage:** `charter:builds-configure`
 
-Set Workers Builds up for the Worker: the repository, .mise/tasks/charter-builds as its build and deploy commands (go tool charter builds configure; Cloudflare credentials)
+Set Workers Builds up for the Worker: the repository, .mise/tasks/charter-builds as its build and deploy commands (charter builds configure; Cloudflare credentials)
 
 ### `charter:check`
 
 - **Usage:** `charter:check`
 
-Everything charter.toml and charter's files in this app should be (go tool charter check): exits 1 on any problem
+Every check that needs no Cloudflare account (charter check): charter's files, and a project's types, specs, tests and Worker; exits 1 on any problem
 
 ### `charter:ci`
 
-- **Usage:** `charter:ci`
+A job of charter.toml's [ci.jobs] here, as GitHub runs it (charter ci <job>); none: every job run on a change, or an app's own [ci] (charter ci run)
 
-What CI runs, here (go tool charter ci run, charter.toml's [ci]): the build and the checks; on GitHub also the preview's build and a release
+
+- **Usage:** `charter:ci [job] [project]`
+
+### Arguments
+- **`[job]`** — a job of charter.toml's [ci.jobs]
+- **`[project]`** — the project to run it in, for a job that runs in each
 
 ### `charter:deploy`
 
-Deploy the built Worker to production, staging or a preview <name>, as charter.toml says (go tool charter deploy); prints its URL
+Deploy the built Worker to production, staging or a preview <name>, as charter.toml says (charter deploy); prints its URL
 
 
 - **Usage:** `charter:deploy <environment> [name]`
@@ -95,39 +100,101 @@ Deploy the built Worker to production, staging or a preview <name>, as charter.t
 - **`<environment>`** — production, staging or preview
 - **`[name]`** — the preview's name, e.g. pr-7
 
+### `charter:dev`
+
+- **Usage:** `charter:dev`
+
+Build the Worker and run it on local workerd, on charter.toml's port, until Ctrl-C (charter dev)
+
+### `charter:docs`
+
+- **Usage:** `charter:docs`
+
+After changing a page in docs/: what a program can see wrong in it (charter docs)
+
+### `charter:init`
+
+- **Usage:** `charter:init`
+
+After upgrading charter: charter's files, these tasks, the skill and the workflows again (charter init)
+
+### `charter:issues`
+
+First, whenever you start: the open issues (charter issues); with a kind (bug, feature, upstream, plan), a new one's body and the gh command that files it
+
+
+- **Usage:** `charter:issues [kind]`
+
+### Arguments
+- **`[kind]`** — bug, feature, upstream or plan
+
+### `charter:live-test`
+
+- **Usage:** `charter:live-test`
+
+The standard test and charter.toml's [test] live against the deployed Worker (charter live-test)
+
+### `charter:repo`
+
+- **Usage:** `charter:repo`
+
+After changing charter.toml's [github]: the repo on GitHub as it says (charter repo)
+
+### `charter:sdk`
+
+An SDK with Fern (Docker) into sdk/out, by default the TypeScript one (charter sdk; charter sdk -prove proves every client, -publish commits the Go SDK)
+
+
+- **Usage:** `charter:sdk [group]`
+
+### Arguments
+- **`[group]`** — a group of fern/generators.yml, e.g. python
+
 ### `charter:serve`
 
 - **Usage:** `charter:serve`
 
-Run the built Worker on local workerd, on charter.toml's port (PORT overrides it), in your time zone (go tool charter serve)
+Run the built Worker on local workerd, on charter.toml's port (PORT overrides it), in your time zone (charter serve)
 
 ### `charter:skill`
 
 - **Usage:** `charter:skill`
 
-After upgrading charter: its agent skill again, into .claude/skills/charter (go tool charter skill)
+After upgrading charter: its agent skill again, into .claude/skills/charter (charter skill)
+
+### `charter:spec`
+
+- **Usage:** `charter:spec`
+
+After changing the contract, [sdks] or migrations/: both specs from the contract, Fern's settings and the database's code (charter spec)
 
 ### `charter:tail`
 
 - **Usage:** `charter:tail`
 
-Stream the deployed Worker's live logs until Ctrl-C (go tool charter tail)
+Stream the deployed Worker's live logs until Ctrl-C (charter tail)
 
 ### `charter:tasks`
 
 - **Usage:** `charter:tasks`
 
-After upgrading charter: these tasks and the Workers Builds launcher again (go tool charter tasks)
+After upgrading charter: these tasks and the Workers Builds launcher again (charter tasks)
 
 ### `charter:token`
 
 - **Usage:** `charter:token`
 
-Check the Cloudflare token is active (go tool charter token)
+Check the Cloudflare token is active (charter token)
+
+### `charter:upstream`
+
+- **Usage:** `charter:upstream`
+
+Now and then: the upstream issues the code works around, and their state (charter upstream)
 
 ### `charter:with`
 
-Run a command against the built Worker on local workerd, a free port and fresh state, BASE its URL (go tool charter with)
+Run a command against the built Worker on local workerd, a free port and fresh state, BASE its URL (charter with)
 
 
 - **Usage:** `charter:with <command>…`
@@ -139,7 +206,7 @@ Run a command against the built Worker on local workerd, a free port and fresh s
 
 - **Usage:** `charter:workflow`
 
-After upgrading charter: the CI workflow again, .github/workflows/charter.yml (go tool charter workflow)
+After upgrading charter: the CI workflow again, .github/workflows/charter.yml (charter workflow)
 
 ### `ci:bench`
 
@@ -181,7 +248,7 @@ Headless Chrome checks: pages, live board in two browsers, boost ↔ board, pres
 
 - **Usage:** `fresh`
 
-Brand-new gsx apps outside this repo (e2e/fresh): one made from intl's and seo's READMEs (every go and gsx block in them is its code), with gsxui and intl's screens, on an ordinary Go server in English and German, its go test, seo:audit and intl:check passing; and one on Workers set up with go tool charter init, its go test on charter's stand-ins and its Worker on local workerd (FRESH_DEPLOY=1: on Cloudflare too)
+Brand-new gsx apps outside this repo (e2e/fresh): one made from intl's and seo's READMEs (every go and gsx block in them is its code), with gsxui and intl's screens, on an ordinary Go server in English and German, its go test, seo:audit and intl:check passing; and one on Workers set up with charter init, its go test on charter's stand-ins and its Worker on local workerd (FRESH_DEPLOY=1: on Cloudflare too)
 
 ### `fresh:published`
 
@@ -514,7 +581,7 @@ Google's verdict for every sitemap URL (indexed, waiting, duplicate, problem); f
 
 - **Usage:** `serve`
 
-The production build (WORKER_COMPILER) on local workerd (go tool charter serve: charter.toml's port, your time zone), static files first → http://localhost:8913
+The production build (WORKER_COMPILER) on local workerd (charter serve: charter.toml's port, your time zone), static files first → http://localhost:8913
 
 ### `smoke`
 
@@ -559,7 +626,7 @@ gsx fmt/gofmt check + go vet + go test, the app and its modules: intl/, seo/, ba
 
 - **Usage:** `token-check`
 
-Verify CLOUDFLARE_API_TOKEN (from fnox) against the Cloudflare API (go tool charter token)
+Verify CLOUDFLARE_API_TOKEN (from fnox) against the Cloudflare API (charter token)
 
 ### `upstream:branch`
 

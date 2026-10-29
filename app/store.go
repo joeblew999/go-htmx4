@@ -3,7 +3,7 @@ package app
 import (
 	"errors"
 
-	"github.com/joeblew999/charter/go/lib/d1"
+	"github.com/joeblew999/charter/d1"
 )
 
 // d1Store is the board on D1 (charter's d1: one awaited call per statement, its rows as one JSON string), and off

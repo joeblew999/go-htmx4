@@ -16,7 +16,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/joeblew999/charter/go/lib/transport"
+	"github.com/joeblew999/charter/transport"
 	"github.com/joeblew999/go-htmx4/intl"
 	"github.com/joeblew999/go-htmx4/intl/catalog"
 	"github.com/joeblew999/go-htmx4/intl/config"

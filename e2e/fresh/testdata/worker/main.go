@@ -6,10 +6,10 @@ package main
 import (
 	"net/http"
 
-	"github.com/joeblew999/charter/go/lib/bindings"
-	"github.com/joeblew999/charter/go/lib/d1"
-	"github.com/joeblew999/charter/go/lib/transport"
-	"github.com/joeblew999/charter/go/lib/web"
+	"github.com/joeblew999/charter/bindings"
+	"github.com/joeblew999/charter/d1"
+	"github.com/joeblew999/charter/transport"
+	"github.com/joeblew999/charter/web"
 )
 
 func main() { transport.Run(handler()) }

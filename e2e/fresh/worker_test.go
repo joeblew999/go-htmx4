@@ -10,13 +10,14 @@ import (
 )
 
 // TestFreshWorker is the proof of Step 3 (#90): a brand-new gsx app runs on Cloudflare Workers with charter alone,
-// set up as charter says: go tool charter init (charter.toml, the mise tasks, Workers Builds' launcher, the skill, the CI
-// workflow, which go tool charter check then passes), its bindings in charter.toml, one main package (testdata/worker). Its
-// own go test runs on charter's stand-ins (D1 as SQLite, the rate limit counted); its Worker build runs on local
-// workerd (go tool charter with), where a probe checks the page, D1 and the rate limit.
+// set up as charter says: a git repo with charter's library, then charter init (charter.toml, the mise tasks, Workers
+// Builds' launcher, the skill, the CI workflow, TinyGo's pins and charter's files for the repo, which charter check
+// then passes), its bindings in charter.toml, one main package (testdata/worker). Its own go test runs on charter's
+// stand-ins (D1 as SQLite, the rate limit counted); its Worker build runs on local workerd (charter with), where a
+// probe checks the page, D1 and the rate limit.
 //
-// charter is the version this repo requires; FRESH_CHARTER=<a checkout's go/lib> builds against a charter checkout
-// instead. FRESH_DEPLOY=1 also deploys it to Cloudflare, the Worker charter-fresh on workers.dev with its own D1, and
+// charter is the command mise.toml pins and the library at the version go.mod requires (the same: charter check holds
+// them to it); FRESH_CHARTER=<a charter checkout> takes both from the checkout instead. FRESH_DEPLOY=1 also deploys it to Cloudflare, the Worker charter-fresh on workers.dev with its own D1, and
 // probes that; it needs Cloudflare credentials (from the environment, else fnox).
 func TestFreshWorker(t *testing.T) {
 	repo, err := filepath.Abs("../..")
@@ -45,22 +46,33 @@ func TestFreshWorker(t *testing.T) {
 		}
 	}
 
-	// A new module with gsx and charter as tools, at the versions this repo builds with.
+	// A new module with gsx as a tool and charter's library, at the versions this repo builds with, in a git repo of
+	// its own (charter init writes charter's files at the repo's top).
 	gomod := read(t, filepath.Join(repo, "go.mod"))
 	version := func(module string) string {
 		return regexp.MustCompile(regexp.QuoteMeta(module) + ` (v\S+)`).FindStringSubmatch(gomod)[1]
 	}
 	write("go.mod", "module example.com/charter-fresh\n\ngo "+regexp.MustCompile(`(?m)^go (\S+)`).FindStringSubmatch(gomod)[1]+
 		"\n\ntoolchain "+regexp.MustCompile(`(?m)^toolchain (\S+)`).FindStringSubmatch(gomod)[1]+"\n")
-	charter := "github.com/joeblew999/charter/go/lib"
+	run("git", "init", "-q")
+	module := "github.com/joeblew999/charter"
 	run("go", "mod", "edit", "-require=github.com/gsxhq/gsx@"+version("github.com/gsxhq/gsx"), "-tool=github.com/gsxhq/gsx/cmd/gsx",
-		"-require="+charter+"@"+version(charter), "-tool="+charter+"/cmd/charter")
+		"-require="+module+"@"+version(module))
+	charter, err := exec.LookPath("charter")
 	if dir := os.Getenv("FRESH_CHARTER"); dir != "" {
 		abs, err := filepath.Abs(dir)
 		if err != nil {
 			t.Fatal(err)
 		}
-		run("go", "mod", "edit", "-replace="+charter+"="+abs)
+		run("go", "mod", "edit", "-replace="+module+"="+abs)
+		charter = filepath.Join(t.TempDir(), "charter")
+		build := exec.Command("go", "build", "-o", charter, "./cmd/charter")
+		build.Dir = abs
+		if out, err := build.CombinedOutput(); err != nil {
+			t.Fatalf("charter from %s: %v\n%s", abs, err, out)
+		}
+	} else if err != nil {
+		t.Fatal("no charter on PATH: mise install, then run this through mise (mise run fresh)")
 	}
 	for _, f := range []string{"main.go", "page.gsx", "main_test.go", "probe/probe_test.go", "migrations/0001_visits.sql"} {
 		write(f, read(t, filepath.Join("testdata", "worker", f)))
@@ -68,18 +80,19 @@ func TestFreshWorker(t *testing.T) {
 	run("go", "mod", "tidy")
 
 	// charter init, then the app's bindings: a D1 database with its migrations, and a rate limit.
-	run("go", "tool", "charter", "init")
+	run(charter, "init")
 	write("charter.toml", read(t, filepath.Join(app, "charter.toml"))+read(t, filepath.Join("testdata", "worker", "bindings.toml")))
 	if !strings.Contains(read(t, filepath.Join(app, ".gitignore")), "/build/") {
 		t.Error("charter init didn't ignore build/")
 	}
-	for _, f := range []string{".mise/tasks/charter.toml", ".mise/tasks/charter-builds", ".claude/skills/charter/SKILL.md", ".github/workflows/charter.yml"} {
+	for _, f := range []string{".mise/tasks/charter.toml", ".mise/tasks/charter-builds", ".claude/skills/charter/SKILL.md", ".github/workflows/charter.yml",
+		".config/mise/conf.d/charter.toml", "docs/charter/README.md"} {
 		if _, err := os.Stat(filepath.Join(app, f)); err != nil {
 			t.Errorf("charter init didn't write %s: %v", f, err)
 		}
 	}
 	// Everything init wrote, and the bindings added to charter.toml, as charter checks them.
-	run("go", "tool", "charter", "check")
+	run(charter, "check")
 	run("go", "tool", "gsx", "generate")
 	run("go", "test", "-count=1", ".")
 
@@ -88,11 +101,11 @@ func TestFreshWorker(t *testing.T) {
 	if os.Getenv("FRESH_DEPLOY") == "1" {
 		compiler = "tinygo"
 	}
-	run("go", "tool", "charter", "build", "-compiler="+compiler)
-	run("go", "tool", "charter", "with", "-strict", "env", "PROBE_LIMIT=1", "go", "test", "-count=1", "./probe")
+	run(charter, "build", "-compiler="+compiler)
+	run(charter, "with", "-strict", "env", "PROBE_LIMIT=1", "go", "test", "-count=1", "./probe")
 
 	if os.Getenv("FRESH_DEPLOY") == "1" {
-		deploy := []string{"go", "tool", "charter", "deploy", "production"}
+		deploy := []string{charter, "deploy", "production"}
 		if os.Getenv("CLOUDFLARE_API_TOKEN") == "" {
 			deploy = append([]string{"fnox", "exec", "--"}, deploy...)
 		}
