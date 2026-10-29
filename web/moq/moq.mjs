@@ -20,6 +20,11 @@ const STALL_MS = 3000;
 // remy-sport re-mounted its element.
 const RESUBSCRIBE_MS = 10_000;
 
+// A broadcast found live normally plays within a second or two. Joining an iPhone's broadcast minutes in, the first
+// two subscriptions got no frames and the third did (#156): before its first frame, a watcher whose broadcast is live
+// subscribes again after this long instead.
+const RESUBSCRIBE_LIVE_MS = 3000;
+
 // Cloudflare's IETF relays carry no bandwidth probe, so the encoder's automatic bitrate clamp never runs and a phone
 // on a weak uplink would attempt more than it can send. A fixed ceiling, as remy-sport's ENCODER.
 const ENCODER = { maxBitrate: 2_000_000, maxPixels: 1280 * 720 };
@@ -109,6 +114,7 @@ function watch(section) {
 	let progressed = 0;
 	let played = false;
 	let nudged = Date.now();
+	let liveSince = 0;
 	const read = () => {
 		const now = Date.now();
 		const paused = el.paused;
@@ -127,7 +133,9 @@ function watch(section) {
 		else if (live === "offline") state = played ? "ended" : "waiting";
 		else state = played ? "reconnecting" : "waiting";
 		if ((state === "waiting" || state === "ended" || state === "reconnecting") && connected && !document.hidden) {
-			if (now - Math.max(progressed, nudged) >= RESUBSCRIBE_MS) {
+			if (live === "live" && !liveSince) liveSince = now;
+			const wait = !played && live === "live" ? RESUBSCRIBE_LIVE_MS : RESUBSCRIBE_MS;
+			if (now - Math.max(progressed, nudged, liveSince) >= wait) {
 				nudged = now;
 				resubscribe(el);
 			}
