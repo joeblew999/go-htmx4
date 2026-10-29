@@ -23,11 +23,12 @@ type Pages struct {
 	board      Board      `route:"GET /board Board"`
 	formats    Formats    `route:"GET /formats Formats"`
 	components Components `route:"GET /components Components"`
+	live       Live       `route:"GET /live Live"`
 	about      About      `route:"GET /about About"`
 }
 
 // All is every page, each with no parameters: the sitemap's pages (those search engines may index).
-var All = []any{Home{}, Board{}, Formats{}, Components{}, About{}}
+var All = []any{Home{}, Board{}, Formats{}, Components{}, Live{}, About{}}
 
 // Home is the home page.
 type Home struct{}
@@ -55,6 +56,21 @@ type Formats struct{}
 // Components is every gsxui component, with Intl.
 type Components struct{}
 
+// Live is live video over MoQ (#156): the reader's own camera broadcast, and the stream ?stream= names, through
+// Cloudflare's relay. Every page view gets a stream of its own to broadcast on, and a link to it to send.
+type Live struct{ Stream string }
+
+// Query is what makes a stream's page a different page: ?stream=.
+func (l Live) Query() string {
+	if l.Stream == "" {
+		return ""
+	}
+	return "?stream=" + url.QueryEscape(l.Stream)
+}
+
+// Noindex: a stream's page is one person's broadcast for as long as it lasts.
+func (l Live) Noindex() bool { return l.Stream != "" }
+
 // About is the stack.
 type About struct{}
 
@@ -67,6 +83,21 @@ type App interface {
 	// Board is the request's board, or false when the app has answered the request itself (a bad topic, a store
 	// error).
 	Board(w http.ResponseWriter, r *http.Request) (BoardProps, bool)
+	// Live is where the live video page's broadcast goes: the relay and the broadcast's name.
+	Live(r *http.Request) LiveProps
+}
+
+// LiveProps is the live video page's data. The relay URLs carry a relay token when the Worker has one (Cloudflare's
+// draft-16 relays take it in the path), so they are never logged.
+type LiveProps struct {
+	// WatchURL and PublishURL are the relay as a watcher and as the broadcaster reach it.
+	WatchURL, PublishURL string
+	// Own is this page view's own stream, the one its camera broadcasts on; Watch the stream to play, "" for none.
+	Own, Watch string
+	// OwnName and WatchName are their broadcasts' paths on the relay; .hang selects the catalog format players read.
+	OwnName, WatchName string
+	// Origin is the site's origin ("https://…"): the link to send is it and Live{Stream: Own}'s address.
+	Origin string
 }
 
 // HomeProps is the home page's data.
@@ -93,6 +124,8 @@ func (Board) Props(w http.ResponseWriter, r *http.Request, app App) (BoardProps,
 }
 
 func (Formats) Props(r *http.Request, app App) Connection { return app.Connection(r) }
+
+func (Live) Props(r *http.Request, app App) LiveProps { return app.Live(r) }
 
 func (About) Props(app App) []StackItem { return app.Stack() }
 
@@ -129,6 +162,9 @@ func At(path string, query url.Values) (any, bool) {
 			if _, ok := p.(Board); ok {
 				return Board{Topic: query.Get("topic")}, true
 			}
+			if _, ok := p.(Live); ok {
+				return Live{Stream: query.Get("stream")}, true
+			}
 			return p, true
 		}
 	}
@@ -147,6 +183,9 @@ func Indexable(path string) bool {
 	q, _ := url.ParseQuery(query)
 	p, ok := At(intl.Unprefixed(path), q)
 	if b, isBoard := p.(Board); isBoard && b.Noindex() {
+		return false
+	}
+	if l, isLive := p.(Live); isLive && l.Noindex() {
 		return false
 	}
 	return ok

@@ -10,6 +10,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"slices"
 	"strings"
 	"sync"
 	"testing"
@@ -42,16 +43,24 @@ type tab struct {
 	problems []string // console errors, exceptions, CSP violations, HTTP ≥ 400 (except favicon)
 	wsOpened int
 	wsFrames int
-	allow4xx bool // tests that expect 4xx responses
+	allow4xx bool     // tests that expect 4xx responses
+	known    []string // problems a test expects (an upstream bug, named with its report), matched by substring
 }
 
 func newTab(t *testing.T, name string) *tab {
+	t.Helper()
+	return newTabWith(t, name)
+}
+
+// newTabWith is newTab with Chrome started with extra options (the live page's fake camera).
+func newTabWith(t *testing.T, name string, extra ...chromedp.ExecAllocatorOption) *tab {
 	t.Helper()
 	// No QUIC: some networks break Chrome's HTTP/3 to Cloudflare (net::ERR_QUIC_PROTOCOL_ERROR); HTTP/2 tests the same app.
 	// WSURLReadTimeout: chromedp waits 20 s for Chrome to start by default; the first cold start on a CI runner took longer
 	// ("websocket url timeout reached").
 	opts := append(chromedp.DefaultExecAllocatorOptions[:], chromedp.WindowSize(1100, 1000), chromedp.Flag("disable-quic", true),
 		chromedp.WSURLReadTimeout(90*time.Second))
+	opts = append(opts, extra...)
 	if os.Getenv("CI") != "" {
 		opts = append(opts, chromedp.NoSandbox)
 	}
@@ -163,8 +172,14 @@ func (tb *tab) noProblems() {
 	tb.t.Helper()
 	tb.mu.Lock()
 	defer tb.mu.Unlock()
-	if len(tb.problems) > 0 {
-		tb.t.Errorf("%s: console errors, exceptions or HTTP errors: %v", tb.name, tb.problems)
+	var problems []string
+	for _, p := range tb.problems {
+		if !slices.ContainsFunc(tb.known, func(k string) bool { return strings.Contains(p, k) }) {
+			problems = append(problems, p)
+		}
+	}
+	if len(problems) > 0 {
+		tb.t.Errorf("%s: console errors, exceptions or HTTP errors: %v", tb.name, problems)
 	}
 }
 

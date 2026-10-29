@@ -1,0 +1,20 @@
+[
+  {
+    "file": "@moq/net/connection/browser.js",
+    "why": "go-htmx4 #156: let WebKit (iOS, Safari) use WebTransport. Upstream sends WebKit to the WebSocket fallback, which Cloudflare's relays refuse (403), so an iPhone never connects. WebKit's stalls (bugs.webkit.org 319818, moq-dev/moq#2388) cut long sessions, mostly when watching on an iPhone. Check it again when @moq moves on (#158).",
+    "old": "    if (browser.getEngine().name === \"WebKit\" || browser.getOS().name === \"iOS\")\n        return false;\n",
+    "new": "    // go-htmx4 #156: the WebKit/iOS refusal is patched out (web/moq/npm-patches.json).\n"
+  },
+  {
+    "file": "@moq/publish/encoder-wi3Mqpyi.js",
+    "why": "go-htmx4 #156, a backport of moq-dev/moq#5646 (fix(publish): propagate camera rotation, merged 2026-10-16, not in @moq/publish 0.5.3): each frame's clockwise turn, from VideoFrame.rotation, or, where the browser doesn't say (Safari), a quarter turn for a landscape frame on a portrait screen, as upstream's Camera.orientation. Drop it when @moq/publish ships #5646, which comes with the move to draft-18 (#158).",
+    "old": "\t\t\t\tthis.#e.display.set({\n\t\t\t\t\twidth: t.codedWidth,\n\t\t\t\t\theight: t.codedHeight,\n\t\t\t\t\tscale: r\n\t\t\t\t}), n.enqueue(t);",
+    "new": "\t\t\t\tthis.#e.display.set({\n\t\t\t\t\twidth: t.codedWidth,\n\t\t\t\t\theight: t.codedHeight,\n\t\t\t\t\tscale: r,\n\t\t\t\t\trotation: t.rotation ?? (t.codedWidth > t.codedHeight ? { \"portrait-primary\": 90, \"portrait-secondary\": 270 }[globalThis.screen?.orientation?.type] ?? 0 : 0)\n\t\t\t\t}), n.enqueue(t);"
+  },
+  {
+    "file": "@moq/publish/encoder-wi3Mqpyi.js",
+    "why": "go-htmx4 #156, the rest of that moq-dev/moq#5646 backport: the turn goes into the catalog (hang's video.rotation, which @moq/watch 0.6.6 already draws by) and the display size upright. Dropped with it, on the move to draft-18 (#158).",
+    "old": "\t\t\t\to && (t.display = {\n\t\t\t\t\twidth: l.u53(o.width),\n\t\t\t\t\theight: l.u53(o.height)\n\t\t\t\t}), s && (t.flip = !0), e.video = t;",
+    "new": "\t\t\t\to && (t.display = o.rotation % 180 ? {\n\t\t\t\t\twidth: l.u53(o.height),\n\t\t\t\t\theight: l.u53(o.width)\n\t\t\t\t} : {\n\t\t\t\t\twidth: l.u53(o.width),\n\t\t\t\t\theight: l.u53(o.height)\n\t\t\t\t}), o?.rotation && (t.rotation = o.rotation), s && (t.flip = !0), e.video = t;"
+  }
+]

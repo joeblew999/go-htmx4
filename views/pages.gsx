@@ -18,6 +18,10 @@ component (c Components) Page() {
 	<ComponentsPage/>
 }
 
+component (l Live) Page(p LiveProps) {
+	<LivePage p={p}/>
+}
+
 component (a About) Page(stack []StackItem) {
 	<AboutPage stack={stack}/>
 }

@@ -73,6 +73,15 @@ component Layout(title intl.Msg, description intl.Msg, children gsx.Node) {
 					<ui.Button variant={navVariant(ctx, Components{})} size="sm" href={Components{} |> url}>
 						{ locales.NavComponents }
 					</ui.Button>
+					// A full page load, not a boosted swap: the page's own module (the MoQ elements) must run.
+					<ui.Button
+						variant={navVariant(ctx, Live{})}
+						size="sm"
+						href={Live{} |> url}
+						hx-boost:inherited="false"
+					>
+						{ locales.NavLive }
+					</ui.Button>
 					<ui.Button variant={navVariant(ctx, About{})} size="sm" href={About{} |> url}>
 						{ locales.NavAbout }
 					</ui.Button>

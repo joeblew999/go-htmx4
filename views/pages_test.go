@@ -23,7 +23,7 @@ func TestPages(t *testing.T) {
 	if !slices.Equal(tree, all) {
 		t.Errorf("All is %v, the tree has %v", all, tree)
 	}
-	if got, want := views.Sitemap(), []string{"/", "/board", "/formats", "/components", "/about"}; !slices.Equal(got, want) {
+	if got, want := views.Sitemap(), []string{"/", "/board", "/formats", "/components", "/live", "/about"}; !slices.Equal(got, want) {
 		t.Errorf("Sitemap() = %v, want %v", got, want)
 	}
 	for topic, want := range map[string]string{"": "", views.DefaultTopic: "", "a b&c": "?topic=a+b%26c"} {
