@@ -48,6 +48,10 @@ func (s *server) Live(r *http.Request) views.LiveProps {
 	}
 	if watch := r.URL.Query().Get("stream"); validStream.MatchString(watch) {
 		p.Watch, p.WatchName = watch, streamName(watch)
+	} else {
+		// No link: the watch card shows the page's own stream, as it did before links. Its connection opens with the
+		// page, and the broadcast shares it: iOS Safari's broadcast stayed on "connecting" without one (#156).
+		p.WatchName = p.OwnName
 	}
 	return p
 }

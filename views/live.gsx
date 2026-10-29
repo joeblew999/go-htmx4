@@ -21,6 +21,7 @@ component LivePage(p LiveProps) {
 		} }
 		<LiveBroadcast url={p.PublishURL} name={p.OwnName} share={Live{Stream: p.Own}} origin={p.Origin}/>
 		{ if p.Watch == "" {
+			<LiveWatch url={p.WatchURL} name={p.WatchName}/>
 			<ui.Empty class="border">
 				<ui.EmptyHeader>
 					<ui.EmptyTitle>{ locales.LiveNoStreamTitle }</ui.EmptyTitle>

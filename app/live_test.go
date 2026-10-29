@@ -17,8 +17,8 @@ func TestLive(t *testing.T) {
 	if !strings.Contains(body, `<moq-publish url="https://draft-14.cloudflare.mediaoverquic.com/" name="go-htmx4/live/`) {
 		t.Errorf("/live: no publisher on a stream of its own")
 	}
-	if strings.Contains(body, "<moq-watch") {
-		t.Errorf("/live without ?stream= has a watcher")
+	if !strings.Contains(body, `<moq-watch url="https://draft-14.cloudflare.mediaoverquic.com/" name="go-htmx4/live/`) {
+		t.Errorf("/live without ?stream= doesn't watch its own stream")
 	}
 	if other := get(t, h, "/live").Body.String(); other == body {
 		t.Errorf("two views of /live got the same stream")
@@ -30,7 +30,7 @@ func TestLive(t *testing.T) {
 	if !strings.Contains(watch.Header().Get("X-Robots-Tag"), "noindex") {
 		t.Errorf("/live?stream=abc123: X-Robots-Tag %q, want noindex", watch.Header().Get("X-Robots-Tag"))
 	}
-	if strings.Contains(get(t, h, "/live?stream=no%20good").Body.String(), "<moq-watch") {
+	if strings.Contains(get(t, h, "/live?stream=no%20good").Body.String(), `name="go-htmx4/live/no`) {
 		t.Errorf("/live?stream=no good: a stream id outside [a-z0-9] got a watcher")
 	}
 }
