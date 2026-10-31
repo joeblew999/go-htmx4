@@ -68,14 +68,18 @@ function create(root) {
 	});
 	L.tileLayer(tiles, { maxZoom }).addTo(map);
 	for (const template of root.querySelectorAll("template[data-map-marker]")) marker(template).addTo(map);
-	// The map is drawn for its box: when the box changes (a card opening, a phone turning), Leaflet measures again.
-	new ResizeObserver(() => map.invalidateSize()).observe(canvas);
+	// The map is drawn for its box: when the box changes (a card opening, a phone turning), Leaflet measures again;
+	// never once the map is taken down (Leaflet's panes are gone then).
+	const resized = new ResizeObserver(() => maps.get(root) === map && map.invalidateSize());
+	resized.observe(canvas);
+	map.on("unload", () => resized.disconnect());
 	map.on("zoomend", () => reflect(root, map));
 	return map;
 }
 
-// reflect writes the map's state where the markup reads it. It runs again whenever init() does (a morph resets the
-// root's attributes to the server's), so it is cheap and only writes what changed.
+// reflect writes the map's settled state where the markup reads it: when it is drawn, after each zoom, and when a morph
+// has reset the root's attributes to the server's. Never mid-animation: Leaflet ignores a zoom while one runs, so the
+// state must not offer the next zoom before this one has finished.
 function reflect(root, map) {
 	const zoom = String(map.getZoom());
 	if (root.dataset.zoom !== zoom) root.dataset.zoom = zoom;
@@ -132,9 +136,10 @@ const live = new Set();
 new MutationObserver(() => {
 	for (const root of live) {
 		if (root.isConnected) continue;
-		maps.get(root)?.remove();
+		const map = maps.get(root);
 		maps.delete(root);
 		live.delete(root);
+		map?.remove();
 	}
 }).observe(document.documentElement, { childList: true, subtree: true });
 
@@ -143,7 +148,7 @@ new MutationObserver(() => {
 function initRoot(root) {
 	draw(root);
 	const map = maps.get(root);
-	if (map) reflect(root, map);
+	if (map && root.dataset.ready !== "true") reflect(root, map);
 }
 
 init("[data-map]", initRoot);

@@ -106,6 +106,8 @@ component Map(center LatLng, zoom int, label intl.Msg, locate bool, children gsx
 			{ locales.GsxkitMapAttribution }
 		</a>
 		{ children }
+		// The component's own files, served from web/gsxkit: static files, not routes.
+		// structpages:lint:ignore url-attr
 		<link rel="stylesheet" href="/gsxkit/map.css"/>
 		<script type="module" src="/gsxkit/map.js"></script>
 	</div>

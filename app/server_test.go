@@ -96,8 +96,8 @@ func TestRoutes(t *testing.T) {
 	}
 }
 
-// Routes enforce methods and exact paths: the pages through their GET patterns (Allow: GET, HEAD, as net/http's mux
-// answers), the plain paths through allow.
+// Routes enforce methods and exact paths: the page tree's pages and routes through their method patterns (Allow as
+// net/http's mux answers), the plain paths left (static files, intl's preferences) through allow.
 func TestRouteRules(t *testing.T) {
 	h := newServer().routes()
 	tests := []struct {
@@ -105,7 +105,7 @@ func TestRouteRules(t *testing.T) {
 		status       int
 		allow        string
 	}{
-		{"GET", "/greet", http.StatusMethodNotAllowed, "POST, DELETE"},
+		{"GET", "/greet", http.StatusMethodNotAllowed, "DELETE, POST"},
 		{"POST", "/", http.StatusMethodNotAllowed, "GET, HEAD"},
 		{"POST", "/about", http.StatusMethodNotAllowed, "GET, HEAD"},
 		{"POST", "/static/htmx.min.js", http.StatusMethodNotAllowed, "GET"},

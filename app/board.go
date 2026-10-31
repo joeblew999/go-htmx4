@@ -57,37 +57,38 @@ type store interface {
 	AddNote(topic, body string) (Board, error)
 }
 
-func (s *server) boardRoutes(mux web.ServeMux) {
-	mux.HandleFunc("/board/add", func(w http.ResponseWriter, r *http.Request) {
-		topic, ok := topicOf(w, r)
-		if !ok || !allow(w, r, http.MethodPost) {
-			return
-		}
-		delta, err := strconv.ParseInt(r.FormValue("delta"), 10, 64)
-		if err != nil || (delta != 1 && delta != -1) {
-			http.Error(w, intl.Text(r.Context(), locales.BoardErrorsDelta), http.StatusBadRequest)
-			return
-		}
-		if s.limited(w, r) {
-			return
-		}
-		change(w, r, topic, func(st store) (Board, error) { return st.Add(topic, delta) })
-	})
-	mux.HandleFunc("/board/note", func(w http.ResponseWriter, r *http.Request) {
-		topic, ok := topicOf(w, r)
-		if !ok || !allow(w, r, http.MethodPost) {
-			return
-		}
-		body := strings.TrimSpace(r.FormValue("body"))
-		if body == "" || utf8.RuneCountInString(body) > maxNoteRunes {
-			http.Error(w, intl.Text(r.Context(), locales.BoardErrorsNoteLength(maxNoteRunes)), http.StatusBadRequest)
-			return
-		}
-		if s.limited(w, r) {
-			return
-		}
-		change(w, r, topic, func(st store) (Board, error) { return st.AddNote(topic, body) })
-	})
+// BoardAdd adds 1 or -1 to the topic's board (views.BoardAddAction).
+func (s *server) BoardAdd(w http.ResponseWriter, r *http.Request) {
+	topic, ok := topicOf(w, r)
+	if !ok {
+		return
+	}
+	delta, err := strconv.ParseInt(r.FormValue("delta"), 10, 64)
+	if err != nil || (delta != 1 && delta != -1) {
+		http.Error(w, intl.Text(r.Context(), locales.BoardErrorsDelta), http.StatusBadRequest)
+		return
+	}
+	if s.limited(w, r) {
+		return
+	}
+	change(w, r, topic, func(st store) (Board, error) { return st.Add(topic, delta) })
+}
+
+// BoardNote adds a note to the topic's board (views.BoardNoteAction).
+func (s *server) BoardNote(w http.ResponseWriter, r *http.Request) {
+	topic, ok := topicOf(w, r)
+	if !ok {
+		return
+	}
+	body := strings.TrimSpace(r.FormValue("body"))
+	if body == "" || utf8.RuneCountInString(body) > maxNoteRunes {
+		http.Error(w, intl.Text(r.Context(), locales.BoardErrorsNoteLength(maxNoteRunes)), http.StatusBadRequest)
+		return
+	}
+	if s.limited(w, r) {
+		return
+	}
+	change(w, r, topic, func(st store) (Board, error) { return st.AddNote(topic, body) })
 }
 
 // limited replies 429 with an out-of-band gsxui toast when the client is over the write limit.
@@ -97,7 +98,7 @@ func (s *server) limited(w http.ResponseWriter, r *http.Request) bool {
 	}
 	w.Header().Set("Retry-After", "10")
 	w.WriteHeader(http.StatusTooManyRequests)
-	s.render(w, r, "board:limited", views.RateLimited())
+	respond(w, r, views.RateLimited())
 	return true
 }
 
@@ -175,7 +176,7 @@ func renderBoard(ctx context.Context, b Board) string {
 func renderBoardLocales(ctx context.Context, b Board) live.Message {
 	out := live.Message{Version: b.Version, Default: intl.Key(locales.Shipped[0]), Fragments: map[string]string{}}
 	for _, ld := range locales.Shipped {
-		lctx := intl.WithRequest(ctx, intl.Request{Locale: ld, Path: "/board"})
+		lctx := intl.WithRequest(ctx, intl.Request{Locale: ld, Path: views.Route(views.Board{})})
 		out.Fragments[intl.Key(ld)] = renderBoard(lctx, b)
 	}
 	return out

@@ -27,9 +27,22 @@ type Pages struct {
 	live       Live       `route:"GET /live Live"`
 	maps       Map        `route:"GET /map Map"`
 	about      About      `route:"GET /about About"`
+
+	// What the pages call (routes.go): routes in the tree, not pages.
+	greet      GreetAction         `route:"POST /greet GreetAction"`
+	clearGreet ClearGreetingAction `route:"DELETE /greet ClearGreetingAction"`
+	serverInfo ServerInfoFragment  `route:"GET /fragments/server-info ServerInfoFragment"`
+	stats      StatsFragment       `route:"GET /fragments/stats StatsFragment"`
+	week       WeekFragment        `route:"GET /fragments/components-week WeekFragment"`
+	sidebar    SidebarFragment     `route:"GET /components/sidebar SidebarFragment"`
+	count      CountAction         `route:"POST /components/count CountAction"`
+	try        TryAction           `route:"POST /formats/try TryAction"`
+	boardAdd   BoardAddAction      `route:"POST /board/add BoardAddAction"`
+	boardNote  BoardNoteAction     `route:"POST /board/note BoardNoteAction"`
 }
 
-// All is every page, each with no parameters: the sitemap's pages (those search engines may index).
+// All is every page, each with no parameters: the sitemap's pages (those search engines may index). The tree's routes
+// that aren't pages (routes.go) aren't in it.
 var All = []any{Home{}, Board{}, Formats{}, Components{}, Live{}, Map{}, About{}}
 
 // Home is the home page.
@@ -79,9 +92,10 @@ type Map struct{}
 // About is the stack.
 type About struct{}
 
-// App is what the pages need from the app: package app fills it in, and structpages hands it to their Props
-// (WithArgs).
+// App is what the pages need from the app: package app fills it in, and structpages hands it to their Props and to
+// the routes' ServeHTTP (WithArgs).
 type App interface {
+	Actions
 	Home(r *http.Request) HomeProps
 	Connection(r *http.Request) Connection
 	Stack() []StackItem

@@ -624,6 +624,12 @@ The production build on local workerd, every route checked over HTTP (e2e/smoke)
 
 Test, then deploy staging: the Worker $APP_NAME-staging → its URL on stdout and in .staging-url
 
+### `structpages:lint`
+
+- **Usage:** `structpages:lint`
+
+structpages-lint over the app: URLs, ids and partials against the page tree, internal URLs written as strings, htmx without a target selector; exit 1 on a finding
+
 ### `tail`
 
 - **Usage:** `tail`
@@ -645,7 +651,7 @@ Everything before a push: the production build + workerd smoke, gsx fmt/gofmt, g
 
 - **Usage:** `test:go`
 
-gsx fmt/gofmt check + go vet + go test, the app and its modules: intl/, seo/, badge/, gsxkit/ (standard Go; runs beside the production build)
+gsx fmt/gofmt check + go vet + structpages-lint + go test, the app and its modules: intl/, seo/, badge/, gsxkit/ (standard Go; runs beside the production build)
 
 ### `token-check`
 

@@ -129,8 +129,11 @@ after a release; committed), what `gsxui` manages (`gsxui.json` lists it), and i
   every string that needs a message.
 - `mise run intl:check` also runs gsx's own checks on the app's markup: `gsx generate`, `gsx fmt` and the `gsx` skill's
   smell finder. Write what the `gsx` skill says, not what older code does.
-- Every in-app `href`/`hx-*` URL goes through intl: a page's through the `url` filter, `href={ pages.About{} |> url }`,
-  any other through `localize`, `hx-post={ "/greet" |> localize }` (not `/static/`, `/assets/`, `/gsxui/`, `/gsxkit/`, `/live/`). Locale URLs, cookies and preferences are `intl.Site`, search engines `seo.Site`, both in `app/site.go`.
+- Every in-app `href`/`hx-*`/`src` URL comes from the page tree through the `url` filter, in the reader's language:
+  a page's, `href={ pages.About{} |> url }`, and a route's, `hx-post={ GreetAction{} |> url }`. Never a path as a
+  string: `structpages-lint` (gsxkit's `structpages:lint`, in `test:go`) fails on one. Its exceptions carry a
+  `structpages:lint:ignore url-attr` directive with their reason above it: static files (`/static/`, `/assets/`,
+  `/gsxui/`, `/gsxkit/`) and intl's preferences routes, which intl's screens name for any gsx app. Locale URLs, cookies and preferences are `intl.Site`, search engines `seo.Site`, both in `app/site.go`.
   Logical Tailwind classes only (`ms-`, `pe-`, `start-`, `text-end`, …) so RTL mirrors (`TestLogicalClasses`).
 - Dates and numbers for readers go through Intl, never `time.Format` or `strconv`: intl's gsx filters in markup,
   `{ t |> date(opts) }`, `{ t |> since }`, `{ n |> number(opts) }`, `{ d |> duration }`, `{ v |> intl(api, method,
@@ -156,8 +159,11 @@ after a release; committed), what `gsxui` manages (`gsxui.json` lists it), and i
 
 - **workers-go `v0.36.0` exactly** (`github.com/syumai/workers-go`). What ships is built by
   `charter build` (TinyGo by default, `WORKER_COMPILER`); standard Go only for local code and `build:dev`.
-- **TinyGo gaps:** the mux is charter's `web.NewServeMux()`, which has Go 1.22 patterns under TinyGo too: the pages
-  use them, the other routes are plain paths (`"/greet"`) checking their method with `allow` (charter's `web.Allow`).
+- **TinyGo gaps:** the mux is charter's `web.NewServeMux()`, which has Go 1.22 patterns under TinyGo too: every page
+  and every route the pages call is in structpages' tree (`views/pages.go`, `views/routes.go`: a type with its method
+  in its route tag and a `ServeHTTP` that answers through `views.App`), mounted with htmx 4's target selector
+  (`structpages.HTMXv4RenderTarget`). Only static files, `/healthz` and intl's preferences routes stay plain paths,
+  checking their method with `allow` (charter's `web.Allow`).
   structpages calls the pages' methods through tables `structpages-gen` writes (`mise run generate`); `html/template`
   panics. Reflection-heavy code needs the workerd smoke test, not just a build. Run
   `mise run check` after changing handlers: `go test` can't see TinyGo.
