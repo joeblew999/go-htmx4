@@ -11,7 +11,7 @@ import (
 )
 
 // testMap is gsxkit's map component on the map page (#164): reached by a boosted navigation, Leaflet draws it and its
-// tiles; the zoom buttons zoom; the location button asks the browser (here a set position, the permission granted) and
+// tiles once its stylesheet applies; the zoom buttons zoom; the location button asks the browser (here a set position, the permission granted) and
 // pins the reader there, whose popup is the component's own; and a full load of the page draws it too.
 func testMap(t *testing.T) {
 	b := newTab(t, "map")
@@ -34,11 +34,13 @@ func testMap(t *testing.T) {
 	b.eval(`document.querySelector("[data-map-action=zoom-out]").click()`, nil)
 	check(t, "zoom out", b.waitJS(5*time.Second, fmt.Sprintf(`Number(document.querySelector("[data-map]").dataset.zoom) === %d`, zoom)))
 
+	// On Cloudflare the page has a pin already, at its guess of where the request came from; locally none.
+	pins := b.num(`document.querySelectorAll("[data-map] .leaflet-marker-icon").length`)
 	b.eval(`document.querySelector("[data-map-action=locate]").click()`, nil)
 	found := b.waitJS(10*time.Second, `document.querySelector("[data-map]").dataset.locate === "found"`)
 	check(t, "the location button finds the reader", found, b.str(`document.querySelector("[data-map]").dataset.locate`))
-	check(t, "and pins them, zoomed in", b.is(`document.querySelectorAll("[data-map] .leaflet-marker-icon [data-map-pin]").length === 1 && Number(document.querySelector("[data-map]").dataset.zoom) >= 14`))
-	b.eval(`document.querySelector("[data-map] .leaflet-marker-icon").click()`, nil)
+	check(t, "and pins them, zoomed in", b.is(fmt.Sprintf(`document.querySelectorAll("[data-map] .leaflet-marker-icon [data-map-pin]").length === %d && Number(document.querySelector("[data-map]").dataset.zoom) >= 14`, pins+1)))
+	b.eval(`[...document.querySelectorAll("[data-map] .leaflet-marker-icon")].at(-1).click()`, nil)
 	you := b.str(`document.querySelector("[data-map] template[data-map-you]").dataset.title`)
 	check(t, "the pin's popup is the component's", b.waitJS(5*time.Second, fmt.Sprintf(`document.querySelector("[data-map] .leaflet-popup-content")?.textContent.trim() === %q`, you)), you)
 

@@ -17,21 +17,35 @@ const PIN = 32;
 const LOCATED_ZOOM = 14;
 
 // Every map on the page, and every one a boosted navigation or a swap brings in later: the module runs once per
-// document, however many maps load it. A map that leaves the page is taken down.
+// document, however many maps load it. Each is drawn once its stylesheet applies; one that leaves the page is taken
+// down.
 const maps = new Map();
 function start() {
 	for (const section of document.querySelectorAll("[data-map]")) {
-		if (!maps.has(section)) maps.set(section, draw(section));
+		if (maps.has(section)) continue;
+		maps.set(section, undefined);
+		styled(section).then(() => section.isConnected && maps.has(section) && maps.set(section, draw(section)));
 	}
 	for (const [section, map] of maps) {
 		if (!section.isConnected) {
-			map.remove();
+			map?.remove();
 			maps.delete(section);
 		}
 	}
 }
 start();
 new MutationObserver(start).observe(document.documentElement, { childList: true, subtree: true });
+
+// styled is when the map's stylesheet (the component's <link>) applies: Leaflet lays its panes and tiles out by it. A
+// full load runs this module after it; a boosted navigation brings the link in with the page, still loading.
+function styled(section) {
+	const link = section.querySelector('link[rel="stylesheet"]');
+	if (!link || link.sheet) return Promise.resolve();
+	return new Promise((resolve) => {
+		link.addEventListener("load", resolve, { once: true });
+		link.addEventListener("error", resolve, { once: true });
+	});
+}
 
 function draw(section) {
 	const { center, zoom, tiles, maxZoom } = JSON.parse(section.dataset.map);
