@@ -11,7 +11,8 @@ require (
 	github.com/jackielii/structpages v0.10.0
 	github.com/jackielii/tailwind-merge-go v0.0.0-20260726184505-8a911ed0cf9a
 	github.com/joeblew999/charter v0.20.0
-	github.com/joeblew999/go-htmx4/intl v0.8.0
+	github.com/joeblew999/go-htmx4/gsxkit v0.0.0
+	github.com/joeblew999/go-htmx4/intl v0.9.0
 	github.com/joeblew999/go-htmx4/seo v0.3.0
 	golang.org/x/net v0.61.0
 )
@@ -27,7 +28,6 @@ require (
 	github.com/jackielii/ctxkey v1.0.1 // indirect
 	github.com/jmoiron/sqlx v1.4.0 // indirect
 	github.com/joeblew999/go-htmx4/badge v0.1.0 // indirect
-	github.com/joeblew999/go-htmx4/gsxkit v0.0.0 // indirect
 	github.com/mattn/go-isatty v0.0.24 // indirect
 	github.com/ncruces/go-strftime v1.1.0 // indirect
 	github.com/pelletier/go-toml v1.9.5 // indirect
