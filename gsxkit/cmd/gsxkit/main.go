@@ -7,6 +7,7 @@
 //	go tool gsxkit tasks [-o file]   write the gsx and gsxui mise tasks into the app (.mise/tasks/gsx.toml)
 //	go tool gsxkit skill             copy the skills of every such project in go.mod into .claude/skills
 //	go tool gsxkit add [-diff | -overwrite] [-dir views/gsxkit] [-assets web/gsxkit] <component>…
+//	go tool gsxkit update            gsx, gsxui and structpages to their latest, except what deps.toml holds
 package main
 
 import (
@@ -76,13 +77,15 @@ func main() {
 		}
 	case "add":
 		os.Exit(add(root, os.Args[2:]))
+	case "update":
+		os.Exit(update(root))
 	default:
 		usage()
 	}
 }
 
 func usage() {
-	fmt.Fprintf(os.Stderr, "usage: go tool gsxkit tasks [-o file] | skill | add [-diff | -overwrite] [-dir dir] [-assets dir] <component>…   components: %s\n",
+	fmt.Fprintf(os.Stderr, "usage: go tool gsxkit tasks [-o file] | skill | update | add [-diff | -overwrite] [-dir dir] [-assets dir] <component>…   components: %s\n",
 		strings.Join(gsxkitui.Components.Names(), ", "))
 	os.Exit(2)
 }

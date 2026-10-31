@@ -2,3 +2,5 @@ github.com/BurntSushi/toml v1.6.0 h1:dRaEfpa2VI55EwlIW72hMRHdWouJeRF7TPYhI+AUQjk
 github.com/BurntSushi/toml v1.6.0/go.mod h1:ukJfTF/6rtPPRCnwkur4qwRxa8vTRFBF0uk2lLoLwho=
 github.com/gsxhq/gsx v0.4.3 h1:75twz6EqcLX4w2LhMqQqwG+iX95n8GdXHPSZ3m6rihE=
 github.com/gsxhq/gsx v0.4.3/go.mod h1:hZYTcak9FJ1MlUQJdMCGND9bcqr8KeudgJI9jVBvR3A=
+golang.org/x/mod v0.42.0 h1:ICeL3t2L30ljSPHHxDnR4fqVcBt/zR2zJAb9juavmQg=
+golang.org/x/mod v0.42.0/go.mod h1:u5fzIrRInkL8MaO1cbRkUHT64v303YIT5KEqpNr7jRs=

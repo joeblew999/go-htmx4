@@ -1,0 +1,6 @@
+# What mise run update (and go tool gsxkit update) leave where they are, and why (#169); mise run outdated shows them,
+# held. A name is a Go module, a mise tool as mise.toml names it, an npm package, or "htmx"; one ending in * holds
+# every name that starts so.
+[hold]
+"@moq/*" = "Cloudflare's MoQ relays speak drafts 14 and 16; @moq's next releases speak only draft-18, which they don't yet (#158)"
+"github.com/syumai/workers-go" = "exactly v0.36.0 (AGENTS.md: charter's runtime is built for it)"

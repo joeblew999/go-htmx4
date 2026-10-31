@@ -66,6 +66,19 @@ run = [
   "mise run gsxkit:add",
 ]
 
+# Every pin against upstream, and moving them all (#169): internal/deps, with deps.toml's holds. update runs gsxkit's
+# update for gsx, gsxui and structpages first, then every other pin, tidies every module, writes everything generated
+# from them again, and proves the result with check and e2e.
+["outdated"]
+description = "Every pin with a newer version upstream (Go modules in every module, mise's tools, gsxui's commit, Chrome, htmx, the npm locks), deps.toml's holds marked"
+dir = "{{config_root}}"
+run = "go run ./internal/deps outdated"
+
+["update"]
+description = "Move every pin not held in deps.toml to its latest (go tool gsxkit update, then Go modules, mise's tools and their copies, charter with charter init, Chrome, htmx, the npm locks), tidy every module, regenerate, then check and e2e"
+dir = "{{config_root}}"
+run = ["go run ./internal/deps update", "mise run check", "mise run e2e"]
+
 # The app's components (gsx:generate, from gsxkit's tasks) and this repo's own modules' (intl/, seo/), which commit
 # theirs for the apps that import them; then the tables a TinyGo build of the pages reads (structpages-gen, after gsx:
 # the pages' Page methods are gsx's code). Every build/run/test path depends on this.
@@ -249,12 +262,17 @@ env = { FRESH_VERSIONS = "published" }
 run = "go test -C e2e -count=1 -timeout 10m -run TestFreshApp ./fresh"
 
 ["test:go"]
-description = "gsx fmt/gofmt check + go vet + structpages-lint + go test, the app and its modules: intl/, seo/, badge/, gsxkit/ (standard Go; runs beside the production build)"
+description = "Every module's go.mod tidy, gsx fmt/gofmt check + go vet + structpages-lint + go test, the app and its modules: intl/, seo/, badge/, gsxkit/ (standard Go; runs beside the production build)"
 depends = ["generate"]
 dir = "{{config_root}}"
 run = '''
 #!/usr/bin/env bash
 set -euo pipefail
+# Every module's go.mod and go.sum as go mod tidy writes them: a dependency moved in one module and not another fails
+# here, naming the module (mise run update tidies them all).
+for mod in $(git ls-files 'go.mod' '*/go.mod'); do
+  go -C "$(dirname "$mod")" mod tidy -diff >/dev/null || { echo "✗ $(dirname "$mod")/go.mod isn't tidy: go -C $(dirname "$mod") mod tidy"; exit 1; }
+done
 mise run gsx:fmt --check
 # Files of this module only (gofmt -l . would walk the nested modules too); IgnoredGoFiles
 # are the other platform's build-tagged files.

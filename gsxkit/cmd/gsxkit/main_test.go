@@ -13,11 +13,11 @@ import (
 // TestTasks: every gsxkit command the tasks run is one gsxkit has, every task is there, and tasks writes them.
 func TestTasks(t *testing.T) {
 	for _, m := range regexp.MustCompile(`go tool gsxkit (\w+)`).FindAllStringSubmatch(string(mise.Tasks), -1) {
-		if !slices.Contains([]string{"tasks", "skill"}, m[1]) {
+		if !slices.Contains([]string{"tasks", "skill", "update"}, m[1]) {
 			t.Errorf("mise/tasks.toml runs gsxkit %s, which it doesn't have", m[1])
 		}
 	}
-	for _, task := range []string{"gsx:generate", "gsx:fmt", "gsx:editor", "gsxui:css", "gsxui:theme", "gsx:tasks", "gsx:skill"} {
+	for _, task := range []string{"gsx:generate", "gsx:fmt", "gsx:editor", "gsxui:css", "gsxui:theme", "gsx:tasks", "gsx:skill", "gsx:update", "structpages:lint"} {
 		if !regexp.MustCompile(`(?m)^\["` + task + `"\]$`).Match(mise.Tasks) {
 			t.Errorf("mise/tasks.toml has no %s", task)
 		}
@@ -94,5 +94,17 @@ func TestPinnedVersion(t *testing.T) {
 	}
 	if got := pinnedVersion(toml, "github.com/gsxhq/gsx"); got != "" {
 		t.Errorf("pinnedVersion of a module mise.toml doesn't pin = %q", got)
+	}
+}
+
+// TestGsxuiComponents: the components gsxui add --overwrite refreshes are those gsxui.json says it wrote.
+func TestGsxuiComponents(t *testing.T) {
+	root := t.TempDir()
+	cfg := `{"ui": "ui", "managed": {"ui/button.gsx": "x", "ui/icon/icon.go": "x", "ui/icon/icon.gsx": "x", "ui/i18n/i18n.go": "x", "web/gsxui/dialog.js": "x", "ui/dialog.gsx": "x"}}`
+	if err := os.WriteFile(filepath.Join(root, "gsxui.json"), []byte(cfg), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if got := gsxuiComponents(root); !slices.Equal(got, []string{"button", "dialog", "icon"}) {
+		t.Errorf("gsxuiComponents = %v", got)
 	}
 }

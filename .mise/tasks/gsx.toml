@@ -21,6 +21,13 @@ else
 fi
 '''
 
+# gsx, gsxui and structpages to their latest in one step (gsxkit/README.md, "Updating"): gsx in every module, gsxui's
+# CLI pin to its newest commit with its CSS and components refreshed, structpages and its linter; except what deps.toml
+# holds. Then the tasks, skills, generated code and the copies of intl's screens and gsxkit's components follow.
+["gsx:update"]
+description = "gsx, gsxui and structpages to their latest (go tool gsxkit update), except what deps.toml holds; the tasks, skills, generated code and copies follow"
+run = "go tool gsxkit update"
+
 # structpages' own linter (structpages' README, "structpages-lint"): every URLFor, ID, IDTarget, Within and Ref call and
 # url, id and target filter against the page tree the route tags make, internal URLs written as strings in .gsx, and a
 # Mount whose pages use htmx with no target selector. Pinned in the app's go.mod:

@@ -298,6 +298,12 @@ Install or update the agent skills Jackie Li's projects ship (gsx's, structpages
 
 Write this file again from the gsxkit version in go.mod: run it after upgrading gsxkit
 
+### `gsx:update`
+
+- **Usage:** `gsx:update`
+
+gsx, gsxui and structpages to their latest (go tool gsxkit update), except what deps.toml holds; the tasks, skills, generated code and copies follow
+
 ### `gsxkit:add`
 
 - Depends: gsxkit:bundle
@@ -468,6 +474,12 @@ Translate every missing and stale message with Claude Code (the intl skill), one
 - **Usage:** `load`
 
 1,000 WebSockets in every locale on one topic, a 50-write burst, socket 1,001 refused (e2e/load; local workerd, or LOAD_BASE=https://…)
+
+### `outdated`
+
+- **Usage:** `outdated`
+
+Every pin with a newer version upstream (Go modules in every module, mise's tools, gsxui's commit, Chrome, htmx, the npm locks), deps.toml's holds marked
 
 ### `preview`
 
@@ -651,13 +663,19 @@ Everything before a push: the production build + workerd smoke, gsx fmt/gofmt, g
 
 - **Usage:** `test:go`
 
-gsx fmt/gofmt check + go vet + structpages-lint + go test, the app and its modules: intl/, seo/, badge/, gsxkit/ (standard Go; runs beside the production build)
+Every module's go.mod tidy, gsx fmt/gofmt check + go vet + structpages-lint + go test, the app and its modules: intl/, seo/, badge/, gsxkit/ (standard Go; runs beside the production build)
 
 ### `token-check`
 
 - **Usage:** `token-check`
 
 Verify CLOUDFLARE_API_TOKEN (from fnox) against the Cloudflare API (charter token)
+
+### `update`
+
+- **Usage:** `update`
+
+Move every pin not held in deps.toml to its latest (go tool gsxkit update, then Go modules, mise's tools and their copies, charter with charter init, Chrome, htmx, the npm locks), tidy every module, regenerate, then check and e2e
 
 ### `upstream:branch`
 
