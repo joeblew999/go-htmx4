@@ -75,7 +75,7 @@ contributor's pull request stops before them.
 `structpages_tables.go` (`go tool structpages-gen`, in `mise run generate`; not committed),
 `intl_gen.go` and `intl-messages.mjs` (`mise run intl`; not committed), `locales/intl.sum` and `docs/badges/intl.svg`
 (`mise run intl`; committed), `.claude/skills/intl` (`mise run intl:skill`; committed), `.claude/skills/seo`
-(`mise run seo:skill`; committed), the skills gsx and structpages ship (`.claude/skills/gsx`, `templ-to-gsx-migration`, `structpages`: `mise run gsx:skill`;
+(`mise run seo:skill`; committed), the skills gsx, structpages and gsxui ship (`.claude/skills/gsx`, `templ-to-gsx-migration`, `structpages`, `gsxui`: `mise run gsx:skill`;
 committed), the
 `.mise/tasks/*.toml` files (`mise run intl:tasks`, `seo:tasks`, `gsx:tasks`; committed), `docs/commands.md`
 (`mise run docs:commands`), the other `docs/badges/` and the README's `<!-- seo:scores -->` table (`mise run seo:badges`,

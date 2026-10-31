@@ -85,3 +85,14 @@ func TestSkillDirs(t *testing.T) {
 		t.Errorf("no skills/: %v, %v", got, err)
 	}
 }
+
+// TestPinnedVersion: gsxui's skill comes from the commit mise.toml installs its CLI at.
+func TestPinnedVersion(t *testing.T) {
+	toml := "[tools]\n\"go:github.com/gsxhq/gsxui/cmd/gsxui\" = \"65f4813e\"\nfnox = \"1\"\n"
+	if got := pinnedVersion(toml, "github.com/gsxhq/gsxui"); got != "65f4813e" {
+		t.Errorf("pinnedVersion = %q, want 65f4813e", got)
+	}
+	if got := pinnedVersion(toml, "github.com/gsxhq/gsx"); got != "" {
+		t.Errorf("pinnedVersion of a module mise.toml doesn't pin = %q", got)
+	}
+}

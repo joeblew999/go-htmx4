@@ -91,5 +91,5 @@ description = "Write this file again from the gsxkit version in go.mod: run it a
 run = "go tool gsxkit tasks"
 
 ["gsx:skill"]
-description = "Install or update the agent skills Jackie Li's projects ship (gsx's, structpages'), from the versions in go.mod, into .claude/skills"
+description = "Install or update the agent skills Jackie Li's projects ship (gsx's, structpages', gsxui's), at the versions the app pins (go.mod, mise.toml), into .claude/skills"
 run = "go tool gsxkit skill"

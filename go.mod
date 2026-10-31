@@ -7,7 +7,7 @@ toolchain go1.27.3
 require (
 	github.com/Masterminds/semver/v3 v3.5.0
 	github.com/evanw/esbuild v0.28.2
-	github.com/gsxhq/gsx v0.4.0
+	github.com/gsxhq/gsx v0.4.3
 	github.com/jackielii/structpages v0.10.0
 	github.com/jackielii/tailwind-merge-go v0.0.0-20260726184505-8a911ed0cf9a
 	github.com/joeblew999/charter v0.20.0
@@ -43,6 +43,7 @@ require (
 	golang.org/x/mod v0.42.0 // indirect
 	golang.org/x/sync v0.24.0 // indirect
 	golang.org/x/sys v0.49.0 // indirect
+	golang.org/x/term v0.47.0 // indirect
 	golang.org/x/tools v0.52.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect

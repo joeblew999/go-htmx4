@@ -290,7 +290,7 @@ go tool gsx generate: every .gsx file to its .x.go (after intl, when intl is run
 
 - **Usage:** `gsx:skill`
 
-Install or update the agent skills Jackie Li's projects ship (gsx's, structpages'), from the versions in go.mod, into .claude/skills
+Install or update the agent skills Jackie Li's projects ship (gsx's, structpages', gsxui's), at the versions the app pins (go.mod, mise.toml), into .claude/skills
 
 ### `gsx:tasks`
 

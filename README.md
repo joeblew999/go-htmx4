@@ -105,7 +105,7 @@ go get github.com/joeblew999/charter@latest   # its library, at the same version
 go get -tool github.com/gsxhq/gsx/cmd/gsx github.com/joeblew999/go-htmx4/intl/cmd/intl \
   github.com/joeblew999/go-htmx4/seo/cmd/seo github.com/joeblew999/go-htmx4/gsxkit/cmd/gsxkit
 gsxui init                        # gsxui's theme and components, npm-free (https://ui.gsxhq.dev)
-go tool gsxkit tasks && go tool gsxkit skill   # gsx's and gsxui's tasks, and the skills gsx and structpages ship
+go tool gsxkit tasks && go tool gsxkit skill   # gsx's, gsxui's and structpages' tasks, and the skills they ship
 charter init                      # charter.toml: the Worker on Cloudflare, local workerd, deploys; charter's files
 go tool intl init -locales en,de  # intl.toml, the catalogs, intl's tasks and skill
 go tool intl add language-list language-offer preferences   # intl's screens, already translated
@@ -132,7 +132,7 @@ charter:deploy production`. This repo's own previews, staging and releases: [doc
 | `locales/` | the messages: one catalog per language (`en.toml` is the source) and `intl.sum` |
 | `intl/`, `intl.toml` | Intl for gsx apps, its own Go module ([intl/README.md](intl/README.md)); this app's languages |
 | `seo/`, `seo.toml` | search engines for Go apps, its own Go module ([seo/README.md](seo/README.md)): the middleware, the audit, Lighthouse, Search Console; this app's settings |
-| `gsxkit/` | gsx's and gsxui's mise tasks and the skills gsx and structpages ship, and our registry of components gsxui doesn't have (a map, live video), for any app, its own Go module ([gsxkit/README.md](gsxkit/README.md)) |
+| `gsxkit/` | gsx's, gsxui's and structpages' mise tasks and the skills they ship, and our registry of components gsxui doesn't have (a map, live video), for any app, its own Go module ([gsxkit/README.md](gsxkit/README.md)) |
 | `badge/` | the README badges intl and seo draw (SVG, no service), a tiny module of its own so neither depends on the other |
 | `internal/` | live (the board's message to the Room, topic and locale rules), classmerge (gsx's class merger, cached), jsbundle (npm packages bundled with esbuild's Go API, no Node: gsxkit's components' browser files) |
 | `worker/`, `charter.toml` | the deployed JavaScript (the Worker's entry and the board's Durable Object), and everything about the Worker on Cloudflare, from which the `charter` command deploys it and runs it on local workerd |

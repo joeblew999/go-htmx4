@@ -1,6 +1,7 @@
-// Command gsxkit is go tool gsxkit: gsx's and gsxui's mise tasks, and the agent skills Jackie Li's projects ship
-// (gsx's, structpages'), written into a gsx app the way intl and seo write theirs. The skills are theirs (each
-// repository's skills/); gsxkit only copies them, at the versions the app's go.mod requires. And gsxkit's own
+// Command gsxkit is go tool gsxkit: gsx's, gsxui's and structpages' mise tasks, and the agent skills Jackie Li's
+// projects ship (gsx's, structpages', gsxui's), written into a gsx app the way intl and seo write theirs. The skills
+// are theirs (each repository's skills/); gsxkit only copies them, at the versions the app pins (go.mod; mise.toml for
+// gsxui's CLI). And gsxkit's own
 // components (gsxkit/ui: a map, live video), which add copies into the app the way gsxui add copies gsxui's (#164).
 //
 //	go tool gsxkit tasks [-o file]   write the gsx and gsxui mise tasks into the app (.mise/tasks/gsx.toml)
@@ -18,6 +19,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"strings"
 
 	"github.com/joeblew999/go-htmx4/gsxkit/mise"
@@ -48,6 +50,9 @@ func main() {
 		changed := false
 		for _, module := range skillModules {
 			dir, ok, err := moduleDir(root, module)
+			if err == nil && !ok {
+				dir, ok, err = misePinned(root, module) // gsxui's CLI is pinned in mise.toml, not go.mod
+			}
 			if err != nil {
 				fail(err)
 			}
@@ -101,8 +106,41 @@ func appRoot() (string, error) {
 }
 
 // skillModules are the projects whose own agent skills gsxkit copies, each from its repository's skills/: gsx's (gsx,
-// templ-to-gsx-migration) and structpages'. gsxui's joins them once it publishes one (gsxhq/gsxui#36).
-var skillModules = []string{"github.com/gsxhq/gsx", "github.com/jackielii/structpages"}
+// templ-to-gsx-migration), structpages' and gsxui's (gsxui, since gsxhq/gsxui#58).
+var skillModules = []string{"github.com/gsxhq/gsx", "github.com/jackielii/structpages", "github.com/gsxhq/gsxui"}
+
+// misePinned is module's directory at the version the app's mise.toml pins its Go tool at ("go:<module>/cmd/…" =
+// "<version>": how gsxui's CLI is installed), downloading it if needed; ok is false when mise.toml pins no such tool.
+func misePinned(root, module string) (dir string, ok bool, err error) {
+	b, err := os.ReadFile(filepath.Join(root, "mise.toml"))
+	if err != nil {
+		return "", false, nil
+	}
+	version := pinnedVersion(string(b), module)
+	if version == "" {
+		return "", false, nil
+	}
+	cmd := exec.Command("go", "mod", "download", "-json", module+"@"+version)
+	cmd.Dir = root
+	out, err := cmd.Output()
+	if err != nil {
+		return "", false, fmt.Errorf("go mod download %s@%s (mise.toml's pin): %w", module, version, err)
+	}
+	var m struct{ Dir string }
+	if err := json.Unmarshal(out, &m); err != nil || m.Dir == "" {
+		return "", false, fmt.Errorf("go mod download %s@%s left no directory", module, version)
+	}
+	return m.Dir, true, nil
+}
+
+// pinnedVersion is the version a mise.toml pins module's Go tool at: "go:github.com/gsxhq/gsxui/cmd/gsxui" = "65f4813e".
+func pinnedVersion(miseToml, module string) string {
+	re := regexp.MustCompile(`(?m)^\s*"go:` + regexp.QuoteMeta(module) + `(/[^"]*)?"\s*=\s*"([^"]+)"`)
+	if m := re.FindStringSubmatch(miseToml); m != nil {
+		return m[2]
+	}
+	return ""
+}
 
 // moduleDir is module's directory at the version the app's go.mod requires, downloading it if needed; ok is false
 // when the app doesn't require it.

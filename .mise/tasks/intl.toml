@@ -75,20 +75,13 @@ if [ -n "$files" ]; then
   unformatted=$(go tool gsx fmt -l $(printf '%s\n' "$files" | grep '\.gsx$'))
   [ -z "$unformatted" ] || { echo "✗ gsx fmt -w these: $unformatted"; status=1; }
   smells="$(go list -m -f '{% raw %}{{.Dir}}{% endraw %}' github.com/gsxhq/gsx)/skills/gsx/scripts/find-smells.sh"
-  # The one shape the smell finder can't tell apart: a message with arguments alone on a line, { locales.X(arg) },
-  # is a typed value with a renderer, not a component called as a function.
-  msg="^[^:]+:[0-9]+:[[:space:]]*[{][[:space:]]*$(go tool intl catalogs)[.][A-Z][A-Za-z0-9]*[(]"
   # The smell finder takes one directory and searches all of it: give it a copy holding only the app's own files,
   # at their paths, so its report names them as they are.
   own=$(mktemp -d)
   for f in $files; do mkdir -p "$own/$(dirname "$f")" && cp "$f" "$own/$f"; done
   found=$(cd "$own" && bash "$smells" .) || { echo "✗ gsx smells: find-smells.sh failed"; status=1; }
   rm -rf "$own"
-  hits=$(printf '%s\n' "$found" | sed 's#^\./##' | awk -v msg="$msg" '
-    /^== / { section = $0; next }
-    /^$/ { next }
-    section ~ /component called as a Go function/ && $0 ~ msg { next }
-    { if (section != shown) { print section; shown = section } print }')
+  hits=$(printf '%s\n' "$found" | sed 's#^\./##' | grep -v '^$')
   [ -z "$hits" ] || { echo "✗ gsx smells (find-smells.sh):"; echo "$hits"; status=1; }
 fi
 [ $status != 0 ] || echo "✓ gsx: generate, fmt, smells"

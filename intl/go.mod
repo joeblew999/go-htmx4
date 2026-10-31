@@ -6,7 +6,7 @@ toolchain go1.27.3
 
 require (
 	github.com/BurntSushi/toml v1.6.0
-	github.com/gsxhq/gsx v0.4.0
+	github.com/gsxhq/gsx v0.4.3
 	github.com/joeblew999/go-htmx4/badge v0.1.0
 )
 
@@ -20,6 +20,7 @@ require (
 	golang.org/x/net v0.61.0 // indirect
 	golang.org/x/sync v0.21.0 // indirect
 	golang.org/x/sys v0.49.0 // indirect
+	golang.org/x/term v0.47.0 // indirect
 	golang.org/x/tools v0.46.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 )

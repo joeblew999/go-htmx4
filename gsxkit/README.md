@@ -12,12 +12,16 @@ components, added to an app with `go tool gsxkit add` the way `gsxui add` adds g
 ```sh
 go get -tool github.com/joeblew999/go-htmx4/gsxkit/cmd/gsxkit
 go tool gsxkit tasks   # .mise/tasks/gsx.toml: the tasks below
-go tool gsxkit skill   # .claude/skills: each project's own skills, at the versions in go.mod
+go tool gsxkit skill   # .claude/skills: each project's own skills, at the versions the app pins
+go get -tool github.com/jackielii/structpages/tools/lint/cmd/structpages-lint   # for structpages:lint
 ```
 
-The tasks run gsx at the version in the app's go.mod (`go tool gsx`) and the gsxui CLI from its mise.toml, so pin
-gsxui there (it has no tags yet: a commit, `"go:github.com/gsxhq/gsxui/cmd/gsxui" = "ee41247"`). Tailwind comes with
-`gsxui:css`. Run `gsx:editor` after every `mise install` with `[hooks] postinstall = { task = "gsx:editor" }`.
+The tasks run gsx at the version in the app's go.mod (`go tool gsx`), structpages' linter from go.mod too, and the
+gsxui CLI from its mise.toml, so pin gsxui there (it has no tags yet: a commit,
+`"go:github.com/gsxhq/gsxui/cmd/gsxui" = "65f4813e"`). Tailwind comes with `gsxui:css`. Run `gsx:editor` after every
+`mise install` with `[hooks] postinstall = { task = "gsx:editor" }`. Make gsx's lints errors in `gsx.toml` (`[lint]`,
+each lint `"error"`; `go tool gsx info` lists them), so `gsx generate` fails on one, and run `structpages:lint` in the
+app's checks.
 
 | Task | What it does |
 | --- | --- |
@@ -26,12 +30,14 @@ gsxui there (it has no tags yet: a commit, `"go:github.com/gsxhq/gsxui/cmd/gsxui
 | `gsx:editor` | install go.mod's gsx where the VS Code gsx extension looks |
 | `gsxui:css [out]` | gsxui's CSS (`gsxui.json`'s entry) compiled by the standalone Tailwind CLI, gsxui's npm-free mode |
 | `gsxui:theme <style \| code>` | switch the look with `gsxui apply`: a style's standard theme (nova, vega, maia, lyra, mira, luma, sera, rhea), or any share code from gsxui's [theme editor](https://ui.gsxhq.dev/theme) |
-| `gsx:tasks`, `gsx:skill` | write the tasks and the skills again, after upgrading gsxkit, gsx or structpages |
+| `structpages:lint` | structpages-lint over the app: links, ids and partials against the page tree, internal URLs written as strings, htmx without a target selector |
+| `gsx:tasks`, `gsx:skill` | write the tasks and the skills again, after upgrading gsxkit, gsx, gsxui or structpages |
 
 ## The skills
 
-`go tool gsxkit skill` copies every skill in the `skills/` of each of these projects the app's go.mod requires, unchanged:
-gsx's (`gsx`, `templ-to-gsx-migration`) and structpages' (`structpages`). A project the app doesn't use is skipped.
+`go tool gsxkit skill` copies every skill in the `skills/` of each of these projects the app uses, unchanged, at the
+version it pins: gsx's (`gsx`, `templ-to-gsx-migration`) and structpages' (`structpages`) at go.mod's versions, and
+gsxui's (`gsxui`) at the commit mise.toml installs its CLI at. A project the app doesn't use is skipped.
 
 ## Why mise and skills in the repo, not their Claude Code plugins
 
@@ -39,8 +45,8 @@ gsx and structpages publish their skills as Claude Code plugins (a marketplace i
 same skills into the app instead, unchanged, for the same reason intl, seo and charter put their tasks and skills there: every
 piece of an app arrives one way. A Go tool, at the version go.mod pins, writes its tasks and skill into the repository.
 The app then carries them, CI and every agent see the same ones, and they change only when go.mod does. mise is what
-runs the tasks, from a terminal, CI or VS Code's mise panel. We may switch to their plugins later. When gsxui publishes
-a skill of its own ([gsxhq/gsxui#36](https://github.com/gsxhq/gsxui/issues/36)), gsxkit will deliver it the same way.
+runs the tasks, from a terminal, CI or VS Code's mise panel. We may switch to their plugins later. gsxui's skill
+([gsxhq/gsxui#58](https://github.com/gsxhq/gsxui/pull/58)) arrives the same way.
 
 ## Components
 
