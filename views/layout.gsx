@@ -21,6 +21,12 @@ import (
 // after htmx, in that order.
 // Everything loads on every page, so a boosted navigation to /board has hx-ws ready.
 //
+// Every htmx request says it is one (hx-headers on the body: X-Requested-With), so Cloudflare's JavaScript Detections,
+// which the zone's bot protection injects into HTML page views, leaves htmx's responses alone, as it does AJAX calls
+// (https://developers.cloudflare.com/cloudflare-challenges/challenge-types/javascript-detections/). Its script
+// carries the nonce of the response it is in, and a swapped page runs under the first page's CSP: in a boosted
+// response the browser blocks it (#172). Full page loads still get it, with their own nonce.
+//
 // htmx 4 inheritance is explicit: only the nav links are boosted (morph + view transition), so the pages'
 // own hx-* requests keep their default swaps. The nav wraps: translated labels don't fit one row on a phone
 // (e2e TestNoOverflow).
@@ -53,7 +59,10 @@ component Layout(title intl.Msg, description intl.Msg, children gsx.Node) {
 			<VersionGuard/>
 			<documentAssets/>
 		</head>
-		<body class="min-h-svh bg-background font-sans text-foreground antialiased">
+		<body
+			class="min-h-svh bg-background font-sans text-foreground antialiased"
+			hx-headers:inherited=js`{"X-Requested-With": "XMLHttpRequest"}`
+		>
 			<header class="border-b">
 				<nav
 					class="mx-auto flex max-w-3xl flex-wrap items-center gap-2 p-4"
