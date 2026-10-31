@@ -4,7 +4,7 @@ go 1.26.0
 
 toolchain go1.27.3
 
-require github.com/joeblew999/go-htmx4/intl v0.8.0
+require github.com/joeblew999/go-htmx4/intl v0.9.0
 
 require (
 	github.com/BurntSushi/toml v1.6.0 // indirect
