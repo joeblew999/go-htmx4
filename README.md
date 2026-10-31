@@ -21,6 +21,9 @@ Cloudflare Workers, compiled with TinyGo. No Node anywhere: no npm, no Vite, no 
   boosted navigation, light/dark theme, 14 languages including right-to-left.
 - **A live shared board** (`/board`): Go writes to D1, a Durable Object per topic pushes every change to every open
   tab over WebSockets, with presence.
+- **Live video** (`/live`) from a browser camera over Media over QUIC through Cloudflare's relays, and **a map**
+  (`/map`) on Leaflet and OpenStreetMap: [gsxkit](gsxkit/README.md#components)'s components, which any gsx app adds
+  with one command.
 - **Search-ready:** canonical URLs, `hreflang`, a sitemap and Open Graph on every page, audited live as Googlebot.
 
 **Live:** https://go-htmx4.ubuntusoftware.net (the board: [/board](https://go-htmx4.ubuntusoftware.net/board)).
@@ -106,6 +109,7 @@ go tool gsxkit tasks && go tool gsxkit skill   # gsx's and gsxui's tasks, and th
 charter init                      # charter.toml: the Worker on Cloudflare, local workerd, deploys; charter's files
 go tool intl init -locales en,de  # intl.toml, the catalogs, intl's tasks and skill
 go tool intl add language-list language-offer preferences   # intl's screens, already translated
+go tool gsxkit add map moq        # gsxkit's components: a map, live video (when the app wants them)
 go tool seo init -base https://my-app.example.com          # seo.toml
 ```
 
@@ -121,15 +125,16 @@ charter:deploy production`. This repo's own previews, staging and releases: [doc
 | --- | --- |
 | `main.go` | the entry point: `transport.Run(app.Handler())` |
 | `app/` | the server (`server.go`: routes), the board (`board.go`, its stores), the app on the web (`site.go`: its languages, `intl.Site`, and search engines, `seo.Site`, with the sitemap's pages), what it takes from Cloudflare (`platform.go`, through charter's bindings, the same off Workers); each file's tests beside it |
-| `views/` | pages and fragments in gsx; the page tree (`pages.go`, [structpages](https://github.com/jackielii/structpages)); a page's data in a `.go` file beside it; `views/intl/`, intl's screens, written by `go tool intl add` |
+| `views/` | pages and fragments in gsx; the page tree (`pages.go`, [structpages](https://github.com/jackielii/structpages)); a page's data in a `.go` file beside it; `views/intl/`, intl's screens, written by `go tool intl add`; `views/gsxkit/`, gsxkit's components (the map, live video), written by `go tool gsxkit add` |
 | `ui/`, `web/gsxui/` | gsxui components and their behaviours, vendored by `gsxui add`: never edited by hand |
+| `web/gsxkit/` | gsxkit's components' browser files (Leaflet, @moq's elements, each with its glue), written by `go tool gsxkit add` |
 | `web/htmx/` | htmx 4, hx-ws and hx-live, vendored by `mise run vendor` |
 | `locales/` | the messages: one catalog per language (`en.toml` is the source) and `intl.sum` |
 | `intl/`, `intl.toml` | Intl for gsx apps, its own Go module ([intl/README.md](intl/README.md)); this app's languages |
 | `seo/`, `seo.toml` | search engines for Go apps, its own Go module ([seo/README.md](seo/README.md)): the middleware, the audit, Lighthouse, Search Console; this app's settings |
-| `gsxkit/` | gsx's and gsxui's mise tasks and the skills gsx and structpages ship, for any app, its own Go module ([gsxkit/README.md](gsxkit/README.md)) |
+| `gsxkit/` | gsx's and gsxui's mise tasks and the skills gsx and structpages ship, and our registry of components gsxui doesn't have (a map, live video), for any app, its own Go module ([gsxkit/README.md](gsxkit/README.md)) |
 | `badge/` | the README badges intl and seo draw (SVG, no service), a tiny module of its own so neither depends on the other |
-| `internal/` | live (the board's message to the Room, topic and locale rules), classmerge (gsx's class merger, cached) |
+| `internal/` | live (the board's message to the Room, topic and locale rules), classmerge (gsx's class merger, cached), jsbundle (npm packages bundled with esbuild's Go API, no Node: gsxkit's components' browser files) |
 | `worker/`, `charter.toml` | the deployed JavaScript (the Worker's entry and the board's Durable Object), and everything about the Worker on Cloudflare, from which the `charter` command deploys it and runs it on local workerd |
 | `migrations/` | D1's schema |
 | `e2e/` | the checks against a running server, its own Go module: `smoke/` over HTTP (`mise run smoke`), browser tests (`mise run e2e`), `load/` with 1,000 WebSockets (`mise run load`) |

@@ -81,13 +81,15 @@ committed), the
 (`mise run docs:commands`), the other `docs/badges/` and the README's `<!-- seo:scores -->` table (`mise run seo:badges`,
 after a release; committed), what `gsxui` manages (`gsxui.json` lists it), and intl's screens in `views/intl/`
 (`go tool intl add`; committed): change `intl/ui/<screen>.gsx.tmpl`, then `go tool intl add -overwrite <screen>`
-(`TestIntlScreens` checks the demo's copies are intl's).
+(`TestIntlScreens` checks the demo's copies are intl's), gsxkit's components in `views/gsxkit/` and `web/gsxkit/`
+(`mise run gsxkit:add`; committed), and their bundles in `gsxkit/ui/assets/` (`mise run gsxkit:bundle`; committed).
 
 ## UI: gsx, gsxui, htmx 4
 
 - **Nothing hand-written in the GUI.** Every visual piece is a gsxui component (`gsxui add <name>` at the repo root,
   never copied by hand), the gsxui theme/preset, or a pattern from gsxui's own site (https://ui.gsxhq.dev; cite it).
-  No custom CSS files. The look is gsxui's standard nova theme (gsxui's default), so everyone runs and tests the same
+  No custom CSS files (a library's own stylesheet that a gsxkit component bundles from npm, Leaflet's for the map,
+  isn't a look of ours: `TestGsxuiFiles` allows exactly those). The look is gsxui's standard nova theme (gsxui's default), so everyone runs and tests the same
   base; change it only with `mise run gsxui:theme <style|share code>` (gsxui's theme editor gives codes). After moving gsxui's pin, `gsxui init --overwrite --preset gsxui.preset.json` refreshes its CSS, and
   `gsxui add --overwrite` its components. `TestGsxuiFiles` fails on a hand edit to anything gsxui wrote.
 - **htmx 4 syntax only:** explicit `:inherited`, `hx-ignore` (not `hx-disable`), `htmx:after:swap`-style event names,
@@ -128,7 +130,7 @@ after a release; committed), what `gsxui` manages (`gsxui.json` lists it), and i
 - `mise run intl:check` also runs gsx's own checks on the app's markup: `gsx generate`, `gsx fmt` and the `gsx` skill's
   smell finder. Write what the `gsx` skill says, not what older code does.
 - Every in-app `href`/`hx-*` URL goes through intl: a page's through the `url` filter, `href={ pages.About{} |> url }`,
-  any other through `localize`, `hx-post={ "/greet" |> localize }` (not `/static/`, `/assets/`, `/gsxui/`, `/live/`). Locale URLs, cookies and preferences are `intl.Site`, search engines `seo.Site`, both in `app/site.go`.
+  any other through `localize`, `hx-post={ "/greet" |> localize }` (not `/static/`, `/assets/`, `/gsxui/`, `/gsxkit/`, `/live/`). Locale URLs, cookies and preferences are `intl.Site`, search engines `seo.Site`, both in `app/site.go`.
   Logical Tailwind classes only (`ms-`, `pe-`, `start-`, `text-end`, …) so RTL mirrors (`TestLogicalClasses`).
 - Dates and numbers for readers go through Intl, never `time.Format` or `strconv`: intl's gsx filters in markup,
   `{ t |> date(opts) }`, `{ t |> since }`, `{ n |> number(opts) }`, `{ d |> duration }`, `{ v |> intl(api, method,
@@ -167,11 +169,17 @@ after a release; committed), what `gsxui` manages (`gsxui.json` lists it), and i
   counts), so there is no file per platform and `go test` runs the real SQL. A test sets `request.cf` with
   `transport.WithCF`. workers-go's `fetch.NewIncomingProperties` panics under charter's runtime.
 - JS only in `worker/index.mjs` (entry), `worker/room.mjs` (Durable Object), `intl/js/` (Intl, and what Go calls of
-  it), and `web/moq/moq.mjs` (the live page's glue to @moq's elements, #156: browser media can't be Go; it only sets
-  `data-*` state, wires buttons (copy and share included) and writes the connection details' machine values; every
-  label stays in the page). Patches to the vendored npm packages are `web/moq/npm-patches.json`, each with its
-  reason. Keep it logic-free; logic stays in Go. The topic and locale rules are
+  it), and `gsxkit/js/<component>/` (a gsxkit component's glue to the npm library it wraps: the map's to Leaflet, the
+  live video's to @moq's elements, #156, #164; what the browser does can't be Go). The glue only sets `data-*` state,
+  wires the component's buttons and hands Leaflet or @moq what the markup rendered (pins, popups) or the connection
+  details' machine values; every label stays in the gsx. Patches to the bundled npm packages are that folder's
+  `npm-patches.json`, each with its reason. Keep it logic-free; logic stays in Go. The topic and locale rules are
   `internal/live`'s (`TestWorkerJSMatchesLive`).
+- **gsxkit is our registry of components gsxui doesn't have** (`gsxkit/ui`: a map, live video). A component is a gsx
+  template made of gsxui components, its text in every language (`gsxkit/ui/locales`, `[gsxkit.<component>]`) and its
+  bundled browser files; `go tool gsxkit add <component>` copies all three into an app (intl's `intl/registry`, as
+  `go tool intl add` copies intl's screens). Change a component in `gsxkit/`, never in `views/gsxkit` or `web/gsxkit`
+  (`TestGsxkitComponents`): `mise run gsxkit:add` copies it again.
 
 ## Cloudflare: outward-facing
 

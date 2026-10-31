@@ -82,6 +82,9 @@ component Layout(title intl.Msg, description intl.Msg, children gsx.Node) {
 					>
 						{ locales.NavLive }
 					</ui.Button>
+					<ui.Button variant={navVariant(ctx, Map{})} size="sm" href={Map{} |> url}>
+						{ locales.NavMap }
+					</ui.Button>
 					<ui.Button variant={navVariant(ctx, About{})} size="sm" href={About{} |> url}>
 						{ locales.NavAbout }
 					</ui.Button>

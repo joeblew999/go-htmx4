@@ -79,10 +79,12 @@ served `noindex`.
 │                                                seo.Site), platform.go (Cloudflare through charter's bindings)
 ├── views/  ui/  web/gsxui/  web/htmx/           pages (structpages' tree: pages.go; gsx; views/intl: intl's screens), gsxui components and
 │                                                behaviours, vendored htmx
+├── views/gsxkit/  web/gsxkit/                   gsxkit's components (the map, live video) and their bundles, from go tool gsxkit add
 ├── intl/  intl.toml                             Intl for gsx (its own module); the app's languages
 ├── seo/                               the live audit and Google Search Console (its own module)
+├── gsxkit/                                      gsx's and gsxui's tasks and skills, and our component registry (its own module)
 ├── locales/                                     UI messages (*.toml) and their generated package
-├── internal/                                    live (the Room's message, topic and locale rules), classmerge
+├── internal/                                    live (the Room's message, topic and locale rules), classmerge, jsbundle (npm, no Node)
 ├── worker/  charter.toml                        the deployed JS (entry, Room); the Worker on Cloudflare (charter)
 ├── migrations/                                  D1 schema
 ├── e2e/                                         smoke/ (HTTP), browser tests, load/ (1,000 WebSockets): its own module

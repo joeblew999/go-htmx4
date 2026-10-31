@@ -4,7 +4,7 @@
 // API) does the bundling. What was resolved is kept in a lock file next to the entry, so a bundle is rebuilt from the
 // same packages until the lock is updated on purpose:
 //
-//	go run ./internal/jsbundle -entry web/moq/moq.mjs -out web/moq/moq.js -lock web/moq/npm-lock.json [-update @moq/watch@0.6.6 @moq/publish@0.5.3]
+//	go run ./internal/jsbundle -entry gsxkit/js/moq/moq.mjs -out gsxkit/ui/assets/moq.js -lock gsxkit/js/moq/npm-lock.json [-update @moq/watch@0.6.6 @moq/publish@0.5.3]
 //
 // Without -update it installs exactly what the lock names. With -update it resolves the named packages and their
 // dependencies afresh (the highest published version each range allows) and rewrites the lock.
@@ -136,6 +136,9 @@ func main() {
 		LegalComments:     api.LegalCommentsEndOfFile,
 		NodePaths:         []string{abs},
 		LogLevel:          api.LogLevelWarning,
+		// A stylesheet the entry imports (leaflet's) comes out beside the bundle, with the same name and .css; the
+		// images it names go inside it, as data: URLs.
+		Loader: map[string]api.Loader{".png": api.LoaderDataURL, ".svg": api.LoaderDataURL, ".gif": api.LoaderDataURL},
 		// What the bundle was built from, for the page to show: every package's version, and the files patched.
 		Define: map[string]string{"__NPM_VERSIONS__": string(versionsJSON), "__NPM_PATCHED__": string(patchedJSON)},
 	})

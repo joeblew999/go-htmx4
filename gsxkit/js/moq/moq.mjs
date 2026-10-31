@@ -1,10 +1,13 @@
-// /static/moq.js: @moq's <moq-watch> and <moq-publish> elements (vendored: mise run vendor:moq, bundled by
-// internal/jsbundle from web/moq/npm-lock.json), and the glue between them and the live page's gsxui markup (#156).
+// /gsxkit/moq.js: @moq's <moq-watch> and <moq-publish> elements (bundled by internal/jsbundle from npm-lock.json, with
+// npm-patches.json applied: mise run gsxkit:bundle), and the glue between them and the markup of gsxkit's moq
+// component (gsxkit/ui/moq.gsx.tmpl), which go tool gsxkit add copies into an app (#156, #164).
 //
-// The glue only reads the elements' signals and writes data-* attributes on the page's sections; every label is
-// already in the page, translated, and Tailwind's group-data variants show the one that applies (views/live.gsx). It
-// decides no text, so Go and intl stay the one source of language: the connection details it writes are machine
-// values.
+// The glue only reads the elements' signals and writes data-* attributes on the components' sections; every label is
+// already in the page, translated, and Tailwind's group-data variants show the one that applies. It decides no text,
+// so Go and intl stay the one source of language: the connection details it writes are machine values.
+//
+// @moq is held at its last releases that speak moq-transport drafts 14 and 16, which Cloudflare's relays speak. When
+// they ship draft-18, @moq moves to its next release and the patches go (joeblew999/go-htmx4#158).
 import "@moq/watch/element";
 import "@moq/publish/element";
 
@@ -87,8 +90,25 @@ console.warn = (...args) => {
 	warn(...args);
 };
 
-for (const section of document.querySelectorAll("[data-moq=watch]")) watch(section);
-for (const section of document.querySelectorAll("[data-moq=broadcast]")) broadcast(section);
+// Every card on the page, and every card a boosted navigation or a swap brings in later: the module runs once per
+// document, however many cards load it.
+const started = new WeakSet();
+function start() {
+	for (const section of document.querySelectorAll("[data-moq]")) {
+		if (started.has(section)) continue;
+		started.add(section);
+		if (section.dataset.moq === "watch") watch(section);
+		else if (section.dataset.moq === "broadcast") broadcast(section);
+	}
+}
+start();
+new MutationObserver(start).observe(document.documentElement, { childList: true, subtree: true });
+
+// every reads the card every TICK while it is on the page.
+function every(section, read) {
+	read();
+	const timer = setInterval(() => (section.isConnected ? read() : clearInterval(timer)), TICK);
+}
 
 function watch(section) {
 	const el = section.querySelector("moq-watch");
@@ -146,8 +166,7 @@ function watch(section) {
 		}
 		read();
 	});
-	read();
-	setInterval(read, TICK);
+	every(section, read);
 }
 
 function broadcast(section) {
@@ -185,7 +204,7 @@ function broadcast(section) {
 			`broadcast ${state} | camera ${media ? "on" : "off"} | mic ${mic ? (el.muted ? "muted" : "on") : "off"} | producing ${producing} | frames ${frame ? `${frame.width}x${frame.height} rotation ${frame.rotation ?? "-"}` : "-"}`,
 		);
 	};
-	const link = section.querySelector("[data-testid=moq-share]");
+	const link = section.querySelector("[data-moq-link]");
 	section.dataset.canShare = String(typeof navigator.share === "function");
 	section.addEventListener("click", (event) => {
 		const action = event.target.closest("[data-moq-action]")?.dataset.moqAction;
@@ -201,8 +220,7 @@ function broadcast(section) {
 		else if (action === "share") navigator.share({ url: link.value }).catch(() => {});
 		read();
 	});
-	read();
-	setInterval(read, TICK);
+	every(section, read);
 }
 
 // copy puts the link on the clipboard and shows "Copied" for COPIED_MS. Where the clipboard API refuses (no

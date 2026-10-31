@@ -236,6 +236,11 @@ The files are the app's own: change them as you like. `add` records what it wrot
 file the app changed: `--diff` shows how the app's copy differs from intl's, `--overwrite` replaces it. A message the
 app already has keeps its text.
 
+`add` is a registry any module can use for components of its own: [`intl/registry`](registry/registry.go) copies gsx
+templates made of gsxui components, with their translated text and the browser files they load, into an app. intl's
+screens are one registry ([`intl/ui`](ui/ui.go)); [gsxkit](../gsxkit/README.md#components)'s components (a map, live
+video) are another, added with `go tool gsxkit add`.
+
 The dialog loads its form from two routes, which the app serves:
 
 ```go

@@ -2,7 +2,10 @@
 
 [gsx](https://github.com/gsxhq/gsx), [gsxui](https://ui.gsxhq.dev) and [structpages](https://github.com/jackielii/structpages)
 in any app: gsx's and gsxui's mise tasks, and the agent skills these projects ship, written into the app the way [intl](../intl/README.md) and [seo](../seo/README.md) write theirs. All three are
-Jackie Li's. gsxkit only runs their CLIs and copies their skills; it adds no templates, CSS or rules of its own.
+Jackie Li's; gsxkit runs their CLIs and copies their skills unchanged.
+
+And [components gsxui doesn't have](#components), a registry of our own: a map and live video, made of gsxui
+components, added to an app with `go tool gsxkit add` the way `gsxui add` adds gsxui's.
 
 ## Set up an app
 
@@ -38,3 +41,51 @@ piece of an app arrives one way. A Go tool, at the version go.mod pins, writes i
 The app then carries them, CI and every agent see the same ones, and they change only when go.mod does. mise is what
 runs the tasks, from a terminal, CI or VS Code's mise panel. We may switch to their plugins later. When gsxui publishes
 a skill of its own ([gsxhq/gsxui#36](https://github.com/gsxhq/gsxui/issues/36)), gsxkit will deliver it the same way.
+
+## Components
+
+gsxkit's components are a registry beside gsxui's: each one a gsx file made of gsxui components, its text in every
+language [intl](../intl/README.md) ships, and, for one that runs in the browser, its script and stylesheet, bundled
+from npm with no Node. `go tool gsxkit add` copies them into the app, which owns its copies from then on, as gsxui's:
+
+```sh
+go tool gsxkit add map moq   # views/gsxkit/*.gsx, web/gsxkit/*, their text in the catalogs
+```
+
+It runs `gsxui add` for the gsxui components they are made of, writes the gsx into `views/gsxkit` (package `gsxkit`;
+`-dir` for another folder), the browser files into `web/gsxkit` (`-assets`), and the text into the app's catalogs under
+`[gsxkit.<component>]`, already translated. A copy the app changed is left alone: `-diff` shows how it differs,
+`-overwrite` replaces it. The app needs gsxui and intl set up first (`gsxui init`, `go tool intl init`), serves
+`web/gsxkit` at `/gsxkit/`, and allows in its Content Security Policy what each component loads.
+
+| Component | What it is | Its parts | It loads |
+| --- | --- | --- | --- |
+| `map` | A [Leaflet](https://leafletjs.com) map over [OpenStreetMap](https://www.openstreetmap.org)'s tiles: markers with gsx popups, zoom and the reader's own location as gsxui buttons, the attribution OpenStreetMap asks for. Works on a page reached by a boosted navigation. | `Map`, `MapMarker`, `MapPin`, `LatLng` | `/gsxkit/map.js`, `/gsxkit/map.css`; tiles from `https://tile.openstreetmap.org` (img-src) |
+| `moq` | Live video over Media over QUIC: a camera broadcast with its link to send (copy, share), and a player, on [@moq](https://github.com/moq-dev/moq)'s elements; connection details for testing on phones. | `MoqBroadcast`, `MoqWatch` | `/gsxkit/moq.js`; the relay (connect-src), `blob:` (script-src, worker-src) |
+
+```gsx
+<gsxkit.Map center={gsxkit.LatLng{48.137, 11.575}} zoom={12} label={locales.MapLabel} locate={true}>
+	<gsxkit.MapMarker at={gsxkit.LatLng{48.137, 11.575}} title="Munich">
+		<p class="font-medium">Munich</p>
+	</gsxkit.MapMarker>
+</gsxkit.Map>
+
+<gsxkit.MoqBroadcast url="https://draft-14.cloudflare.mediaoverquic.com/" name="my-app/live/abc.hang" link="https://example.com/live?stream=abc"/>
+<gsxkit.MoqWatch url="https://draft-14.cloudflare.mediaoverquic.com/" name="my-app/live/abc.hang"/>
+```
+
+Every label is in the gsx; the browser files only hand the library what the markup rendered and set `data-*` state that
+Tailwind's group-data variants read. OpenStreetMap's tiles are for light use
+([its tile policy](https://operations.osmfoundation.org/policies/tiles/)): a busy site points `tiles` in its copy at a
+provider of its own. The `moq` component holds @moq at its last releases that speak moq-transport drafts 14 and 16,
+which Cloudflare's relays speak: when they ship draft-18, @moq moves on and gsxkit's patches to it go
+([#158](https://github.com/joeblew999/go-htmx4/issues/158)).
+
+### Making one
+
+A component is `ui/<name>.gsx.tmpl` (package `gsxkit`, gsxui imported from `github.com/gsxhq/gsxui/ui`, its text from
+`github.com/joeblew999/go-htmx4/gsxkit/ui/locales`: add points both at the app's), its messages in `ui/locales/*.toml`
+under `[gsxkit.<name>]`, and its entry in `ui/ui.go`. One that runs in the browser has `js/<name>/<name>.mjs` and the
+`npm-lock.json` its npm packages are pinned in (`npm-patches.json` for patches, each with its reason), bundled into
+`ui/assets/` by go-htmx4's `mise run gsxkit:bundle` (`gsxkit:update <name> <package@version>…` to move a package). The
+copying is [intl's registry](../intl/registry/registry.go), which intl's own screens use too.

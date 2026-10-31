@@ -25,6 +25,7 @@ func TestE2E(t *testing.T) {
 			{"Pages", testPages},
 			{"Components", testComponents},
 			{"LiveVideo", testLiveVideo},
+			{"Map", testMap},
 		} {
 			t.Run(c.name, func(t *testing.T) {
 				t.Parallel()

@@ -17,6 +17,7 @@ import (
 //   - blob: in script-src and worker-src: the MoQ elements (#156) start their audio worklets and codec workers from
 //     blob: URLs they make themselves.
 //   - connect-src: the MoQ relay, over WebTransport (https:) or its WebSocket fallback (wss:).
+//   - img-src: the map's tiles, OpenStreetMap's (#164), and data: (Leaflet's stylesheet has its images inside it).
 //
 // htmx re-creates the scripts it swaps in with this nonce (the layout's htmx-config, inlineScriptNonce).
 func withCSP(next http.Handler) http.Handler {
@@ -26,10 +27,13 @@ func withCSP(next http.Handler) http.Handler {
 			"script-src 'self' 'nonce-"+nonce+"' 'unsafe-eval' blob:; worker-src 'self' blob:; "+
 			"connect-src 'self' "+moqRelays+"; "+
 			"style-src 'self' 'nonce-"+nonce+"'; style-src-attr 'unsafe-inline'; "+
-			"img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'self'; form-action 'self'")
+			"img-src 'self' data: "+mapTiles+"; object-src 'none'; base-uri 'none'; frame-ancestors 'self'; form-action 'self'")
 		next.ServeHTTP(w, r.WithContext(gsx.WithNonce(r.Context(), nonce)))
 	})
 }
+
+// mapTiles is where the map page's tiles come from: OpenStreetMap's tile server (gsxkit's map, #164).
+const mapTiles = "https://tile.openstreetmap.org"
 
 // moqRelays is where the live video page connects: Cloudflare's MoQ relays (#156).
 const moqRelays = "https://*.cloudflare.mediaoverquic.com wss://*.cloudflare.mediaoverquic.com"

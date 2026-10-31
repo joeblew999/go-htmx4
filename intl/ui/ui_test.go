@@ -4,22 +4,24 @@ import (
 	"slices"
 	"strings"
 	"testing"
+
+	"github.com/joeblew999/go-htmx4/intl/registry"
 )
 
 // TestSource: a screen's imports point at the app's packages and come out sorted, the catalogs' package aliased to
 // locales when it has another name.
 func TestSource(t *testing.T) {
 	for _, tc := range []struct {
-		paths Paths
+		paths registry.Paths
 		want  string
 	}{
-		{Paths{Catalogs: "example.com/app/locales", Gsxui: "example.com/app/ui"},
+		{registry.Paths{Catalogs: "example.com/app/locales", Gsxui: "example.com/app/ui"},
 			"import (\n\t\"example.com/app/locales\"\n\t\"example.com/app/ui\"\n\t\"example.com/app/ui/icon\"\n\t\"github.com/gsxhq/gsx\"\n\t\"github.com/joeblew999/go-htmx4/intl\"\n)\n"},
-		{Paths{Catalogs: "zzz.example/app/messages", Gsxui: "zzz.example/app/components"},
+		{registry.Paths{Catalogs: "zzz.example/app/messages", Gsxui: "zzz.example/app/components"},
 			"import (\n\t\"github.com/gsxhq/gsx\"\n\t\"github.com/joeblew999/go-htmx4/intl\"\n\t\"zzz.example/app/components\"\n\t\"zzz.example/app/components/icon\"\n\tlocales \"zzz.example/app/messages\"\n)\n"},
 	} {
-		s, _ := Find("language-list")
-		b, err := s.Source(tc.paths)
+		s, _ := Screens.Find("language-list")
+		b, err := Screens.Source(s, tc.paths)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -35,13 +37,13 @@ func TestSource(t *testing.T) {
 // TestKeys: every message a screen writes is in the source text, and every language intl ships translates all of
 // them, and the text of gsxui's own components.
 func TestKeys(t *testing.T) {
-	src, err := Text("en")
+	src, err := Screens.Text("en")
 	if err != nil {
 		t.Fatal(err)
 	}
 	all := map[string]bool{}
-	for _, s := range Screens {
-		keys, err := s.Keys()
+	for _, s := range Screens.Components {
+		keys, err := Screens.Keys(s)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -57,8 +59,8 @@ func TestKeys(t *testing.T) {
 			t.Errorf("no screen writes %s", k)
 		}
 	}
-	for _, id := range Locales()[1:] {
-		tr, err := Text(id)
+	for _, id := range Screens.Languages()[1:] {
+		tr, err := Screens.Text(id)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -73,7 +75,7 @@ func TestKeys(t *testing.T) {
 			}
 		}
 	}
-	if !slices.Contains(Locales(), "ar") || Locales()[0] != "en" {
-		t.Errorf("Locales() = %v", Locales())
+	if !slices.Contains(Screens.Languages(), "ar") || Screens.Languages()[0] != "en" {
+		t.Errorf("Languages() = %v", Screens.Languages())
 	}
 }

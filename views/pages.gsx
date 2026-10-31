@@ -22,6 +22,10 @@ component (l Live) Page(p LiveProps) {
 	<LivePage p={p}/>
 }
 
+component (m Map) Page(p MapProps) {
+	<MapPage p={p}/>
+}
+
 component (a About) Page(stack []StackItem) {
 	<AboutPage stack={stack}/>
 }
