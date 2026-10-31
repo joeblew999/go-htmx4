@@ -8,7 +8,7 @@ require (
 	github.com/BurntSushi/toml v1.6.0
 	github.com/gsxhq/gsx v0.4.3
 	github.com/joeblew999/go-htmx4/badge v0.1.0
-	golang.org/x/net v0.61.0
+	golang.org/x/net v0.62.0
 )
 
 require (

@@ -47,8 +47,9 @@ func main() {
 	}
 	root, err := os.Getwd()
 	check(err)
-	holds, err := deps.ReadHolds(root)
+	conf, err := deps.Read(root)
 	check(err)
+	holds := conf.Hold
 	update := os.Args[1] == "update"
 	if update {
 		check(deps.Run(root, "go", "tool", "gsxkit", "update"))
@@ -58,7 +59,7 @@ func main() {
 	check(err)
 	goChanges := goModules(root, mods, holds, update)
 	all = append(all, goChanges...)
-	all = append(all, miseTools(root, holds, update)...)
+	all = append(all, miseTools(root, conf, update)...)
 	all = append(all, npmLocks(root, holds, update)...)
 	all = append(all, htmx(root, holds, update)...)
 	if update {
@@ -159,8 +160,10 @@ func gsxStackOutdated(root string, mods []deps.Module, holds deps.Holds) []deps.
 }
 
 // miseTools are mise.toml's tools that mise knows a newer version of, and Chrome (from Chrome for Testing). update
-// moves each pin, and the same pin where a task template copies it (a task's own tools = { … }).
-func miseTools(root string, holds deps.Holds, update bool) []deps.Change {
+// moves each pin, the same pin where a task template copies it (a task's own tools = { … }), and its copies elsewhere
+// (deps.toml's [copies]).
+func miseTools(root string, conf deps.Config, update bool) []deps.Change {
+	holds := conf.Hold
 	var out []deps.Change
 	cmd := exec.Command("mise", "outdated", "--bump", "--json")
 	cmd.Dir = root
@@ -185,6 +188,7 @@ func miseTools(root string, holds deps.Holds, update bool) []deps.Change {
 		} else if update {
 			check(deps.SetMisePin(root, name, t.Bump))
 			check(syncTemplates(root, name, t.Requested, t.Bump))
+			check(conf.MoveCopies(root, name, t.Requested, t.Bump))
 		}
 		out = append(out, c)
 	}

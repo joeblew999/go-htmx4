@@ -13,7 +13,7 @@ run = "go tool intl status"
 
 ["intl:add-locale"]
 description = "Add a language: its id as Intl writes it (fr-ca → fr-CA) into intl.toml's locales, and its catalog; then mise run intl:translate"
-tools = { workerd = "1.20261019.1" }
+tools = { workerd = "1.20261030.1" }
 usage = 'arg "<locale>" var=#true help="BCP 47 ids, e.g. fr or pt-BR"'
 run = 'go tool intl add-locale ${usage_locale}'
 
@@ -33,7 +33,7 @@ exec go tool intl add ${args[@]+"${args[@]}"} ${usage_screen}
 
 ["intl:todo"]
 description = "What is left to translate, per locale: each message's source, context and arguments, the plural categories the language needs, the style note (--json for agents)"
-tools = { workerd = "1.20261019.1" }
+tools = { workerd = "1.20261030.1" }
 usage = '''
 flag "--json" help="JSON on stdout, for agents"
 arg "[locale]" var=#true help="only these locales (default: all)"
@@ -47,7 +47,7 @@ exec go tool intl todo ${args[@]+"${args[@]}"} ${usage_locale:-}
 
 ["intl:translate"]
 description = "Translate every missing and stale message with Claude Code (the intl skill), one worker per language at once (intl.toml [translate]), until intl:check passes. Needs claude on PATH"
-tools = { workerd = "1.20261019.1" }
+tools = { workerd = "1.20261030.1" }
 usage = '''
 arg "[locale]" var=#true help="only these locales (default: all)"
 '''
@@ -55,7 +55,7 @@ run = "go tool intl translate ${usage_locale:-}"
 
 ["intl:check"]
 description = "Every problem, for CI: the catalogs (ICU syntax, arguments, a case for each plural category Intl says a language uses, missing and stale translations, unused messages, gsxui text, intl.sum), then gsx's own checks on the app's markup (gsx generate, gsx fmt, the gsx skill's find-smells.sh); exits 1 on any"
-tools = { workerd = "1.20261019.1" }
+tools = { workerd = "1.20261030.1" }
 run = '''
 #!/usr/bin/env bash
 set -uo pipefail
@@ -96,7 +96,7 @@ run = "go tool intl confirm ${usage_which:-}"
 
 ["intl:export"]
 description = "XLIFF 2.0 per locale into xliff/out (intl.toml's xliff), for human translators and translation-management systems: what is left to translate (--all: every message)"
-tools = { workerd = "1.20261019.1" }
+tools = { workerd = "1.20261030.1" }
 usage = '''
 flag "--all" help="every message, not only what is left"
 arg "[locale]" var=#true help="only these locales (default: all)"

@@ -4,3 +4,10 @@
 [hold]
 "@moq/*" = "Cloudflare's MoQ relays speak drafts 14 and 16; @moq's next releases speak only draft-18, which they don't yet (#158)"
 "github.com/syumai/workers-go" = "exactly v0.36.0 (AGENTS.md: charter's runtime is built for it)"
+"github.com/chromedp/chromedp" = "v0.17+ rewrote its API (generic actions): e2e moves to it in #170"
+"github.com/chromedp/cdproto" = "moves with chromedp (#170)"
+
+# A pin's copies outside mise.toml and the task templates (whose tools = { … } follow by themselves): the files that
+# write the version too, as a quoted string. mise run update moves them with the pin; a test keeps each equal.
+[copies]
+workerd = ["intl/workerd/workerd.go"]

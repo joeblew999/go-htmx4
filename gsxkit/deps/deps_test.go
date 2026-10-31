@@ -51,3 +51,21 @@ func TestMisePin(t *testing.T) {
 		t.Error("SetMisePin of a tool mise.toml doesn't pin succeeded")
 	}
 }
+
+// TestMoveCopies: a pin's copy moves with it, and a copy deps.toml names that doesn't write the old version fails.
+func TestMoveCopies(t *testing.T) {
+	root := t.TempDir()
+	if err := os.WriteFile(filepath.Join(root, "v.go"), []byte("const Version = \"1.1\"\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	c := Config{Copies: map[string][]string{"workerd": {"v.go"}}}
+	if err := c.MoveCopies(root, "workerd", "1.1", "1.2"); err != nil {
+		t.Fatal(err)
+	}
+	if b, _ := os.ReadFile(filepath.Join(root, "v.go")); string(b) != "const Version = \"1.2\"\n" {
+		t.Errorf("after MoveCopies: %s", b)
+	}
+	if c.MoveCopies(root, "workerd", "1.1", "1.3") == nil {
+		t.Error("a copy without the old version moved silently")
+	}
+}

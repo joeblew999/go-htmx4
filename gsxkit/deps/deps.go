@@ -23,16 +23,47 @@ import (
 // or a pattern ending in * (a prefix: "@moq/*"), and why it stays where it is.
 type Holds map[string]string
 
-// ReadHolds reads root's deps.toml; none is no holds.
-func ReadHolds(root string) (Holds, error) {
-	var f struct{ Hold Holds }
-	if _, err := toml.DecodeFile(filepath.Join(root, "deps.toml"), &f); err != nil {
-		if os.IsNotExist(err) {
-			return Holds{}, nil
-		}
-		return nil, fmt.Errorf("deps.toml: %w", err)
+// Config is root's deps.toml: its holds, and the copies of a pin written outside its own file ([copies]: a name and
+// the files, from the root, that write its version too, as a quoted string), which an update moves with it.
+type Config struct {
+	Hold   Holds
+	Copies map[string][]string
+}
+
+// Read reads root's deps.toml; none is no holds and no copies.
+func Read(root string) (Config, error) {
+	var c Config
+	if _, err := toml.DecodeFile(filepath.Join(root, "deps.toml"), &c); err != nil && !os.IsNotExist(err) {
+		return Config{}, fmt.Errorf("deps.toml: %w", err)
 	}
-	return f.Hold, nil
+	if c.Hold == nil {
+		c.Hold = Holds{}
+	}
+	return c, nil
+}
+
+// ReadHolds is root's deps.toml's holds.
+func ReadHolds(root string) (Holds, error) {
+	c, err := Read(root)
+	return c.Hold, err
+}
+
+// MoveCopies moves name's copies ([copies]) from version from to version to: "from" becomes "to" in each file.
+func (c Config) MoveCopies(root, name, from, to string) error {
+	for _, rel := range c.Copies[name] {
+		path := filepath.Join(root, rel)
+		b, err := os.ReadFile(path)
+		if err != nil {
+			return fmt.Errorf("deps.toml's copy of %s: %w", name, err)
+		}
+		if !bytes.Contains(b, []byte(`"`+from+`"`)) {
+			return fmt.Errorf("deps.toml says %s writes %s's version, and it has no %q", rel, name, from)
+		}
+		if err := os.WriteFile(path, bytes.ReplaceAll(b, []byte(`"`+from+`"`), []byte(`"`+to+`"`)), 0o644); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // Why is why name is held, ok false when it isn't.

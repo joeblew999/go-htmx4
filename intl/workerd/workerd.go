@@ -39,7 +39,7 @@ const CompatibilityDate = "2026-09-11"
 
 // Version is the workerd release intl is tested with: go tool intl init pins it in the app's mise.toml, and intl's
 // mise tasks pin it for themselves.
-const Version = "1.20261019.1"
+const Version = "1.20261030.1"
 
 // noWorkerd says how to get workerd.
 const noWorkerd = "workerd, the Workers runtime whose Intl intl uses outside a Worker, is not installed: add it to mise.toml's [tools] (workerd = \"" + Version + "\"; go tool intl init does) and run through mise, or put its release binary on the server's PATH"
