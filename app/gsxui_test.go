@@ -11,11 +11,15 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+
+	gsxkitui "github.com/joeblew999/go-htmx4/gsxkit/ui"
 )
 
 // TestGsxuiFiles: the look is gsxui's alone. Every file gsxui wrote (gsxui.json's managed list: the theme, its CSS and
 // fonts, the components and their scripts) is still what gsxui wrote, and every CSS file in the repository is one of
-// them. Change the look with mise run gsxui:theme, a component with gsxui add --overwrite.
+// them, or the stylesheet of a library a gsxkit component bundles from npm (Leaflet's, for the map: its own panes and
+// tiles, not a look of ours), in gsxkit and in this app's copy (TestGsxkitComponents keeps them the same). Change the
+// look with mise run gsxui:theme, a component with gsxui add --overwrite.
 func TestGsxuiFiles(t *testing.T) {
 	b, err := os.ReadFile("../gsxui.json")
 	if err != nil {
@@ -41,8 +45,16 @@ func TestGsxuiFiles(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	bundled := map[string]bool{}
+	for _, c := range gsxkitui.Components.Components {
+		for _, a := range c.Assets {
+			if strings.HasSuffix(a, ".css") {
+				bundled["gsxkit/ui/assets/"+a], bundled["web/gsxkit/"+a] = true, true
+			}
+		}
+	}
 	for _, path := range strings.Fields(string(out)) {
-		if _, ok := cfg.Managed[path]; !ok {
+		if _, ok := cfg.Managed[path]; !ok && !bundled[path] {
 			t.Errorf("%s: the only CSS is gsxui's (gsxui.json's managed files)", path)
 		}
 	}
