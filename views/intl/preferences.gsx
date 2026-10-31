@@ -22,6 +22,8 @@ component PreferencesDialog() {
 			aria-expanded="false"
 			aria-label={locales.IntlPreferences}
 			title={locales.IntlPreferences}
+			// intl's screens are for any gsx app, with or without structpages: the app serves this route (README).
+			// structpages:lint:ignore url-attr
 			hx-get={"/fragments/preferences" |> localize}
 			hx-target="#preferences"
 			hx-swap="innerHTML"
@@ -47,6 +49,8 @@ component PreferencesDialog() {
 // intl-browser.mjs), each named in the page's language; without JavaScript it offers automatic and the current
 // choice. The clock options are labelled by an example time in each clock, redone by intl-browser.mjs.
 component PreferencesForm(returnTo string, connectionZone string) {
+	// intl.Site's Preferences answers it, a route the app serves (README).
+	// structpages:lint:ignore url-attr
 	<form method="post" action={"/preferences" |> localize} class="flex flex-col gap-4">
 		<input type="hidden" name="return" value={returnTo}/>
 		<ui.FieldGroup>

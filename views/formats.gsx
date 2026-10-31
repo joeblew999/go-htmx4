@@ -248,7 +248,7 @@ component TryIt() {
 				<ui.CardDescription>{ locales.FormatsTryDescription }</ui.CardDescription>
 			</ui.CardHeader>
 			<ui.CardContent class="flex flex-col gap-6">
-				<form hx-post={"/formats/try" |> localize} hx-target="#try-result" class="flex flex-col gap-4">
+				<form hx-post={TryAction{} |> url} hx-target="#try-result" class="flex flex-col gap-4">
 					<ui.FieldGroup>
 						<ui.Field>
 							<ui.FieldLabel for="try-number">{ locales.FormatsTryNumber }</ui.FieldLabel>

@@ -42,6 +42,9 @@ func TestIntlScreens(t *testing.T) {
 	}
 	for _, s := range intlui.Screens.Components {
 		want, err := intlui.Screens.Source(s, paths)
+		if err == nil {
+			want, err = registry.Format(c.Root, filepath.ToSlash(filepath.Join(c.UIDir(), s.Name+".gsx")), want)
+		}
 		if err != nil {
 			t.Fatal(err)
 		}

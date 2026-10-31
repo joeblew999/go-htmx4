@@ -290,13 +290,19 @@ go tool gsx generate: every .gsx file to its .x.go (after intl, when intl is run
 
 - **Usage:** `gsx:skill`
 
-Install or update the agent skills Jackie Li's projects ship (gsx's, structpages'), from the versions in go.mod, into .claude/skills
+Install or update the agent skills Jackie Li's projects ship (gsx's, structpages', gsxui's), at the versions the app pins (go.mod, mise.toml), into .claude/skills
 
 ### `gsx:tasks`
 
 - **Usage:** `gsx:tasks`
 
 Write this file again from the gsxkit version in go.mod: run it after upgrading gsxkit
+
+### `gsx:update`
+
+- **Usage:** `gsx:update`
+
+gsx, gsxui and structpages to their latest (go tool gsxkit update), except what deps.toml holds; the tasks, skills, generated code and copies follow
 
 ### `gsxkit:add`
 
@@ -469,6 +475,12 @@ Translate every missing and stale message with Claude Code (the intl skill), one
 
 1,000 WebSockets in every locale on one topic, a 50-write burst, socket 1,001 refused (e2e/load; local workerd, or LOAD_BASE=https://…)
 
+### `outdated`
+
+- **Usage:** `outdated`
+
+Every pin with a newer version upstream (Go modules in every module, mise's tools, gsxui's commit, Chrome, htmx, the npm locks), deps.toml's holds marked
+
 ### `preview`
 
 Test, then deploy a Worker Preview named after the branch (or e.g. pr-7) → its URL on stdout and in .preview-url
@@ -624,6 +636,12 @@ The production build on local workerd, every route checked over HTTP (e2e/smoke)
 
 Test, then deploy staging: the Worker $APP_NAME-staging → its URL on stdout and in .staging-url
 
+### `structpages:lint`
+
+- **Usage:** `structpages:lint`
+
+structpages-lint over the app: URLs, ids and partials against the page tree, internal URLs written as strings, htmx without a target selector; exit 1 on a finding
+
 ### `tail`
 
 - **Usage:** `tail`
@@ -645,13 +663,19 @@ Everything before a push: the production build + workerd smoke, gsx fmt/gofmt, g
 
 - **Usage:** `test:go`
 
-gsx fmt/gofmt check + go vet + go test, the app and its modules: intl/, seo/, badge/, gsxkit/ (standard Go; runs beside the production build)
+Every module's go.mod tidy, gsx fmt/gofmt check + go vet + structpages-lint + go test, the app and its modules: intl/, seo/, badge/, gsxkit/ (standard Go; runs beside the production build)
 
 ### `token-check`
 
 - **Usage:** `token-check`
 
 Verify CLOUDFLARE_API_TOKEN (from fnox) against the Cloudflare API (charter token)
+
+### `update`
+
+- **Usage:** `update`
+
+Move every pin not held in deps.toml to its latest (go tool gsxkit update, then Go modules, mise's tools and their copies, charter with charter init, Chrome, htmx, the npm locks), tidy every module, regenerate, then check and e2e
 
 ### `upstream:branch`
 

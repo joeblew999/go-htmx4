@@ -55,7 +55,7 @@ component BoardPage(topic string, b BoardState, live bool) {
 						variant="outline"
 						size="icon"
 						aria-label={locales.BoardDecrement}
-						hx-post={f`/board/add?topic=@{topic}&delta=-1` |> localize}
+						hx-post={BoardAddAction{Topic: topic, Delta: -1} |> url}
 						hx-swap="none"
 					>
 						<icon.Minus/>
@@ -65,14 +65,14 @@ component BoardPage(topic string, b BoardState, live bool) {
 						variant="outline"
 						size="icon"
 						aria-label={locales.BoardIncrement}
-						hx-post={f`/board/add?topic=@{topic}&delta=1` |> localize}
+						hx-post={BoardAddAction{Topic: topic, Delta: 1} |> url}
 						hx-swap="none"
 					>
 						<icon.Plus/>
 					</ui.Button>
 				</ui.ButtonGroup>
 				<form
-					hx-post={f`/board/note?topic=@{topic}` |> localize}
+					hx-post={BoardNoteAction{Topic: topic} |> url}
 					hx-swap="none"
 					hx-on:htmx:after:request=js`this.reset()`
 					class="flex min-w-0 flex-1 gap-2"

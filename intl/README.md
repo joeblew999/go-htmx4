@@ -75,9 +75,8 @@ code:
   renders (`render.gsx`).
 - **gsxui:** its components' own text (`i18n.T`, the English as the id) is generated from the catalogs.
 - **gsx's own checks:** `intl:check` runs `gsx generate`, `gsx fmt` and the `gsx` skill's `find-smells.sh` on the
-  app's markup. The smell finder can't tell one shape from a component call, a message with arguments alone on a line
-  (`{ locales.Notes(n) }`), and `intl:check` lets that one through
-  ([gsx#253](https://github.com/gsxhq/gsx/issues/253)). `gsx info` lists intl's filters and renderers.
+  app's markup, and fails on anything they report. Make gsx's lints errors in the app's `gsx.toml` (`[lint]`) so
+  `gsx generate` fails on them too. `gsx info` lists intl's filters and renderers, and each lint's level.
 
 ## Set up an app
 

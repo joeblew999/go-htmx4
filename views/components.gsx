@@ -691,7 +691,7 @@ component ListDemo() {
 component TextareaDemo() {
 	<Demo name="ui.Textarea" about={locales.ComponentsTextareaAbout} wide={false}>
 		<form
-			hx-post={"/components/count" |> localize}
+			hx-post={CountAction{} |> url}
 			hx-trigger="input delay:200ms"
 			hx-target="#count-result"
 			class="flex flex-col gap-2"
@@ -820,7 +820,7 @@ component OverlayDemos() {
 component LoadingDemo() {
 	<Demo name="ui.Skeleton · ui.Spinner" about={locales.ComponentsLoadingAbout} wide={false}>
 		<div
-			hx-get={"/fragments/components-week" |> localize}
+			hx-get={WeekFragment{} |> url}
 			hx-trigger="load delay:600ms"
 			hx-swap="outerHTML"
 			class="flex flex-col gap-2"
@@ -876,7 +876,7 @@ component KbdDemo() {
 component SidebarDemo() {
 	<Demo name="ui.Sidebar" about={locales.ComponentsSidebarAbout} wide={true}>
 		<iframe
-			src={"/components/sidebar" |> localize}
+			src={SidebarFragment{} |> url}
 			title={locales.ComponentsSidebarFrame}
 			data-site-isolated-preview
 			loading="lazy"
@@ -911,7 +911,7 @@ component ComponentsSidebar() {
 										<ui.SidebarMenuButton
 											isActive={i == 0}
 											tooltip={s.Title |> text}
-											href={f`/components#@{s.ID}` |> localize}
+											href={[]any{Components{}, "#" + s.ID} |> url}
 											target="_top"
 										>
 											<icon.Hash/>

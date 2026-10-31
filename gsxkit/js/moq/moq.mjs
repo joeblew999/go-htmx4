@@ -10,6 +10,7 @@
 // they ship draft-18, @moq moves to its next release and the patches go (joeblew999/go-htmx4#158).
 import "@moq/watch/element";
 import "@moq/publish/element";
+import { init, on, once } from "/gsxui/gsxui.js";
 
 // The elements' state is read every quarter second rather than subscribed to: a handful of signals, and polling
 // keeps this file free of their lifetimes.
@@ -90,24 +91,20 @@ console.warn = (...args) => {
 	warn(...args);
 };
 
-// Every card on the page, and every card a boosted navigation or a swap brings in later: the module runs once per
-// document, however many cards load it.
-const started = new WeakSet();
-function start() {
-	for (const section of document.querySelectorAll("[data-moq]")) {
-		if (started.has(section)) continue;
-		started.add(section);
-		if (section.dataset.moq === "watch") watch(section);
-		else if (section.dataset.moq === "broadcast") broadcast(section);
-	}
-}
-start();
-new MutationObserver(start).observe(document.documentElement, { childList: true, subtree: true });
+// The cards are started the gsxui way, on its core (the page's own /gsxui/gsxui.js, which the bundle shares): init()
+// finds every card, on a full load, a boosted navigation or a swap, and once() starts each one; on() delivers its
+// buttons' clicks, to the card's own handler.
+const actions = new WeakMap(); // card → its buttons' handler
 
-// every reads the card every TICK while it is on the page.
-function every(section, read) {
+on("click", "[data-moq] [data-moq-action]", (event, button) => {
+	const section = button.closest("[data-moq]");
+	actions.get(section)?.(button.dataset.moqAction);
+});
+
+// every reads the card every TICK while it and its element are on the page.
+function every(section, el, read) {
 	read();
-	const timer = setInterval(() => (section.isConnected ? read() : clearInterval(timer)), TICK);
+	const timer = setInterval(() => (section.isConnected && el.isConnected ? read() : clearInterval(timer)), TICK);
 }
 
 function watch(section) {
@@ -153,8 +150,7 @@ function watch(section) {
 		section.dataset.muted = String(el.muted);
 		details(section, el, `watch ${state} | broadcast ${live ?? "-"} | frames ${count}`);
 	};
-	section.addEventListener("click", (event) => {
-		const action = event.target.closest("[data-moq-action]")?.dataset.moqAction;
+	actions.set(section, (action) => {
 		if (action === "pause") el.paused = true;
 		else if (action === "play") el.paused = false;
 		else if (action === "unmute") el.muted = false;
@@ -166,7 +162,7 @@ function watch(section) {
 		}
 		read();
 	});
-	every(section, read);
+	every(section, el, read);
 }
 
 function broadcast(section) {
@@ -206,8 +202,7 @@ function broadcast(section) {
 	};
 	const link = section.querySelector("[data-moq-link]");
 	section.dataset.canShare = String(typeof navigator.share === "function");
-	section.addEventListener("click", (event) => {
-		const action = event.target.closest("[data-moq-action]")?.dataset.moqAction;
+	actions.set(section, (action) => {
 		if (action === "start") {
 			started = true;
 			el.source = "camera";
@@ -220,7 +215,7 @@ function broadcast(section) {
 		else if (action === "share") navigator.share({ url: link.value }).catch(() => {});
 		read();
 	});
-	every(section, read);
+	every(section, el, read);
 }
 
 // copy puts the link on the clipboard and shows "Copied" for COPIED_MS. Where the clipboard API refuses (no
@@ -254,3 +249,12 @@ function resubscribe(el) {
 	el.remove();
 	setTimeout(() => parent.insertBefore(el, next), 0);
 }
+
+// --- init ------------------------------------------------------------------
+
+const initRoot = once((section) => {
+	if (section.dataset.moq === "watch") watch(section);
+	else if (section.dataset.moq === "broadcast") broadcast(section);
+});
+
+init("[data-moq]", initRoot);

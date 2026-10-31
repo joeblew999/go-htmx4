@@ -13,9 +13,12 @@ import (
 
 // TestPages: All is every page in the tree (Pages' fields), in its order, and each page's address comes from its route.
 func TestPages(t *testing.T) {
+	// The tree's pages are its types with a Page method; the rest are the routes pages call (routes.go).
 	var tree, all []reflect.Type
 	for i := range reflect.TypeOf(views.Pages{}).NumField() {
-		tree = append(tree, reflect.TypeOf(views.Pages{}).Field(i).Type)
+		if t := reflect.TypeOf(views.Pages{}).Field(i).Type; func() bool { _, ok := t.MethodByName("Page"); return ok }() {
+			tree = append(tree, t)
+		}
 	}
 	for _, p := range views.All {
 		all = append(all, reflect.TypeOf(p))

@@ -1,4 +1,4 @@
-# gsx's and gsxui's mise tasks (gsxkit/README.md). In an app, go tool gsxkit tasks writes this file to
+# gsx's, gsxui's and structpages' mise tasks (gsxkit/README.md). In an app, go tool gsxkit tasks writes this file to
 # .mise/tasks/gsx.toml, one of mise's default task directories, from the gsxkit version in go.mod. Every task runs gsx's
 # or gsxui's own CLI: gsx from the app's go.mod (go tool gsx), the gsxui CLI from its mise.toml.
 
@@ -20,6 +20,21 @@ else
   go tool gsx fmt -w .
 fi
 '''
+
+# gsx, gsxui and structpages to their latest in one step (gsxkit/README.md, "Updating"): gsx in every module, gsxui's
+# CLI pin to its newest commit with its CSS and components refreshed, structpages and its linter; except what deps.toml
+# holds. Then the tasks, skills, generated code and the copies of intl's screens and gsxkit's components follow.
+["gsx:update"]
+description = "gsx, gsxui and structpages to their latest (go tool gsxkit update), except what deps.toml holds; the tasks, skills, generated code and copies follow"
+run = "go tool gsxkit update"
+
+# structpages' own linter (structpages' README, "structpages-lint"): every URLFor, ID, IDTarget, Within and Ref call and
+# url, id and target filter against the page tree the route tags make, internal URLs written as strings in .gsx, and a
+# Mount whose pages use htmx with no target selector. Pinned in the app's go.mod:
+# go get -tool github.com/jackielii/structpages/tools/lint/cmd/structpages-lint
+["structpages:lint"]
+description = "structpages-lint over the app: URLs, ids and partials against the page tree, internal URLs written as strings, htmx without a target selector; exit 1 on a finding"
+run = "go tool structpages-lint ./..."
 
 # The VS Code gsx extension looks for the compiler on PATH, then GOBIN, then GOPATH/bin (gsx's Editor support guide:
 # https://github.com/gsxhq/gsx/blob/main/docs/guide/editor.md). VS Code's PATH rarely has a project's mise tools, and
@@ -83,5 +98,5 @@ description = "Write this file again from the gsxkit version in go.mod: run it a
 run = "go tool gsxkit tasks"
 
 ["gsx:skill"]
-description = "Install or update the agent skills Jackie Li's projects ship (gsx's, structpages'), from the versions in go.mod, into .claude/skills"
+description = "Install or update the agent skills Jackie Li's projects ship (gsx's, structpages', gsxui's), at the versions the app pins (go.mod, mise.toml), into .claude/skills"
 run = "go tool gsxkit skill"

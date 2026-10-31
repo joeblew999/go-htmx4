@@ -40,8 +40,8 @@ dir = "{{config_root}}"
 sources = ["gsxkit/js/**/*", "internal/jsbundle/*.go"]
 outputs = ["gsxkit/ui/assets/map.js", "gsxkit/ui/assets/map.css", "gsxkit/ui/assets/moq.js"]
 run = [
-  "go run ./internal/jsbundle -entry gsxkit/js/map/map.mjs -out gsxkit/ui/assets/map.js -lock gsxkit/js/map/npm-lock.json",
-  "go run ./internal/jsbundle -entry gsxkit/js/moq/moq.mjs -out gsxkit/ui/assets/moq.js -lock gsxkit/js/moq/npm-lock.json -patches gsxkit/js/moq/npm-patches.json",
+  "go run ./internal/jsbundle -entry gsxkit/js/map/map.mjs -out gsxkit/ui/assets/map.js -lock gsxkit/js/map/npm-lock.json -external /gsxui/gsxui.js",
+  "go run ./internal/jsbundle -entry gsxkit/js/moq/moq.mjs -out gsxkit/ui/assets/moq.js -lock gsxkit/js/moq/npm-lock.json -patches gsxkit/js/moq/npm-patches.json -external /gsxui/gsxui.js",
 ]
 
 # This app's copies of gsxkit's components, as any app gets them: the gsx (views/gsxkit), the browser files
@@ -62,9 +62,22 @@ arg "<component>" help="map or moq"
 arg "<packages>" var=#true help="name@version of each package to resolve"
 '''
 run = [
-  'go run ./internal/jsbundle -entry gsxkit/js/${usage_component}/${usage_component}.mjs -out gsxkit/ui/assets/${usage_component}.js -lock gsxkit/js/${usage_component}/npm-lock.json $(test -f gsxkit/js/${usage_component}/npm-patches.json && echo -patches gsxkit/js/${usage_component}/npm-patches.json) -update ${usage_packages}',
+  'go run ./internal/jsbundle -entry gsxkit/js/${usage_component}/${usage_component}.mjs -out gsxkit/ui/assets/${usage_component}.js -lock gsxkit/js/${usage_component}/npm-lock.json $(test -f gsxkit/js/${usage_component}/npm-patches.json && echo -patches gsxkit/js/${usage_component}/npm-patches.json) -external /gsxui/gsxui.js -update ${usage_packages}',
   "mise run gsxkit:add",
 ]
+
+# Every pin against upstream, and moving them all (#169): internal/deps, with deps.toml's holds. update runs gsxkit's
+# update for gsx, gsxui and structpages first, then every other pin, tidies every module, writes everything generated
+# from them again, and proves the result with check and e2e.
+["outdated"]
+description = "Every pin with a newer version upstream (Go modules in every module, mise's tools, gsxui's commit, Chrome, htmx, the npm locks), deps.toml's holds marked"
+dir = "{{config_root}}"
+run = "go run ./internal/deps outdated"
+
+["update"]
+description = "Move every pin not held in deps.toml to its latest (go tool gsxkit update, then Go modules, mise's tools and their copies, charter with charter init, Chrome, htmx, the npm locks), tidy every module, regenerate, then check and e2e"
+dir = "{{config_root}}"
+run = ["go run ./internal/deps update", "mise run check", "mise run e2e"]
 
 # The app's components (gsx:generate, from gsxkit's tasks) and this repo's own modules' (intl/, seo/), which commit
 # theirs for the apps that import them; then the tables a TinyGo build of the pages reads (structpages-gen, after gsx:
@@ -89,7 +102,9 @@ rm -rf dist/site
 mkdir -p dist/site/static dist/site/gsxui dist/site/assets
 # htmx and its extensions as one deferred script (/static/htmx.js): out of the way of the first paint, and in one
 # script, so the extensions register before htmx's start, which a deferred htmx runs on the next task (setTimeout).
-for f in htmx.min.js hx-live.js hx-ws.js; do cat "web/htmx/$f"; echo ";"; done >dist/site/static/htmx.js
+# htmx.min.js goes in exactly as htmx ships it: minifying it again gained nothing and, through tdewolff/minify#1057,
+# dropped its morph's text updates, so boosted navigation mixed pages (#168). The extensions are minified here.
+{ cat web/htmx/htmx.min.js; echo ";"; for f in hx-live.js hx-ws.js; do go tool minify -q --type=js "web/htmx/$f"; echo ";"; done; } >dist/site/static/htmx.js
 # gsxkit's components' browser files (/gsxkit/: the map's Leaflet, the live video's @moq elements), each loaded only by
 # a page with that component on it.
 mkdir -p dist/site/gsxkit
@@ -101,8 +116,10 @@ go tool intl assets -browser dist/site/static
 cp -R web/gsxui/. dist/site/gsxui/
 cp dist/gsxui.css dist/site/assets/
 cp web/gsxui/fonts/*.woff2 dist/site/assets/
-# Every script minified (tdewolff/minify, a Go tool): Lighthouse counts what the browser downloads.
-find dist/site/static dist/site/gsxui dist/site/gsxkit -name '*.js' -o -name '*.mjs' | xargs go tool minify -q -i --type=js
+# Every script of ours not yet minified, minified (tdewolff/minify, a Go tool): Lighthouse counts what the browser
+# downloads. Never one already minified (htmx above, gsxkit's esbuild bundles): a second pass gains nothing and only risks
+# it (TestServedScripts).
+find dist/site/static dist/site/gsxui \( -name '*.js' -o -name '*.mjs' \) ! -name htmx.js | xargs go tool minify -q -i --type=js
 echo "✓ dist/site: $(find dist/site -type f | wc -l | tr -d ' ') files, gsxui.css $(wc -c <dist/site/assets/gsxui.css | tr -d ' ')B"
 '''
 
@@ -245,18 +262,25 @@ env = { FRESH_VERSIONS = "published" }
 run = "go test -C e2e -count=1 -timeout 10m -run TestFreshApp ./fresh"
 
 ["test:go"]
-description = "gsx fmt/gofmt check + go vet + go test, the app and its modules: intl/, seo/, badge/, gsxkit/ (standard Go; runs beside the production build)"
+description = "Every module's go.mod tidy, gsx fmt/gofmt check + go vet + structpages-lint + go test, the app and its modules: intl/, seo/, badge/, gsxkit/ (standard Go; runs beside the production build)"
 depends = ["generate"]
 dir = "{{config_root}}"
 run = '''
 #!/usr/bin/env bash
 set -euo pipefail
+# Every module's go.mod and go.sum as go mod tidy writes them: a dependency moved in one module and not another fails
+# here, naming the module (mise run update tidies them all).
+for mod in $(git ls-files 'go.mod' '*/go.mod'); do
+  go -C "$(dirname "$mod")" mod tidy -diff >/dev/null || { echo "✗ $(dirname "$mod")/go.mod isn't tidy: go -C $(dirname "$mod") mod tidy"; exit 1; }
+done
 mise run gsx:fmt --check
 # Files of this module only (gofmt -l . would walk the nested modules too); IgnoredGoFiles
 # are the other platform's build-tagged files.
 unformatted=$(gofmt -l $(go list -json ./... | jq -r '.Dir as $d | (.GoFiles + (.TestGoFiles // []) + (.XTestGoFiles // []) + (.IgnoredGoFiles // []))[] | "\($d)/\(.)"'))
 test -z "$unformatted" || { echo "$unformatted"; echo "✗ gofmt: files need formatting"; exit 1; }
 go vet ./...
+# structpages' linter: links, ids and partials from the page tree, and htmx 4's target selector (gsxkit's task).
+mise run -q structpages:lint
 go test ./...
 # Every intl problem as CI sees it: the catalogs, then gsx's own checks on the markup (intl's intl:check). generate
 # has already regenerated intl.sum and the languages badge, so a change to either (or a new one) means it wasn't

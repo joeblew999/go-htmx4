@@ -8,7 +8,7 @@
 ["seo:access"]
 hide = true
 silent = true
-tools = { fnox = "1.40.0" }
+tools = { fnox = "1.45.0" }
 run = "fnox exec -- go tool seo sites"
 
 ["seo:audit"]
@@ -23,7 +23,7 @@ usage = '''
 flag "--json" help="one JSON document on stdout"
 flag "--open" help="open Google's page for each problem (Test live URL, Request indexing)"
 '''
-tools = { fnox = "1.40.0" }
+tools = { fnox = "1.45.0" }
 run = "fnox exec -- go tool seo todo -json=${usage_json:-false} -open=${usage_open:-false}"
 
 ["seo:inspect"]
@@ -34,12 +34,12 @@ arg "[page]" default="/" help="a path like /de/ or a full URL"
 flag "--json" help="one JSON document on stdout"
 flag "--open" help="open its Search Console page (Test live URL, Request indexing)"
 '''
-tools = { fnox = "1.40.0" }
+tools = { fnox = "1.45.0" }
 run = 'fnox exec -- go tool seo inspect "${usage_page:-/}" -json=${usage_json:-false} -open=${usage_open:-false}'
 
 ["seo:lighthouse"]
 description = "Lighthouse on the live site, on Google's servers through PageSpeed Insights: every page of the sitemap (seo.toml's pages), or one; performance, accessibility, best practices and SEO out of 100, what fails and on which elements, real users' Core Web Vitals; fails under seo.toml's min (90)"
-tools = { fnox = "1.40.0" }
+tools = { fnox = "1.45.0" }
 usage = '''
 arg "[page]" help="one page, a path like /de/board or a full URL; default every page"
 flag "--json" help="one JSON document on stdout"
@@ -49,27 +49,27 @@ run = 'fnox exec -- go tool seo lighthouse ${usage_page:+"$usage_page"} -json=${
 
 ["seo:badges"]
 description = "Lighthouse on every page and the audit, then the README's badges (seo.toml's [badges] dir: each Lighthouse category's lowest page, the audit) and its <!-- seo:scores --> table; run after a production release, then commit"
-tools = { fnox = "1.40.0" }
+tools = { fnox = "1.45.0" }
 run = "fnox exec -- go tool seo badges"
 
 ["seo:status"]
 description = "The sitemap's status in Search Console and Google's index status for every URL in it"
 depends = ["seo:access"]
 usage = 'flag "--json" help="one JSON document on stdout"'
-tools = { fnox = "1.40.0" }
+tools = { fnox = "1.45.0" }
 run = "fnox exec -- go tool seo status -json=${usage_json:-false}"
 
 ["seo:sites"]
 description = "The Search Console properties the service account can use; fails without Full access"
 usage = 'flag "--json" help="one JSON document on stdout"'
-tools = { fnox = "1.40.0" }
+tools = { fnox = "1.45.0" }
 run = "fnox exec -- go tool seo sites -json=${usage_json:-false}"
 
 ["seo:submit"]
 description = "Submit the site's sitemap.xml (seo.toml's site) to Search Console, after access and a passing live audit"
 depends = ["seo:access", "seo:audit"]
 confirm = "Submit the sitemap to Google Search Console?"
-tools = { fnox = "1.40.0" }
+tools = { fnox = "1.45.0" }
 run = "fnox exec -- go tool seo submit"
 
 # Once per person, not per site: one service account serves every site it is added to (and Lighthouse, when there's
@@ -80,7 +80,7 @@ run = "fnox exec -- go tool seo submit"
 ["seo:setup"]
 description = "Once: the Google Cloud project, the Search Console and PageSpeed Insights APIs, and a service account key in fnox (needs gcloud auth login)"
 confirm = "Make or check the Google Cloud project, its APIs and the service account?"
-tools = { fnox = "1.40.0", "asdf:mise-plugins/mise-gcloud" = "584.0.0", python = "3.13.15" }
+tools = { fnox = "1.45.0", "asdf:mise-plugins/mise-gcloud" = "584.0.0", python = "3.13.15" }
 env = { CLOUDSDK_PYTHON = "python3" }
 run = '''
 #!/usr/bin/env bash

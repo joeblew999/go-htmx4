@@ -87,6 +87,9 @@ func TestGsxkitComponents(t *testing.T) {
 	r := gsxkitui.Components
 	for _, comp := range r.Components {
 		want, err := r.Source(comp, paths)
+		if err == nil {
+			want, err = registry.Format(c.Root, "views/gsxkit/"+comp.Name+".gsx", want)
+		}
 		if err != nil {
 			t.Fatal(err)
 		}

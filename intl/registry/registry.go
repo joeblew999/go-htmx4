@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"io/fs"
 	"maps"
+	"os/exec"
 	"path"
 	"regexp"
 	"slices"
@@ -110,6 +111,19 @@ func (r *Registry) Source(c Component, p Paths) ([]byte, error) {
 		out.WriteString("\t" + spec + "\n")
 	}
 	out.Write(b[end+1:])
+	return out.Bytes(), nil
+}
+
+// Format is src as the app's own gsx fmt writes the file at rel (from the app's root, which is dir). Add writes every
+// copy formatted, and the app's checks compare its copies with Format(Source(…)): a gsx release that formats
+// differently changes both, so a template and its copy never drift.
+func Format(dir, rel string, src []byte) ([]byte, error) {
+	cmd := exec.Command("go", "tool", "gsx", "fmt", "-stdin-filename", rel)
+	var out, stderr bytes.Buffer
+	cmd.Dir, cmd.Stdin, cmd.Stdout, cmd.Stderr = dir, bytes.NewReader(src), &out, &stderr
+	if err := cmd.Run(); err != nil {
+		return nil, fmt.Errorf("gsx fmt %s: %v\n%s", rel, err, stderr.String())
+	}
 	return out.Bytes(), nil
 }
 

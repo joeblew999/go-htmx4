@@ -14,7 +14,10 @@ import (
 // navigation draws its maps too.
 //
 // Every label is rendered here, translated; map.js only sets the map's data-locate (idle, locating, found, denied,
-// unavailable), data-zoom, data-at-min and data-at-max, and data-ready once drawn. The page's Content Security Policy
+// unavailable), data-zoom and data-ready once drawn, and disables a zoom button at its end. It is written on gsxui's
+// core: the page loads gsxui's behaviours from /gsxui/ (gsxui.json's js, served there). A boosted navigation morphs the
+// page: the map's id keeps it from being morphed into another element, and hx-morph-skip-children keeps Leaflet's own
+// DOM; give each map on a page its own id. The page's Content Security Policy
 // must allow the tiles in img-src (https://tile.openstreetmap.org); OpenStreetMap's tile policy asks for the
 // attribution the map shows and for light use (https://operations.osmfoundation.org/policies/tiles/): a busy site
 // takes its tiles from a provider of its own (change tiles below).
@@ -32,7 +35,8 @@ const (
 
 // Map draws a map around center at zoom (0 the whole world, 19 a street), named label for screen readers, with
 // children's markers (MapMarker) on it. locate adds a button that asks the browser for the reader's own location and
-// marks it with you's pin, named you's title. Its height is h-80; give it another with class.
+// marks it with you's pin, named you's title. Its height is h-80; give it another with class, and a second map on the
+// page another id.
 component Map(center LatLng, zoom int, label intl.Msg, locate bool, children gsx.Node, attrs gsx.Attrs) {
 	<div
 		class={
@@ -45,16 +49,16 @@ component Map(center LatLng, zoom int, label intl.Msg, locate bool, children gsx
 		}
 		data-map=js`{"center": @{center}, "zoom": @{zoom}, "tiles": @{tiles}, "maxZoom": @{maxZoom}}`
 		data-locate="idle"
+		id="gsxkit-map"
 		{ attrs... }
 	>
 		// The map itself, drawn by Leaflet: never mirrored, whatever the page's direction.
-		<div class="size-full" dir="ltr" role="region" aria-label={label} data-map-canvas></div>
+		<div class="size-full" dir="ltr" role="region" aria-label={label} data-map-canvas hx-morph-skip-children></div>
 		<div class="absolute end-2 top-2 z-1000 flex flex-col gap-2">
 			<ui.ButtonGroup orientation="vertical">
 				<ui.Button
 					variant="outline"
 					size="icon-sm"
-					class="group-data-[at-max=true]/map:opacity-50"
 					aria-label={locales.GsxkitMapZoomIn}
 					title={locales.GsxkitMapZoomIn}
 					data-map-action="zoom-in"
@@ -64,7 +68,6 @@ component Map(center LatLng, zoom int, label intl.Msg, locate bool, children gsx
 				<ui.Button
 					variant="outline"
 					size="icon-sm"
-					class="group-data-[at-min=true]/map:opacity-50"
 					aria-label={locales.GsxkitMapZoomOut}
 					title={locales.GsxkitMapZoomOut}
 					data-map-action="zoom-out"
@@ -86,18 +89,12 @@ component Map(center LatLng, zoom int, label intl.Msg, locate bool, children gsx
 			} }
 		</div>
 		{ if locate {
-			<p
-				role="status"
-				class="absolute inset-x-2 bottom-8 z-1000 hidden rounded-md bg-background/90 px-2 py-1 text-sm group-data-[locate=denied]/map:block"
-			>
-				{ locales.GsxkitMapDenied }
-			</p>
-			<p
-				role="status"
-				class="absolute inset-x-2 bottom-8 z-1000 hidden rounded-md bg-background/90 px-2 py-1 text-sm group-data-[locate=unavailable]/map:block"
-			>
-				{ locales.GsxkitMapUnavailable }
-			</p>
+			<ui.Alert class="absolute inset-x-2 bottom-8 z-1000 hidden w-auto group-data-[locate=denied]/map:grid">
+				<ui.AlertDescription>{ locales.GsxkitMapDenied }</ui.AlertDescription>
+			</ui.Alert>
+			<ui.Alert class="absolute inset-x-2 bottom-8 z-1000 hidden w-auto group-data-[locate=unavailable]/map:grid">
+				<ui.AlertDescription>{ locales.GsxkitMapUnavailable }</ui.AlertDescription>
+			</ui.Alert>
 			<MapMarker you={true} title={locales.GsxkitMapYou |> text} tone="you">
 				<p class="font-medium">{ locales.GsxkitMapYou }</p>
 			</MapMarker>
@@ -109,6 +106,8 @@ component Map(center LatLng, zoom int, label intl.Msg, locate bool, children gsx
 			{ locales.GsxkitMapAttribution }
 		</a>
 		{ children }
+		// The component's own files, served from web/gsxkit: static files, not routes.
+		// structpages:lint:ignore url-attr
 		<link rel="stylesheet" href="/gsxkit/map.css"/>
 		<script type="module" src="/gsxkit/map.js"></script>
 	</div>

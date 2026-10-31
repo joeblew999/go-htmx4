@@ -25,9 +25,9 @@ type Options struct {
 }
 
 // Add copies the components named into the app c is: it runs gsxui add for the gsxui components they are made of
-// that the app doesn't have yet, writes each into o.Dir with its imports pointing at the app's packages and its
-// browser files into o.Assets, and writes their text, already translated, into the catalogs: Table's messages, and
-// [gsxui] for what the app's gsxui components write and the catalogs lack. A copy the app changed since add wrote it
+// that the app doesn't have yet, writes each into o.Dir with its imports pointing at the app's packages, formatted by
+// the app's gsx fmt, and its browser files into o.Assets, and writes their text, already translated, into the
+// catalogs: Table's messages, and [gsxui] for what the app's gsxui components write and the catalogs lack. A copy the app changed since add wrote it
 // is left alone: o.Diff shows the difference, o.Overwrite replaces it. Its result is the command's exit code: 1 when
 // o.Diff found a difference or a changed copy was kept.
 func (r *Registry) Add(c config.Config, names []string, o Options) (int, error) {
@@ -76,7 +76,11 @@ func (r *Registry) Add(c config.Config, names []string, o Options) (int, error) 
 		if err != nil {
 			return 1, err
 		}
-		files = append(files, file{filepath.ToSlash(filepath.Join(o.Dir, comp.Name+".gsx")), src, true})
+		rel := filepath.ToSlash(filepath.Join(o.Dir, comp.Name+".gsx"))
+		if src, err = Format(c.Root, rel, src); err != nil {
+			return 1, err
+		}
+		files = append(files, file{rel, src, true})
 		for _, a := range comp.Assets {
 			if o.Assets == "" {
 				return 1, fmt.Errorf("%s has browser files: say where they go", comp.Name)

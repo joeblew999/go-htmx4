@@ -25,14 +25,14 @@ var Components = &registry.Registry{
 	Files:   files,
 	Locales: "github.com/joeblew999/go-htmx4/gsxkit/ui/locales",
 	Components: []registry.Component{
-		{Name: "map", Gsxui: []string{"button", "button-group", "spinner"}, Assets: []string{"map.js", "map.css"},
+		{Name: "map", Gsxui: []string{"alert", "button", "button-group", "spinner"}, Assets: []string{"map.js", "map.css"},
 			Use: "  <gsxkit.Map center={gsxkit.LatLng{48.137, 11.575}} zoom={12} label={…} locate={true}>\n" +
 				"    <gsxkit.MapMarker at={gsxkit.LatLng{48.137, 11.575}} title=\"Munich\">popup</gsxkit.MapMarker>\n" +
 				"  </gsxkit.Map>\n" +
-				"    serve web/gsxkit at /gsxkit/; the Content Security Policy's img-src takes https://tile.openstreetmap.org"},
+				"    serve web/gsxkit at /gsxkit/ and gsxui's behaviours at /gsxui/ (its core is shared); the Content Security Policy's img-src takes https://tile.openstreetmap.org"},
 		{Name: "moq", Gsxui: []string{"alert", "badge", "button", "card", "collapsible", "field", "input-group"}, Assets: []string{"moq.js"},
 			Use: "  <gsxkit.MoqBroadcast url={relay} name={broadcast} link={address that watches it}/>\n" +
 				"  <gsxkit.MoqWatch url={relay} name={broadcast}/>\n" +
-				"    serve web/gsxkit at /gsxkit/; the Content Security Policy takes the relay in connect-src, blob: in script-src and worker-src"},
+				"    serve web/gsxkit at /gsxkit/ and gsxui's behaviours at /gsxui/ (its core is shared); the Content Security Policy takes the relay in connect-src, blob: in script-src and worker-src"},
 	},
 }

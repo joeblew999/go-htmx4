@@ -46,7 +46,9 @@ func testLiveVideo(t *testing.T) {
 		caster.str(`document.querySelector("[data-moq=broadcast] [data-moq-debug]").textContent`))
 
 	viewer := newTabWith(t, "viewer", camera...)
-	viewer.known = []string{audio}
+	// A viewer that asks the relay for the catalog a moment before the broadcast has one gets "Track not found",
+	// which @moq warns about and retries: the frames below are the proof it played.
+	viewer.known = []string{audio, "SUBSCRIBE error: does_not_exist"}
 	viewer.open(link)
 	check(t, "the link's page is for watching: no broadcast card, a way to start one's own",
 		viewer.is(`!document.querySelector("[data-moq=broadcast]") && !!document.querySelector("[data-testid=moq-broadcast-own]")`))

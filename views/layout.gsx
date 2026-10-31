@@ -119,10 +119,13 @@ component Layout(title intl.Msg, description intl.Msg, children gsx.Node) {
 // (intl-browser.mjs) and gsxui's behaviours.
 component documentAssets() {
 	<ThemeScript/>
+	// Static files (dist/site, served before the Worker), not routes: no page in the tree names them.
+	// structpages:lint:ignore url-attr
 	<link rel="stylesheet" href="/assets/gsxui.css"/>
 	// The body font (gsxui.preset.json's fontSans), fetched with the stylesheet: no reflow when it arrives late.
 	<link
 		rel="preload"
+		// structpages:lint:ignore url-attr
 		href="/assets/geist-latin-wght-normal.woff2"
 		as="font"
 		type="font/woff2"

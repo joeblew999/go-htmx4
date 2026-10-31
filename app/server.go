@@ -14,7 +14,6 @@ import (
 	"net/http"
 	"runtime"
 	"strconv"
-	"strings"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -70,69 +69,22 @@ func (s *server) routes() http.Handler {
 	// charter's mux: Go 1.22 patterns under TinyGo too, which the pages' routes use.
 	mux := web.NewServeMux()
 	// The pages (views.Pages): structpages renders each with what its Props returns, from the app (views.App).
-	if _, err := structpages.Mount(mux, views.Pages{}, "/", "go-htmx4",
-		structpages.WithArgs(s), structpages.WithMiddlewares(s.pageMiddleware)); err != nil {
+	// htmx 4 requests for part of a page get that part (HX-Target); a boosted navigation (HX-Request-Type: full) the page.
+	if _, err := structpages.Mount(mux, views.Pages{}, "/", "go-htmx4", structpages.WithArgs(s),
+		structpages.WithMiddlewares(s.pageMiddleware), structpages.WithTargetSelector(structpages.HTMXv4RenderTarget)); err != nil {
 		panic(err) // the page tree is code: every test catches a mistake in it
 	}
 	// The static files (dist/site): Workers' Static Assets answer them before the Worker runs; these are for off it.
 	for _, prefix := range []string{"/static/", "/gsxui/", "/gsxkit/", "/assets/"} {
 		mux.Handle(prefix, staticFiles())
 	}
-	// /components (views/components.gsx) is every gsxui component with Intl. Its sidebar runs in its own document, and
-	// the text box counts on the Worker; everything else on the page is redone by the browser's Intl.
-	mux.HandleFunc("/components/sidebar", func(w http.ResponseWriter, r *http.Request) {
-		if allow(w, r, http.MethodGet) {
-			s.render(w, r, "components-sidebar", views.ComponentsSidebar())
-		}
-	})
-	mux.HandleFunc("/components/count", func(w http.ResponseWriter, r *http.Request) {
-		if !allow(w, r, http.MethodPost) {
-			return
-		}
-		text := r.FormValue("text")
-		if len(text) > 2000 {
-			http.Error(w, intl.Text(r.Context(), locales.ComponentsTextareaTooLong(2000)), http.StatusRequestEntityTooLarge)
-			return
-		}
-		s.render(w, r, "components-count", views.TextCounts(views.CountText(r.Context(), text)))
-	})
-	mux.HandleFunc("/fragments/components-week", func(w http.ResponseWriter, r *http.Request) {
-		if allow(w, r, http.MethodGet) {
-			s.render(w, r, "components-week", views.Week())
-		}
-	})
 	mux.HandleFunc("/healthz", func(w http.ResponseWriter, r *http.Request) {
 		if allow(w, r, http.MethodGet) {
 			w.Write([]byte("ok"))
 		}
 	})
-	mux.HandleFunc("/greet", func(w http.ResponseWriter, r *http.Request) {
-		if !allow(w, r, http.MethodPost, http.MethodDelete) {
-			return
-		}
-		if r.Method == http.MethodDelete {
-			s.render(w, r, "greet:clear", views.GreetingCleared())
-			return
-		}
-		name := strings.TrimSpace(r.FormValue("name"))
-		if name == "" {
-			s.render(w, r, "greet:error", views.GreetingError())
-			return
-		}
-		s.render(w, r, "greet", views.Greeting(name, cmp.Or(r.FormValue("flavour"), "gsx"), r.FormValue("shout") == "on"))
-	})
-	mux.HandleFunc("/fragments/server-info", func(w http.ResponseWriter, r *http.Request) {
-		if !allow(w, r, http.MethodGet) {
-			return
-		}
-		s.render(w, r, "server-info", views.ServerInfoView(views.ServerInfo{
-			GoVersion: runtime.Compiler + " " + runtime.Version() + " " + runtime.GOOS + "/" + runtime.GOARCH,
-			Uptime:    time.Since(s.started),
-			Requests:  s.requests.Load(),
-			Now:       time.Now(),
-			Note:      platformNote,
-		}))
-	})
+	// intl's preferences dialog (views/intl/preferences.gsx, intl's screen): its form and where it posts, which intl.Site
+	// answers. intl's screens are for any gsx app, so they name these two routes themselves.
 	mux.HandleFunc("/fragments/preferences", func(w http.ResponseWriter, r *http.Request) {
 		if !allow(w, r, http.MethodGet) {
 			return
@@ -144,33 +96,6 @@ func (s *server) routes() http.Handler {
 			languages.Preferences(w, r)
 		}
 	})
-	// The /formats round trip: a number typed the reader's way and some text, read back and formatted with the
-	// Worker's Intl. Inputs are capped: they're formatted several times each.
-	mux.HandleFunc("/formats/try", func(w http.ResponseWriter, r *http.Request) {
-		if !allow(w, r, http.MethodPost) {
-			return
-		}
-		number := strings.TrimSpace(r.FormValue("number"))
-		text := strings.TrimSpace(r.FormValue("text"))
-		if len(number) > 64 || len(text) > 500 {
-			http.Error(w, intl.Text(r.Context(), locales.FormatsTryTooLong(64, 500)), http.StatusRequestEntityTooLarge)
-			return
-		}
-		s.render(w, r, "formats-try", views.TryResultView(views.RoundTrip(r.Context(), number, text)))
-	})
-	mux.HandleFunc("/fragments/stats", func(w http.ResponseWriter, r *http.Request) {
-		if !allow(w, r, http.MethodGet) {
-			return
-		}
-		s.mu.Lock()
-		snapshot := make(map[string]int, len(s.stats))
-		for k, v := range s.stats {
-			snapshot[k] = v
-		}
-		s.mu.Unlock()
-		s.render(w, r, "stats", views.Stats(snapshot))
-	})
-	s.boardRoutes(mux)
 	return withCSP(withSite(mux))
 }
 

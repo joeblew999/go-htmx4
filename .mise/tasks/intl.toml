@@ -13,7 +13,7 @@ run = "go tool intl status"
 
 ["intl:add-locale"]
 description = "Add a language: its id as Intl writes it (fr-ca → fr-CA) into intl.toml's locales, and its catalog; then mise run intl:translate"
-tools = { workerd = "1.20261019.1" }
+tools = { workerd = "1.20261030.1" }
 usage = 'arg "<locale>" var=#true help="BCP 47 ids, e.g. fr or pt-BR"'
 run = 'go tool intl add-locale ${usage_locale}'
 
@@ -33,7 +33,7 @@ exec go tool intl add ${args[@]+"${args[@]}"} ${usage_screen}
 
 ["intl:todo"]
 description = "What is left to translate, per locale: each message's source, context and arguments, the plural categories the language needs, the style note (--json for agents)"
-tools = { workerd = "1.20261019.1" }
+tools = { workerd = "1.20261030.1" }
 usage = '''
 flag "--json" help="JSON on stdout, for agents"
 arg "[locale]" var=#true help="only these locales (default: all)"
@@ -47,7 +47,7 @@ exec go tool intl todo ${args[@]+"${args[@]}"} ${usage_locale:-}
 
 ["intl:translate"]
 description = "Translate every missing and stale message with Claude Code (the intl skill), one worker per language at once (intl.toml [translate]), until intl:check passes. Needs claude on PATH"
-tools = { workerd = "1.20261019.1" }
+tools = { workerd = "1.20261030.1" }
 usage = '''
 arg "[locale]" var=#true help="only these locales (default: all)"
 '''
@@ -55,7 +55,7 @@ run = "go tool intl translate ${usage_locale:-}"
 
 ["intl:check"]
 description = "Every problem, for CI: the catalogs (ICU syntax, arguments, a case for each plural category Intl says a language uses, missing and stale translations, unused messages, gsxui text, intl.sum), then gsx's own checks on the app's markup (gsx generate, gsx fmt, the gsx skill's find-smells.sh); exits 1 on any"
-tools = { workerd = "1.20261019.1" }
+tools = { workerd = "1.20261030.1" }
 run = '''
 #!/usr/bin/env bash
 set -uo pipefail
@@ -75,20 +75,13 @@ if [ -n "$files" ]; then
   unformatted=$(go tool gsx fmt -l $(printf '%s\n' "$files" | grep '\.gsx$'))
   [ -z "$unformatted" ] || { echo "✗ gsx fmt -w these: $unformatted"; status=1; }
   smells="$(go list -m -f '{% raw %}{{.Dir}}{% endraw %}' github.com/gsxhq/gsx)/skills/gsx/scripts/find-smells.sh"
-  # The one shape the smell finder can't tell apart: a message with arguments alone on a line, { locales.X(arg) },
-  # is a typed value with a renderer, not a component called as a function.
-  msg="^[^:]+:[0-9]+:[[:space:]]*[{][[:space:]]*$(go tool intl catalogs)[.][A-Z][A-Za-z0-9]*[(]"
   # The smell finder takes one directory and searches all of it: give it a copy holding only the app's own files,
   # at their paths, so its report names them as they are.
   own=$(mktemp -d)
   for f in $files; do mkdir -p "$own/$(dirname "$f")" && cp "$f" "$own/$f"; done
   found=$(cd "$own" && bash "$smells" .) || { echo "✗ gsx smells: find-smells.sh failed"; status=1; }
   rm -rf "$own"
-  hits=$(printf '%s\n' "$found" | sed 's#^\./##' | awk -v msg="$msg" '
-    /^== / { section = $0; next }
-    /^$/ { next }
-    section ~ /component called as a Go function/ && $0 ~ msg { next }
-    { if (section != shown) { print section; shown = section } print }')
+  hits=$(printf '%s\n' "$found" | sed 's#^\./##' | grep -v '^$')
   [ -z "$hits" ] || { echo "✗ gsx smells (find-smells.sh):"; echo "$hits"; status=1; }
 fi
 [ $status != 0 ] || echo "✓ gsx: generate, fmt, smells"
@@ -103,7 +96,7 @@ run = "go tool intl confirm ${usage_which:-}"
 
 ["intl:export"]
 description = "XLIFF 2.0 per locale into xliff/out (intl.toml's xliff), for human translators and translation-management systems: what is left to translate (--all: every message)"
-tools = { workerd = "1.20261019.1" }
+tools = { workerd = "1.20261030.1" }
 usage = '''
 flag "--all" help="every message, not only what is left"
 arg "[locale]" var=#true help="only these locales (default: all)"

@@ -16,17 +16,17 @@ idiomatic_version_file_enable_tools = ["go"]
 # Tailwind standalone CLI — the npm-free path in https://ui.gsxhq.dev/docs/npm-free.
 "github:tailwindlabs/tailwindcss" = "v4.3.3"
 # gsxui has no tags yet: pin the commit (README: go install .../cmd/gsxui).
-"go:github.com/gsxhq/gsxui/cmd/gsxui" = "ee41247"
+"go:github.com/gsxhq/gsxui/cmd/gsxui" = "65f4813e"
 # gsx itself is pinned in go.mod: builds use `go tool gsx` (gsx Status guide); the editor copy comes from `gsx:editor` (gsxkit's tasks).
 # Cloudflare Workers toolchain. No Node, no wrangler.
 # workerd: the standalone Workers runtime (what `wrangler dev` runs). Pin a release that has binaries.
-workerd = "1.20261019.1"
+workerd = "1.20261030.1"
 # fnox: Cloudflare credentials from the keychain via `fnox exec -- …`.
-fnox = "1.40.0"
+fnox = "1.45.0"
 # jq: task scripts read JSON with it (test:go's file list, vendor's npm metadata).
 jq = "1.8.2"
 # usage: shell completion for task arguments and flags (mise run seo:inspect <TAB>, --json).
-usage = "7.0.2"
+usage = "7.1.3"
 # charter: the Worker's build, local workerd, deploys, CI and Workers Builds (charter.toml). Its library in go.mod is the
 # same version: move both together, then charter init. TinyGo and wasm-opt are charter's, at the versions its TinyGo
 # patch is for: .config/mise/conf.d/charter.toml, which charter init writes.
