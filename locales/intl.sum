@@ -4919,11 +4919,11 @@ ru server_info.rendered 331e25aab7ff 9d547dc78bb2
 ru server_info.requests ada27592c957 2462f124918a
 ru server_info.uptime d63ab4711473 54c9f868ae3d
 ru server_info.workers_note 96302763ac38 71eb292f3e58
-file views/gsxkit/map.gsx 8a1eb11a0bf3
-file views/gsxkit/moq.gsx 0b1ee1fa3b78
+file views/gsxkit/map.gsx bc126024dd29
+file views/gsxkit/moq.gsx 51572356fb42
 file views/intl/language-list.gsx 66cb6721ed65
 file views/intl/language-offer.gsx 101f9f461837
 file views/intl/preferences.gsx fa18235a4832
 file web/gsxkit/map.css fcd9fbeec3e8
-file web/gsxkit/map.js c5f9499ff4e2
-file web/gsxkit/moq.js 2fd4553792fc
+file web/gsxkit/map.js 2d81024a6aac
+file web/gsxkit/moq.js 5c83f6c0d34d

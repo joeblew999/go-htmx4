@@ -11,6 +11,9 @@
 //
 // -patches names a JSON list of {file, why, old, new}: each old must appear exactly once in its unpacked file, so a
 // new version of the package fails the bundle rather than dropping or misapplying a patch.
+//
+// -external names imports left as they are, comma-separated: modules the page already loads, such as gsxui's core
+// (/gsxui/gsxui.js), which a bundle must share rather than carry a second copy of.
 package main
 
 import (
@@ -68,6 +71,7 @@ func main() {
 	update := flag.Bool("update", false, "resolve the packages named as arguments (name@version) and rewrite the lock")
 	modules := flag.String("modules", "dist/npm", "where packages are unpacked (git-ignored)")
 	patches := flag.String("patches", "", "a JSON list of patches to the unpacked packages")
+	external := flag.String("external", "", "imports to leave as they are, comma-separated (e.g. /gsxui/gsxui.js)")
 	flag.Parse()
 	if *entry == "" || *out == "" || *lockPath == "" {
 		fail(errors.New("-entry, -out and -lock are required"))
@@ -135,6 +139,7 @@ func main() {
 		MinifySyntax:      true,
 		LegalComments:     api.LegalCommentsEndOfFile,
 		NodePaths:         []string{abs},
+		External:          strings.FieldsFunc(*external, func(r rune) bool { return r == ',' }),
 		LogLevel:          api.LogLevelWarning,
 		// A stylesheet the entry imports (leaflet's) comes out beside the bundle, with the same name and .css; the
 		// images it names go inside it, as data: URLs.

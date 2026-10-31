@@ -12,7 +12,9 @@ import (
 //
 // Every label for every state is rendered here, translated; moq.js only sets the section's data-state (and
 // data-paused, data-muted, data-error, data-copied, data-can-share), and Tailwind's group-data variants show the one
-// that applies. Each card's connection details are machine values the script writes.
+// that applies. Each card's connection details are machine values the script writes. moq.js is written on gsxui's
+// core: the page loads gsxui's behaviours from /gsxui/ (gsxui.json's js, served there). Each card's id (from its
+// broadcast's name) keeps a boosted navigation's morph from turning it into another element.
 //
 // The relay: Cloudflare's open one is https://draft-14.cloudflare.mediaoverquic.com/ (moq-transport draft-14, no
 // token). @moq is held at its last releases that speak drafts 14 and 16, which Cloudflare's relays speak; when they
@@ -31,6 +33,7 @@ component MoqWatch(url string, name string, attrs gsx.Attrs) {
 		data-state="connecting"
 		data-paused="false"
 		data-muted="true"
+		id=f`moq-watch-@{name}`
 		{ attrs... }
 	>
 		<ui.Card>
@@ -112,6 +115,7 @@ component MoqBroadcast(url string, name string, link string, attrs gsx.Attrs) {
 		data-muted="false"
 		data-copied="false"
 		data-can-share="false"
+		id=f`moq-broadcast-@{name}`
 		{ attrs... }
 	>
 		<ui.Card>
