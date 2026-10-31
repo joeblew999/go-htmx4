@@ -30,21 +30,41 @@ rm -rf "$tgz" "$tmp"
 echo "✓ htmx $version: web/htmx/htmx.min.js, web/htmx/hx-ws.js, web/htmx/hx-live.js"
 '''
 
-# The live page's MoQ elements (#156): @moq/watch and @moq/publish with the page's glue (web/moq/moq.mjs), bundled into
-# one module by internal/jsbundle (npm's registry over HTTP, integrity-checked, esbuild's Go API: no Node), from the
-# packages web/moq/npm-lock.json names. Skipped when none of its inputs changed; the bundle is committed, like htmx.
-["vendor:moq"]
-description = "Bundle the live page's @moq elements and their glue into web/moq/moq.js from the packages web/moq/npm-lock.json pins (no Node)"
+# gsxkit's components' browser files (#164): each component's glue (gsxkit/js/<component>/<component>.mjs) and the npm
+# packages its npm-lock.json pins, bundled by internal/jsbundle (npm's registry over HTTP, esbuild's Go API: no Node)
+# into gsxkit/ui/assets, which go tool gsxkit add copies into an app. Skipped when none of its inputs changed; the
+# bundles are committed, like htmx. @moq stays at what Cloudflare's relays speak until they ship draft-18 (#158).
+["gsxkit:bundle"]
+description = "Bundle gsxkit's components' browser files (the map's Leaflet, the live video's @moq elements, each with its glue) from the npm packages each npm-lock.json pins, into gsxkit/ui/assets (no Node)"
 dir = "{{config_root}}"
-sources = ["web/moq/moq.mjs", "web/moq/npm-lock.json", "web/moq/npm-patches.json", "internal/jsbundle/*.go"]
-outputs = ["web/moq/moq.js"]
-run = "go run ./internal/jsbundle -entry web/moq/moq.mjs -out web/moq/moq.js -lock web/moq/npm-lock.json -patches web/moq/npm-patches.json"
+sources = ["gsxkit/js/**/*", "internal/jsbundle/*.go"]
+outputs = ["gsxkit/ui/assets/map.js", "gsxkit/ui/assets/map.css", "gsxkit/ui/assets/moq.js"]
+run = [
+  "go run ./internal/jsbundle -entry gsxkit/js/map/map.mjs -out gsxkit/ui/assets/map.js -lock gsxkit/js/map/npm-lock.json",
+  "go run ./internal/jsbundle -entry gsxkit/js/moq/moq.mjs -out gsxkit/ui/assets/moq.js -lock gsxkit/js/moq/npm-lock.json -patches gsxkit/js/moq/npm-patches.json",
+]
 
-["vendor:moq:update"]
-description = "Re-resolve the @moq packages (e.g. mise run vendor:moq:update @moq/watch@0.6.6 @moq/publish@0.5.3), rewrite web/moq/npm-lock.json and the bundle; keep a version Cloudflare's relays speak; move on when they ship draft-18 (#158)"
+# This app's copies of gsxkit's components, as any app gets them: the gsx (views/gsxkit), the browser files
+# (web/gsxkit, served at /gsxkit/) and their text in the catalogs. The app keeps them as gsxkit's (TestGsxkitComponents).
+["gsxkit:add"]
+description = "Copy gsxkit's map and moq components into the app with go tool gsxkit add -overwrite: views/gsxkit, web/gsxkit and their text (after gsxkit:bundle)"
+depends = ["gsxkit:bundle"]
 dir = "{{config_root}}"
-usage = 'arg "<packages>..." help="name@version of each root package"'
-run = 'go run ./internal/jsbundle -entry web/moq/moq.mjs -out web/moq/moq.js -lock web/moq/npm-lock.json -patches web/moq/npm-patches.json -update ${usage_packages}'
+sources = ["gsxkit/ui/*.gsx.tmpl", "gsxkit/ui/assets/*", "gsxkit/ui/locales/*.toml", "gsxkit/ui/*.go", "gsxkit/cmd/gsxkit/*.go", "intl/registry/*.go"]
+outputs = ["views/gsxkit/map.gsx", "views/gsxkit/moq.gsx", "web/gsxkit/map.js", "web/gsxkit/map.css", "web/gsxkit/moq.js"]
+run = "go tool gsxkit add -overwrite map moq"
+
+["gsxkit:update"]
+description = "Re-resolve a gsxkit component's npm packages (e.g. mise run gsxkit:update moq @moq/watch@0.6.6 @moq/publish@0.5.3, or map leaflet@1.9.4), rewrite its npm-lock.json and bundle; @moq stays at a version Cloudflare's relays speak until they ship draft-18 (#158)"
+dir = "{{config_root}}"
+usage = '''
+arg "<component>" help="map or moq"
+arg "<packages>" var=#true help="name@version of each package to resolve"
+'''
+run = [
+  'go run ./internal/jsbundle -entry gsxkit/js/${usage_component}/${usage_component}.mjs -out gsxkit/ui/assets/${usage_component}.js -lock gsxkit/js/${usage_component}/npm-lock.json $(test -f gsxkit/js/${usage_component}/npm-patches.json && echo -patches gsxkit/js/${usage_component}/npm-patches.json) -update ${usage_packages}',
+  "mise run gsxkit:add",
+]
 
 # The app's components (gsx:generate, from gsxkit's tasks) and this repo's own modules' (intl/, seo/), which commit
 # theirs for the apps that import them; then the tables a TinyGo build of the pages reads (structpages-gen, after gsx:
@@ -56,10 +76,11 @@ dir = "{{config_root}}"
 run = ["go -C intl tool gsx generate -q .", "go -C seo tool gsx generate -q .", "go tool structpages-gen ./views"]
 
 # The Static Assets directory: /static/ = web/htmx/ (htmx, hx-ws) and intl's browser module, /gsxui/ = web/gsxui/
-# behaviours, /assets/ = gsxui's compiled CSS (gsxui:css) + fonts (fonts.css url()s are relative).
+# behaviours, /gsxkit/ = web/gsxkit/ (gsxkit's components' browser files), /assets/ = gsxui's compiled CSS (gsxui:css)
+# + fonts (fonts.css url()s are relative).
 ["assets"]
-description = "Assemble dist/site, the Static Assets for workerd and deploy: htmx, intl's browser module, gsxui's behaviours, CSS and fonts"
-depends = ["vendor", "vendor:moq", "gsxui:css"]
+description = "Assemble dist/site, the Static Assets for workerd and deploy: htmx, intl's browser module, gsxui's behaviours, gsxkit's components' browser files, CSS and fonts"
+depends = ["vendor", "gsxkit:add", "gsxui:css"]
 dir = "{{config_root}}"
 run = '''
 #!/usr/bin/env bash
@@ -69,8 +90,10 @@ mkdir -p dist/site/static dist/site/gsxui dist/site/assets
 # htmx and its extensions as one deferred script (/static/htmx.js): out of the way of the first paint, and in one
 # script, so the extensions register before htmx's start, which a deferred htmx runs on the next task (setTimeout).
 for f in htmx.min.js hx-live.js hx-ws.js; do cat "web/htmx/$f"; echo ";"; done >dist/site/static/htmx.js
-# The live page's MoQ elements and glue (/static/moq.js), its own module: only that page loads it.
-cp web/moq/moq.js dist/site/static/moq.js
+# gsxkit's components' browser files (/gsxkit/: the map's Leaflet, the live video's @moq elements), each loaded only by
+# a page with that component on it.
+mkdir -p dist/site/gsxkit
+cp -R web/gsxkit/. dist/site/gsxkit/
 # The site's icon (<link rel="icon"> in the layout, which browsers and Google read).
 cp web/favicon.svg dist/site/static/
 # The browser's half of intl, with the same intl.mjs the Worker runs (/static/intl-browser.mjs).
@@ -79,7 +102,7 @@ cp -R web/gsxui/. dist/site/gsxui/
 cp dist/gsxui.css dist/site/assets/
 cp web/gsxui/fonts/*.woff2 dist/site/assets/
 # Every script minified (tdewolff/minify, a Go tool): Lighthouse counts what the browser downloads.
-find dist/site/static dist/site/gsxui -name '*.js' -o -name '*.mjs' | xargs go tool minify -q -i --type=js
+find dist/site/static dist/site/gsxui dist/site/gsxkit -name '*.js' -o -name '*.mjs' | xargs go tool minify -q -i --type=js
 echo "✓ dist/site: $(find dist/site -type f | wc -l | tr -d ' ') files, gsxui.css $(wc -c <dist/site/assets/gsxui.css | tr -d ' ')B"
 '''
 

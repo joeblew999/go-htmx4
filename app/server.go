@@ -75,7 +75,7 @@ func (s *server) routes() http.Handler {
 		panic(err) // the page tree is code: every test catches a mistake in it
 	}
 	// The static files (dist/site): Workers' Static Assets answer them before the Worker runs; these are for off it.
-	for _, prefix := range []string{"/static/", "/gsxui/", "/assets/"} {
+	for _, prefix := range []string{"/static/", "/gsxui/", "/gsxkit/", "/assets/"} {
 		mux.Handle(prefix, staticFiles())
 	}
 	// /components (views/components.gsx) is every gsxui component with Intl. Its sidebar runs in its own document, and

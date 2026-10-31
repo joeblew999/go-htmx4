@@ -22,11 +22,11 @@ Every command is a mise task: `mise run <task>`; `mise tasks` lists them. Which 
 
 ### `assets`
 
-- Depends: vendor, vendor:moq, gsxui:css
+- Depends: vendor, gsxkit:add, gsxui:css
 
 - **Usage:** `assets`
 
-Assemble dist/site, the Static Assets for workerd and deploy: htmx, intl's browser module, gsxui's behaviours, CSS and fonts
+Assemble dist/site, the Static Assets for workerd and deploy: htmx, intl's browser module, gsxui's behaviours, gsxkit's components' browser files, CSS and fonts
 
 ### `bench`
 
@@ -297,6 +297,31 @@ Install or update the agent skills Jackie Li's projects ship (gsx's, structpages
 - **Usage:** `gsx:tasks`
 
 Write this file again from the gsxkit version in go.mod: run it after upgrading gsxkit
+
+### `gsxkit:add`
+
+- Depends: gsxkit:bundle
+
+- **Usage:** `gsxkit:add`
+
+Copy gsxkit's map and moq components into the app with go tool gsxkit add -overwrite: views/gsxkit, web/gsxkit and their text (after gsxkit:bundle)
+
+### `gsxkit:bundle`
+
+- **Usage:** `gsxkit:bundle`
+
+Bundle gsxkit's components' browser files (the map's Leaflet, the live video's @moq elements, each with its glue) from the npm packages each npm-lock.json pins, into gsxkit/ui/assets (no Node)
+
+### `gsxkit:update`
+
+Re-resolve a gsxkit component's npm packages (e.g. mise run gsxkit:update moq @moq/watch@0.6.6 @moq/publish@0.5.3, or map leaflet@1.9.4), rewrite its npm-lock.json and bundle; @moq stays at a version Cloudflare's relays speak until they ship draft-18 (#158)
+
+
+- **Usage:** `gsxkit:update <component> <packages>…`
+
+### Arguments
+- **`<component>`** — map or moq
+- **`<packages>…`** — name@version of each package to resolve
 
 ### `gsxui:css`
 
@@ -721,19 +746,3 @@ Build and test this app with an upstream checkout instead of the pinned version 
 - **Usage:** `vendor`
 
 Vendor htmx 4.0.0 htmx.min.js + ext/hx-ws.js + ext/hx-live.js into web/htmx/ (curl, integrity-checked)
-
-### `vendor:moq`
-
-- **Usage:** `vendor:moq`
-
-Bundle the live page's @moq elements and their glue into web/moq/moq.js from the packages web/moq/npm-lock.json pins (no Node)
-
-### `vendor:moq:update`
-
-Re-resolve the @moq packages (e.g. mise run vendor:moq:update @moq/watch@0.6.6 @moq/publish@0.5.3), rewrite web/moq/npm-lock.json and the bundle; keep a version Cloudflare's relays speak; move on when they ship draft-18 (#158)
-
-
-- **Usage:** `vendor:moq:update <packages>…`
-
-### Arguments
-- **`<packages>…`** — name@version of each root package

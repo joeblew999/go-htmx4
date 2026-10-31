@@ -36,7 +36,7 @@ func testLiveVideo(t *testing.T) {
 	onAir := caster.waitJS(60*time.Second, `document.querySelector("[data-moq=broadcast]").dataset.state === "live"`)
 	check(t, "the broadcaster goes on air", onAir, caster.str(liveState))
 
-	link := caster.str(`(() => { const u = new URL(document.querySelector("[data-testid=moq-share]")?.value ?? "", location.href); return u.origin === location.origin ? u.pathname + u.search : ""; })()`)
+	link := caster.str(`(() => { const u = new URL(document.querySelector("[data-moq-link]")?.value ?? "", location.href); return u.origin === location.origin ? u.pathname + u.search : ""; })()`)
 	check(t, "on air, the page gives the link to send, on its own origin", strings.Contains(link, "/live?stream="), link)
 	check(t, "the link's page is not for search engines", noindex(caster, link), link)
 	caster.eval(`document.querySelector("[data-moq=broadcast] [data-moq-action=copy]").click()`, nil)

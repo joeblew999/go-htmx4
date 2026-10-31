@@ -9,6 +9,7 @@ import (
 
 	"github.com/jackielii/structpages"
 	"github.com/joeblew999/go-htmx4/intl"
+	"github.com/joeblew999/go-htmx4/views/gsxkit"
 )
 
 // Pages is the app's page tree (#79, #132), as structpages reads it: every page people read is a type here, its
@@ -24,11 +25,12 @@ type Pages struct {
 	formats    Formats    `route:"GET /formats Formats"`
 	components Components `route:"GET /components Components"`
 	live       Live       `route:"GET /live Live"`
+	maps       Map        `route:"GET /map Map"`
 	about      About      `route:"GET /about About"`
 }
 
 // All is every page, each with no parameters: the sitemap's pages (those search engines may index).
-var All = []any{Home{}, Board{}, Formats{}, Components{}, Live{}, About{}}
+var All = []any{Home{}, Board{}, Formats{}, Components{}, Live{}, Map{}, About{}}
 
 // Home is the home page.
 type Home struct{}
@@ -71,6 +73,9 @@ func (l Live) Query() string {
 // Noindex: a stream's page is one person's broadcast for as long as it lasts.
 func (l Live) Noindex() bool { return l.Stream != "" }
 
+// Map is gsxkit's map component (#164): where Cloudflare places the request, and the reader's own location on request.
+type Map struct{}
+
 // About is the stack.
 type About struct{}
 
@@ -85,6 +90,21 @@ type App interface {
 	Board(w http.ResponseWriter, r *http.Request) (BoardProps, bool)
 	// Live is where the live video page's broadcast goes: the relay and the broadcast's name.
 	Live(r *http.Request) LiveProps
+	// Map is where the map page centres: where Cloudflare places the request.
+	Map(r *http.Request) MapProps
+}
+
+// MapProps is the map page's data: Cloudflare's guess of where the request came from (request.cf), from its IP.
+type MapProps struct {
+	// Found is whether Cloudflare sent a place with the request (a local run doesn't); At is it.
+	Found bool
+	At    gsxkit.LatLng
+	// Center and Zoom are where the map opens: around At, else the whole world.
+	Center gsxkit.LatLng
+	Zoom   int
+	// Place is the place's name (its town, else its region, else its country's code); Country its country (ISO
+	// 3166-1, "DE"); Colo the Cloudflare data center the request came through ("MUC"), "" when unknown.
+	Place, Country, Colo string
 }
 
 // LiveProps is the live video page's data. The relay URLs carry a relay token when the Worker has one (Cloudflare's
@@ -126,6 +146,8 @@ func (Board) Props(w http.ResponseWriter, r *http.Request, app App) (BoardProps,
 func (Formats) Props(r *http.Request, app App) Connection { return app.Connection(r) }
 
 func (Live) Props(r *http.Request, app App) LiveProps { return app.Live(r) }
+
+func (Map) Props(r *http.Request, app App) MapProps { return app.Map(r) }
 
 func (About) Props(app App) []StackItem { return app.Stack() }
 

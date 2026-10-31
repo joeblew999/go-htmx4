@@ -12,6 +12,7 @@ board = "Board"
 formats = "Formats"
 components = "Components"
 live = "Live"
+map = "Map"
 about = "About"
 toggle_theme = "Toggle theme"
 
@@ -119,48 +120,33 @@ title = "Live video"
 heading = "Live video"
 description = "Live video from a browser camera to every viewer, over Media over QUIC through Cloudflare's relay network. Go, gsx and gsxui around @moq's elements."
 intro = "Start your camera, send the link it gives you, and whoever opens it watches you live, a fraction of a second behind, through Cloudflare's Media over QUIC relays."
-watch_title = "Watch"
-watch_description = "The broadcast the link you opened names."
-broadcast_title = "Broadcast"
-broadcast_description = "Your camera and microphone, sent to the relay. Nothing is captured until you press start."
-state_connecting = "Connecting"
-state_waiting = "Waiting for a broadcast"
-state_playing = "Live"
-state_paused = "Paused"
-state_reconnecting = "Reconnecting"
-state_ended = "Broadcast ended"
-state_unsupported = "Not supported in this browser"
-state_idle = "Camera off"
-state_requesting = "Asking for your camera"
-state_on_air = "On air"
-state_failed = "Camera failed"
-error_denied = "Camera or microphone permission was refused. Allow it in your browser's site settings and try again."
-error_unavailable = "No camera was found, or another app is using it."
-error_failed = "The camera could not start."
-play = "Play"
-pause = "Pause"
-unmute = "Unmute"
-mute = "Mute"
-fullscreen = "Full screen"
-start_camera = "Start camera"
-stop = "Stop"
-mic_off = "Mute microphone"
-mic_on = "Unmute microphone"
-share = "Send this link to whoever should watch"
-# The button beside the link to send, on air: copies it.
-copy_link = "Copy link"
-# What the copy button says for a moment after copying.
-copied = "Copied"
-# The button beside the link to send, on phones: opens the system's share sheet.
-share_link = "Share"
-# Under the link to send, on air.
-keep_open = "Keep this page open while you're live: on a phone, switching apps or locking the screen pauses the broadcast until you come back."
-# The disclosure under each video that shows the connection's technical details.
-details = "Connection details"
 # Under the video on a page opened from someone's link: goes to the page for broadcasting one's own camera.
 broadcast_own = "Start your own broadcast"
 no_stream_title = "Nothing to watch yet"
 no_stream_description = "Open a link someone sent you to watch their broadcast, or start your camera and send yours."
+
+# The map page (/map): gsxkit's map component (#164).
+[map]
+title = "Map"
+heading = "Map"
+description = "A Leaflet map in gsx over OpenStreetMap, with gsxui's buttons and pins, around where Cloudflare places your request. A gsxkit component."
+intro = "gsxkit's map component: Leaflet over OpenStreetMap, with pins, popups and buttons made of gsx and gsxui. It opens where Cloudflare places this request; the location button adds where your browser says you are."
+# The map card's title.
+where_title = "Where you are"
+# Under the map card's title, when Cloudflare sent a place: place is a town (or region, or country code), in English as Cloudflare names it.
+where_found = "Cloudflare places this request near {place}, from its IP address."
+# Under the map card's title, when Cloudflare sent no place.
+where_unknown = "Cloudflare sent no place with this request (a local run doesn't). The location button asks your browser instead."
+# The map's name for screen readers.
+label = "Map of where you are"
+# The name of the pin at Cloudflare's guess, for screen readers and as its tooltip: place as in where_found.
+cloudflare_pin = "Cloudflare's guess: {place}"
+# In the pin's popup: colo is the airport code Cloudflare names its data centers by (MUC).
+data_center = "Through Cloudflare's {colo} data center"
+# Under the map, beside the pin it explains.
+legend_cloudflare = "Where Cloudflare places this request"
+# Under the map, beside the other pin: where the location button puts the reader.
+legend_you = "Where your browser says you are"
 
 [about]
 title = "About"
@@ -495,3 +481,61 @@ hour_cycle_auto = "Language default ({example})"
 # The dialog's buttons.
 save = "Save"
 close = "Close"
+
+# gsxkit's map (go tool gsxkit add map: views/gsxkit/map.gsx).
+[gsxkit.map]
+# The map's button that zooms in (an icon; this is its name for screen readers and its tooltip).
+zoom_in = "Zoom in"
+# The map's button that zooms out.
+zoom_out = "Zoom out"
+# The map's button that asks the browser for the reader's location and marks it.
+locate = "Show my location"
+# Over the map, when the reader refused the browser's request for their location.
+denied = "Location permission was refused. Allow it in your browser's site settings and try again."
+# Over the map, when the browser couldn't tell where the reader is.
+unavailable = "Your location isn't available."
+# The name and popup of the pin at the reader's own location.
+you = "You are here"
+# The map's credit for its tiles, in its corner, linking to OpenStreetMap's copyright page. Keep OpenStreetMap as it is.
+attribution = "© OpenStreetMap contributors"
+
+# gsxkit's live video over MoQ (go tool gsxkit add moq: views/gsxkit/moq.gsx).
+[gsxkit.moq]
+watch_title = "Watch"
+watch_description = "The broadcast the link you opened names."
+broadcast_title = "Broadcast"
+broadcast_description = "Your camera and microphone, sent to the relay. Nothing is captured until you press start."
+state_connecting = "Connecting"
+state_waiting = "Waiting for a broadcast"
+state_playing = "Live"
+state_paused = "Paused"
+state_reconnecting = "Reconnecting"
+state_ended = "Broadcast ended"
+state_unsupported = "Not supported in this browser"
+state_idle = "Camera off"
+state_requesting = "Asking for your camera"
+state_on_air = "On air"
+state_failed = "Camera failed"
+error_denied = "Camera or microphone permission was refused. Allow it in your browser's site settings and try again."
+error_unavailable = "No camera was found, or another app is using it."
+error_failed = "The camera could not start."
+play = "Play"
+pause = "Pause"
+unmute = "Unmute"
+mute = "Mute"
+fullscreen = "Full screen"
+start_camera = "Start camera"
+stop = "Stop"
+mic_off = "Mute microphone"
+mic_on = "Unmute microphone"
+share = "Send this link to whoever should watch"
+# The button beside the link to send, on air: copies it.
+copy_link = "Copy link"
+# What the copy button says for a moment after copying.
+copied = "Copied"
+# The button beside the link to send, on phones: opens the system's share sheet.
+share_link = "Share"
+# Under the link to send, on air.
+keep_open = "Keep this page open while you're live: on a phone, switching apps or locking the screen pauses the broadcast until you come back."
+# The disclosure under each video that shows the connection's technical details.
+details = "Connection details"

@@ -20,6 +20,7 @@ import (
 	"github.com/joeblew999/go-htmx4/intl"
 	"github.com/joeblew999/go-htmx4/intl/catalog"
 	"github.com/joeblew999/go-htmx4/intl/config"
+	"github.com/joeblew999/go-htmx4/intl/registry"
 	intlui "github.com/joeblew999/go-htmx4/intl/ui"
 	"github.com/joeblew999/go-htmx4/locales"
 	nethtml "golang.org/x/net/html"
@@ -32,15 +33,15 @@ func TestIntlScreens(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	var paths intlui.Paths
+	var paths registry.Paths
 	if paths.Catalogs, err = catalog.PackagePath(c.CatalogDir()); err != nil {
 		t.Fatal(err)
 	}
 	if paths.Gsxui, err = catalog.PackagePath(filepath.Join(c.Root, c.Gsxui)); err != nil {
 		t.Fatal(err)
 	}
-	for _, s := range intlui.Screens {
-		want, err := s.Source(paths)
+	for _, s := range intlui.Screens.Components {
+		want, err := intlui.Screens.Source(s, paths)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -159,10 +160,10 @@ var urlAttr = regexp.MustCompile(`\s(href|hx-get|hx-post|hx-put|hx-patch|hx-dele
 // language list to carry that locale's prefix.
 func TestLocalizedURLs(t *testing.T) {
 	h := newServer().routes()
-	shared := []string{"/static/", "/assets/", "/gsxui/", "/live/"}
+	shared := []string{"/static/", "/assets/", "/gsxui/", "/gsxkit/", "/live/"}
 	for _, ld := range locales.Shipped[1:] {
 		prefix := intl.Prefix(ld)
-		for _, page := range []string{"/", "/about", "/formats", "/board"} {
+		for _, page := range []string{"/", "/about", "/formats", "/board", "/live", "/map"} {
 			rec := get(t, h, prefix+page)
 			if rec.Code != 200 {
 				t.Fatalf("%s%s: status %d", prefix, page, rec.Code)

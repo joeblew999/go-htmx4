@@ -20,9 +20,9 @@ import (
 // defaultRelay is Cloudflare's open MoQ relay network (moq-transport draft-14): every Cloudflare city relays, and it
 // takes no token. MOQ_RELAY_URL names another, such as a token relay of the account's (draft-16).
 //
-// The @moq packages (web/moq/npm-lock.json) are held at the last releases that speak drafts 14 and 16. When
-// Cloudflare's relays ship draft-18, @moq moves to its next release and this relay with it, and the patches in
-// web/moq/npm-patches.json are dropped: the steps are #158.
+// The @moq packages (gsxkit/js/moq/npm-lock.json, gsxkit's moq component) are held at the last releases that speak
+// drafts 14 and 16. When Cloudflare's relays ship draft-18, @moq moves to its next release and this relay with it, and
+// the patches in gsxkit/js/moq/npm-patches.json are dropped: the steps are #158.
 const defaultRelay = "https://draft-14.cloudflare.mediaoverquic.com/"
 
 // Each stream is its own broadcast on the relay, under the app's name: the open relay is shared by everyone who uses
@@ -41,7 +41,7 @@ func newStream() string { return strings.ToLower(rand.Text()[:10]) }
 // path.
 // The page is not cross-origin isolated (no COOP/COEP), so @moq's audio takes its postMessage path, not a
 // SharedArrayBuffer: a little more latency, and nothing the page loads needs CORP. (Isolation was taken out while
-// iPhones stayed on "connecting"; the cause was @moq/net's WebKit check, web/moq/npm-patches.json, #156.)
+// iPhones stayed on "connecting"; the cause was @moq/net's WebKit check, gsxkit/js/moq/npm-patches.json, #156.)
 func (s *server) Live(r *http.Request) views.LiveProps {
 	base := cmp.Or(bindings.Var("MOQ_RELAY_URL"), defaultRelay)
 	own := newStream()
