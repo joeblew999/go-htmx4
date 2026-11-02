@@ -24,6 +24,13 @@ func testMap(t *testing.T) {
 	b.clickText("nav a", b.str(`document.querySelector("nav a[href$='/map']").textContent.trim()`))
 	drawn := b.waitJS(10*time.Second, `location.pathname === "/map" && document.querySelector("[data-map]")?.dataset.ready === "true"`)
 	check(t, "a boosted navigation to /map draws the map", drawn && b.is(fmt.Sprintf(`window.__marker === %d`, marker)))
+	check(t, "the map and location legend appear before the Places picker", b.is(`(() => {
+		const map = document.querySelector("[data-map]");
+		const places = document.querySelector("[data-gsxkit-places]");
+		return !!(map.compareDocumentPosition(places) & Node.DOCUMENT_POSITION_FOLLOWING) &&
+			document.body.textContent.includes("Where Cloudflare places this request") &&
+			document.body.textContent.includes("Where your browser says you are");
+	})()`))
 	check(t, "the Places picker starts at its country step", b.is(`document.querySelector("[data-gsxkit-places]")?.dataset.step === "country"`))
 	check(t, "the picker explains the submit-and-select flow", b.is(`document.querySelector("[data-gsxkit-places]")?.textContent.includes("Submit each search and select a result")`))
 	check(t, "only the current location level is an editable search field",
