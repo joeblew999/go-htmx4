@@ -75,7 +75,7 @@ func (n Nominatim) Search(ctx context.Context, q Query, locale string) ([]Result
 	req.Header.Set("User-Agent", "go-htmx4/1.0 (+https://github.com/joeblew999/go-htmx4)")
 	client := n.HTTPClient
 	if client == nil {
-		client = &http.Client{Timeout: 8 * time.Second}
+		client = nominatimHTTPClient(8 * time.Second)
 	}
 	resp, err := client.Do(req)
 	if err != nil {

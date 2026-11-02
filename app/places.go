@@ -221,7 +221,17 @@ func placeSearchText(state gsxkit.PlaceSearchState) string {
 func nonEmptyPlaceParts(parts []string) []string {
 	out := parts[:0]
 	for _, part := range parts {
-		if part != "" {
+		if part == "" {
+			continue
+		}
+		duplicate := false
+		for _, existing := range out {
+			if strings.EqualFold(part, existing) {
+				duplicate = true
+				break
+			}
+		}
+		if !duplicate {
 			out = append(out, part)
 		}
 	}

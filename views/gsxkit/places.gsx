@@ -71,7 +71,7 @@ component Places(id string, action string, state PlaceSearchState, attrs gsx.Att
 				<input type="hidden" name="street" value={state.Street}/>
 				<ui.FieldGroup>
 					<ui.Field>
-						<ui.FieldLabel for={f`@{id}-term`}>
+						<ui.FieldLabel for={f`@{id}-@{state.Step}-term`}>
 							{ if state.Step == "country" {
 								{ locales.GsxkitPlacesCountry }
 							} else if state.Step == "region" {
@@ -82,7 +82,7 @@ component Places(id string, action string, state PlaceSearchState, attrs gsx.Att
 								{ locales.GsxkitPlacesStreet }
 							} }
 						</ui.FieldLabel>
-						<ui.Input id={f`@{id}-term`} name="term" value={state.Term} required={true}/>
+						<ui.Input id={f`@{id}-@{state.Step}-term`} name="term" value={state.Term} required={true}/>
 					</ui.Field>
 				</ui.FieldGroup>
 				<div class="flex flex-wrap items-center gap-3">

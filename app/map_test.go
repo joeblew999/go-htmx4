@@ -43,6 +43,7 @@ func TestMap(t *testing.T) {
 		`<link rel="stylesheet" href="/gsxkit/map.css"`,
 		`src="/gsxkit/map.js"`,
 		`data-gsxkit-places`,
+		`id="map-places-country-term"`,
 		`name="country"`,
 	} {
 		if !strings.Contains(body, want) {
@@ -127,7 +128,8 @@ func TestPlacesPickerDrillsDownByLocationLevel(t *testing.T) {
 
 	country := gsxkitcomponent.PlaceResult{Name: "Deutschland", Country: "Deutschland", CountryCode: "de"}
 	rec = choose("country", country, "", "", "", "")
-	if rec.Code != http.StatusOK || !strings.Contains(rec.Body.String(), `data-step="region"`) || !strings.Contains(rec.Body.String(), "Deutschland") {
+	if rec.Code != http.StatusOK || !strings.Contains(rec.Body.String(), `data-step="region"`) ||
+		!strings.Contains(rec.Body.String(), `id="map-places-region-term"`) || !strings.Contains(rec.Body.String(), "Deutschland") {
 		t.Fatalf("country selection did not advance to region: %d, %s", rec.Code, rec.Body.String())
 	}
 	time.Sleep(1100 * time.Millisecond)
@@ -171,6 +173,15 @@ func TestPlacesSearchRejectsOversizedTerm(t *testing.T) {
 	rec := get(t, newServer().routes(), "/places/search?step=country&search=true&term="+strings.Repeat("x", 201))
 	if rec.Code != http.StatusBadRequest || !strings.Contains(rec.Body.String(), "Please shorten your place search terms.") {
 		t.Errorf("oversized search: status = %d, body = %q", rec.Code, rec.Body.String())
+	}
+}
+
+func TestPlaceSearchTextDeduplicatesRepeatedLevels(t *testing.T) {
+	state := gsxkitcomponent.PlaceSearchState{
+		Step: "street", Term: "Sukhumvit Road", City: "Bangkok", Region: "bangkok", Country: "Thailand",
+	}
+	if got, want := placeSearchText(state), "Sukhumvit Road, Bangkok, Thailand"; got != want {
+		t.Errorf("street search text = %q, want %q", got, want)
 	}
 }
 

@@ -5173,7 +5173,7 @@ ru server_info.uptime d63ab4711473 54c9f868ae3d
 ru server_info.workers_note 96302763ac38 71eb292f3e58
 file views/gsxkit/map.gsx 3874f41e47e1
 file views/gsxkit/moq.gsx 51572356fb42
-file views/gsxkit/places.gsx 7845c81b895d
+file views/gsxkit/places.gsx 3ccffd411caf
 file views/intl/language-list.gsx 66cb6721ed65
 file views/intl/language-offer.gsx 101f9f461837
 file views/intl/preferences.gsx 297d949030b0
