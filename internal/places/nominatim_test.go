@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-func TestSearchForwardsLocaleAndStructuredQuery(t *testing.T) {
+func TestSearchForwardsLocaleAndDrilldownFilters(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if got := r.URL.Query().Get("accept-language"); got != "th" {
 			t.Errorf("accept-language query = %q", got)
@@ -19,19 +19,20 @@ func TestSearchForwardsLocaleAndStructuredQuery(t *testing.T) {
 			t.Error("missing identifying User-Agent")
 		}
 		for key, want := range map[string]string{
-			"format": "jsonv2", "addressdetails": "1", "limit": "5", "country": "Thailand", "city": "Bangkok",
+			"format": "jsonv2", "addressdetails": "1", "limit": "5",
+			"q": "Bangkok, Thailand", "countrycodes": "th", "featuretype": "city",
 		} {
 			if got := r.URL.Query().Get(key); got != want {
 				t.Errorf("%s = %q, want %q", key, got, want)
 			}
 		}
 		w.Header().Set("Content-Type", "application/json")
-		w.Write([]byte(`[{"display_name":"กรุงเทพมหานคร","lat":"13.75","lon":"100.5","address":{"country":"ประเทศไทย","state":"กรุงเทพมหานคร","city":"กรุงเทพมหานคร","road":"ถนนพระรามที่ 1"}}]`))
+		w.Write([]byte(`[{"display_name":"กรุงเทพมหานคร","lat":"13.75","lon":"100.5","country_code":"th","address":{"country":"ประเทศไทย","state":"กรุงเทพมหานคร","city":"กรุงเทพมหานคร","road":"ถนนพระรามที่ 1"}}]`))
 	}))
 	defer server.Close()
 
 	results, err := (Nominatim{Endpoint: server.URL}).Search(context.Background(),
-		Query{Country: "Thailand", City: "Bangkok"}, "th")
+		Query{Text: "Bangkok, Thailand", CountryCode: "TH", FeatureType: "city"}, "th")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -41,20 +42,26 @@ func TestSearchForwardsLocaleAndStructuredQuery(t *testing.T) {
 	if results[0].OpenURL == "" {
 		t.Fatal("result has no OpenStreetMap link")
 	}
+	if results[0].CountryCode != "th" {
+		t.Errorf("country code = %q, want th", results[0].CountryCode)
+	}
 }
 
 func TestSearchRejectsInvalidEndpointAndHTTPError(t *testing.T) {
-	if _, err := (Nominatim{Endpoint: "not a URL"}).Search(context.Background(), Query{City: "Bangkok"}, "th"); err == nil {
+	if _, err := (Nominatim{Endpoint: "not a URL"}).Search(context.Background(), Query{Text: "Bangkok"}, "th"); err == nil {
 		t.Fatal("invalid endpoint returned no error")
 	}
-	if _, err := (Nominatim{Endpoint: "file:///tmp/nominatim"}).Search(context.Background(), Query{City: "Bangkok"}, "th"); err == nil {
+	if _, err := (Nominatim{Endpoint: "file:///tmp/nominatim"}).Search(context.Background(), Query{Text: "Bangkok"}, "th"); err == nil {
 		t.Fatal("non-HTTP endpoint returned no error")
+	}
+	if _, err := (Nominatim{Endpoint: "https://nominatim.openstreetmap.org"}).Search(context.Background(), Query{Text: "Bangkok", FeatureType: "countrycode"}, "th"); err == nil {
+		t.Fatal("invalid feature type returned no error")
 	}
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		http.Error(w, "unavailable", http.StatusServiceUnavailable)
 	}))
 	defer server.Close()
-	if _, err := (Nominatim{Endpoint: server.URL}).Search(context.Background(), Query{City: "Bangkok"}, "th"); err == nil {
+	if _, err := (Nominatim{Endpoint: server.URL}).Search(context.Background(), Query{Text: "Bangkok"}, "th"); err == nil {
 		t.Fatal("HTTP error returned no error")
 	}
 }

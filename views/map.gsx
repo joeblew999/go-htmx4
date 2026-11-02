@@ -15,7 +15,7 @@ component MapPage(p MapProps) {
 		<p class="text-muted-foreground">{ locales.MapIntro }</p>
 		<ui.Card>
 			<ui.CardContent>
-				<PlacesPicker state={gsxkit.PlaceSearchState{}}/>
+				<PlacesPicker state={gsxkit.PlaceSearchState{Step: "country"}}/>
 			</ui.CardContent>
 		</ui.Card>
 		<ui.Card>

@@ -12,14 +12,15 @@ import (
 	"time"
 )
 
-// Query is Nominatim's structured address search.
+// Query is a localized Nominatim search constrained to one address level.
 type Query struct {
-	Country, State, City, Street string
+	Text, CountryCode, FeatureType string
 }
 
 // Result is a localized Nominatim result and its OpenStreetMap link.
 type Result struct {
 	Name, Country, Region, City, Street string
+	CountryCode                         string
 	Latitude, Longitude                 string
 	OpenURL                             string
 }
@@ -31,10 +32,11 @@ type Nominatim struct {
 }
 
 type searchResult struct {
-	Name    string            `json:"display_name"`
-	Lat     string            `json:"lat"`
-	Lon     string            `json:"lon"`
-	Address map[string]string `json:"address"`
+	Name        string            `json:"display_name"`
+	Lat         string            `json:"lat"`
+	Lon         string            `json:"lon"`
+	CountryCode string            `json:"country_code"`
+	Address     map[string]string `json:"address"`
 }
 
 // Search is deliberately submit-driven; the public Nominatim service does not support autocomplete.
@@ -43,23 +45,24 @@ func (n Nominatim) Search(ctx context.Context, q Query, locale string) ([]Result
 	if err != nil || (endpoint.Scheme != "http" && endpoint.Scheme != "https") || endpoint.Host == "" {
 		return nil, fmt.Errorf("invalid Nominatim endpoint %q", n.Endpoint)
 	}
+	if strings.TrimSpace(q.Text) == "" {
+		return nil, fmt.Errorf("Nominatim search text is empty")
+	}
+	if q.FeatureType != "" && q.FeatureType != "country" && q.FeatureType != "state" && q.FeatureType != "city" && q.FeatureType != "settlement" {
+		return nil, fmt.Errorf("invalid Nominatim feature type %q", q.FeatureType)
+	}
 	endpoint.Path = strings.TrimRight(endpoint.Path, "/") + "/search"
 	params := endpoint.Query()
 	params.Set("format", "jsonv2")
 	params.Set("addressdetails", "1")
 	params.Set("limit", "5")
+	params.Set("q", q.Text)
 	params.Set("accept-language", locale)
-	if q.Country != "" {
-		params.Set("country", q.Country)
+	if q.CountryCode != "" {
+		params.Set("countrycodes", strings.ToLower(q.CountryCode))
 	}
-	if q.State != "" {
-		params.Set("state", q.State)
-	}
-	if q.City != "" {
-		params.Set("city", q.City)
-	}
-	if q.Street != "" {
-		params.Set("street", q.Street)
+	if q.FeatureType != "" {
+		params.Set("featuretype", q.FeatureType)
 	}
 	endpoint.RawQuery = params.Encode()
 
@@ -109,7 +112,7 @@ func (n Nominatim) Search(ctx context.Context, q Query, locale string) ([]Result
 		mapQuery.Set("zoom", "16")
 		mapURL.RawQuery = mapQuery.Encode()
 		results = append(results, Result{
-			Name: p.Name, Country: p.Address["country"], Region: p.Address["state"],
+			Name: p.Name, Country: p.Address["country"], Region: p.Address["state"], CountryCode: p.CountryCode,
 			City:     first(p.Address, "city", "town", "village", "municipality", "hamlet"),
 			Street:   first(p.Address, "road", "pedestrian", "footway", "path"),
 			Latitude: strconv.FormatFloat(lat, 'f', -1, 64), Longitude: strconv.FormatFloat(lon, 'f', -1, 64),

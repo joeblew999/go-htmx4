@@ -567,9 +567,16 @@ open_map = "Open map"
 attribution = "© OpenStreetMap contributors"
 # The heading above the structured place search.
 title = "Find a place"
-# Selects a returned place and copies its address parts into the search fields.
-select = "Select place"
 # Label over the place the reader selected.
 selected = "Selected place"
 # Shown when a place search field exceeds its maximum length.
 invalid = "Please shorten your place search terms."
+# Explains that each submitted search reveals the next location level.
+guide = "Search for a country, then a region, city, and street. Submit each search and select a result to advance."
+# Returns to the previously selected location level.
+back = "Back"
+# The result button for each location level.
+choose_country = "Select country"
+choose_region = "Select region"
+choose_city = "Select city"
+choose_street = "Select street"
