@@ -1,0 +1,126 @@
+package gsxkit
+
+import (
+	"github.com/gsxhq/gsx"
+	"github.com/joeblew999/go-htmx4/locales"
+	"github.com/joeblew999/go-htmx4/ui"
+)
+
+// PlaceResult is one localized Nominatim search result.
+type PlaceResult struct {
+	Name, Country, Region, City, Street string
+	Latitude, Longitude                 string
+	OpenURL                             string
+}
+
+// PlaceSearchState is the values and results shown by Places.
+type PlaceSearchState struct {
+	Country, Region, City, Street string
+	Results                       []PlaceResult
+	Selected                      *PlaceResult
+	Status                        string
+}
+
+// Places is a submit-driven, structured place search. action is the app's localized search route.
+component Places(id string, action string, state PlaceSearchState, attrs gsx.Attrs) {
+	<section class="flex flex-col gap-4" data-gsxkit-places { attrs... }>
+		<h2 class="text-xl font-semibold">{ locales.GsxkitPlacesTitle }</h2>
+		<form
+			class="flex flex-col gap-4"
+			hx-get={action}
+			hx-target="closest [data-gsxkit-places]"
+			hx-swap="outerHTML"
+		>
+			<ui.FieldGroup class="grid gap-4 md:grid-cols-2">
+				<ui.Field>
+					<ui.FieldLabel for={f`@{id}-country`}>{ locales.GsxkitPlacesCountry }</ui.FieldLabel>
+					<ui.Input id={f`@{id}-country`} name="country" value={state.Country}/>
+				</ui.Field>
+				<ui.Field>
+					<ui.FieldLabel for={f`@{id}-region`}>{ locales.GsxkitPlacesRegion }</ui.FieldLabel>
+					<ui.Input id={f`@{id}-region`} name="state" value={state.Region}/>
+				</ui.Field>
+				<ui.Field>
+					<ui.FieldLabel for={f`@{id}-city`}>{ locales.GsxkitPlacesCity }</ui.FieldLabel>
+					<ui.Input id={f`@{id}-city`} name="city" value={state.City}/>
+				</ui.Field>
+				<ui.Field>
+					<ui.FieldLabel for={f`@{id}-street`}>{ locales.GsxkitPlacesStreet }</ui.FieldLabel>
+					<ui.Input id={f`@{id}-street`} name="street" value={state.Street}/>
+				</ui.Field>
+			</ui.FieldGroup>
+			<div class="flex items-center gap-3">
+				<ui.Button type="submit">{ locales.GsxkitPlacesSearch }</ui.Button>
+				<p class="text-sm text-muted-foreground">{ locales.GsxkitPlacesPrivacy }</p>
+			</div>
+		</form>
+		{ if state.Status == "empty" {
+			<ui.Alert>
+				<ui.AlertDescription>{ locales.GsxkitPlacesEmpty }</ui.AlertDescription>
+			</ui.Alert>
+		} else if state.Status == "unavailable" {
+			<ui.Alert variant="destructive">
+				<ui.AlertDescription>{ locales.GsxkitPlacesUnavailable }</ui.AlertDescription>
+			</ui.Alert>
+		} else if state.Status == "invalid" {
+			<ui.Alert variant="destructive">
+				<ui.AlertDescription>{ locales.GsxkitPlacesInvalid }</ui.AlertDescription>
+			</ui.Alert>
+		} else if state.Status == "limited" {
+			<ui.Alert>
+				<ui.AlertDescription>{ locales.GsxkitPlacesLimited }</ui.AlertDescription>
+			</ui.Alert>
+		} else if state.Status == "none" {
+			<ui.Alert>
+				<ui.AlertDescription>{ locales.GsxkitPlacesNoResults }</ui.AlertDescription>
+			</ui.Alert>
+		} }
+		{ if state.Selected != nil {
+			<ui.Alert>
+				<ui.AlertTitle>{ locales.GsxkitPlacesSelected }</ui.AlertTitle>
+				<ui.AlertDescription dir="auto">{ state.Selected.Name }</ui.AlertDescription>
+			</ui.Alert>
+		} }
+		{ if len(state.Results) > 0 {
+			<ul class="grid gap-3">
+				{ for _, place := range state.Results {
+					<li>
+						<ui.Card>
+							<ui.CardContent class="flex flex-col gap-2 p-4">
+								<p class="font-medium" dir="auto">{ place.Name }</p>
+								<p class="text-sm text-muted-foreground" dir="auto">
+									{ place.Street }{ " " }{ place.City }{ " " }{ place.Region }{ " " }{ place.Country }
+								</p>
+								<div class="flex flex-wrap gap-2">
+									<form hx-get={action} hx-target="closest [data-gsxkit-places]" hx-swap="outerHTML">
+										<input type="hidden" name="selected" value="true"/>
+										<input type="hidden" name="selected-name" value={place.Name}/>
+										<input type="hidden" name="country" value={place.Country}/>
+										<input type="hidden" name="state" value={place.Region}/>
+										<input type="hidden" name="city" value={place.City}/>
+										<input type="hidden" name="street" value={place.Street}/>
+										<input type="hidden" name="latitude" value={place.Latitude}/>
+										<input type="hidden" name="longitude" value={place.Longitude}/>
+										<ui.Button type="submit" size="sm">{ locales.GsxkitPlacesSelect }</ui.Button>
+									</form>
+									<ui.Button
+										href={place.OpenURL}
+										variant="outline"
+										size="sm"
+										target="_blank"
+										rel="noopener noreferrer"
+									>
+										{ locales.GsxkitPlacesOpenMap }
+									</ui.Button>
+								</div>
+							</ui.CardContent>
+						</ui.Card>
+					</li>
+				} }
+			</ul>
+		} }
+		<p class="text-xs text-muted-foreground">
+			<a href="https://www.openstreetmap.org/copyright">{ locales.GsxkitPlacesAttribution }</a>
+		</p>
+	</section>
+}

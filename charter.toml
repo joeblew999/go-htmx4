@@ -34,21 +34,23 @@ namespace_id = 1001
 limit = 60
 period = 10
 
+# Public Nominatim can be replaced without a code change. Searches are submit-driven, globally spaced through D1, and cached.
+
 [production]
 domain = "go-htmx4.ubuntusoftware.net"
-vars = { APP_ENV = "cloudflare", APP_DOMAIN = "go-htmx4.ubuntusoftware.net" }
+vars = { APP_ENV = "cloudflare", APP_DOMAIN = "go-htmx4.ubuntusoftware.net", NOMINATIM_URL = "https://nominatim.openstreetmap.org" }
 
 # Exactly what's on main: its own Worker and D1, no custom domain, noindex (APP_PREVIEW).
 [staging]
-vars = { APP_ENV = "staging", APP_PREVIEW = "1" }
+vars = { APP_ENV = "staging", APP_PREVIEW = "1", NOMINATIM_URL = "https://nominatim.openstreetmap.org" }
 
 # A Worker Preview per branch: the shared preview D1, noindex.
 [preview]
-vars = { APP_ENV = "preview {preview}", APP_PREVIEW = "1" }
+vars = { APP_ENV = "preview {preview}", APP_PREVIEW = "1", NOMINATIM_URL = "https://nominatim.openstreetmap.org" }
 note = "Own Durable Object storage, shared preview D1, not indexed."
 
 [local]
-vars = { APP_ENV = "workerd (local)" }
+vars = { APP_ENV = "workerd (local)", NOMINATIM_URL = "https://nominatim.openstreetmap.org" }
 
 # The build: the Worker (TinyGo), intl's Worker modules, the Static Assets (tasks/app.toml).
 [build]

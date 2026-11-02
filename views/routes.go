@@ -79,6 +79,13 @@ func (BoardNoteAction) ServeHTTP(w http.ResponseWriter, r *http.Request, app App
 	app.BoardNote(w, r)
 }
 
+// PlacesSearchAction searches Nominatim for the Places component.
+type PlacesSearchAction struct{}
+
+func (PlacesSearchAction) ServeHTTP(w http.ResponseWriter, r *http.Request, app App) {
+	app.PlacesSearch(w, r)
+}
+
 // Actions are the routes' answers, App's part for them: each writes the whole response.
 type Actions interface {
 	Greet(w http.ResponseWriter, r *http.Request)
@@ -91,6 +98,7 @@ type Actions interface {
 	Try(w http.ResponseWriter, r *http.Request)
 	BoardAdd(w http.ResponseWriter, r *http.Request)
 	BoardNote(w http.ResponseWriter, r *http.Request)
+	PlacesSearch(w http.ResponseWriter, r *http.Request)
 }
 
 // Route is page's path from the tree, for Go code outside a request (the board's fragments rendered for the Room).

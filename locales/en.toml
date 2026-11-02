@@ -539,3 +539,37 @@ share_link = "Share"
 keep_open = "Keep this page open while you're live: on a phone, switching apps or locking the screen pauses the broadcast until you come back."
 # The disclosure under each video that shows the connection's technical details.
 details = "Connection details"
+
+[gsxkit.places]
+# Country field label.
+country = "Country"
+# Region or state field label.
+region = "Region or state"
+# City or town field label.
+city = "City or town"
+# Street field label.
+street = "Street"
+# The button that submits a place search; never trigger on keystrokes.
+search = "Search"
+# Explains that the submitted address is sent to OpenStreetMap's Nominatim service.
+privacy = "Searches are sent to OpenStreetMap Nominatim. Do not enter confidential information."
+# Shown when the search form has no values.
+empty = "Enter at least one place field to search."
+# Shown when Nominatim cannot be reached.
+unavailable = "Place search is temporarily unavailable. Try again later."
+# Shown when the app-wide Nominatim request limit is reached.
+limited = "Place search is busy. Please wait a moment before searching again."
+# Shown when a search has no matches.
+no_results = "No matching places were found."
+# The link to the selected place's coordinates on OpenStreetMap.
+open_map = "Open map"
+# Attribution required for OpenStreetMap data.
+attribution = "© OpenStreetMap contributors"
+# The heading above the structured place search.
+title = "Find a place"
+# Selects a returned place and copies its address parts into the search fields.
+select = "Select place"
+# Label over the place the reader selected.
+selected = "Selected place"
+# Shown when a place search field exceeds its maximum length.
+invalid = "Please shorten your place search terms."

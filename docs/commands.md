@@ -310,7 +310,7 @@ gsx, gsxui and structpages to their latest (go tool gsxkit update), except what 
 
 - **Usage:** `gsxkit:add`
 
-Copy gsxkit's map and moq components into the app with go tool gsxkit add -overwrite: views/gsxkit, web/gsxkit and their text (after gsxkit:bundle)
+Copy gsxkit's map, places and moq components into the app with go tool gsxkit add -overwrite: views/gsxkit, web/gsxkit and their text (after gsxkit:bundle)
 
 ### `gsxkit:bundle`
 
