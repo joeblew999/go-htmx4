@@ -66,7 +66,10 @@ func TestPlacesPickerDrillsDownByLocationLevel(t *testing.T) {
 		requests++
 		language = r.URL.Query().Get("accept-language")
 		w.Header().Set("Content-Type", "application/json")
-		switch r.URL.Query().Get("featuretype") {
+		if r.URL.Query().Has("featuretype") {
+			t.Errorf("unexpected lowercase featuretype parameter")
+		}
+		switch r.URL.Query().Get("featureType") {
 		case "country":
 			if got := r.URL.Query().Get("q"); got != "Germany" {
 				t.Errorf("country query = %q", got)

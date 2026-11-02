@@ -61,7 +61,7 @@ func (n Nominatim) Search(ctx context.Context, q Query, locale string) ([]Result
 		params.Set("countrycodes", strings.ToLower(q.CountryCode))
 	}
 	if q.FeatureType != "" {
-		params.Set("featuretype", q.FeatureType)
+		params.Set("featureType", q.FeatureType)
 	}
 	endpoint.RawQuery = params.Encode()
 

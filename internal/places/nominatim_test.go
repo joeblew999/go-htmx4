@@ -20,7 +20,7 @@ func TestSearchForwardsLocaleAndDrilldownFilters(t *testing.T) {
 		}
 		for key, want := range map[string]string{
 			"format": "jsonv2", "addressdetails": "1", "limit": "5",
-			"q": "Bangkok, Thailand", "countrycodes": "th", "featuretype": "city",
+			"q": "Bangkok, Thailand", "countrycodes": "th", "featureType": "city",
 		} {
 			if got := r.URL.Query().Get(key); got != want {
 				t.Errorf("%s = %q, want %q", key, got, want)
