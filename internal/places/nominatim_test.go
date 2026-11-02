@@ -27,7 +27,7 @@ func TestSearchForwardsLocaleAndDrilldownFilters(t *testing.T) {
 			}
 		}
 		w.Header().Set("Content-Type", "application/json")
-		w.Write([]byte(`[{"display_name":"กรุงเทพมหานคร","lat":"13.75","lon":"100.5","country_code":"th","address":{"country":"ประเทศไทย","state":"กรุงเทพมหานคร","city":"กรุงเทพมหานคร","road":"ถนนพระรามที่ 1"}}]`))
+		w.Write([]byte(`[{"display_name":"กรุงเทพมหานคร","lat":"13.75","lon":"100.5","address":{"country":"ประเทศไทย","country_code":"th","state":"กรุงเทพมหานคร","city":"กรุงเทพมหานคร","road":"ถนนพระรามที่ 1"}}]`))
 	}))
 	defer server.Close()
 

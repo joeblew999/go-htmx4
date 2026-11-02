@@ -307,6 +307,7 @@ de gsxkit.places.choose_street 059e30b29723 5398ea146822
 de gsxkit.places.city 7b268823822d d5a26d39b42c
 de gsxkit.places.country 701d021d08c5 b6baff9358dd
 de gsxkit.places.empty d1c8d6758db8 4fbfa7c00bcd
+de gsxkit.places.forward bcc3b5fa8c43 3c5202a154b7
 de gsxkit.places.guide e70c26104868 1394077e3b00
 de gsxkit.places.invalid d49661ca6ff5 ae1c37c5ddaf
 de gsxkit.places.limited fb0c43e9efb3 6deebd8b10ab
@@ -738,6 +739,7 @@ fr gsxkit.places.choose_street 059e30b29723 1e6113e87e80
 fr gsxkit.places.city 7b268823822d bb3d8a07dc80
 fr gsxkit.places.country 701d021d08c5 fe753ffb9bba
 fr gsxkit.places.empty d1c8d6758db8 88af4df2ff9f
+fr gsxkit.places.forward bcc3b5fa8c43 eb83dd5e011a
 fr gsxkit.places.guide e70c26104868 16ded4659395
 fr gsxkit.places.invalid d49661ca6ff5 2d00b52a8112
 fr gsxkit.places.limited fb0c43e9efb3 d40ed8d41015
@@ -1169,6 +1171,7 @@ es gsxkit.places.choose_street 059e30b29723 c804a92eb633
 es gsxkit.places.city 7b268823822d 359ad39ba3cf
 es gsxkit.places.country 701d021d08c5 bb8921362413
 es gsxkit.places.empty d1c8d6758db8 634a40e34459
+es gsxkit.places.forward bcc3b5fa8c43 905f1c77bacc
 es gsxkit.places.guide e70c26104868 d1559c99582e
 es gsxkit.places.invalid d49661ca6ff5 f910ce70acb7
 es gsxkit.places.limited fb0c43e9efb3 fb938f987ea5
@@ -1600,6 +1603,7 @@ pt-BR gsxkit.places.choose_street 059e30b29723 499279926cbb
 pt-BR gsxkit.places.city 7b268823822d 6e213c1d24b3
 pt-BR gsxkit.places.country 701d021d08c5 bb8921362413
 pt-BR gsxkit.places.empty d1c8d6758db8 97c032359e40
+pt-BR gsxkit.places.forward bcc3b5fa8c43 5044efc5d125
 pt-BR gsxkit.places.guide e70c26104868 1fdd4c608f07
 pt-BR gsxkit.places.invalid d49661ca6ff5 821e16fa0692
 pt-BR gsxkit.places.limited fb0c43e9efb3 ab99e5a6ec75
@@ -2031,6 +2035,7 @@ pt-PT gsxkit.places.choose_street 059e30b29723 499279926cbb
 pt-PT gsxkit.places.city 7b268823822d 9540ca0914e3
 pt-PT gsxkit.places.country 701d021d08c5 bb8921362413
 pt-PT gsxkit.places.empty d1c8d6758db8 854c6f6b248b
+pt-PT gsxkit.places.forward bcc3b5fa8c43 5044efc5d125
 pt-PT gsxkit.places.guide e70c26104868 b472a7164c3d
 pt-PT gsxkit.places.invalid d49661ca6ff5 821e16fa0692
 pt-PT gsxkit.places.limited fb0c43e9efb3 e8a552fe2d99
@@ -2462,6 +2467,7 @@ ar gsxkit.places.choose_street 059e30b29723 97ee936aafa6
 ar gsxkit.places.city 7b268823822d d1ef23de48c7
 ar gsxkit.places.country 701d021d08c5 0214954a5dff
 ar gsxkit.places.empty d1c8d6758db8 9af7e73aa904
+ar gsxkit.places.forward bcc3b5fa8c43 d8710b5cd4eb
 ar gsxkit.places.guide e70c26104868 98b11e8c2ed9
 ar gsxkit.places.invalid d49661ca6ff5 d464aed5ca9a
 ar gsxkit.places.limited fb0c43e9efb3 90e889c8be7e
@@ -2893,6 +2899,7 @@ he gsxkit.places.choose_street 059e30b29723 b3a7b04030d5
 he gsxkit.places.city 7b268823822d 5ffe6ac545f5
 he gsxkit.places.country 701d021d08c5 f4e22e0cf4c8
 he gsxkit.places.empty d1c8d6758db8 6265428fc2c8
+he gsxkit.places.forward bcc3b5fa8c43 49dcc1513314
 he gsxkit.places.guide e70c26104868 4994046ccdbb
 he gsxkit.places.invalid d49661ca6ff5 163fe6c1b073
 he gsxkit.places.limited fb0c43e9efb3 1e988ab884ac
@@ -3324,6 +3331,7 @@ ja gsxkit.places.choose_street 059e30b29723 16a6baaa5369
 ja gsxkit.places.city 7b268823822d 0f04bb93e80e
 ja gsxkit.places.country 701d021d08c5 d1566afa505a
 ja gsxkit.places.empty d1c8d6758db8 d94512387dc0
+ja gsxkit.places.forward bcc3b5fa8c43 65a2c730e26a
 ja gsxkit.places.guide e70c26104868 d8f1bd4832cb
 ja gsxkit.places.invalid d49661ca6ff5 1968b938657a
 ja gsxkit.places.limited fb0c43e9efb3 6b4160e810c8
@@ -3755,6 +3763,7 @@ zh-Hans gsxkit.places.choose_street 059e30b29723 bab74fdf69f2
 zh-Hans gsxkit.places.city 7b268823822d 1638f9abe266
 zh-Hans gsxkit.places.country 701d021d08c5 45e22a8a1452
 zh-Hans gsxkit.places.empty d1c8d6758db8 e3a83cb5c617
+zh-Hans gsxkit.places.forward bcc3b5fa8c43 45338aaa4c9b
 zh-Hans gsxkit.places.guide e70c26104868 685c17e7169a
 zh-Hans gsxkit.places.invalid d49661ca6ff5 492fef990917
 zh-Hans gsxkit.places.limited fb0c43e9efb3 c7e3035890e9
@@ -4186,6 +4195,7 @@ zh-Hant gsxkit.places.choose_street 059e30b29723 82cf3ca3e91e
 zh-Hant gsxkit.places.city 7b268823822d f6ac3ee54efd
 zh-Hant gsxkit.places.country 701d021d08c5 5b472c0f9943
 zh-Hant gsxkit.places.empty d1c8d6758db8 6d8b96808483
+zh-Hant gsxkit.places.forward bcc3b5fa8c43 4c48dafca4c4
 zh-Hant gsxkit.places.guide e70c26104868 c652846ebe92
 zh-Hant gsxkit.places.invalid d49661ca6ff5 07a089d9ca93
 zh-Hant gsxkit.places.limited fb0c43e9efb3 6ce2bdcab7a2
@@ -4617,6 +4627,7 @@ hi gsxkit.places.choose_street 059e30b29723 c945e09bbba7
 hi gsxkit.places.city 7b268823822d 579b87653219
 hi gsxkit.places.country 701d021d08c5 d0f3158b8b1a
 hi gsxkit.places.empty d1c8d6758db8 b764d1126306
+hi gsxkit.places.forward bcc3b5fa8c43 4a4873c1234a
 hi gsxkit.places.guide e70c26104868 a470a67f8384
 hi gsxkit.places.invalid d49661ca6ff5 f5cc3276ee59
 hi gsxkit.places.limited fb0c43e9efb3 7e5ac6ba4861
@@ -5048,6 +5059,7 @@ ru gsxkit.places.choose_street 059e30b29723 9d97277abab4
 ru gsxkit.places.city 7b268823822d f74b56663184
 ru gsxkit.places.country 701d021d08c5 1ee15e972975
 ru gsxkit.places.empty d1c8d6758db8 1ce40dc15f14
+ru gsxkit.places.forward bcc3b5fa8c43 9ed81a4bbf95
 ru gsxkit.places.guide e70c26104868 39a03ca092a2
 ru gsxkit.places.invalid d49661ca6ff5 c7ba0cdb17f2
 ru gsxkit.places.limited fb0c43e9efb3 782e4b209a07
@@ -5173,7 +5185,7 @@ ru server_info.uptime d63ab4711473 54c9f868ae3d
 ru server_info.workers_note 96302763ac38 71eb292f3e58
 file views/gsxkit/map.gsx 3874f41e47e1
 file views/gsxkit/moq.gsx 51572356fb42
-file views/gsxkit/places.gsx 3ccffd411caf
+file views/gsxkit/places.gsx 9866c5daaf1d
 file views/intl/language-list.gsx 66cb6721ed65
 file views/intl/language-offer.gsx 101f9f461837
 file views/intl/preferences.gsx 297d949030b0

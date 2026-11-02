@@ -28,6 +28,7 @@ type PlaceSearchState struct {
 component Places(id string, action string, state PlaceSearchState, attrs gsx.Attrs) {
 	<section class="flex flex-col gap-4" data-gsxkit-places data-step={state.Step} { attrs... }>
 		<h2 class="text-xl font-semibold">{ locales.GsxkitPlacesTitle }</h2>
+		<p class="text-sm text-muted-foreground">{ locales.GsxkitPlacesForward }</p>
 		<p class="text-sm text-muted-foreground">{ locales.GsxkitPlacesGuide }</p>
 		<ol class="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
 			<li class={"rounded-md border border-border p-3", "border-primary bg-primary/10": state.Step == "country"}>

@@ -29,6 +29,8 @@ choose_city = "Select city"
 choose_street = "Select street"
 # The heading above the structured place search.
 title = "Find a place"
+# Explains that this picker uses place names to find coordinates.
+forward = "Forward geocoding turns place names into coordinates."
 # Label over the place the reader selected.
 selected = "Selected place"
 # Country field label.

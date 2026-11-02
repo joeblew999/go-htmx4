@@ -130,8 +130,11 @@ func (s *server) PlacesSearch(w http.ResponseWriter, r *http.Request) {
 		log.Printf("places search: %v", err)
 		state.Status = "unavailable"
 		w.WriteHeader(http.StatusBadGateway)
-	} else if len(results) == 0 {
-		state.Status = "none"
+	} else {
+		results = placesInCountry(results, state.CountryCode, state.Country)
+		if len(results) == 0 {
+			state.Status = "none"
+		}
 	}
 	state.Results = results
 	s.renderPlacesPicker(w, r, state)
@@ -255,6 +258,9 @@ func choosePlace(state *gsxkit.PlaceSearchState, place gsxkit.PlaceResult) bool 
 	if place.Name == "" {
 		return false
 	}
+	if state.Step != "country" && !placeMatchesCountry(state.CountryCode, state.Country, place) {
+		return false
+	}
 	switch state.Step {
 	case "country":
 		state.Country = firstNonEmpty(place.Country, place.Name)
@@ -283,6 +289,26 @@ func choosePlace(state *gsxkit.PlaceSearchState, place gsxkit.PlaceResult) bool 
 	state.Results = nil
 	state.Status = ""
 	return true
+}
+
+func placesInCountry(results []gsxkit.PlaceResult, countryCode, country string) []gsxkit.PlaceResult {
+	if countryCode == "" && country == "" {
+		return results
+	}
+	filtered := results[:0]
+	for _, place := range results {
+		if placeMatchesCountry(countryCode, country, place) {
+			filtered = append(filtered, place)
+		}
+	}
+	return filtered
+}
+
+func placeMatchesCountry(countryCode, country string, place gsxkit.PlaceResult) bool {
+	if countryCode != "" {
+		return place.CountryCode != "" && strings.EqualFold(countryCode, place.CountryCode)
+	}
+	return country != "" && place.Country != "" && strings.EqualFold(country, place.Country)
 }
 
 func firstNonEmpty(values ...string) string {

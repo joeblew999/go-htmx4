@@ -580,3 +580,5 @@ choose_country = "Select country"
 choose_region = "Select region"
 choose_city = "Select city"
 choose_street = "Select street"
+# Explains that this picker uses place names to find coordinates.
+forward = "Forward geocoding turns place names into coordinates."

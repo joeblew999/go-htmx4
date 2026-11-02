@@ -71,22 +71,22 @@ func TestPlacesPickerDrillsDownByLocationLevel(t *testing.T) {
 			if got := r.URL.Query().Get("q"); got != "Germany" {
 				t.Errorf("country query = %q", got)
 			}
-			w.Write([]byte(`[{"display_name":"Deutschland","lat":"51","lon":"10","country_code":"de","address":{"country":"Deutschland"}}]`))
+			w.Write([]byte(`[{"display_name":"Deutschland","lat":"51","lon":"10","address":{"country":"Deutschland","country_code":"de"}}]`))
 		case "state":
 			if got := r.URL.Query().Get("q"); got != "Bavaria, Deutschland" || r.URL.Query().Get("countrycodes") != "de" {
 				t.Errorf("region query = %q, countrycodes = %q", got, r.URL.Query().Get("countrycodes"))
 			}
-			w.Write([]byte(`[{"display_name":"Bayern, Deutschland","lat":"48.9","lon":"11.4","country_code":"de","address":{"country":"Deutschland","state":"Bayern"}}]`))
+			w.Write([]byte(`[{"display_name":"Bayern, Deutschland","lat":"48.9","lon":"11.4","address":{"country":"Deutschland","country_code":"de","state":"Bayern"}}]`))
 		case "city":
 			if got := r.URL.Query().Get("q"); got != "Munich, Bayern, Deutschland" || r.URL.Query().Get("countrycodes") != "de" {
 				t.Errorf("city query = %q, countrycodes = %q", got, r.URL.Query().Get("countrycodes"))
 			}
-			w.Write([]byte(`[{"display_name":"München, Bayern, Deutschland","lat":"48.13743","lon":"11.57549","country_code":"de","address":{"country":"Deutschland","state":"Bayern","city":"München"}}]`))
+			w.Write([]byte(`[{"display_name":"München, Bayern, Deutschland","lat":"48.13743","lon":"11.57549","address":{"country":"Deutschland","country_code":"de","state":"Bayern","city":"München"}}]`))
 		default:
 			if got := r.URL.Query().Get("q"); got != "Marienplatz, München, Bayern, Deutschland" || r.URL.Query().Get("countrycodes") != "de" {
 				t.Errorf("street query = %q, countrycodes = %q", got, r.URL.Query().Get("countrycodes"))
 			}
-			w.Write([]byte(`[{"display_name":"Marienplatz, München, Bayern, Deutschland","lat":"48.13743","lon":"11.57549","country_code":"de","address":{"country":"Deutschland","state":"Bayern","city":"München","road":"Marienplatz"}}]`))
+			w.Write([]byte(`[{"display_name":"Marienplatz, München, Bayern, Deutschland","lat":"48.13743","lon":"11.57549","address":{"country":"Deutschland","country_code":"de","state":"Bayern","city":"München","road":"Marienplatz"}}]`))
 		}
 	}))
 	defer nominatim.Close()
@@ -187,6 +187,22 @@ func TestPlaceSearchTextDeduplicatesRepeatedLevels(t *testing.T) {
 	state.City = "Bangkok"
 	if got, want := placeSearchText(state), "Sukhumvit Road, Bangkok, Thailand"; got != want {
 		t.Errorf("street search text = %q, want %q", got, want)
+	}
+}
+
+func TestPlacesPickerRejectsResultsOutsideSelectedCountry(t *testing.T) {
+	state := gsxkitcomponent.PlaceSearchState{Step: "region", Country: "Australia", CountryCode: "au"}
+	foreign := gsxkitcomponent.PlaceResult{Name: "Berlin, Germany", Country: "Germany", CountryCode: "de"}
+	local := gsxkitcomponent.PlaceResult{Name: "Victoria, Australia", Country: "Australia", CountryCode: "au", Region: "Victoria"}
+	results := placesInCountry([]gsxkitcomponent.PlaceResult{foreign, local}, state.CountryCode, state.Country)
+	if len(results) != 1 || results[0].Name != local.Name {
+		t.Fatalf("country-filtered results = %#v, want only %#v", results, local)
+	}
+	if choosePlace(&state, foreign) {
+		t.Fatal("selected a result from outside Australia")
+	}
+	if !choosePlace(&state, local) || state.Region != "Victoria" || state.Step != "city" {
+		t.Fatalf("selected local result did not advance: %+v", state)
 	}
 }
 

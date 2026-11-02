@@ -32,11 +32,10 @@ type Nominatim struct {
 }
 
 type searchResult struct {
-	Name        string            `json:"display_name"`
-	Lat         string            `json:"lat"`
-	Lon         string            `json:"lon"`
-	CountryCode string            `json:"country_code"`
-	Address     map[string]string `json:"address"`
+	Name    string            `json:"display_name"`
+	Lat     string            `json:"lat"`
+	Lon     string            `json:"lon"`
+	Address map[string]string `json:"address"`
 }
 
 // Search is deliberately submit-driven; the public Nominatim service does not support autocomplete.
@@ -112,7 +111,7 @@ func (n Nominatim) Search(ctx context.Context, q Query, locale string) ([]Result
 		mapQuery.Set("zoom", "16")
 		mapURL.RawQuery = mapQuery.Encode()
 		results = append(results, Result{
-			Name: p.Name, Country: p.Address["country"], Region: p.Address["state"], CountryCode: p.CountryCode,
+			Name: p.Name, Country: p.Address["country"], Region: p.Address["state"], CountryCode: p.Address["country_code"],
 			City:     first(p.Address, "city", "town", "village", "municipality", "hamlet"),
 			Street:   first(p.Address, "road", "pedestrian", "footway", "path"),
 			Latitude: strconv.FormatFloat(lat, 'f', -1, 64), Longitude: strconv.FormatFloat(lon, 'f', -1, 64),
