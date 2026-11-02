@@ -39,6 +39,7 @@ type Pages struct {
 	try        TryAction           `route:"POST /formats/try TryAction"`
 	boardAdd   BoardAddAction      `route:"POST /board/add BoardAddAction"`
 	boardNote  BoardNoteAction     `route:"POST /board/note BoardNoteAction"`
+	places     PlacesSearchAction  `route:"GET /places/search PlacesSearchAction"`
 }
 
 // All is every page, each with no parameters: the sitemap's pages (those search engines may index). The tree's routes

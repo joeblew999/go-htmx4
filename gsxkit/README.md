@@ -55,7 +55,7 @@ language [intl](../intl/README.md) ships, and, for one that runs in the browser,
 from npm with no Node. `go tool gsxkit add` copies them into the app, which owns its copies from then on, as gsxui's:
 
 ```sh
-go tool gsxkit add map moq   # views/gsxkit/*.gsx, web/gsxkit/*, their text in the catalogs
+go tool gsxkit add map places moq   # views/gsxkit/*.gsx, web/gsxkit/*, their text in the catalogs
 ```
 
 It runs `gsxui add` for the gsxui components they are made of, writes the gsx into `views/gsxkit` (package `gsxkit`;
@@ -67,6 +67,7 @@ It runs `gsxui add` for the gsxui components they are made of, writes the gsx in
 | Component | What it is | Its parts | It loads |
 | --- | --- | --- | --- |
 | `map` | A [Leaflet](https://leafletjs.com) map over [OpenStreetMap](https://www.openstreetmap.org)'s tiles: markers with gsx popups, zoom and the reader's own location as gsxui buttons, the attribution OpenStreetMap asks for. Works on a page reached by a boosted navigation. | `Map`, `MapMarker`, `MapPin`, `LatLng` | `/gsxkit/map.js`, `/gsxkit/map.css`; tiles from `https://tile.openstreetmap.org` (img-src) |
+| `places` | A localized, submit-driven structured search for country, region, city and street. Selecting a result fills its address fields so the reader can refine the next search. It is not autocomplete. | `Places`, `PlaceSearchState`, `PlaceResult` | The app's GET handler (no browser script) |
 | `moq` | Live video over Media over QUIC: a camera broadcast with its link to send (copy, share), and a player, on [@moq](https://github.com/moq-dev/moq)'s elements; connection details for testing on phones. | `MoqBroadcast`, `MoqWatch` | `/gsxkit/moq.js`; the relay (connect-src), `blob:` (script-src, worker-src) |
 
 ```gsx
@@ -75,6 +76,8 @@ It runs `gsxui add` for the gsxui components they are made of, writes the gsx in
 		<p class="font-medium">Munich</p>
 	</gsxkit.MapMarker>
 </gsxkit.Map>
+
+<gsxkit.Places id="places" action={PlacesSearchAction{} |> url} state={state}/>
 
 <gsxkit.MoqBroadcast url="https://draft-14.cloudflare.mediaoverquic.com/" name="my-app/live/abc.hang" link="https://example.com/live?stream=abc"/>
 <gsxkit.MoqWatch url="https://draft-14.cloudflare.mediaoverquic.com/" name="my-app/live/abc.hang"/>
@@ -86,6 +89,14 @@ Tailwind's group-data variants read. OpenStreetMap's tiles are for light use
 provider of its own. The `moq` component holds @moq at its last releases that speak moq-transport drafts 14 and 16,
 which Cloudflare's relays speak: when they ship draft-18, @moq moves on and gsxkit's patches to it go
 ([#158](https://github.com/joeblew999/go-htmx4/issues/158)).
+
+`places` sends the active Intl locale as both Nominatim's `accept-language` parameter and `Accept-Language` header.
+The app's `NOMINATIM_URL` variable can point to another service without changing the component. The public
+[Nominatim usage policy](https://operations.osmfoundation.org/policies/nominatim/) limits the whole application to
+one request per second, requires an identifying User-Agent and attribution, and forbids autocomplete. The app
+enforces a shared one-request-per-second gate in D1 and caches results for a day. `geo-golang`'s `Geocoder` interface
+only returns one Geocode/ReverseGeocode result and has no locale parameter, so the picker uses Nominatim's structured
+Search API directly for its selectable results.
 
 ### Making one
 

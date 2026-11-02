@@ -47,12 +47,12 @@ run = [
 # This app's copies of gsxkit's components, as any app gets them: the gsx (views/gsxkit), the browser files
 # (web/gsxkit, served at /gsxkit/) and their text in the catalogs. The app keeps them as gsxkit's (TestGsxkitComponents).
 ["gsxkit:add"]
-description = "Copy gsxkit's map and moq components into the app with go tool gsxkit add -overwrite: views/gsxkit, web/gsxkit and their text (after gsxkit:bundle)"
+description = "Copy gsxkit's map, places and moq components into the app with go tool gsxkit add -overwrite: views/gsxkit, web/gsxkit and their text (after gsxkit:bundle)"
 depends = ["gsxkit:bundle"]
 dir = "{{config_root}}"
 sources = ["gsxkit/ui/*.gsx.tmpl", "gsxkit/ui/assets/*", "gsxkit/ui/locales/*.toml", "gsxkit/ui/*.go", "gsxkit/cmd/gsxkit/*.go", "intl/registry/*.go"]
-outputs = ["views/gsxkit/map.gsx", "views/gsxkit/moq.gsx", "web/gsxkit/map.js", "web/gsxkit/map.css", "web/gsxkit/moq.js"]
-run = "go tool gsxkit add -overwrite map moq"
+outputs = ["views/gsxkit/map.gsx", "views/gsxkit/places.gsx", "views/gsxkit/moq.gsx", "web/gsxkit/map.js", "web/gsxkit/map.css", "web/gsxkit/moq.js"]
+run = "go tool gsxkit add -overwrite map places moq"
 
 ["gsxkit:update"]
 description = "Re-resolve a gsxkit component's npm packages (e.g. mise run gsxkit:update moq @moq/watch@0.6.6 @moq/publish@0.5.3, or map leaflet@1.9.4), rewrite its npm-lock.json and bundle; @moq stays at a version Cloudflare's relays speak until they ship draft-18 (#158)"

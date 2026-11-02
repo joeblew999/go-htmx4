@@ -14,6 +14,11 @@ component MapPage(p MapProps) {
 		<h1 class="text-3xl font-semibold tracking-tight">{ locales.MapHeading }</h1>
 		<p class="text-muted-foreground">{ locales.MapIntro }</p>
 		<ui.Card>
+			<ui.CardContent>
+				<PlacesPicker state={gsxkit.PlaceSearchState{}}/>
+			</ui.CardContent>
+		</ui.Card>
+		<ui.Card>
 			<ui.CardHeader>
 				<ui.CardTitle>{ locales.MapWhereTitle }</ui.CardTitle>
 				<ui.CardDescription>
@@ -51,4 +56,8 @@ component MapPage(p MapProps) {
 			</ui.CardContent>
 		</ui.Card>
 	</Layout>
+}
+
+component PlacesPicker(state gsxkit.PlaceSearchState) {
+	<gsxkit.Places id="map-places" action={PlacesSearchAction{} |> url} state={state}/>
 }

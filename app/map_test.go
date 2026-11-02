@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"html"
+	"net/http"
 	"net/http/httptest"
 	"os"
 	"path/filepath"
@@ -38,6 +39,8 @@ func TestMap(t *testing.T) {
 		`data-map-you`,
 		`<link rel="stylesheet" href="/gsxkit/map.css"`,
 		`src="/gsxkit/map.js"`,
+		`data-gsxkit-places`,
+		`name="country"`,
 	} {
 		if !strings.Contains(body, want) {
 			t.Errorf("/map with Cloudflare's place: no %s", want)
@@ -49,6 +52,50 @@ func TestMap(t *testing.T) {
 	world := get(t, h, "/map").Body.String()
 	if got := mapView(t, world); got.Center != [2]float64{20, 0} || got.Zoom != 2 || strings.Contains(world, "data-map-marker") {
 		t.Errorf("/map without Cloudflare's place: the map is %+v, or it has a pin", got)
+	}
+}
+
+func TestPlacesSearchUsesActiveLocale(t *testing.T) {
+	var language string
+	requests := 0
+	nominatim := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		requests++
+		language = r.URL.Query().Get("accept-language")
+		w.Header().Set("Content-Type", "application/json")
+		w.Write([]byte(`[{"display_name":"München, Bayern, Deutschland","lat":"48.13743","lon":"11.57549","address":{"country":"Deutschland","state":"Bayern","city":"München","road":"Marienplatz"}}]`))
+	}))
+	defer nominatim.Close()
+	t.Setenv("NOMINATIM_URL", nominatim.URL)
+
+	rec := get(t, newServer().routes(), "/de/places/search?country=Deutschland&city=M%C3%BCnchen")
+	if rec.Code != http.StatusOK {
+		t.Fatalf("status = %d, want 200: %s", rec.Code, rec.Body.String())
+	}
+	if language != "de" {
+		t.Errorf("Nominatim accept-language = %q, want active Intl locale de", language)
+	}
+	second := get(t, newServer().routes(), "/de/places/search?country=Deutschland&city=M%C3%BCnchen")
+	if second.Code != http.StatusOK || requests != 1 {
+		t.Errorf("repeat search: status = %d, Nominatim requests = %d; want 200 and cached response", second.Code, requests)
+	}
+	for _, want := range []string{"München, Bayern, Deutschland", "Marienplatz", "https://www.openstreetmap.org/?mlat="} {
+		if !strings.Contains(rec.Body.String(), want) {
+			t.Errorf("localized place response missing %q: %s", want, rec.Body.String())
+		}
+	}
+	selected := get(t, newServer().routes(),
+		"/de/places/search?selected=true&selected-name=M%C3%BCnchen&country=Deutschland&state=Bayern&city=M%C3%BCnchen&street=Marienplatz&latitude=48.13743&longitude=11.57549")
+	if selected.Code != http.StatusOK || !strings.Contains(selected.Body.String(), "Ausgewählter Ort") ||
+		!strings.Contains(selected.Body.String(), "München") || requests != 1 {
+		t.Errorf("selection did not update the picker without another Nominatim request: %d, %d, %s",
+			selected.Code, requests, selected.Body.String())
+	}
+}
+
+func TestPlacesSearchRejectsOversizedTerm(t *testing.T) {
+	rec := get(t, newServer().routes(), "/places/search?country="+strings.Repeat("x", 121))
+	if rec.Code != http.StatusBadRequest || !strings.Contains(rec.Body.String(), "Please shorten your place search terms.") {
+		t.Errorf("oversized search: status = %d, body = %q", rec.Code, rec.Body.String())
 	}
 }
 

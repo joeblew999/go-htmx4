@@ -156,7 +156,10 @@ func TestServerIntl(t *testing.T) {
 	has(t, "plural rules", get(t, "/ru/formats").body, `&#34;pluralCategories&#34;:[&#34;one&#34;,&#34;few&#34;,&#34;many&#34;,&#34;other&#34;]`)
 	has(t, "round trip: 1.234,5 → 1234.5", post(t, "/de/formats/try", "number="+url.QueryEscape("1.234,5")+"&text=Hallo").body, "1234.5")
 	has(t, "chosen zone and clock reach the browser", get(t, "/formats", "tz=America/Los_Angeles", "hc=h23").body, `data-tz="America/Los_Angeles" data-hc="h23"`)
-	has(t, "chosen zone on the server", get(t, "/fragments/server-info", "tz=America/Los_Angeles").body, "PDT")
+	zone := get(t, "/fragments/server-info", "tz=America/Los_Angeles").body
+	if !strings.Contains(zone, "PDT") && !strings.Contains(zone, "PST") {
+		t.Errorf("✗ chosen zone on the server: want Pacific time in %q", zone)
+	}
 	start := time.Now()
 	if r := get(t, "/de/fragments/preferences"); r.status != 200 {
 		t.Errorf("✗ preferences: %d", r.status)

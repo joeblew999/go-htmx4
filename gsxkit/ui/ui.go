@@ -30,6 +30,9 @@ var Components = &registry.Registry{
 				"    <gsxkit.MapMarker at={gsxkit.LatLng{48.137, 11.575}} title=\"Munich\">popup</gsxkit.MapMarker>\n" +
 				"  </gsxkit.Map>\n" +
 				"    serve web/gsxkit at /gsxkit/ and gsxui's behaviours at /gsxui/ (its core is shared); the Content Security Policy's img-src takes https://tile.openstreetmap.org"},
+		{Name: "places", Gsxui: []string{"alert", "button", "card", "field", "input"},
+			Use: "  <gsxkit.Places id=\"places\" action={PlacesSearchAction{} |> url} state={state}/>\n" +
+				"    submit structured country, region, city and street searches to the app's Nominatim-backed handler; do not wire it to per-keystroke autocomplete"},
 		{Name: "moq", Gsxui: []string{"alert", "badge", "button", "card", "collapsible", "field", "input-group"}, Assets: []string{"moq.js"},
 			Use: "  <gsxkit.MoqBroadcast url={relay} name={broadcast} link={address that watches it}/>\n" +
 				"  <gsxkit.MoqWatch url={relay} name={broadcast}/>\n" +
