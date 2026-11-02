@@ -265,7 +265,7 @@ func choosePlace(state *gsxkit.PlaceSearchState, place gsxkit.PlaceResult) bool 
 		state.Region, state.City, state.Street = "", "", ""
 		state.Step = "region"
 	case "region":
-		state.Region = firstNonEmpty(place.Region, place.Name)
+		state.Region = firstNonEmpty(place.Region, place.City, place.Name)
 		state.City, state.Street = "", ""
 		state.Step = "city"
 	case "city":

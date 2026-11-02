@@ -177,9 +177,14 @@ func TestPlacesSearchRejectsOversizedTerm(t *testing.T) {
 }
 
 func TestPlaceSearchTextDeduplicatesRepeatedLevels(t *testing.T) {
-	state := gsxkitcomponent.PlaceSearchState{
-		Step: "street", Term: "Sukhumvit Road", City: "Bangkok", Region: "bangkok", Country: "Thailand",
+	state := gsxkitcomponent.PlaceSearchState{Step: "region", Country: "Thailand", CountryCode: "th"}
+	region := gsxkitcomponent.PlaceResult{Name: "Bangkok, Thailand", Country: "Thailand", City: "Bangkok", CountryCode: "th"}
+	if !choosePlace(&state, region) || state.Region != "Bangkok" {
+		t.Fatalf("region selection = %+v, want Bangkok", state)
 	}
+	state.Step = "street"
+	state.Term = "Sukhumvit Road"
+	state.City = "Bangkok"
 	if got, want := placeSearchText(state), "Sukhumvit Road, Bangkok, Thailand"; got != want {
 		t.Errorf("street search text = %q, want %q", got, want)
 	}
