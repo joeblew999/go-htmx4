@@ -70,7 +70,7 @@ func testViewerTimeZone(t *testing.T) {
 	b.open("/")
 	b.waitJS(5*time.Second, `document.readyState === "complete" && typeof htmx === "object"`)
 	b.clickText("button", "Show server info")
-	ok = b.waitJS(5*time.Second, `(document.querySelector("#server-info time")?.textContent ?? "").includes("PDT")`)
+	ok = b.waitJS(5*time.Second, `/(PDT|PST)/.test(document.querySelector("#server-info time")?.textContent ?? "")`)
 	check(t, "a chosen zone beats the browser's", ok, " ", b.str(`document.querySelector("#server-info time")?.textContent ?? ""`))
 
 	b.noProblems()
