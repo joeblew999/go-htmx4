@@ -63,7 +63,7 @@ echo "  VS Code: run \"gsx: Restart Language Server\""
 # Tailwind CLI.
 ["gsxui:css"]
 description = "gsxui's CSS: its entry (gsxui.json's css) compiled by the standalone Tailwind CLI, into dist/gsxui.css by default"
-tools = { "github:tailwindlabs/tailwindcss" = "v4.3.3" }
+tools = { "github:tailwindlabs/tailwindcss" = "v4.3.4" }
 usage = 'arg "[out]" help="the compiled file" default="dist/gsxui.css"'
 run = '''
 #!/usr/bin/env bash
