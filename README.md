@@ -85,6 +85,8 @@ git clone https://github.com/joeblew999/go-htmx4.git && cd go-htmx4
 mise install        # every pinned tool, and gsx for the editor
 mise run dev        # rebuild on every save → http://localhost:8913
 mise run check      # the production build under workerd, and go test
+mise run outdated   # every pin that's behind, go.mod's too (mise upgrade sees only mise's tools)
+mise run update     # move them all, then check and e2e
 ```
 
 **Every command, and which to use when:** [docs/commands.md](docs/commands.md).
