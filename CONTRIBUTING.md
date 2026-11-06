@@ -9,6 +9,9 @@ go-htmx4 is a demo and a proving ground: a gsx + htmx 4 app on Cloudflare Worker
 1. Install [mise](https://mise.jdx.dev). `mise install` then brings every tool this repo pins (Go, TinyGo, workerd,
    gsx, Chrome for the browser tests). There is no Node anywhere.
 2. `mise run dev` runs the app on local workerd at http://localhost:8913, rebuilt on every save.
+3. To bring pins up to date, use `mise run outdated` (what's behind) and `mise run update` (move it all, then check
+   and e2e), not `mise upgrade`: mise sees only its own tools, never go.mod's (gsx, structpages) or gsxui's commit.
+   `deps.toml` holds back what mustn't move yet, and says why.
 
 `docs/commands.md` lists every task; `docs/architecture.md` says how the app works.
 

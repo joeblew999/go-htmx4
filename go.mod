@@ -7,7 +7,7 @@ toolchain go1.27.3
 require (
 	github.com/Masterminds/semver/v3 v3.5.0
 	github.com/evanw/esbuild v0.28.2
-	github.com/gsxhq/gsx v0.4.3
+	github.com/gsxhq/gsx v0.5.0
 	github.com/jackielii/structpages v0.10.0
 	github.com/jackielii/tailwind-merge-go v0.0.0-20260726184505-8a911ed0cf9a
 	github.com/joeblew999/charter v0.20.0
@@ -28,7 +28,7 @@ require (
 	github.com/fsnotify/fsnotify v1.10.1 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/jackielii/ctxkey v1.0.1 // indirect
-	github.com/jackielii/structpages/tools/lint v0.1.19 // indirect
+	github.com/jackielii/structpages/tools/lint v0.1.20 // indirect
 	github.com/jmoiron/sqlx v1.4.0 // indirect
 	github.com/joeblew999/go-htmx4/badge v0.1.0 // indirect
 	github.com/mattn/go-isatty v0.0.24 // indirect
@@ -37,7 +37,7 @@ require (
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
 	github.com/syumai/workers-go v0.36.0 // indirect
 	github.com/tdewolff/argp v0.0.0-20260913163208-9b59948ed567 // indirect
-	github.com/tdewolff/minify/v2 v2.24.25-0.20261028213736-f562a9186eaf // indirect
+	github.com/tdewolff/minify/v2 v2.24.25 // indirect
 	github.com/tdewolff/parse/v2 v2.8.20 // indirect
 	golang.org/x/exp/typeparams v0.0.0-20260611194520-c48552f49976 // indirect
 	golang.org/x/mod v0.42.0 // indirect

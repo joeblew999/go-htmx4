@@ -769,4 +769,4 @@ Build and test this app with an upstream checkout instead of the pinned version 
 
 - **Usage:** `vendor`
 
-Vendor htmx 4.0.0 htmx.min.js + ext/hx-ws.js + ext/hx-live.js into web/htmx/ (curl, integrity-checked)
+Vendor htmx 4.0.1 htmx.min.js + ext/hx-ws.js + ext/hx-live.js into web/htmx/ (curl, integrity-checked)
