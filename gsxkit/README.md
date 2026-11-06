@@ -67,7 +67,7 @@ It runs `gsxui add` for the gsxui components they are made of, writes the gsx in
 | Component | What it is | Its parts | It loads |
 | --- | --- | --- | --- |
 | `map` | A [Leaflet](https://leafletjs.com) map over [OpenStreetMap](https://www.openstreetmap.org)'s tiles: markers with gsx popups, zoom and the reader's own location as gsxui buttons, the attribution OpenStreetMap asks for. Works on a page reached by a boosted navigation. | `Map`, `MapMarker`, `MapPin`, `LatLng` | `/gsxkit/map.js`, `/gsxkit/map.css`; tiles from `https://tile.openstreetmap.org` (img-src) |
-| `places` | A localized, submit-driven structured search for country, region, city and street. Selecting a result fills its address fields so the reader can refine the next search. It is not autocomplete. | `Places`, `PlaceSearchState`, `PlaceResult` | The app's GET handler (no browser script) |
+| `places` | A localized country → region → city → street picker. Each submitted search shows choices for the current level; selecting one advances the UI while retaining earlier choices. It is not autocomplete. | `Places`, `PlaceSearchState`, `PlaceResult` | The app's GET handler (no browser script) |
 | `moq` | Live video over Media over QUIC: a camera broadcast with its link to send (copy, share), and a player, on [@moq](https://github.com/moq-dev/moq)'s elements; connection details for testing on phones. | `MoqBroadcast`, `MoqWatch` | `/gsxkit/moq.js`; the relay (connect-src), `blob:` (script-src, worker-src) |
 
 ```gsx
@@ -77,7 +77,7 @@ It runs `gsxui add` for the gsxui components they are made of, writes the gsx in
 	</gsxkit.MapMarker>
 </gsxkit.Map>
 
-<gsxkit.Places id="places" action={PlacesSearchAction{} |> url} state={state}/>
+<gsxkit.Places id="places" action={PlacesSearchAction{} |> url} state={gsxkit.PlaceSearchState{Step: "country"}}/>
 
 <gsxkit.MoqBroadcast url="https://draft-14.cloudflare.mediaoverquic.com/" name="my-app/live/abc.hang" link="https://example.com/live?stream=abc"/>
 <gsxkit.MoqWatch url="https://draft-14.cloudflare.mediaoverquic.com/" name="my-app/live/abc.hang"/>
@@ -94,9 +94,10 @@ which Cloudflare's relays speak: when they ship draft-18, @moq moves on and gsxk
 The app's `NOMINATIM_URL` variable can point to another service without changing the component. The public
 [Nominatim usage policy](https://operations.osmfoundation.org/policies/nominatim/) limits the whole application to
 one request per second, requires an identifying User-Agent and attribution, and forbids autocomplete. The app
-enforces a shared one-request-per-second gate in D1 and caches results for a day. `geo-golang`'s `Geocoder` interface
-only returns one Geocode/ReverseGeocode result and has no locale parameter, so the picker uses Nominatim's structured
-Search API directly for its selectable results.
+enforces a shared one-request-per-second gate in D1 and caches results for a day. Each stage is a submitted,
+locale-aware Nominatim search filtered to a country/state/city result type where possible; results are ranked
+matches, not an exhaustive list of every subdivision. `geo-golang`'s `Geocoder` interface only returns one
+Geocode/ReverseGeocode result and has no locale parameter, so the picker uses Nominatim's Search API directly.
 
 ### Making one
 

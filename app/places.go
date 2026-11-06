@@ -29,39 +29,97 @@ type nominatimGate struct {
 	LastRequest int64 `json:"last_request_ms"`
 }
 
-// PlacesSearch is the server-side action for the submit-driven places picker. D1 provides the shared one-request-per-
-// second gate and a 24-hour query cache across Worker isolates; the locale in the active Intl request is passed through.
+// PlacesSearch serves each submit-driven step of the Places picker. D1 provides the shared one-request-per-second
+// gate and a 24-hour query cache across Worker isolates; the active Intl locale is passed through to Nominatim.
 func (s *server) PlacesSearch(w http.ResponseWriter, r *http.Request) {
-	q := places.Query{
-		Country: strings.TrimSpace(r.URL.Query().Get("country")),
-		State:   strings.TrimSpace(r.URL.Query().Get("state")),
-		City:    strings.TrimSpace(r.URL.Query().Get("city")),
-		Street:  strings.TrimSpace(r.URL.Query().Get("street")),
+	state := gsxkit.PlaceSearchState{
+		Step:        r.URL.Query().Get("step"),
+		Term:        strings.TrimSpace(r.URL.Query().Get("term")),
+		Country:     strings.TrimSpace(r.URL.Query().Get("country")),
+		CountryCode: strings.TrimSpace(r.URL.Query().Get("country-code")),
+		Region:      strings.TrimSpace(r.URL.Query().Get("region")),
+		City:        strings.TrimSpace(r.URL.Query().Get("city")),
+		Street:      strings.TrimSpace(r.URL.Query().Get("street")),
 	}
-	state := gsxkit.PlaceSearchState{Country: q.Country, Region: q.State, City: q.City, Street: q.Street}
-	if r.URL.Query().Get("selected") == "true" {
-		state.Selected = &gsxkit.PlaceResult{
-			Name:      r.URL.Query().Get("selected-name"),
-			Country:   q.Country,
-			Region:    q.State,
-			City:      q.City,
-			Street:    q.Street,
-			Latitude:  r.URL.Query().Get("latitude"),
-			Longitude: r.URL.Query().Get("longitude"),
-		}
-		s.render(w, r, "places-search", views.PlacesPicker(state))
-		return
+	if state.Step == "" {
+		state.Step = "country"
 	}
-	if q.Country == "" && q.State == "" && q.City == "" && q.Street == "" {
-		state.Status = "empty"
-		s.render(w, r, "places-search", views.PlacesPicker(state))
-		return
-	}
-	if !validPlaceQuery(q) {
+	if !validPlaceStep(state.Step) {
+		state.Step = "country"
 		state.Status = "invalid"
 		w.WriteHeader(http.StatusBadRequest)
-		s.render(w, r, "places-search", views.PlacesPicker(state))
+		s.renderPlacesPicker(w, r, state)
 		return
+	}
+	if !validPlaceState(state) {
+		state.Status = "invalid"
+		w.WriteHeader(http.StatusBadRequest)
+		s.renderPlacesPicker(w, r, state)
+		return
+	}
+	if r.URL.Query().Get("back") == "true" {
+		switch state.Step {
+		case "country":
+			state.Country, state.CountryCode, state.Region, state.City, state.Street = "", "", "", "", ""
+		case "region":
+			state.Region, state.City, state.Street = "", "", ""
+		case "city":
+			state.City, state.Street = "", ""
+		case "street":
+			state.Street = ""
+		}
+		state.Selected = nil
+	}
+	if r.URL.Query().Get("choose") == "true" {
+		choice := gsxkit.PlaceResult{
+			Name:        strings.TrimSpace(r.URL.Query().Get("place-name")),
+			Country:     strings.TrimSpace(r.URL.Query().Get("place-country")),
+			CountryCode: strings.TrimSpace(r.URL.Query().Get("place-country-code")),
+			Region:      strings.TrimSpace(r.URL.Query().Get("place-region")),
+			City:        strings.TrimSpace(r.URL.Query().Get("place-city")),
+			Street:      strings.TrimSpace(r.URL.Query().Get("place-street")),
+			Latitude:    strings.TrimSpace(r.URL.Query().Get("latitude")),
+			Longitude:   strings.TrimSpace(r.URL.Query().Get("longitude")),
+			OpenURL:     strings.TrimSpace(r.URL.Query().Get("open-url")),
+		}
+		next := state
+		if !validPlaceResult(choice) || !choosePlace(&next, choice) || !validPlaceState(next) {
+			state.Status = "invalid"
+			w.WriteHeader(http.StatusBadRequest)
+		} else {
+			state = next
+		}
+		s.renderPlacesPicker(w, r, state)
+		return
+	}
+	if r.URL.Query().Get("search") != "true" {
+		s.renderPlacesPicker(w, r, state)
+		return
+	}
+	if state.Step == "done" {
+		state.Status = "invalid"
+		w.WriteHeader(http.StatusBadRequest)
+		s.renderPlacesPicker(w, r, state)
+		return
+	}
+	if state.Term == "" {
+		state.Status = "empty"
+		s.renderPlacesPicker(w, r, state)
+		return
+	}
+	if !validPlaceState(state) {
+		state.Status = "invalid"
+		w.WriteHeader(http.StatusBadRequest)
+		s.renderPlacesPicker(w, r, state)
+		return
+	}
+	q := places.Query{
+		Text:        placeSearchText(state),
+		CountryCode: state.CountryCode,
+		FeatureType: placeFeatureType(state.Step),
+	}
+	if state.Step == "country" {
+		q.CountryCode = ""
 	}
 	results, limited, err := s.searchPlaces(r.Context(), q, intl.Current(r.Context()).ID())
 	if limited {
@@ -72,15 +130,194 @@ func (s *server) PlacesSearch(w http.ResponseWriter, r *http.Request) {
 		log.Printf("places search: %v", err)
 		state.Status = "unavailable"
 		w.WriteHeader(http.StatusBadGateway)
-	} else if len(results) == 0 {
-		state.Status = "none"
+	} else {
+		results = placesInCountry(results, state.CountryCode, state.Country)
+		if len(results) == 0 {
+			state.Status = "none"
+		}
 	}
 	state.Results = results
+	s.renderPlacesPicker(w, r, state)
+}
+
+func (s *server) renderPlacesPicker(w http.ResponseWriter, r *http.Request, state gsxkit.PlaceSearchState) {
+	state.BackStep = previousPlaceStep(state.Step)
 	s.render(w, r, "places-search", views.PlacesPicker(state))
 }
 
-func validPlaceQuery(q places.Query) bool {
-	return len(q.Country) <= 120 && len(q.State) <= 120 && len(q.City) <= 120 && len(q.Street) <= 200
+func validPlaceStep(step string) bool {
+	return step == "country" || step == "region" || step == "city" || step == "street" || step == "done"
+}
+
+func validPlaceState(state gsxkit.PlaceSearchState) bool {
+	if len(state.Term) > 200 || len(state.Country) > 120 || len(state.CountryCode) > 2 ||
+		len(state.Region) > 120 || len(state.City) > 120 || len(state.Street) > 200 {
+		return false
+	}
+	if state.CountryCode != "" && !validPlaceCountryCode(state.CountryCode) {
+		return false
+	}
+	switch state.Step {
+	case "country":
+		return true
+	case "region":
+		return state.Country != ""
+	case "city":
+		return state.Country != "" && state.Region != ""
+	case "street":
+		return state.Country != "" && state.Region != "" && state.City != ""
+	case "done":
+		return true
+	}
+	return false
+}
+
+func validPlaceCountryCode(code string) bool {
+	if len(code) != 2 {
+		return false
+	}
+	for _, c := range code {
+		if c < 'a' || c > 'z' {
+			if c < 'A' || c > 'Z' {
+				return false
+			}
+		}
+	}
+	return true
+}
+
+func validPlaceResult(place gsxkit.PlaceResult) bool {
+	return len(place.Name) <= 500 && len(place.Country) <= 120 && len(place.CountryCode) <= 2 &&
+		len(place.Region) <= 120 && len(place.City) <= 120 && len(place.Street) <= 200 &&
+		len(place.Latitude) <= 32 && len(place.Longitude) <= 32 && len(place.OpenURL) <= 256
+}
+
+func previousPlaceStep(step string) string {
+	switch step {
+	case "region":
+		return "country"
+	case "city":
+		return "region"
+	case "street":
+		return "city"
+	case "done":
+		return "street"
+	default:
+		return ""
+	}
+}
+
+func placeSearchText(state gsxkit.PlaceSearchState) string {
+	parts := make([]string, 0, 4)
+	parts = append(parts, state.Term)
+	switch state.Step {
+	case "region":
+		parts = append(parts, state.Country)
+	case "city":
+		parts = append(parts, state.Region, state.Country)
+	case "street":
+		parts = append(parts, state.City, state.Region, state.Country)
+	}
+	return strings.Join(nonEmptyPlaceParts(parts), ", ")
+}
+
+func nonEmptyPlaceParts(parts []string) []string {
+	out := parts[:0]
+	for _, part := range parts {
+		if part == "" {
+			continue
+		}
+		duplicate := false
+		for _, existing := range out {
+			if strings.EqualFold(part, existing) {
+				duplicate = true
+				break
+			}
+		}
+		if !duplicate {
+			out = append(out, part)
+		}
+	}
+	return out
+}
+
+func placeFeatureType(step string) string {
+	switch step {
+	case "country":
+		return "country"
+	case "region":
+		return "state"
+	case "city":
+		return "city"
+	default:
+		return ""
+	}
+}
+
+func choosePlace(state *gsxkit.PlaceSearchState, place gsxkit.PlaceResult) bool {
+	if place.Name == "" {
+		return false
+	}
+	if state.Step != "country" && !placeMatchesCountry(state.CountryCode, state.Country, place) {
+		return false
+	}
+	switch state.Step {
+	case "country":
+		state.Country = firstNonEmpty(place.Country, place.Name)
+		state.CountryCode = strings.ToLower(place.CountryCode)
+		if state.CountryCode != "" && !validPlaceCountryCode(state.CountryCode) {
+			return false
+		}
+		state.Region, state.City, state.Street = "", "", ""
+		state.Step = "region"
+	case "region":
+		state.Region = firstNonEmpty(place.Region, place.City, place.Name)
+		state.City, state.Street = "", ""
+		state.Step = "city"
+	case "city":
+		state.City = firstNonEmpty(place.City, place.Name)
+		state.Street = ""
+		state.Step = "street"
+	case "street":
+		state.Street = firstNonEmpty(place.Street, place.Name)
+		state.Selected = &place
+		state.Step = "done"
+	default:
+		return false
+	}
+	state.Term = ""
+	state.Results = nil
+	state.Status = ""
+	return true
+}
+
+func placesInCountry(results []gsxkit.PlaceResult, countryCode, country string) []gsxkit.PlaceResult {
+	if countryCode == "" && country == "" {
+		return results
+	}
+	filtered := results[:0]
+	for _, place := range results {
+		if placeMatchesCountry(countryCode, country, place) {
+			filtered = append(filtered, place)
+		}
+	}
+	return filtered
+}
+
+func placeMatchesCountry(countryCode, country string, place gsxkit.PlaceResult) bool {
+	if countryCode != "" {
+		return place.CountryCode != "" && strings.EqualFold(countryCode, place.CountryCode)
+	}
+	return country != "" && place.Country != "" && strings.EqualFold(country, place.Country)
+}
+
+func firstNonEmpty(values ...string) string {
+	for _, value := range values {
+		if value != "" {
+			return value
+		}
+	}
+	return ""
 }
 
 func (s *server) searchPlaces(ctx context.Context, q places.Query, locale string) ([]gsxkit.PlaceResult, bool, error) {
@@ -124,7 +361,7 @@ RETURNING last_request_ms`); errors.Is(err, d1.ErrNoRows) {
 	for _, p := range found {
 		results = append(results, gsxkit.PlaceResult{
 			Name: p.Name, Country: p.Country, Region: p.Region, City: p.City, Street: p.Street,
-			Latitude: p.Latitude, Longitude: p.Longitude, OpenURL: p.OpenURL,
+			CountryCode: p.CountryCode, Latitude: p.Latitude, Longitude: p.Longitude, OpenURL: p.OpenURL,
 		})
 	}
 	payload, err := json.Marshal(results)
