@@ -1,0 +1,19 @@
+# mise-seo for this repo, from its GitHub releases: mise install gets it. mise-seo init writes this file when the
+# repo has none, pinning exactly the release that ran it (here in the template it's latest); from then on the pin is the
+# repo's (a newer release's init, run by hand, moves it). A .mise/config.local.toml beside it, never committed,
+# overrides it on one machine: mise-seo's own checkout pins its build there (local). The Go the tasks run with is
+# go.mod's.
+
+[settings]
+# go.mod's toolchain line, or its go line, is the Go pin; this makes mise install honour it.
+idiomatic_version_file_enable_tools = ["go"]
+# mise-seo at its newest release the minute it's out, never held back a day as every other tool's releases are
+# (minimum_release_age): mise matches no owner's tools by a pattern, so each tool's init names itself here, and
+# mise-seo init adds it to a repo's own file.
+minimum_release_age_excludes = ["github:joeblew999/mise-seo"]
+# A latest from GitHub's own list of releases, not mise's versions host, which lists a release some time after it's
+# out: latest is the newest the minute it's there (an exact pin lists none). mise-seo init adds this too.
+use_versions_host = false
+
+[tools]
+"github:joeblew999/mise-seo" = "0.0.1"

@@ -18,8 +18,8 @@ import (
 
 	"github.com/joeblew999/go-htmx4/intl"
 	"github.com/joeblew999/go-htmx4/locales"
-	"github.com/joeblew999/go-htmx4/seo"
 	"github.com/joeblew999/go-htmx4/views"
+	"github.com/joeblew999/mise-seo/seo"
 	nethtml "golang.org/x/net/html"
 )
 
@@ -367,7 +367,7 @@ func TestOpenGraph(t *testing.T) {
 }
 
 // Every sitemap page's title and meta description fit in a Google result without being cut
-// (widths from seo.SnippetWidth, the same limits `mise run seo:audit` checks live).
+// (widths from seo.SnippetWidth, the same limits `mise run seo:06-audit` checks live).
 func TestSnippetWidths(t *testing.T) {
 	h := newServer().routes()
 	rec := get(t, h, "/sitemap.xml")

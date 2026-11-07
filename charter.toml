@@ -58,7 +58,7 @@ command = "mise run build"
 
 # CI (.github/workflows/charter.yml → charter ci run): only the tools it runs; the build beside the Go tests and
 # the fresh apps, then published for the commit's preview; then workerd, Chrome and the CPU table; a release also tags
-# intl, seo and badge with their next versions before production moves.
+# intl and badge with their next versions before production moves.
 [ci]
 tools = ["go", "go@1.26", "tinygo", "aqua:WebAssembly/binaryen", "github:tailwindlabs/tailwindcss", "workerd", "http:chrome-headless-shell", "jq"]
 build = "mise run build ::: test:go ::: fresh"

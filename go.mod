@@ -13,7 +13,7 @@ require (
 	github.com/joeblew999/charter v0.20.0
 	github.com/joeblew999/go-htmx4/gsxkit v0.0.0
 	github.com/joeblew999/go-htmx4/intl v0.9.0
-	github.com/joeblew999/go-htmx4/seo v0.3.0
+	github.com/joeblew999/mise-seo v0.0.1
 	golang.org/x/net v0.62.0
 )
 
@@ -59,13 +59,10 @@ tool (
 	github.com/jackielii/structpages/tools/lint/cmd/structpages-lint
 	github.com/joeblew999/go-htmx4/gsxkit/cmd/gsxkit
 	github.com/joeblew999/go-htmx4/intl/cmd/intl
-	github.com/joeblew999/go-htmx4/seo/cmd/seo
 	github.com/tdewolff/minify/v2/cmd/minify
 )
 
 replace github.com/joeblew999/go-htmx4/intl => ./intl
-
-replace github.com/joeblew999/go-htmx4/seo => ./seo
 
 replace github.com/joeblew999/go-htmx4/badge => ./badge
 

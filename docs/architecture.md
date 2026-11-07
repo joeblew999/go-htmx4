@@ -66,9 +66,9 @@ served `noindex`.
   Graph tags. Fragments, `/healthz`, form posts and previews send `X-Robots-Tag: noindex`.
 - Every page has one address: the Worker's `*.workers.dev` URL and plain http redirect to `https://` the custom domain
   (`seo.Site` in `app/site.go`), so one host is indexed.
-- `mise run deploy` then audits robots.txt and every sitemap URL live as Googlebot (`seo:audit`);
-  `seo:todo` gives Google's verdict per URL. Both come from `seo/`, this repo's own module for
-  Google Search Console (its README).
+- `mise run deploy` then audits robots.txt and every sitemap URL live as Googlebot (`seo:06-audit`);
+  `seo:13-todo` gives Google's verdict per URL. Both come from [mise-seo](https://github.com/joeblew999/mise-seo),
+  pinned in `.mise/config.toml` (`docs/seo/README.md`).
 
 ## Layout
 
@@ -81,7 +81,7 @@ served `noindex`.
 │                                                behaviours, vendored htmx
 ├── views/gsxkit/  web/gsxkit/                   gsxkit's components (the map, live video) and their bundles, from go tool gsxkit add
 ├── intl/  intl.toml                             Intl for gsx (its own module); the app's languages
-├── seo/                               the live audit and Google Search Console (its own module)
+├── seo.toml  docs/seo/                         search engines: mise-seo's settings and its docs (mise-seo init)
 ├── gsxkit/                                      gsx's and gsxui's tasks and skills, and our component registry (its own module)
 ├── locales/                                     UI messages (*.toml) and their generated package
 ├── internal/                                    live (the Room's message, topic and locale rules), classmerge, jsbundle (npm, no Node)

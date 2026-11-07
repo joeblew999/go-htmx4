@@ -21,7 +21,7 @@ import (
 	"time"
 
 	"github.com/joeblew999/go-htmx4/e2e/load"
-	"github.com/joeblew999/go-htmx4/seo/audit"
+	"github.com/joeblew999/mise-seo/seo/audit"
 )
 
 var (
@@ -205,7 +205,7 @@ func TestSEO(t *testing.T) {
 	has(t, "fragment noindex", get(t, "/fragments/stats").header.Get("X-Robots-Tag"), "noindex")
 }
 
-// TestAudit: the whole site as Googlebot reads it (seo.Audit, what seo:audit runs after a deploy):
+// TestAudit: the whole site as Googlebot reads it (mise-seo's audit.Audit, what seo:06-audit runs after a deploy):
 // robots.txt, the sitemap, and every page in it 200, indexable, self-canonical, with lang, a title, a description, one
 // h1 and reciprocal hreflang. Here, before it ships. A preview or staging is noindex throughout (APP_PREVIEW), so
 // there is nothing for Google to read: skipped.

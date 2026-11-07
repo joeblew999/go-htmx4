@@ -5,8 +5,8 @@ import (
 
 	"github.com/joeblew999/go-htmx4/intl"
 	"github.com/joeblew999/go-htmx4/locales"
-	"github.com/joeblew999/go-htmx4/seo"
 	"github.com/joeblew999/go-htmx4/views"
+	"github.com/joeblew999/mise-seo/seo"
 )
 
 // repo is the app's repository on GitHub (charter.toml's repo, TestCharterToml): where llms.txt's docs are.
@@ -37,7 +37,7 @@ func llms(origin string) string {
 	docs := []seo.LLMsLink{
 		{Title: "README", URL: raw + "README.md", Note: "what this is, and how to start an app of your own from its pieces"},
 		{Title: "intl", URL: raw + "intl/README.md", Note: "every language of a gsx app through the runtime's Intl"},
-		{Title: "seo", URL: raw + "seo/README.md", Note: "what Google and agents read, and the audit that checks it"},
+		{Title: "seo", URL: raw + "docs/seo/README.md", Note: "what Google and agents read, and the audit that checks it (mise-seo)"},
 		{Title: "gsxkit", URL: raw + "gsxkit/README.md", Note: "gsx's and gsxui's tasks and skills for any app"},
 		{Title: "Architecture", URL: raw + "docs/architecture.md", Note: "how the app works"},
 		{Title: "Deploy", URL: raw + "docs/deploy.md", Note: "how it ships to Cloudflare Workers"},

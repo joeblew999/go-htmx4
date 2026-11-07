@@ -5,13 +5,13 @@
 [![Go](https://img.shields.io/github/go-mod/go-version/joeblew999/go-htmx4)](go.mod)
 [![license](https://img.shields.io/github/license/joeblew999/go-htmx4)](LICENSE)
 [![intl: Go Reference](https://pkg.go.dev/badge/github.com/joeblew999/go-htmx4/intl.svg)](https://pkg.go.dev/github.com/joeblew999/go-htmx4/intl)
-[![seo: Go Reference](https://pkg.go.dev/badge/github.com/joeblew999/go-htmx4/seo.svg)](https://pkg.go.dev/github.com/joeblew999/go-htmx4/seo)
+[![seo: Go Reference](https://pkg.go.dev/badge/github.com/joeblew999/mise-seo.svg)](https://pkg.go.dev/github.com/joeblew999/mise-seo)
 
 [![performance](docs/badges/lighthouse-performance.svg)](#lighthouse)
 [![accessibility](docs/badges/lighthouse-accessibility.svg)](#lighthouse)
 [![best practices](docs/badges/lighthouse-best-practices.svg)](#lighthouse)
 [![seo](docs/badges/lighthouse-seo.svg)](#lighthouse)
-[![seo audit](docs/badges/seo-audit.svg)](seo/README.md)
+[![seo audit](docs/badges/seo-audit.svg)](docs/seo/README.md)
 [![languages](docs/badges/intl.svg)](intl/README.md)
 
 **The problem.** A server-rendered Go web app on Cloudflare Workers takes many pieces, each found and fitted by hand:
@@ -40,7 +40,7 @@ your own ([Start your own app](#start-your-own-app)):
 
 Every page of the live site, scored by Lighthouse; each badge above is the lowest page's score.
 
-<!-- seo:scores -->
+<!-- seo scores -->
 
 | Page | Performance | Accessibility | Best practices | SEO |
 |---|---:|---:|---:|---:|
@@ -50,14 +50,14 @@ Every page of the live site, scored by Lighthouse; each badge above is the lowes
 | [/components](https://go-htmx4.ubuntusoftware.net/components) | 95 | 95 | 100 | 100 |
 | [/about](https://go-htmx4.ubuntusoftware.net/about) | 98 | 100 | 100 | 100 |
 
-Lighthouse mobile on Google's servers (PageSpeed Insights), 2026-10-22: `mise run seo:badges` writes this table and the badges.
+Lighthouse mobile on Google's servers (PageSpeed Insights), 2026-10-22: `mise run seo:08-badges` writes this table and the badges.
 
-<!-- /seo:scores -->
+<!-- /seo scores -->
 
 ## Two tools that come with it
 
-The app is built on two Go modules from this repository, which any gsx app can use as well, on Cloudflare Workers or
-an ordinary Go server:
+The app is built on two tools any gsx app can use as well, on Cloudflare Workers or an ordinary Go server: intl, a Go
+module from this repository, and [mise-seo](https://github.com/joeblew999/mise-seo), a mise tool of its own:
 
 - **[intl](intl/README.md): every language, done properly.** Text lives in ICU message catalogs; dates, numbers,
   plurals, lists and names come from V8's Intl (a Worker's own, or workerd's beside an ordinary Go server), on the
@@ -66,13 +66,13 @@ an ordinary Go server:
   gets its own URLs, `hreflang` links and sitemap entries, so Google indexes every language version and shows it to
   the people who read that language. Its screens (a language list, the offer of a page in the reader's language, a
   time zone and clock dialog) come with it, already translated: `go tool intl add`.
-- **[seo](seo/README.md): what Google sees, checked.** One middleware answers robots.txt and the sitemap, keeps what
-  isn't a page out of the index, and gives every page one https address. Every `mise run check` then fetches every
-  page as Googlebot does and fails on anything that would keep a page out or look wrong in a result. After a deploy,
-  `mise run seo:lighthouse` scores every page on Google's servers (performance, accessibility, best practices, SEO,
-  with the failing elements named), and `mise run seo:todo` reports what Google has indexed.
+- **[seo](docs/seo/README.md): what Google sees, checked.** One middleware answers robots.txt and the sitemap, keeps
+  what isn't a page out of the index, and gives every page one https address. Every `mise run check` then fetches
+  every page as Googlebot does and fails on anything that would keep a page out or look wrong in a result. After a
+  deploy, `mise run seo:07-lighthouse` scores every page on Google's servers (performance, accessibility, best
+  practices, SEO, with the failing elements named), and `mise run seo:13-todo` reports what Google has indexed.
 
-Each is set up by one command (`go tool intl init`, `go tool seo init`), which writes a config file into the project
+Each is set up by one command (`go tool intl init`, `mise-seo init`), which writes a config file into the project
 (`intl.toml`, `seo.toml`). Their mise tasks read it, so every task runs with no arguments, from a terminal or the VS
 Code mise panel, and an argument still overrides it for one run. Each also installs an agent skill, so Claude Code
 knows how to use it. Both use gsx's own mechanisms (renderers, filters, `gsx fmt` and its checks); issues and pull
@@ -113,17 +113,17 @@ mkdir my-app && cd my-app && git init -q && go mod init github.com/you/my-app
 mise use github:joeblew999/charter  # the charter command, pinned in mise.toml
 go get github.com/joeblew999/charter@latest   # its library, at the same version
 go get -tool github.com/gsxhq/gsx/cmd/gsx github.com/joeblew999/go-htmx4/intl/cmd/intl \
-  github.com/joeblew999/go-htmx4/seo/cmd/seo github.com/joeblew999/go-htmx4/gsxkit/cmd/gsxkit
+  github.com/joeblew999/go-htmx4/gsxkit/cmd/gsxkit
 gsxui init                        # gsxui's theme and components, npm-free (https://ui.gsxhq.dev)
 go tool gsxkit tasks && go tool gsxkit skill   # gsx's, gsxui's and structpages' tasks, and the skills they ship
 charter init                      # charter.toml: the Worker on Cloudflare, local workerd, deploys; charter's files
 go tool intl init -locales en,de  # intl.toml, the catalogs, intl's tasks and skill
 go tool intl add language-list language-offer preferences   # intl's screens, already translated
 go tool gsxkit add map moq        # gsxkit's components: a map, live video (when the app wants them)
-go tool seo init -base https://my-app.example.com          # seo.toml
+mise exec "github:joeblew999/mise-seo[minimum_release_age=0s]@latest" -- mise-seo init --site https://my-app.example.com   # seo.toml, mise-seo's tasks and skill
 ```
 
-Then [intl/README.md](intl/README.md), [seo/README.md](seo/README.md) and charter's
+Then [intl/README.md](intl/README.md), mise-seo's [docs/seo/README.md](docs/seo/README.md) and charter's
 [libraries page](https://github.com/joeblew999/charter/blob/main/docs/self/libraries.md) take it from there. To deploy,
 put a Cloudflare API token (Workers Scripts, D1 and Workers Tail edit) and your account id in the environment or in
 [fnox](https://github.com/jdx/fnox) as `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`, then `mise run
@@ -141,9 +141,9 @@ charter:deploy production`. This repo's own previews, staging and releases: [doc
 | `web/htmx/` | htmx 4, hx-ws and hx-live, vendored by `mise run vendor` |
 | `locales/` | the messages: one catalog per language (`en.toml` is the source) and `intl.sum` |
 | `intl/`, `intl.toml` | Intl for gsx apps, its own Go module ([intl/README.md](intl/README.md)); this app's languages |
-| `seo/`, `seo.toml` | search engines for Go apps, its own Go module ([seo/README.md](seo/README.md)): the middleware, the audit, Lighthouse, Search Console; this app's settings |
+| `seo.toml`, `docs/seo/` | search engines, with [mise-seo](https://github.com/joeblew999/mise-seo) (`mise-seo init` writes its tasks, skill, workflow and [docs/seo/README.md](docs/seo/README.md)): the middleware, the audit, Lighthouse, Search Console; this app's settings |
 | `gsxkit/` | gsx's, gsxui's and structpages' mise tasks and the skills they ship, and our registry of components gsxui doesn't have (a map, live video), for any app, its own Go module ([gsxkit/README.md](gsxkit/README.md)) |
-| `badge/` | the README badges intl and seo draw (SVG, no service), a tiny module of its own so neither depends on the other |
+| `badge/` | the README badges intl draws (SVG, no service), a tiny module of its own |
 | `internal/` | live (the board's message to the Room, topic and locale rules), classmerge (gsx's class merger, cached), jsbundle (npm packages bundled with esbuild's Go API, no Node: gsxkit's components' browser files) |
 | `worker/`, `charter.toml` | the deployed JavaScript (the Worker's entry and the board's Durable Object), and everything about the Worker on Cloudflare, from which the `charter` command deploys it and runs it on local workerd |
 | `migrations/` | D1's schema |

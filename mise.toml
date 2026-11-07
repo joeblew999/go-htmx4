@@ -28,7 +28,7 @@ workerd = "1.20261104.1"
 fnox = "1.47.0"
 # jq: task scripts read JSON with it (test:go's file list, vendor's npm metadata).
 jq = "1.8.2"
-# usage: shell completion for task arguments and flags (mise run seo:inspect <TAB>, --json).
+# usage: shell completion for task arguments and flags (mise run seo:14-inspect <TAB>, --json).
 usage = "7.2.0"
 # charter: the Worker's build, local workerd, deploys, CI and Workers Builds (charter.toml). Its library in go.mod is the
 # same version: move both together, then charter init. TinyGo and wasm-opt are charter's, at the versions its TinyGo
@@ -61,10 +61,10 @@ APP_REPO = "joeblew999/go-htmx4"
 # (CI posts that URL on the PR). A copy of charter.toml's subdomain (TestCharterToml).
 CF_SUBDOMAIN = "gedw99"
 
-# intl's, seo's and charter's tasks as an outside app has them: written by go tool intl tasks, seo tasks and charter
+# intl's, mise-seo's and charter's tasks as an outside app has them: written by go tool intl tasks, mise-seo init and charter
 # tasks into .mise/tasks/ (TestTaskFiles keeps them current).
 [task_config]
-includes = ["tasks/app.toml", ".mise/tasks/gsx.toml", ".mise/tasks/intl.toml", ".mise/tasks/seo.toml", ".mise/tasks/charter.toml", "tasks/upstream.toml"]
+includes = ["tasks/app.toml", ".mise/tasks/gsx.toml", ".mise/tasks/intl.toml", ".mise/tasks/mise-seo.toml", ".mise/tasks/charter.toml", "tasks/upstream.toml"]
 
 # The VS Code gsx language server needs the compiler where the extension looks (gsx:editor, gsxkit's tasks).
 [hooks]

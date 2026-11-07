@@ -1,11 +1,13 @@
 // Package fresh is the readiness test (#65): a gsx app made from nothing, outside this repo, the way intl/README.md
-// and seo/README.md say, with gsxui and intl's screens (go tool intl add), served by an ordinary Go server (not a
-// Worker), answering in two languages, passing its own go test, seo's audit and intl:check. Its code is
-// testdata/app, and every go and gsx block in those READMEs is in it as they write it (TestREADMECode). If an outside
-// developer couldn't get this far by following the READMEs, neither can this test.
+// says, with search engines answered the way mise-seo's docs say (docs/seo/README.md, which mise-seo init writes),
+// with gsxui and intl's screens (go tool intl add), served by an ordinary Go server (not a Worker), answering in two
+// languages, passing its own go test, mise-seo's audit and intl:check. Its code is testdata/app, and every go and gsx
+// block in intl/README.md is in it as it writes it (TestREADMECode). If an outside developer couldn't get this far by
+// following the READMEs, neither can this test.
 //
-// intl, seo and badge come from this checkout; FRESH_VERSIONS=published takes the versions published on the Go
-// proxy instead (mise run fresh:published, after a release).
+// intl and badge come from this checkout; FRESH_VERSIONS=published takes the versions published on the Go proxy
+// instead (mise run fresh:published, after a release). mise-seo, its packages and its binary, is at the release this
+// repo pins (.mise/config.toml, go.mod).
 package fresh
 
 import (
@@ -60,20 +62,22 @@ func TestFreshApp(t *testing.T) {
 		}
 	}
 
-	// A new module with gsx, intl, seo and gsxkit as tools, as the READMEs' "Set up an app" starts. gsx at the version this repo
-	// builds with; Go from this repo's toolchain, so mise (which reads go.mod's toolchain) wants a Go that's installed.
+	// A new module with gsx, intl and gsxkit as tools, as the READMEs' "Set up an app" starts, and mise-seo's packages.
+	// gsx and mise-seo at the versions this repo builds with; Go from this repo's toolchain, so mise (which reads go.mod's
+	// toolchain) wants a Go that's installed.
 	gomod := read(t, filepath.Join(repo, "go.mod"))
 	gsxVersion := regexp.MustCompile(`github.com/gsxhq/gsx (v\S+)`).FindStringSubmatch(gomod)[1]
+	seoVersion := regexp.MustCompile(`github.com/joeblew999/mise-seo (v\S+)`).FindStringSubmatch(gomod)[1]
 	goVersion := regexp.MustCompile(`(?m)^go (\S+)`).FindStringSubmatch(gomod)[1]
 	toolchain := regexp.MustCompile(`(?m)^toolchain (\S+)`).FindStringSubmatch(gomod)[1]
 	write("go.mod", "module example.com/fresh\n\ngo "+goVersion+"\n\ntoolchain "+toolchain+"\n")
-	run("go", "mod", "edit", "-require=github.com/gsxhq/gsx@"+gsxVersion, "-tool=github.com/gsxhq/gsx/cmd/gsx")
+	run("go", "mod", "edit", "-require=github.com/gsxhq/gsx@"+gsxVersion, "-tool=github.com/gsxhq/gsx/cmd/gsx",
+		"-require=github.com/joeblew999/mise-seo@"+seoVersion)
 	if os.Getenv("FRESH_VERSIONS") == "published" {
-		run("go", "get", "-tool", module+"/intl/cmd/intl@latest", module+"/seo/cmd/seo@latest", module+"/gsxkit/cmd/gsxkit@latest")
+		run("go", "get", "-tool", module+"/intl/cmd/intl@latest", module+"/gsxkit/cmd/gsxkit@latest")
 	} else {
 		run("go", "mod", "edit",
 			"-require="+module+"/intl@v0.0.0", "-replace="+module+"/intl="+filepath.Join(repo, "intl"), "-tool="+module+"/intl/cmd/intl",
-			"-require="+module+"/seo@v0.0.0", "-replace="+module+"/seo="+filepath.Join(repo, "seo"), "-tool="+module+"/seo/cmd/seo",
 			"-require="+module+"/gsxkit@v0.0.0", "-replace="+module+"/gsxkit="+filepath.Join(repo, "gsxkit"), "-tool="+module+"/gsxkit/cmd/gsxkit",
 			"-replace="+module+"/badge="+filepath.Join(repo, "badge"))
 	}
@@ -163,15 +167,17 @@ func TestFreshApp(t *testing.T) {
 		}
 	}
 
-	// seo's audit of the running app, as Googlebot reads it: robots.txt, the sitemap, every page's head.
-	run("go", "tool", "seo", "init", "-base", base)
-	run("mise", "run", "seo:audit")
+	// mise-seo's audit of the running app, as Googlebot reads it: robots.txt, the sitemap, every page's head. mise-seo
+	// init as docs/seo/README.md says, at the release this repo's go.mod has, the running app as its site; then its
+	// task.
+	run("mise", "exec", "github:joeblew999/mise-seo@"+strings.TrimPrefix(seoVersion, "v"), "--", "mise-seo", "init", "--site", base)
+	run("mise", "run", "seo:06-audit")
 
 	// What the README says CI runs: the catalogs, then gsx's own checks on the app's markup, not gsxui's.
 	run("mise", "run", "intl:check")
 }
 
-// TestREADMECode: every go and gsx block in intl's and seo's READMEs is the fresh app's code, as the README writes it,
+// TestREADMECode: every go and gsx block in intl's README is the fresh app's code, as the README writes it,
 // so the fresh-app test builds and runs it. A block's "// …" line stands for code it leaves out: the pieces around it
 // come in that order. Whitespace doesn't count (gsx fmt and gofmt lay the app's code out), and neither do comments in
 // a go block; a gsx block's do, since in markup some are text.
@@ -182,7 +188,7 @@ func TestREADMECode(t *testing.T) {
 	}
 	code := src.String()
 	n := 0
-	for _, readme := range []string{"../../intl/README.md", "../../seo/README.md"} {
+	for _, readme := range []string{"../../intl/README.md"} {
 		for _, b := range blocks(read(t, readme)) {
 			n++
 			at := 0
@@ -200,8 +206,8 @@ func TestREADMECode(t *testing.T) {
 			}
 		}
 	}
-	if n < 9 {
-		t.Errorf("found %d go and gsx blocks in the READMEs, want at least 9", n)
+	if n < 7 {
+		t.Errorf("found %d go and gsx blocks in the READMEs, want at least 7", n)
 	}
 }
 
