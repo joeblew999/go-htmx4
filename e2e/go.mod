@@ -7,7 +7,7 @@ toolchain go1.27.3
 require (
 	github.com/chromedp/cdproto v0.0.0-20260714215040-dc233986426f
 	github.com/chromedp/chromedp v0.16.0
-	github.com/joeblew999/mise-seo v0.0.1
+	github.com/joeblew999/mise-seo v0.0.2
 	golang.org/x/net v0.62.0
 )
 

@@ -3,8 +3,8 @@
 This repo answers search engines with [mise-seo](https://github.com/joeblew999/mise-seo): the middleware that answers
 them, an audit of what they read, Lighthouse on Google's servers, the README's badges, and Google Search Console.
 `.mise/config.toml` pins mise-seo, from its GitHub releases: `mise install` gets it. Every command is a task of
-`.mise/tasks/mise-seo.toml`, numbered in the order a repo meets them: `mise run seo:<nn>-<command>` runs `mise-seo
-<command>`. Start with `mise run seo`: what's done, and what to run next.
+`.mise/tasks/mise-seo.toml`: `mise run seo:<command>` runs `mise-seo <command>`. Start with `mise run seo`: what's
+done, and what to run next.
 
 ## A new repo, or one with an app of its own
 
@@ -50,7 +50,7 @@ Google ranks what the site serves. Every piece is made by the app, live on each 
 | `WebSite` structured data | the site's name in results | `gsxseo.Head`, on the home page |
 | one `<h1>`, real text | what the page is about; a thin page gets crawled and not indexed | each page |
 
-`mise run seo:06-audit` checks all of it, before a deploy and after, and the tasks after it ask Google what it made
+`mise run seo:audit` checks all of it, before a deploy and after, and the tasks after it ask Google what it made
 of it.
 
 ## In an app
@@ -104,37 +104,39 @@ _, problems, err := audit.Audit(context.Background(), srv.Client(), srv.URL) // 
 
 ## seo.toml
 
-The settings the tasks read, so none needs an argument: the live site (no default: `mise run seo:03-init --site`
+The settings the tasks read, so none needs an argument: the live site (no default: `mise run seo:init --site`
 writes it, and every task prints which site it works on), its Search Console property (default: the site's Domain
 property, `app.example.com` → `sc-domain:example.com`), the pages, device and minimum score for Lighthouse (default:
-every page of the live sitemap, mobile, 90), and where `seo:08-badges` writes (default `docs/badges`, and `README.md`'s
-lines between `<!-- seo scores -->` and `<!-- /seo scores -->`). `--site` on `seo:06-audit` audits another server for
-one run; `seo:07-lighthouse` and `seo:14-inspect` take one page.
+every page of the live sitemap, mobile, 90), and where `seo:badges` writes (default `docs/badges`, and `README.md`'s
+lines between `<!-- seo scores -->` and `<!-- /seo scores -->`). `--site` on `seo:audit` audits another server for
+one run; `seo:lighthouse` and `seo:inspect` take one page.
 
 ## The tasks
 
 Every task runs with no arguments, on `seo.toml`'s site, and says which site first. Exit codes: 0 ok, 1 problems or no
-access. `--json` prints one JSON document for a program (`seo`, `seo:04-check`, `seo:05-show`, `seo:06-audit`,
-`seo:07-lighthouse`, `seo:10-sites`, `seo:12-status`, `seo:13-todo`, `seo:14-inspect`); `--open` opens Google's page of
-each problem (`seo:13-todo`) or of the page (`seo:14-inspect`); `--desktop` scores the desktop page (`seo:07-lighthouse`);
-`--site` is init's live site, or another server for the audit. Steps 00 to 02 come before them: the repo's git, `mise
-install`, its own `setup`.
+access. `--json` prints one JSON document for a program (`seo`, `seo:check`, `seo:show`, `seo:audit`,
+`seo:lighthouse`, `seo:sites`, `seo:status`, `seo:todo`, `seo:inspect`); `--open` opens Google's page of
+each problem (`seo:todo`) or of the page (`seo:inspect`); `--desktop` scores the desktop page (`seo:lighthouse`);
+`--site` is init's live site, or another server for the audit. They're in the order a repo meets them, after its git,
+`mise install` and its own `setup`: `seo:init` once, `seo:check` and `seo:show` as it goes, `seo:audit` after every
+deploy, then Lighthouse and the badges, then Google (`seo:setup` once per person, then `seo:sites`, `seo:submit`,
+`seo:status`, `seo:todo`, `seo:inspect`). `mise run seo` says which is next.
 
 | Task | Run it | What it does |
 |---|---|---|
 | `mise run seo` | first, and whenever you're unsure | what's done for the repo, and what to run next |
-| `mise run seo:03-init` | once, then after upgrading mise-seo | mise-seo's files (its tasks, the workflow, the skill, the docs, the hook), seo.toml when the repo has none or no site (--site, the live site), and go.mod requiring mise-seo's packages at this release |
-| `mise run seo:04-check` | after a change to seo.toml or mise-seo's files; when it fails, run what it names | the repo's rules: mise-seo's files as this version writes them, its pin, seo.toml with a site, the packages in go.mod at the binary's release |
-| `mise run seo:05-show` | to see where the repo is | the same as mise run seo |
-| `mise run seo:06-audit` | after every production deploy, and on a local build before it | the site as Googlebot reads it, robots.txt, the sitemap and every page in it: whatever would keep a page out of the index or look wrong in a result (--site: another server, a local build or a preview) |
-| `mise run seo:07-lighthouse` | after a production deploy, and to fix a score | Lighthouse on the live site on Google's servers: performance, accessibility, best practices and SEO out of 100 for every page or the one named, what fails and on which elements, real users' Core Web Vitals; fails under seo.toml's min (--desktop: the desktop page) |
-| `mise run seo:08-badges` | after a production release, then commit them | Lighthouse on every page and the audit, then the README's badges and its scores table |
-| `mise run seo:09-setup` | once per person, before the tasks that ask Google | the Google Cloud project, its Search Console and PageSpeed Insights APIs, and a service account key in fnox (asks first; needs gcloud auth login) |
-| `mise run seo:10-sites` | after setup, and after adding the account to a property | the Search Console properties the service account can use; fails without Full access to seo.toml's |
-| `mise run seo:11-submit` | once the site is live, and after its pages change | the sitemap submitted to Search Console, after a passing audit (asks first) |
-| `mise run seo:12-status` | to see what Google has of the site | the sitemap's status in Search Console, and Google's index status of every URL in it |
-| `mise run seo:13-todo` | days after submitting, and whenever Search Console reports a problem | Google's verdict for every sitemap URL: indexed, waiting, duplicate or a problem; fails on a problem (--open: each problem's Search Console page) |
-| `mise run seo:14-inspect` | to look into one page | one URL, the home page or the one named: Google's verdict, last crawl and canonical, and its Search Console page (--open opens it) |
+| `mise run seo:init` | once, then after upgrading mise-seo | mise-seo's files (its tasks, the workflow, the skill, the docs, the hook), seo.toml when the repo has none or no site (--site, the live site), and go.mod requiring mise-seo's packages at this release |
+| `mise run seo:check` | after a change to seo.toml or mise-seo's files; when it fails, run what it names | the repo's rules: mise-seo's files as this version writes them, its pin, seo.toml with a site, the packages in go.mod at the binary's release |
+| `mise run seo:show` | to see where the repo is | the same as mise run seo |
+| `mise run seo:audit` | after every production deploy, and on a local build before it | the site as Googlebot reads it, robots.txt, the sitemap and every page in it: whatever would keep a page out of the index or look wrong in a result (--site: another server, a local build or a preview) |
+| `mise run seo:lighthouse` | after a production deploy, and to fix a score | Lighthouse on the live site on Google's servers: performance, accessibility, best practices and SEO out of 100 for every page or the one named, what fails and on which elements, real users' Core Web Vitals; fails under seo.toml's min (--desktop: the desktop page) |
+| `mise run seo:badges` | after a production release, then commit them | Lighthouse on every page and the audit, then the README's badges and its scores table |
+| `mise run seo:setup` | once per person, before the tasks that ask Google | the Google Cloud project, its Search Console and PageSpeed Insights APIs, and a service account key in fnox (asks first; needs gcloud auth login) |
+| `mise run seo:sites` | after setup, and after adding the account to a property | the Search Console properties the service account can use; fails without Full access to seo.toml's |
+| `mise run seo:submit` | once the site is live, and after its pages change | the sitemap submitted to Search Console, after a passing audit (asks first) |
+| `mise run seo:status` | to see what Google has of the site | the sitemap's status in Search Console, and Google's index status of every URL in it |
+| `mise run seo:todo` | days after submitting, and whenever Search Console reports a problem | Google's verdict for every sitemap URL: indexed, waiting, duplicate or a problem; fails on a problem (--open: each problem's Search Console page) |
+| `mise run seo:inspect` | to look into one page | one URL, the home page or the one named: Google's verdict, last crawl and canonical, and its Search Console page (--open opens it) |
 | `mise run seo:verify` | before every push | what the repo's GitHub workflow runs: its setup and test tasks, then check |
 | `mise run seo:template` | only in a repo with no Go program yet | the template's little app, its pages answering search engines as the audit wants; it never writes over a file |
 | `mise run seo:show-version` | to say which mise-seo this is | its version |
@@ -156,22 +158,22 @@ The tasks that ask Google read each key from the environment, else from [fnox](h
 each of them brings (its `tools`), so a repo needs only mise. A key set empty in the environment is none, and fnox
 isn't asked.
 
-**Lighthouse** (`seo:07-lighthouse`, `seo:08-badges`) needs only a PageSpeed Insights API key, `PAGESPEED_API_KEY`: a
+**Lighthouse** (`seo:lighthouse`, `seo:badges`) needs only a PageSpeed Insights API key, `PAGESPEED_API_KEY`: a
 free key from the Google Cloud console (APIs & Services → Credentials → Create credentials → API key; restrict it to
 the PageSpeed Insights API), then `fnox set PAGESPEED_API_KEY`. Without one, Lighthouse uses the service account key
 below. Google's anonymous quota is too small to rely on.
 
-**Search Console** (`seo:10-sites` to `seo:14-inspect`) uses one service account key, `GOOGLE_SEARCH_CONSOLE_KEY`, for
-every site you own. `mise run seo:09-setup` makes it once per person, with your gcloud login (`mise exec -- gcloud auth
+**Search Console** (`seo:sites` to `seo:inspect`) uses one service account key, `GOOGLE_SEARCH_CONSOLE_KEY`, for
+every site you own. `mise run seo:setup` makes it once per person, with your gcloud login (`mise exec -- gcloud auth
 login`; the task brings gcloud): a Google Cloud project (`SEO_PROJECT`, else the key's own, else the site's first label
 and `-search`), its Search Console and PageSpeed Insights APIs, the account, and its key in fnox. Then, for each site:
 Search Console → the property → Settings → Users and permissions → add that account with **Full** permission, and
-`mise run seo:10-sites` confirms it. `seo:09-setup` and `seo:11-submit` write to Google and ask first.
+`mise run seo:sites` confirms it. `seo:setup` and `seo:submit` write to Google and ask first.
 
 ## The skill and the workflow
 
 The `seo` skill (`.claude/skills/seo/SKILL.md`) tells Claude Code what Google needs from each page, what each audit
-problem, Lighthouse failure and Google verdict means and where its fix is, and that `seo:11-submit` and `seo:09-setup`
+problem, Lighthouse failure and Google verdict means and where its fix is, and that `seo:submit` and `seo:setup`
 need a person's OK. `.github/workflows/seo.yml` runs `mise run seo:verify` on every push and pull request: the repo's
-`setup` and `test` tasks (an app's tests auditing its local build), then `seo:04-check`. It asks Google nothing. In a
+`setup` and `test` tasks (an app's tests auditing its local build), then `seo:check`. It asks Google nothing. In a
 Claude Code cloud session, `.claude/hooks/mise-seo-session-start.sh` installs mise and every pinned tool first.

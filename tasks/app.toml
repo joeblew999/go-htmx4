@@ -251,7 +251,7 @@ run = '[ ! -s .upstream-use ] || { echo "✗ ran with upstream checkouts: $(tr "
 
 # The readiness test (#65): what an outside developer does, from nothing. If it fails, the repo isn't ready for them.
 ["fresh"]
-description = "Brand-new gsx apps outside this repo (e2e/fresh): one made from intl's README (every go and gsx block in it is its code) and mise-seo's docs (docs/seo/README.md), with gsxui and intl's screens, on an ordinary Go server in English and German, its go test, seo:06-audit and intl:check passing; and one on Workers set up with charter init, its go test on charter's stand-ins and its Worker on local workerd (FRESH_DEPLOY=1: on Cloudflare too)"
+description = "Brand-new gsx apps outside this repo (e2e/fresh): one made from intl's README (every go and gsx block in it is its code) and mise-seo's docs (docs/seo/README.md), with gsxui and intl's screens, on an ordinary Go server in English and German, its go test, seo:audit and intl:check passing; and one on Workers set up with charter init, its go test on charter's stand-ins and its Worker on local workerd (FRESH_DEPLOY=1: on Cloudflare too)"
 dir = "{{config_root}}"
 run = "go test -C e2e -count=1 -timeout 10m ./fresh"
 
@@ -262,7 +262,7 @@ env = { FRESH_VERSIONS = "published" }
 run = "go test -C e2e -count=1 -timeout 10m -run TestFreshApp ./fresh"
 
 ["test:go"]
-description = "Every module's go.mod tidy, gsx fmt/gofmt check + go vet + structpages-lint + go test, the app and its modules: intl/, badge/, gsxkit/ (standard Go; runs beside the production build); mise-seo's rules (seo:04-check)"
+description = "Every module's go.mod tidy, gsx fmt/gofmt check + go vet + structpages-lint + go test, the app and its modules: intl/, badge/, gsxkit/ (standard Go; runs beside the production build); mise-seo's rules (seo:check)"
 depends = ["generate"]
 dir = "{{config_root}}"
 run = '''
@@ -297,7 +297,7 @@ go vet -C intl ./...
 go test -C intl ./...
 # How Google sees the site is mise-seo's (github.com/joeblew999/mise-seo): its rules, its files as the pinned release
 # writes them, its binary and its packages in go.mod at one release.
-mise run -q seo:04-check
+mise run -q seo:check
 # badge/ is its own module (the README badges intl draws).
 test -z "$(gofmt -l badge)" || { gofmt -l badge; echo "✗ gofmt: badge/ needs formatting"; exit 1; }
 go vet -C badge ./...
@@ -345,10 +345,10 @@ run = "fnox exec -- charter token"
 # Objects, rate limit, vars and domain. Runs the full local test (TinyGo build + workerd smoke + go test) and the token
 # check first. Credentials: CLOUDFLARE_API_TOKEN/CLOUDFLARE_ACCOUNT_ID from the environment, else fnox.
 ["deploy"]
-description = "Test, then deploy production → https://$APP_DOMAIN (or $APP_NAME.<subdomain>.workers.dev), then seo:06-audit live"
+description = "Test, then deploy production → https://$APP_DOMAIN (or $APP_NAME.<subdomain>.workers.dev), then seo:audit live"
 depends = ["test", "token-check"]
 # Google must be able to crawl what was just deployed (docs/seo/README.md).
-depends_post = ["seo:06-audit"]
+depends_post = ["seo:audit"]
 dir = "{{config_root}}"
 run = '''
 #!/usr/bin/env bash

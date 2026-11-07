@@ -1,10 +1,9 @@
 # How this repo answers search engines, with mise-seo (github.com/joeblew999/mise-seo; docs/seo/README.md). Start
-# with: mise run seo (what's done, and what to run next). One task per command, numbered in the order a repo meets
-# them: mise run seo:<nn>-<command> runs mise-seo <command>. Steps 00 to 02 come before these tasks: the repo's git,
-# mise install, its own setup. Each passes its usage values with mise's own templates ({{usage.<name>}}), never shell
-# syntax, so it runs the same under sh, cmd and PowerShell. Every task works on seo.toml's site; --json prints one
-# JSON document for a program; exit codes: 0 ok, 1 problems or no access. A task brings what it runs (fnox for the
-# keys, gcloud for setup), so a repo needs only mise.
+# with: mise run seo (what's done, and what to run next). One task per command: mise run seo:<command> runs mise-seo
+# <command>, here in the order a repo meets them (after its git, mise install and its own setup). Each passes its
+# usage values with mise's own templates ({{usage.<name>}}), never shell syntax, so it runs the same under sh, cmd and
+# PowerShell. Every task works on seo.toml's site; --json prints one JSON document for a program; exit codes: 0 ok, 1
+# problems or no access. A task brings what it runs (fnox for the keys, gcloud for setup), so a repo needs only mise.
 # Written by mise-seo init: don't edit it. .mise/config.toml pins its version.
 
 ["seo"]
@@ -12,69 +11,69 @@ description = "what's done for the repo, and what to run next"
 usage = 'flag "--json" help="one JSON document on stdout, instead of text"'
 run = 'mise-seo{% if usage.json %} --json{% endif %}'
 
-["seo:03-init"]
+["seo:init"]
 description = "mise-seo's files (its tasks, the workflow, the skill, the docs, the hook), seo.toml when the repo has none or no site (--site, the live site), and go.mod requiring mise-seo's packages at this release"
 usage = 'flag "--site <url>" help="the live site, https://app.example.com: seo.toml site, when it sets none"'
 run = 'mise-seo init{% if usage.site %} --site "{{usage.site}}"{% endif %}'
 
-["seo:04-check"]
+["seo:check"]
 description = "the repo's rules: mise-seo's files as this version writes them, its pin, seo.toml with a site, the packages in go.mod at the binary's release"
 usage = 'flag "--json" help="one JSON document on stdout, instead of text"'
 run = 'mise-seo check{% if usage.json %} --json{% endif %}'
 
-["seo:05-show"]
+["seo:show"]
 description = "the same as mise run seo"
 usage = 'flag "--json" help="one JSON document on stdout, instead of text"'
 run = 'mise-seo show{% if usage.json %} --json{% endif %}'
 
-["seo:06-audit"]
+["seo:audit"]
 description = "the site as Googlebot reads it, robots.txt, the sitemap and every page in it: whatever would keep a page out of the index or look wrong in a result (--site: another server, a local build or a preview)"
 usage = 'flag "--json" help="one JSON document on stdout, instead of text"; flag "--site <url>" help="another server than seo.toml site: http://localhost:8080, a preview"'
 run = 'mise-seo audit{% if usage.json %} --json{% endif %}{% if usage.site %} --site "{{usage.site}}"{% endif %}'
 
-["seo:07-lighthouse"]
+["seo:lighthouse"]
 description = "Lighthouse on the live site on Google's servers: performance, accessibility, best practices and SEO out of 100 for every page or the one named, what fails and on which elements, real users' Core Web Vitals; fails under seo.toml's min (--desktop: the desktop page)"
 usage = 'flag "--json" help="one JSON document on stdout, instead of text"; flag "--desktop" help="score the desktop page instead of the mobile one Google indexes"; arg "[page]" help="one page, a path like /de/board or a full URL; default every page"'
 tools = { fnox = "1.47.0" }
 run = 'mise-seo lighthouse{% if usage.json %} --json{% endif %}{% if usage.desktop %} --desktop{% endif %}{% if usage.page %} "{{usage.page}}"{% endif %}'
 
-["seo:08-badges"]
+["seo:badges"]
 description = "Lighthouse on every page and the audit, then the README's badges and its scores table"
 tools = { fnox = "1.47.0" }
 run = "mise-seo badges"
 
-["seo:09-setup"]
+["seo:setup"]
 description = "the Google Cloud project, its Search Console and PageSpeed Insights APIs, and a service account key in fnox (asks first; needs gcloud auth login)"
 confirm = "Make or check the Google Cloud project, its APIs and the service account?"
 tools = { fnox = "1.47.0", "asdf:mise-plugins/mise-gcloud" = "584.0.0", python = "3.13.15" }
 env = { CLOUDSDK_PYTHON = "python3" }
 run = "mise-seo setup"
 
-["seo:10-sites"]
+["seo:sites"]
 description = "the Search Console properties the service account can use; fails without Full access to seo.toml's"
 usage = 'flag "--json" help="one JSON document on stdout, instead of text"'
 tools = { fnox = "1.47.0" }
 run = 'mise-seo sites{% if usage.json %} --json{% endif %}'
 
-["seo:11-submit"]
+["seo:submit"]
 description = "the sitemap submitted to Search Console, after a passing audit (asks first)"
 confirm = "Submit the sitemap to Google Search Console?"
 tools = { fnox = "1.47.0" }
 run = "mise-seo submit"
 
-["seo:12-status"]
+["seo:status"]
 description = "the sitemap's status in Search Console, and Google's index status of every URL in it"
 usage = 'flag "--json" help="one JSON document on stdout, instead of text"'
 tools = { fnox = "1.47.0" }
 run = 'mise-seo status{% if usage.json %} --json{% endif %}'
 
-["seo:13-todo"]
+["seo:todo"]
 description = "Google's verdict for every sitemap URL: indexed, waiting, duplicate or a problem; fails on a problem (--open: each problem's Search Console page)"
 usage = 'flag "--json" help="one JSON document on stdout, instead of text"; flag "--open" help="open Search Console on each problem (Test live URL, Request indexing)"'
 tools = { fnox = "1.47.0" }
 run = 'mise-seo todo{% if usage.json %} --json{% endif %}{% if usage.open %} --open{% endif %}'
 
-["seo:14-inspect"]
+["seo:inspect"]
 description = "one URL, the home page or the one named: Google's verdict, last crawl and canonical, and its Search Console page (--open opens it)"
 usage = 'flag "--json" help="one JSON document on stdout, instead of text"; flag "--open" help="open its Search Console page (Test live URL, Request indexing)"; arg "[page]" help="a path like /de/ or a full URL; default the home page"'
 tools = { fnox = "1.47.0" }

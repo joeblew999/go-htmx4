@@ -9,7 +9,7 @@ site = "https://go-htmx4.ubuntusoftware.net"
 # property = "sc-domain:example.com"
 
 [lighthouse]
-# The pages mise run seo:07-lighthouse scores. Default: one URL per page of the live sitemap.
+# The pages mise run seo:lighthouse scores. Default: one URL per page of the live sitemap.
 # pages = ["/", "/about"]
 # mobile (what Google indexes) or desktop.
 # strategy = "mobile"

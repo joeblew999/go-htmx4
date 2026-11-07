@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Written by mise-seo init: don't edit it. After upgrading mise-seo, mise run seo:03-init writes it again.
+# Written by mise-seo init: don't edit it. After upgrading mise-seo, mise run seo:init writes it again.
 # A Claude Code cloud session starts on a bare Linux machine with only the repo cloned. Install mise, then every tool
 # the repo pins (Go from go.mod, mise-seo from .mise/config.toml), then run each folder's own setup task if it has one,
 # so `mise run seo` and every other task work straight away. Does nothing on your own machine.

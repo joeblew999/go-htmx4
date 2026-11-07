@@ -76,10 +76,10 @@ contributor's pull request stops before them.
 `intl_gen.go` and `intl-messages.mjs` (`mise run intl`; not committed), `locales/intl.sum` and `docs/badges/intl.svg`
 (`mise run intl`; committed), `.claude/skills/intl` (`mise run intl:skill`; committed), mise-seo's files
 (`.claude/skills/seo`, `.mise/tasks/mise-seo.toml`, `docs/seo/`, `.github/workflows/seo.yml`, the hook: `mise run
-seo:03-init`; committed), the skills gsx, structpages and gsxui ship (`.claude/skills/gsx`, `templ-to-gsx-migration`, `structpages`, `gsxui`: `mise run gsx:skill`;
+seo:init`; committed), the skills gsx, structpages and gsxui ship (`.claude/skills/gsx`, `templ-to-gsx-migration`, `structpages`, `gsxui`: `mise run gsx:skill`;
 committed), the
 `.mise/tasks/*.toml` files (`mise run intl:tasks`, `gsx:tasks`; committed), `docs/commands.md`
-(`mise run docs:commands`), the other `docs/badges/` and the README's `<!-- seo scores -->` table (`mise run seo:08-badges`,
+(`mise run docs:commands`), the other `docs/badges/` and the README's `<!-- seo scores -->` table (`mise run seo:badges`,
 after a release; committed), what `gsxui` manages (`gsxui.json` lists it), and intl's screens in `views/intl/`
 (`go tool intl add`; committed): change `intl/ui/<screen>.gsx.tmpl`, then `go tool intl add -overwrite <screen>`
 (`TestIntlScreens` checks the demo's copies are intl's), gsxkit's components in `views/gsxkit/` and `web/gsxkit/`
@@ -152,9 +152,9 @@ after a release; committed), what `gsxui` manages (`gsxui.json` lists it), and i
   never a hard-coded host. No page routes under `/fragments/` (noindex) and no robots `Disallow` for them.
 - How Google sees the site is [mise-seo](https://github.com/joeblew999/mise-seo) (`docs/seo/README.md`) and the
   `seo` skill: what Google reads is this app's own code (`app/site.go`, the layout, intl), and `mise run check`
-  audits every page of the local build. `mise run seo:07-lighthouse` scores a live page; fix what is ours, and report
+  audits every page of the local build. `mise run seo:lighthouse` scores a live page; fix what is ours, and report
   a gsxui component's own failures upstream, and mise-seo's to its repository. The seo tasks talk through exit codes
-  (0 ok, 1 problems) and `--json`: never scrape their text. Writes to Google (`seo:11-submit`, `seo:09-setup`) ask
+  (0 ok, 1 problems) and `--json`: never scrape their text. Writes to Google (`seo:submit`, `seo:setup`) ask
   first; agents pass `mise run --yes` only with the user's OK.
 
 ## Workers and TinyGo

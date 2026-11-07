@@ -66,8 +66,8 @@ served `noindex`.
   Graph tags. Fragments, `/healthz`, form posts and previews send `X-Robots-Tag: noindex`.
 - Every page has one address: the Worker's `*.workers.dev` URL and plain http redirect to `https://` the custom domain
   (`seo.Site` in `app/site.go`), so one host is indexed.
-- `mise run deploy` then audits robots.txt and every sitemap URL live as Googlebot (`seo:06-audit`);
-  `seo:13-todo` gives Google's verdict per URL. Both come from [mise-seo](https://github.com/joeblew999/mise-seo),
+- `mise run deploy` then audits robots.txt and every sitemap URL live as Googlebot (`seo:audit`);
+  `seo:todo` gives Google's verdict per URL. Both come from [mise-seo](https://github.com/joeblew999/mise-seo),
   pinned in `.mise/config.toml` (`docs/seo/README.md`).
 
 ## Layout

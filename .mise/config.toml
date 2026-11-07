@@ -16,4 +16,4 @@ minimum_release_age_excludes = ["github:joeblew999/mise-seo"]
 use_versions_host = false
 
 [tools]
-"github:joeblew999/mise-seo" = "0.0.1"
+"github:joeblew999/mise-seo" = "0.0.2"

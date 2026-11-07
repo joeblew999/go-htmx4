@@ -222,7 +222,7 @@ CI: one short CPU-per-request run of the build on workerd, into the GitHub run's
 
 - **Usage:** `deploy`
 
-Test, then deploy production → https://$APP_DOMAIN (or $APP_NAME.&lt;subdomain>.workers.dev), then seo:06-audit live
+Test, then deploy production → https://$APP_DOMAIN (or $APP_NAME.&lt;subdomain>.workers.dev), then seo:audit live
 
 ### `dev`
 
@@ -248,7 +248,7 @@ Headless Chrome checks: pages, live board in two browsers, boost ↔ board, pres
 
 - **Usage:** `fresh`
 
-Brand-new gsx apps outside this repo (e2e/fresh): one made from intl's README (every go and gsx block in it is its code) and mise-seo's docs (docs/seo/README.md), with gsxui and intl's screens, on an ordinary Go server in English and German, its go test, seo:06-audit and intl:check passing; and one on Workers set up with charter init, its go test on charter's stand-ins and its Worker on local workerd (FRESH_DEPLOY=1: on Cloudflare too)
+Brand-new gsx apps outside this repo (e2e/fresh): one made from intl's README (every go and gsx block in it is its code) and mise-seo's docs (docs/seo/README.md), with gsxui and intl's screens, on an ordinary Go server in English and German, its go test, seo:audit and intl:check passing; and one on Workers set up with charter init, its go test on charter's stand-ins and its Worker on local workerd (FRESH_DEPLOY=1: on Cloudflare too)
 
 ### `fresh:published`
 
@@ -513,53 +513,63 @@ what's done for the repo, and what to run next
 ### Flags
 - **`--json`** — one JSON document on stdout, instead of text
 
-### `seo:03-init`
-
-mise-seo's files (its tasks, the workflow, the skill, the docs, the hook), seo.toml when the repo has none or no site (--site, the live site), and go.mod requiring mise-seo's packages at this release
-
-
-- **Usage:** `seo:03-init [--site <url>]`
-
-### Flags
-- **`--site <url>`** — the live site, https://app.example.com: seo.toml site, when it sets none
-
-### `seo:04-check`
-
-the repo's rules: mise-seo's files as this version writes them, its pin, seo.toml with a site, the packages in go.mod at the binary's release
-
-
-- **Usage:** `seo:04-check [--json]`
-
-### Flags
-- **`--json`** — one JSON document on stdout, instead of text
-
-### `seo:05-show`
-
-the same as mise run seo
-
-
-- **Usage:** `seo:05-show [--json]`
-
-### Flags
-- **`--json`** — one JSON document on stdout, instead of text
-
-### `seo:06-audit`
+### `seo:audit`
 
 the site as Googlebot reads it, robots.txt, the sitemap and every page in it: whatever would keep a page out of the index or look wrong in a result (--site: another server, a local build or a preview)
 
 
-- **Usage:** `seo:06-audit [--json] [--site <url>]`
+- **Usage:** `seo:audit [--json] [--site <url>]`
 
 ### Flags
 - **`--json`** — one JSON document on stdout, instead of text
 - **`--site <url>`** — another server than seo.toml site: http://localhost:8080, a preview
 
-### `seo:07-lighthouse`
+### `seo:badges`
+
+- **Usage:** `seo:badges`
+
+Lighthouse on every page and the audit, then the README's badges and its scores table
+
+### `seo:check`
+
+the repo's rules: mise-seo's files as this version writes them, its pin, seo.toml with a site, the packages in go.mod at the binary's release
+
+
+- **Usage:** `seo:check [--json]`
+
+### Flags
+- **`--json`** — one JSON document on stdout, instead of text
+
+### `seo:init`
+
+mise-seo's files (its tasks, the workflow, the skill, the docs, the hook), seo.toml when the repo has none or no site (--site, the live site), and go.mod requiring mise-seo's packages at this release
+
+
+- **Usage:** `seo:init [--site <url>]`
+
+### Flags
+- **`--site <url>`** — the live site, https://app.example.com: seo.toml site, when it sets none
+
+### `seo:inspect`
+
+one URL, the home page or the one named: Google's verdict, last crawl and canonical, and its Search Console page (--open opens it)
+
+
+- **Usage:** `seo:inspect [--json] [--open] [page]`
+
+### Arguments
+- **`[page]`** — a path like /de/ or a full URL; default the home page
+
+### Flags
+- **`--json`** — one JSON document on stdout, instead of text
+- **`--open`** — open its Search Console page (Test live URL, Request indexing)
+
+### `seo:lighthouse`
 
 Lighthouse on the live site on Google's servers: performance, accessibility, best practices and SEO out of 100 for every page or the one named, what fails and on which elements, real users' Core Web Vitals; fails under seo.toml's min (--desktop: the desktop page)
 
 
-- **Usage:** `seo:07-lighthouse [--json] [--desktop] [page]`
+- **Usage:** `seo:lighthouse [--json] [--desktop] [page]`
 
 ### Arguments
 - **`[page]`** — one page, a path like /de/board or a full URL; default every page
@@ -568,68 +578,21 @@ Lighthouse on the live site on Google's servers: performance, accessibility, bes
 - **`--json`** — one JSON document on stdout, instead of text
 - **`--desktop`** — score the desktop page instead of the mobile one Google indexes
 
-### `seo:08-badges`
+### `seo:setup`
 
-- **Usage:** `seo:08-badges`
-
-Lighthouse on every page and the audit, then the README's badges and its scores table
-
-### `seo:09-setup`
-
-- **Usage:** `seo:09-setup`
+- **Usage:** `seo:setup`
 
 the Google Cloud project, its Search Console and PageSpeed Insights APIs, and a service account key in fnox (asks first; needs gcloud auth login)
 
-### `seo:10-sites`
+### `seo:show`
 
-the Search Console properties the service account can use; fails without Full access to seo.toml's
-
-
-- **Usage:** `seo:10-sites [--json]`
-
-### Flags
-- **`--json`** — one JSON document on stdout, instead of text
-
-### `seo:11-submit`
-
-- **Usage:** `seo:11-submit`
-
-the sitemap submitted to Search Console, after a passing audit (asks first)
-
-### `seo:12-status`
-
-the sitemap's status in Search Console, and Google's index status of every URL in it
+the same as mise run seo
 
 
-- **Usage:** `seo:12-status [--json]`
+- **Usage:** `seo:show [--json]`
 
 ### Flags
 - **`--json`** — one JSON document on stdout, instead of text
-
-### `seo:13-todo`
-
-Google's verdict for every sitemap URL: indexed, waiting, duplicate or a problem; fails on a problem (--open: each problem's Search Console page)
-
-
-- **Usage:** `seo:13-todo [--json] [--open]`
-
-### Flags
-- **`--json`** — one JSON document on stdout, instead of text
-- **`--open`** — open Search Console on each problem (Test live URL, Request indexing)
-
-### `seo:14-inspect`
-
-one URL, the home page or the one named: Google's verdict, last crawl and canonical, and its Search Console page (--open opens it)
-
-
-- **Usage:** `seo:14-inspect [--json] [--open] [page]`
-
-### Arguments
-- **`[page]`** — a path like /de/ or a full URL; default the home page
-
-### Flags
-- **`--json`** — one JSON document on stdout, instead of text
-- **`--open`** — open its Search Console page (Test live URL, Request indexing)
 
 ### `seo:show-help`
 
@@ -643,11 +606,48 @@ every command and its flags
 
 its version
 
+### `seo:sites`
+
+the Search Console properties the service account can use; fails without Full access to seo.toml's
+
+
+- **Usage:** `seo:sites [--json]`
+
+### Flags
+- **`--json`** — one JSON document on stdout, instead of text
+
+### `seo:status`
+
+the sitemap's status in Search Console, and Google's index status of every URL in it
+
+
+- **Usage:** `seo:status [--json]`
+
+### Flags
+- **`--json`** — one JSON document on stdout, instead of text
+
+### `seo:submit`
+
+- **Usage:** `seo:submit`
+
+the sitemap submitted to Search Console, after a passing audit (asks first)
+
 ### `seo:template`
 
 - **Usage:** `seo:template`
 
 the template's little app, its pages answering search engines as the audit wants; it never writes over a file
+
+### `seo:todo`
+
+Google's verdict for every sitemap URL: indexed, waiting, duplicate or a problem; fails on a problem (--open: each problem's Search Console page)
+
+
+- **Usage:** `seo:todo [--json] [--open]`
+
+### Flags
+- **`--json`** — one JSON document on stdout, instead of text
+- **`--open`** — open Search Console on each problem (Test live URL, Request indexing)
 
 ### `seo:verify`
 
@@ -706,7 +706,7 @@ Everything before a push: the production build + workerd smoke, gsx fmt/gofmt, g
 
 - **Usage:** `test:go`
 
-Every module's go.mod tidy, gsx fmt/gofmt check + go vet + structpages-lint + go test, the app and its modules: intl/, badge/, gsxkit/ (standard Go; runs beside the production build); mise-seo's rules (seo:04-check)
+Every module's go.mod tidy, gsx fmt/gofmt check + go vet + structpages-lint + go test, the app and its modules: intl/, badge/, gsxkit/ (standard Go; runs beside the production build); mise-seo's rules (seo:check)
 
 ### `token-check`
 

@@ -50,7 +50,7 @@ Every page of the live site, scored by Lighthouse; each badge above is the lowes
 | [/components](https://go-htmx4.ubuntusoftware.net/components) | 95 | 95 | 100 | 100 |
 | [/about](https://go-htmx4.ubuntusoftware.net/about) | 98 | 100 | 100 | 100 |
 
-Lighthouse mobile on Google's servers (PageSpeed Insights), 2026-10-22: `mise run seo:08-badges` writes this table and the badges.
+Lighthouse mobile on Google's servers (PageSpeed Insights), 2026-10-22: `mise run seo:badges` writes this table and the badges.
 
 <!-- /seo scores -->
 
@@ -69,8 +69,8 @@ module from this repository, and [mise-seo](https://github.com/joeblew999/mise-s
 - **[seo](docs/seo/README.md): what Google sees, checked.** One middleware answers robots.txt and the sitemap, keeps
   what isn't a page out of the index, and gives every page one https address. Every `mise run check` then fetches
   every page as Googlebot does and fails on anything that would keep a page out or look wrong in a result. After a
-  deploy, `mise run seo:07-lighthouse` scores every page on Google's servers (performance, accessibility, best
-  practices, SEO, with the failing elements named), and `mise run seo:13-todo` reports what Google has indexed.
+  deploy, `mise run seo:lighthouse` scores every page on Google's servers (performance, accessibility, best
+  practices, SEO, with the failing elements named), and `mise run seo:todo` reports what Google has indexed.
 
 Each is set up by one command (`go tool intl init`, `mise-seo init`), which writes a config file into the project
 (`intl.toml`, `seo.toml`). Their mise tasks read it, so every task runs with no arguments, from a terminal or the VS

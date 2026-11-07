@@ -44,3 +44,5 @@ intl-messages.mjs
 /.upstream-use
 # mise's override for one machine, never committed
 .mise/config.local.toml
+# Installed packages
+node_modules/

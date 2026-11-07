@@ -367,7 +367,7 @@ func TestOpenGraph(t *testing.T) {
 }
 
 // Every sitemap page's title and meta description fit in a Google result without being cut
-// (widths from seo.SnippetWidth, the same limits `mise run seo:06-audit` checks live).
+// (widths from seo.SnippetWidth, the same limits `mise run seo:audit` checks live).
 func TestSnippetWidths(t *testing.T) {
 	h := newServer().routes()
 	rec := get(t, h, "/sitemap.xml")

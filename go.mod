@@ -13,7 +13,7 @@ require (
 	github.com/joeblew999/charter v0.20.0
 	github.com/joeblew999/go-htmx4/gsxkit v0.0.0
 	github.com/joeblew999/go-htmx4/intl v0.9.0
-	github.com/joeblew999/mise-seo v0.0.1
+	github.com/joeblew999/mise-seo v0.0.2
 	golang.org/x/net v0.62.0
 )
 

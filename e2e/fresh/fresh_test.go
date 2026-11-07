@@ -171,7 +171,7 @@ func TestFreshApp(t *testing.T) {
 	// init as docs/seo/README.md says, at the release this repo's go.mod has, the running app as its site; then its
 	// task.
 	run("mise", "exec", "github:joeblew999/mise-seo@"+strings.TrimPrefix(seoVersion, "v"), "--", "mise-seo", "init", "--site", base)
-	run("mise", "run", "seo:06-audit")
+	run("mise", "run", "seo:audit")
 
 	// What the README says CI runs: the catalogs, then gsx's own checks on the app's markup, not gsxui's.
 	run("mise", "run", "intl:check")
