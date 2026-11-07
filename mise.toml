@@ -61,10 +61,10 @@ APP_REPO = "joeblew999/go-htmx4"
 # (CI posts that URL on the PR). A copy of charter.toml's subdomain (TestCharterToml).
 CF_SUBDOMAIN = "gedw99"
 
-# intl's, seo's and charter's tasks as an outside app has them: written by go tool intl tasks, seo tasks and charter
+# intl's, mise-seo's and charter's tasks as an outside app has them: written by go tool intl tasks, mise-seo init and charter
 # tasks into .mise/tasks/ (TestTaskFiles keeps them current).
 [task_config]
-includes = ["tasks/app.toml", ".mise/tasks/gsx.toml", ".mise/tasks/intl.toml", ".mise/tasks/seo.toml", ".mise/tasks/charter.toml", "tasks/upstream.toml"]
+includes = ["tasks/app.toml", ".mise/tasks/gsx.toml", ".mise/tasks/intl.toml", ".mise/tasks/mise-seo.toml", ".mise/tasks/charter.toml", "tasks/upstream.toml"]
 
 # The VS Code gsx language server needs the compiler where the extension looks (gsx:editor, gsxkit's tasks).
 [hooks]

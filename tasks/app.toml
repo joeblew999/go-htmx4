@@ -79,14 +79,14 @@ description = "Move every pin not held in deps.toml to its latest (go tool gsxki
 dir = "{{config_root}}"
 run = ["go run ./internal/deps update", "mise run docs:commands", "mise run check", "mise run e2e"]
 
-# The app's components (gsx:generate, from gsxkit's tasks) and this repo's own modules' (intl/, seo/), which commit
-# theirs for the apps that import them; then the tables a TinyGo build of the pages reads (structpages-gen, after gsx:
+# The app's components (gsx:generate, from gsxkit's tasks) and this repo's own intl module's, which commits its
+# own for the apps that import it; then the tables a TinyGo build of the pages reads (structpages-gen, after gsx:
 # the pages' Page methods are gsx's code). Every build/run/test path depends on this.
 ["generate"]
-description = "gsx:generate for the app, intl's and seo's own components (their modules commit them for the apps that import them), and structpages' tables for TinyGo"
+description = "gsx:generate for the app, intl's own components (its module commits them for the apps that import it), and structpages' tables for TinyGo"
 depends = ["intl", "gsx:generate"]
 dir = "{{config_root}}"
-run = ["go -C intl tool gsx generate -q .", "go -C seo tool gsx generate -q .", "go tool structpages-gen ./views"]
+run = ["go -C intl tool gsx generate -q .", "go tool structpages-gen ./views"]
 
 # The Static Assets directory: /static/ = web/htmx/ (htmx, hx-ws) and intl's browser module, /gsxui/ = web/gsxui/
 # behaviours, /gsxkit/ = web/gsxkit/ (gsxkit's components' browser files), /assets/ = gsxui's compiled CSS (gsxui:css)
@@ -251,18 +251,18 @@ run = '[ ! -s .upstream-use ] || { echo "✗ ran with upstream checkouts: $(tr "
 
 # The readiness test (#65): what an outside developer does, from nothing. If it fails, the repo isn't ready for them.
 ["fresh"]
-description = "Brand-new gsx apps outside this repo (e2e/fresh): one made from intl's and seo's READMEs (every go and gsx block in them is its code), with gsxui and intl's screens, on an ordinary Go server in English and German, its go test, seo:audit and intl:check passing; and one on Workers set up with charter init, its go test on charter's stand-ins and its Worker on local workerd (FRESH_DEPLOY=1: on Cloudflare too)"
+description = "Brand-new gsx apps outside this repo (e2e/fresh): one made from intl's README (every go and gsx block in it is its code) and mise-seo's docs (docs/seo/README.md), with gsxui and intl's screens, on an ordinary Go server in English and German, its go test, seo:audit and intl:check passing; and one on Workers set up with charter init, its go test on charter's stand-ins and its Worker on local workerd (FRESH_DEPLOY=1: on Cloudflare too)"
 dir = "{{config_root}}"
 run = "go test -C e2e -count=1 -timeout 10m ./fresh"
 
 ["fresh:published"]
-description = "The fresh-app test with intl and seo as published on the Go proxy (@latest), not this checkout: after a release, once the proxy has its tags, it shows the READMEs work for someone who runs go get"
+description = "The fresh-app test with intl as published on the Go proxy (@latest), not this checkout: after a release, once the proxy has its tags, it shows the READMEs work for someone who runs go get"
 dir = "{{config_root}}"
 env = { FRESH_VERSIONS = "published" }
 run = "go test -C e2e -count=1 -timeout 10m -run TestFreshApp ./fresh"
 
 ["test:go"]
-description = "Every module's go.mod tidy, gsx fmt/gofmt check + go vet + structpages-lint + go test, the app and its modules: intl/, seo/, badge/, gsxkit/ (standard Go; runs beside the production build)"
+description = "Every module's go.mod tidy, gsx fmt/gofmt check + go vet + structpages-lint + go test, the app and its modules: intl/, badge/, gsxkit/ (standard Go; runs beside the production build); mise-seo's rules (seo:check)"
 depends = ["generate"]
 dir = "{{config_root}}"
 run = '''
@@ -295,11 +295,10 @@ generated=$(git status --porcelain -- locales/intl.sum docs/badges/intl.svg)
 test -z "$(gofmt -l intl)" || { gofmt -l intl; echo "✗ gofmt: intl/ needs formatting"; exit 1; }
 go vet -C intl ./...
 go test -C intl ./...
-# seo/ is its own module too (Google Search Console and the live audit): format, vet and test it.
-test -z "$(gofmt -l seo)" || { gofmt -l seo; echo "✗ gofmt: seo/ needs formatting"; exit 1; }
-go vet -C seo ./...
-go test -C seo ./...
-# badge/ is its own module (the README badges intl and seo draw), so neither depends on the other.
+# How Google sees the site is mise-seo's (github.com/joeblew999/mise-seo): its rules, its files as the pinned release
+# writes them, its binary and its packages in go.mod at one release.
+mise run -q seo:check
+# badge/ is its own module (the README badges intl draws).
 test -z "$(gofmt -l badge)" || { gofmt -l badge; echo "✗ gofmt: badge/ needs formatting"; exit 1; }
 go vet -C badge ./...
 go test -C badge ./...
@@ -307,9 +306,9 @@ go test -C badge ./...
 test -z "$(gofmt -l gsxkit)" || { gofmt -l gsxkit; echo "✗ gofmt: gsxkit/ needs formatting"; exit 1; }
 go vet -C gsxkit ./...
 go test -C gsxkit ./...
-# intl, seo, badge and gsxkit declare the oldest Go they work with (their go.mod's go line, gsx's minimum): they must still
+# intl, badge and gsxkit declare the oldest Go they work with (their go.mod's go line, gsx's minimum): they must still
 # build there, so the minimum can't creep up unnoticed.
-for m in badge intl seo gsxkit; do
+for m in badge intl gsxkit; do
   floor=$(sed -n 's/^go \([0-9]*\.[0-9]*\).*/\1/p' "$m/go.mod")
   (cd "$m" && env -u GOROOT GOTOOLCHAIN=local mise exec "go@$floor" -- go vet ./...) ||
     { echo "✗ $m/ doesn't build with Go $floor, the minimum its go.mod declares"; exit 1; }
@@ -319,10 +318,6 @@ done
 go tool gsxkit skill >/dev/null
 { git diff --quiet -- .claude/skills && test -z "$(git ls-files --others --exclude-standard -- .claude/skills)"; } ||
   { git status --short -- .claude/skills; echo "✗ .claude/skills isn't what go tool gsxkit skill installs: mise run gsx:skill, and commit it"; exit 1; }
-# Its agent skill is installed from seo/ and committed: a change there must be installed and committed too.
-go tool seo skill >/dev/null
-{ git diff --quiet -- .claude/skills/seo && test -z "$(git ls-files --others --exclude-standard -- .claude/skills/seo)"; } ||
-  { git status --short -- .claude/skills/seo; echo "✗ .claude/skills/seo is not seo/skills/seo: mise run seo:skill, and commit it"; exit 1; }
 # e2e/ is its own module (chromedp): format and vet it too. Its tests need a server (mise run smoke / e2e / load),
 # except the load checker's own, which run against an in-process fake.
 test -z "$(gofmt -l e2e)" || { gofmt -l e2e; echo "✗ gofmt: e2e/ needs formatting"; exit 1; }
@@ -352,7 +347,7 @@ run = "fnox exec -- charter token"
 ["deploy"]
 description = "Test, then deploy production → https://$APP_DOMAIN (or $APP_NAME.<subdomain>.workers.dev), then seo:audit live"
 depends = ["test", "token-check"]
-# Google must be able to crawl what was just deployed (seo/README.md).
+# Google must be able to crawl what was just deployed (docs/seo/README.md).
 depends_post = ["seo:audit"]
 dir = "{{config_root}}"
 run = '''
@@ -404,7 +399,7 @@ cf charter deploy preview "${usage_name:-$(git branch --show-current)}" "${ann[@
 # with its own build token (charter builds deploy sees the branch → production). A tag from GitHub's Releases page does the same. Roll
 # back by tagging an older commit of main.
 ["release"]
-description = "Release main to production (e.g. v1.3): CI tests it, tags it (and intl/seo with their next version when they changed), Workers Builds deploys it; no Cloudflare credentials needed"
+description = "Release main to production (e.g. v1.3): CI tests it, tags it (and intl with its next version when it changed), Workers Builds deploys it; no Cloudflare credentials needed"
 dir = "{{config_root}}"
 usage = 'arg "<version>" help="the release, e.g. v1.3"'
 run = '''

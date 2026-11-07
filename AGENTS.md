@@ -15,7 +15,7 @@ contributor's pull request stops before them.
   `check` on GitHub as a record (`main` requires it, but not of admins). `git status` must be clean first: the checks
   ran on the working tree, so it has to be exactly what merges. When they couldn't run (the port is busy), use
   `gh pr merge --auto --squash` and let CI's `check` decide.
-- `intl/`, `seo/` and `badge/` (the README badge drawer both use) get their versions from a release: `mise run release
+- `intl/` and `badge/` (the README badge drawer intl uses) get their versions from a release: `mise run release
   vX` tags each that changed since its last tag with its next version (`ci/module-tags.sh`). Never tag them by hand.
 - End every report of finished work with a **Follow-ups** list, even a short one: what's next, what needs the user's
   OK and why, bugs or risks found but not fixed, checks skipped, leftovers (processes, resources, stale docs). Put the
@@ -71,14 +71,15 @@ contributor's pull request stops before them.
 
 ## Generated files: never edit
 
-`*.x.go` (`go tool gsx generate`; not committed, except intl's `render.x.go` and `head.x.go` and seo's `head.x.go`: apps import them as Go packages),
+`*.x.go` (`go tool gsx generate`; not committed, except intl's `render.x.go` and `head.x.go`: apps import them as Go packages),
 `structpages_tables.go` (`go tool structpages-gen`, in `mise run generate`; not committed),
 `intl_gen.go` and `intl-messages.mjs` (`mise run intl`; not committed), `locales/intl.sum` and `docs/badges/intl.svg`
-(`mise run intl`; committed), `.claude/skills/intl` (`mise run intl:skill`; committed), `.claude/skills/seo`
-(`mise run seo:skill`; committed), the skills gsx, structpages and gsxui ship (`.claude/skills/gsx`, `templ-to-gsx-migration`, `structpages`, `gsxui`: `mise run gsx:skill`;
+(`mise run intl`; committed), `.claude/skills/intl` (`mise run intl:skill`; committed), mise-seo's files
+(`.claude/skills/seo`, `.mise/tasks/mise-seo.toml`, `docs/seo/`, `.github/workflows/seo.yml`, the hook: `mise run
+seo:init`; committed), the skills gsx, structpages and gsxui ship (`.claude/skills/gsx`, `templ-to-gsx-migration`, `structpages`, `gsxui`: `mise run gsx:skill`;
 committed), the
-`.mise/tasks/*.toml` files (`mise run intl:tasks`, `seo:tasks`, `gsx:tasks`; committed), `docs/commands.md`
-(`mise run docs:commands`), the other `docs/badges/` and the README's `<!-- seo:scores -->` table (`mise run seo:badges`,
+`.mise/tasks/*.toml` files (`mise run intl:tasks`, `gsx:tasks`; committed), `docs/commands.md`
+(`mise run docs:commands`), the other `docs/badges/` and the README's `<!-- seo scores -->` table (`mise run seo:badges`,
 after a release; committed), what `gsxui` manages (`gsxui.json` lists it), and intl's screens in `views/intl/`
 (`go tool intl add`; committed): change `intl/ui/<screen>.gsx.tmpl`, then `go tool intl add -overwrite <screen>`
 (`TestIntlScreens` checks the demo's copies are intl's), gsxkit's components in `views/gsxkit/` and `web/gsxkit/`
@@ -149,11 +150,12 @@ after a release; committed), what `gsxui` manages (`gsxui.json` lists it), and i
   that makes endless pages (a board topic) is `Noindex`. Titles ≤ 60 and descriptions ≤ 160 wide (`TestSnippetWidths`).
 - `/robots.txt` keeps one `*` group with no `Disallow` (`TestRobotsTxt`); absolute URLs come from `web.Origin(r)`,
   never a hard-coded host. No page routes under `/fragments/` (noindex) and no robots `Disallow` for them.
-- How Google sees the site is `seo/` (its own module, `seo/README.md`) and the `seo` skill: what Google reads is
-  this app's own code (`app/site.go`, the layout, intl), and `mise run check` audits every page of the local build.
-  `mise run seo:lighthouse` scores a live page; fix what is ours, and report a gsxui component's own failures upstream.
-  The `seo:*` tasks talk through exit codes (0 ok, 1 problems) and `--json`: never scrape their text. Writes to Google
-  (`seo:submit`, `seo:setup`) ask first; agents pass `mise run --yes` only with the user's OK.
+- How Google sees the site is [mise-seo](https://github.com/joeblew999/mise-seo) (`docs/seo/README.md`) and the
+  `seo` skill: what Google reads is this app's own code (`app/site.go`, the layout, intl), and `mise run check`
+  audits every page of the local build. `mise run seo:lighthouse` scores a live page; fix what is ours, and report
+  a gsxui component's own failures upstream, and mise-seo's to its repository. The seo tasks talk through exit codes
+  (0 ok, 1 problems) and `--json`: never scrape their text. Writes to Google (`seo:submit`, `seo:setup`) ask
+  first; agents pass `mise run --yes` only with the user's OK.
 
 ## Workers and TinyGo
 

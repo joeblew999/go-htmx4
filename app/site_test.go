@@ -18,8 +18,8 @@ import (
 
 	"github.com/joeblew999/go-htmx4/intl"
 	"github.com/joeblew999/go-htmx4/locales"
-	"github.com/joeblew999/go-htmx4/seo"
 	"github.com/joeblew999/go-htmx4/views"
+	"github.com/joeblew999/mise-seo/seo"
 	nethtml "golang.org/x/net/html"
 )
 

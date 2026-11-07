@@ -6,7 +6,7 @@
 //	                                  go mod tidy in every module and everything generated from them written again
 //
 // The pins: the Go modules each of the repository's modules requires; mise.toml's tools (and their copies in the task
-// templates intl, seo and gsxkit write), charter's CLI with its library, Chrome for the e2e tests; htmx (the vendor
+// templates intl and gsxkit write), charter's CLI with its library, mise-seo's binary with its packages, Chrome for the e2e tests; htmx (the vendor
 // task); and the npm packages each gsxkit component's npm-lock.json bundles.
 package main
 
@@ -34,7 +34,9 @@ const (
 	chromeTool   = "http:chrome-headless-shell"
 	gsxuiTool    = "go:github.com/gsxhq/gsxui/cmd/gsxui"
 	vendorTask   = "tasks/app.toml"
-	templateDirs = "intl/mise seo/mise gsxkit/mise tasks"
+	miseSeo      = "github.com/joeblew999/mise-seo"
+	miseSeoTool  = "github:joeblew999/mise-seo"
+	templateDirs = "intl/mise gsxkit/mise tasks"
 )
 
 // gsxkit's: go tool gsxkit update moves them (and reports them).
@@ -66,7 +68,7 @@ func main() {
 		for _, m := range mods {
 			check(deps.Run(m.Dir, "go", "mod", "tidy"))
 		}
-		for _, step := range [][]string{{"go", "tool", "intl", "tasks"}, {"go", "tool", "seo", "tasks"}, {"go", "tool", "gsxkit", "tasks"},
+		for _, step := range [][]string{{"go", "tool", "intl", "tasks"}, {"go", "tool", "gsxkit", "tasks"},
 			{"mise", "run", "generate"}, {"mise", "run", "gsxkit:add"}, {"mise", "run", "docs:commands"}} {
 			check(deps.Run(root, step[0], step[1:]...))
 		}
@@ -113,6 +115,9 @@ func goModules(root string, mods []deps.Module, holds deps.Holds, update bool) [
 					check(deps.SetMisePin(root, charterTool, strings.TrimPrefix(latest[path], "v")))
 					check(deps.Run(root, "mise", "install"))
 					check(deps.Run(root, "mise", "exec", "--", "charter", "init"))
+				}
+				if path == miseSeo && m.Dir == root { // its binary is the same release: its init there moves .mise/config.toml's pin and writes its files
+					check(deps.Run(root, "mise", "exec", miseSeoTool+"@"+strings.TrimPrefix(latest[path], "v"), "--", "mise-seo", "init"))
 				}
 			}
 			out = append(out, c)
