@@ -14,8 +14,16 @@
 [![seo audit](docs/badges/seo-audit.svg)](seo/README.md)
 [![languages](docs/badges/intl.svg)](intl/README.md)
 
-Server-rendered web apps with [Go](https://go.dev), [htmx 4](https://four.htmx.org) and [gsxui](https://ui.gsxhq.dev) on
-Cloudflare Workers, compiled with TinyGo. No Node anywhere: no npm, no Vite, no wrangler.
+**The problem.** A server-rendered Go web app on Cloudflare Workers takes many pieces, each found and fitted by hand:
+Go built small and fast enough for Workers, type-checked templates and real UI components, htmx for what's
+interactive, a change pushed live to every open tab, every language at its own URLs, what Google sees, tests on the
+runtime Workers has, previews and deploys. Each is a project of its own, the usual way to most of them brings a Node
+toolchain with it, and keeping them working together as each one moves is most of the work.
+
+**What go-htmx4 does.** It is such an app, with [Go](https://go.dev), [htmx 4](https://four.htmx.org) and
+[gsxui](https://ui.gsxhq.dev) on Cloudflare Workers, compiled with TinyGo, and no Node anywhere: no npm, no Vite, no
+wrangler. Every piece works together, live, checked on every change, and each one is a command away for an app of
+your own ([Start your own app](#start-your-own-app)):
 
 - **Pages** in gsx from gsxui components: forms with out-of-band toasts, a dialog, tabs, client state with hx-live,
   boosted navigation, light/dark theme, 14 languages including right-to-left.
