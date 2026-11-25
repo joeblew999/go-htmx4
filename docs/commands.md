@@ -686,7 +686,7 @@ Everything before a push: the production build + workerd smoke, gsx fmt/gofmt, g
 
 ### `test:go`
 
-- Depends: generate
+- Depends: generate, assets
 
 - **Usage:** `test:go`
 

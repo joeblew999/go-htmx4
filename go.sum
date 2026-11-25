@@ -42,8 +42,8 @@ github.com/jackielii/tailwind-merge-go v0.0.0-20260726184505-8a911ed0cf9a h1:sQ0
 github.com/jackielii/tailwind-merge-go v0.0.0-20260726184505-8a911ed0cf9a/go.mod h1:voVtdB9w9rAqShh8L7IMzv5ipGAeDCP9G3O0PqrKwnc=
 github.com/jmoiron/sqlx v1.4.0 h1:1PLqN7S1UYp5t4SrVVnt4nUVNemrDAtxlulVe+Qgm3o=
 github.com/jmoiron/sqlx v1.4.0/go.mod h1:ZrZ7UsYB/weZdl2Bxg6jCRO9c3YHl8r3ahlKmRT4JLY=
-github.com/joeblew999/charter v0.22.0 h1:6U3bgFnRx/sCg+aAYeePEvWX2wzcmMUGti+AxxKgxVI=
-github.com/joeblew999/charter v0.22.0/go.mod h1:VNvMeIDh9/8GCRSECcsjbmMpqgXTZhzwbOBPI3GT0w4=
+github.com/joeblew999/charter v0.23.0 h1:xTkjtW6KFjo0925j8hOH1oaWqfpgfGo9A0aXSqzS1V8=
+github.com/joeblew999/charter v0.23.0/go.mod h1:VNvMeIDh9/8GCRSECcsjbmMpqgXTZhzwbOBPI3GT0w4=
 github.com/joeblew999/structpages v0.10.1-0.20261022094628-31c2f0e5f405 h1:gwtm67HG320koHD9hfEYU8QE7N/bspYzBxIWIthSG24=
 github.com/joeblew999/structpages v0.10.1-0.20261022094628-31c2f0e5f405/go.mod h1:B8zJ4yFOGnesO+2PjKpzD/V58KktDNCKDmvNFN+DBiA=
 github.com/lib/pq v1.10.9 h1:YXG7RB+JIjhP29X+OtkiDnYaXQwpS4JEWq7dtCCRUEw=
