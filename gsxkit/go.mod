@@ -7,7 +7,7 @@ toolchain go1.27.3
 require (
 	github.com/BurntSushi/toml v1.6.0
 	github.com/joeblew999/go-htmx4/intl v0.9.0
-	golang.org/x/mod v0.42.0
+	golang.org/x/mod v0.43.0
 )
 
 require (
