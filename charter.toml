@@ -52,7 +52,7 @@ note = "Own Durable Object storage, shared preview D1, not indexed."
 [local]
 vars = { APP_ENV = "workerd (local)", NOMINATIM_URL = "https://nominatim.openstreetmap.org" }
 
-# The build: the Worker (TinyGo), intl's Worker modules, the Static Assets (tasks/app.toml).
+# The build: the Worker (standard Go: mise.toml's WORKER_COMPILER), intl's Worker modules, the Static Assets (tasks/app.toml).
 [build]
 command = "mise run build"
 
@@ -60,7 +60,10 @@ command = "mise run build"
 # the fresh apps, then published for the commit's preview; then workerd, Chrome and the CPU table; a release also tags
 # intl, seo and badge with their next versions before production moves.
 [ci]
-tools = ["go", "go@1.26", "tinygo", "aqua:WebAssembly/binaryen", "github:tailwindlabs/tailwindcss", "workerd", "http:chrome-headless-shell", "jq"]
+# The weekly job (charter.yml's update): this repo pins more than charter update can see (gsxui's commit, htmx, the npm
+# locks), so its own command moves them all, checks them, and what changed becomes a pull request (#172).
+update = "mise run update"
+tools = ["go", "go@1.26", "github:tailwindlabs/tailwindcss", "workerd", "http:chrome-headless-shell", "jq"]
 build = "mise run build ::: test:go ::: fresh"
 test = "mise run --skip-deps smoke && mise run --skip-deps e2e && mise run --skip-deps ci:bench"
 release_hook = "ci/module-tags.sh \"$GITHUB_SHA\""

@@ -10,7 +10,7 @@ require (
 	github.com/gsxhq/gsx v0.5.0
 	github.com/jackielii/structpages v0.10.0
 	github.com/jackielii/tailwind-merge-go v0.0.0-20260726184505-8a911ed0cf9a
-	github.com/joeblew999/charter v0.21.0
+	github.com/joeblew999/charter v0.22.0
 	github.com/joeblew999/go-htmx4/gsxkit v0.0.0
 	github.com/joeblew999/go-htmx4/intl v0.9.0
 	github.com/joeblew999/go-htmx4/seo v0.3.0
@@ -47,10 +47,10 @@ require (
 	golang.org/x/tools v0.52.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-	modernc.org/libc v1.79.0 // indirect
+	modernc.org/libc v1.80.1 // indirect
 	modernc.org/mathutil v1.7.1 // indirect
 	modernc.org/memory v1.12.1 // indirect
-	modernc.org/sqlite v1.61.0 // indirect
+	modernc.org/sqlite v1.63.0 // indirect
 )
 
 tool (

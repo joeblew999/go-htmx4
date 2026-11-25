@@ -13,11 +13,12 @@
 #           scans more): median ms, three runs, #150. An unchanged build comes from charter's cache in under a
 #           second. WORKERBUILD_FLAGS adds flags after these, so they win (mise run bench:variants turns each
 #           optimisation off in turn: -reuse=false, -patches=false, -heap=0).
-#   go      charter build -compiler=go: the standard compiler, seconds per build, a bigger Wasm and a Go runtime
-#           per request. mise run dev uses it; never deployed.
+#   go      charter build -compiler=go: the standard compiler, seconds per build, any library as it is, a bigger
+#           Wasm, Go runtimes kept between requests (charter 0.22). The default: what ships (mise.toml says why),
+#           and what mise run dev uses.
 set -euo pipefail
 profile=${WASM_PROFILE:-prod}
-compiler=${WORKER_COMPILER:-tinygo}
+compiler=${WORKER_COMPILER:-go}
 [ "$profile" = dev ] && compiler=go
 # One build at a time into build/ (build and build:dev share it): charter build holds a lock on it.
 rm -f build/.prod build/.dev

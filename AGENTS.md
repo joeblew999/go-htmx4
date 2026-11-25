@@ -158,7 +158,7 @@ after a release; committed), what `gsxui` manages (`gsxui.json` lists it), and i
 ## Workers and TinyGo
 
 - **workers-go `v0.36.0` exactly** (`github.com/syumai/workers-go`). What ships is built by
-  `charter build` (TinyGo by default, `WORKER_COMPILER`); standard Go only for local code and `build:dev`.
+  `charter build -compiler=go` (standard Go, `WORKER_COMPILER` in `mise.toml`, which says why; `tinygo` still builds).
 - **TinyGo gaps:** the mux is charter's `web.NewServeMux()`, which has Go 1.22 patterns under TinyGo too: every page
   and every route the pages call is in structpages' tree (`views/pages.go`, `views/routes.go`: a type with its method
   in its route tag and a `ServeHTTP` that answers through `views.App`), mounted with htmx 4's target selector
