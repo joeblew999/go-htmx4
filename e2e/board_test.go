@@ -14,7 +14,7 @@ func testBoardTwoBrowsers(t *testing.T) {
 	top := topic("e2e-board")
 	a, b := newTab(t, "A"), newTab(t, "B")
 	for _, tb := range []*tab{a, b} {
-		tb.run(chromedp.Navigate(base+"/board?topic="+top), chromedp.WaitVisible("#board", chromedp.ByQuery))
+		tb.run(chromedp.Navigate(base+"/board?topic="+top), chromedp.WaitVisible(chromedp.CSS("#board")))
 	}
 	check(t, "both opened a WebSocket", waitFor(5*time.Second, func() bool {
 		a.mu.Lock()
@@ -30,13 +30,13 @@ func testBoardTwoBrowsers(t *testing.T) {
 
 	v0 := b.version()
 	clicked := time.Now()
-	a.run(chromedp.Click(`button[aria-label="Increment"]`, chromedp.ByQuery))
+	a.run(chromedp.Click(chromedp.CSS(`button[aria-label="Increment"]`)))
 	check(t, "B updated by push after +1 in A", waitFor(5*time.Second, func() bool { return b.version() > v0 }),
 		fmt.Sprintf("(v%d → v%d in %v)", v0, b.version(), time.Since(clicked).Round(time.Millisecond)))
 	check(t, "A shows the same version", waitFor(3*time.Second, func() bool { return a.version() == b.version() }))
 
 	payload := `<img src=x onerror="document.title='pwned'"> hi from B`
-	b.run(chromedp.SendKeys(`input[name="body"]`, payload, chromedp.ByQuery), chromedp.Click(`form[hx-post^="/board/note"] button`, chromedp.ByQuery))
+	b.run(chromedp.SendKeys(chromedp.CSS(`input[name="body"]`), payload), chromedp.Click(chromedp.CSS(`form[hx-post^="/board/note"] button`)))
 	gotNote := waitFor(5*time.Second, func() bool {
 		return strings.Contains(a.str(`document.querySelector("#board [data-gsxui-slot-item]")?.textContent ?? ""`), "hi from B")
 	})
@@ -65,7 +65,7 @@ func testBoardTwoBrowsers(t *testing.T) {
 // testBoostBoard: boosted navigation into /board opens the socket, away closes it (presence), Back reconnects.
 func testBoostBoard(t *testing.T) {
 	a, b := newTab(t, "A"), newTab(t, "B")
-	a.run(chromedp.Navigate(base+"/board"), chromedp.WaitVisible("#board", chromedp.ByQuery))
+	a.run(chromedp.Navigate(base+"/board"), chromedp.WaitVisible(chromedp.CSS("#board")))
 	waitFor(3*time.Second, func() bool { var k int; _, err := fmt.Sscanf(a.presence(), "%d", &k); return err == nil })
 	time.Sleep(time.Second)
 	var n int
@@ -73,9 +73,9 @@ func testBoostBoard(t *testing.T) {
 	one, two := fmt.Sprintf("%d online", n), fmt.Sprintf("%d online", n+1)
 
 	b.open("/")
-	b.eval(`window.__noReload = 1`, nil)
+	b.eval(`window.__noReload = 1`)
 	nav := func(href string) {
-		b.eval(fmt.Sprintf(`document.querySelector('nav a[href=%q]').click()`, href), nil)
+		b.eval(fmt.Sprintf(`document.querySelector('nav a[href=%q]').click()`, href))
 		b.waitJS(5*time.Second, fmt.Sprintf(`location.pathname === %q`, href))
 	}
 
@@ -85,18 +85,18 @@ func testBoostBoard(t *testing.T) {
 	check(t, "presence +1 in both", waitFor(8*time.Second, func() bool { return a.presence() == two && b.presence() == two }),
 		fmt.Sprintf("(A %q, B %q)", a.presence(), b.presence()))
 	v := b.version()
-	a.eval(`document.querySelector('button[aria-label="Increment"]').click()`, nil)
+	a.eval(`document.querySelector('button[aria-label="Increment"]').click()`)
 	check(t, "push reaches the boosted page", waitFor(5*time.Second, func() bool { return b.version() > v }))
 
 	nav("/about")
 	check(t, "boosted nav away closes the socket (presence back)", waitFor(8*time.Second, func() bool { return a.presence() == one }), fmt.Sprintf("(A %q)", a.presence()))
 
-	b.eval(`history.back()`, nil)
+	b.eval(`history.back()`)
 	b.waitJS(8*time.Second, `!!document.getElementById("board")`)
 	check(t, "Back to /board reconnects", waitFor(8*time.Second, func() bool { return a.presence() == two && b.presence() == two }),
 		fmt.Sprintf("(A %q, B %q)", a.presence(), b.presence()))
 	v = b.version()
-	a.eval(`document.querySelector('button[aria-label="Increment"]').click()`, nil)
+	a.eval(`document.querySelector('button[aria-label="Increment"]').click()`)
 	check(t, "push reaches B after Back", waitFor(5*time.Second, func() bool { return b.version() > v }))
 
 	nav("/")

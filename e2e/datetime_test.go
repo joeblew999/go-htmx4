@@ -12,7 +12,7 @@ import (
 // zone; choosing a zone and clock in the header dialog stores them, and every page formats in them from then on.
 func testViewerTimeZone(t *testing.T) {
 	b := newTab(t, "browser")
-	b.run(emulation.SetTimezoneOverride("Asia/Tokyo"))
+	call(b, emulation.SetTimezoneOverride, emulation.SetTimezoneOverrideParams{TimezoneID: "Asia/Tokyo"})
 	b.open("/")
 	b.waitJS(5*time.Second, `document.readyState === "complete" && typeof htmx === "object"`)
 
@@ -31,7 +31,7 @@ func testViewerTimeZone(t *testing.T) {
 	// The browser reported its zone on its first page (the browser_tz cookie): now the server itself writes Tokyo time,
 	// so nothing changes after the page arrives. (Locally there is no Cloudflare guess: the server alone would say UTC.)
 	check(t, "the browser reported its zone", b.is(`document.cookie.includes("browser_tz=Asia/Tokyo")`), " ", b.str(`document.cookie`))
-	b.eval(`fetch(location.href).then((r) => r.text()).then((html) => { window.__served = html })`, nil)
+	b.eval(`fetch(location.href).then((r) => r.text()).then((html) => { window.__served = html })`)
 	b.waitJS(5*time.Second, `typeof window.__served === "string"`)
 	check(t, "the server's own page is in Tokyo time", b.is(`window.__served.includes("Sunday, July 5, 2026")`))
 
@@ -52,7 +52,7 @@ func testViewerTimeZone(t *testing.T) {
 	// Choose America/Los_Angeles and a 24-hour clock in the header dialog. The zone list is the browser's own.
 	b.open("/")
 	b.waitJS(5*time.Second, `document.readyState === "complete" && typeof htmx === "object"`)
-	b.eval(`document.querySelector('header button[hx-get$="/fragments/preferences"]').click()`, nil)
+	b.eval(`document.querySelector('header button[hx-get$="/fragments/preferences"]').click()`)
 	check(t, "preferences dialog lists the browser's zones", b.waitJS(5*time.Second, `document.querySelectorAll("#pref-tz option").length > 300`))
 	check(t, "zones are named", b.is(`[...document.querySelectorAll("#pref-tz option")].some(o => o.value === "Europe/Berlin" && o.textContent.includes("Central European"))`))
 	check(t, "automatic names the browser's zone", b.is(`document.querySelector('#pref-tz option[value=""]').textContent.includes("Asia/Tokyo")`))
@@ -60,7 +60,7 @@ func testViewerTimeZone(t *testing.T) {
 		document.getElementById("pref-tz").value = "America/Los_Angeles";
 		document.getElementById("pref-hc").value = "h23";
 		document.querySelector("#preferences button[type=submit]").click();
-	})()`, nil)
+	})()`)
 	ok = b.waitJS(8*time.Second, `document.cookie.includes("tz=America/Los_Angeles") && !document.querySelector("header dialog[open]")`)
 	check(t, "saving stores the zone and closes the dialog", ok, " ", b.str(`document.cookie`))
 

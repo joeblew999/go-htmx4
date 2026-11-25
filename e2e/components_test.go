@@ -20,26 +20,26 @@ func testComponents(t *testing.T) {
 	cal := `document.querySelector("[data-gsxui-slot-popover-content] [data-gsxui-slot-calendar-caption]")`
 	check(t, "calendar caption in German", b.is(cal+`.textContent.trim() === "Juli 2026"`), " ", b.str(cal+`.textContent`))
 	check(t, "the week starts on Monday", b.is(`document.querySelector("[data-gsxui-slot-popover-content] [data-gsxui-slot-calendar-weekday]").textContent.trim() === "M"`))
-	b.eval(`document.querySelector("[data-gsxui-slot-popover-content] [data-gsxui-slot-calendar-next]").click()`, nil)
+	b.eval(`document.querySelector("[data-gsxui-slot-popover-content] [data-gsxui-slot-calendar-next]").click()`)
 	check(t, "next month in German", b.waitJS(3*time.Second, cal+`.textContent.trim() === "August 2026"`), " ", b.str(cal+`.textContent`))
 
 	// Formats changed in the page, redone by the browser's Intl.
-	b.eval(`document.querySelector('[data-value="disjunction"]').click()`, nil)
+	b.eval(`document.querySelector('[data-value="disjunction"]').click()`)
 	check(t, "the list joined with oder", b.waitJS(3*time.Second, `document.getElementById("list-result").textContent.includes(" oder ")`),
 		" ", b.str(`document.getElementById("list-result").textContent`))
-	b.eval(`(() => { const s = document.getElementById("components-slider"); s.value = "7"; s.dispatchEvent(new Event("input", {bubbles: true})) })()`, nil)
+	b.eval(`(() => { const s = document.getElementById("components-slider"); s.value = "7"; s.dispatchEvent(new Event("input", {bubbles: true})) })()`)
 	check(t, "the slider in German units", b.waitJS(3*time.Second, `document.getElementById("slider-result").textContent.trim() === "7 Kilometer"`),
 		" ", b.str(`document.getElementById("slider-result").textContent`))
 	// The calendar system is chosen as a reader would: open the select, pick the item (select.js keeps the form's
 	// hidden select in step with it).
-	b.eval(`(() => { const root = document.querySelector('[data-gsxui-slot-select]:has(select[name="calendar"])'); root.querySelector("[data-gsxui-slot-select-trigger]").click(); root.querySelector('[data-value="hebrew"]').click() })()`, nil)
+	b.eval(`(() => { const root = document.querySelector('[data-gsxui-slot-select]:has(select[name="calendar"])'); root.querySelector("[data-gsxui-slot-select-trigger]").click(); root.querySelector('[data-value="hebrew"]').click() })()`)
 	check(t, "the date in the Hebrew calendar", b.waitJS(3*time.Second, `document.getElementById("calendar-result").textContent.includes("Tammus")`),
 		" ", b.str(`document.getElementById("calendar-result").textContent`))
-	b.eval(`(() => { const i = document.getElementById("components-amount"); i.value = "1.234,5"; i.dispatchEvent(new Event("input", {bubbles: true})) })()`, nil)
+	b.eval(`(() => { const i = document.getElementById("components-amount"); i.value = "1.234,5"; i.dispatchEvent(new Event("input", {bubbles: true})) })()`)
 	check(t, "the amount read back by Intl", b.waitJS(3*time.Second, `document.querySelector("#amount-result code").textContent === "1234.5"`))
 
 	// Counted on the Worker by Intl.Segmenter.
-	b.eval(`(() => { const t = document.getElementById("components-text"); t.value = "Hallo Welt. Zwei 👨‍👩‍👧!"; t.dispatchEvent(new Event("input", {bubbles: true})) })()`, nil)
+	b.eval(`(() => { const t = document.getElementById("components-text"); t.value = "Hallo Welt. Zwei 👨‍👩‍👧!"; t.dispatchEvent(new Event("input", {bubbles: true})) })()`)
 	check(t, "graphemes, words and sentences counted", b.waitJS(5*time.Second, `/^19\D.*\b3\D.*\b2\D/.test(document.getElementById("count-result").textContent.trim())`),
 		" ", b.str(`document.getElementById("count-result").textContent`))
 
@@ -48,14 +48,14 @@ func testComponents(t *testing.T) {
 	check(t, "initials", b.is(`[...document.querySelectorAll("[data-gsxui-slot-avatar-fallback]")].some((el) => el.textContent.trim() === "ZÅ")`))
 
 	// The sidebar's own document, in German.
-	b.eval(`document.querySelector("iframe").scrollIntoView()`, nil) // it loads lazily
+	b.eval(`document.querySelector("iframe").scrollIntoView()`) // it loads lazily
 	check(t, "the sidebar frame is German", b.waitJS(5*time.Second, `document.querySelector("iframe")?.contentDocument?.documentElement.lang === "de"`))
 	// The header's theme toggle reaches the frame too, both ways (gsxui's iframe sync, views/theme.gsx).
 	frameDark := `document.querySelector("iframe").contentDocument.documentElement.classList.contains("dark")`
 	pageDark := b.is(`document.documentElement.classList.contains("dark")`)
-	b.eval(`document.querySelector("[data-site-theme-toggle]").click()`, nil)
+	b.eval(`document.querySelector("[data-site-theme-toggle]").click()`)
 	check(t, "the theme toggle reaches the frame", b.waitJS(3*time.Second, frameDark+` === `+map[bool]string{true: "false", false: "true"}[pageDark]))
-	b.eval(`document.querySelector("[data-site-theme-toggle]").click()`, nil)
+	b.eval(`document.querySelector("[data-site-theme-toggle]").click()`)
 	check(t, "and back", b.waitJS(3*time.Second, frameDark+` === `+map[bool]string{true: "true", false: "false"}[pageDark]))
 	b.noProblems()
 }

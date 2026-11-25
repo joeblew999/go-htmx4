@@ -12,7 +12,7 @@ import (
 // testPages: the home page's gsxui components driven by htmx 4 and hx-live, boosted navigation, the theme.
 func testPages(t *testing.T) {
 	b := newTab(t, "browser")
-	b.run(chromedp.Navigate(base+"/"), chromedp.WaitReady("#greeting", chromedp.ByQuery))
+	b.run(chromedp.Navigate(base+"/"), chromedp.WaitReady(chromedp.CSS("#greeting")))
 	marker := b.num(`window.__marker = Math.floor(Math.random() * 1e9)`)
 
 	check(t, "htmx, hx-live and the toaster loaded", b.is(`typeof htmx === "object" && !!document.querySelector("[hx-live]") && !!document.getElementById("gsxui-toaster")`))
@@ -24,15 +24,15 @@ func testPages(t *testing.T) {
 	check(t, "hx-live counter", b.waitJS(2*time.Second, `document.querySelector("[data-count]").dataset.count === "2"`))
 	b.clickText("button", "Menu")
 	check(t, "hx-live menu opens", b.waitJS(2*time.Second, `!document.querySelector('[data-open] > div').hidden`))
-	b.eval(`document.querySelector("h1").dispatchEvent(new MouseEvent("click", {bubbles: true}))`, nil)
+	b.eval(`document.querySelector("h1").dispatchEvent(new MouseEvent("click", {bubbles: true}))`)
 	check(t, "hx-live menu closes on click outside", b.waitJS(2*time.Second, `document.querySelector('[data-open] > div').hidden`))
 	b.clickText("button", "Bold")
 	check(t, "hx-live aria.pressed + :class", b.waitJS(2*time.Second, `(() => { const e = [...document.querySelectorAll("button")].find(e => e.textContent.trim() === "Bold"); return e.getAttribute("aria-pressed") === "true" && e.classList.contains("font-bold"); })()`))
-	b.run(chromedp.SendKeys(`input[aria-label="Filter components"]`, "dia", chromedp.ByQuery))
+	b.run(chromedp.SendKeys(chromedp.CSS(`input[aria-label="Filter components"]`), "dia"))
 	check(t, "hx-live filter", b.waitJS(2*time.Second, `[...document.querySelectorAll("[hx-live] li")].filter(li => !li.hidden).map(li => li.textContent.trim()).join() === "dialog"`))
 
 	// Server round-trip: fragment + out-of-band toast, escaped.
-	b.run(chromedp.SendKeys("#name", "Ada <b>", chromedp.ByID))
+	b.run(chromedp.SendKeys(chromedp.ID("#name"), "Ada <b>"))
 	b.clickText("button", "Say hello")
 	ok := b.waitJS(5*time.Second, `document.getElementById("greeting").textContent.includes("Hello, \u2068Ada <b>\u2069.")`) // the name is bidi-isolated
 	check(t, "POST /greet swaps #greeting, escaped", ok && b.num(`document.querySelectorAll("#greeting b").length`) == 0)
@@ -54,7 +54,7 @@ func testPages(t *testing.T) {
 	b.clickText("nav a", "About")
 	ok = b.waitJS(5*time.Second, `location.pathname === "/about" && document.body.textContent.includes("About go-htmx4")`)
 	check(t, "boosted nav to /about (no reload)", ok && b.is(fmt.Sprintf(`window.__marker === %d`, marker)))
-	b.eval(`history.back()`, nil)
+	b.eval(`history.back()`)
 	ok = b.waitJS(5*time.Second, `location.pathname === "/" && !!document.getElementById("greeting")`)
 	check(t, "Back to / in the same document", ok && b.is(fmt.Sprintf(`window.__marker === %d`, marker)))
 
@@ -62,13 +62,13 @@ func testPages(t *testing.T) {
 	dark0 := b.is(`document.documentElement.classList.contains("dark")`)
 	bg0 := b.str(`getComputedStyle(document.body).backgroundColor`)
 	// Element click, not a mouse click at its coordinates: the toasts from above may still cover the header corner.
-	b.eval(`document.querySelector("[data-site-theme-toggle]").click()`, nil)
+	b.eval(`document.querySelector("[data-site-theme-toggle]").click()`)
 	ok = b.waitJS(2*time.Second, fmt.Sprintf(`document.documentElement.classList.contains("dark") === %v`, !dark0))
 	check(t, "theme toggle flips dark and colours", ok && b.str(`getComputedStyle(document.body).backgroundColor`) != bg0)
 	b.clickText("nav a", "About")
 	b.waitJS(5*time.Second, `location.pathname === "/about"`)
 	check(t, "theme kept across boosted nav", b.is(fmt.Sprintf(`document.documentElement.classList.contains("dark") === %v`, !dark0)))
-	b.run(chromedp.Reload(), chromedp.WaitReady("main", chromedp.ByQuery))
+	b.run(chromedp.Reload(), chromedp.WaitReady(chromedp.CSS("main")))
 	check(t, "theme persists across reload", b.is(fmt.Sprintf(`document.documentElement.classList.contains("dark") === %v`, !dark0)))
 
 	b.noProblems()
