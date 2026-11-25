@@ -16,6 +16,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/chromedp/cdproto/cdp"
 	cdplog "github.com/chromedp/cdproto/log"
 	"github.com/chromedp/cdproto/network"
 	"github.com/chromedp/cdproto/runtime"
@@ -74,12 +75,12 @@ func newTabWith(t *testing.T, name string, extra ...chromedp.ExecAllocatorOption
 	ctx, cancelTimeout := context.WithTimeout(ctx, 2*time.Minute)
 	t.Cleanup(func() { cancelTimeout(); cancelCtx(); cancelAlloc() })
 	tb := &tab{t: t, name: name, ctx: ctx}
-	chromedp.ListenTarget(ctx, func(ev any) {
+	listen := func(ev any) {
 		tb.mu.Lock()
 		defer tb.mu.Unlock()
 		switch e := ev.(type) {
 		case *runtime.EventConsoleAPICalled:
-			if e.Type == runtime.APITypeError || e.Type == runtime.APITypeWarning {
+			if e.Type == runtime.ConsoleAPICalledTypeError || e.Type == runtime.ConsoleAPICalledTypeWarning {
 				var parts []string
 				for _, a := range e.Args {
 					parts = append(parts, strings.Trim(string(a.Value), `"`)+a.Description)
@@ -88,11 +89,11 @@ func newTabWith(t *testing.T, name string, extra ...chromedp.ExecAllocatorOption
 			}
 		case *cdplog.EventEntryAdded:
 			// Chrome reports what the page's Content Security Policy blocked here, not on the console API.
-			if e.Entry.Source == cdplog.SourceSecurity || strings.Contains(e.Entry.Text, "Content Security Policy") {
+			if e.Entry.Source == cdplog.EntrySourceSecurity || strings.Contains(e.Entry.Text, "Content Security Policy") {
 				tb.problems = append(tb.problems, "CSP: "+e.Entry.Text)
 			}
 		case *runtime.EventExceptionThrown:
-			tb.problems = append(tb.problems, "exception: "+e.ExceptionDetails.Error())
+			tb.problems = append(tb.problems, "exception: "+(&chromedp.ExceptionError{ExceptionDetails: e.ExceptionDetails}).Error())
 		case *network.EventResponseReceived:
 			if e.Response.Status >= 400 && !strings.HasSuffix(e.Response.URL, "/favicon.ico") && !(tb.allow4xx && e.Response.Status < 500) {
 				tb.problems = append(tb.problems, fmt.Sprintf("HTTP %d %s", e.Response.Status, e.Response.URL))
@@ -102,50 +103,65 @@ func newTabWith(t *testing.T, name string, extra ...chromedp.ExecAllocatorOption
 		case *network.EventWebSocketFrameReceived:
 			tb.wsFrames++
 		}
-	})
-	tb.run(network.Enable(), cdplog.Enable())
+	}
+	if err := chromedp.Listen(ctx, listen); err != nil {
+		t.Fatalf("%s: %v", name, err)
+	}
+	call(tb, network.Enable, network.EnableParams{})
+	call(tb, cdplog.Enable, cdp.Empty{})
 	return tb
 }
 
-func (tb *tab) run(actions ...chromedp.Action) {
+// call sends one protocol command to the tab and returns its result.
+func call[P, R any](tb *tab, cmd cdp.Command[P, R], params P) R {
 	tb.t.Helper()
-	if err := chromedp.Run(tb.ctx, actions...); err != nil {
+	res, err := chromedp.Call(tb.ctx, cmd, params)
+	if err != nil {
+		tb.t.Fatalf("%s: %s: %v", tb.name, cmd.Method, err)
+	}
+	return res
+}
+
+func (tb *tab) run(actions ...chromedp.Action[chromedp.Void]) {
+	tb.t.Helper()
+	if err := chromedp.Do(tb.ctx, actions...); err != nil {
 		tb.t.Fatalf("%s: %v", tb.name, err)
 	}
 }
 
 func (tb *tab) open(path string) {
 	tb.t.Helper()
-	tb.run(chromedp.Navigate(base+path), chromedp.WaitReady("main", chromedp.ByQuery))
+	tb.run(chromedp.Navigate(base+path), chromedp.WaitReady(chromedp.CSS("main")))
 }
 
-// eval runs JavaScript (awaiting promises) and decodes the result into out (nil to ignore it).
-func (tb *tab) eval(js string, out any) {
+// evalAs runs JavaScript (awaiting promises) and returns its result as a T.
+func evalAs[T any](tb *tab, js string) T {
 	tb.t.Helper()
-	var ignore any
-	if out == nil {
-		out = &ignore
+	v, err := chromedp.Run(tb.ctx, chromedp.Evaluate[T](js, chromedp.EvalAwaitPromise))
+	if err != nil {
+		tb.t.Fatalf("%s: eval %.100q: %v", tb.name, js, err)
 	}
-	if err := chromedp.Run(tb.ctx, chromedp.Evaluate(js, out, func(p *runtime.EvaluateParams) *runtime.EvaluateParams {
-		return p.WithAwaitPromise(true)
-	})); err != nil {
+	return v
+}
+
+// eval runs JavaScript (awaiting promises) for what it does: its result, whatever it is, is dropped.
+func (tb *tab) eval(js string) {
+	tb.t.Helper()
+	if _, err := chromedp.Run(tb.ctx, chromedp.Evaluate[chromedp.Void](js, chromedp.EvalAwaitPromise)); err != nil {
 		tb.t.Fatalf("%s: eval %.100q: %v", tb.name, js, err)
 	}
 }
 
-func (tb *tab) str(js string) string { var s string; tb.eval(js, &s); return s }
-func (tb *tab) num(js string) int    { var n int; tb.eval(js, &n); return n }
-func (tb *tab) is(js string) bool    { var b bool; tb.eval(js, &b); return b }
+func (tb *tab) str(js string) string { return evalAs[string](tb, js) }
+func (tb *tab) num(js string) int    { return evalAs[int](tb, js) }
+func (tb *tab) is(js string) bool    { return evalAs[bool](tb, js) }
 
 // waitJS polls a JavaScript condition. An exception counts as "not yet": during a full navigation the document
 // being parsed can briefly have no <html> or <body>.
 func (tb *tab) waitJS(d time.Duration, js string) bool {
 	tb.t.Helper()
 	return waitFor(d, func() bool {
-		var ok bool
-		err := chromedp.Run(tb.ctx, chromedp.Evaluate(js, &ok, func(p *runtime.EvaluateParams) *runtime.EvaluateParams {
-			return p.WithAwaitPromise(true)
-		}))
+		ok, err := chromedp.Run(tb.ctx, chromedp.Evaluate[bool](js, chromedp.EvalAwaitPromise))
 		return err == nil && ok
 	})
 }

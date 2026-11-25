@@ -23,7 +23,7 @@ func testBoostedNavigation(t *testing.T) {
 		b.open(to)
 		want := b.str(pageShape)
 		b.open(from)
-		b.eval(fmt.Sprintf(`document.querySelector('header nav a[href=%q]').click()`, to), nil)
+		b.eval(fmt.Sprintf(`document.querySelector('header nav a[href=%q]').click()`, to))
 		same := b.waitJS(10*time.Second, fmt.Sprintf(`location.pathname === %q && %s === %q`, to, pageShape, want))
 		check(t, from+" → "+to, same, b.str(pageShape))
 	}

@@ -39,9 +39,9 @@ func testLiveVideo(t *testing.T) {
 	link := caster.str(`(() => { const u = new URL(document.querySelector("[data-moq-link]")?.value ?? "", location.href); return u.origin === location.origin ? u.pathname + u.search : ""; })()`)
 	check(t, "on air, the page gives the link to send, on its own origin", strings.Contains(link, "/live?stream="), link)
 	check(t, "the link's page is not for search engines", noindex(caster, link), link)
-	caster.eval(`document.querySelector("[data-moq=broadcast] [data-moq-action=copy]").click()`, nil)
+	caster.eval(`document.querySelector("[data-moq=broadcast] [data-moq-action=copy]").click()`)
 	check(t, "copy says it copied", caster.waitJS(5*time.Second, `document.querySelector("[data-moq=broadcast]").dataset.copied === "true"`))
-	caster.eval(`document.querySelector("[data-moq=broadcast] details").open = true`, nil)
+	caster.eval(`document.querySelector("[data-moq=broadcast] details").open = true`)
 	check(t, "the connection details show, once opened", caster.waitJS(5*time.Second, `document.querySelector("[data-moq=broadcast] [data-moq-debug]").textContent.includes("connection connected via webtransport")`),
 		caster.str(`document.querySelector("[data-moq=broadcast] [data-moq-debug]").textContent`))
 

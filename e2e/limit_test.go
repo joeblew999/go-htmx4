@@ -15,7 +15,7 @@ func testWriteLimit(t *testing.T) {
 	b := newTab(t, "browser")
 	b.allow4xx = true
 	top := topic("e2e-limit")
-	b.run(chromedp.Navigate(base+"/board?topic="+top), chromedp.WaitVisible("#board", chromedp.ByQuery))
+	b.run(chromedp.Navigate(base+"/board?topic="+top), chromedp.WaitVisible(chromedp.CSS("#board")))
 	var r struct {
 		Burst       map[string]int
 		ClickStatus int

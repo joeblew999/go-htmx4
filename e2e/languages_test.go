@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/chromedp/cdproto/cdp"
 	"github.com/chromedp/cdproto/emulation"
 	"github.com/chromedp/cdproto/network"
 	"github.com/chromedp/chromedp"
@@ -16,12 +17,12 @@ import (
 // the browser in the page's language, and the bare "/" follows the remembered locale.
 func testLocales(t *testing.T) {
 	b := newTab(t, "browser")
-	b.run(chromedp.Navigate(base+"/formats"), chromedp.WaitReady("#languages", chromedp.ByQuery))
+	b.run(chromedp.Navigate(base+"/formats"), chromedp.WaitReady(chromedp.CSS("#languages")))
 	marker := b.num(`window.__marker = Math.floor(Math.random() * 1e9)`)
 	check(t, "English page", b.is(`document.documentElement.lang === "en" && document.documentElement.dir === "ltr"`))
 
 	// Footer link → Arabic: a full load (no boost), so lang and dir change.
-	b.eval(`document.querySelector('#languages a[hreflang="ar"]').click()`, nil)
+	b.eval(`document.querySelector('#languages a[hreflang="ar"]').click()`)
 	ok := b.waitJS(5*time.Second, `location.pathname === "/ar/formats" && document.documentElement.lang === "ar" && !!document.querySelector("#languages")`)
 	check(t, "language link loads /ar/formats with lang=ar", ok && b.is(fmt.Sprintf(`window.__marker !== %d`, marker)))
 	check(t, "dir=rtl mirrors the layout", b.is(`document.documentElement.dir === "rtl" && getComputedStyle(document.querySelector("header nav")).direction === "rtl"`))
@@ -32,18 +33,18 @@ func testLocales(t *testing.T) {
 	// Boosted nav inside the locale keeps the prefix and the RTL document (once htmx has processed the page).
 	b.waitJS(5*time.Second, `document.readyState === "complete" && typeof htmx === "object"`)
 	marker = b.num(`window.__marker = Math.floor(Math.random() * 1e9)`)
-	b.eval(`document.querySelector('header nav a[href="/ar/about"]').click()`, nil)
+	b.eval(`document.querySelector('header nav a[href="/ar/about"]').click()`)
 	ok = b.waitJS(5*time.Second, `location.pathname === "/ar/about" && !!document.body?.textContent.includes("حول go-htmx4")`)
 	check(t, "boosted nav stays under /ar/ (Arabic UI text)", ok && b.is(fmt.Sprintf(`window.__marker === %d && document.documentElement.dir === "rtl"`, marker)))
 
 	// The remembered locale: the bare / goes to /ar/.
-	b.run(chromedp.Navigate(base+"/"), chromedp.WaitReady("main", chromedp.ByQuery))
+	b.run(chromedp.Navigate(base+"/"), chromedp.WaitReady(chromedp.CSS("main")))
 	check(t, "/ follows the remembered locale", b.waitJS(5*time.Second, `location.pathname === "/ar/" && document.documentElement.lang === "ar" && !!document.querySelector("#languages")`))
 
 	// Back to English via the list: / stays English afterwards.
-	b.eval(`document.querySelector('#languages a[hreflang="en"]').click()`, nil)
+	b.eval(`document.querySelector('#languages a[hreflang="en"]').click()`)
 	b.waitJS(5*time.Second, `location.pathname === "/" && document.documentElement.lang === "en" && !!document.querySelector("#languages")`)
-	b.run(chromedp.Navigate(base+"/"), chromedp.WaitReady("main", chromedp.ByQuery))
+	b.run(chromedp.Navigate(base+"/"), chromedp.WaitReady(chromedp.CSS("main")))
 	check(t, "choosing English sticks", b.waitJS(5*time.Second, `location.pathname === "/" && document.documentElement.lang === "en" && !!document.querySelector("#languages")`))
 
 	b.noProblems()
@@ -104,22 +105,22 @@ func testLocaleSwitchKeepsPreferences(t *testing.T) {
 	b := newTab(t, "browser")
 	b.open("/de/formats")
 	b.waitJS(5*time.Second, `document.readyState === "complete" && typeof htmx === "object"`)
-	b.eval(`document.querySelector('header button[hx-get$="/fragments/preferences"]').click()`, nil)
+	b.eval(`document.querySelector('header button[hx-get$="/fragments/preferences"]').click()`)
 	check(t, "German preferences dialog loads", b.waitJS(5*time.Second, `document.querySelectorAll("#pref-tz option").length > 300`))
 	b.eval(`(() => {
 		document.getElementById("pref-tz").value = "Asia/Tokyo";
 		document.querySelector("#preferences button[type=submit]").click();
-	})()`, nil)
+	})()`)
 	check(t, "zone saved from the German page", b.waitJS(8*time.Second, `document.cookie.includes("tz=Asia/Tokyo") && location.pathname === "/de/formats"`))
 
-	b.eval(`document.querySelector('#languages a[hreflang="ar"]').click()`, nil)
+	b.eval(`document.querySelector('#languages a[hreflang="ar"]').click()`)
 	ok := b.waitJS(8*time.Second, `location.pathname === "/ar/formats" && document.documentElement.lang === "ar" && document.documentElement.dataset.tz === "Asia/Tokyo"`)
 	check(t, "switching to Arabic keeps the zone", ok)
 	b.waitJS(5*time.Second, `document.readyState === "complete" && typeof htmx === "object"`)
-	b.eval(`document.querySelector('header button[hx-get$="/fragments/preferences"]').click()`, nil)
+	b.eval(`document.querySelector('header button[hx-get$="/fragments/preferences"]').click()`)
 	check(t, "Arabic dialog shows the chosen zone", b.waitJS(5*time.Second, `document.getElementById("pref-tz")?.value === "Asia/Tokyo"`))
 
-	b.eval(`document.querySelector('#languages a[hreflang="en"]').click()`, nil)
+	b.eval(`document.querySelector('#languages a[hreflang="en"]').click()`)
 	b.waitJS(8*time.Second, `location.pathname === "/" && document.documentElement.lang === "en"`)
 	b.open("/formats")
 	check(t, "back in English, still the chosen zone", b.is(`document.documentElement.dataset.tz === "Asia/Tokyo" && document.body.textContent.includes("time zone \u2068Asia/Tokyo\u2069")`))
@@ -131,13 +132,13 @@ func testLocaleSwitchKeepsPreferences(t *testing.T) {
 func testMixedLocalePush(t *testing.T) {
 	top := topic("e2e-locales")
 	de, ar := newTab(t, "de"), newTab(t, "ar")
-	de.run(chromedp.Navigate(base+"/de/board?topic="+top), chromedp.WaitVisible("#board", chromedp.ByQuery))
-	ar.run(chromedp.Navigate(base+"/ar/board?topic="+top), chromedp.WaitVisible("#board", chromedp.ByQuery))
+	de.run(chromedp.Navigate(base+"/de/board?topic="+top), chromedp.WaitVisible(chromedp.CSS("#board")))
+	ar.run(chromedp.Navigate(base+"/ar/board?topic="+top), chromedp.WaitVisible(chromedp.CSS("#board")))
 	check(t, "both connected (presence 2)", waitFor(8*time.Second, func() bool {
 		return strings.HasPrefix(de.presence(), "2") && strings.HasPrefix(ar.presence(), "2")
 	}), fmt.Sprintf("(de %q, ar %q)", de.presence(), ar.presence()))
 
-	ar.run(chromedp.SendKeys(`input[name="body"]`, "مرحبا من الرياض", chromedp.ByQuery), chromedp.Click(`#board ~ * form button, form[hx-post*="/board/note"] button`, chromedp.ByQuery))
+	ar.run(chromedp.SendKeys(chromedp.CSS(`input[name="body"]`), "مرحبا من الرياض"), chromedp.Click(chromedp.CSS(`#board ~ * form button, form[hx-post*="/board/note"] button`)))
 	pushed := waitFor(6*time.Second, func() bool {
 		return strings.Contains(de.str(`document.querySelector("#board")?.textContent ?? ""`), "مرحبا من الرياض")
 	})
@@ -152,8 +153,8 @@ func testMixedLocalePush(t *testing.T) {
 	// Relative times are worded by each browser in its page's language, and follow the instant: pretend the note is
 	// 5 minutes old (intl-browser.mjs redoes it on the attribute change).
 	const age = `document.querySelector("#board time[data-intl=since]").setAttribute("datetime", new Date(Date.now() - 5 * 60 * 1000).toISOString())`
-	de.eval(age, nil)
-	ar.eval(age, nil)
+	de.eval(age)
+	ar.eval(age)
 	rel := `(document.querySelector("#board time[data-intl=since]")?.textContent ?? "")`
 	check(t, "German relative time", de.waitJS(5*time.Second, rel+` === "vor 5 Minuten"`), " ", de.str(rel))
 	check(t, "Arabic relative time", ar.waitJS(5*time.Second, rel+` === "قبل 5 دقائق"`), " ", ar.str(rel))
@@ -167,7 +168,8 @@ func testMixedLocalePush(t *testing.T) {
 // knows its zone, the zone badge already shows its own.
 func testLanguageOffer(t *testing.T) {
 	b := newTab(t, "german")
-	b.run(network.SetExtraHTTPHeaders(network.Headers{"Accept-Language": "de-DE,de;q=0.9"}), emulation.SetTimezoneOverride("Asia/Tokyo"))
+	call(b, network.SetExtraHTTPHeaders, network.SetExtraHTTPHeadersParams{Headers: network.Headers{"Accept-Language": "de-DE,de;q=0.9"}})
+	call(b, emulation.SetTimezoneOverride, emulation.SetTimezoneOverrideParams{TimezoneID: "Asia/Tokyo"})
 	offer := `document.querySelector('main [role=alert] a[hreflang="de"]') !== null`
 	ready := `document.readyState === "complete" && typeof htmx === "object"`
 
@@ -175,24 +177,24 @@ func testLanguageOffer(t *testing.T) {
 	check(t, "the first page offers German, in German", b.is(offer+` && document.querySelector("main [role=alert]").textContent.includes("Nein danke")`))
 	check(t, "the zone badge shows the browser's zone", b.waitJS(5*time.Second, `document.body.textContent.includes("time zone \u2068Asia/Tokyo\u2069")`))
 	b.waitJS(5*time.Second, ready)
-	b.eval(`document.querySelector('header a[href="/about"]').click()`, nil)
+	b.eval(`document.querySelector('header a[href="/about"]').click()`)
 	// The swapped-in page's own offer: its "Nein danke" is for /about (the URL changes before the swap ends).
 	check(t, "a boosted link's page offers it too", b.waitJS(8*time.Second,
 		`document.querySelector("main [role=alert] a[rel=nofollow]")?.getAttribute("href") === "/about?locale=en"`))
 
-	b.eval(`document.querySelector("main [role=alert] a[rel=nofollow]").click()`, nil)
+	b.eval(`document.querySelector("main [role=alert] a[rel=nofollow]").click()`)
 	check(t, "Nein danke keeps English and ends the offer", b.waitJS(8*time.Second,
 		`location.pathname === "/about" && location.search === "" && document.cookie.includes("chosen_locale=en") && !(`+offer+`)`),
 		" ", b.str(`location.href + " | " + document.cookie + " | offer: " + (`+offer+`)`))
 	b.open("/formats")
 	check(t, "no offer after Nein danke", !b.is(offer))
 
-	b.run(network.ClearBrowserCookies())
+	call(b, network.ClearBrowserCookies, cdp.Empty{})
 	b.open("/about")
-	b.eval(`document.querySelector("main [role=alert] a[hreflang=de]").click()`, nil)
+	b.eval(`document.querySelector("main [role=alert] a[hreflang=de]").click()`)
 	check(t, "the offer leads to the German page", b.waitJS(8*time.Second, `location.pathname === "/de/about" && document.querySelector("main [role=alert]") === null`))
 	b.waitJS(5*time.Second, ready)
-	b.eval(`document.querySelector('#languages a[hreflang="en"]').click()`, nil)
+	b.eval(`document.querySelector('#languages a[hreflang="en"]').click()`)
 	check(t, "English from the German page's language list is a choice", b.waitJS(8*time.Second,
 		`location.pathname === "/about" && document.cookie.includes("chosen_locale=en") && !(`+offer+`)`), " ", b.str(`document.cookie`))
 	b.noProblems()
