@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/joeblew999/go-htmx4/intl/intltest"
+	"github.com/joeblew999/mise-intl/intl/intltest"
 )
 
 func TestMain(m *testing.M) { os.Exit(intltest.Main(m)) }

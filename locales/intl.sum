@@ -1,4 +1,4 @@
-# intl.sum: the source text each translation was made from (go tool intl gen writes it: commit it, don't edit it).
+# intl.sum: the source text each translation was made from (mise-intl gen writes it: commit it, don't edit it).
 de about.description 060f0b961364 03c2290ff13e
 de about.heading 9e55eb165728 c04217502490
 de about.roles.d1 e0ef2900b712 6b411bf26a37
@@ -5186,9 +5186,9 @@ ru server_info.workers_note 96302763ac38 71eb292f3e58
 file views/gsxkit/map.gsx 3874f41e47e1
 file views/gsxkit/moq.gsx 51572356fb42
 file views/gsxkit/places.gsx 9866c5daaf1d
-file views/intl/language-list.gsx 66cb6721ed65
-file views/intl/language-offer.gsx 101f9f461837
-file views/intl/preferences.gsx 297d949030b0
+file views/intl/language-list.gsx fb6998fe15c0
+file views/intl/language-offer.gsx 77623de1145b
+file views/intl/preferences.gsx c349743c9824
 file web/gsxkit/map.css fcd9fbeec3e8
 file web/gsxkit/map.js 3e933a68e769
 file web/gsxkit/moq.js 5c83f6c0d34d

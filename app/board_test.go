@@ -17,7 +17,7 @@ import (
 
 	"github.com/joeblew999/charter/d1"
 	"github.com/joeblew999/go-htmx4/internal/live"
-	"github.com/joeblew999/go-htmx4/intl"
+	"github.com/joeblew999/mise-intl/intl"
 	"github.com/joeblew999/go-htmx4/locales"
 )
 

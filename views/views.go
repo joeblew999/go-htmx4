@@ -10,7 +10,7 @@ import (
 
 	"github.com/gsxhq/gsx"
 	"github.com/jackielii/structpages"
-	"github.com/joeblew999/go-htmx4/intl"
+	"github.com/joeblew999/mise-intl/intl"
 )
 
 // BoardState is one topic's shared state as the board page and its pushed fragment show it.

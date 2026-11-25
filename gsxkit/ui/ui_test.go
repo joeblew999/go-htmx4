@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/joeblew999/go-htmx4/intl/registry"
+	"github.com/joeblew999/mise-intl/gsxintl/registry"
 )
 
 // TestComponents: each component's file points its imports at the app's packages, every browser file it names is

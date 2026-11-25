@@ -11,9 +11,9 @@ import (
 	"github.com/joeblew999/go-htmx4/gsxkit/deps"
 	"github.com/joeblew999/go-htmx4/gsxkit/mise"
 	gsxkitui "github.com/joeblew999/go-htmx4/gsxkit/ui"
-	"github.com/joeblew999/go-htmx4/intl/config"
-	"github.com/joeblew999/go-htmx4/intl/registry"
-	intlui "github.com/joeblew999/go-htmx4/intl/ui"
+	"github.com/joeblew999/mise-intl/intl/config"
+	"github.com/joeblew999/mise-intl/gsxintl/registry"
+	intlui "github.com/joeblew999/mise-intl/gsxintl/screens"
 )
 
 const (

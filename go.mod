@@ -12,8 +12,6 @@ require (
 	github.com/jackielii/tailwind-merge-go v0.0.0-20260726184505-8a911ed0cf9a
 	github.com/joeblew999/charter v0.23.0
 	github.com/joeblew999/go-htmx4/gsxkit v0.0.0
-	github.com/joeblew999/go-htmx4/intl v0.9.0
-	github.com/joeblew999/go-htmx4/seo v0.3.0
 	golang.org/x/net v0.63.0
 )
 
@@ -31,6 +29,8 @@ require (
 	github.com/jackielii/structpages/tools/lint v0.1.21 // indirect
 	github.com/jmoiron/sqlx v1.4.0 // indirect
 	github.com/joeblew999/go-htmx4/badge v0.1.0 // indirect
+	github.com/joeblew999/mise-intl v0.1.16 // indirect
+	github.com/joeblew999/mise-seo v0.0.2 // indirect
 	github.com/mattn/go-isatty v0.0.24 // indirect
 	github.com/ncruces/go-strftime v1.1.0 // indirect
 	github.com/pelletier/go-toml v1.9.5 // indirect
@@ -57,14 +57,8 @@ tool (
 	github.com/gsxhq/gsx/cmd/gsx
 	github.com/jackielii/structpages/tools/lint/cmd/structpages-lint
 	github.com/joeblew999/go-htmx4/gsxkit/cmd/gsxkit
-	github.com/joeblew999/go-htmx4/intl/cmd/intl
-	github.com/joeblew999/go-htmx4/seo/cmd/seo
 	github.com/tdewolff/minify/v2/cmd/minify
 )
-
-replace github.com/joeblew999/go-htmx4/intl => ./intl
-
-replace github.com/joeblew999/go-htmx4/seo => ./seo
 
 replace github.com/joeblew999/go-htmx4/badge => ./badge
 

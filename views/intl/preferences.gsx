@@ -1,17 +1,18 @@
 package intlui
 
 import (
-	"github.com/joeblew999/go-htmx4/intl"
 	"github.com/joeblew999/go-htmx4/locales"
 	"github.com/joeblew999/go-htmx4/ui"
 	"github.com/joeblew999/go-htmx4/ui/icon"
+	"github.com/joeblew999/mise-intl/gsxintl"
+	"github.com/joeblew999/mise-intl/intl"
 )
 
 // PreferencesDialog is a header button and the time zone and clock dialog it opens. The dialog's form loads when it
 // opens, from GET /fragments/preferences (PreferencesForm), swapped in with innerHTML: inside a boosted nav, an
 // inherited outerMorph would replace the target itself.
 //
-// From go tool intl add preferences: the app's own now, to change as it likes.
+// From mise-intl add preferences: the app's own now, to change as it likes.
 component PreferencesDialog() {
 	<ui.Dialog>
 		<ui.Button
@@ -69,7 +70,7 @@ component PreferencesForm(returnTo string, connectionZone string) {
 						<ui.NativeSelectOption
 							value={intl.TimeZone(ctx)}
 							selected={true}
-							{ intl.Zone(intl.TimeZone(ctx)).Attrs()... }
+							{ gsxintl.Attrs(intl.Zone(intl.TimeZone(ctx)))... }
 						>
 							{ intl.TimeZone(ctx) |> zone |> plain }
 						</ui.NativeSelectOption>
@@ -82,7 +83,7 @@ component PreferencesForm(returnTo string, connectionZone string) {
 					<ui.NativeSelectOption
 						value=""
 						selected={intl.HourCycle(ctx) == ""}
-						{ intl.Clock("").Attrs()... }
+						{ gsxintl.Attrs(intl.Clock(""))... }
 						data-template={locales.IntlHourCycleAuto(intl.Slot)}
 					>
 						{ locales.IntlHourCycleAuto(intl.Clock("")) }
@@ -90,14 +91,14 @@ component PreferencesForm(returnTo string, connectionZone string) {
 					<ui.NativeSelectOption
 						value="h12"
 						selected={intl.HourCycle(ctx) == "h12"}
-						{ intl.Clock("h12").Attrs()... }
+						{ gsxintl.Attrs(intl.Clock("h12"))... }
 					>
 						{ intl.Clock("h12") |> plain }
 					</ui.NativeSelectOption>
 					<ui.NativeSelectOption
 						value="h23"
 						selected={intl.HourCycle(ctx) == "h23"}
-						{ intl.Clock("h23").Attrs()... }
+						{ gsxintl.Attrs(intl.Clock("h23"))... }
 					>
 						{ intl.Clock("h23") |> plain }
 					</ui.NativeSelectOption>

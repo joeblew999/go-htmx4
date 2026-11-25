@@ -2,11 +2,12 @@ package views
 
 import (
 	"github.com/gsxhq/gsx"
-	"github.com/joeblew999/go-htmx4/intl"
 	"github.com/joeblew999/go-htmx4/locales"
 	"github.com/joeblew999/go-htmx4/ui"
 	"github.com/joeblew999/go-htmx4/ui/icon"
 	intlui "github.com/joeblew999/go-htmx4/views/intl"
+	"github.com/joeblew999/mise-intl/gsxintl"
+	"github.com/joeblew999/mise-intl/intl"
 	"github.com/joeblew999/mise-seo/gsxseo"
 )
 
@@ -41,7 +42,7 @@ import (
 // boosted swap keeps the old <html lang dir>), and set the time zone and clock from the header.
 component Layout(title intl.Msg, description intl.Msg, children gsx.Node) {
 	<!DOCTYPE html>
-	<html { intl.HTML(ctx)... }>
+	<html { gsxintl.HTML(ctx)... }>
 		<head>
 			<meta charset="utf-8"/>
 			<meta name="viewport" content="width=device-width, initial-scale=1"/>
@@ -53,7 +54,7 @@ component Layout(title intl.Msg, description intl.Msg, children gsx.Node) {
 				home={homeURL(ctx)}
 				lang={intl.Current(ctx).ID()}
 			/>
-			<intl.Head page={Key(ctx)}/>
+			<gsxintl.Head page={Key(ctx)}/>
 			<meta name="htmx-config" content={htmxConfig(ctx)}/>
 			<script src="/static/htmx.js" defer></script>
 			<VersionGuard/>

@@ -44,3 +44,4 @@ intl-messages.mjs
 .mise/config.local.toml
 # Installed packages
 node_modules/
+intl-workerd/

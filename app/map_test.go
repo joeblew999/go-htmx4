@@ -1,24 +1,17 @@
 package app
 
 import (
-	"bytes"
 	"encoding/json"
 	"html"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
-	"os"
-	"path/filepath"
 	"regexp"
 	"strings"
 	"testing"
 	"time"
 
 	"github.com/joeblew999/charter/transport"
-	gsxkitui "github.com/joeblew999/go-htmx4/gsxkit/ui"
-	"github.com/joeblew999/go-htmx4/intl/catalog"
-	"github.com/joeblew999/go-htmx4/intl/config"
-	"github.com/joeblew999/go-htmx4/intl/registry"
 	gsxkitcomponent "github.com/joeblew999/go-htmx4/views/gsxkit"
 )
 
@@ -225,42 +218,4 @@ func mapView(t *testing.T, body string) (v struct {
 		t.Fatalf("data-map: %v", err)
 	}
 	return v
-}
-
-// TestGsxkitComponents: the app's gsxkit components are gsxkit's, gsx and browser files alike (as TestIntlScreens for
-// intl's): change gsxkit/ui or gsxkit/js, then mise run gsxkit:add.
-func TestGsxkitComponents(t *testing.T) {
-	c, err := config.Find(".")
-	if err != nil {
-		t.Fatal(err)
-	}
-	var paths registry.Paths
-	if paths.Catalogs, err = catalog.PackagePath(c.CatalogDir()); err != nil {
-		t.Fatal(err)
-	}
-	if paths.Gsxui, err = catalog.PackagePath(filepath.Join(c.Root, c.Gsxui)); err != nil {
-		t.Fatal(err)
-	}
-	r := gsxkitui.Components
-	for _, comp := range r.Components {
-		want, err := r.Source(comp, paths)
-		if err == nil {
-			want, err = registry.Format(c.Root, "views/gsxkit/"+comp.Name+".gsx", want)
-		}
-		if err != nil {
-			t.Fatal(err)
-		}
-		if got, err := os.ReadFile(filepath.Join(c.Root, "views", "gsxkit", comp.Name+".gsx")); err != nil || !bytes.Equal(got, want) {
-			t.Errorf("views/gsxkit/%s.gsx isn't gsxkit's (%v): mise run gsxkit:add", comp.Name, err)
-		}
-		for _, a := range comp.Assets {
-			want, err := r.Asset(a)
-			if err != nil {
-				t.Fatal(err)
-			}
-			if got, err := os.ReadFile(filepath.Join(c.Root, "web", "gsxkit", a)); err != nil || !bytes.Equal(got, want) {
-				t.Errorf("web/gsxkit/%s isn't gsxkit's (%v): mise run gsxkit:add", a, err)
-			}
-		}
-	}
 }

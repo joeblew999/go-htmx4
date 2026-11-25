@@ -15,13 +15,13 @@ import (
 	"example.com/fresh/locales"
 	intlui "example.com/fresh/views/intl"
 	"github.com/gsxhq/gsx"
-	"github.com/joeblew999/go-htmx4/intl"
-	"github.com/joeblew999/go-htmx4/intl/workerd"
+	"github.com/joeblew999/mise-intl/intl"
+	"github.com/joeblew999/mise-intl/intl/workerd"
 	"github.com/joeblew999/mise-seo/seo"
 )
 
 func main() {
-	stop, err := workerd.Start(locales.Messages) // github.com/joeblew999/go-htmx4/intl/workerd
+	stop, err := workerd.Start(locales.Messages) // github.com/joeblew999/mise-intl/intl/workerd
 	if err != nil {
 		log.Fatal(err)
 	}

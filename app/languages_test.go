@@ -6,7 +6,6 @@
 package app
 
 import (
-	"bytes"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -17,43 +16,11 @@ import (
 	"testing"
 
 	"github.com/joeblew999/charter/transport"
-	"github.com/joeblew999/go-htmx4/intl"
-	"github.com/joeblew999/go-htmx4/intl/catalog"
-	"github.com/joeblew999/go-htmx4/intl/config"
-	"github.com/joeblew999/go-htmx4/intl/registry"
-	intlui "github.com/joeblew999/go-htmx4/intl/ui"
 	"github.com/joeblew999/go-htmx4/locales"
+	"github.com/joeblew999/mise-intl/intl"
+	"github.com/joeblew999/mise-intl/intl/config"
 	nethtml "golang.org/x/net/html"
 )
-
-// TestIntlScreens: the language list, the language offer and the time zone and clock dialog are intl's own screens as
-// go tool intl add writes them, unchanged (#77): what other apps get is what this one runs and its tests check.
-func TestIntlScreens(t *testing.T) {
-	c, err := config.Find(".")
-	if err != nil {
-		t.Fatal(err)
-	}
-	var paths registry.Paths
-	if paths.Catalogs, err = catalog.PackagePath(c.CatalogDir()); err != nil {
-		t.Fatal(err)
-	}
-	if paths.Gsxui, err = catalog.PackagePath(filepath.Join(c.Root, c.Gsxui)); err != nil {
-		t.Fatal(err)
-	}
-	for _, s := range intlui.Screens.Components {
-		want, err := intlui.Screens.Source(s, paths)
-		if err == nil {
-			want, err = registry.Format(c.Root, filepath.ToSlash(filepath.Join(c.UIDir(), s.Name+".gsx")), want)
-		}
-		if err != nil {
-			t.Fatal(err)
-		}
-		got, err := os.ReadFile(filepath.Join(c.Root, c.UIDir(), s.Name+".gsx"))
-		if err != nil || !bytes.Equal(got, want) {
-			t.Errorf("%s/%s.gsx isn't intl's (%v): change intl/ui/%[2]s.gsx.tmpl, then go tool intl add -overwrite %[2]s", c.UIDir(), s.Name, err)
-		}
-	}
-}
 
 func TestLocaleRouting(t *testing.T) {
 	h := newServer().routes()

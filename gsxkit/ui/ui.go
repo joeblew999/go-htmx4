@@ -12,7 +12,7 @@ package ui
 import (
 	"embed"
 
-	"github.com/joeblew999/go-htmx4/intl/registry"
+	"github.com/joeblew999/mise-intl/gsxintl/registry"
 )
 
 //go:embed *.gsx.tmpl locales/*.toml assets/*
