@@ -28,8 +28,6 @@ intl-messages.mjs
 # a Workers Build that a newer commit superseded (charter's launcher, .mise/tasks/charter-builds)
 /.superseded
 
-# mise run bench:variants: the last run's results (ci/bench.sh render .bench writes docs/benchmarks.md from them)
-/.bench/
 # intl is a library other modules import: its renderer package is committed generated (gsx Package renderers)
 !/intl/*.x.go
 # go tool intl export: XLIFF for human translators (mise run intl:export / intl:import)

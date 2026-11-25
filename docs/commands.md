@@ -5,12 +5,10 @@ descriptions in tasks/*.toml and mise.toml. Edit those, not this file. -->
 
 Every command is a mise task: `mise run <task>`; `mise tasks` lists them. Which to use when:
 
-- **Develop:** `dev`: the real Worker runtime (Intl, board, D1, Durable Objects) on workerd, rebuilt on every save
-  with the fast `build:dev`.
-- **Build:** `build` is production (what ships and what the tests use), compiled by `WORKER_COMPILER` in mise.toml:
+- **Develop:** `dev`: the real Worker runtime (Intl, board, D1, Durable Objects) on workerd, rebuilt on every save.
+- **Build:** `build` is what dev, the tests and a deploy all run, compiled by `WORKER_COMPILER` in mise.toml:
   `go`, the standard compiler (seconds, any Go library as it is), or `tinygo` (a smaller wasm, ~50–90 ms faster per
   request, minutes to build, its own runtime gaps). Override it for one run: `WORKER_COMPILER=tinygo mise run check`.
-  `build:dev` is always standard Go, for `dev`.
 - **Test:** `check` before pushing (CI runs the same, `charter ci run` from `charter.toml`'s `[ci]`), then
   `e2e` for anything in the browser.
   `SMOKE_BASE=https://… smoke` runs the smoke checks against a deployed Worker.
@@ -35,15 +33,7 @@ Assemble dist/site, the Static Assets for workerd and deploy: htmx, intl's brows
 
 - **Usage:** `bench`
 
-CPU per request of the production build on local workerd, per page, repeated runs (charter bench)
-
-### `bench:variants`
-
-- Depends: generate, assets
-
-- **Usage:** `bench:variants`
-
-Build the current code with each of charter's optimisations off in turn, measure each, write docs/benchmarks.md
+CPU per request of the build on local workerd, per page, repeated runs (charter bench); BENCH_N requests a kind, BENCH_RUNS runs
 
 ### `build`
 
@@ -51,15 +41,7 @@ Build the current code with each of charter's optimisations off in turn, measure
 
 - **Usage:** `build`
 
-Production build → build/ with WORKER_COMPILER (mise.toml: go, or tinygo), size-checked (deploy, staging, CI and the tests use it)
-
-### `build:dev`
-
-- Depends: generate, assets
-
-- **Usage:** `build:dev`
-
-Dev build → build/: standard Go to wasm, seconds after an edit (mise run dev uses it; never deployed)
+The Worker → build/: standard Go to wasm (WORKER_COMPILER=tinygo for TinyGo), intl's Worker modules beside it, size-checked; what dev, the tests and a deploy all run
 
 ### `charter:build`
 
@@ -255,7 +237,7 @@ Test, then deploy production → https://$APP_DOMAIN (or $APP_NAME.&lt;subdomain
 
 - **Usage:** `dev`
 
-gsx dev → build:dev (standard Go, seconds) + CSS → workerd restart on every .gsx/.go save → http://localhost:8913 (PORT: another port)
+gsx dev → build + CSS → workerd restart on every .gsx/.go save → http://localhost:8913 (PORT: another port)
 
 ### `docs:commands`
 

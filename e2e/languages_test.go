@@ -2,6 +2,7 @@ package e2e
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 	"testing"
 	"time"
@@ -151,13 +152,22 @@ func testMixedLocalePush(t *testing.T) {
 	check(t, "user text isolated with dir=auto", de.is(`[...document.querySelectorAll("#board [dir=auto]")].some(e => e.textContent.includes("مرحبا"))`))
 
 	// Relative times are worded by each browser in its page's language, and follow the instant: pretend the note is
-	// 5 minutes old (intl-browser.mjs redoes it on the attribute change).
-	const age = `document.querySelector("#board time[data-intl=since]").setAttribute("datetime", new Date(Date.now() - 5 * 60 * 1000).toISOString())`
-	de.eval(age)
-	ar.eval(age)
+	// 5 minutes old (intl-browser.mjs redoes it on the attribute change). A push that arrives late swaps #board, and
+	// with it the <time> for a new one at the real instant: each look ages whichever element is there now (#192).
+	aged := func(want string) string {
+		return `(() => {
+			const t = document.querySelector("#board time[data-intl=since]");
+			if (!t) return false;
+			if (!t.dataset.e2eAged) {
+				t.dataset.e2eAged = "1";
+				t.setAttribute("datetime", new Date(Date.now() - 5 * 60 * 1000).toISOString());
+			}
+			return t.textContent === ` + strconv.Quote(want) + `;
+		})()`
+	}
 	rel := `(document.querySelector("#board time[data-intl=since]")?.textContent ?? "")`
-	check(t, "German relative time", de.waitJS(5*time.Second, rel+` === "vor 5 Minuten"`), " ", de.str(rel))
-	check(t, "Arabic relative time", ar.waitJS(5*time.Second, rel+` === "قبل 5 دقائق"`), " ", ar.str(rel))
+	check(t, "German relative time", de.waitJS(5*time.Second, aged("vor 5 Minuten")), " ", de.str(rel))
+	check(t, "Arabic relative time", ar.waitJS(5*time.Second, aged("قبل 5 دقائق")), " ", ar.str(rel))
 	de.noProblems()
 	ar.noProblems()
 }

@@ -26,11 +26,11 @@ target = "github.com/jackielii/structpages.IDTarget"
 names = ["hx-ws:connect"]
 
 # gsx dev (gsx Configuration guide, [dev]): a .gsx/.go save regenerates, rebuilds, restarts the backend and probes
-# /healthz. mise run dev: build:dev (standard Go, seconds) → workerd on :8913 (Intl, Durable Objects, D1 shim, pushes);
+# /healthz. mise run dev: build (seconds) → workerd on :8913 (Intl, Durable Objects, D1 shim, pushes);
 # the backend port comes from APP_DEV_PORT (gsx then leaves ports to us).
 [dev]
 no_web = true
-build = ["mise", "run", "build:dev"]
+build = ["mise", "run", "build"]
 run = ["go", "tool", "charter", "serve"]
 upstream = "http://127.0.0.1:${APP_DEV_PORT}"
 health = "/healthz"

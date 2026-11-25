@@ -30,9 +30,11 @@ func testWriteLimit(t *testing.T) {
 		const version = async () => (await (await fetch("/board?topic=` + top + `")).text()).match(/data-version="(\d+)"/)[1];
 		const burst = {};
 		const tally = (s) => { burst[s] = (burst[s] ?? 0) + 1; return s; };
-		// Cloudflare's limiter is per location and eventually consistent, with fixed windows: send parallel batches
-		// (one at a time would stay under 60 per 10 s over a slow network) until one answers 429, then click at once;
-		// retry if a window boundary gets in between.
+		// Cloudflare's limiter is per location and counts loosely, with fixed windows: on a deployed Worker it lets
+		// some writes over the limit through (130 of a burst of 160, #192), where local workerd's is exact. So send
+		// parallel batches (one at a time would stay under 60 per 10 s over a slow network) until one answers 429, then
+		// click until a click is refused, a few times: one that gets through is the limiter's looseness, not a fault.
+		// A new burst when the window has passed.
 		let clickStatus = 0, before = "", after = "", attempts = 0;
 		while (clickStatus !== 429 && attempts++ < 5) {
 			for (let batch = 0; batch < 10; batch++) {
@@ -40,11 +42,13 @@ func testWriteLimit(t *testing.T) {
 				got.forEach(tally);
 				if (got.includes(429)) break;
 			}
-			before = await version();
-			const done = new Promise(res => document.addEventListener("htmx:after:request", (e) => res(e.detail.ctx?.response?.status), {once: true}));
-			document.querySelector('button[aria-label="Increment"]').click();
-			clickStatus = await done;
-			after = await version();
+			for (let click = 0; click < 6 && clickStatus !== 429; click++) {
+				before = await version();
+				const done = new Promise(res => document.addEventListener("htmx:after:request", (e) => res(e.detail.ctx?.response?.status), {once: true}));
+				document.querySelector('button[aria-label="Increment"]').click();
+				clickStatus = await done;
+				after = await version();
+			}
 		}
 		await new Promise(r => setTimeout(r, 800));
 		const toasts = [...document.querySelectorAll("#gsxui-toaster [data-gsxui-slot-toast]")].filter(t => t.textContent.includes("Slow down")).length;

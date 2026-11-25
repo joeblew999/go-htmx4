@@ -36,8 +36,8 @@ contributor's pull request stops before them.
 - Before pushing: `mise run check`, then `mise run e2e` after UI, board or JS changes. CI is charter's
   (`.github/workflows/charter.yml` → `charter ci run`, from `charter.toml`'s `[ci]`): the same build and checks.
   A task with `sources`/`outputs` is skipped when nothing it reads changed: a new input to the wasm goes in `sources`.
-- A task's own script is inline in its task. `ci/` holds the scripts several tasks share
-  (`wasm-build.sh`, `with-intl.sh`, `bench.sh`, `upstream.sh`, `workers-builds.sh`). CI and Workers Builds are charter's, written by
+- A task's script is inline in its task (`tasks/`; the upstream work's is `tasks/upstream.sh`). `ci/` has one file,
+  Workers Builds' old trigger command, until the build token exists (#11). CI and Workers Builds are charter's, written by
   `charter init` with the rest of charter's files (`charter check` in `test:go`): never edit them. After moving
   charter's pin, run `charter init` again; `charter.toml`'s `[github]` says why there's no `charter-ci.yml`,
   `charter-repo.yml` or `renovate.json`. Checks are Go tests (`e2e/smoke`, `e2e`, `e2e/load`), never curl or a grep
@@ -108,7 +108,7 @@ contributor's pull request stops before them.
   numbers, dates, locale names and direction all come from the runtime's Intl; Go never decides them. Outside the
   Worker the only Intl is workerd's: a test package that renders or formats anything has
   `func TestMain(m *testing.M) { os.Exit(intltest.Main(m)) }`, and `test:go` runs the tests through
-  `ci/with-intl.sh`, which starts that service. The app has none of the task files, workflows or hooks mise-intl's
+  a small workerd service it starts (`mise-intl daemon`). The app has none of the task files, workflows or hooks mise-intl's
   `init` writes: only the few `intl:*` tasks in `tasks/app.toml`.
 - No literal user-facing text in `views/` or handlers: a message from `locales/*.toml` (ICU MessageFormat; `en.toml`
   is the source), written in markup as a value, `{ locales.NavHome }`, or with arguments, `{ locales.BoardNotes(n) }`.
