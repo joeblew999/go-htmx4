@@ -32,7 +32,7 @@ var Components = &registry.Registry{
 				"    serve web/gsxkit at /gsxkit/ and gsxui's behaviours at /gsxui/ (its core is shared); the Content Security Policy's img-src takes https://tile.openstreetmap.org"},
 		{Name: "places", Gsxui: []string{"alert", "button", "card", "field", "input"},
 			Use: "  <gsxkit.Places id=\"places\" action={PlacesSearchAction{} |> url} state={state}/>\n" +
-				"    submit structured country, region, city and street searches to the app's Nominatim-backed handler; do not wire it to per-keystroke autocomplete"},
+				"    search and select a country, then region, city and street through the app's Nominatim-backed handler; searches run only on submit, never per keystroke"},
 		{Name: "moq", Gsxui: []string{"alert", "badge", "button", "card", "collapsible", "field", "input-group"}, Assets: []string{"moq.js"},
 			Use: "  <gsxkit.MoqBroadcast url={relay} name={broadcast} link={address that watches it}/>\n" +
 				"  <gsxkit.MoqWatch url={relay} name={broadcast}/>\n" +
