@@ -8,8 +8,9 @@ Every command is a mise task: `mise run <task>`; `mise tasks` lists them. Which 
 - **Develop:** `dev`: the real Worker runtime (Intl, board, D1, Durable Objects) on workerd, rebuilt on every save
   with the fast `build:dev`.
 - **Build:** `build` is production (what ships and what the tests use), compiled by `WORKER_COMPILER` in mise.toml:
-  `tinygo` (smallest wasm, ~1–2 min builds) or `go` (seconds, a bigger wasm, ~50–90 ms slower per request).
-  Override it for one run: `WORKER_COMPILER=go mise run check`. `build:dev` is always standard Go, for `dev`.
+  `go`, the standard compiler (seconds, any Go library as it is), or `tinygo` (a smaller wasm, ~50–90 ms faster per
+  request, minutes to build, its own runtime gaps). Override it for one run: `WORKER_COMPILER=tinygo mise run check`.
+  `build:dev` is always standard Go, for `dev`.
 - **Test:** `check` before pushing (CI runs the same, `charter ci run` from `charter.toml`'s `[ci]`), then
   `e2e` for anything in the browser.
   `SMOKE_BASE=https://… smoke` runs the smoke checks against a deployed Worker.

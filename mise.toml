@@ -45,12 +45,13 @@ macos-arm64 = { url = "https://storage.googleapis.com/chrome-for-testing-public/
 macos-x64 = { url = "https://storage.googleapis.com/chrome-for-testing-public/{{ version }}/mac-x64/chrome-headless-shell-mac-x64.zip", strip_components = 1, bin_path = "." }
 
 [env]
-# The production wasm's compiler (ci/wasm-build.sh): "tinygo" (charter build: the smallest wasm, Go
-# runtimes kept between requests; a new build takes minutes, an unchanged one comes from charter's cache) or "go" (the
-# standard compiler: seconds, a ~3x bigger wasm and a runtime per request, ~50–90 ms slower at the median on Workers,
-# measured 2026-10-20). Users pay that, so: tinygo. mise run dev always uses go.
-# Set WORKER_COMPILER in the environment to override it for one run: WORKER_COMPILER=go mise run check
-WORKER_COMPILER = "{{ get_env(name='WORKER_COMPILER', default='tinygo') }}"
+# The production wasm's compiler (ci/wasm-build.sh): "go", the standard compiler. It builds in seconds and takes any
+# Go library as it is. "tinygo" (charter build: a ~3x smaller wasm, Go runtimes kept between requests, ~50–90 ms
+# faster at the median on Workers, measured 2026-10-20) was the default until 2026-11-25: it needs a patched runtime,
+# a fork of structpages and an exact workers-go, and one ordinary library's new release (go-jose v4.1.8) took its
+# wasm-opt step from 33 s to over 8 minutes at 5 to 6 GB. That fragility cost more than the milliseconds (#188).
+# Set WORKER_COMPILER in the environment to override it for one run: WORKER_COMPILER=tinygo mise run check
+WORKER_COMPILER = "{{ get_env(name='WORKER_COMPILER', default='go') }}"
 # Copies of charter.toml's facts for the tasks and scripts that still read them from the environment (TestCharterToml
 # checks each): the Worker's name, its production custom domain ("" = workers.dev only; when set, *.workers.dev and
 # plain http 301 to it: seo.Site, app/site.go) and its GitHub repository.

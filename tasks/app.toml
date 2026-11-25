@@ -129,7 +129,7 @@ echo "✓ dist/site: $(find dist/site -type f | wc -l | tr -d ' ') files, gsxui.
 
 ["build"]
 depends = ["generate", "assets"]
-description = "Production build → build/ with WORKER_COMPILER (mise.toml: tinygo or go), size-checked (deploy, staging, CI and the tests use it)"
+description = "Production build → build/ with WORKER_COMPILER (mise.toml: go, or tinygo), size-checked (deploy, staging, CI and the tests use it)"
 dir = "{{config_root}}"
 # Skipped when no input changed since the last production build, so `check` then `e2e` (CI: charter ci run) builds once.
 # Inputs: every Go file (the generated *.x.go included), the module files, mise.toml (a Go/TinyGo/workers-go pin
