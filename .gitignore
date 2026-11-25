@@ -43,3 +43,8 @@ intl-messages.mjs
 # Installed packages
 node_modules/
 intl-workerd/
+# intl's browser module (npm run generate)
+/web/intl/
+# wrangler's local state
+/.wrangler/
+/.wrangler.*

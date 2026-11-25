@@ -3,8 +3,8 @@
 // Go runtimes alive between requests and starts two while the module loads (charter go/lib/worker;
 // copied into build/ by the build, from the version go.mod requires).
 
-import { goIntl } from "./build/intl-worker.mjs";
-import { goWorker } from "./build/go.mjs";
+import { goIntl } from "../build/intl-worker.mjs";
+import { goWorker } from "../build/go.mjs";
 
 // Everything a language decides, for Go (github.com/joeblew999/go-htmx4/intl): intl.mjs, the same code the browser
 // runs, with the message catalogs.

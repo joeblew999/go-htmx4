@@ -27,9 +27,11 @@ require (
 	github.com/editorconfig/editorconfig-core-go/v2 v2.6.4 // indirect
 	github.com/fsnotify/fsnotify v1.10.1 // indirect
 	github.com/google/uuid v1.6.0 // indirect
+	github.com/gsxhq/vite v0.3.2 // indirect
 	github.com/jackielii/ctxkey v1.0.1 // indirect
 	github.com/jackielii/structpages/tools/lint v0.1.21 // indirect
 	github.com/jmoiron/sqlx v1.4.0 // indirect
+	github.com/joeblew999/mise-check v0.4.35 // indirect
 	github.com/mattn/go-isatty v0.0.24 // indirect
 	github.com/ncruces/go-strftime v1.1.0 // indirect
 	github.com/pelletier/go-toml v1.9.5 // indirect
@@ -54,5 +56,8 @@ require (
 tool (
 	github.com/gsxhq/gsx/cmd/gsx
 	github.com/jackielii/structpages/tools/lint/cmd/structpages-lint
+	github.com/joeblew999/charter/cmd/charter
+	github.com/joeblew999/mise-intl/cmd/mise-intl
+	github.com/joeblew999/mise-seo/cmd/mise-seo
 	github.com/tdewolff/minify/v2/cmd/minify
 )

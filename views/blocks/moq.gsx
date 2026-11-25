@@ -4,6 +4,7 @@ import (
 	"github.com/gsxhq/gsx"
 	"github.com/joeblew999/go-htmx4/locales"
 	"github.com/joeblew999/go-htmx4/ui"
+	"github.com/joeblew999/go-htmx4/views/assets"
 	"github.com/joeblew999/go-htmx4/ui/icon"
 )
 
@@ -100,7 +101,7 @@ component MoqWatch(url string, name string, attrs gsx.Attrs) {
 				<ui.Button variant="outline" size="sm" data-moq-action="fullscreen">{ locales.BlocksMoqFullscreen }</ui.Button>
 			</ui.CardFooter>
 		</ui.Card>
-		<script type="module" src="/blocks/moq.js"></script>
+		<assets.Entry name="web/moq.js"/>
 	</section>
 }
 
@@ -227,7 +228,7 @@ component MoqBroadcast(url string, name string, link string, attrs gsx.Attrs) {
 				</ui.Button>
 			</ui.CardFooter>
 		</ui.Card>
-		<script type="module" src="/blocks/moq.js"></script>
+		<assets.Entry name="web/moq.js"/>
 	</section>
 }
 

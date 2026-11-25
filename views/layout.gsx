@@ -4,6 +4,7 @@ import (
 	"github.com/gsxhq/gsx"
 	"github.com/joeblew999/go-htmx4/locales"
 	"github.com/joeblew999/go-htmx4/ui"
+	"github.com/joeblew999/go-htmx4/views/assets"
 	"github.com/joeblew999/go-htmx4/ui/icon"
 	intlui "github.com/joeblew999/go-htmx4/views/intl"
 	"github.com/joeblew999/mise-intl/gsxintl"
@@ -50,13 +51,12 @@ component Layout(title intl.Msg, description intl.Msg, children gsx.Node) {
 				title={locales.PageTitle(title) |> text}
 				description={description |> text}
 				siteName="go-htmx4"
-				icon="/static/favicon.svg"
+				icon="/favicon.svg"
 				home={homeURL(ctx)}
 				lang={intl.Current(ctx).ID()}
 			/>
 			<gsxintl.Head page={Key(ctx)}/>
 			<meta name="htmx-config" content={htmxConfig(ctx)}/>
-			<script src="/static/htmx.js" defer></script>
 			<VersionGuard/>
 			<documentAssets/>
 		</head>
@@ -125,24 +125,11 @@ component Layout(title intl.Msg, description intl.Msg, children gsx.Node) {
 }
 
 // documentAssets is what every document of the app loads, the page (Layout) and the /components sidebar's frame
-// alike: the theme before the first paint, gsxui's CSS and its body font, then as modules the browser's Intl
-// (intl-browser.mjs) and gsxui's behaviours.
+// alike: the theme before the first paint, then web/main.js as Vite built it: htmx, the browser's Intl, gsxui's
+// behaviours and its CSS.
 component documentAssets() {
 	<ThemeScript/>
-	// Static files (dist/site, served before the Worker), not routes: no page in the tree names them.
-	// structpages:lint:ignore url-attr
-	<link rel="stylesheet" href="/assets/gsxui.css"/>
-	// The body font (gsxui.preset.json's fontSans), fetched with the stylesheet: no reflow when it arrives late.
-	<link
-		rel="preload"
-		// structpages:lint:ignore url-attr
-		href="/assets/geist-latin-wght-normal.woff2"
-		as="font"
-		type="font/woff2"
-		crossorigin="anonymous"
-	/>
-	<script type="module" src="/static/intl-browser.mjs"></script>
-	<script type="module" src="/gsxui/index.js"></script>
+	<assets.Entry name="web/main.js"/>
 }
 
 // VersionGuard keeps the board monotonic: HTTP responses and hx-ws pushes both go through htmx.swap and can

@@ -10,7 +10,7 @@
 // their labels would be English.
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { init, on, once } from "/gsxui/gsxui.js";
+import { init, on, once } from "./gsxui/gsxui.js";
 
 // The pin's size and the point of it that marks the place: gsxui's icons are 24 by 24, drawn at size-8 (32 px), and a
 // map pin's point is the middle of its bottom edge.

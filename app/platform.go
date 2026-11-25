@@ -34,9 +34,9 @@ func connection(r *http.Request) views.Connection {
 	return views.Connection{Country: cf.Country, City: cf.City, Colo: cf.Colo, Timezone: cf.Timezone}
 }
 
-// staticFiles: on Workers, dist/site is served by Static Assets before the Worker runs, so a request that reaches Go
+// staticFiles: on Workers, dist is served by Static Assets before the Worker runs, so a request that reaches Go
 // here is a real 404; off Workers, the folder from disk.
-func staticFiles() http.Handler { return bindings.StaticAssets("dist/site") }
+func staticFiles() http.Handler { return bindings.StaticAssets("dist") }
 
 // publish hands a board version, rendered for every locale, to the topic's Room Durable Object (worker/room.mjs,
 // bound as ROOM) with Workers RPC, which pushes each connected browser its locale's fragment. Off Workers it goes to

@@ -10,8 +10,10 @@ package app
 import (
 	"bytes"
 	"cmp"
+	"io/fs"
 	"log"
 	"net/http"
+	"os"
 	"runtime"
 	"strconv"
 	"sync"
@@ -19,6 +21,7 @@ import (
 	"time"
 
 	"github.com/gsxhq/gsx"
+	"github.com/gsxhq/vite"
 	"github.com/jackielii/structpages"
 	"github.com/joeblew999/charter/bindings"
 	"github.com/joeblew999/charter/web"
@@ -48,7 +51,15 @@ var (
 )
 
 // Handler is the app: every route, behind the locale, host and crawl rules.
-func Handler() http.Handler { return newServer().routes() }
+func Handler(dist fs.FS) http.Handler {
+	// VITE_DEV_URL is set by gsx dev (npm run dev): assets come from Vite's dev server. Without it, from dist's
+	// manifest, as built.
+	v, err := vite.New(vite.Config{DevURL: os.Getenv("VITE_DEV_URL"), DevBase: "/__vite/", Dist: dist, DistDir: "dist", StaticURL: "/"})
+	if err != nil {
+		panic(err) // no dist/.vite/manifest.json: npm run build writes it
+	}
+	return v.Middleware(newServer().routes())
+}
 
 // server holds per-process state for the server-info and stats fragments. On Workers it is that of the
 // Go runtime that answered (charter's go.mjs keeps runtimes between requests, and starts new ones);
@@ -74,8 +85,8 @@ func (s *server) routes() http.Handler {
 		structpages.WithMiddlewares(s.pageMiddleware), structpages.WithTargetSelector(structpages.HTMXv4RenderTarget)); err != nil {
 		panic(err) // the page tree is code: every test catches a mistake in it
 	}
-	// The static files (dist/site): Workers' Static Assets answer them before the Worker runs; these are for off it.
-	for _, prefix := range []string{"/static/", "/gsxui/", "/blocks/", "/assets/"} {
+	// The static files (dist, Vite's output): Workers' Static Assets answer them before the Worker runs; these are for off it.
+	for _, prefix := range []string{"/assets/", "/favicon.svg"} {
 		mux.Handle(prefix, staticFiles())
 	}
 	mux.HandleFunc("/healthz", func(w http.ResponseWriter, r *http.Request) {

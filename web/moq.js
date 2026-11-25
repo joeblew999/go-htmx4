@@ -10,7 +10,7 @@
 // they ship draft-18, @moq moves to its next release and the patches go (joeblew999/go-htmx4#158).
 import "@moq/watch/element";
 import "@moq/publish/element";
-import { init, on, once } from "/gsxui/gsxui.js";
+import { init, on, once } from "./gsxui/gsxui.js";
 
 // The elements' state is read every quarter second rather than subscribed to: a handful of signals, and polling
 // keeps this file free of their lifetimes.

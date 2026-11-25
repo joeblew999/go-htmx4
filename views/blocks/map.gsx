@@ -4,6 +4,7 @@ import (
 	"github.com/gsxhq/gsx"
 	"github.com/joeblew999/go-htmx4/locales"
 	"github.com/joeblew999/go-htmx4/ui"
+	"github.com/joeblew999/go-htmx4/views/assets"
 	"github.com/joeblew999/go-htmx4/ui/icon"
 	"github.com/joeblew999/mise-intl/intl"
 )
@@ -106,10 +107,7 @@ component Map(center LatLng, zoom int, label intl.Msg, locate bool, children gsx
 			{ locales.BlocksMapAttribution }
 		</a>
 		{ children }
-		// The component's own files, served from web/blocks: static files, not routes.
-		// structpages:lint:ignore url-attr
-		<link rel="stylesheet" href="/blocks/map.css"/>
-		<script type="module" src="/blocks/map.js"></script>
+		<assets.Entry name="web/map.js"/>
 	</div>
 }
 
