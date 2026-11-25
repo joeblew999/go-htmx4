@@ -673,6 +673,8 @@ Verify CLOUDFLARE_API_TOKEN (from fnox) against the Cloudflare API (charter toke
 
 ### `update`
 
+- Depends: generate
+
 - **Usage:** `update`
 
 Move every pin not held in deps.toml to its latest (go tool gsxkit update, then Go modules, mise's tools and their copies, charter with charter init, Chrome, htmx, the npm locks), tidy every module, regenerate, then check and e2e
@@ -769,4 +771,4 @@ Build and test this app with an upstream checkout instead of the pinned version 
 
 - **Usage:** `vendor`
 
-Vendor htmx 4.0.0 htmx.min.js + ext/hx-ws.js + ext/hx-live.js into web/htmx/ (curl, integrity-checked)
+Vendor htmx 4.0.2 htmx.min.js + ext/hx-ws.js + ext/hx-live.js into web/htmx/ (curl, integrity-checked)

@@ -4,15 +4,15 @@
 # TinyGo (or WORKER_COMPILER) for what ships to Workers; standard Go for local-only code: go test/vet,
 # charter deploy and tail, e2e/. No Node. Tools come from mise.toml.
 
-# Vendor htmx 4.0.0 + the hx-ws and hx-live extensions from the npm registry tarball (integrity-checked,
+# Vendor htmx 4.0.2 + the hx-ws and hx-live extensions from the npm registry tarball (integrity-checked,
 # no npm).
 ["vendor"]
-description = "Vendor htmx 4.0.0 htmx.min.js + ext/hx-ws.js + ext/hx-live.js into web/htmx/ (curl, integrity-checked)"
+description = "Vendor htmx 4.0.2 htmx.min.js + ext/hx-ws.js + ext/hx-live.js into web/htmx/ (curl, integrity-checked)"
 dir = "{{config_root}}"
 run = '''
 #!/usr/bin/env bash
 set -euo pipefail
-version=4.0.0
+version=4.0.2
 if [ -f web/htmx/hx-ws.js ] && [ -f web/htmx/hx-live.js ] && [ "$(cat web/htmx/.htmx-version 2>/dev/null)" = "$version" ]; then
   echo "· htmx $version (cached)"; exit 0
 fi
@@ -68,7 +68,10 @@ run = [
 
 # Every pin against upstream, and moving them all (#169): internal/deps, with deps.toml's holds. update runs gsxkit's
 # update for gsx, gsxui and structpages first, then every other pin, tidies every module, writes everything generated
-# from them again, and proves the result with check and e2e.
+# from them again, and proves the result with check and e2e. It generates first: gsxui's re-vendor runs gsx generate,
+# which needs the uncommitted generated code (the gsxui translator, ui/i18n/intl_gen.go) a fresh checkout doesn't have.
+# It stages docs/commands.md: a moved pin changes a task description (htmx's version), and test:go compares the file with
+# the index.
 ["outdated"]
 description = "Every pin with a newer version upstream (Go modules in every module, mise's tools, gsxui's commit, Chrome, htmx, the npm locks), deps.toml's holds marked"
 dir = "{{config_root}}"
@@ -76,8 +79,9 @@ run = "go run ./internal/deps outdated"
 
 ["update"]
 description = "Move every pin not held in deps.toml to its latest (go tool gsxkit update, then Go modules, mise's tools and their copies, charter with charter init, Chrome, htmx, the npm locks), tidy every module, regenerate, then check and e2e"
+depends = ["generate"]
 dir = "{{config_root}}"
-run = ["go run ./internal/deps update", "mise run check", "mise run e2e"]
+run = ["go run ./internal/deps update", "mise run docs:commands", "git add docs/commands.md", "mise run check", "mise run e2e"]
 
 # The app's components (gsx:generate, from gsxkit's tasks) and this repo's own modules' (intl/, seo/), which commit
 # theirs for the apps that import them; then the tables a TinyGo build of the pages reads (structpages-gen, after gsx:

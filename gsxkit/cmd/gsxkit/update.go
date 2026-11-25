@@ -22,12 +22,15 @@ const (
 	gsxuiPin       = "go:github.com/gsxhq/gsxui/cmd/gsxui"
 	structpages    = "github.com/jackielii/structpages"
 	structpagesLnt = "github.com/jackielii/structpages/tools/lint"
+	// gsxWhitespace is the gsx release from which a line break beside text renders a space.
+	gsxWhitespace = "v0.5.0"
 )
 
 // update is go tool gsxkit update: gsx, gsxui and structpages to their latest in one step, except what deps.toml holds
-// (#169). gsx in every module of the repository that requires it; structpages and its linter; gsxui's CLI pin in
-// mise.toml to its main's newest commit, then its CSS (gsxui init --overwrite with the app's preset) and every
-// component gsxui.json manages (gsxui add --overwrite). Then go mod tidy in each module, the tasks and skills written
+// (#169). gsx in every module of the repository that requires it (gsx fix whitespace when that crosses v0.5.0);
+// structpages and its linter; gsxui's CSS (gsxui init --overwrite with the app's preset) and every component gsxui.json
+// manages (gsxui add --overwrite) with its main's newest commit, then its CLI pin in mise.toml to that commit (#177).
+// Then go mod tidy in each module, the tasks and skills written
 // again, gsx generate, and intl's screens and gsxkit's components copied again, so nothing is left at the old version.
 func update(root string) int {
 	holds, err := deps.ReadHolds(root)
@@ -40,6 +43,7 @@ func update(root string) int {
 	}
 	var changes []deps.Change
 	touched := map[string]bool{}
+	whitespace := false
 	for _, module := range []string{gsxModule, structpages, structpagesLnt} {
 		latest := ""
 		for _, m := range mods {
@@ -65,8 +69,18 @@ func update(root string) int {
 					fail(err)
 				}
 				touched[m.Dir] = true
+				if module == gsxModule && deps.Newer(gsxWhitespace, current) && !deps.Newer(gsxWhitespace, latest) {
+					whitespace = true
+				}
 			}
 			changes = append(changes, c)
+		}
+	}
+	// gsx v0.5.0 renders a line break beside text as a space; its upgrade step, before anything generates or formats,
+	// is gsx fix whitespace, which keeps v0.4's output wherever the two differ (gsx's v0.5.0 release notes, #177).
+	if whitespace {
+		if err := deps.Run(root, "go", "tool", "gsx", "fix", "whitespace", "-w", "."); err != nil {
+			fail(err)
 		}
 	}
 	if c, ok := updateGsxui(root, holds); ok {
@@ -107,21 +121,24 @@ func updateGsxui(root string, holds deps.Holds) (deps.Change, bool) {
 		c.Held = why
 		return c, true
 	}
+	// The new CLI refreshes the app first and the pin moves only once it has: a run that fails leaves mise.toml at the
+	// old commit, so running update again refreshes everything again instead of finding gsxui already current (#177).
+	cli := gsxuiPin + "@" + commit[:8]
+	if _, err := os.Stat(filepath.Join(root, "gsxui.preset.json")); err == nil {
+		if err := deps.Run(root, "mise", "exec", cli, "--", "gsxui", "init", "--overwrite", "--preset", "gsxui.preset.json"); err != nil {
+			fail(err)
+		}
+	}
+	if names := gsxuiComponents(root); len(names) > 0 {
+		if err := deps.Run(root, "mise", append([]string{"exec", cli, "--", "gsxui", "add", "--overwrite"}, names...)...); err != nil {
+			fail(err)
+		}
+	}
 	if err := deps.SetMisePin(root, gsxuiPin, commit[:8]); err != nil {
 		fail(err)
 	}
 	if err := deps.Run(root, "mise", "install"); err != nil {
 		fail(err)
-	}
-	if _, err := os.Stat(filepath.Join(root, "gsxui.preset.json")); err == nil {
-		if err := deps.Run(root, "mise", "exec", "--", "gsxui", "init", "--overwrite", "--preset", "gsxui.preset.json"); err != nil {
-			fail(err)
-		}
-	}
-	if names := gsxuiComponents(root); len(names) > 0 {
-		if err := deps.Run(root, "mise", append([]string{"exec", "--", "gsxui", "add", "--overwrite"}, names...)...); err != nil {
-			fail(err)
-		}
 	}
 	return c, true
 }
