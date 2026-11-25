@@ -2,10 +2,10 @@ package intlui
 
 import (
 	"github.com/gsxhq/gsx"
+	"github.com/joeblew999/charter/site/intl"
 	"github.com/joeblew999/go-htmx4/locales"
 	"github.com/joeblew999/go-htmx4/ui"
 	"github.com/joeblew999/go-htmx4/ui/icon"
-	"github.com/joeblew999/charter/site/intl"
 )
 
 // LanguageOffer offers this page in the reader's own language, written in that language, on every page until they

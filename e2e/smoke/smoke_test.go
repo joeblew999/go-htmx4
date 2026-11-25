@@ -129,15 +129,16 @@ func TestPages(t *testing.T) {
 	}
 }
 
+// TestStaticAssets: the browser's files are the ones Vite built and the page names (hashed, under /assets/), served
+// with the type a browser needs: a module with any other type is refused.
 func TestStaticAssets(t *testing.T) {
-	for path, typ := range map[string]string{
-		"/static/htmx.js":                       "text/javascript",
-		"/static/intl-browser.mjs":              "text/javascript", // modules: anything else and the browser refuses them
-		"/static/intl.mjs":                      "text/javascript",
-		"/gsxui/index.js":                       "text/javascript",
-		"/assets/gsxui.css":                     "text/css",
-		"/assets/geist-latin-wght-normal.woff2": "font/woff2",
-	} {
+	page := get(t, "/").body
+	script := regexp.MustCompile(`<script type="module" src="(/assets/main-[^"]+\.js)"`).FindStringSubmatch(page)
+	style := regexp.MustCompile(`<link rel="stylesheet" href="(/assets/main-[^"]+\.css)"`).FindStringSubmatch(page)
+	if script == nil || style == nil {
+		t.Fatalf("✗ the home page names no built script and stylesheet: %v %v", script, style)
+	}
+	for path, typ := range map[string]string{script[1]: "text/javascript", style[1]: "text/css", "/favicon.svg": "image/svg+xml"} {
 		r := get(t, path)
 		if r.status != 200 || !strings.HasPrefix(r.header.Get("Content-Type"), typ) {
 			t.Errorf("✗ %s: %d %s, want 200 %s", path, r.status, r.header.Get("Content-Type"), typ)

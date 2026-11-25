@@ -1,11 +1,11 @@
 package intlui
 
 import (
+	"github.com/joeblew999/charter/site/gsxintl"
+	"github.com/joeblew999/charter/site/intl"
 	"github.com/joeblew999/go-htmx4/locales"
 	"github.com/joeblew999/go-htmx4/ui"
 	"github.com/joeblew999/go-htmx4/ui/icon"
-	"github.com/joeblew999/charter/site/gsxintl"
-	"github.com/joeblew999/charter/site/intl"
 )
 
 // PreferencesDialog is a header button and the time zone and clock dialog it opens. The dialog's form loads when it

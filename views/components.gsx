@@ -4,11 +4,11 @@ import (
 	"time"
 
 	"github.com/gsxhq/gsx"
+	"github.com/joeblew999/charter/site/gsxintl"
+	"github.com/joeblew999/charter/site/intl"
 	"github.com/joeblew999/go-htmx4/locales"
 	"github.com/joeblew999/go-htmx4/ui"
 	"github.com/joeblew999/go-htmx4/ui/icon"
-	"github.com/joeblew999/charter/site/gsxintl"
-	"github.com/joeblew999/charter/site/intl"
 )
 
 // Components is every gsxui component the other pages don't use, each fed by Intl in the page's language: names,

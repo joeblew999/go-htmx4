@@ -4,9 +4,9 @@ import (
 	"strings"
 
 	"github.com/gsxhq/gsx"
+	"github.com/joeblew999/charter/site/intl"
 	"github.com/joeblew999/go-htmx4/locales"
 	"github.com/joeblew999/go-htmx4/ui"
-	"github.com/joeblew999/charter/site/intl"
 )
 
 // Formats is the Intl showcase: every Intl API with examples in the request's language. Each example shows its input

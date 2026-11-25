@@ -4,8 +4,8 @@ import (
 	"github.com/gsxhq/gsx"
 	"github.com/joeblew999/go-htmx4/locales"
 	"github.com/joeblew999/go-htmx4/ui"
-	"github.com/joeblew999/go-htmx4/views/assets"
 	"github.com/joeblew999/go-htmx4/ui/icon"
+	"github.com/joeblew999/go-htmx4/views/assets"
 )
 
 // Live video over Media over QUIC (MoQ): @moq's <moq-watch> and <moq-publish> elements, in gsxui cards. The elements

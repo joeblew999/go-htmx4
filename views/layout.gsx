@@ -2,14 +2,14 @@ package views
 
 import (
 	"github.com/gsxhq/gsx"
+	"github.com/joeblew999/charter/site/gsxintl"
+	"github.com/joeblew999/charter/site/gsxseo"
+	"github.com/joeblew999/charter/site/intl"
 	"github.com/joeblew999/go-htmx4/locales"
 	"github.com/joeblew999/go-htmx4/ui"
-	"github.com/joeblew999/go-htmx4/views/assets"
 	"github.com/joeblew999/go-htmx4/ui/icon"
+	"github.com/joeblew999/go-htmx4/views/assets"
 	intlui "github.com/joeblew999/go-htmx4/views/intl"
-	"github.com/joeblew999/charter/site/gsxintl"
-	"github.com/joeblew999/charter/site/intl"
-	"github.com/joeblew999/charter/site/gsxseo"
 )
 
 // Layout is the document shell, following gsxui's site layout: gsxui theme CSS, the theme toggle, a header of

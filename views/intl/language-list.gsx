@@ -2,10 +2,10 @@ package intlui
 
 import (
 	"github.com/gsxhq/gsx"
+	"github.com/joeblew999/charter/site/intl"
 	"github.com/joeblew999/go-htmx4/locales"
 	"github.com/joeblew999/go-htmx4/ui"
 	"github.com/joeblew999/go-htmx4/ui/icon"
-	"github.com/joeblew999/charter/site/intl"
 )
 
 // LanguageList links the current page in every language the site ships (intl.Links): plain links, crawlable without
