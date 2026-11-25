@@ -170,10 +170,11 @@ after a release; committed), what `gsxui` manages (`gsxui.json` lists it), and i
 - **Memory between requests is a cache, never state:** any request may start a new runtime. Package variables hold
   only what is the same for every request; shared state needs a Cloudflare binding.
 - **Cloudflare's bindings come through charter, never workers-go directly:** `bindings.Var`, `bindings.Allow`,
-  `bindings.StaticAssets`, `d1.Open`, `hub.DurableObject`, `transport.CFOf(r)` (`app/platform.go`). Each has its
-  stand-in off Workers built in, following `charter.toml` (D1 is SQLite in memory with the migrations; the write limit
-  counts), so there is no file per platform and `go test` runs the real SQL. A test sets `request.cf` with
-  `transport.WithCF`. workers-go's `fetch.NewIncomingProperties` panics under charter's runtime.
+  `bindings.StaticAssets`, `bindings.HTTPClient` (a request the app makes: the Worker's fetch), `d1.Open`,
+  `hub.DurableObject`, `transport.CFOf(r)` (`app/platform.go`). Each has its stand-in off Workers built in, following
+  `charter.toml` (D1 is SQLite in memory with the migrations; the write limit counts), so there is no file per
+  platform and `go test` runs the real SQL. A test sets `request.cf` with `transport.WithCF`. workers-go's
+  `fetch.NewIncomingProperties` panics under charter's runtime.
 - JS only in `worker/index.mjs` (entry), `worker/room.mjs` (Durable Object), `intl/js/` (Intl, and what Go calls of
   it), and `gsxkit/js/<component>/` (a gsxkit component's glue to the npm library it wraps: the map's to Leaflet, the
   live video's to @moq's elements, #156, #164; what the browser does can't be Go). The glue only sets `data-*` state,

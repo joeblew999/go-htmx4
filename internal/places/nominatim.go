@@ -10,6 +10,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/joeblew999/charter/bindings"
 )
 
 // Query is a localized Nominatim search constrained to one address level.
@@ -74,7 +76,8 @@ func (n Nominatim) Search(ctx context.Context, q Query, locale string) ([]Result
 	req.Header.Set("User-Agent", "go-htmx4/1.0 (+https://github.com/joeblew999/go-htmx4)")
 	client := n.HTTPClient
 	if client == nil {
-		client = nominatimHTTPClient(8 * time.Second)
+		client = bindings.HTTPClient()
+		client.Timeout = 8 * time.Second
 	}
 	resp, err := client.Do(req)
 	if err != nil {
