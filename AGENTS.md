@@ -72,7 +72,6 @@ contributor's pull request stops before them.
 ## Generated files: never edit
 
 `*.x.go` (`go tool gsx generate`; not committed, except intl's `render.x.go` and `head.x.go` and seo's `head.x.go`: apps import them as Go packages),
-`structpages_tables.go` (`go tool structpages-gen`, in `mise run generate`; not committed),
 `intl_gen.go` and `intl-messages.mjs` (`mise run intl`; not committed), `locales/intl.sum` and `docs/badges/intl.svg`
 (`mise run intl`; committed), `.claude/skills/intl` (`mise run intl:skill`; committed), `.claude/skills/seo`
 (`mise run seo:skill`; committed), the skills gsx, structpages and gsxui ship (`.claude/skills/gsx`, `templ-to-gsx-migration`, `structpages`, `gsxui`: `mise run gsx:skill`;
@@ -159,14 +158,12 @@ after a release; committed), what `gsxui` manages (`gsxui.json` lists it), and i
 
 - **workers-go `v0.36.0` exactly** (`github.com/syumai/workers-go`). What ships is built by
   `charter build -compiler=go` (standard Go, `WORKER_COMPILER` in `mise.toml`, which says why; `tinygo` still builds).
-- **TinyGo gaps:** the mux is charter's `web.NewServeMux()`, which has Go 1.22 patterns under TinyGo too: every page
-  and every route the pages call is in structpages' tree (`views/pages.go`, `views/routes.go`: a type with its method
-  in its route tag and a `ServeHTTP` that answers through `views.App`), mounted with htmx 4's target selector
-  (`structpages.HTMXv4RenderTarget`). Only static files, `/healthz` and intl's preferences routes stay plain paths,
-  checking their method with `allow` (charter's `web.Allow`).
-  structpages calls the pages' methods through tables `structpages-gen` writes (`mise run generate`); `html/template`
-  panics. Reflection-heavy code needs the workerd smoke test, not just a build. Run
-  `mise run check` after changing handlers: `go test` can't see TinyGo.
+- **Routes:** every page and every route the pages call is in structpages' tree (`views/pages.go`, `views/routes.go`:
+  a type with its method in its route tag and a `ServeHTTP` that answers through `views.App`), mounted with htmx 4's
+  target selector (`structpages.HTMXv4RenderTarget`). structpages is Jackie Li's, as released: no fork (#188). Only
+  static files, `/healthz` and intl's preferences routes stay plain paths, checking their method with `allow`
+  (charter's `web.Allow`); the mux is still charter's `web.NewServeMux()`. Run `mise run check` after changing
+  handlers: `go test` runs them on this machine, the smoke test on workerd.
 - **Memory between requests is a cache, never state:** any request may start a new runtime. Package variables hold
   only what is the same for every request; shared state needs a Cloudflare binding.
 - **Cloudflare's bindings come through charter, never workers-go directly:** `bindings.Var`, `bindings.Allow`,

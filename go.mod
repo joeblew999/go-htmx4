@@ -8,7 +8,7 @@ require (
 	github.com/Masterminds/semver/v3 v3.5.0
 	github.com/evanw/esbuild v0.28.2
 	github.com/gsxhq/gsx v0.5.0
-	github.com/jackielii/structpages v0.10.0
+	github.com/jackielii/structpages v0.12.0
 	github.com/jackielii/tailwind-merge-go v0.0.0-20260726184505-8a911ed0cf9a
 	github.com/joeblew999/charter v0.23.0
 	github.com/joeblew999/go-htmx4/gsxkit v0.0.0
@@ -55,7 +55,6 @@ require (
 
 tool (
 	github.com/gsxhq/gsx/cmd/gsx
-	github.com/jackielii/structpages/cmd/structpages-gen
 	github.com/jackielii/structpages/tools/lint/cmd/structpages-lint
 	github.com/joeblew999/go-htmx4/gsxkit/cmd/gsxkit
 	github.com/joeblew999/go-htmx4/intl/cmd/intl
@@ -70,5 +69,3 @@ replace github.com/joeblew999/go-htmx4/seo => ./seo
 replace github.com/joeblew999/go-htmx4/badge => ./badge
 
 replace github.com/joeblew999/go-htmx4/gsxkit => ./gsxkit
-
-replace github.com/jackielii/structpages => github.com/joeblew999/structpages v0.10.1-0.20261022094628-31c2f0e5f405

@@ -30,6 +30,8 @@ type Mux interface {
 func (sp *StructPages) URLFor(page any, args ...any) (string, error)
 func (sp *StructPages) ID(v any) (string, error)
 func (sp *StructPages) IDTarget(v any) (string, error)
+func (sp *StructPages) Key(v any, key string) (string, error)
+func (sp *StructPages) KeyTarget(v any, key string) (string, error)
 func (sp *StructPages) PageContext(ctx context.Context) context.Context
 ```
 
@@ -46,20 +48,25 @@ have no current mount, so a type mounted twice (with differing ids) is ambiguous
 func URLFor(ctx context.Context, page any, args ...any) (string, error)
 func ID(ctx context.Context, v any) (string, error)
 func IDTarget(ctx context.Context, v any) (string, error)
+func Key(ctx context.Context, v any, key string) (string, error)
+func KeyTarget(ctx context.Context, v any, key string) (string, error)
+func KeyOf(t RenderTarget) string
 func CurrentPage(ctx context.Context) *PageNode
 func Within(ctx context.Context, page any) (bool, error)
 ```
 
-All three resolvers return an error when `ctx` carries no page tree (outside a request and without
+The resolvers return an error when `ctx` carries no page tree (outside a request and without
 `PageContext`).
 
 Registered as gsx filters (`gsx.toml`):
 
 ```toml
 [filters]
-url    = "github.com/jackielii/structpages.URLFor"
-id     = "github.com/jackielii/structpages.ID"
-target = "github.com/jackielii/structpages.IDTarget"
+url       = "github.com/jackielii/structpages.URLFor"
+id        = "github.com/jackielii/structpages.ID"
+target    = "github.com/jackielii/structpages.IDTarget"
+key       = "github.com/jackielii/structpages.Key"
+keytarget = "github.com/jackielii/structpages.KeyTarget"
 ```
 
 | gsx | Go equivalent |
@@ -68,6 +75,8 @@ target = "github.com/jackielii/structpages.IDTarget"
 | `{ x \|> url(params) }` | `structpages.URLFor(ctx, x, params)` |
 | `{ x \|> id }` | `structpages.ID(ctx, x)` |
 | `{ x \|> target }` | `structpages.IDTarget(ctx, x)` |
+| `{ x \|> key(k) }` | `structpages.Key(ctx, x, k)` |
+| `{ x \|> keytarget(k) }` | `structpages.KeyTarget(ctx, x, k)` |
 
 Filters work in element and component attribute holes, text holes, and `@{}` holes of `js`/`f` literals
 on attributes; a non-nil error is returned from `Render`. gsx rejects them in a literal assigned inside a
@@ -137,12 +146,28 @@ Input forms:
 **Format.** The kebab-cased field-name path from the root (root excluded) joined with the method:
 `admin-users-user-list`. Longer than the budget (`WithMaxIDLength`, default 40) it becomes the leaf page plus
 method, `users-user-list`, with a 4-hex hash appended when another node shares the leaf page name. An id only changes when that node
-is renamed or moved. Kebab conversion: `HTMLParser` → `html-parser`.
+is renamed or moved. Kebab conversion: `HTMLParser` → `html-parser`; underscores and hyphens separate words
+too (`Row_Edit` → `row-edit`), so a name never kebab-cases to `--` or a leading or trailing `-`; letters of any script
+are lowercased.
 
 **Mount context.** During a page's own render the current mount is used, so `p.Header |> id` differs per
 mount of the same struct. Without a current mount (another page, `sp.ID`) a type mounted twice with
 differing ids is an error naming the mounts; disambiguate with a chain, a `Ref`, or a standalone
 component.
+
+## Key, KeyTarget and KeyOf
+
+`Key(ctx, X, k)` is the id of one instance of a component rendered per item: `ID(ctx, X)`, `--`, and `k`
+with `[A-Za-z0-9-]` kept and any other byte (`_` included) written as `_XX`, lowercase hex. `X` takes the
+forms `ID` takes except a plain string, which is an error; `KeyTarget` prefixes `#`. An empty key is an
+error. The key is outside the length budget. Generated ids never contain `--` (a function's package path
+element is kebab-cased with hyphen runs collapsed), so the first one ends the component id.
+
+`KeyOf(t)` returns the key of a keyed target, `""` otherwise; read it after `t.Is` names the component (a
+keyed-looking id naming nothing `Is` nothing yet carries its key). The htmx selectors' targets carry it; a
+custom target carries one with a `Key() string` method, and a wrapper target passes it through
+(`return structpages.KeyOf(t.inner)`). The key is client input: Props checks the caller may see the
+instance before loading it.
 
 ## Options
 
@@ -195,10 +220,15 @@ rendered component's parameters by type), optionally a trailing `error`.
 
 Calling `t.Is(...)` changes nothing; recognising a target and returning no error is still the normal flow.
 
+A fragment (a page with no `Page`) returns only `error` from `Props` and always renders with
+`RenderComponent`: with no `Page` to fall back to, `(nil)` for a request that wants none of its
+components is an error. See docs/route-conventions.md.
+
 The writer is **not** buffered. Headers and cookies are fine (set `Content-Type`, then `w.WriteHeader(status)`, before returning
 `RenderComponent` to send a status: the framework can't set the header after the status); a body write is sent immediately and is not undone by a later error.
 
-Only `Props` is invoked. Other `*Props` methods are recorded in `PageNode.Props` but never called.
+Only the method named exactly `Props` is the Props method (`PageNode.Props`, nil when absent). Other `*Props` methods are
+ordinary helpers you call yourself.
 
 ### ServeHTTP
 
@@ -255,13 +285,17 @@ function. It has no side effects. The framework calls it for each of the page's 
 to render; `Props` can call it to load only what the request wants.
 
 **`ID`/`Is` symmetry:** a request targeting an element with id `ID(ctx, X)` has a target that `Is(X)`, for
-the served page's components, standalone functions, and other pages' components.
+the served page's components, standalone functions, and other pages' components. With id `Key(ctx, X, k)`
+the target also `Is(X)`, and `KeyOf(t)` is `k`.
 
 ### HTMXRenderTarget and HTMXv4RenderTarget
 
 Opt-in selectors (`WithTargetSelector`).
 
 - Not an HTMX request (`HX-Request` ≠ `true`) or no `HX-Target` → `Page`.
+- A keyed id (`Key`) matches exactly: its component id must be a generated id. One of the page's
+  components → the target `Is` it; another page's component or a standalone function → as for no match
+  below, exact ids only. Either way `KeyOf` returns the key. Keyed ids skip the looser matching.
 - Otherwise `HX-Target` is matched to one of the served page's components: an exact generated id, or a
   `page-prefix-component` or bare `component` match (checked together, so don't rely on precedence between
   them), then the longest suffix match. The target `Is` that component.
@@ -278,7 +312,8 @@ htmx 4's `tag#id` `HX-Target` (falling back to the tag, so a `Form` component ma
 A custom `TargetSelector` may return any `RenderTarget`; the framework only calls `Is`, so a custom target
 selects the page's component it `Is` like the built-in ones (`Page` if none). Typically it handles its own
 case and delegates the rest to `HTMXRenderTarget`/`HTMXv4RenderTarget`. `Props` can type-assert the target
-to read what it carries.
+to read what it carries. A wrapping target passes the key through with a `Key() string` method returning
+`KeyOf` of the wrapped target.
 
 ## RenderComponent
 
@@ -312,7 +347,7 @@ Honoured only from `Props`: the request ends without rendering or calling the er
 type PageNode struct {
     Name, Title, Method, Route string
     Value       reflect.Value
-    Props       map[string]reflect.Method
+    Props       *reflect.Method // the Props method, nil when absent
     Components  map[string]reflect.Method
     Middlewares *reflect.Method
     Parent      *PageNode
@@ -368,13 +403,14 @@ concrete page passed to it, through chains of helpers and across packages.
 | `ref` | `Ref` strings (including ones stored in variables or struct fields) that resolve to no node |
 | `params` | `URLFor` param keys that are not placeholders in the pattern (fragment included): literal map keys, and constant keys of the key/value form, `url("itemId", 7)` |
 | `escape` | `URLFor` values pre-escaped with `url.QueryEscape`/`url.PathEscape`/`Values.Encode()`, which URLFor escapes again: pass raw; an encoded query goes in the template (`"?" + v.Encode()`) |
-| `idfor` | `ID`/`IDTarget` method expressions whose receiver is not mounted, or whose method is missing on a chain leaf; `RenderTarget.Is` arguments whose receiver is not mounted, or that aren't a function at all (`t.Is(p.Content())` calls instead of naming; a `Ref`/string never matches) |
+| `idfor` | `ID`/`IDTarget`/`Key`/`KeyTarget` method expressions whose receiver is not mounted, or whose method is missing on a chain leaf; `RenderTarget.Is` arguments whose receiver is not mounted, or that aren't a function at all (`t.Is(p.Content())` calls instead of naming; a `Ref`/string never matches) |
+| `keyed` | an `id`/`hx-target` that appends a runtime value to a generated id, `` f`@{P.Row \|> id}-@{row.ID}` `` or `rowID + "-" + row.ID` with `rowID` from `ID`: no component's id, so htmx can't match a request to `P.Row` and Props can't read the key back. Use `\|> key(k)` / `\|> keytarget(k)` (`Key`/`KeyTarget`, read back with `KeyOf`). A constant suffix (`-document`, a sub-element's id) isn't flagged |
 | `selector` | a `Mount` with no `WithTargetSelector` whose pages' `.gsx`/`.templ` templates use htmx (`hx-get`…`hx-select`, `<hx-partial>`). Flagged only when every option is a direct `structpages` call (inline or a literal slice); a variable or `opts...` spread isn't. `_test.go` skipped |
 | `route-literal` | `.go` string literals equal to a concrete mounted route (comparisons, `Ref` args, tests and generated files skipped) |
 | `url-attr` | hard-coded internal URLs in URL-bearing attributes (`href`, `action`, `formaction`, `hx-get`/`post`/`put`/`patch`/`delete`, `hx-push-url`/`hx-replace-url`) of `.gsx` and `.templ` files: literals, `+` concatenation, `fmt.Sprint*`, and gsx `` f`/items/@{id}` `` templates |
 
-gsx templates get two passes. gsx lowers `|> url`, `|> id` and `|> target` to real
-`URLFor`/`ID`/`IDTarget` calls in the generated `.x.go`, which the analyzer checks like hand-written Go
+gsx templates get two passes. gsx lowers `|> url`, `|> id`, `|> target`, `|> key` and `|> keytarget` to real
+`URLFor`/`ID`/`IDTarget`/`Key`/`KeyTarget` calls in the generated `.x.go`, which the analyzer checks like hand-written Go
 (`urlfor`, `ref`, `params`, `escape`, `idfor`). Findings point at the `.gsx` through gsx's `//line` directives.
 `url-attr` parses the `.gsx` itself. Keep the `.x.go` files generated before linting.
 
