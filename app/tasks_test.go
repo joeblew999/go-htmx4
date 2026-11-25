@@ -10,11 +10,12 @@ import (
 	"testing"
 )
 
-// TestTaskFiles: intl's, seo's and gsxkit's mise tasks are in .mise/tasks/ as each tool writes them for an outside app
-// (go tool intl tasks, seo tasks, gsxkit tasks), and mise.toml includes those copies, not the modules' sources. charter's (and its launcher,
-// skill and workflow) are charter check's, in test:go.
+// TestTaskFiles: intl's and gsxkit's mise tasks are in .mise/tasks/ as each tool writes them for an outside app (go
+// tool intl tasks, gsxkit tasks), and mise.toml includes those copies, not the modules' sources. charter's (and its
+// launcher, skill and workflow) are charter check's, and mise-seo's (and its skill, docs and workflow) seo:check's,
+// both in test:go.
 func TestTaskFiles(t *testing.T) {
-	for tool, file := range map[string]string{"intl": "intl", "seo": "seo", "gsxkit": "gsx"} {
+	for tool, file := range map[string]string{"intl": "intl", "gsxkit": "gsx"} {
 		out := filepath.Join(t.TempDir(), file+".toml")
 		cmd := exec.Command("go", "tool", tool, "tasks", "-o", out)
 		cmd.Dir = ".."

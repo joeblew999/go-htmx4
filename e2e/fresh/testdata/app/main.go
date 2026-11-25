@@ -1,5 +1,6 @@
-// The fresh app's server: an ordinary Go server, set up as intl/README.md and seo/README.md say. Every go block in
-// those READMEs is here as they write it (TestREADMECode), so a snippet that stops compiling fails the fresh-app test.
+// The fresh app's server: an ordinary Go server, set up as intl/README.md says, and search engines as mise-seo's docs
+// say (docs/seo/README.md). Every go block in intl/README.md is here as it writes it (TestREADMECode), so a snippet
+// that stops compiling fails the fresh-app test.
 package main
 
 import (
@@ -16,7 +17,7 @@ import (
 	"github.com/gsxhq/gsx"
 	"github.com/joeblew999/go-htmx4/intl"
 	"github.com/joeblew999/go-htmx4/intl/workerd"
-	"github.com/joeblew999/go-htmx4/seo"
+	"github.com/joeblew999/mise-seo/seo"
 )
 
 func main() {

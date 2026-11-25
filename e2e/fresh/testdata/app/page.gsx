@@ -8,18 +8,18 @@ import (
 	intlui "example.com/fresh/views/intl"
 	"github.com/gsxhq/gsx"
 	"github.com/joeblew999/go-htmx4/intl"
-	"github.com/joeblew999/go-htmx4/seo"
+	"github.com/joeblew999/mise-seo/gsxseo"
 )
 
-// The fresh app's pages, made as intl/README.md and seo/README.md say: every gsx block in those READMEs is here as they
-// write it (TestREADMECode).
+// The fresh app's pages, made as intl/README.md says, their head as mise-seo's docs say (docs/seo/README.md): every gsx
+// block in intl/README.md is here as it writes it (TestREADMECode).
 
 component Layout(title intl.Msg, description intl.Msg, path string, children gsx.Node) {
 	<!DOCTYPE html>
 	<html { intl.HTML(ctx)... }>
 		<head>
 			<meta charset="utf-8"/>
-			<seo.Head
+			<gsxseo.Head
 				title={locales.PageTitle(title) |> text}
 				description={description |> text}
 				siteName="Shop"
@@ -64,7 +64,7 @@ component About() {
 	</Layout>
 }
 
-// homeURL is the home page's absolute URL on the home page itself, "" on every other page: seo.Head puts the site's
+// homeURL is the home page's absolute URL on the home page itself, "" on every other page: gsxseo.Head puts the site's
 // name there for Google.
 func homeURL(ctx context.Context, path string) string {
 	if path != "/" {

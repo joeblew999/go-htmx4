@@ -58,7 +58,7 @@ command = "mise run build"
 
 # CI (.github/workflows/charter.yml → charter ci run): only the tools it runs; the build beside the Go tests and
 # the fresh apps, then published for the commit's preview; then workerd, Chrome and the CPU table; a release also tags
-# intl, seo and badge with their next versions before production moves.
+# intl and badge with their next versions before production moves.
 [ci]
 # The weekly job (charter.yml's update): this repo pins more than charter update can see (gsxui's commit, htmx, the npm
 # locks), so its own command moves them all, checks them, and what changed becomes a pull request (#172).

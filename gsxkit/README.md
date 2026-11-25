@@ -1,7 +1,7 @@
 # gsxkit
 
 [gsx](https://github.com/gsxhq/gsx), [gsxui](https://ui.gsxhq.dev) and [structpages](https://github.com/jackielii/structpages)
-in any app: gsx's and gsxui's mise tasks, and the agent skills these projects ship, written into the app the way [intl](../intl/README.md) and [seo](../seo/README.md) write theirs. All three are
+in any app: gsx's and gsxui's mise tasks, and the agent skills these projects ship, written into the app the way [intl](../intl/README.md) and [mise-seo](../docs/seo/README.md) write theirs. All three are
 Jackie Li's; gsxkit runs their CLIs and copies their skills unchanged.
 
 And [components gsxui doesn't have](#components), a registry of our own: a map and live video, made of gsxui

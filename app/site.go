@@ -6,8 +6,8 @@ import (
 	"github.com/joeblew999/charter/bindings"
 	"github.com/joeblew999/charter/web"
 	"github.com/joeblew999/go-htmx4/intl"
-	"github.com/joeblew999/go-htmx4/seo"
 	"github.com/joeblew999/go-htmx4/views"
+	"github.com/joeblew999/mise-seo/seo"
 )
 
 // The app on the web: its languages (intl.Site) and how it answers search engines (seo.Site), around every route.

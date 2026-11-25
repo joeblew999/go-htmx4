@@ -1,7 +1,8 @@
 # Contributing
 
 go-htmx4 is a demo and a proving ground: a gsx + htmx 4 app on Cloudflare Workers that uses
-[intl](intl/README.md) and [seo](seo/README.md), Go modules any gsx app can add, and
+[intl](intl/README.md), a Go module any gsx app can add, [mise-seo](https://github.com/joeblew999/mise-seo) for search
+engines, and
 [charter](https://github.com/joeblew999/charter) for everything Cloudflare. Fixes and ideas for any of them are welcome.
 
 ## Set up
@@ -39,5 +40,6 @@ Every word a reader sees is a message in `locales/en.toml`, never text in the ma
 component, htmx 4 syntax, every word and number through intl, and so on. A few of its steps are the maintainer's,
 marked there: merging, releases and deploys, and anything that needs Cloudflare or Google credentials.
 
-`intl/`, `seo/` and `badge/` are Go modules of their own, with their own READMEs and versions; the fresh-app tests
-(`e2e/fresh`) build apps from nothing on them, the way an outside developer would.
+`intl/` and `badge/` are Go modules of their own, with their own READMEs and versions; the fresh-app tests
+(`e2e/fresh`) build apps from nothing on them, and on mise-seo, the way an outside developer would. mise-seo's own
+changes go to its repository; here it is pinned (`.mise/config.toml` and `go.mod`, one release).

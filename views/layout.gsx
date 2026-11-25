@@ -4,10 +4,10 @@ import (
 	"github.com/gsxhq/gsx"
 	"github.com/joeblew999/go-htmx4/intl"
 	"github.com/joeblew999/go-htmx4/locales"
-	"github.com/joeblew999/go-htmx4/seo"
 	"github.com/joeblew999/go-htmx4/ui"
 	"github.com/joeblew999/go-htmx4/ui/icon"
 	intlui "github.com/joeblew999/go-htmx4/views/intl"
+	"github.com/joeblew999/mise-seo/gsxseo"
 )
 
 // Layout is the document shell, following gsxui's site layout: gsxui theme CSS, the theme toggle, a header of
@@ -34,18 +34,18 @@ import (
 // <html lang dir> come from the request's locale (intl.HTML), and every UI string from locales/*.toml (intl.Msg).
 // <html data-tz data-hc> are the viewer's chosen time zone and clock ("" = the browser's own and the language's), for
 // intl-browser.mjs, which redoes dates, times and rich numbers in the browser. The head carries what search engines
-// and link previews read (seo.Head: the translated title and description, Open Graph, the site's icon, and on the home
-// page the site's name for Google) and the page's language versions (intl.Head, with the page table's Key). intl's
-// screens (go tool intl add, in views/intl) offer the page in the reader's language above the content, list it in
-// every language in the footer, outside the boosted nav (switching locale must be a full page load, since a boosted
-// swap keeps the old <html lang dir>), and set the time zone and clock from the header.
+// and link previews read (mise-seo's gsxseo.Head: the translated title and description, Open Graph, the site's icon,
+// and on the home page the site's name for Google) and the page's language versions (intl.Head, with the page table's
+// Key). intl's screens (go tool intl add, in views/intl) offer the page in the reader's language above the content,
+// list it in every language in the footer, outside the boosted nav (switching locale must be a full page load, since a
+// boosted swap keeps the old <html lang dir>), and set the time zone and clock from the header.
 component Layout(title intl.Msg, description intl.Msg, children gsx.Node) {
 	<!DOCTYPE html>
 	<html { intl.HTML(ctx)... }>
 		<head>
 			<meta charset="utf-8"/>
 			<meta name="viewport" content="width=device-width, initial-scale=1"/>
-			<seo.Head
+			<gsxseo.Head
 				title={locales.PageTitle(title) |> text}
 				description={description |> text}
 				siteName="go-htmx4"
