@@ -27,8 +27,8 @@ import (
 var (
 	base  = strings.TrimSuffix(os.Getenv("SMOKE_BASE"), "/")
 	local = os.Getenv("SMOKE_LOCAL") == "1"
-	// compiler is the Go compiler the Worker was built with (mise.toml WORKER_COMPILER: tinygo, or go → "gc").
-	compiler = map[string]string{"": "tinygo", "tinygo": "tinygo", "go": "gc"}[os.Getenv("WORKER_COMPILER")]
+	// compiler is the Go compiler the Worker was built with (mise.toml WORKER_COMPILER: go → "gc", the default, or tinygo).
+	compiler = map[string]string{"": "gc", "go": "gc", "tinygo": "tinygo"}[os.Getenv("WORKER_COMPILER")]
 	// No redirects followed: some checks are about the redirect itself.
 	client = &http.Client{Timeout: 20 * time.Second, CheckRedirect: func(*http.Request, []*http.Request) error { return http.ErrUseLastResponse }}
 )

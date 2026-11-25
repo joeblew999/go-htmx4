@@ -65,7 +65,7 @@ Dev build → build/: standard Go to wasm, seconds after an edit (mise run dev u
 
 - **Usage:** `charter:build`
 
-Build the Worker into build/ (charter build): a Go one with TinyGo (WORKER_COMPILER=go: the standard compiler, in seconds, never to deploy), a TypeScript one bundled with esbuild
+Build the Worker into build/ (charter build): a Go one with TinyGo (WORKER_COMPILER=go: the standard compiler, in seconds, a bigger Wasm), a TypeScript one bundled with esbuild
 
 ### `charter:builds-configure`
 
@@ -135,6 +135,22 @@ First, whenever you start: the open issues (charter issues); with a kind (bug, f
 
 The standard test and charter.toml's [test] live against the deployed Worker (charter live-test)
 
+### `charter:logs`
+
+What the deployed Worker logged before now, from Workers Logs (charter logs): the last 10 minutes; its flags after --, e.g. -- -since 1h -level error
+
+
+- **Usage:** `charter:logs [flags]…`
+
+### Arguments
+- **`[flags]…`** — flags of charter logs, after --: -since 1h, -level error, -status 500, -search text, -limit 200, -json
+
+### `charter:outdated`
+
+- **Usage:** `charter:outdated`
+
+Every pin with a newer version upstream (charter outdated): Go modules, mise.toml's tools; deps.toml's holds marked; exits 1 when one is behind
+
 ### `charter:repo`
 
 - **Usage:** `charter:repo`
@@ -171,9 +187,13 @@ After changing the contract, [sdks] or migrations/: both specs from the contract
 
 ### `charter:tail`
 
-- **Usage:** `charter:tail`
+Stream the deployed Worker's live logs until Ctrl-C (charter tail); its flags after --, e.g. -- -status error -search text
 
-Stream the deployed Worker's live logs until Ctrl-C (charter tail)
+
+- **Usage:** `charter:tail [flags]…`
+
+### Arguments
+- **`[flags]…`** — flags of charter tail, after --: -status error, -method POST, -search text, -for 30s
 
 ### `charter:tasks`
 
@@ -186,6 +206,12 @@ After upgrading charter: these tasks and the Workers Builds launcher again (char
 - **Usage:** `charter:token`
 
 Check the Cloudflare token is active (charter token)
+
+### `charter:update`
+
+- **Usage:** `charter:update`
+
+Move every pin deps.toml doesn't hold to its latest, tidy every module, then charter check (charter update)
 
 ### `charter:upstream`
 
