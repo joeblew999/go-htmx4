@@ -267,7 +267,8 @@ run = "go test -C e2e -count=1 -timeout 10m -run TestFreshApp ./fresh"
 
 ["test:go"]
 description = "Every module's go.mod tidy, gsx fmt/gofmt check + go vet + structpages-lint + go test, the app and its modules: intl/, seo/, badge/, gsxkit/ (standard Go; runs beside the production build)"
-depends = ["generate"]
+# assets: TestServedScripts reads dist/site. Without it a new checkout's first run raced the build for those files.
+depends = ["generate", "assets"]
 dir = "{{config_root}}"
 run = '''
 #!/usr/bin/env bash

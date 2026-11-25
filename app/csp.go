@@ -22,6 +22,13 @@ import (
 // htmx re-creates the scripts it swaps in with this nonce (the layout's htmx-config, inlineScriptNonce).
 func withCSP(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// /healthz is plain text with nothing to run, and it is what a Go runtime answers as it starts while the
+		// Worker's module loads (worker/index.mjs, go.warm), where Cloudflare gives no random bytes: a nonce there
+		// stopped every warm start.
+		if r.URL.Path == "/healthz" {
+			next.ServeHTTP(w, r)
+			return
+		}
 		nonce := rand.Text()
 		w.Header().Set("Content-Security-Policy", "default-src 'self'; "+
 			"script-src 'self' 'nonce-"+nonce+"' 'unsafe-eval' blob:; worker-src 'self' blob:; "+
