@@ -17,6 +17,10 @@ repo = "joeblew999/go-htmx4"
 subdomain = "gedw99"
 
 # The board: D1 is the source of truth. A new migration is a new idempotent file here.
+# No .mise/tasks/charter.toml: the app calls charter from its own tasks (tasks/app.toml), so charter's 24, each
+# charter <command> under another name, would only crowd mise tasks.
+tasks = false
+
 [[d1]]
 binding = "DB"
 migrations = "migrations"
