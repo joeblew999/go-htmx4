@@ -24,8 +24,7 @@ domain and subdomain (`TestCharterToml` checks them).
 3. If CI's build never comes (CI down, a fork, or `CHARTER_COMPILE=1`), Workers Builds builds it itself
    (`charter builds build -compile`: `[ci] tools`, then `[build] command`).
 
-No Cloudflare credential is in GitHub: Workers Builds deploys with its own build token. `mise run
-charter:builds-configure` sets up its triggers once. Both the workflow and the launcher are charter's (`charter
+No Cloudflare credential is in GitHub: Workers Builds deploys with its own build token. `fnox exec -- charter builds configure` sets up its triggers once. Both the workflow and the launcher are charter's (`charter
 init` writes them), and `charter check` says when they're stale.
 
 ## Releasing

@@ -28,7 +28,8 @@ The repo is only the app. Don't add modules, registries, copy steps or another t
   descriptions (`mise run docs:commands`).
 - charter, mise-intl and mise-seo each have a library in `go.mod` and a command in `mise.toml`, at the same version:
   `mise run update` moves both. Of what their `init` commands write, the repo has only charter's (`charter init`:
-  its tasks, `charter.yml`, `docs/charter/`, its skill). Never edit those.
+  `charter.yml`, Workers Builds' launcher, `docs/charter/`, its skill; `tasks = false` leaves its task file out).
+  Never edit those.
 - **The Worker on Cloudflare is `charter.toml`:** its name, D1, Durable Objects, rate limit, vars and domains. Deploys
   and local workerd (`.charter/`, never committed) come from it.
 - Checks are Go tests (`e2e/smoke`, `e2e`, `e2e/load`), never curl or a grep of a command's output.

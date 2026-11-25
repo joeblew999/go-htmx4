@@ -11,7 +11,7 @@ require (
 	github.com/gsxhq/gsx v0.5.0
 	github.com/jackielii/structpages v0.12.0
 	github.com/jackielii/tailwind-merge-go v0.0.0-20260726184505-8a911ed0cf9a
-	github.com/joeblew999/charter v0.23.0
+	github.com/joeblew999/charter v0.24.0
 	github.com/joeblew999/mise-intl v0.1.16
 	github.com/joeblew999/mise-seo v0.0.2
 	golang.org/x/mod v0.43.0

@@ -44,8 +44,8 @@ github.com/jackielii/tailwind-merge-go v0.0.0-20260726184505-8a911ed0cf9a h1:sQ0
 github.com/jackielii/tailwind-merge-go v0.0.0-20260726184505-8a911ed0cf9a/go.mod h1:voVtdB9w9rAqShh8L7IMzv5ipGAeDCP9G3O0PqrKwnc=
 github.com/jmoiron/sqlx v1.4.0 h1:1PLqN7S1UYp5t4SrVVnt4nUVNemrDAtxlulVe+Qgm3o=
 github.com/jmoiron/sqlx v1.4.0/go.mod h1:ZrZ7UsYB/weZdl2Bxg6jCRO9c3YHl8r3ahlKmRT4JLY=
-github.com/joeblew999/charter v0.23.0 h1:xTkjtW6KFjo0925j8hOH1oaWqfpgfGo9A0aXSqzS1V8=
-github.com/joeblew999/charter v0.23.0/go.mod h1:VNvMeIDh9/8GCRSECcsjbmMpqgXTZhzwbOBPI3GT0w4=
+github.com/joeblew999/charter v0.24.0 h1:1UO8ysuY7gEXCx8e3nGFjfr5x5hF4VUD/nw2zf03gYA=
+github.com/joeblew999/charter v0.24.0/go.mod h1:VNvMeIDh9/8GCRSECcsjbmMpqgXTZhzwbOBPI3GT0w4=
 github.com/joeblew999/mise-intl v0.1.16 h1:YlpA3M1fneUqOMcOv3ukLz/wTfNufB5KgVKuT4/qq6Y=
 github.com/joeblew999/mise-intl v0.1.16/go.mod h1:AcEv/Eo7ohd5nxeEOK1ZujLR1NLn54XIw3YKzGACswU=
 github.com/joeblew999/mise-seo v0.0.2 h1:jidNR6wJx8+SINABXOeFVYtNJjScBNtagpuamHdO9+U=
