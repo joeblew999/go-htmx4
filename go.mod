@@ -11,7 +11,6 @@ require (
 	github.com/jackielii/structpages v0.12.0
 	github.com/jackielii/tailwind-merge-go v0.0.0-20260726184505-8a911ed0cf9a
 	github.com/joeblew999/charter v0.23.0
-	github.com/joeblew999/go-htmx4/gsxkit v0.0.0
 	golang.org/x/net v0.63.0
 )
 
@@ -56,10 +55,7 @@ require (
 tool (
 	github.com/gsxhq/gsx/cmd/gsx
 	github.com/jackielii/structpages/tools/lint/cmd/structpages-lint
-	github.com/joeblew999/go-htmx4/gsxkit/cmd/gsxkit
 	github.com/tdewolff/minify/v2/cmd/minify
 )
 
 replace github.com/joeblew999/go-htmx4/badge => ./badge
-
-replace github.com/joeblew999/go-htmx4/gsxkit => ./gsxkit

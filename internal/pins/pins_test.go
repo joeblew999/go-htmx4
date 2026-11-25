@@ -1,4 +1,4 @@
-package deps
+package pins
 
 import (
 	"os"

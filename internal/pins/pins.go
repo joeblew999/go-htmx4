@@ -1,7 +1,7 @@
-// Package deps is what go tool gsxkit update, and an app's own updater, need to move pins: the holds an app keeps
+// Package pins is what go tool gsxkit update, and an app's own updater, need to move pins: the holds an app keeps
 // (deps.toml: what stays where it is, and why), the repository's Go modules, the latest version of a Go module, and the
 // pins in mise.toml (#169).
-package deps
+package pins
 
 import (
 	"bytes"

@@ -1,20 +1,9 @@
-// Command gsxkit is go tool gsxkit: gsx's, gsxui's and structpages' mise tasks, and the agent skills Jackie Li's
-// projects ship (gsx's, structpages', gsxui's), written into a gsx app the way intl and seo write theirs. The skills
-// are theirs (each repository's skills/); gsxkit only copies them, at the versions the app pins (go.mod; mise.toml for
-// gsxui's CLI). And gsxkit's own
-// components (gsxkit/ui: a map, live video), which add copies into the app the way gsxui add copies gsxui's (#164).
-//
-//	go tool gsxkit tasks [-o file]   write the gsx and gsxui mise tasks into the app (.mise/tasks/gsx.toml)
-//	go tool gsxkit skill             copy the skills of every such project in go.mod into .claude/skills
-//	go tool gsxkit add [-diff | -overwrite] [-dir views/gsxkit] [-assets web/gsxkit] <component>…
-//	go tool gsxkit update            gsx, gsxui and structpages to their latest, except what deps.toml holds
 package main
 
 import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"flag"
 	"fmt"
 	"io/fs"
 	"os"
@@ -22,72 +11,39 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
-
-	"github.com/joeblew999/go-htmx4/gsxkit/mise"
-	gsxkitui "github.com/joeblew999/go-htmx4/gsxkit/ui"
-	"github.com/joeblew999/mise-intl/intl/config"
-	"github.com/joeblew999/mise-intl/gsxintl/registry"
 )
 
-func main() {
-	if len(os.Args) < 2 {
-		usage()
-	}
-	root, err := appRoot()
-	if err != nil {
-		fail(err)
-	}
-	switch os.Args[1] {
-	case "tasks":
-		f := flag.NewFlagSet("tasks", flag.ExitOnError)
-		out := f.String("o", filepath.Join(root, ".mise", "tasks", "gsx.toml"), "the task file to write")
-		f.Parse(os.Args[2:])
-		if changed, err := writeChanged(root, *out, mise.Tasks); err != nil {
+// skills is go run ./internal/deps skill: the agent skills Jackie Li's projects ship (gsx's, structpages', gsxui's),
+// copied into .claude/skills at the versions the app pins (go.mod; mise.toml for gsxui's CLI). The skills are theirs:
+// this only copies them.
+func skills(root string) {
+	changed := false
+	for _, module := range skillModules {
+		dir, ok, err := moduleDir(root, module)
+		if err == nil && !ok {
+			dir, ok, err = misePinned(root, module) // gsxui's CLI is pinned in mise.toml, not go.mod
+		}
+		if err != nil {
 			fail(err)
-		} else if !changed {
-			fmt.Println("✓ the gsx tasks are up to date")
 		}
-	case "skill":
-		changed := false
-		for _, module := range skillModules {
-			dir, ok, err := moduleDir(root, module)
-			if err == nil && !ok {
-				dir, ok, err = misePinned(root, module) // gsxui's CLI is pinned in mise.toml, not go.mod
-			}
+		if !ok {
+			continue // the app doesn't use it
+		}
+		names, err := skillDirs(filepath.Join(dir, "skills"))
+		if err != nil {
+			fail(err)
+		}
+		for _, name := range names {
+			c, err := copySkill(root, filepath.Join(dir, "skills", name), filepath.Join(root, ".claude", "skills", name))
 			if err != nil {
 				fail(err)
 			}
-			if !ok {
-				continue // the app doesn't use it
-			}
-			skills, err := skillDirs(filepath.Join(dir, "skills"))
-			if err != nil {
-				fail(err)
-			}
-			for _, name := range skills {
-				c, err := copySkill(root, filepath.Join(dir, "skills", name), filepath.Join(root, ".claude", "skills", name))
-				if err != nil {
-					fail(err)
-				}
-				changed = changed || c
-			}
+			changed = changed || c
 		}
-		if !changed {
-			fmt.Println("✓ the skills are up to date")
-		}
-	case "add":
-		os.Exit(add(root, os.Args[2:]))
-	case "update":
-		os.Exit(update(root))
-	default:
-		usage()
 	}
-}
-
-func usage() {
-	fmt.Fprintf(os.Stderr, "usage: go tool gsxkit tasks [-o file] | skill | update | add [-diff | -overwrite] [-dir dir] [-assets dir] <component>…   components: %s\n",
-		strings.Join(gsxkitui.Components.Names(), ", "))
-	os.Exit(2)
+	if !changed {
+		fmt.Println("✓ the skills are up to date")
+	}
 }
 
 func fail(err error) {
@@ -247,28 +203,4 @@ func writeChanged(root, path string, b []byte) (bool, error) {
 	}
 	fmt.Println("wrote", path)
 	return true, nil
-}
-
-// add is go tool gsxkit add: gsxkit's components, copied into the app with intl's registry (intl/registry): the gsx
-// into -dir (package gsxkit), the browser files into -assets, the text into intl's catalogs, and gsxui add for the gsxui
-// components they are made of.
-func add(root string, args []string) int {
-	f := flag.NewFlagSet("add", flag.ExitOnError)
-	diff := f.Bool("diff", false, "show how gsxkit's components differ from the app's copies, writing nothing (exit 1 if they do)")
-	overwrite := f.Bool("overwrite", false, "replace copies the app changed")
-	dir := f.String("dir", filepath.Join("views", "gsxkit"), "where the components' gsx goes, from the app's root")
-	assets := f.String("assets", filepath.Join("web", "gsxkit"), "where their browser files go, from the app's root: serve it at /gsxkit/")
-	f.Parse(args)
-	if f.NArg() == 0 || *diff && *overwrite {
-		usage()
-	}
-	c, err := config.Find(root)
-	if err != nil {
-		fail(fmt.Errorf("gsxkit's components carry their text for intl: set intl up first (go tool intl init): %w", err))
-	}
-	code, err := gsxkitui.Components.Add(c, f.Args(), registry.Options{Dir: *dir, Assets: *assets, Diff: *diff, Overwrite: *overwrite})
-	if err != nil {
-		fail(err)
-	}
-	return code
 }

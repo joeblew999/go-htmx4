@@ -8,12 +8,7 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/joeblew999/go-htmx4/gsxkit/deps"
-	"github.com/joeblew999/go-htmx4/gsxkit/mise"
-	gsxkitui "github.com/joeblew999/go-htmx4/gsxkit/ui"
-	"github.com/joeblew999/mise-intl/intl/config"
-	"github.com/joeblew999/mise-intl/gsxintl/registry"
-	intlui "github.com/joeblew999/mise-intl/gsxintl/screens"
+	deps "github.com/joeblew999/go-htmx4/internal/pins"
 )
 
 const (
@@ -26,13 +21,13 @@ const (
 	gsxWhitespace = "v0.5.0"
 )
 
-// update is go tool gsxkit update: gsx, gsxui and structpages to their latest in one step, except what deps.toml holds
+// gsxStackUpdate is the first part of go run ./internal/deps update: gsx, gsxui and structpages to their latest in one step, except what deps.toml holds
 // (#169). gsx in every module of the repository that requires it (gsx fix whitespace when that crosses v0.5.0);
 // structpages and its linter; gsxui's CSS (gsxui init --overwrite with the app's preset) and every component gsxui.json
 // manages (gsxui add --overwrite) with its main's newest commit, then its CLI pin in mise.toml to that commit (#177).
-// Then go mod tidy in each module, the tasks and skills written
-// again, gsx generate, and intl's screens and gsxkit's components copied again, so nothing is left at the old version.
-func update(root string) int {
+// Then go mod tidy in each module, the skills written again, intl's
+// screens copied again and gsx generate, so nothing is left at the old version.
+func gsxStackUpdate(root string) {
 	holds, err := deps.ReadHolds(root)
 	if err != nil {
 		fail(err)
@@ -97,7 +92,6 @@ func update(root string) int {
 		rewrite(root)
 	}
 	deps.Report("gsx, gsxui and structpages:", changes)
-	return 0
 }
 
 // updateGsxui moves gsxui's CLI pin (mise.toml) to the newest commit on gsxui's main, then refreshes what gsxui wrote
@@ -177,37 +171,20 @@ func gsxuiComponents(root string) []string {
 	return names
 }
 
-// rewrite writes everything that follows the versions again: gsxkit's tasks and the skills, the generated code, and
-// the copies of intl's screens and gsxkit's components the app has.
+// rewrite writes everything that follows the versions again: the skills, intl's screens the app has (mise-intl's,
+// copied again at its pinned release), and the generated code.
 func rewrite(root string) {
-	if _, err := writeChanged(root, filepath.Join(root, ".mise", "tasks", "gsx.toml"), mise.Tasks); err != nil {
-		fail(err)
-	}
-	if err := deps.Run(root, "go", "tool", "gsxkit", "skill"); err != nil {
-		fail(err)
-	}
-	c, err := config.Find(root)
-	if err == nil {
-		recopy(c, intlui.Screens, c.UIDir(), "")
-		recopy(c, gsxkitui.Components, filepath.Join("views", "gsxkit"), filepath.Join("web", "gsxkit"))
-	}
-	if err := deps.Run(root, "go", "tool", "gsx", "generate", "-q"); err != nil {
-		fail(err)
-	}
-}
-
-// recopy copies again the registry's components the app has a copy of in dir.
-func recopy(c config.Config, r *registry.Registry, dir, assets string) {
-	var names []string
-	for _, comp := range r.Components {
-		if _, err := os.Stat(filepath.Join(c.Root, dir, comp.Name+".gsx")); err == nil {
-			names = append(names, comp.Name)
+	skills(root)
+	if screens, _ := filepath.Glob(filepath.Join(root, "views", "intl", "*.gsx")); len(screens) > 0 {
+		args := []string{"exec", "--", "mise-intl", "add", "-overwrite"}
+		for _, f := range screens {
+			args = append(args, strings.TrimSuffix(filepath.Base(f), ".gsx"))
+		}
+		if err := deps.Run(root, "mise", args...); err != nil {
+			fail(err)
 		}
 	}
-	if len(names) == 0 {
-		return
-	}
-	if _, err := r.Add(c, names, registry.Options{Dir: dir, Assets: assets, Overwrite: true}); err != nil {
+	if err := deps.Run(root, "go", "tool", "gsx", "generate", "-q"); err != nil {
 		fail(err)
 	}
 }
