@@ -3,10 +3,10 @@ package app
 import (
 	"context"
 
-	"github.com/joeblew999/go-htmx4/intl"
 	"github.com/joeblew999/go-htmx4/locales"
-	"github.com/joeblew999/go-htmx4/seo"
 	"github.com/joeblew999/go-htmx4/views"
+	"github.com/joeblew999/mise-intl/intl"
+	"github.com/joeblew999/mise-seo/seo"
 )
 
 // repo is the app's repository on GitHub (charter.toml's repo, TestCharterToml): where llms.txt's docs are.
@@ -35,10 +35,9 @@ func llms(origin string) string {
 	}
 	raw := "https://raw.githubusercontent.com/" + repo + "/main/"
 	docs := []seo.LLMsLink{
-		{Title: "README", URL: raw + "README.md", Note: "what this is, and how to start an app of your own from its pieces"},
-		{Title: "intl", URL: raw + "intl/README.md", Note: "every language of a gsx app through the runtime's Intl"},
-		{Title: "seo", URL: raw + "seo/README.md", Note: "what Google and agents read, and the audit that checks it"},
-		{Title: "gsxkit", URL: raw + "gsxkit/README.md", Note: "gsx's and gsxui's tasks and skills for any app"},
+		{Title: "README", URL: raw + "README.md", Note: "what this is, what it is built on, and where things are"},
+		{Title: "intl", URL: "https://raw.githubusercontent.com/joeblew999/mise-intl/main/templates/docs/intl/README.md", Note: "every language of an app through the runtime's Intl (mise-intl)"},
+		{Title: "seo", URL: "https://raw.githubusercontent.com/joeblew999/mise-seo/main/templates/docs/seo/README.md", Note: "what Google and agents read, and the audit that checks it (mise-seo)"},
 		{Title: "Architecture", URL: raw + "docs/architecture.md", Note: "how the app works"},
 		{Title: "Deploy", URL: raw + "docs/deploy.md", Note: "how it ships to Cloudflare Workers"},
 		{Title: "Commands", URL: raw + "docs/commands.md", Note: "every mise task"},

@@ -22,10 +22,10 @@ import (
 	"github.com/jackielii/structpages"
 	"github.com/joeblew999/charter/bindings"
 	"github.com/joeblew999/charter/web"
-	"github.com/joeblew999/go-htmx4/intl"
 	"github.com/joeblew999/go-htmx4/locales"
 	"github.com/joeblew999/go-htmx4/views"
 	intlui "github.com/joeblew999/go-htmx4/views/intl"
+	"github.com/joeblew999/mise-intl/intl"
 )
 
 var (
@@ -75,7 +75,7 @@ func (s *server) routes() http.Handler {
 		panic(err) // the page tree is code: every test catches a mistake in it
 	}
 	// The static files (dist/site): Workers' Static Assets answer them before the Worker runs; these are for off it.
-	for _, prefix := range []string{"/static/", "/gsxui/", "/gsxkit/", "/assets/"} {
+	for _, prefix := range []string{"/static/", "/gsxui/", "/blocks/", "/assets/"} {
 		mux.Handle(prefix, staticFiles())
 	}
 	mux.HandleFunc("/healthz", func(w http.ResponseWriter, r *http.Request) {

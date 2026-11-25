@@ -10,7 +10,7 @@ import (
 
 	"github.com/gsxhq/gsx"
 	"github.com/jackielii/structpages"
-	"github.com/joeblew999/go-htmx4/intl"
+	"github.com/joeblew999/mise-intl/intl"
 )
 
 // BoardState is one topic's shared state as the board page and its pushed fragment show it.
@@ -78,7 +78,7 @@ func htmxConfig(ctx context.Context) string {
 	return config
 }
 
-// homeURL is the home page's absolute URL in the request's language on the home page itself, "" elsewhere: seo.Head
+// homeURL is the home page's absolute URL in the request's language on the home page itself, "" elsewhere: gsxseo.Head
 // puts the site's name there for Google (WebSite structured data).
 func homeURL(ctx context.Context) (string, error) {
 	if home, err := structpages.Within(ctx, Home{}); !home || err != nil {

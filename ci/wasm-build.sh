@@ -27,8 +27,8 @@ case $compiler in
   go) charter build -compiler=go ;;
   *) echo "✗ WORKER_COMPILER=$compiler: tinygo or go"; exit 1 ;;
 esac
-# intl's Worker modules beside the build: intl.mjs, intl-worker.mjs and the catalogs (intl/README.md).
-go tool intl assets -worker build
+# intl's Worker modules beside the build: intl.mjs, intl-worker.mjs and the catalogs (https://github.com/joeblew999/mise-intl/blob/main/templates/docs/intl/README.md).
+mise-intl assets -worker build
 raw=$(wc -c <build/app.wasm | tr -d ' ')
 gz=$(gzip -9 -c build/app.wasm | wc -c | tr -d ' ')
 if [ "$profile" = prod ]; then

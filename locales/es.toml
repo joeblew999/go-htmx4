@@ -122,8 +122,8 @@ no_stream_description = "Abre un enlace que te hayan enviado para ver su emisió
 [map]
 title = "Mapa"
 heading = "Mapa"
-description = "Un mapa de Leaflet en gsx sobre OpenStreetMap, con botones y chinchetas de gsxui, en torno a donde Cloudflare sitúa tu solicitud. Un componente de gsxkit."
-intro = "El componente de mapa de gsxkit: Leaflet sobre OpenStreetMap, con chinchetas, ventanas emergentes y botones hechos con gsx y gsxui. Se abre donde Cloudflare sitúa esta solicitud; el botón de ubicación añade dónde dice tu navegador que estás."
+description = "Un mapa de Leaflet en gsx sobre OpenStreetMap, con botones y chinchetas de gsxui, en torno a donde Cloudflare sitúa tu solicitud."
+intro = "Un componente de mapa: Leaflet sobre OpenStreetMap, con chinchetas, ventanas emergentes y botones hechos con gsx y gsxui. Se abre donde Cloudflare sitúa esta solicitud; el botón de ubicación añade dónde dice tu navegador que estás."
 where_title = "Dónde estás"
 where_found = "Cloudflare sitúa esta solicitud cerca de {place}, por su dirección IP."
 where_unknown = "Cloudflare no envió ningún lugar con esta solicitud (una ejecución local no lo hace). El botón de ubicación se lo pregunta a tu navegador."
@@ -416,7 +416,7 @@ hour_cycle_auto = "Según el idioma ({example})"
 save = "Guardar"
 close = "Cerrar"
 
-[gsxkit.map]
+[blocks.map]
 zoom_in = "Acercar"
 zoom_out = "Alejar"
 locate = "Mostrar mi ubicación"
@@ -425,7 +425,7 @@ unavailable = "Tu ubicación no está disponible."
 you = "Estás aquí"
 attribution = "© colaboradores de OpenStreetMap"
 
-[gsxkit.moq]
+[blocks.moq]
 watch_title = "Ver"
 watch_description = "La emisión que indica el enlace que abriste."
 broadcast_title = "Emitir"
@@ -460,7 +460,7 @@ share_link = "Compartir"
 keep_open = "Mantén esta página abierta mientras estés en directo: en un móvil, cambiar de app o bloquear la pantalla pausa la emisión hasta que vuelvas."
 details = "Detalles de la conexión"
 
-[gsxkit.places]
+[blocks.places]
 country = "País"
 region = "Región o estado"
 city = "Ciudad o localidad"

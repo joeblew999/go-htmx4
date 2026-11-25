@@ -123,7 +123,7 @@ no_stream_description = "Abra um link que alguém te enviou para assistir à tra
 title = "Mapa"
 heading = "Mapa"
 description = "Um mapa Leaflet em gsx sobre o OpenStreetMap, com botões e marcadores do gsxui, em torno de onde a Cloudflare situa sua solicitação."
-intro = "O componente de mapa do gsxkit: Leaflet sobre o OpenStreetMap, com marcadores, pop-ups e botões feitos em gsx e gsxui. Ele abre onde a Cloudflare situa esta solicitação; o botão de localização adiciona onde seu navegador diz que você está."
+intro = "Um componente de mapa: Leaflet sobre o OpenStreetMap, com marcadores, pop-ups e botões feitos em gsx e gsxui. Ele abre onde a Cloudflare situa esta solicitação; o botão de localização adiciona onde seu navegador diz que você está."
 where_title = "Onde você está"
 where_found = "A Cloudflare situa esta solicitação perto de {place}, pelo endereço IP dela."
 where_unknown = "A Cloudflare não enviou nenhum lugar com esta solicitação (uma execução local não envia). O botão de localização pergunta ao seu navegador."
@@ -416,7 +416,7 @@ hour_cycle_auto = "Padrão do idioma ({example})"
 save = "Salvar"
 close = "Fechar"
 
-[gsxkit.map]
+[blocks.map]
 zoom_in = "Aumentar zoom"
 zoom_out = "Diminuir zoom"
 locate = "Mostrar minha localização"
@@ -425,7 +425,7 @@ unavailable = "Sua localização não está disponível."
 you = "Você está aqui"
 attribution = "© colaboradores do OpenStreetMap"
 
-[gsxkit.moq]
+[blocks.moq]
 watch_title = "Assistir"
 watch_description = "A transmissão indicada pelo link que você abriu."
 broadcast_title = "Transmitir"
@@ -460,7 +460,7 @@ share_link = "Compartilhar"
 keep_open = "Mantenha esta página aberta enquanto estiver ao vivo: no celular, trocar de app ou bloquear a tela pausa a transmissão até você voltar."
 details = "Detalhes da conexão"
 
-[gsxkit.places]
+[blocks.places]
 country = "País"
 region = "Região ou estado"
 city = "Cidade ou município"

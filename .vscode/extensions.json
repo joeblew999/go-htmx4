@@ -1,4 +1,4 @@
 {
-  // gsx highlighting + language server. `mise install` puts the compiler it needs in GOPATH/bin (gsx:editor, gsxkit's tasks).
+  // gsx highlighting + language server. `mise install` puts the compiler it needs in GOPATH/bin (gsx:editor, the blocks' tasks).
   "recommendations": ["gsxhq.gsx"]
 }

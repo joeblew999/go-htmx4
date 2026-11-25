@@ -15,8 +15,6 @@ contributor's pull request stops before them.
   `check` on GitHub as a record (`main` requires it, but not of admins). `git status` must be clean first: the checks
   ran on the working tree, so it has to be exactly what merges. When they couldn't run (the port is busy), use
   `gh pr merge --auto --squash` and let CI's `check` decide.
-- `intl/`, `seo/` and `badge/` (the README badge drawer both use) get their versions from a release: `mise run release
-  vX` tags each that changed since its last tag with its next version (`ci/module-tags.sh`). Never tag them by hand.
 - End every report of finished work with a **Follow-ups** list, even a short one: what's next, what needs the user's
   OK and why, bugs or risks found but not fixed, checks skipped, leftovers (processes, resources, stale docs). Put the
   same list in the issue.
@@ -38,8 +36,8 @@ contributor's pull request stops before them.
 - Before pushing: `mise run check`, then `mise run e2e` after UI, board or JS changes. CI is charter's
   (`.github/workflows/charter.yml` → `charter ci run`, from `charter.toml`'s `[ci]`): the same build and checks.
   A task with `sources`/`outputs` is skipped when nothing it reads changed: a new input to the wasm goes in `sources`.
-- A task's own script is inline in its task. `ci/` holds the scripts CI runs or several tasks share (`check.sh`,
-  `wasm-build.sh`, `bench.sh`, `module-tags.sh`, `upstream.sh`). CI and Workers Builds are charter's, written by
+- A task's own script is inline in its task. `ci/` holds the scripts several tasks share
+  (`wasm-build.sh`, `with-intl.sh`, `bench.sh`, `upstream.sh`, `workers-builds.sh`). CI and Workers Builds are charter's, written by
   `charter init` with the rest of charter's files (`charter check` in `test:go`): never edit them. After moving
   charter's pin, run `charter init` again; `charter.toml`'s `[github]` says why there's no `charter-ci.yml`,
   `charter-repo.yml` or `renovate.json`. Checks are Go tests (`e2e/smoke`, `e2e`, `e2e/load`), never curl or a grep
@@ -71,23 +69,25 @@ contributor's pull request stops before them.
 
 ## Generated files: never edit
 
-`*.x.go` (`go tool gsx generate`; not committed, except intl's `render.x.go` and `head.x.go` and seo's `head.x.go`: apps import them as Go packages),
-`intl_gen.go` and `intl-messages.mjs` (`mise run intl`; not committed), `locales/intl.sum` and `docs/badges/intl.svg`
-(`mise run intl`; committed), `.claude/skills/intl` (`mise run intl:skill`; committed), `.claude/skills/seo`
-(`mise run seo:skill`; committed), the skills gsx, structpages and gsxui ship (`.claude/skills/gsx`, `templ-to-gsx-migration`, `structpages`, `gsxui`: `mise run gsx:skill`;
-committed), the
-`.mise/tasks/*.toml` files (`mise run intl:tasks`, `seo:tasks`, `gsx:tasks`; committed), `docs/commands.md`
-(`mise run docs:commands`), the other `docs/badges/` and the README's `<!-- seo:scores -->` table (`mise run seo:badges`,
-after a release; committed), what `gsxui` manages (`gsxui.json` lists it), and intl's screens in `views/intl/`
-(`go tool intl add`; committed): change `intl/ui/<screen>.gsx.tmpl`, then `go tool intl add -overwrite <screen>`
-(`TestIntlScreens` checks the demo's copies are intl's), gsxkit's components in `views/gsxkit/` and `web/gsxkit/`
-(`mise run gsxkit:add`; committed), and their bundles in `gsxkit/ui/assets/` (`mise run gsxkit:bundle`; committed).
+| File | Written by | Committed |
+|---|---|---|
+| `*.x.go` | `mise run gsx:generate` | no |
+| `locales/intl_gen.go`, `ui/i18n/intl_gen.go`, `locales/intl-messages.mjs`, `locales/intl-workerd/` | `mise run intl:gen` | no |
+| `locales/intl.sum` | `mise run intl:gen` | yes |
+| `web/blocks/*.js`, `web/blocks/map.css` | `mise run js:bundle` | yes |
+| `web/htmx/` | `mise run vendor` | yes |
+| `.claude/skills/gsx`, `gsxui`, `structpages`, `templ-to-gsx-migration` | `mise run gsx:skill` | yes |
+| `.mise/tasks/charter*`, `.github/workflows/charter.yml`, `docs/charter/`, `.claude/skills/charter` | `charter init` | yes |
+| `docs/commands.md` | `mise run docs:commands` | yes |
+| `docs/badges/`, the README's `<!-- seo:scores -->` table | `mise run seo:badges`, after a release | yes |
+| What `gsxui.json` lists (`ui/`, `web/gsxui/`) | `gsxui add`, `gsxui init` | yes |
+| `views/intl/*.gsx` (intl's screens) | `mise-intl add -overwrite <screen>` | yes |
 
 ## UI: gsx, gsxui, htmx 4
 
 - **Nothing hand-written in the GUI.** Every visual piece is a gsxui component (`gsxui add <name>` at the repo root,
   never copied by hand), the gsxui theme/preset, or a pattern from gsxui's own site (https://ui.gsxhq.dev; cite it).
-  No custom CSS files (a library's own stylesheet that a gsxkit component bundles from npm, Leaflet's for the map,
+  No custom CSS files (a library's own stylesheet that a blocks component bundles from npm, Leaflet's for the map,
   isn't a look of ours: `TestGsxuiFiles` allows exactly those). The look is gsxui's standard nova theme (gsxui's default), so everyone runs and tests the same
   base; change it only with `mise run gsxui:theme <style|share code>` (gsxui's theme editor gives codes). After moving gsxui's pin, `gsxui init --overwrite --preset gsxui.preset.json` refreshes its CSS, and
   `gsxui add --overwrite` its components. `TestGsxuiFiles` fails on a hand edit to anything gsxui wrote.
@@ -103,10 +103,13 @@ after a release; committed), what `gsxui` manages (`gsxui.json` lists it), and i
 
 ## Languages and search
 
-- **Intl is the one source of language**, through `intl/` (its own module, for any gsx app: `intl/README.md`).
-  Messages, plural forms, numbers, dates, locale names and direction all come from `intl/js/intl.mjs` with the
-  runtime's Intl; Go never decides them. Outside the Worker the only Intl is workerd's: a test package that renders
-  or formats anything has `func TestMain(m *testing.M) { os.Exit(intltest.Main(m)) }`.
+- **Intl is the one source of language**, through mise-intl (`github.com/joeblew999/mise-intl`: its packages in
+  `go.mod`, its binary in `mise.toml`, the same release; its guide is in its repository, `templates/docs/intl/README.md`). Messages, plural forms,
+  numbers, dates, locale names and direction all come from the runtime's Intl; Go never decides them. Outside the
+  Worker the only Intl is workerd's: a test package that renders or formats anything has
+  `func TestMain(m *testing.M) { os.Exit(intltest.Main(m)) }`, and `test:go` runs the tests through
+  `ci/with-intl.sh`, which starts that service. The app has none of the task files, workflows or hooks mise-intl's
+  `init` writes: only the few `intl:*` tasks in `tasks/app.toml`.
 - No literal user-facing text in `views/` or handlers: a message from `locales/*.toml` (ICU MessageFormat; `en.toml`
   is the source), written in markup as a value, `{ locales.NavHome }`, or with arguments, `{ locales.BoardNotes(n) }`.
   Our components take `intl.Msg`, not strings. A gsxui input typed `string` takes `{ locales.Key |> text }`; Go code
@@ -116,23 +119,23 @@ after a release; committed), what `gsxui` manages (`gsxui.json` lists it), and i
   missing on a fork's pull request without failing, `INTL_MISSING=warn`, and **(maintainer)** translates after
   merging; a push, `main` and a release stay strict). A new or changed source message: `mise run intl:translate`
   (Claude Code with the `intl` skill), or translate what `mise run intl:todo` lists by that skill's rules.
-  A stale translation that is still right: `mise run intl:confirm <locale>:<key>`. `mise run intl:check` (in
-  `test:go`) fails on anything missing, stale, unused or wrongly plural. How each language reads is `intl.toml`'s
+  A stale translation that is still right: `mise run intl:confirm <locale>:<key>`. `mise-intl status` (in
+  `test:go`) fails while a language has anything missing or stale. How each language reads is `intl.toml`'s
   `[notes]`: change them there, not per message.
 - Text arguments are bidi-isolated by the renderer (another message given as an argument isn't: it is in the page's
   language); user text in its own element gets `dir="auto"`. A message written in another language is `.In(id)`.
 - The server renders in the reader's zone and offers their language until they choose one: `intl.Site` (the `browser_tz`
   cookie, Cloudflare's guess; `Accept-Language` or their choice for `intl.Suggested`, `intl.Decline` to turn it down).
   Never redirect on `Accept-Language`.
-- gsxui components' own text (`i18n.T`) is the catalogs' `[gsxui]` table: after `gsxui add`, `mise run intl` names
+- gsxui components' own text (`i18n.T`) is the catalogs' `[gsxui]` table: after `gsxui add`, `mise run intl:gen` names
   every string that needs a message.
-- `mise run intl:check` also runs gsx's own checks on the app's markup: `gsx generate`, `gsx fmt` and the `gsx` skill's
-  smell finder. Write what the `gsx` skill says, not what older code does.
+- Write gsx as the `gsx` skill says, not as older code does. `gsx generate` fails on gsx's lints (`gsx.toml`'s
+  `[lint]`), and `mise run gsx:fmt --check` is in `test:go`.
 - Every in-app `href`/`hx-*`/`src` URL comes from the page tree through the `url` filter, in the reader's language:
   a page's, `href={ pages.About{} |> url }`, and a route's, `hx-post={ GreetAction{} |> url }`. Never a path as a
-  string: `structpages-lint` (gsxkit's `structpages:lint`, in `test:go`) fails on one. Its exceptions carry a
+  string: `structpages-lint` (`mise run structpages:lint`, in `test:go`) fails on one. Its exceptions carry a
   `structpages:lint:ignore url-attr` directive with their reason above it: static files (`/static/`, `/assets/`,
-  `/gsxui/`, `/gsxkit/`) and intl's preferences routes, which intl's screens name for any gsx app. Locale URLs, cookies and preferences are `intl.Site`, search engines `seo.Site`, both in `app/site.go`.
+  `/gsxui/`, `/blocks/`) and intl's preferences routes, which intl's screens name for any gsx app. Locale URLs, cookies and preferences are `intl.Site`, search engines `seo.Site`, both in `app/site.go`.
   Logical Tailwind classes only (`ms-`, `pe-`, `start-`, `text-end`, …) so RTL mirrors (`TestLogicalClasses`).
 - Dates and numbers for readers go through Intl, never `time.Format` or `strconv`: intl's gsx filters in markup,
   `{ t |> date(opts) }`, `{ t |> since }`, `{ n |> number(opts) }`, `{ d |> duration }`, `{ v |> intl(api, method,
@@ -148,13 +151,14 @@ after a release; committed), what `gsxui` manages (`gsxui.json` lists it), and i
   that makes endless pages (a board topic) is `Noindex`. Titles ≤ 60 and descriptions ≤ 160 wide (`TestSnippetWidths`).
 - `/robots.txt` keeps one `*` group with no `Disallow` (`TestRobotsTxt`); absolute URLs come from `web.Origin(r)`,
   never a hard-coded host. No page routes under `/fragments/` (noindex) and no robots `Disallow` for them.
-- How Google sees the site is `seo/` (its own module, `seo/README.md`) and the `seo` skill: what Google reads is
-  this app's own code (`app/site.go`, the layout, intl), and `mise run check` audits every page of the local build.
-  `mise run seo:lighthouse` scores a live page; fix what is ours, and report a gsxui component's own failures upstream.
-  The `seo:*` tasks talk through exit codes (0 ok, 1 problems) and `--json`: never scrape their text. Writes to Google
-  (`seo:submit`, `seo:setup`) ask first; agents pass `mise run --yes` only with the user's OK.
+- How Google sees the site is mise-seo (`github.com/joeblew999/mise-seo`: packages in `go.mod`, binary in
+  `mise.toml`, the same release; its guide is in its repository, `templates/docs/seo/README.md`) and the `seo` skill: what Google reads is this app's own code
+  (`app/site.go`, the layout, intl), and `mise run check` audits every page of the local build. `mise run seo:audit`
+  audits the live site, `mise run seo:lighthouse` scores a page: fix what is ours, and report a gsxui component's own
+  failures upstream. They talk through exit codes (0 ok, 1 problems) and `--json`: never scrape their text. Writes
+  to Google (`mise-seo submit`, `mise-seo setup`) are run by hand, only with the user's OK.
 
-## Workers and TinyGo
+## Workers
 
 - **workers-go `v0.36.0` exactly** (`github.com/syumai/workers-go`). What ships is built by
   `charter build -compiler=go` (standard Go, `WORKER_COMPILER` in `mise.toml`, which says why; `tinygo` still builds).
@@ -172,18 +176,16 @@ after a release; committed), what `gsxui` manages (`gsxui.json` lists it), and i
   `charter.toml` (D1 is SQLite in memory with the migrations; the write limit counts), so there is no file per
   platform and `go test` runs the real SQL. A test sets `request.cf` with `transport.WithCF`. workers-go's
   `fetch.NewIncomingProperties` panics under charter's runtime.
-- JS only in `worker/index.mjs` (entry), `worker/room.mjs` (Durable Object), `intl/js/` (Intl, and what Go calls of
-  it), and `gsxkit/js/<component>/` (a gsxkit component's glue to the npm library it wraps: the map's to Leaflet, the
+- JS only in `worker/index.mjs` (entry), `worker/room.mjs` (Durable Object), and `views/blocks/js/<component>/`
+  (a component's glue to the npm library it wraps: the map's to Leaflet, the
   live video's to @moq's elements, #156, #164; what the browser does can't be Go). The glue only sets `data-*` state,
   wires the component's buttons and hands Leaflet or @moq what the markup rendered (pins, popups) or the connection
   details' machine values; every label stays in the gsx. Patches to the bundled npm packages are that folder's
   `npm-patches.json`, each with its reason. Keep it logic-free; logic stays in Go. The topic and locale rules are
   `internal/live`'s (`TestWorkerJSMatchesLive`).
-- **gsxkit is our registry of components gsxui doesn't have** (`gsxkit/ui`: a map, live video). A component is a gsx
-  template made of gsxui components, its text in every language (`gsxkit/ui/locales`, `[gsxkit.<component>]`) and its
-  bundled browser files; `go tool gsxkit add <component>` copies all three into an app (intl's `intl/registry`, as
-  `go tool intl add` copies intl's screens). Change a component in `gsxkit/`, never in `views/gsxkit` or `web/gsxkit`
-  (`TestGsxkitComponents`): `mise run gsxkit:add` copies it again.
+- **`views/blocks/` is the components gsxui doesn't have** (a map, a places picker, live video): gsx made of gsxui
+  components, their text in the catalogs (`[blocks.<component>]`), their browser files in `web/blocks/`
+  (`mise run js:bundle`, from `views/blocks/js/`). They are the app's own: change them where they are.
 
 ## Cloudflare: outward-facing
 

@@ -2,12 +2,12 @@
 // and moving them all in one step, except what deps.toml holds and why.
 //
 //	go run ./internal/deps outdated   every pin with a newer version upstream, holds marked
-//	go run ./internal/deps update     go tool gsxkit update (gsx, gsxui, structpages), then every other pin, then
+//	go run ./internal/deps update     gsx, gsxui and structpages (gsx.go), then every other pin, then
 //	                                  go mod tidy in every module and everything generated from them written again
 //
 // The pins: the Go modules each of the repository's modules requires; mise.toml's tools (and their copies in the task
-// templates intl, seo and gsxkit write), charter's CLI with its library, Chrome for the e2e tests; htmx (the vendor
-// task); and the npm packages each gsxkit component's npm-lock.json bundles.
+// templates), charter's CLI with its library, mise-seo's binary with its packages, Chrome for the e2e tests; htmx (the vendor
+// task); and the npm packages each component's npm-lock.json bundles.
 package main
 
 import (
@@ -24,7 +24,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/joeblew999/go-htmx4/gsxkit/deps"
+	deps "github.com/joeblew999/go-htmx4/internal/pins"
 )
 
 const (
@@ -34,15 +34,25 @@ const (
 	chromeTool   = "http:chrome-headless-shell"
 	gsxuiTool    = "go:github.com/gsxhq/gsxui/cmd/gsxui"
 	vendorTask   = "tasks/app.toml"
-	templateDirs = "intl/mise seo/mise gsxkit/mise tasks"
+	miseSeo      = "github.com/joeblew999/mise-seo"
+	miseSeoTool  = "github:joeblew999/mise-seo"
+	miseIntl     = "github.com/joeblew999/mise-intl"
+	miseIntlTool = "github:joeblew999/mise-intl"
+	templateDirs = "tasks"
 )
 
-// gsxkit's: go tool gsxkit update moves them (and reports them).
+// gsx.go's: gsxStackUpdate moves them (and reports them).
 var gsxStack = []string{"github.com/gsxhq/gsx", "github.com/jackielii/structpages", "github.com/jackielii/structpages/tools/lint"}
 
 func main() {
+	if len(os.Args) == 2 && os.Args[1] == "skill" {
+		root, err := appRoot()
+		check(err)
+		skills(root)
+		return
+	}
 	if len(os.Args) != 2 || (os.Args[1] != "outdated" && os.Args[1] != "update") {
-		fmt.Fprintln(os.Stderr, "usage: go run ./internal/deps outdated | update")
+		fmt.Fprintln(os.Stderr, "usage: go run ./internal/deps outdated | update | skill")
 		os.Exit(2)
 	}
 	root, err := os.Getwd()
@@ -52,7 +62,7 @@ func main() {
 	holds := conf.Hold
 	update := os.Args[1] == "update"
 	if update {
-		check(deps.Run(root, "go", "tool", "gsxkit", "update"))
+		gsxStackUpdate(root)
 	}
 	var all []deps.Change
 	mods, err := deps.Modules(root)
@@ -66,8 +76,7 @@ func main() {
 		for _, m := range mods {
 			check(deps.Run(m.Dir, "go", "mod", "tidy"))
 		}
-		for _, step := range [][]string{{"go", "tool", "intl", "tasks"}, {"go", "tool", "seo", "tasks"}, {"go", "tool", "gsxkit", "tasks"},
-			{"mise", "run", "generate"}, {"mise", "run", "gsxkit:add"}, {"mise", "run", "docs:commands"}} {
+		for _, step := range [][]string{{"mise", "run", "generate"}, {"mise", "run", "docs:commands"}} {
 			check(deps.Run(root, step[0], step[1:]...))
 		}
 	}
@@ -76,13 +85,13 @@ func main() {
 		title = "Moved (and held):"
 	}
 	if !update {
-		// gsxkit update reports its own when it runs; outdated shows them here.
+		// gsxStackUpdate reports its own when it runs; outdated shows them here.
 		all = append(all, gsxStackOutdated(root, mods, holds)...)
 	}
 	deps.Report(title, all)
 }
 
-// goModules are the Go modules the repository's modules require (not ours, not gsxkit's to move) that upstream has a
+// goModules are the Go modules the repository's modules require (not ours, not gsx.go's to move) that upstream has a
 // newer version of; update moves each in every module that requires it. charter's library moves with its CLI.
 func goModules(root string, mods []deps.Module, holds deps.Holds, update bool) []deps.Change {
 	latest := map[string]string{}
@@ -114,6 +123,12 @@ func goModules(root string, mods []deps.Module, holds deps.Holds, update bool) [
 					check(deps.Run(root, "mise", "install"))
 					check(deps.Run(root, "mise", "exec", "--", "charter", "init"))
 				}
+				// mise-intl's and mise-seo's binaries are the same release as their packages: the pin in mise.toml moves
+				// with go.mod. Their init is not run: the app keeps none of the files it writes.
+				if tool, ok := map[string]string{miseSeo: miseSeoTool, miseIntl: miseIntlTool}[path]; ok && m.Dir == root {
+					check(deps.SetMisePin(root, tool, strings.TrimPrefix(latest[path], "v")))
+					check(deps.Run(root, "mise", "install"))
+				}
 			}
 			out = append(out, c)
 		}
@@ -121,7 +136,7 @@ func goModules(root string, mods []deps.Module, holds deps.Holds, update bool) [
 	return out
 }
 
-// gsxStackOutdated reports what go tool gsxkit update would move: gsx and structpages in each module, gsxui's commit.
+// gsxStackOutdated reports what gsxStackUpdate would move: gsx and structpages in each module, gsxui's commit.
 func gsxStackOutdated(root string, mods []deps.Module, holds deps.Holds) []deps.Change {
 	var out []deps.Change
 	for _, path := range gsxStack {
@@ -179,8 +194,8 @@ func miseTools(root string, conf deps.Config, update bool) []deps.Change {
 		check(json.Unmarshal(raw, &tools))
 	}
 	for name, t := range tools {
-		if t.Source.Path != filepath.Join(root, "mise.toml") || name == charterTool || t.Bump == "" || t.Bump == t.Requested {
-			continue // charter moves with its library (goModules)
+		if t.Source.Path != filepath.Join(root, "mise.toml") || name == charterTool || name == miseSeoTool || name == miseIntlTool || t.Bump == "" || t.Bump == t.Requested {
+			continue // charter, mise-intl and mise-seo move with their libraries (goModules)
 		}
 		c := deps.Change{Name: name, From: t.Requested, To: t.Bump, Where: "mise.toml"}
 		if why, held := holds.Why(name); held {
@@ -252,11 +267,11 @@ func chrome(root string, holds deps.Holds, update bool) (deps.Change, bool) {
 	return c, true
 }
 
-// npmLocks are the npm packages each gsxkit component bundles (gsxkit/js/<component>/npm-lock.json's roots) that npm
-// has a newer release of; update re-resolves the component's lock with them (mise run gsxkit:update).
+// npmLocks are the npm packages each component bundles (views/blocks/js/<component>/npm-lock.json's roots) that npm
+// has a newer release of; update re-resolves the component's lock with them (mise run js:update).
 func npmLocks(root string, holds deps.Holds, update bool) []deps.Change {
 	var out []deps.Change
-	locks, _ := filepath.Glob(filepath.Join(root, "gsxkit", "js", "*", "npm-lock.json"))
+	locks, _ := filepath.Glob(filepath.Join(root, "views", "blocks", "js", "*", "npm-lock.json"))
 	for _, lock := range locks {
 		var l struct{ Roots []string }
 		b, err := os.ReadFile(lock)
@@ -289,7 +304,7 @@ func npmLocks(root string, holds deps.Holds, update bool) []deps.Change {
 			out = append(out, c)
 		}
 		if update && moved {
-			check(deps.Run(root, "mise", append([]string{"run", "gsxkit:update", component}, next...)...))
+			check(deps.Run(root, "mise", append([]string{"run", "js:update", component}, next...)...))
 		}
 	}
 	return out

@@ -2,10 +2,10 @@ package intlui
 
 import (
 	"github.com/gsxhq/gsx"
-	"github.com/joeblew999/go-htmx4/intl"
 	"github.com/joeblew999/go-htmx4/locales"
 	"github.com/joeblew999/go-htmx4/ui"
 	"github.com/joeblew999/go-htmx4/ui/icon"
+	"github.com/joeblew999/mise-intl/intl"
 )
 
 // LanguageOffer offers this page in the reader's own language, written in that language, on every page until they
@@ -14,7 +14,7 @@ import (
 // thanks" (intl.Decline) keeps the page's language as their choice. Nothing renders when there is nothing to offer.
 // Extra attributes fall through to the alert.
 //
-// From go tool intl add language-offer: the app's own now, to change as it likes.
+// From mise-intl add language-offer: the app's own now, to change as it likes.
 component LanguageOffer(attrs gsx.Attrs) {
 	{ if s, ok := intl.Suggested(ctx); ok {
 		<ui.Alert lang={s.Lang} dir="auto" { attrs... }>

@@ -18,9 +18,9 @@ idiomatic_version_file_enable_tools = ["go"]
 # Tailwind standalone CLI — the npm-free path in https://ui.gsxhq.dev/docs/npm-free.
 "github:tailwindlabs/tailwindcss" = "v4.3.5"
 # gsxui has no tags yet: pin the commit (README: go install .../cmd/gsxui). `mise upgrade` can't check a commit pin
-# ("no latest version found"); `mise run outdated` and `update` do (go tool gsxkit update).
+# ("no latest version found"); `mise run outdated` and `update` do (internal/deps).
 "go:github.com/gsxhq/gsxui/cmd/gsxui" = "b9ffdfaa"
-# gsx itself is pinned in go.mod: builds use `go tool gsx` (gsx Status guide); the editor copy comes from `gsx:editor` (gsxkit's tasks).
+# gsx itself is pinned in go.mod: builds use `go tool gsx` (gsx Status guide); the editor copy comes from `gsx:editor` (tasks/gsx.toml).
 # Cloudflare Workers toolchain. No Node, no wrangler.
 # workerd: the standalone Workers runtime (what `wrangler dev` runs). Pin a release that has binaries.
 workerd = "1.20261124.1"
@@ -28,6 +28,11 @@ workerd = "1.20261124.1"
 fnox = "1.50.0"
 # jq: task scripts read JSON with it (test:go's file list, vendor's npm metadata).
 jq = "1.8.2"
+# mise-intl and mise-seo: the languages and what search engines read. Their binaries here, their Go packages in go.mod at
+# the same releases (mise run update moves both). Only those: the app has its own few tasks for them (tasks/app.toml),
+# not the task files, workflows and hooks their init writes.
+"github:joeblew999/mise-intl" = "0.1.16"
+"github:joeblew999/mise-seo" = "0.0.2"
 # usage: shell completion for task arguments and flags (mise run seo:inspect <TAB>, --json).
 usage = "7.4.1"
 # charter: the Worker's build, local workerd, deploys, CI and Workers Builds (charter.toml). Its library in go.mod is the
@@ -63,12 +68,11 @@ APP_REPO = "joeblew999/go-htmx4"
 # (CI posts that URL on the PR). A copy of charter.toml's subdomain (TestCharterToml).
 CF_SUBDOMAIN = "gedw99"
 
-# intl's, seo's and charter's tasks as an outside app has them: written by go tool intl tasks, seo tasks and charter
-# tasks into .mise/tasks/ (TestTaskFiles keeps them current).
+# The app's own tasks (tasks/), and charter's (.mise/tasks/charter.toml, which charter init writes).
 [task_config]
-includes = ["tasks/app.toml", ".mise/tasks/gsx.toml", ".mise/tasks/intl.toml", ".mise/tasks/seo.toml", ".mise/tasks/charter.toml", "tasks/upstream.toml"]
+includes = ["tasks/app.toml", "tasks/gsx.toml", ".mise/tasks/charter.toml", "tasks/upstream.toml"]
 
-# The VS Code gsx language server needs the compiler where the extension looks (gsx:editor, gsxkit's tasks).
+# The VS Code gsx language server needs the compiler where the extension looks (gsx:editor).
 [hooks]
 postinstall = { task = "gsx:editor" }
 

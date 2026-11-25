@@ -4,10 +4,11 @@ import (
 	"time"
 
 	"github.com/gsxhq/gsx"
-	"github.com/joeblew999/go-htmx4/intl"
 	"github.com/joeblew999/go-htmx4/locales"
 	"github.com/joeblew999/go-htmx4/ui"
 	"github.com/joeblew999/go-htmx4/ui/icon"
+	"github.com/joeblew999/mise-intl/gsxintl"
+	"github.com/joeblew999/mise-intl/intl"
 )
 
 // Components is every gsxui component the other pages don't use, each fed by Intl in the page's language: names,
@@ -889,7 +890,7 @@ component SidebarDemo() {
 // in an iframe too): the page's sections as its menu, in the request's language.
 component ComponentsSidebar() {
 	<!DOCTYPE html>
-	<html { intl.HTML(ctx)... }>
+	<html { gsxintl.HTML(ctx)... }>
 		<head>
 			<meta charset="utf-8"/>
 			<meta name="viewport" content="width=device-width, initial-scale=1"/>

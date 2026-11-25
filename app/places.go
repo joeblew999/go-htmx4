@@ -14,9 +14,9 @@ import (
 	"github.com/joeblew999/charter/bindings"
 	"github.com/joeblew999/charter/d1"
 	"github.com/joeblew999/go-htmx4/internal/places"
-	"github.com/joeblew999/go-htmx4/intl"
 	"github.com/joeblew999/go-htmx4/views"
-	"github.com/joeblew999/go-htmx4/views/gsxkit"
+	"github.com/joeblew999/go-htmx4/views/blocks"
+	"github.com/joeblew999/mise-intl/intl"
 )
 
 const defaultNominatimURL = "https://nominatim.openstreetmap.org"
@@ -32,7 +32,7 @@ type nominatimGate struct {
 // PlacesSearch serves each submit-driven step of the Places picker. D1 provides the shared one-request-per-second
 // gate and a 24-hour query cache across Worker isolates; the active Intl locale is passed through to Nominatim.
 func (s *server) PlacesSearch(w http.ResponseWriter, r *http.Request) {
-	state := gsxkit.PlaceSearchState{
+	state := blocks.PlaceSearchState{
 		Step:        r.URL.Query().Get("step"),
 		Term:        strings.TrimSpace(r.URL.Query().Get("term")),
 		Country:     strings.TrimSpace(r.URL.Query().Get("country")),
@@ -71,7 +71,7 @@ func (s *server) PlacesSearch(w http.ResponseWriter, r *http.Request) {
 		state.Selected = nil
 	}
 	if r.URL.Query().Get("choose") == "true" {
-		choice := gsxkit.PlaceResult{
+		choice := blocks.PlaceResult{
 			Name:        strings.TrimSpace(r.URL.Query().Get("place-name")),
 			Country:     strings.TrimSpace(r.URL.Query().Get("place-country")),
 			CountryCode: strings.TrimSpace(r.URL.Query().Get("place-country-code")),
@@ -140,7 +140,7 @@ func (s *server) PlacesSearch(w http.ResponseWriter, r *http.Request) {
 	s.renderPlacesPicker(w, r, state)
 }
 
-func (s *server) renderPlacesPicker(w http.ResponseWriter, r *http.Request, state gsxkit.PlaceSearchState) {
+func (s *server) renderPlacesPicker(w http.ResponseWriter, r *http.Request, state blocks.PlaceSearchState) {
 	state.BackStep = previousPlaceStep(state.Step)
 	s.render(w, r, "places-search", views.PlacesPicker(state))
 }
@@ -149,7 +149,7 @@ func validPlaceStep(step string) bool {
 	return step == "country" || step == "region" || step == "city" || step == "street" || step == "done"
 }
 
-func validPlaceState(state gsxkit.PlaceSearchState) bool {
+func validPlaceState(state blocks.PlaceSearchState) bool {
 	if len(state.Term) > 200 || len(state.Country) > 120 || len(state.CountryCode) > 2 ||
 		len(state.Region) > 120 || len(state.City) > 120 || len(state.Street) > 200 {
 		return false
@@ -186,7 +186,7 @@ func validPlaceCountryCode(code string) bool {
 	return true
 }
 
-func validPlaceResult(place gsxkit.PlaceResult) bool {
+func validPlaceResult(place blocks.PlaceResult) bool {
 	return len(place.Name) <= 500 && len(place.Country) <= 120 && len(place.CountryCode) <= 2 &&
 		len(place.Region) <= 120 && len(place.City) <= 120 && len(place.Street) <= 200 &&
 		len(place.Latitude) <= 32 && len(place.Longitude) <= 32 && len(place.OpenURL) <= 256
@@ -207,7 +207,7 @@ func previousPlaceStep(step string) string {
 	}
 }
 
-func placeSearchText(state gsxkit.PlaceSearchState) string {
+func placeSearchText(state blocks.PlaceSearchState) string {
 	parts := make([]string, 0, 4)
 	parts = append(parts, state.Term)
 	switch state.Step {
@@ -254,7 +254,7 @@ func placeFeatureType(step string) string {
 	}
 }
 
-func choosePlace(state *gsxkit.PlaceSearchState, place gsxkit.PlaceResult) bool {
+func choosePlace(state *blocks.PlaceSearchState, place blocks.PlaceResult) bool {
 	if place.Name == "" {
 		return false
 	}
@@ -291,7 +291,7 @@ func choosePlace(state *gsxkit.PlaceSearchState, place gsxkit.PlaceResult) bool 
 	return true
 }
 
-func placesInCountry(results []gsxkit.PlaceResult, countryCode, country string) []gsxkit.PlaceResult {
+func placesInCountry(results []blocks.PlaceResult, countryCode, country string) []blocks.PlaceResult {
 	if countryCode == "" && country == "" {
 		return results
 	}
@@ -304,7 +304,7 @@ func placesInCountry(results []gsxkit.PlaceResult, countryCode, country string) 
 	return filtered
 }
 
-func placeMatchesCountry(countryCode, country string, place gsxkit.PlaceResult) bool {
+func placeMatchesCountry(countryCode, country string, place blocks.PlaceResult) bool {
 	if countryCode != "" {
 		return place.CountryCode != "" && strings.EqualFold(countryCode, place.CountryCode)
 	}
@@ -320,7 +320,7 @@ func firstNonEmpty(values ...string) string {
 	return ""
 }
 
-func (s *server) searchPlaces(ctx context.Context, q places.Query, locale string) ([]gsxkit.PlaceResult, bool, error) {
+func (s *server) searchPlaces(ctx context.Context, q places.Query, locale string) ([]blocks.PlaceResult, bool, error) {
 	db, err := d1.Open("DB")
 	if err != nil {
 		return nil, false, err
@@ -336,7 +336,7 @@ func (s *server) searchPlaces(ctx context.Context, q places.Query, locale string
 	key := hex.EncodeToString(sum[:])
 	if row, err := d1.One[cachedPlaces](db,
 		`SELECT payload FROM places_cache WHERE cache_key = ? AND expires_at > datetime('now')`, key); err == nil {
-		var results []gsxkit.PlaceResult
+		var results []blocks.PlaceResult
 		if err := json.Unmarshal([]byte(row.Payload), &results); err != nil {
 			return nil, false, err
 		}
@@ -357,9 +357,9 @@ RETURNING last_request_ms`); errors.Is(err, d1.ErrNoRows) {
 	if err != nil {
 		return nil, false, err
 	}
-	results := make([]gsxkit.PlaceResult, 0, len(found))
+	results := make([]blocks.PlaceResult, 0, len(found))
 	for _, p := range found {
-		results = append(results, gsxkit.PlaceResult{
+		results = append(results, blocks.PlaceResult{
 			Name: p.Name, Country: p.Country, Region: p.Region, City: p.City, Street: p.Street,
 			CountryCode: p.CountryCode, Latitude: p.Latitude, Longitude: p.Longitude, OpenURL: p.OpenURL,
 		})

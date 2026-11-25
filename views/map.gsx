@@ -3,10 +3,10 @@ package views
 import (
 	"github.com/joeblew999/go-htmx4/locales"
 	"github.com/joeblew999/go-htmx4/ui"
-	"github.com/joeblew999/go-htmx4/views/gsxkit"
+	"github.com/joeblew999/go-htmx4/views/blocks"
 )
 
-// MapPage is gsxkit's map component (views/gsxkit/map.gsx, from go tool gsxkit add map, #164) showing a place the
+// MapPage is the blocks' map component (views/blocks/map.gsx, from go tool blocks add map, #164) showing a place the
 // way coldter/tide-info's coast map does: a card around where Cloudflare places this request, its pin and popup, a
 // button that adds where the reader's browser says they are, and a legend.
 component MapPage(p MapProps) {
@@ -25,9 +25,9 @@ component MapPage(p MapProps) {
 				</ui.CardDescription>
 			</ui.CardHeader>
 			<ui.CardContent class="flex flex-col gap-4">
-				<gsxkit.Map center={p.Center} zoom={p.Zoom} label={locales.MapLabel} locate={true} class="h-96">
+				<blocks.Map center={p.Center} zoom={p.Zoom} label={locales.MapLabel} locate={true} class="h-96">
 					{ if p.Found {
-						<gsxkit.MapMarker at={p.At} title={locales.MapCloudflarePin(p.Place) |> text}>
+						<blocks.MapMarker at={p.At} title={locales.MapCloudflarePin(p.Place) |> text}>
 							<p class="font-medium" dir="auto">{ p.Place }</p>
 							{ if p.Country != "" {
 								<p>{ p.Country |> intl("DisplayNames", "of", "type", "region") }</p>
@@ -35,16 +35,16 @@ component MapPage(p MapProps) {
 							{ if p.Colo != "" {
 								<p class="text-muted-foreground">{ locales.MapDataCenter(p.Colo) }</p>
 							} }
-						</gsxkit.MapMarker>
+						</blocks.MapMarker>
 					} }
-				</gsxkit.Map>
+				</blocks.Map>
 				<ul class="flex flex-wrap gap-x-4 gap-y-2 text-sm text-muted-foreground">
 					<li class="flex items-center gap-1.5">
-						<gsxkit.MapPin class="size-5"/>
+						<blocks.MapPin class="size-5"/>
 						{ locales.MapLegendCloudflare }
 					</li>
 					<li class="flex items-center gap-1.5">
-						<gsxkit.MapPin tone="you" class="size-5"/>
+						<blocks.MapPin tone="you" class="size-5"/>
 						{ locales.MapLegendYou }
 					</li>
 				</ul>
@@ -52,12 +52,12 @@ component MapPage(p MapProps) {
 		</ui.Card>
 		<ui.Card>
 			<ui.CardContent>
-				<PlacesPicker state={gsxkit.PlaceSearchState{Step: "country"}}/>
+				<PlacesPicker state={blocks.PlaceSearchState{Step: "country"}}/>
 			</ui.CardContent>
 		</ui.Card>
 	</Layout>
 }
 
-component PlacesPicker(state gsxkit.PlaceSearchState) {
-	<gsxkit.Places id="map-places" action={PlacesSearchAction{} |> url} state={state}/>
+component PlacesPicker(state blocks.PlaceSearchState) {
+	<blocks.Places id="map-places" action={PlacesSearchAction{} |> url} state={state}/>
 }

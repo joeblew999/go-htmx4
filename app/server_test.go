@@ -12,7 +12,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/joeblew999/go-htmx4/intl/intltest"
+	"github.com/joeblew999/mise-intl/intl/intltest"
 	nethtml "golang.org/x/net/html"
 )
 

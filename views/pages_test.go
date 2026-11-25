@@ -6,9 +6,9 @@ import (
 	"slices"
 	"testing"
 
-	"github.com/joeblew999/go-htmx4/intl"
 	_ "github.com/joeblew999/go-htmx4/locales" // the app's languages, for the locale prefix
 	"github.com/joeblew999/go-htmx4/views"
+	"github.com/joeblew999/mise-intl/intl"
 )
 
 // TestPages: All is every page in the tree (Pages' fields), in its order, and each page's address comes from its route.

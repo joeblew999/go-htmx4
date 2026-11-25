@@ -1,29 +1,22 @@
 package app
 
 import (
-	"bytes"
 	"encoding/json"
 	"html"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
-	"os"
-	"path/filepath"
 	"regexp"
 	"strings"
 	"testing"
 	"time"
 
 	"github.com/joeblew999/charter/transport"
-	gsxkitui "github.com/joeblew999/go-htmx4/gsxkit/ui"
-	"github.com/joeblew999/go-htmx4/intl/catalog"
-	"github.com/joeblew999/go-htmx4/intl/config"
-	"github.com/joeblew999/go-htmx4/intl/registry"
-	gsxkitcomponent "github.com/joeblew999/go-htmx4/views/gsxkit"
+	blockscomponent "github.com/joeblew999/go-htmx4/views/blocks"
 )
 
 // TestMap: the map page (#164) opens on Cloudflare's place for the request, with its pin and popup, and on the whole
-// world without one; its tiles are allowed by the Content Security Policy, and it loads gsxkit's map files.
+// world without one; its tiles are allowed by the Content Security Policy, and it loads the blocks' map files.
 func TestMap(t *testing.T) {
 	h := newServer().routes()
 	req := transport.WithCF(httptest.NewRequest("GET", "/map", nil),
@@ -40,9 +33,9 @@ func TestMap(t *testing.T) {
 		"Through Cloudflare&#39;s \u2068MUC\u2069 data center",
 		"Germany",
 		`data-map-you`,
-		`<link rel="stylesheet" href="/gsxkit/map.css"`,
-		`src="/gsxkit/map.js"`,
-		`data-gsxkit-places`,
+		`<link rel="stylesheet" href="/blocks/map.css"`,
+		`src="/blocks/map.js"`,
+		`data-blocks-places`,
 		`id="map-places-country-term"`,
 		`name="country"`,
 	} {
@@ -103,7 +96,7 @@ func TestPlacesPickerDrillsDownByLocationLevel(t *testing.T) {
 		}
 		return get(t, h, "/de/places/search?"+values.Encode())
 	}
-	choose := func(step string, place gsxkitcomponent.PlaceResult, country, code, region, city string) *httptest.ResponseRecorder {
+	choose := func(step string, place blockscomponent.PlaceResult, country, code, region, city string) *httptest.ResponseRecorder {
 		values := url.Values{
 			"step": {step}, "choose": {"true"},
 			"country": {country}, "country-code": {code}, "region": {region}, "city": {city},
@@ -129,7 +122,7 @@ func TestPlacesPickerDrillsDownByLocationLevel(t *testing.T) {
 		t.Errorf("country results did not render as the active stage: %s", rec.Body.String())
 	}
 
-	country := gsxkitcomponent.PlaceResult{Name: "Deutschland", Country: "Deutschland", CountryCode: "de"}
+	country := blockscomponent.PlaceResult{Name: "Deutschland", Country: "Deutschland", CountryCode: "de"}
 	rec = choose("country", country, "", "", "", "")
 	if rec.Code != http.StatusOK || !strings.Contains(rec.Body.String(), `data-step="region"`) ||
 		!strings.Contains(rec.Body.String(), `id="map-places-region-term"`) || !strings.Contains(rec.Body.String(), "Deutschland") {
@@ -140,7 +133,7 @@ func TestPlacesPickerDrillsDownByLocationLevel(t *testing.T) {
 	if rec.Code != http.StatusOK || !strings.Contains(rec.Body.String(), "Region auswählen") {
 		t.Fatalf("region search: %d, %s", rec.Code, rec.Body.String())
 	}
-	region := gsxkitcomponent.PlaceResult{Name: "Bayern, Deutschland", Country: "Deutschland", CountryCode: "de", Region: "Bayern"}
+	region := blockscomponent.PlaceResult{Name: "Bayern, Deutschland", Country: "Deutschland", CountryCode: "de", Region: "Bayern"}
 	rec = choose("region", region, "Deutschland", "de", "", "")
 	if rec.Code != http.StatusOK || !strings.Contains(rec.Body.String(), `data-step="city"`) || !strings.Contains(rec.Body.String(), "Bayern") {
 		t.Fatalf("region selection did not advance to city: %d, %s", rec.Code, rec.Body.String())
@@ -150,7 +143,7 @@ func TestPlacesPickerDrillsDownByLocationLevel(t *testing.T) {
 	if rec.Code != http.StatusOK || !strings.Contains(rec.Body.String(), "München, Bayern, Deutschland") {
 		t.Fatalf("city search: %d, %s", rec.Code, rec.Body.String())
 	}
-	city := gsxkitcomponent.PlaceResult{Name: "München", Country: "Deutschland", CountryCode: "de", Region: "Bayern", City: "München"}
+	city := blockscomponent.PlaceResult{Name: "München", Country: "Deutschland", CountryCode: "de", Region: "Bayern", City: "München"}
 	rec = choose("city", city, "Deutschland", "de", "Bayern", "")
 	if rec.Code != http.StatusOK || !strings.Contains(rec.Body.String(), `data-step="street"`) || !strings.Contains(rec.Body.String(), "München") {
 		t.Fatalf("city selection did not advance to street: %d, %s", rec.Code, rec.Body.String())
@@ -160,7 +153,7 @@ func TestPlacesPickerDrillsDownByLocationLevel(t *testing.T) {
 	if rec.Code != http.StatusOK || !strings.Contains(rec.Body.String(), "Marienplatz") {
 		t.Fatalf("street search: %d, %s", rec.Code, rec.Body.String())
 	}
-	street := gsxkitcomponent.PlaceResult{
+	street := blockscomponent.PlaceResult{
 		Name: "Marienplatz, München, Bayern, Deutschland", Country: "Deutschland", CountryCode: "de",
 		Region: "Bayern", City: "München", Street: "Marienplatz", Latitude: "48.13743", Longitude: "11.57549",
 		OpenURL: "https://www.openstreetmap.org/?mlat=48.13743&mlon=11.57549&zoom=16",
@@ -180,8 +173,8 @@ func TestPlacesSearchRejectsOversizedTerm(t *testing.T) {
 }
 
 func TestPlaceSearchTextDeduplicatesRepeatedLevels(t *testing.T) {
-	state := gsxkitcomponent.PlaceSearchState{Step: "region", Country: "Thailand", CountryCode: "th"}
-	region := gsxkitcomponent.PlaceResult{Name: "Bangkok, Thailand", Country: "Thailand", City: "Bangkok", CountryCode: "th"}
+	state := blockscomponent.PlaceSearchState{Step: "region", Country: "Thailand", CountryCode: "th"}
+	region := blockscomponent.PlaceResult{Name: "Bangkok, Thailand", Country: "Thailand", City: "Bangkok", CountryCode: "th"}
 	if !choosePlace(&state, region) || state.Region != "Bangkok" {
 		t.Fatalf("region selection = %+v, want Bangkok", state)
 	}
@@ -194,10 +187,10 @@ func TestPlaceSearchTextDeduplicatesRepeatedLevels(t *testing.T) {
 }
 
 func TestPlacesPickerRejectsResultsOutsideSelectedCountry(t *testing.T) {
-	state := gsxkitcomponent.PlaceSearchState{Step: "region", Country: "Australia", CountryCode: "au"}
-	foreign := gsxkitcomponent.PlaceResult{Name: "Berlin, Germany", Country: "Germany", CountryCode: "de"}
-	local := gsxkitcomponent.PlaceResult{Name: "Victoria, Australia", Country: "Australia", CountryCode: "au", Region: "Victoria"}
-	results := placesInCountry([]gsxkitcomponent.PlaceResult{foreign, local}, state.CountryCode, state.Country)
+	state := blockscomponent.PlaceSearchState{Step: "region", Country: "Australia", CountryCode: "au"}
+	foreign := blockscomponent.PlaceResult{Name: "Berlin, Germany", Country: "Germany", CountryCode: "de"}
+	local := blockscomponent.PlaceResult{Name: "Victoria, Australia", Country: "Australia", CountryCode: "au", Region: "Victoria"}
+	results := placesInCountry([]blockscomponent.PlaceResult{foreign, local}, state.CountryCode, state.Country)
 	if len(results) != 1 || results[0].Name != local.Name {
 		t.Fatalf("country-filtered results = %#v, want only %#v", results, local)
 	}
@@ -225,42 +218,4 @@ func mapView(t *testing.T, body string) (v struct {
 		t.Fatalf("data-map: %v", err)
 	}
 	return v
-}
-
-// TestGsxkitComponents: the app's gsxkit components are gsxkit's, gsx and browser files alike (as TestIntlScreens for
-// intl's): change gsxkit/ui or gsxkit/js, then mise run gsxkit:add.
-func TestGsxkitComponents(t *testing.T) {
-	c, err := config.Find(".")
-	if err != nil {
-		t.Fatal(err)
-	}
-	var paths registry.Paths
-	if paths.Catalogs, err = catalog.PackagePath(c.CatalogDir()); err != nil {
-		t.Fatal(err)
-	}
-	if paths.Gsxui, err = catalog.PackagePath(filepath.Join(c.Root, c.Gsxui)); err != nil {
-		t.Fatal(err)
-	}
-	r := gsxkitui.Components
-	for _, comp := range r.Components {
-		want, err := r.Source(comp, paths)
-		if err == nil {
-			want, err = registry.Format(c.Root, "views/gsxkit/"+comp.Name+".gsx", want)
-		}
-		if err != nil {
-			t.Fatal(err)
-		}
-		if got, err := os.ReadFile(filepath.Join(c.Root, "views", "gsxkit", comp.Name+".gsx")); err != nil || !bytes.Equal(got, want) {
-			t.Errorf("views/gsxkit/%s.gsx isn't gsxkit's (%v): mise run gsxkit:add", comp.Name, err)
-		}
-		for _, a := range comp.Assets {
-			want, err := r.Asset(a)
-			if err != nil {
-				t.Fatal(err)
-			}
-			if got, err := os.ReadFile(filepath.Join(c.Root, "web", "gsxkit", a)); err != nil || !bytes.Equal(got, want) {
-				t.Errorf("web/gsxkit/%s isn't gsxkit's (%v): mise run gsxkit:add", a, err)
-			}
-		}
-	}
 }

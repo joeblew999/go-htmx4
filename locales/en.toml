@@ -125,12 +125,12 @@ broadcast_own = "Start your own broadcast"
 no_stream_title = "Nothing to watch yet"
 no_stream_description = "Open a link someone sent you to watch their broadcast, or start your camera and send yours."
 
-# The map page (/map): gsxkit's map component (#164).
+# The map page (/map): the blocks' map component (#164).
 [map]
 title = "Map"
 heading = "Map"
-description = "A Leaflet map in gsx over OpenStreetMap, with gsxui's buttons and pins, around where Cloudflare places your request. A gsxkit component."
-intro = "gsxkit's map component: Leaflet over OpenStreetMap, with pins, popups and buttons made of gsx and gsxui. It opens where Cloudflare places this request; the location button adds where your browser says you are."
+description = "A Leaflet map in gsx over OpenStreetMap, with gsxui's buttons and pins, around where Cloudflare places your request."
+intro = "A map component: Leaflet over OpenStreetMap, with pins, popups and buttons made of gsx and gsxui. It opens where Cloudflare places this request; the location button adds where your browser says you are."
 # The map card's title.
 where_title = "Where you are"
 # Under the map card's title, when Cloudflare sent a place: place is a town (or region, or country code), in English as Cloudflare names it.
@@ -482,8 +482,8 @@ hour_cycle_auto = "Language default ({example})"
 save = "Save"
 close = "Close"
 
-# gsxkit's map (go tool gsxkit add map: views/gsxkit/map.gsx).
-[gsxkit.map]
+# the blocks' map (go tool blocks add map: views/blocks/map.gsx).
+[blocks.map]
 # The map's button that zooms in (an icon; this is its name for screen readers and its tooltip).
 zoom_in = "Zoom in"
 # The map's button that zooms out.
@@ -499,8 +499,8 @@ you = "You are here"
 # The map's credit for its tiles, in its corner, linking to OpenStreetMap's copyright page. Keep OpenStreetMap as it is.
 attribution = "© OpenStreetMap contributors"
 
-# gsxkit's live video over MoQ (go tool gsxkit add moq: views/gsxkit/moq.gsx).
-[gsxkit.moq]
+# the blocks' live video over MoQ (go tool blocks add moq: views/blocks/moq.gsx).
+[blocks.moq]
 watch_title = "Watch"
 watch_description = "The broadcast the link you opened names."
 broadcast_title = "Broadcast"
@@ -540,7 +540,7 @@ keep_open = "Keep this page open while you're live: on a phone, switching apps o
 # The disclosure under each video that shows the connection's technical details.
 details = "Connection details"
 
-[gsxkit.places]
+[blocks.places]
 # Country field label.
 country = "Country"
 # Region or state field label.

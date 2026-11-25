@@ -57,16 +57,14 @@ vars = { APP_ENV = "workerd (local)", NOMINATIM_URL = "https://nominatim.openstr
 command = "mise run build"
 
 # CI (.github/workflows/charter.yml → charter ci run): only the tools it runs; the build beside the Go tests and
-# the fresh apps, then published for the commit's preview; then workerd, Chrome and the CPU table; a release also tags
-# intl, seo and badge with their next versions before production moves.
+# then published for the commit's preview; then workerd, Chrome and the CPU table.
 [ci]
 # The weekly job (charter.yml's update): this repo pins more than charter update can see (gsxui's commit, htmx, the npm
 # locks), so its own command moves them all, checks them, and what changed becomes a pull request (#172).
 update = "mise run update"
-tools = ["go", "go@1.26", "github:tailwindlabs/tailwindcss", "workerd", "http:chrome-headless-shell", "jq"]
-build = "mise run build ::: test:go ::: fresh"
+tools = ["go", "github:joeblew999/mise-intl", "github:joeblew999/mise-seo", "github:tailwindlabs/tailwindcss", "workerd", "http:chrome-headless-shell", "jq"]
+build = "mise run build ::: test:go"
 test = "mise run --skip-deps smoke && mise run --skip-deps e2e && mise run --skip-deps ci:bench"
-release_hook = "ci/module-tags.sh \"$GITHUB_SHA\""
 
 # The repo, as charter init keeps it. No charter-ci.yml or charter-repo.yml: they run JavaScript actions
 # (actions/checkout, jdx/mise-action), and this repo's CI is shell steps only (AGENTS.md); .github/workflows/charter.yml
