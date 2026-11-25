@@ -17,8 +17,6 @@ import (
 // never a path written as a string: the links ({ About{} |> url }, gsx.toml's url filter), the sitemap, intl's and
 // seo's IsPage, and each page's canonical address (Key). A new page: a type with a Page method and, when it needs the
 // app's data, Props (through App); a field here; an entry in All; a translated title and description to Layout.
-//
-// TinyGo's reflect can't list or call methods: structpages-gen writes the tables its build reads (mise run generate).
 type Pages struct {
 	home       Home       `route:"GET /{$} Home"`
 	board      Board      `route:"GET /board Board"`

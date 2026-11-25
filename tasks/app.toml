@@ -84,13 +84,12 @@ dir = "{{config_root}}"
 run = ["go run ./internal/deps update", "mise run docs:commands", "git add docs/commands.md .claude/skills", "mise run check", "mise run e2e"]
 
 # The app's components (gsx:generate, from gsxkit's tasks) and this repo's own modules' (intl/, seo/), which commit
-# theirs for the apps that import them; then the tables a TinyGo build of the pages reads (structpages-gen, after gsx:
-# the pages' Page methods are gsx's code). Every build/run/test path depends on this.
+# theirs for the apps that import them. Every build/run/test path depends on this.
 ["generate"]
-description = "gsx:generate for the app, intl's and seo's own components (their modules commit them for the apps that import them), and structpages' tables for TinyGo"
+description = "gsx:generate for the app, intl's and seo's own components (their modules commit them for the apps that import them)"
 depends = ["intl", "gsx:generate"]
 dir = "{{config_root}}"
-run = ["go -C intl tool gsx generate -q .", "go -C seo tool gsx generate -q .", "go tool structpages-gen ./views"]
+run = ["go -C intl tool gsx generate -q .", "go -C seo tool gsx generate -q ."]
 
 # The Static Assets directory: /static/ = web/htmx/ (htmx, hx-ws) and intl's browser module, /gsxui/ = web/gsxui/
 # behaviours, /gsxkit/ = web/gsxkit/ (gsxkit's components' browser files), /assets/ = gsxui's compiled CSS (gsxui:css)
