@@ -1,0 +1,30 @@
+diff --git a/node_modules/@moq/publish/encoder-wi3Mqpyi.js b/node_modules/@moq/publish/encoder-wi3Mqpyi.js
+index e4dce5f..1688243 100644
+--- a/node_modules/@moq/publish/encoder-wi3Mqpyi.js
++++ b/node_modules/@moq/publish/encoder-wi3Mqpyi.js
+@@ -798,10 +798,13 @@ var Oe = class {
+ 		this.catalog.mutate((e) => {
+ 			if (Object.keys(r).length > 0) {
+ 				let t = { renditions: r };
+-				o && (t.display = {
++				o && (t.display = o.rotation % 180 ? {
++					width: l.u53(o.height),
++					height: l.u53(o.width)
++				} : {
+ 					width: l.u53(o.width),
+ 					height: l.u53(o.height)
+-				}), s && (t.flip = !0), e.video = t;
++				}), o?.rotation && (t.rotation = o.rotation), s && (t.flip = !0), e.video = t;
+ 			} else delete e.video;
+ 			Object.keys(i).length > 0 ? e.audio = { renditions: i } : delete e.audio, Object.keys(a).length > 0 ? e.text = { renditions: a } : delete e.text;
+ 		});
+@@ -14682,7 +14685,8 @@ var ol = class {
+ 				this.#e.display.set({
+ 					width: t.codedWidth,
+ 					height: t.codedHeight,
+-					scale: r
++					scale: r,
++					rotation: t.rotation ?? (t.codedWidth > t.codedHeight ? { "portrait-primary": 90, "portrait-secondary": 270 }[globalThis.screen?.orientation?.type] ?? 0 : 0)
+ 				}), n.enqueue(t);
+ 			} catch (e) {
+ 				throw t.close(), e;

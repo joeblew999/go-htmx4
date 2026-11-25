@@ -1,0 +1,14 @@
+diff --git a/node_modules/@moq/net/connection/browser.js b/node_modules/@moq/net/connection/browser.js
+index a5faa47..9b5a4f2 100644
+--- a/node_modules/@moq/net/connection/browser.js
++++ b/node_modules/@moq/net/connection/browser.js
+@@ -8,8 +8,7 @@ export function isWebTransportUserAgentSupported(userAgent) {
+     // on one session (moq-dev/moq#2388); one stream per group reaches that in
+     // about two minutes. Chrome, Firefox and Edge on iOS are WebKit under the
+     // hood, and iPadOS Safari reports macOS, so gate on the engine and the OS.
+-    if (browser.getEngine().name === "WebKit" || browser.getOS().name === "iOS")
+-        return false;
++    // go-htmx4 #156: the WebKit/iOS refusal is patched out (web/moq/npm-patches.json).
+     const supported = browser.satisfies({
+         // Fixed with 153.0.0, Firefox only allows two concurrent remote-initiated streams:
+         // https://bugzilla.mozilla.org/show_bug.cgi?id=2046262

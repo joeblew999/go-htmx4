@@ -35,7 +35,7 @@ const RESUBSCRIBE_LIVE_MS = 3000;
 const ENCODER = { maxBitrate: 2_000_000, maxPixels: 1280 * 720 };
 
 // Each card's connection details (LiveDetails, while open): the @moq versions and patches the bundle was built from
-// (__NPM_VERSIONS__ and __NPM_PATCHED__, which internal/jsbundle defines from the lock and the patches), the relay and
+// (__NPM_VERSIONS__ and __NPM_PATCHED__, which vite.config.ts defines from package-lock.json and patches/), the relay and
 // the broadcast's name, the connection and its transport, what the card is doing, the browser and the features the
 // elements need, and @moq's last warning. Machine values, for testing on phones (#156).
 const moqVersions = Object.entries(__NPM_VERSIONS__)

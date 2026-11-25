@@ -1,6 +1,17 @@
 import { defineConfig, loadEnv, createLogger } from "vite";
 import { gsx, devFallback } from "@gsxhq/vite-plugin-gsx";
 import tailwindcss from "@tailwindcss/vite";
+import { readFileSync, readdirSync } from "node:fs";
+
+// What the live video page shows of its own build: each @moq package's version (package-lock.json) and which of
+// them patches/ changes (patch-package applies those on npm install).
+const lock = JSON.parse(readFileSync("package-lock.json", "utf8")).packages;
+const moqVersions = Object.fromEntries(
+  Object.entries(lock)
+    .filter(([path]) => path.startsWith("node_modules/@moq/"))
+    .map(([path, pkg]) => [path.slice("node_modules/".length), pkg.version]),
+);
+const moqPatched = readdirSync("patches").map((file) => file.replace(/\.patch$/, "").replace("+", "/"));
 
 export default defineConfig(({ command, mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
@@ -29,6 +40,7 @@ export default defineConfig(({ command, mode }) => {
 
   return {
     clearScreen: false,
+    define: { __NPM_VERSIONS__: JSON.stringify(moqVersions), __NPM_PATCHED__: JSON.stringify(moqPatched) },
     // Dev serves all Vite assets under /__vite/ (matches gsxhq/vite DevBase);
     // prod uses the default base ("/"): hashed assets are /assets/…, which
     // Workers Static Assets serve from dist.
