@@ -14,9 +14,9 @@ import (
 	"github.com/joeblew999/charter/bindings"
 	"github.com/joeblew999/charter/d1"
 	"github.com/joeblew999/go-htmx4/internal/places"
-	"github.com/joeblew999/mise-intl/intl"
 	"github.com/joeblew999/go-htmx4/views"
 	"github.com/joeblew999/go-htmx4/views/gsxkit"
+	"github.com/joeblew999/mise-intl/intl"
 )
 
 const defaultNominatimURL = "https://nominatim.openstreetmap.org"

@@ -2,10 +2,10 @@ package gsxkit
 
 import (
 	"github.com/gsxhq/gsx"
-	"github.com/joeblew999/mise-intl/intl"
 	"github.com/joeblew999/go-htmx4/locales"
 	"github.com/joeblew999/go-htmx4/ui"
 	"github.com/joeblew999/go-htmx4/ui/icon"
+	"github.com/joeblew999/mise-intl/intl"
 )
 
 // A map: Leaflet (https://leafletjs.com) over OpenStreetMap's tiles, with markers whose pins and popups are gsx, and

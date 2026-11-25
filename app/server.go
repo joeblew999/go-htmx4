@@ -22,10 +22,10 @@ import (
 	"github.com/jackielii/structpages"
 	"github.com/joeblew999/charter/bindings"
 	"github.com/joeblew999/charter/web"
-	"github.com/joeblew999/mise-intl/intl"
 	"github.com/joeblew999/go-htmx4/locales"
 	"github.com/joeblew999/go-htmx4/views"
 	intlui "github.com/joeblew999/go-htmx4/views/intl"
+	"github.com/joeblew999/mise-intl/intl"
 )
 
 var (

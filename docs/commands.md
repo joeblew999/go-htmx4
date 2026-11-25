@@ -23,11 +23,11 @@ Every command is a mise task: `mise run <task>`; `mise tasks` lists them. Which 
 
 ### `assets`
 
-- Depends: vendor, gsxkit:add, gsxui:css
+- Depends: vendor, js:bundle, gsxui:css
 
 - **Usage:** `assets`
 
-Assemble dist/site, the Static Assets for workerd and deploy: htmx, intl's browser module, gsxui's behaviours, gsxkit's components' browser files, CSS and fonts
+Assemble dist/site, the Static Assets for workerd and deploy: htmx, intl's browser module, gsxui's behaviours, the map's and the live video's browser files, CSS and fonts
 
 ### `bench`
 
@@ -271,25 +271,13 @@ Regenerate docs/commands.md from these task descriptions (mise generate task-doc
 
 Headless Chrome checks: pages, live board in two browsers, boost ↔ board, presence, Intl, write limit (local workerd, or E2E_BASE=https://…)
 
-### `fresh`
-
-- **Usage:** `fresh`
-
-Brand-new gsx apps outside this repo (e2e/fresh): one made from intl's and seo's READMEs (every go and gsx block in them is its code), with gsxui and intl's screens, on an ordinary Go server in English and German, its go test, seo:audit and intl:check passing; and one on Workers set up with charter init, its go test on charter's stand-ins and its Worker on local workerd (FRESH_DEPLOY=1: on Cloudflare too)
-
-### `fresh:published`
-
-- **Usage:** `fresh:published`
-
-The fresh-app test with intl and seo as published on the Go proxy (@latest), not this checkout: after a release, once the proxy has its tags, it shows the READMEs work for someone who runs go get
-
 ### `generate`
 
-- Depends: intl, gsx:generate
+- Depends: intl:gen
 
 - **Usage:** `generate`
 
-gsx:generate for the app, intl's and seo's own components (their modules commit them for the apps that import them)
+The messages package from the catalogs (intl:gen), then gsx:generate for the app's markup
 
 ### `gsx:editor`
 
@@ -319,43 +307,6 @@ go tool gsx generate: every .gsx file to its .x.go (after intl, when intl is run
 
 Install or update the agent skills Jackie Li's projects ship (gsx's, structpages', gsxui's), at the versions the app pins (go.mod, mise.toml), into .claude/skills
 
-### `gsx:tasks`
-
-- **Usage:** `gsx:tasks`
-
-Write this file again from the gsxkit version in go.mod: run it after upgrading gsxkit
-
-### `gsx:update`
-
-- **Usage:** `gsx:update`
-
-gsx, gsxui and structpages to their latest (go tool gsxkit update), except what deps.toml holds; the tasks, skills, generated code and copies follow
-
-### `gsxkit:add`
-
-- Depends: gsxkit:bundle
-
-- **Usage:** `gsxkit:add`
-
-Copy gsxkit's map, places and moq components into the app with go tool gsxkit add -overwrite: views/gsxkit, web/gsxkit and their text (after gsxkit:bundle)
-
-### `gsxkit:bundle`
-
-- **Usage:** `gsxkit:bundle`
-
-Bundle gsxkit's components' browser files (the map's Leaflet, the live video's @moq elements, each with its glue) from the npm packages each npm-lock.json pins, into gsxkit/ui/assets (no Node)
-
-### `gsxkit:update`
-
-Re-resolve a gsxkit component's npm packages (e.g. mise run gsxkit:update moq @moq/watch@0.6.6 @moq/publish@0.5.3, or map leaflet@1.9.4), rewrite its npm-lock.json and bundle; @moq stays at a version Cloudflare's relays speak until they ship draft-18 (#158)
-
-
-- **Usage:** `gsxkit:update <component> <packages>…`
-
-### Arguments
-- **`<component>`** — map or moq
-- **`<packages>…`** — name@version of each package to resolve
-
 ### `gsxui:css`
 
 gsxui's CSS: its entry (gsxui.json's css) compiled by the standalone Tailwind CLI, into dist/gsxui.css by default
@@ -378,121 +329,67 @@ Switch the app's look to a gsxui theme with gsxui apply: a style's standard them
 ### Arguments
 - **`<theme>`** — a style (nova, vega, maia, lyra, mira, luma, sera, rhea) or a gsxui:p1:… share code
 
-### `intl`
-
-- **Usage:** `intl`
-
-Compile the catalogs (intl.toml): the Go package of messages, intl-messages.mjs, the gsxui translator, intl.sum and the languages badge (intl.toml's badge); a language just added to intl.toml's locales gets its catalog. Run it after editing a catalog; gsx generate needs it first
-
-### `intl:add`
-
-Copy intl's screens into the app the way gsxui add copies components: language-list, language-offer, preferences (gsx files in intl.toml's ui, made of gsxui components, their text already translated into the catalogs). --diff shows how the app's copies differ; --overwrite replaces copies the app changed
-
-
-- **Usage:** `intl:add [--diff] [--overwrite] <screen>…`
-
-### Arguments
-- **`<screen>…`** — language-list, language-offer or preferences
-
-### Flags
-- **`--diff`** — show how intl's screens differ from the app's copies, writing nothing (exit 1 if they do)
-- **`--overwrite`** — replace copies the app changed
-
-### `intl:add-locale`
-
-Add a language: its id as Intl writes it (fr-ca → fr-CA) into intl.toml's locales, and its catalog; then mise run intl:translate
-
-
-- **Usage:** `intl:add-locale <locale>…`
-
-### Arguments
-- **`<locale>…`** — BCP 47 ids, e.g. fr or pt-BR
-
-### `intl:check`
-
-- **Usage:** `intl:check`
-
-Every problem, for CI: the catalogs (ICU syntax, arguments, a case for each plural category Intl says a language uses, missing and stale translations, unused messages, gsxui text, intl.sum), then gsx's own checks on the app's markup (gsx generate, gsx fmt, the gsx skill's find-smells.sh); exits 1 on any
-
 ### `intl:confirm`
 
-Keep stale translations as they are: the source changed, their meaning didn't (a typo fixed). All of them, or only some: de, or de:board.notes
+Stale translations that are still right, kept: a language's (de), or one message's (de:home.title)
 
 
-- **Usage:** `intl:confirm [which]…`
-
-### Arguments
-- **`[which]…`** — de, or de:board.notes (default: every stale translation)
-
-### `intl:export`
-
-XLIFF 2.0 per locale into xliff/out (intl.toml's xliff), for human translators and translation-management systems: what is left to translate (--all: every message)
-
-
-- **Usage:** `intl:export [--all] [locale]…`
+- **Usage:** `intl:confirm [keys]…`
 
 ### Arguments
-- **`[locale]…`** — only these locales (default: all)
+- **`[keys]…`** — de, or de:home.title
 
-### Flags
-- **`--all`** — every message, not only what is left
+### `intl:gen`
 
-### `intl:import`
+- **Usage:** `intl:gen`
 
-Read translators' XLIFF 2.0 back into the catalogs, each target checked against its source: every file in xliff/in, or the ones named; then compile
-
-
-- **Usage:** `intl:import [file]…`
-
-### Arguments
-- **`[file]…`** — &lt;locale>.xlf files (default: every file in xliff/in)
-
-### `intl:prune`
-
-- **Usage:** `intl:prune`
-
-Remove from every catalog the keys the source no longer has (intl:check names them)
-
-### `intl:skill`
-
-- **Usage:** `intl:skill`
-
-Install or update the intl agent skill (.claude/skills/intl), which Claude Code uses to write and translate the app's text
+The catalogs (locales/*.toml) compiled into the app's messages package, locales/intl_gen.go, and intl.sum
 
 ### `intl:status`
 
 - **Usage:** `intl:status`
 
-Per locale: translated, inherited, stale and missing messages; exits 1 when a locale is incomplete
-
-### `intl:tasks`
-
-- **Usage:** `intl:tasks`
-
-Write this file again from the intl version in go.mod: run it after upgrading intl (intl:check says when)
+Per language: translated, inherited, stale, missing; fails while one is incomplete
 
 ### `intl:todo`
 
-What is left to translate, per locale: each message's source, context and arguments, the plural categories the language needs, the style note (--json for agents)
+What's left to translate, with what a translator needs (--json for agents)
 
 
-- **Usage:** `intl:todo [--json] [locale]…`
+- **Usage:** `intl:todo [--json] [locales]…`
 
 ### Arguments
-- **`[locale]…`** — only these locales (default: all)
+- **`[locales]…`** — only these languages
 
 ### Flags
-- **`--json`** — JSON on stdout, for agents
+- **`--json`** — one JSON document on stdout
 
 ### `intl:translate`
 
-Translate every missing and stale message with Claude Code (the intl skill), one worker per language at once (intl.toml [translate]), until intl:check passes. Needs claude on PATH
+Claude Code translates what's left, a worker per language, with the intl skill
 
 
-- **Usage:** `intl:translate [locale]…`
+- **Usage:** `intl:translate [locales]…`
 
 ### Arguments
-- **`[locale]…`** — only these locales (default: all)
+- **`[locales]…`** — only these languages
+
+### `js:bundle`
+
+- **Usage:** `js:bundle`
+
+Bundle the map's Leaflet and the live video's @moq elements, each with its glue, from the npm packages each npm-lock.json pins, into web/gsxkit (no Node)
+
+### `js:update`
+
+Re-resolve a component's npm packages (e.g. mise run js:update moq @moq/watch@0.6.6 @moq/publish@0.5.3, or map leaflet@1.9.4), rewrite its npm-lock.json and bundle; @moq stays at a version Cloudflare's relays speak until they ship draft-18 (#158)
+
+
+- **Usage:** `js:update <component> <packages>…`
+
+### Arguments
+- **`<component>`** — map or moq
+- **`<packages>…`** — name@version of each package to resolve
 
 ### `load`
 
@@ -532,112 +429,33 @@ Release main to production (e.g. v1.3): CI tests it, tags it (and intl/seo with 
 
 ### `seo:audit`
 
-Fetch robots.txt and every sitemap URL live as Googlebot: 200, indexable, self-canonical, lang, title, description, one h1, reciprocal hreflang (no Google account needed)
+The site as Googlebot reads it: robots.txt, the sitemap and every page in it (--site: a local build or a preview)
 
 
-- **Usage:** `seo:audit [--json]`
+- **Usage:** `seo:audit [--json] [--site <url>]`
 
 ### Flags
 - **`--json`** — one JSON document on stdout
+- **`--site <url>`** — another server than the site in seo.toml
 
 ### `seo:badges`
 
 - **Usage:** `seo:badges`
 
-Lighthouse on every page and the audit, then the README's badges (seo.toml's [badges] dir: each Lighthouse category's lowest page, the audit) and its &lt;!-- seo:scores --> table; run after a production release, then commit
-
-### `seo:inspect`
-
-One URL (the home page unless named): Google's verdict, last crawl and canonical, and the link to its Search Console page
-
-
-- Depends: seo:access
-
-- **Usage:** `seo:inspect [--json] [--open] [page]`
-
-### Arguments
-- **`[page]`** — a path like /de/ or a full URL
-
-  **Default:** `/`
-
-### Flags
-- **`--json`** — one JSON document on stdout
-- **`--open`** — open its Search Console page (Test live URL, Request indexing)
+Lighthouse on every page and the audit, then the README's badges and its scores table; run after a production release, then commit
 
 ### `seo:lighthouse`
 
-Lighthouse on the live site, on Google's servers through PageSpeed Insights: every page of the sitemap (seo.toml's pages), or one; performance, accessibility, best practices and SEO out of 100, what fails and on which elements, real users' Core Web Vitals; fails under seo.toml's min (90)
+Lighthouse on the live site, on Google's servers: every page or the one named; fails under seo.toml's minimum
 
 
-- **Usage:** `seo:lighthouse [--json] [--desktop] [page]`
+- **Usage:** `seo:lighthouse [--json] [page]`
 
 ### Arguments
-- **`[page]`** — one page, a path like /de/board or a full URL; default every page
+- **`[page]`** — one page, a path like /de/board; default every page
 
 ### Flags
 - **`--json`** — one JSON document on stdout
-- **`--desktop`** — score the desktop page instead of the mobile one Google indexes
-
-### `seo:setup`
-
-- **Usage:** `seo:setup`
-
-Once: the Google Cloud project, the Search Console and PageSpeed Insights APIs, and a service account key in fnox (needs gcloud auth login)
-
-### `seo:sites`
-
-The Search Console properties the service account can use; fails without Full access
-
-
-- **Usage:** `seo:sites [--json]`
-
-### Flags
-- **`--json`** — one JSON document on stdout
-
-### `seo:skill`
-
-- **Usage:** `seo:skill`
-
-Install or update the seo agent skill (.claude/skills/seo), which Claude Code uses to check and fix how Google sees the site
-
-### `seo:status`
-
-The sitemap's status in Search Console and Google's index status for every URL in it
-
-
-- Depends: seo:access
-
-- **Usage:** `seo:status [--json]`
-
-### Flags
-- **`--json`** — one JSON document on stdout
-
-### `seo:submit`
-
-- Depends: seo:access, seo:audit
-
-- **Usage:** `seo:submit`
-
-Submit the site's sitemap.xml (seo.toml's site) to Search Console, after access and a passing live audit
-
-### `seo:tasks`
-
-- **Usage:** `seo:tasks`
-
-Write this file again from the seo version in go.mod: run it after upgrading seo
-
-### `seo:todo`
-
-Google's verdict for every sitemap URL (indexed, waiting, duplicate, problem); fails on problems
-
-
-- Depends: seo:access
-
-- **Usage:** `seo:todo [--json] [--open]`
-
-### Flags
-- **`--json`** — one JSON document on stdout
-- **`--open`** — open Google's page for each problem (Test live URL, Request indexing)
 
 ### `serve`
 
@@ -677,12 +495,12 @@ Stream the deployed Worker's live logs (requests, console, exceptions) → Ctrl-
 
 ### `test`
 
-- Depends: smoke, test:go, fresh
+- Depends: smoke, test:go
 
 - **Usage:** `test`
 - **Aliases:** `check`
 
-Everything before a push: the production build + workerd smoke, gsx fmt/gofmt, go vet, go test, the fresh-app test (mise run check is the same)
+Everything before a push: the production build + workerd smoke, and the Go checks (mise run check is the same)
 
 ### `test:go`
 
@@ -690,7 +508,7 @@ Everything before a push: the production build + workerd smoke, gsx fmt/gofmt, g
 
 - **Usage:** `test:go`
 
-Every module's go.mod tidy, gsx fmt/gofmt check + go vet + structpages-lint + go test, the app and its modules: intl/, seo/, badge/, gsxkit/ (standard Go; runs beside the production build)
+go.mod tidy, gsx fmt and gofmt, go vet, structpages-lint, go test, every language complete, then charter's own check (standard Go; runs beside the production build)
 
 ### `token-check`
 
@@ -704,7 +522,7 @@ Verify CLOUDFLARE_API_TOKEN (from fnox) against the Cloudflare API (charter toke
 
 - **Usage:** `update`
 
-Move every pin not held in deps.toml to its latest (go tool gsxkit update, then Go modules, mise's tools and their copies, charter with charter init, Chrome, htmx, the npm locks), tidy every module, regenerate, then check and e2e
+Move every pin not held in deps.toml to its latest (gsx, gsxui and structpages, then Go modules, mise's tools and their copies, charter with charter init, Chrome, htmx, the npm locks), tidy every module, regenerate, then check and e2e
 
 ### `upstream:branch`
 

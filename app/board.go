@@ -21,9 +21,9 @@ import (
 	"github.com/joeblew999/charter/bindings"
 	"github.com/joeblew999/charter/web"
 	"github.com/joeblew999/go-htmx4/internal/live"
-	"github.com/joeblew999/mise-intl/intl"
 	"github.com/joeblew999/go-htmx4/locales"
 	"github.com/joeblew999/go-htmx4/views"
+	"github.com/joeblew999/mise-intl/intl"
 )
 
 const (

@@ -3,9 +3,9 @@ package app
 import (
 	"context"
 
-	"github.com/joeblew999/mise-intl/intl"
 	"github.com/joeblew999/go-htmx4/locales"
 	"github.com/joeblew999/go-htmx4/views"
+	"github.com/joeblew999/mise-intl/intl"
 	"github.com/joeblew999/mise-seo/seo"
 )
 
@@ -36,9 +36,8 @@ func llms(origin string) string {
 	raw := "https://raw.githubusercontent.com/" + repo + "/main/"
 	docs := []seo.LLMsLink{
 		{Title: "README", URL: raw + "README.md", Note: "what this is, and how to start an app of your own from its pieces"},
-		{Title: "intl", URL: raw + "intl/README.md", Note: "every language of a gsx app through the runtime's Intl"},
+		{Title: "intl", URL: raw + "docs/intl/README.md", Note: "every language of an app through the runtime's Intl (mise-intl)"},
 		{Title: "seo", URL: raw + "docs/seo/README.md", Note: "what Google and agents read, and the audit that checks it (mise-seo)"},
-		{Title: "gsxkit", URL: raw + "gsxkit/README.md", Note: "gsx's and gsxui's tasks and skills for any app"},
 		{Title: "Architecture", URL: raw + "docs/architecture.md", Note: "how the app works"},
 		{Title: "Deploy", URL: raw + "docs/deploy.md", Note: "how it ships to Cloudflare Workers"},
 		{Title: "Commands", URL: raw + "docs/commands.md", Note: "every mise task"},

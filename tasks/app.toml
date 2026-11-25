@@ -30,44 +30,31 @@ rm -rf "$tgz" "$tmp"
 echo "✓ htmx $version: web/htmx/htmx.min.js, web/htmx/hx-ws.js, web/htmx/hx-live.js"
 '''
 
-# gsxkit's components' browser files (#164): each component's glue (gsxkit/js/<component>/<component>.mjs) and the npm
-# packages its npm-lock.json pins, bundled by internal/jsbundle (npm's registry over HTTP, esbuild's Go API: no Node)
-# into gsxkit/ui/assets, which go tool gsxkit add copies into an app. Skipped when none of its inputs changed; the
-# bundles are committed, like htmx. @moq stays at what Cloudflare's relays speak until they ship draft-18 (#158).
-["gsxkit:bundle"]
-description = "Bundle gsxkit's components' browser files (the map's Leaflet, the live video's @moq elements, each with its glue) from the npm packages each npm-lock.json pins, into gsxkit/ui/assets (no Node)"
+# The map's and the live video's browser files (#164): each component's glue (views/gsxkit/js/<component>/<component>.mjs)
+# and the npm packages its npm-lock.json pins, bundled by internal/jsbundle (npm's registry over HTTP, esbuild's Go
+# API: no Node) into web/gsxkit, served at /gsxkit/. Skipped when none of its inputs changed; the bundles are committed,
+# like htmx. @moq stays at what Cloudflare's relays speak until they ship draft-18 (#158).
+["js:bundle"]
+description = "Bundle the map's Leaflet and the live video's @moq elements, each with its glue, from the npm packages each npm-lock.json pins, into web/gsxkit (no Node)"
 dir = "{{config_root}}"
-sources = ["gsxkit/js/**/*", "internal/jsbundle/*.go"]
-outputs = ["gsxkit/ui/assets/map.js", "gsxkit/ui/assets/map.css", "gsxkit/ui/assets/moq.js"]
+sources = ["views/gsxkit/js/**/*", "internal/jsbundle/*.go"]
+outputs = ["web/gsxkit/map.js", "web/gsxkit/map.css", "web/gsxkit/moq.js"]
 run = [
-  "go run ./internal/jsbundle -entry gsxkit/js/map/map.mjs -out gsxkit/ui/assets/map.js -lock gsxkit/js/map/npm-lock.json -external /gsxui/gsxui.js",
-  "go run ./internal/jsbundle -entry gsxkit/js/moq/moq.mjs -out gsxkit/ui/assets/moq.js -lock gsxkit/js/moq/npm-lock.json -patches gsxkit/js/moq/npm-patches.json -external /gsxui/gsxui.js",
+  "go run ./internal/jsbundle -entry views/gsxkit/js/map/map.mjs -out web/gsxkit/map.js -lock views/gsxkit/js/map/npm-lock.json -external /gsxui/gsxui.js",
+  "go run ./internal/jsbundle -entry views/gsxkit/js/moq/moq.mjs -out web/gsxkit/moq.js -lock views/gsxkit/js/moq/npm-lock.json -patches views/gsxkit/js/moq/npm-patches.json -external /gsxui/gsxui.js",
 ]
 
-# This app's copies of gsxkit's components, as any app gets them: the gsx (views/gsxkit), the browser files
-# (web/gsxkit, served at /gsxkit/) and their text in the catalogs. The app keeps them as gsxkit's (TestGsxkitComponents).
-["gsxkit:add"]
-description = "Copy gsxkit's map, places and moq components into the app with go tool gsxkit add -overwrite: views/gsxkit, web/gsxkit and their text (after gsxkit:bundle)"
-depends = ["gsxkit:bundle"]
-dir = "{{config_root}}"
-sources = ["gsxkit/ui/*.gsx.tmpl", "gsxkit/ui/assets/*", "gsxkit/ui/locales/*.toml", "gsxkit/ui/*.go", "gsxkit/cmd/gsxkit/*.go", "intl/registry/*.go"]
-outputs = ["views/gsxkit/map.gsx", "views/gsxkit/places.gsx", "views/gsxkit/moq.gsx", "web/gsxkit/map.js", "web/gsxkit/map.css", "web/gsxkit/moq.js"]
-run = "go tool gsxkit add -overwrite map places moq"
-
-["gsxkit:update"]
-description = "Re-resolve a gsxkit component's npm packages (e.g. mise run gsxkit:update moq @moq/watch@0.6.6 @moq/publish@0.5.3, or map leaflet@1.9.4), rewrite its npm-lock.json and bundle; @moq stays at a version Cloudflare's relays speak until they ship draft-18 (#158)"
+["js:update"]
+description = "Re-resolve a component's npm packages (e.g. mise run js:update moq @moq/watch@0.6.6 @moq/publish@0.5.3, or map leaflet@1.9.4), rewrite its npm-lock.json and bundle; @moq stays at a version Cloudflare's relays speak until they ship draft-18 (#158)"
 dir = "{{config_root}}"
 usage = '''
 arg "<component>" help="map or moq"
 arg "<packages>" var=#true help="name@version of each package to resolve"
 '''
-run = [
-  'go run ./internal/jsbundle -entry gsxkit/js/${usage_component}/${usage_component}.mjs -out gsxkit/ui/assets/${usage_component}.js -lock gsxkit/js/${usage_component}/npm-lock.json $(test -f gsxkit/js/${usage_component}/npm-patches.json && echo -patches gsxkit/js/${usage_component}/npm-patches.json) -external /gsxui/gsxui.js -update ${usage_packages}',
-  "mise run gsxkit:add",
-]
+run = 'go run ./internal/jsbundle -entry views/gsxkit/js/${usage_component}/${usage_component}.mjs -out web/gsxkit/${usage_component}.js -lock views/gsxkit/js/${usage_component}/npm-lock.json $(test -f views/gsxkit/js/${usage_component}/npm-patches.json && echo -patches views/gsxkit/js/${usage_component}/npm-patches.json) -external /gsxui/gsxui.js -update ${usage_packages}'
 
-# Every pin against upstream, and moving them all (#169): internal/deps, with deps.toml's holds. update runs gsxkit's
-# update for gsx, gsxui and structpages first, then every other pin, tidies every module, writes everything generated
+# Every pin against upstream, and moving them all (#169): internal/deps, with deps.toml's holds. update moves gsx, gsxui
+# and structpages first, then every other pin, tidies every module, writes everything generated
 # from them again, and proves the result with check and e2e. It generates first: gsxui's re-vendor runs gsx generate,
 # which needs the uncommitted generated code (the gsxui translator, ui/i18n/intl_gen.go) a fresh checkout doesn't have.
 # It stages docs/commands.md and .claude/skills: a moved pin changes a task description (htmx's version) or a skill
@@ -78,25 +65,66 @@ dir = "{{config_root}}"
 run = "go run ./internal/deps outdated"
 
 ["update"]
-description = "Move every pin not held in deps.toml to its latest (go tool gsxkit update, then Go modules, mise's tools and their copies, charter with charter init, Chrome, htmx, the npm locks), tidy every module, regenerate, then check and e2e"
+description = "Move every pin not held in deps.toml to its latest (gsx, gsxui and structpages, then Go modules, mise's tools and their copies, charter with charter init, Chrome, htmx, the npm locks), tidy every module, regenerate, then check and e2e"
 depends = ["generate"]
 dir = "{{config_root}}"
 run = ["go run ./internal/deps update", "mise run docs:commands", "git add docs/commands.md .claude/skills", "mise run check", "mise run e2e"]
 
-# The app's components (gsx:generate, from gsxkit's tasks) and this repo's own modules' (intl/, seo/), which commit
-# theirs for the apps that import them. Every build/run/test path depends on this.
+# What the app's Go needs before it builds: the messages package from the catalogs (mise-intl's intl:gen), then the
+# components' code (gsx:generate). Every build/run/test path depends on this.
 ["generate"]
-description = "gsx:generate for the app, intl's and seo's own components (their modules commit them for the apps that import them)"
-depends = ["intl", "gsx:generate"]
+description = "The messages package from the catalogs (intl:gen), then gsx:generate for the app's markup"
+depends = ["intl:gen"]
+run = "mise run gsx:generate"
+
+# The languages (mise-intl, docs/intl/README.md) and what search engines read (mise-seo, docs/seo/README.md): the few
+# of their commands this app uses, each the tool's own binary (mise.toml pins it).
+["intl:gen"]
+description = "The catalogs (locales/*.toml) compiled into the app's messages package, locales/intl_gen.go, and intl.sum"
 dir = "{{config_root}}"
-run = ["go -C intl tool gsx generate -q .", "go -C seo tool gsx generate -q ."]
+sources = ["locales/*.toml", "intl.toml", "ui/**/*.gsx", "views/**/*.gsx"]
+outputs = ["locales/intl_gen.go", "ui/i18n/intl_gen.go"]
+run = "mise-intl gen"
+
+["intl:status"]
+description = "Per language: translated, inherited, stale, missing; fails while one is incomplete"
+run = "mise-intl status"
+
+["intl:todo"]
+description = "What's left to translate, with what a translator needs (--json for agents)"
+usage = 'flag "--json" help="one JSON document on stdout"; arg "[locales]..." help="only these languages"'
+run = 'mise-intl todo{% if usage.json %} --json{% endif %}{% for a in usage.locales %} "{{a}}"{% endfor %}'
+
+["intl:translate"]
+description = "Claude Code translates what's left, a worker per language, with the intl skill"
+usage = 'arg "[locales]..." help="only these languages"'
+run = 'mise-intl translate{% for a in usage.locales %} "{{a}}"{% endfor %}'
+
+["intl:confirm"]
+description = "Stale translations that are still right, kept: a language's (de), or one message's (de:home.title)"
+usage = 'arg "[keys]..." help="de, or de:home.title"'
+run = 'mise-intl confirm{% for a in usage.keys %} "{{a}}"{% endfor %}'
+
+["seo:audit"]
+description = "The site as Googlebot reads it: robots.txt, the sitemap and every page in it (--site: a local build or a preview)"
+usage = 'flag "--json" help="one JSON document on stdout"; flag "--site <url>" help="another server than the site in seo.toml"'
+run = 'mise-seo audit{% if usage.json %} --json{% endif %}{% if usage.site %} --site "{{usage.site}}"{% endif %}'
+
+["seo:lighthouse"]
+description = "Lighthouse on the live site, on Google's servers: every page or the one named; fails under seo.toml's minimum"
+usage = 'flag "--json" help="one JSON document on stdout"; arg "[page]" help="one page, a path like /de/board; default every page"'
+run = 'fnox exec -- mise-seo lighthouse{% if usage.json %} --json{% endif %}{% if usage.page %} "{{usage.page}}"{% endif %}'
+
+["seo:badges"]
+description = "Lighthouse on every page and the audit, then the README's badges and its scores table; run after a production release, then commit"
+run = "fnox exec -- mise-seo badges"
 
 # The Static Assets directory: /static/ = web/htmx/ (htmx, hx-ws) and intl's browser module, /gsxui/ = web/gsxui/
-# behaviours, /gsxkit/ = web/gsxkit/ (gsxkit's components' browser files), /assets/ = gsxui's compiled CSS (gsxui:css)
+# behaviours, /gsxkit/ = web/gsxkit/ (the map's and the live video's browser files), /assets/ = gsxui's compiled CSS (gsxui:css)
 # + fonts (fonts.css url()s are relative).
 ["assets"]
-description = "Assemble dist/site, the Static Assets for workerd and deploy: htmx, intl's browser module, gsxui's behaviours, gsxkit's components' browser files, CSS and fonts"
-depends = ["vendor", "gsxkit:add", "gsxui:css"]
+description = "Assemble dist/site, the Static Assets for workerd and deploy: htmx, intl's browser module, gsxui's behaviours, the map's and the live video's browser files, CSS and fonts"
+depends = ["vendor", "js:bundle", "gsxui:css"]
 dir = "{{config_root}}"
 run = '''
 #!/usr/bin/env bash
@@ -108,19 +136,19 @@ mkdir -p dist/site/static dist/site/gsxui dist/site/assets
 # htmx.min.js goes in exactly as htmx ships it: minifying it again gained nothing and, through tdewolff/minify#1057,
 # dropped its morph's text updates, so boosted navigation mixed pages (#168). The extensions are minified here.
 { cat web/htmx/htmx.min.js; echo ";"; for f in hx-live.js hx-ws.js; do go tool minify -q --type=js "web/htmx/$f"; echo ";"; done; } >dist/site/static/htmx.js
-# gsxkit's components' browser files (/gsxkit/: the map's Leaflet, the live video's @moq elements), each loaded only by
+# the map's and the live video's browser files (/gsxkit/: the map's Leaflet, the live video's @moq elements), each loaded only by
 # a page with that component on it.
 mkdir -p dist/site/gsxkit
 cp -R web/gsxkit/. dist/site/gsxkit/
 # The site's icon (<link rel="icon"> in the layout, which browsers and Google read).
 cp web/favicon.svg dist/site/static/
 # The browser's half of intl, with the same intl.mjs the Worker runs (/static/intl-browser.mjs).
-go tool intl assets -browser dist/site/static
+mise-intl assets -browser dist/site/static
 cp -R web/gsxui/. dist/site/gsxui/
 cp dist/gsxui.css dist/site/assets/
 cp web/gsxui/fonts/*.woff2 dist/site/assets/
 # Every script of ours not yet minified, minified (tdewolff/minify, a Go tool): Lighthouse counts what the browser
-# downloads. Never one already minified (htmx above, gsxkit's esbuild bundles): a second pass gains nothing and only risks
+# downloads. Never one already minified (htmx above, the esbuild bundles): a second pass gains nothing and only risks
 # it (TestServedScripts).
 find dist/site/static dist/site/gsxui \( -name '*.js' -o -name '*.mjs' \) ! -name htmx.js | xargs go tool minify -q -i --type=js
 echo "✓ dist/site: $(find dist/site -type f | wc -l | tr -d ' ') files, gsxui.css $(wc -c <dist/site/assets/gsxui.css | tr -d ' ')B"
@@ -244,89 +272,42 @@ exec charter with sh -c 'LOAD_BASE=$BASE go test -C e2e -count=1 -v -timeout 10m
 '''
 
 ["test"]
-description = "Everything before a push: the production build + workerd smoke, gsx fmt/gofmt, go vet, go test, the fresh-app test (mise run check is the same)"
+description = "Everything before a push: the production build + workerd smoke, and the Go checks (mise run check is the same)"
 alias = "check"
-# smoke (production build + workerd), test:go (no wasm needed) and fresh run in parallel.
-depends = ["smoke", "test:go", "fresh"]
+# smoke (production build + workerd) and test:go (no wasm needed) run in parallel.
+depends = ["smoke", "test:go"]
 # Against upstream checkouts (mise run upstream:use) every step still runs, for trying them, but the check fails:
 # what merges must have passed with the pinned versions.
-run = '[ ! -s .upstream-use ] || { echo "✗ ran with upstream checkouts: $(tr "\\n" " " <.upstream-use)(mise run upstream:unuse <repo>)"; exit 1; }; echo "✓ test: smoke + test:go + fresh"'
-
-# The readiness test (#65): what an outside developer does, from nothing. If it fails, the repo isn't ready for them.
-["fresh"]
-description = "Brand-new gsx apps outside this repo (e2e/fresh): one made from intl's and seo's READMEs (every go and gsx block in them is its code), with gsxui and intl's screens, on an ordinary Go server in English and German, its go test, seo:audit and intl:check passing; and one on Workers set up with charter init, its go test on charter's stand-ins and its Worker on local workerd (FRESH_DEPLOY=1: on Cloudflare too)"
-dir = "{{config_root}}"
-run = "go test -C e2e -count=1 -timeout 10m ./fresh"
-
-["fresh:published"]
-description = "The fresh-app test with intl and seo as published on the Go proxy (@latest), not this checkout: after a release, once the proxy has its tags, it shows the READMEs work for someone who runs go get"
-dir = "{{config_root}}"
-env = { FRESH_VERSIONS = "published" }
-run = "go test -C e2e -count=1 -timeout 10m -run TestFreshApp ./fresh"
+run = '[ ! -s .upstream-use ] || { echo "✗ ran with upstream checkouts: $(tr "\\n" " " <.upstream-use)(mise run upstream:unuse <repo>)"; exit 1; }; echo "✓ test: smoke + test:go"'
 
 ["test:go"]
-description = "Every module's go.mod tidy, gsx fmt/gofmt check + go vet + structpages-lint + go test, the app and its modules: intl/, seo/, badge/, gsxkit/ (standard Go; runs beside the production build)"
+description = "go.mod tidy, gsx fmt and gofmt, go vet, structpages-lint, go test, every language complete, then charter's own check (standard Go; runs beside the production build)"
 # assets: TestServedScripts reads dist/site. Without it a new checkout's first run raced the build for those files.
 depends = ["generate", "assets"]
 dir = "{{config_root}}"
 run = '''
 #!/usr/bin/env bash
 set -euo pipefail
-# Every module's go.mod and go.sum as go mod tidy writes them: a dependency moved in one module and not another fails
-# here, naming the module (mise run update tidies them all).
+# Each module's go.mod and go.sum as go mod tidy writes them (the app's, and e2e's: the browser tests).
 for mod in $(git ls-files 'go.mod' '*/go.mod'); do
   go -C "$(dirname "$mod")" mod tidy -diff >/dev/null || { echo "✗ $(dirname "$mod")/go.mod isn't tidy: go -C $(dirname "$mod") mod tidy"; exit 1; }
 done
 mise run gsx:fmt --check
-# Files of this module only (gofmt -l . would walk the nested modules too); IgnoredGoFiles
-# are the other platform's build-tagged files.
+# Files of this module only (gofmt -l . would walk e2e's too); IgnoredGoFiles are the other platform's build-tagged files.
 unformatted=$(gofmt -l $(go list -json ./... | jq -r '.Dir as $d | (.GoFiles + (.TestGoFiles // []) + (.XTestGoFiles // []) + (.IgnoredGoFiles // []))[] | "\($d)/\(.)"'))
 test -z "$unformatted" || { echo "$unformatted"; echo "✗ gofmt: files need formatting"; exit 1; }
 go vet ./...
-# structpages' linter: links, ids and partials from the page tree, and htmx 4's target selector (gsxkit's task).
+# structpages' linter: links, ids and partials from the page tree, and htmx 4's target selector.
 mise run -q structpages:lint
-go test ./...
-# Every intl problem as CI sees it: the catalogs, then gsx's own checks on the markup (intl's intl:check). generate
-# has already regenerated intl.sum and the languages badge, so a change to either (or a new one) means it wasn't
-# committed.
-mise run -q intl:check
-# charter.toml and charter's files here (its tasks, Workers Builds' launcher, its skill, the CI workflow, TinyGo's pins,
-# and the repo's: docs/charter/, the issue forms) as this charter writes them.
+# With Intl as a Worker has it (ci/with-intl.sh): the tests render and format through it, and mise-intl says whether
+# every language is complete.
+ci/with-intl.sh sh -c 'go test ./... && mise-intl status'
+# charter.toml and charter's files here (its tasks, Workers Builds' launcher, its skill, the CI workflow).
 charter check
-generated=$(git status --porcelain -- locales/intl.sum docs/badges/intl.svg)
-[ -z "$generated" ] || { echo "$generated"; echo "✗ go tool intl gen changed these: commit them"; exit 1; }
-# intl/ is its own module, for any gsx app: format, vet and test it too (its tests run Intl on workerd).
-test -z "$(gofmt -l intl)" || { gofmt -l intl; echo "✗ gofmt: intl/ needs formatting"; exit 1; }
-go vet -C intl ./...
-go test -C intl ./...
-# seo/ is its own module too (Google Search Console and the live audit): format, vet and test it.
-test -z "$(gofmt -l seo)" || { gofmt -l seo; echo "✗ gofmt: seo/ needs formatting"; exit 1; }
-go vet -C seo ./...
-go test -C seo ./...
-# badge/ is its own module (the README badges intl and seo draw), so neither depends on the other.
-test -z "$(gofmt -l badge)" || { gofmt -l badge; echo "✗ gofmt: badge/ needs formatting"; exit 1; }
-go vet -C badge ./...
-go test -C badge ./...
-# gsxkit/ is its own module (gsx's and gsxui's tasks and gsx's skill for any app): format, vet and test it.
-test -z "$(gofmt -l gsxkit)" || { gofmt -l gsxkit; echo "✗ gofmt: gsxkit/ needs formatting"; exit 1; }
-go vet -C gsxkit ./...
-go test -C gsxkit ./...
-# intl, seo, badge and gsxkit declare the oldest Go they work with (their go.mod's go line, gsx's minimum): they must still
-# build there, so the minimum can't creep up unnoticed.
-for m in badge intl seo gsxkit; do
-  floor=$(sed -n 's/^go \([0-9]*\.[0-9]*\).*/\1/p' "$m/go.mod")
-  (cd "$m" && env -u GOROOT GOTOOLCHAIN=local mise exec "go@$floor" -- go vet ./...) ||
-    { echo "✗ $m/ doesn't build with Go $floor, the minimum its go.mod declares"; exit 1; }
-done
-# The skills gsx and structpages ship are installed at the versions in go.mod and committed: an upgrade must install
-# and commit them.
-go tool gsxkit skill >/dev/null
+# The skills gsx, gsxui and structpages ship are installed at the versions the app pins, and committed.
+go run ./internal/deps skill >/dev/null
 { git diff --quiet -- .claude/skills && test -z "$(git ls-files --others --exclude-standard -- .claude/skills)"; } ||
-  { git status --short -- .claude/skills; echo "✗ .claude/skills isn't what go tool gsxkit skill installs: mise run gsx:skill, and commit it"; exit 1; }
-# Its agent skill is installed from seo/ and committed: a change there must be installed and committed too.
-go tool seo skill >/dev/null
-{ git diff --quiet -- .claude/skills/seo && test -z "$(git ls-files --others --exclude-standard -- .claude/skills/seo)"; } ||
-  { git status --short -- .claude/skills/seo; echo "✗ .claude/skills/seo is not seo/skills/seo: mise run seo:skill, and commit it"; exit 1; }
+  { git status --short -- .claude/skills; echo "✗ .claude/skills isn't what mise run gsx:skill installs: run it, and commit"; exit 1; }
 # e2e/ is its own module (chromedp): format and vet it too. Its tests need a server (mise run smoke / e2e / load),
 # except the load checker's own, which run against an in-process fake.
 test -z "$(gofmt -l e2e)" || { gofmt -l e2e; echo "✗ gofmt: e2e/ needs formatting"; exit 1; }

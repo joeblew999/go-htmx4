@@ -4,9 +4,9 @@ import (
 	"context"
 	"time"
 
-	"github.com/joeblew999/mise-intl/intl"
 	"github.com/joeblew999/go-htmx4/locales"
 	"github.com/joeblew999/go-htmx4/ui"
+	"github.com/joeblew999/mise-intl/intl"
 )
 
 // The /components page's data: machine values only (region, currency, calendar and zone ids, numbers). Every word on

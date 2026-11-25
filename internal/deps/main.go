@@ -36,6 +36,8 @@ const (
 	vendorTask   = "tasks/app.toml"
 	miseSeo      = "github.com/joeblew999/mise-seo"
 	miseSeoTool  = "github:joeblew999/mise-seo"
+	miseIntl     = "github.com/joeblew999/mise-intl"
+	miseIntlTool = "github:joeblew999/mise-intl"
 	templateDirs = "tasks"
 )
 
@@ -121,8 +123,11 @@ func goModules(root string, mods []deps.Module, holds deps.Holds, update bool) [
 					check(deps.Run(root, "mise", "install"))
 					check(deps.Run(root, "mise", "exec", "--", "charter", "init"))
 				}
-				if path == miseSeo && m.Dir == root { // its binary is the same release: its init there moves .mise/config.toml's pin and writes its files
-					check(deps.Run(root, "mise", "exec", miseSeoTool+"@"+strings.TrimPrefix(latest[path], "v"), "--", "mise-seo", "init"))
+				// mise-intl's and mise-seo's binaries are the same release as their packages: the pin in mise.toml moves
+				// with go.mod. Their init is not run: the app keeps none of the files it writes.
+				if tool, ok := map[string]string{miseSeo: miseSeoTool, miseIntl: miseIntlTool}[path]; ok && m.Dir == root {
+					check(deps.SetMisePin(root, tool, strings.TrimPrefix(latest[path], "v")))
+					check(deps.Run(root, "mise", "install"))
 				}
 			}
 			out = append(out, c)
@@ -189,8 +194,8 @@ func miseTools(root string, conf deps.Config, update bool) []deps.Change {
 		check(json.Unmarshal(raw, &tools))
 	}
 	for name, t := range tools {
-		if t.Source.Path != filepath.Join(root, "mise.toml") || name == charterTool || t.Bump == "" || t.Bump == t.Requested {
-			continue // charter moves with its library (goModules)
+		if t.Source.Path != filepath.Join(root, "mise.toml") || name == charterTool || name == miseSeoTool || name == miseIntlTool || t.Bump == "" || t.Bump == t.Requested {
+			continue // charter, mise-intl and mise-seo move with their libraries (goModules)
 		}
 		c := deps.Change{Name: name, From: t.Requested, To: t.Bump, Where: "mise.toml"}
 		if why, held := holds.Why(name); held {

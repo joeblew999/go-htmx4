@@ -8,8 +8,8 @@ import (
 	"sync"
 
 	"github.com/jackielii/structpages"
-	"github.com/joeblew999/mise-intl/intl"
 	"github.com/joeblew999/go-htmx4/views/gsxkit"
+	"github.com/joeblew999/mise-intl/intl"
 )
 
 // Pages is the app's page tree (#79, #132), as structpages reads it: every page people read is a type here, its
