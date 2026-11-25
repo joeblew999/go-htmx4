@@ -24,6 +24,8 @@
     // npm run deploy: the Worker go-htmx4 on its domain.
     "production": {
       "name": "go-htmx4",
+      // Its workers.dev address stays on: the app moves it to the domain (301), so one host is indexed.
+      "workers_dev": true,
       "routes": [{ "pattern": "go-htmx4.ubuntusoftware.net", "custom_domain": true }],
       "vars": { "APP_ENV": "cloudflare", "APP_DOMAIN": "go-htmx4.ubuntusoftware.net", "NOMINATIM_URL": "https://nominatim.openstreetmap.org" },
       "d1_databases": [{ "binding": "DB", "database_name": "go-htmx4", "database_id": "0c38453f-e34d-452a-8c73-f53a95b8deaf", "migrations_dir": "migrations" }],

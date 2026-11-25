@@ -1,4 +1,4 @@
-// Package load checks a live board end to end over real WebSockets (mise run load, load_test.go): it opens N sockets to
+// Package load checks a live board end to end over real WebSockets (go tool charter test load, load_test.go): it opens N sockets to
 // /live/{topic}, makes changes through the app (POST /board/add), and reports how many sockets
 // received the newest version, how fast, how many broadcasts coalescing let through, whether
 // presence (the online count) tracks connects and closes, whether each socket only gets its own locale's

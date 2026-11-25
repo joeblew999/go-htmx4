@@ -1,53 +1,36 @@
-# Deploying
+# How it ships
 
-Three kinds of deploy, all `charter deploy production|staging|preview <name>` (Cloudflare's REST API; no
-wrangler), reading `charter.toml`: which Worker, bindings, D1, Durable Objects, vars and domain each gets:
+wrangler deploys the Worker; `go tool charter deploy <environment>` applies the D1 migrations first, then runs it.
+`wrangler.jsonc` has the environments.
 
-| Kind | Worker | When | URL |
-| --- | --- | --- | --- |
-| Preview | a Worker Preview of `$APP_NAME`, shared preview D1, noindex | every pushed branch, automatically | `https://<branch>-$APP_NAME.$CF_SUBDOMAIN.workers.dev` (posted on the PR) |
-| Staging | `$APP_NAME-staging`, its own D1, noindex | every merge to `main`, automatically | `https://$APP_NAME-staging.$CF_SUBDOMAIN.workers.dev` |
-| Production | `$APP_NAME`, custom domain `$APP_DOMAIN` | a release | `https://$APP_DOMAIN` |
+| Environment | Command | Where |
+|---|---|---|
+| Local | `go tool charter preview` | http://localhost:8913, local D1 and Durable Objects |
+| Staging | `go tool charter deploy staging` | https://go-htmx4-staging.gedw99.workers.dev, its own D1, not indexed |
+| Production | `go tool charter deploy production` | https://go-htmx4.ubuntusoftware.net |
 
-`APP_NAME`, `APP_DOMAIN` and `CF_SUBDOMAIN` are in `mise.toml` `[env]`, copies of `charter.toml`'s name, production
-domain and subdomain (`TestCharterToml` checks them).
+## Before a deploy
 
-## One build per commit
-
-1. GitHub CI (`.github/workflows/charter.yml` → `charter ci run`, from `charter.toml`'s `[ci]`) builds the
-   commit, puts the build and a static charter binary on the `preview-builds` pre-release (and the preview's URL on
-   the pull request), then runs the tests.
-2. Workers Builds (Cloudflare's GitHub app, `.mise/tasks/charter-builds`) downloads that charter, and with it the build,
-   verified against its manifest (`charter builds build`), then deploys what the branch deploys from
-   `charter.toml` (`charter builds deploy`): the branch's preview, or staging for `main`, or production for
-   `production`. It then deletes previews of branches that no longer exist.
-3. If CI's build never comes (CI down, a fork, or `CHARTER_COMPILE=1`), Workers Builds builds it itself
-   (`charter builds build -compile`: `[ci] tools`, then `[build] command`).
-
-No Cloudflare credential is in GitHub: Workers Builds deploys with its own build token. `fnox exec -- charter builds configure` sets up its triggers once. Both the workflow and the launcher are charter's (`charter
-init` writes them), and `charter check` says when they're stale.
-
-## Releasing
-
-```sh
-mise run release v1.3    # or push a v* tag from GitHub's Releases page
-```
-
-CI tests the commit, checks it is on `main`, tags it, and moves the `production` branch to it; Workers Builds then
-deploys production.
-`mise run release` releases the tip of `main`; to roll back, push a v* tag on an older commit of `main`. Never push to
-`production` by hand.
-
-`mise run deploy` deploys production from a machine with fnox credentials instead, after the full test and a token
-check, and then audits the live site as Googlebot.
+`go tool charter check`, and `go tool charter test e2e` after a change to pages, the board or browser code.
 
 ## Credentials
 
-`CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` come from fnox (`fnox exec -- …`), or from the environment in
-Workers Builds. Nothing reads a `.env` file.
+wrangler reads `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` from the environment. They come from fnox, never
+from a file in the repo:
+
+```sh
+fnox exec -- go tool charter deploy staging
+```
 
 ## After a deploy
 
-- `SMOKE_BASE=$(cat .deploy-url) mise run smoke`: every route of the deployed Worker.
-- `E2E_BASE=… mise run e2e` and `LOAD_BASE=… mise run load`: the browser checks and the 1,000-socket check against it.
-- `mise run tail`: its live logs (`charter tail`).
+```sh
+BASE=https://go-htmx4-staging.gedw99.workers.dev go test -C e2e -count=1 ./smoke
+go tool charter test e2e -base https://go-htmx4-staging.gedw99.workers.dev
+go tool charter seo audit      # production, as Googlebot reads it
+```
+
+## The database
+
+A schema change is a new idempotent file in `migrations/`. wrangler records which have run in each database.
+`board.version` never goes backwards: never delete `board` rows or reset versions.

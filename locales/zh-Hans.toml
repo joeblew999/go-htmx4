@@ -14,8 +14,8 @@ toggle_theme = "切换主题"
 
 [home]
 heading = "在 Cloudflare Workers 上运行 Go + htmx 4 + gsxui"
-intro = "服务器端渲染的 gsx 组件，htmx 4 负责请求，hx-live 管理本地状态，D1 和 Durable Objects 提供实时更新。Go 由 TinyGo 编译。无需 Node，也无需打包工具。"
-description = "服务器端渲染的 gsx 组件，搭配 htmx 4、hx-live、D1 和 Durable Objects 实时更新。Go 由 TinyGo 编译，无需 Node。"
+intro = "服务器端渲染的 gsx 组件，htmx 4 负责请求，hx-live 管理本地状态，D1 和 Durable Objects 提供实时更新。Go 编译为 WebAssembly，运行在 Cloudflare Workers 上。"
+description = "服务器端渲染的 gsx 组件，搭配 htmx 4、hx-live、D1 和 Durable Objects 实时更新。Go 编译为 WebAssembly，运行在 Cloudflare Workers 上。"
 served_by = "运行于"
 env = "env"
 
@@ -137,8 +137,8 @@ legend_you = "浏览器给出的你的位置"
 title = "关于"
 heading = "关于 go-htmx4"
 stack = "技术栈"
-stack_description = "所有工具都在 mise.toml 中锁定版本。这里完全不需要 Node。"
-description = "go-htmx4 背后的技术：搭配 gsx 和 gsxui 的 Go、htmx 4、TinyGo，以及搭配 D1 和 Durable Objects 的 Cloudflare Workers。"
+stack_description = "所有工具都在 go.mod 和 package-lock.json 中锁定版本。电脑上只需要 Go 和 Node。"
+description = "go-htmx4 背后的技术：搭配 gsx 和 gsxui 的 Go、htmx 4、Vite，以及搭配 D1 和 Durable Objects 的 Cloudflare Workers。"
 
 [about.roles]
 gsx = "编译为 Go 的 JSX 风格模板"
@@ -147,11 +147,11 @@ htmx = "请求、boost、morph、OOB 交换"
 hx_live = "客户端状态（htmx 4 扩展）"
 hx_ws = "基于 WebSockets 的实时看板（htmx 4 扩展）"
 workers_go = "在 Cloudflare Workers 上运行 Go"
-tinygo = "将 Worker 编译为 wasm"
+vite = "打包浏览器文件"
 d1 = "看板的唯一可信数据源"
 durable_objects = "每个主题一个 Room，WebSockets 可休眠"
-tailwind = "独立 CLI，无需 npm"
-mise = "锁定所有工具的版本"
+tailwind = "由 Vite 编译"
+wrangler = "运行并部署 Worker"
 
 [formats]
 title = "格式"

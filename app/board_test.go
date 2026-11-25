@@ -166,7 +166,7 @@ func TestWorkerJSMatchesLive(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	// The load test's design size (mise run load) is the Room's socket cap: it opens that many, then is refused one.
+	// The load test's design size (go tool charter test load) is the Room's socket cap: it opens that many, then is refused one.
 	capJS := regexp.MustCompile(`const MAX_SOCKETS = (\d+);`).FindStringSubmatch(read(t, "../worker/room.mjs"))
 	capLoad := regexp.MustCompile(`flag\.Int\("n", (\d+),`).FindStringSubmatch(read(t, "../e2e/load/load_test.go"))
 	if capJS == nil || capLoad == nil || capJS[1] != capLoad[1] {

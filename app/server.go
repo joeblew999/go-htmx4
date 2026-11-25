@@ -32,7 +32,7 @@ import (
 )
 
 var (
-	flavours   = []string{"gsx", "gsxui", "htmx 4", "hx-live", "hx-ws", "TinyGo", "Workers", "D1", "Durable Objects", "mise"}
+	flavours   = []string{"gsx", "gsxui", "htmx 4", "hx-live", "hx-ws", "Vite", "Workers", "D1", "Durable Objects", "wrangler"}
 	components = []string{"badge", "button", "button-group", "card", "dialog", "empty", "field", "input", "item",
 		"label", "native-select", "separator", "switch", "tabs", "toast", "toaster"}
 	stack = []views.StackItem{
@@ -42,11 +42,11 @@ var (
 		{Name: "hx-live", Role: locales.AboutRolesHxLive, URL: "https://four.htmx.org/extensions/hx-live/"},
 		{Name: "hx-ws", Role: locales.AboutRolesHxWs, URL: "https://four.htmx.org/extensions/hx-ws"},
 		{Name: "workers-go", Role: locales.AboutRolesWorkersGo, URL: "https://github.com/syumai/workers-go"},
-		{Name: "TinyGo", Role: locales.AboutRolesTinygo, URL: "https://tinygo.org"},
+		{Name: "Vite", Role: locales.AboutRolesVite, URL: "https://vite.dev"},
 		{Name: "Cloudflare D1", Role: locales.AboutRolesD1, URL: "https://developers.cloudflare.com/d1/"},
 		{Name: "Durable Objects", Role: locales.AboutRolesDurableObjects, URL: "https://developers.cloudflare.com/durable-objects/"},
-		{Name: "Tailwind CSS", Role: locales.AboutRolesTailwind, URL: "https://tailwindcss.com/docs/installation/tailwind-cli"},
-		{Name: "mise", Role: locales.AboutRolesMise, URL: "https://mise.jdx.dev"},
+		{Name: "Tailwind CSS", Role: locales.AboutRolesTailwind, URL: "https://tailwindcss.com/docs/installation/using-vite"},
+		{Name: "wrangler", Role: locales.AboutRolesWrangler, URL: "https://developers.cloudflare.com/workers/wrangler/"},
 	}
 )
 

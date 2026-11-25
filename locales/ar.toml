@@ -14,8 +14,8 @@ toggle_theme = "تبديل السمة"
 
 [home]
 heading = "Go و htmx 4 و gsxui على Cloudflare Workers"
-intro = "مكونات gsx تُعرض على الخادم، وhtmx 4 للطلبات، وhx-live للحالة المحلية، وD1 وDurable Objects للتحديثات المباشرة. تُصرَّف شيفرة Go باستخدام TinyGo. بلا Node وبلا مُجمِّع حزم."
-description = "مكونات gsx تُعرض على الخادم مع htmx 4 وhx-live وD1 وDurable Objects للتحديثات المباشرة. تُصرَّف Go باستخدام TinyGo. بلا Node وبلا مُجمِّع حزم."
+intro = "مكونات gsx تُعرض على الخادم، وhtmx 4 للطلبات، وhx-live للحالة المحلية، وD1 وDurable Objects للتحديثات المباشرة. تُصرَّف Go إلى WebAssembly وتعمل على Cloudflare Workers."
+description = "مكونات gsx تُعرض على الخادم مع htmx 4 وhx-live وD1 وDurable Objects للتحديثات المباشرة. تُصرَّف Go إلى WebAssembly وتعمل على Cloudflare Workers."
 served_by = "يقدّمه"
 env = "env"
 
@@ -137,8 +137,8 @@ legend_you = "حيث يقول متصفحك إنك موجود"
 title = "حول"
 heading = "حول go-htmx4"
 stack = "الحزمة التقنية"
-stack_description = "إصدار كل أداة مثبّت في mise.toml. لا شيء هنا يحتاج إلى Node."
-description = "التقنيات التي يقوم عليها go-htmx4: Go مع gsx وgsxui، وhtmx 4، وTinyGo، وCloudflare Workers مع D1 وDurable Objects."
+stack_description = "إصدار كل أداة مثبّت في go.mod وpackage-lock.json. لا يحتاج الجهاز إلا إلى Go وNode."
+description = "التقنيات التي يقوم عليها go-htmx4: Go مع gsx وgsxui، وhtmx 4، وVite، وCloudflare Workers مع D1 وDurable Objects."
 
 [about.roles]
 gsx = "قوالب بأسلوب JSX تُصرَّف إلى Go"
@@ -147,11 +147,11 @@ htmx = "الطلبات، وboost، وmorph، وتبديلات OOB"
 hx_live = "الحالة على جانب العميل (إضافة htmx 4)"
 hx_ws = "لوحة مباشرة عبر WebSockets (إضافة htmx 4)"
 workers_go = "Go على Cloudflare Workers"
-tinygo = "يصرّف Worker إلى wasm"
+vite = "يحزم ملفات المتصفح"
 d1 = "المصدر الموثوق لبيانات اللوحة"
 durable_objects = "غرفة (Room) واحدة لكل موضوع، وWebSockets في وضع السبات"
-tailwind = "أداة CLI مستقلة، بلا npm"
-mise = "يثبّت إصدار كل أداة"
+tailwind = "يُصرَّف عبر Vite"
+wrangler = "يشغّل Worker وينشره"
 
 [formats]
 title = "التنسيقات"

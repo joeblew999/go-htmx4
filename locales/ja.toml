@@ -14,8 +14,8 @@ toggle_theme = "テーマを切り替え"
 
 [home]
 heading = "Cloudflare Workers で動く Go + htmx 4 + gsxui"
-intro = "サーバーでレンダリングする gsx コンポーネント、リクエストには htmx 4、ローカル状態には hx-live、ライブ更新には D1 と Durable Objects。Go は TinyGo でコンパイルします。Node もバンドラーも不要です。"
-description = "サーバーでレンダリングする gsx コンポーネントと htmx 4、hx-live、D1、Durable Objects によるライブ更新。Go は TinyGo でコンパイル。Node 不要。"
+intro = "サーバーでレンダリングする gsx コンポーネント、リクエストには htmx 4、ローカル状態には hx-live、ライブ更新には D1 と Durable Objects。Go は WebAssembly にコンパイルし、Cloudflare Workers で動かします。"
+description = "サーバーでレンダリングする gsx コンポーネントと htmx 4、hx-live、D1、Durable Objects によるライブ更新。Go は WebAssembly として Cloudflare Workers で動作。"
 served_by = "配信元"
 env = "env"
 
@@ -138,8 +138,8 @@ legend_you = "ブラウザーが示すあなたの場所"
 title = "概要"
 heading = "go-htmx4 について"
 stack = "スタック"
-stack_description = "すべて mise.toml でバージョンを固定しています。Node は一切不要です。"
-description = "go-htmx4 を支える技術：gsx と gsxui を使う Go、htmx 4、TinyGo、そして D1 と Durable Objects を使う Cloudflare Workers。"
+stack_description = "すべて go.mod と package-lock.json でバージョンを固定しています。必要なのは Go と Node だけです。"
+description = "go-htmx4 を支える技術：gsx と gsxui を使う Go、htmx 4、Vite、そして D1 と Durable Objects を使う Cloudflare Workers。"
 
 [about.roles]
 gsx = "Go にコンパイルされる JSX 風テンプレート"
@@ -148,11 +148,11 @@ htmx = "リクエスト、boost、morph、OOB スワップ"
 hx_live = "クライアント側の状態（htmx 4 拡張）"
 hx_ws = "WebSockets によるライブボード（htmx 4 拡張）"
 workers_go = "Cloudflare Workers 上の Go"
-tinygo = "Worker を wasm にコンパイル"
+vite = "ブラウザー用ファイルをバンドル"
 d1 = "ボードの信頼できる唯一の情報源"
 durable_objects = "トピックごとに 1 つの Room、ハイバネーション対応の WebSockets"
-tailwind = "スタンドアロン CLI、npm 不要"
-mise = "すべてのツールのバージョンを固定"
+tailwind = "Vite でコンパイル"
+wrangler = "Worker を実行・デプロイ"
 
 [formats]
 title = "書式"

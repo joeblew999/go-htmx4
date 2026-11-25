@@ -14,8 +14,8 @@ toggle_theme = "Alternar tema"
 
 [home]
 heading = "Go + htmx 4 + gsxui no Cloudflare Workers"
-intro = "Componentes gsx renderizados no servidor, htmx 4 para requisições, hx-live para estado local, D1 e Durable Objects para atualizações em tempo real. Go compilado com TinyGo. Sem Node, sem bundler."
-description = "Componentes gsx renderizados no servidor com htmx 4, hx-live, D1 e Durable Objects para tempo real. Go compilado com TinyGo. Sem Node, sem bundler."
+intro = "Componentes gsx renderizados no servidor, htmx 4 para requisições, hx-live para estado local, D1 e Durable Objects para atualizações em tempo real. Go compilado para WebAssembly, no Cloudflare Workers."
+description = "Componentes gsx renderizados no servidor com htmx 4, hx-live, D1 e Durable Objects para tempo real. Go compilado para WebAssembly, no Cloudflare Workers."
 served_by = "Servido por"
 env = "env"
 
@@ -137,8 +137,8 @@ legend_you = "Onde seu navegador diz que você está"
 title = "Sobre"
 heading = "Sobre o go-htmx4"
 stack = "Stack"
-stack_description = "Todas as versões estão fixadas no mise.toml. Nada aqui precisa de Node."
-description = "A stack por trás do go-htmx4: Go com gsx e gsxui, htmx 4, TinyGo e Cloudflare Workers com D1 e Durable Objects."
+stack_description = "Todas as versões estão fixadas no go.mod e no package-lock.json. Uma máquina só precisa de Go e Node."
+description = "A stack por trás do go-htmx4: Go com gsx e gsxui, htmx 4, Vite e Cloudflare Workers com D1 e Durable Objects."
 
 [about.roles]
 gsx = "templates no estilo JSX compilados para Go"
@@ -147,11 +147,11 @@ htmx = "requisições, boost, morph, swaps OOB"
 hx_live = "estado no cliente (extensão do htmx 4)"
 hx_ws = "quadro em tempo real via WebSockets (extensão do htmx 4)"
 workers_go = "Go no Cloudflare Workers"
-tinygo = "compila o Worker para wasm"
+vite = "empacota os arquivos do navegador"
 d1 = "fonte da verdade do quadro"
 durable_objects = "um Room por tópico, WebSockets em hibernação"
-tailwind = "CLI independente, sem npm"
-mise = "fixa a versão de cada ferramenta"
+tailwind = "compilado pelo Vite"
+wrangler = "executa e implanta o Worker"
 
 [formats]
 title = "Formatos"

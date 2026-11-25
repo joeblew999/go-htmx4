@@ -14,8 +14,8 @@ toggle_theme = "החלפת ערכת נושא"
 
 [home]
 heading = "Go + htmx 4 + gsxui על Cloudflare Workers"
-intro = "רכיבי gsx שמרונדרים בשרת, htmx 4 לבקשות, hx-live למצב מקומי, D1 ו-Durable Objects לעדכונים חיים. Go מהודר עם TinyGo. בלי Node ובלי bundler."
-description = "רכיבי gsx שמרונדרים בשרת, htmx 4 לבקשות, hx-live למצב מקומי, D1 ו-Durable Objects לעדכונים חיים. Go מהודר עם TinyGo. בלי Node ובלי bundler."
+intro = "רכיבי gsx שמרונדרים בשרת, htmx 4 לבקשות, hx-live למצב מקומי, D1 ו-Durable Objects לעדכונים חיים. Go מהודר ל-WebAssembly, על Cloudflare Workers."
+description = "רכיבי gsx שמרונדרים בשרת, htmx 4 לבקשות, hx-live למצב מקומי, D1 ו-Durable Objects לעדכונים חיים. Go כ-WebAssembly על Cloudflare Workers."
 served_by = "מוגש על ידי"
 env = "env"
 
@@ -137,8 +137,8 @@ legend_you = "המקום שבו הדפדפן אומר שאתם נמצאים"
 title = "אודות"
 heading = "אודות go-htmx4"
 stack = "סטאק"
-stack_description = "הגרסה של כל כלי מקובעת ב-mise.toml. שום דבר כאן לא דורש Node."
-description = "הטכנולוגיות שמאחורי go-htmx4: Go עם gsx ו-gsxui, htmx 4, TinyGo, ו-Cloudflare Workers עם D1 ו-Durable Objects."
+stack_description = "הגרסה של כל כלי מקובעת ב-go.mod וב-package-lock.json. המחשב צריך רק Go ו-Node."
+description = "הטכנולוגיות שמאחורי go-htmx4: Go עם gsx ו-gsxui, htmx 4, Vite, ו-Cloudflare Workers עם D1 ו-Durable Objects."
 
 [about.roles]
 gsx = "תבניות בסגנון JSX שמהודרות ל-Go"
@@ -147,11 +147,11 @@ htmx = "בקשות, boost, morph, החלפות OOB"
 hx_live = "מצב בצד הלקוח (הרחבה של htmx 4)"
 hx_ws = "לוח חי דרך WebSockets (הרחבה של htmx 4)"
 workers_go = "Go על Cloudflare Workers"
-tinygo = "מהדר את ה-Worker ל-wasm"
+vite = "אורז את קובצי הדפדפן"
 d1 = "מקור האמת של הלוח"
 durable_objects = "חדר (Room) אחד לכל נושא, WebSockets במצב שינה"
-tailwind = "CLI עצמאי, בלי npm"
-mise = "מקבע את הגרסה של כל כלי"
+tailwind = "מהודר על ידי Vite"
+wrangler = "מריץ ופורס את ה-Worker"
 
 [formats]
 title = "פורמטים"

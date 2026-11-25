@@ -14,8 +14,8 @@ toggle_theme = "Сменить тему"
 
 [home]
 heading = "Go + htmx 4 + gsxui на Cloudflare Workers"
-intro = "Компоненты gsx с рендерингом на сервере, htmx 4 для запросов, hx-live для локального состояния, D1 и Durable Objects для обновлений в реальном времени. Go компилируется с помощью TinyGo. Без Node и без сборщика."
-description = "Компоненты gsx с рендерингом на сервере: htmx 4, hx-live, D1 и Durable Objects для обновлений в реальном времени. Go компилирует TinyGo. Без Node."
+intro = "Компоненты gsx с рендерингом на сервере, htmx 4 для запросов, hx-live для локального состояния, D1 и Durable Objects для обновлений в реальном времени. Go компилируется в WebAssembly и работает на Cloudflare Workers."
+description = "Компоненты gsx с рендерингом на сервере: htmx 4, hx-live, D1 и Durable Objects для обновлений в реальном времени. Go как WebAssembly на Cloudflare Workers."
 served_by = "Обслуживает"
 env = "env"
 
@@ -137,8 +137,8 @@ legend_you = "Где вы, по словам браузера"
 title = "О проекте"
 heading = "О go-htmx4"
 stack = "Стек"
-stack_description = "Версии всех инструментов зафиксированы в mise.toml. Здесь ничего не требует Node."
-description = "Технологии go-htmx4: Go с gsx и gsxui, htmx 4, TinyGo, а также Cloudflare Workers с D1 и Durable Objects."
+stack_description = "Версии всех инструментов зафиксированы в go.mod и package-lock.json. На компьютере нужны только Go и Node."
+description = "Технологии go-htmx4: Go с gsx и gsxui, htmx 4, Vite, а также Cloudflare Workers с D1 и Durable Objects."
 
 [about.roles]
 gsx = "шаблоны в стиле JSX, компилируемые в Go"
@@ -147,11 +147,11 @@ htmx = "запросы, boost, morph, OOB-замены"
 hx_live = "состояние на клиенте (расширение htmx 4)"
 hx_ws = "живая доска через WebSockets (расширение htmx 4)"
 workers_go = "Go на Cloudflare Workers"
-tinygo = "компилирует Worker в wasm"
+vite = "собирает файлы для браузера"
 d1 = "источник истины для доски"
 durable_objects = "одна комната (Room) на тему, WebSockets с гибернацией"
-tailwind = "автономный CLI, без npm"
-mise = "фиксирует версии всех инструментов"
+tailwind = "компилируется через Vite"
+wrangler = "запускает и развёртывает Worker"
 
 [formats]
 title = "Форматы"

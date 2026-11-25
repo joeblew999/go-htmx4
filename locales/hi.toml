@@ -14,8 +14,8 @@ toggle_theme = "थीम बदलें"
 
 [home]
 heading = "Cloudflare Workers पर Go + htmx 4 + gsxui"
-intro = "सर्वर पर रेंडर होने वाले gsx कॉम्पोनेंट, अनुरोधों के लिए htmx 4, लोकल स्टेट के लिए hx-live, और लाइव अपडेट के लिए D1 और Durable Objects। Go को TinyGo से कंपाइल किया जाता है। न Node, न bundler।"
-description = "सर्वर पर रेंडर होने वाले gsx कॉम्पोनेंट, htmx 4, hx-live, और लाइव अपडेट के लिए D1 व Durable Objects। Go, TinyGo से कंपाइल होता है। न Node, न bundler।"
+intro = "सर्वर पर रेंडर होने वाले gsx कॉम्पोनेंट, अनुरोधों के लिए htmx 4, लोकल स्टेट के लिए hx-live, और लाइव अपडेट के लिए D1 और Durable Objects। Go को WebAssembly में कंपाइल किया जाता है और यह Cloudflare Workers पर चलता है।"
+description = "सर्वर पर रेंडर होने वाले gsx कॉम्पोनेंट, htmx 4, hx-live, और लाइव अपडेट के लिए D1 व Durable Objects। Go, WebAssembly के रूप में, Cloudflare Workers पर।"
 served_by = "सर्व करने वाला"
 env = "env"
 
@@ -137,8 +137,8 @@ legend_you = "जहाँ आपका ब्राउज़र कहता �
 title = "परिचय"
 heading = "go-htmx4 का परिचय"
 stack = "स्टैक"
-stack_description = "हर टूल का वर्ज़न mise.toml में पिन है। यहाँ किसी भी चीज़ को Node की ज़रूरत नहीं है।"
-description = "go-htmx4 के पीछे की तकनीकें: gsx और gsxui के साथ Go, htmx 4, TinyGo, और D1 व Durable Objects के साथ Cloudflare Workers।"
+stack_description = "हर टूल का वर्ज़न go.mod और package-lock.json में पिन है। मशीन पर सिर्फ़ Go और Node चाहिए।"
+description = "go-htmx4 के पीछे की तकनीकें: gsx और gsxui के साथ Go, htmx 4, Vite, और D1 व Durable Objects के साथ Cloudflare Workers।"
 
 [about.roles]
 gsx = "JSX-शैली के टेम्पलेट, जो Go में कंपाइल होते हैं"
@@ -147,11 +147,11 @@ htmx = "अनुरोध, boost, morph, OOB स्वैप"
 hx_live = "क्लाइंट-साइड स्टेट (htmx 4 एक्सटेंशन)"
 hx_ws = "WebSockets पर लाइव बोर्ड (htmx 4 एक्सटेंशन)"
 workers_go = "Cloudflare Workers पर Go"
-tinygo = "Worker को wasm में कंपाइल करता है"
+vite = "ब्राउज़र की फ़ाइलें बंडल करता है"
 d1 = "बोर्ड डेटा का प्रामाणिक स्रोत"
 durable_objects = "हर टॉपिक के लिए एक Room, हाइबरनेट होने वाले WebSockets"
-tailwind = "स्टैंडअलोन CLI, npm के बिना"
-mise = "हर टूल का वर्ज़न पिन करता है"
+tailwind = "Vite से कंपाइल होता है"
+wrangler = "Worker को चलाता और डिप्लॉय करता है"
 
 [formats]
 title = "फ़ॉर्मैट"

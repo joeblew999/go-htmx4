@@ -14,8 +14,8 @@ toggle_theme = "Cambiar tema"
 
 [home]
 heading = "Go + htmx 4 + gsxui en Cloudflare Workers"
-intro = "Componentes gsx renderizados en el servidor, htmx 4 para las peticiones, hx-live para el estado local, D1 y Durable Objects para actualizaciones en vivo. Go compilado con TinyGo. Sin Node ni bundler."
-description = "Componentes gsx renderizados en el servidor con htmx 4, hx-live, D1 y Durable Objects para actualizaciones en vivo. Go compilado con TinyGo. Sin Node."
+intro = "Componentes gsx renderizados en el servidor, htmx 4 para las peticiones, hx-live para el estado local, D1 y Durable Objects para actualizaciones en vivo. Go compilado a WebAssembly, en Cloudflare Workers."
+description = "Componentes gsx renderizados en el servidor con htmx 4, hx-live, D1 y Durable Objects para actualizaciones en vivo. Go como WebAssembly en Cloudflare Workers."
 served_by = "Servido por"
 env = "env"
 
@@ -137,8 +137,8 @@ legend_you = "Dónde dice tu navegador que estás"
 title = "Acerca de"
 heading = "Acerca de go-htmx4"
 stack = "Stack"
-stack_description = "Todas las versiones están fijadas en mise.toml. Nada aquí necesita Node."
-description = "La pila tecnológica de go-htmx4: Go con gsx y gsxui, htmx 4, TinyGo, y Cloudflare Workers con D1 y Durable Objects."
+stack_description = "Todas las versiones están fijadas en go.mod y package-lock.json. Un equipo solo necesita Go y Node."
+description = "La pila tecnológica de go-htmx4: Go con gsx y gsxui, htmx 4, Vite, y Cloudflare Workers con D1 y Durable Objects."
 
 [about.roles]
 gsx = "plantillas estilo JSX compiladas a Go"
@@ -147,11 +147,11 @@ htmx = "peticiones, boost, morph, swaps OOB"
 hx_live = "estado en el cliente (extensión de htmx 4)"
 hx_ws = "tablero en vivo mediante WebSockets (extensión de htmx 4)"
 workers_go = "Go en Cloudflare Workers"
-tinygo = "compila el Worker a wasm"
+vite = "empaqueta los archivos del navegador"
 d1 = "fuente de verdad del tablero"
 durable_objects = "un Room por tema, WebSockets en hibernación"
-tailwind = "CLI independiente, sin npm"
-mise = "fija la versión de cada herramienta"
+tailwind = "compilado por Vite"
+wrangler = "ejecuta y despliega el Worker"
 
 [formats]
 title = "Formatos"

@@ -14,8 +14,8 @@ toggle_theme = "Changer de thème"
 
 [home]
 heading = "Go + htmx 4 + gsxui sur Cloudflare Workers"
-intro = "Composants gsx rendus côté serveur, htmx 4 pour les requêtes, hx-live pour l'état local, D1 et Durable Objects pour les mises à jour en direct. Go compilé avec TinyGo. Sans Node, sans bundler."
-description = "Composants gsx rendus côté serveur avec htmx 4, hx-live, D1 et Durable Objects pour le temps réel. Go compilé avec TinyGo. Sans Node ni bundler."
+intro = "Composants gsx rendus côté serveur, htmx 4 pour les requêtes, hx-live pour l'état local, D1 et Durable Objects pour les mises à jour en direct. Go compilé en WebAssembly, sur Cloudflare Workers."
+description = "Composants gsx rendus côté serveur avec htmx 4, hx-live, D1 et Durable Objects pour le temps réel. Go compilé en WebAssembly, sur Cloudflare Workers."
 served_by = "Servi par"
 env = "env"
 
@@ -138,8 +138,8 @@ legend_you = "Là où votre navigateur dit que vous êtes"
 title = "À propos"
 heading = "À propos de go-htmx4"
 stack = "Stack"
-stack_description = "Toutes les versions sont fixées dans mise.toml. Rien ici ne nécessite Node."
-description = "La pile technique de go-htmx4\u00A0: Go avec gsx et gsxui, htmx 4, TinyGo, et Cloudflare Workers avec D1 et Durable Objects."
+stack_description = "Toutes les versions sont fixées dans go.mod et package-lock.json. Une machine n'a besoin que de Go et de Node."
+description = "La pile technique de go-htmx4\u00A0: Go avec gsx et gsxui, htmx 4, Vite, et Cloudflare Workers avec D1 et Durable Objects."
 
 [about.roles]
 gsx = "templates de style JSX compilés en Go"
@@ -148,11 +148,11 @@ htmx = "requêtes, boost, morph, swaps OOB"
 hx_live = "état côté client (extension htmx 4)"
 hx_ws = "tableau en direct via WebSockets (extension htmx 4)"
 workers_go = "Go sur Cloudflare Workers"
-tinygo = "compile le Worker en wasm"
+vite = "regroupe les fichiers du navigateur"
 d1 = "source de vérité du tableau"
 durable_objects = "un Room par sujet, WebSockets en hibernation"
-tailwind = "CLI autonome, sans npm"
-mise = "fixe la version de chaque outil"
+tailwind = "compilé par Vite"
+wrangler = "exécute et déploie le Worker"
 
 [formats]
 title = "Formats"
