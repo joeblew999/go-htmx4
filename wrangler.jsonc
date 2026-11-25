@@ -11,7 +11,7 @@
   "assets": { "directory": "dist" },
   "dev": { "port": 8913 },
   // The board: D1 is the source of truth. A new migration is a new idempotent file in migrations/.
-  "d1_databases": [{ "binding": "DB", "database_name": "go-htmx4", "database_id": "TODO", "migrations_dir": "migrations" }],
+  "d1_databases": [{ "binding": "DB", "database_name": "go-htmx4-preview", "database_id": "f14d09b3-da47-41dd-89fd-cf2433046c80", "migrations_dir": "migrations" }],
   // One Room per topic fans the board out over hibernated WebSockets (worker/room.mjs).
   "durable_objects": { "bindings": [{ "name": "ROOM", "class_name": "Room" }] },
   "migrations": [{ "tag": "v1", "new_sqlite_classes": ["Room"] }],
@@ -26,7 +26,7 @@
       "name": "go-htmx4",
       "routes": [{ "pattern": "go-htmx4.ubuntusoftware.net", "custom_domain": true }],
       "vars": { "APP_ENV": "cloudflare", "APP_DOMAIN": "go-htmx4.ubuntusoftware.net", "NOMINATIM_URL": "https://nominatim.openstreetmap.org" },
-      "d1_databases": [{ "binding": "DB", "database_name": "go-htmx4", "database_id": "TODO", "migrations_dir": "migrations" }],
+      "d1_databases": [{ "binding": "DB", "database_name": "go-htmx4", "database_id": "0c38453f-e34d-452a-8c73-f53a95b8deaf", "migrations_dir": "migrations" }],
       "durable_objects": { "bindings": [{ "name": "ROOM", "class_name": "Room" }] },
       "ratelimits": [{ "name": "WRITES", "namespace_id": "1001", "simple": { "limit": 60, "period": 10 } }]
     },
@@ -34,7 +34,7 @@
     "staging": {
       "name": "go-htmx4-staging",
       "vars": { "APP_ENV": "staging", "APP_PREVIEW": "1", "NOMINATIM_URL": "https://nominatim.openstreetmap.org" },
-      "d1_databases": [{ "binding": "DB", "database_name": "go-htmx4-staging", "database_id": "TODO", "migrations_dir": "migrations" }],
+      "d1_databases": [{ "binding": "DB", "database_name": "go-htmx4-staging", "database_id": "4f30f6ef-c2c4-47c0-b0ba-29e08a18a772", "migrations_dir": "migrations" }],
       "durable_objects": { "bindings": [{ "name": "ROOM", "class_name": "Room" }] },
       "ratelimits": [{ "name": "WRITES", "namespace_id": "1001", "simple": { "limit": 60, "period": 10 } }]
     }
