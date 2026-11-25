@@ -6,7 +6,7 @@ import (
 	"context"
 
 	"github.com/jackielii/structpages"
-	"github.com/joeblew999/charter/site/intl"
+	"github.com/joeblew999/charter/intl"
 )
 
 // URL is page's route from structpages' tree (views.Pages), with its query when that makes a different page (a board

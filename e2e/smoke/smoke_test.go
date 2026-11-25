@@ -20,7 +20,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/joeblew999/charter/site/seo/audit"
+	"github.com/joeblew999/charter/seo/audit"
 	"github.com/joeblew999/go-htmx4/e2e/load"
 )
 

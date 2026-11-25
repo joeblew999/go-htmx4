@@ -15,9 +15,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/joeblew999/charter/cf/transport"
-	"github.com/joeblew999/charter/site/intl"
-	"github.com/joeblew999/charter/site/intl/config"
+	"github.com/joeblew999/charter/intl"
+	"github.com/joeblew999/charter/intl/config"
+	"github.com/joeblew999/charter/transport"
 	"github.com/joeblew999/go-htmx4/locales"
 	nethtml "golang.org/x/net/html"
 )

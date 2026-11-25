@@ -4,15 +4,15 @@ class_merger = "github.com/joeblew999/go-htmx4/internal/classmerge.Merge"
 # gsx's htmx preset knows hx-action; add htmx 4's hx-ws:connect, which also carries a URL.
 url_presets = ["htmx"]
 # intl as gsx filters: { t |> date(opts) }, { n |> number }, { t |> since }, title={ m |> text }.
-filter_packages = ["github.com/joeblew999/charter/site/gsxintl/filters"]
+filter_packages = ["github.com/joeblew999/charter/gsxintl/filters"]
 
 # gsxui components write their own text ("Close", "Notifications") as ui/i18n.T; translate it from the catalogs.
 [renderers]
 "github.com/joeblew999/go-htmx4/ui/i18n.T" = "github.com/joeblew999/go-htmx4/ui/i18n.Translate"
 # intl: an Intl call or a translated message written in markup renders in the request's language.
-"github.com/joeblew999/charter/site/intl.Value" = "github.com/joeblew999/charter/site/gsxintl.Render"
-"github.com/joeblew999/charter/site/intl.Msg" = "github.com/joeblew999/charter/site/intl.Translate"
-"github.com/joeblew999/charter/site/intl.Plain" = "github.com/joeblew999/charter/site/intl.PlainText"
+"github.com/joeblew999/charter/intl.Value" = "github.com/joeblew999/charter/gsxintl.Render"
+"github.com/joeblew999/charter/intl.Msg" = "github.com/joeblew999/charter/intl.Translate"
+"github.com/joeblew999/charter/intl.Plain" = "github.com/joeblew999/charter/intl.PlainText"
 
 # A page's link is its route in structpages' tree (views.Pages), in the request's language: { About{} |> url }.
 # Named filters win over filter_packages (intl's url takes a page with a Path; ours read the tree). id and target are

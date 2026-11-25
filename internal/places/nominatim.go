@@ -11,7 +11,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/joeblew999/charter/cf/bindings"
+	"github.com/joeblew999/charter/bindings"
 )
 
 // Query is a localized Nominatim search constrained to one address level.

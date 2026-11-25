@@ -15,8 +15,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/joeblew999/charter/cf/d1"
-	"github.com/joeblew999/charter/site/intl"
+	"github.com/joeblew999/charter/d1"
+	"github.com/joeblew999/charter/intl"
 	"github.com/joeblew999/go-htmx4/internal/live"
 	"github.com/joeblew999/go-htmx4/locales"
 )

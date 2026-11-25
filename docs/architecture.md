@@ -13,7 +13,7 @@
   built by Vite into `dist/`, hashed, and served by Workers Static Assets before the Worker runs. The Go embeds
   Vite's manifest and names the files through `views/assets`.
 - **Bindings** (D1, the Room Durable Object, the write limit, variables) are `wrangler.jsonc`'s. The Go reaches them
-  through charter (`cf/bindings`, `cf/d1`, `cf/hub`), each with a stand-in off Workers, so the same `database/sql`
+  through charter (`bindings`, `d1`, `hub`), each with a stand-in off Workers, so the same `database/sql`
   code runs everywhere.
 
 ## The shared board
@@ -39,7 +39,7 @@ browser ─ hx-post /board/add|note ─────▶ worker/index.mjs ─▶ G
 
 ## Languages
 
-Intl is the one source of language, through [charter](https://github.com/joeblew999/charter)'s `site/intl`. Views
+Intl is the one source of language, through [charter](https://github.com/joeblew999/charter)'s `intl`. Views
 write messages as typed values (`{ locales.NavHome }`, `{ locales.BoardNotes(n) }`) and Intl calls as gsx filters
 (`{ t |> date(opts) }`, `{ n |> number }`), rendered by the renderers in `gsx.toml`. Every message (ICU MessageFormat,
 plural forms by `Intl.PluralRules`), every value and every locale fact is formatted by the runtime's V8 Intl: on the

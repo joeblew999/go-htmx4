@@ -49,7 +49,7 @@ README's scores table (`go tool charter seo badges`), `patches/` (`npx patch-pac
 
 ## Languages
 
-- **Intl is the one source of language** (charter's `site/intl`). Messages, plurals, numbers, dates and direction
+- **Intl is the one source of language** (charter's `intl`). Messages, plurals, numbers, dates and direction
   come from the runtime's Intl; Go never decides them. A test package that renders or formats has
   `func TestMain(m *testing.M) { os.Exit(intltest.Main(m)) }`.
 - No literal reader-facing text in `views/` or handlers: a message in `locales/en.toml`, written `{ locales.Key }` or

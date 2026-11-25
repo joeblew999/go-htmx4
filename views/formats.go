@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/joeblew999/charter/site/intl"
+	"github.com/joeblew999/charter/intl"
 	"github.com/joeblew999/go-htmx4/locales"
 )
 

@@ -3,10 +3,10 @@ package app
 import (
 	"net/http"
 
-	"github.com/joeblew999/charter/cf/bindings"
-	"github.com/joeblew999/charter/site/intl"
-	"github.com/joeblew999/charter/site/seo"
-	"github.com/joeblew999/charter/site/web"
+	"github.com/joeblew999/charter/bindings"
+	"github.com/joeblew999/charter/intl"
+	"github.com/joeblew999/charter/seo"
+	"github.com/joeblew999/charter/web"
 	"github.com/joeblew999/go-htmx4/views"
 )
 

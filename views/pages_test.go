@@ -6,7 +6,7 @@ import (
 	"slices"
 	"testing"
 
-	"github.com/joeblew999/charter/site/intl"
+	"github.com/joeblew999/charter/intl"
 	_ "github.com/joeblew999/go-htmx4/locales" // the app's languages, for the locale prefix
 	"github.com/joeblew999/go-htmx4/views"
 )

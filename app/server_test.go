@@ -12,7 +12,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/joeblew999/charter/site/intl/intltest"
+	"github.com/joeblew999/charter/intl/intltest"
 	nethtml "golang.org/x/net/html"
 )
 

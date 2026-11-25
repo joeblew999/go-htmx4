@@ -5,9 +5,9 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/joeblew999/charter/cf/bindings"
-	"github.com/joeblew999/charter/cf/hub"
-	"github.com/joeblew999/charter/cf/transport"
+	"github.com/joeblew999/charter/bindings"
+	"github.com/joeblew999/charter/hub"
+	"github.com/joeblew999/charter/transport"
 	"github.com/joeblew999/go-htmx4/internal/live"
 	"github.com/joeblew999/go-htmx4/views"
 )

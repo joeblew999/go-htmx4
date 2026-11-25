@@ -7,7 +7,7 @@ toolchain go1.27.3
 require (
 	github.com/chromedp/cdproto v0.160.9
 	github.com/chromedp/chromedp v0.24.0
-	github.com/joeblew999/charter v0.25.2
+	github.com/joeblew999/charter v0.26.0
 	golang.org/x/net v0.63.0
 )
 

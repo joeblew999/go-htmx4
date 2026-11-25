@@ -18,9 +18,9 @@ import (
 	"strings"
 	"unicode/utf8"
 
-	"github.com/joeblew999/charter/cf/bindings"
-	"github.com/joeblew999/charter/site/intl"
-	"github.com/joeblew999/charter/site/web"
+	"github.com/joeblew999/charter/bindings"
+	"github.com/joeblew999/charter/intl"
+	"github.com/joeblew999/charter/web"
 	"github.com/joeblew999/go-htmx4/internal/live"
 	"github.com/joeblew999/go-htmx4/locales"
 	"github.com/joeblew999/go-htmx4/views"
