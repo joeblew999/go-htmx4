@@ -80,14 +80,14 @@ committed), the
 (`mise run docs:commands`), the other `docs/badges/` and the README's `<!-- seo:scores -->` table (`mise run seo:badges`,
 after a release; committed), what `gsxui` manages (`gsxui.json` lists it), and intl's screens in `views/intl/`
 (`go tool intl add`; committed): change `intl/ui/<screen>.gsx.tmpl`, then `go tool intl add -overwrite <screen>`
-(`TestIntlScreens` checks the demo's copies are intl's), gsxkit's components in `views/gsxkit/` and `web/gsxkit/`
-(`mise run gsxkit:add`; committed), and their bundles in `gsxkit/ui/assets/` (`mise run gsxkit:bundle`; committed).
+(`TestIntlScreens` checks the demo's copies are intl's), the blocks' components in `views/blocks/` and `web/blocks/`
+(`mise run blocks:add`; committed), and their bundles in `blocks/ui/assets/` (`mise run blocks:bundle`; committed).
 
 ## UI: gsx, gsxui, htmx 4
 
 - **Nothing hand-written in the GUI.** Every visual piece is a gsxui component (`gsxui add <name>` at the repo root,
   never copied by hand), the gsxui theme/preset, or a pattern from gsxui's own site (https://ui.gsxhq.dev; cite it).
-  No custom CSS files (a library's own stylesheet that a gsxkit component bundles from npm, Leaflet's for the map,
+  No custom CSS files (a library's own stylesheet that a blocks component bundles from npm, Leaflet's for the map,
   isn't a look of ours: `TestGsxuiFiles` allows exactly those). The look is gsxui's standard nova theme (gsxui's default), so everyone runs and tests the same
   base; change it only with `mise run gsxui:theme <style|share code>` (gsxui's theme editor gives codes). After moving gsxui's pin, `gsxui init --overwrite --preset gsxui.preset.json` refreshes its CSS, and
   `gsxui add --overwrite` its components. `TestGsxuiFiles` fails on a hand edit to anything gsxui wrote.
@@ -130,9 +130,9 @@ after a release; committed), what `gsxui` manages (`gsxui.json` lists it), and i
   smell finder. Write what the `gsx` skill says, not what older code does.
 - Every in-app `href`/`hx-*`/`src` URL comes from the page tree through the `url` filter, in the reader's language:
   a page's, `href={ pages.About{} |> url }`, and a route's, `hx-post={ GreetAction{} |> url }`. Never a path as a
-  string: `structpages-lint` (gsxkit's `structpages:lint`, in `test:go`) fails on one. Its exceptions carry a
+  string: `structpages-lint` (the blocks' `structpages:lint`, in `test:go`) fails on one. Its exceptions carry a
   `structpages:lint:ignore url-attr` directive with their reason above it: static files (`/static/`, `/assets/`,
-  `/gsxui/`, `/gsxkit/`) and intl's preferences routes, which intl's screens name for any gsx app. Locale URLs, cookies and preferences are `intl.Site`, search engines `seo.Site`, both in `app/site.go`.
+  `/gsxui/`, `/blocks/`) and intl's preferences routes, which intl's screens name for any gsx app. Locale URLs, cookies and preferences are `intl.Site`, search engines `seo.Site`, both in `app/site.go`.
   Logical Tailwind classes only (`ms-`, `pe-`, `start-`, `text-end`, …) so RTL mirrors (`TestLogicalClasses`).
 - Dates and numbers for readers go through Intl, never `time.Format` or `strconv`: intl's gsx filters in markup,
   `{ t |> date(opts) }`, `{ t |> since }`, `{ n |> number(opts) }`, `{ d |> duration }`, `{ v |> intl(api, method,
@@ -173,17 +173,17 @@ after a release; committed), what `gsxui` manages (`gsxui.json` lists it), and i
   platform and `go test` runs the real SQL. A test sets `request.cf` with `transport.WithCF`. workers-go's
   `fetch.NewIncomingProperties` panics under charter's runtime.
 - JS only in `worker/index.mjs` (entry), `worker/room.mjs` (Durable Object), `intl/js/` (Intl, and what Go calls of
-  it), and `gsxkit/js/<component>/` (a gsxkit component's glue to the npm library it wraps: the map's to Leaflet, the
+  it), and `blocks/js/<component>/` (a blocks component's glue to the npm library it wraps: the map's to Leaflet, the
   live video's to @moq's elements, #156, #164; what the browser does can't be Go). The glue only sets `data-*` state,
   wires the component's buttons and hands Leaflet or @moq what the markup rendered (pins, popups) or the connection
   details' machine values; every label stays in the gsx. Patches to the bundled npm packages are that folder's
   `npm-patches.json`, each with its reason. Keep it logic-free; logic stays in Go. The topic and locale rules are
   `internal/live`'s (`TestWorkerJSMatchesLive`).
-- **gsxkit is our registry of components gsxui doesn't have** (`gsxkit/ui`: a map, live video). A component is a gsx
-  template made of gsxui components, its text in every language (`gsxkit/ui/locales`, `[gsxkit.<component>]`) and its
-  bundled browser files; `go tool gsxkit add <component>` copies all three into an app (intl's `intl/registry`, as
-  `go tool intl add` copies intl's screens). Change a component in `gsxkit/`, never in `views/gsxkit` or `web/gsxkit`
-  (`TestGsxkitComponents`): `mise run gsxkit:add` copies it again.
+- **blocks is our registry of components gsxui doesn't have** (`blocks/ui`: a map, live video). A component is a gsx
+  template made of gsxui components, its text in every language (`blocks/ui/locales`, `[blocks.<component>]`) and its
+  bundled browser files; `go tool blocks add <component>` copies all three into an app (intl's `intl/registry`, as
+  `go tool intl add` copies intl's screens). Change a component in `blocks/`, never in `views/blocks` or `web/blocks`
+  (`TestBlocksComponents`): `mise run blocks:add` copies it again.
 
 ## Cloudflare: outward-facing
 

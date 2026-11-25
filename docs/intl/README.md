@@ -288,8 +288,8 @@ app already has keeps its text.
 
 `add` is a registry any module can use for components of its own: `gsxintl/registry` copies gsx templates made of
 gsxui components, with their translated text and the browser files they load, into an app. intl's screens are one
-registry (`gsxintl/screens`); [gsxkit](https://github.com/joeblew999/go-htmx4/blob/main/gsxkit/README.md#components)'s
-components (a map, live video) are another, added with `go tool gsxkit add`.
+registry (`gsxintl/screens`); [blocks](https://github.com/joeblew999/go-htmx4/blob/main/blocks/README.md#components)'s
+components (a map, live video) are another, added with `go tool blocks add`.
 
 The dialog loads its form from two routes, which the app serves:
 

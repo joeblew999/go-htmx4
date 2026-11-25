@@ -30,18 +30,18 @@ rm -rf "$tgz" "$tmp"
 echo "✓ htmx $version: web/htmx/htmx.min.js, web/htmx/hx-ws.js, web/htmx/hx-live.js"
 '''
 
-# The map's and the live video's browser files (#164): each component's glue (views/gsxkit/js/<component>/<component>.mjs)
+# The map's and the live video's browser files (#164): each component's glue (views/blocks/js/<component>/<component>.mjs)
 # and the npm packages its npm-lock.json pins, bundled by internal/jsbundle (npm's registry over HTTP, esbuild's Go
-# API: no Node) into web/gsxkit, served at /gsxkit/. Skipped when none of its inputs changed; the bundles are committed,
+# API: no Node) into web/blocks, served at /blocks/. Skipped when none of its inputs changed; the bundles are committed,
 # like htmx. @moq stays at what Cloudflare's relays speak until they ship draft-18 (#158).
 ["js:bundle"]
-description = "Bundle the map's Leaflet and the live video's @moq elements, each with its glue, from the npm packages each npm-lock.json pins, into web/gsxkit (no Node)"
+description = "Bundle the map's Leaflet and the live video's @moq elements, each with its glue, from the npm packages each npm-lock.json pins, into web/blocks (no Node)"
 dir = "{{config_root}}"
-sources = ["views/gsxkit/js/**/*", "internal/jsbundle/*.go"]
-outputs = ["web/gsxkit/map.js", "web/gsxkit/map.css", "web/gsxkit/moq.js"]
+sources = ["views/blocks/js/**/*", "internal/jsbundle/*.go"]
+outputs = ["web/blocks/map.js", "web/blocks/map.css", "web/blocks/moq.js"]
 run = [
-  "go run ./internal/jsbundle -entry views/gsxkit/js/map/map.mjs -out web/gsxkit/map.js -lock views/gsxkit/js/map/npm-lock.json -external /gsxui/gsxui.js",
-  "go run ./internal/jsbundle -entry views/gsxkit/js/moq/moq.mjs -out web/gsxkit/moq.js -lock views/gsxkit/js/moq/npm-lock.json -patches views/gsxkit/js/moq/npm-patches.json -external /gsxui/gsxui.js",
+  "go run ./internal/jsbundle -entry views/blocks/js/map/map.mjs -out web/blocks/map.js -lock views/blocks/js/map/npm-lock.json -external /gsxui/gsxui.js",
+  "go run ./internal/jsbundle -entry views/blocks/js/moq/moq.mjs -out web/blocks/moq.js -lock views/blocks/js/moq/npm-lock.json -patches views/blocks/js/moq/npm-patches.json -external /gsxui/gsxui.js",
 ]
 
 ["js:update"]
@@ -51,7 +51,7 @@ usage = '''
 arg "<component>" help="map or moq"
 arg "<packages>" var=#true help="name@version of each package to resolve"
 '''
-run = 'go run ./internal/jsbundle -entry views/gsxkit/js/${usage_component}/${usage_component}.mjs -out web/gsxkit/${usage_component}.js -lock views/gsxkit/js/${usage_component}/npm-lock.json $(test -f views/gsxkit/js/${usage_component}/npm-patches.json && echo -patches views/gsxkit/js/${usage_component}/npm-patches.json) -external /gsxui/gsxui.js -update ${usage_packages}'
+run = 'go run ./internal/jsbundle -entry views/blocks/js/${usage_component}/${usage_component}.mjs -out web/blocks/${usage_component}.js -lock views/blocks/js/${usage_component}/npm-lock.json $(test -f views/blocks/js/${usage_component}/npm-patches.json && echo -patches views/blocks/js/${usage_component}/npm-patches.json) -external /gsxui/gsxui.js -update ${usage_packages}'
 
 # Every pin against upstream, and moving them all (#169): internal/deps, with deps.toml's holds. update moves gsx, gsxui
 # and structpages first, then every other pin, tidies every module, writes everything generated
@@ -120,7 +120,7 @@ description = "Lighthouse on every page and the audit, then the README's badges 
 run = "fnox exec -- mise-seo badges"
 
 # The Static Assets directory: /static/ = web/htmx/ (htmx, hx-ws) and intl's browser module, /gsxui/ = web/gsxui/
-# behaviours, /gsxkit/ = web/gsxkit/ (the map's and the live video's browser files), /assets/ = gsxui's compiled CSS (gsxui:css)
+# behaviours, /blocks/ = web/blocks/ (the map's and the live video's browser files), /assets/ = gsxui's compiled CSS (gsxui:css)
 # + fonts (fonts.css url()s are relative).
 ["assets"]
 description = "Assemble dist/site, the Static Assets for workerd and deploy: htmx, intl's browser module, gsxui's behaviours, the map's and the live video's browser files, CSS and fonts"
@@ -136,10 +136,10 @@ mkdir -p dist/site/static dist/site/gsxui dist/site/assets
 # htmx.min.js goes in exactly as htmx ships it: minifying it again gained nothing and, through tdewolff/minify#1057,
 # dropped its morph's text updates, so boosted navigation mixed pages (#168). The extensions are minified here.
 { cat web/htmx/htmx.min.js; echo ";"; for f in hx-live.js hx-ws.js; do go tool minify -q --type=js "web/htmx/$f"; echo ";"; done; } >dist/site/static/htmx.js
-# the map's and the live video's browser files (/gsxkit/: the map's Leaflet, the live video's @moq elements), each loaded only by
+# the map's and the live video's browser files (/blocks/: the map's Leaflet, the live video's @moq elements), each loaded only by
 # a page with that component on it.
-mkdir -p dist/site/gsxkit
-cp -R web/gsxkit/. dist/site/gsxkit/
+mkdir -p dist/site/blocks
+cp -R web/blocks/. dist/site/blocks/
 # The site's icon (<link rel="icon"> in the layout, which browsers and Google read).
 cp web/favicon.svg dist/site/static/
 # The browser's half of intl, with the same intl.mjs the Worker runs (/static/intl-browser.mjs).

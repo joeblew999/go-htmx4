@@ -123,7 +123,7 @@ no_stream_description = "किसी का भेजा लिंक खोल
 title = "मैप"
 heading = "मैप"
 description = "gsx में OpenStreetMap पर एक Leaflet मैप, gsxui के बटन और पिन के साथ, उस जगह के आसपास जहाँ Cloudflare आपके अनुरोध को रखता है।"
-intro = "gsxkit का मैप कंपोनेंट: OpenStreetMap पर Leaflet, जिसके पिन, पॉपअप और बटन gsx और gsxui से बने हैं। यह वहाँ खुलता है जहाँ Cloudflare इस अनुरोध को रखता है; लोकेशन बटन वह जगह जोड़ता है जहाँ आपका ब्राउज़र कहता है कि आप हैं।"
+intro = "एक मैप कंपोनेंट: OpenStreetMap पर Leaflet, जिसके पिन, पॉपअप और बटन gsx और gsxui से बने हैं। यह वहाँ खुलता है जहाँ Cloudflare इस अनुरोध को रखता है; लोकेशन बटन वह जगह जोड़ता है जहाँ आपका ब्राउज़र कहता है कि आप हैं।"
 where_title = "आप कहाँ हैं"
 where_found = "Cloudflare इस अनुरोध के IP पते से इसे {place} के पास रखता है।"
 where_unknown = "Cloudflare ने इस अनुरोध के साथ कोई जगह नहीं भेजी (लोकल रन में नहीं भेजी जाती)। लोकेशन बटन इसके बजाय आपके ब्राउज़र से पूछता है।"
@@ -416,7 +416,7 @@ hour_cycle_auto = "भाषा का डिफ़ॉल्ट ({example})"
 save = "सेव करें"
 close = "बंद करें"
 
-[gsxkit.map]
+[blocks.map]
 zoom_in = "ज़ूम इन करें"
 zoom_out = "ज़ूम आउट करें"
 locate = "मेरी लोकेशन दिखाएँ"
@@ -425,7 +425,7 @@ unavailable = "आपकी लोकेशन उपलब्ध नहीं �
 you = "आप यहाँ हैं"
 attribution = "© OpenStreetMap योगदानकर्ता"
 
-[gsxkit.moq]
+[blocks.moq]
 watch_title = "देखें"
 watch_description = "वह प्रसारण जिसका नाम आपके खोले गए लिंक में है।"
 broadcast_title = "प्रसारण"
@@ -460,7 +460,7 @@ share_link = "शेयर करें"
 keep_open = "लाइव रहते हुए यह पेज खुला रखें: फ़ोन पर किसी दूसरे ऐप पर जाने या स्क्रीन लॉक करने से प्रसारण तब तक रुका रहता है जब तक आप वापस नहीं आते।"
 details = "कनेक्शन का विवरण"
 
-[gsxkit.places]
+[blocks.places]
 country = "देश"
 region = "क्षेत्र या राज्य"
 city = "शहर या कस्बा"

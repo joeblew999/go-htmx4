@@ -122,8 +122,8 @@ no_stream_description = "開啟別人傳給你的連結來觀看他們的直播�
 [map]
 title = "地圖"
 heading = "地圖"
-description = "以 gsx 在 OpenStreetMap 上建構的 Leaflet 地圖，搭配 gsxui 的按鈕和圖釘，以 Cloudflare 判斷的請求位置為中心。一個 gsxkit 元件。"
-intro = "gsxkit 的地圖元件：OpenStreetMap 上的 Leaflet，圖釘、彈出視窗和按鈕都以 gsx 和 gsxui 構成。地圖會在 Cloudflare 判斷的此請求位置開啟；位置按鈕會加上瀏覽器提供的你的位置。"
+description = "以 gsx 在 OpenStreetMap 上建構的 Leaflet 地圖，搭配 gsxui 的按鈕和圖釘，以 Cloudflare 判斷的請求位置為中心。"
+intro = "地圖元件：OpenStreetMap 上的 Leaflet，圖釘、彈出視窗和按鈕都以 gsx 和 gsxui 構成。地圖會在 Cloudflare 判斷的此請求位置開啟；位置按鈕會加上瀏覽器提供的你的位置。"
 where_title = "你在哪裡"
 where_found = "Cloudflare 根據 IP 位址判斷此請求來自 {place} 附近。"
 where_unknown = "Cloudflare 沒有隨此請求傳送位置（本機執行不會傳送）。位置按鈕會改為詢問你的瀏覽器。"
@@ -416,7 +416,7 @@ hour_cycle_auto = "語言預設（{example}）"
 save = "儲存"
 close = "關閉"
 
-[gsxkit.map]
+[blocks.map]
 zoom_in = "放大"
 zoom_out = "縮小"
 locate = "顯示我的位置"
@@ -425,7 +425,7 @@ unavailable = "無法取得你的位置。"
 you = "你在這裡"
 attribution = "© OpenStreetMap 貢獻者"
 
-[gsxkit.moq]
+[blocks.moq]
 watch_title = "觀看"
 watch_description = "你開啟的連結所指的直播。"
 broadcast_title = "直播"
@@ -460,7 +460,7 @@ share_link = "分享"
 keep_open = "直播期間請保持此頁面開啟：在手機上切換到其他應用程式或鎖定螢幕會暫停直播，直到你回來。"
 details = "連線詳細資料"
 
-[gsxkit.places]
+[blocks.places]
 country = "國家／地區"
 region = "區域或州"
 city = "城市或鄉鎮"

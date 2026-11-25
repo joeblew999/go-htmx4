@@ -378,7 +378,7 @@ Claude Code translates what's left, a worker per language, with the intl skill
 
 - **Usage:** `js:bundle`
 
-Bundle the map's Leaflet and the live video's @moq elements, each with its glue, from the npm packages each npm-lock.json pins, into web/gsxkit (no Node)
+Bundle the map's Leaflet and the live video's @moq elements, each with its glue, from the npm packages each npm-lock.json pins, into web/blocks (no Node)
 
 ### `js:update`
 

@@ -1,4 +1,4 @@
-package gsxkit
+package blocks
 
 import (
 	"github.com/gsxhq/gsx"
@@ -10,7 +10,7 @@ import (
 
 // A map: Leaflet (https://leafletjs.com) over OpenStreetMap's tiles, with markers whose pins and popups are gsx, and
 // zoom and the reader's own location as gsxui buttons. Leaflet and the glue between it and this markup are
-// /gsxkit/map.js and /gsxkit/map.css (gsxkit's js/map, bundled from npm with no Node). A page reached by a boosted
+// /blocks/map.js and /blocks/map.css (the blocks' js/map, bundled from npm with no Node). A page reached by a boosted
 // navigation draws its maps too.
 //
 // Every label is rendered here, translated; map.js only sets the map's data-locate (idle, locating, found, denied,
@@ -22,7 +22,7 @@ import (
 // attribution the map shows and for light use (https://operations.osmfoundation.org/policies/tiles/): a busy site
 // takes its tiles from a provider of its own (change tiles below).
 //
-// From go tool gsxkit add map: the app's own now, to change as it likes.
+// From go tool blocks add map: the app's own now, to change as it likes.
 
 // LatLng is a place: its latitude and longitude, in degrees.
 type LatLng [2]float64
@@ -49,7 +49,7 @@ component Map(center LatLng, zoom int, label intl.Msg, locate bool, children gsx
 		}
 		data-map=js`{"center": @{center}, "zoom": @{zoom}, "tiles": @{tiles}, "maxZoom": @{maxZoom}}`
 		data-locate="idle"
-		id="gsxkit-map"
+		id="blocks-map"
 		{ attrs... }
 	>
 		// The map itself, drawn by Leaflet: never mirrored, whatever the page's direction.
@@ -59,8 +59,8 @@ component Map(center LatLng, zoom int, label intl.Msg, locate bool, children gsx
 				<ui.Button
 					variant="outline"
 					size="icon-sm"
-					aria-label={locales.GsxkitMapZoomIn}
-					title={locales.GsxkitMapZoomIn}
+					aria-label={locales.BlocksMapZoomIn}
+					title={locales.BlocksMapZoomIn}
 					data-map-action="zoom-in"
 				>
 					<icon.Plus/>
@@ -68,8 +68,8 @@ component Map(center LatLng, zoom int, label intl.Msg, locate bool, children gsx
 				<ui.Button
 					variant="outline"
 					size="icon-sm"
-					aria-label={locales.GsxkitMapZoomOut}
-					title={locales.GsxkitMapZoomOut}
+					aria-label={locales.BlocksMapZoomOut}
+					title={locales.BlocksMapZoomOut}
 					data-map-action="zoom-out"
 				>
 					<icon.Minus/>
@@ -79,8 +79,8 @@ component Map(center LatLng, zoom int, label intl.Msg, locate bool, children gsx
 				<ui.Button
 					variant="outline"
 					size="icon-sm"
-					aria-label={locales.GsxkitMapLocate}
-					title={locales.GsxkitMapLocate}
+					aria-label={locales.BlocksMapLocate}
+					title={locales.BlocksMapLocate}
 					data-map-action="locate"
 				>
 					<icon.LocateFixed class="group-data-[locate=locating]/map:hidden"/>
@@ -90,26 +90,26 @@ component Map(center LatLng, zoom int, label intl.Msg, locate bool, children gsx
 		</div>
 		{ if locate {
 			<ui.Alert class="absolute inset-x-2 bottom-8 z-1000 hidden w-auto group-data-[locate=denied]/map:grid">
-				<ui.AlertDescription>{ locales.GsxkitMapDenied }</ui.AlertDescription>
+				<ui.AlertDescription>{ locales.BlocksMapDenied }</ui.AlertDescription>
 			</ui.Alert>
 			<ui.Alert class="absolute inset-x-2 bottom-8 z-1000 hidden w-auto group-data-[locate=unavailable]/map:grid">
-				<ui.AlertDescription>{ locales.GsxkitMapUnavailable }</ui.AlertDescription>
+				<ui.AlertDescription>{ locales.BlocksMapUnavailable }</ui.AlertDescription>
 			</ui.Alert>
-			<MapMarker you={true} title={locales.GsxkitMapYou |> text} tone="you">
-				<p class="font-medium">{ locales.GsxkitMapYou }</p>
+			<MapMarker you={true} title={locales.BlocksMapYou |> text} tone="you">
+				<p class="font-medium">{ locales.BlocksMapYou }</p>
 			</MapMarker>
 		} }
 		<a
 			href="https://www.openstreetmap.org/copyright"
 			class="absolute bottom-0 end-0 z-1000 rounded-ss-md bg-background/80 px-1.5 py-0.5 text-xs text-muted-foreground hover:underline"
 		>
-			{ locales.GsxkitMapAttribution }
+			{ locales.BlocksMapAttribution }
 		</a>
 		{ children }
-		// The component's own files, served from web/gsxkit: static files, not routes.
+		// The component's own files, served from web/blocks: static files, not routes.
 		// structpages:lint:ignore url-attr
-		<link rel="stylesheet" href="/gsxkit/map.css"/>
-		<script type="module" src="/gsxkit/map.js"></script>
+		<link rel="stylesheet" href="/blocks/map.css"/>
+		<script type="module" src="/blocks/map.js"></script>
 	</div>
 }
 

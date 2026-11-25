@@ -39,7 +39,7 @@ func withCSP(next http.Handler) http.Handler {
 	})
 }
 
-// mapTiles is where the map page's tiles come from: OpenStreetMap's tile server (gsxkit's map, #164).
+// mapTiles is where the map page's tiles come from: OpenStreetMap's tile server (the blocks' map, #164).
 const mapTiles = "https://tile.openstreetmap.org"
 
 // moqRelays is where the live video page connects: Cloudflare's MoQ relays (#156).

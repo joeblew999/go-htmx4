@@ -122,8 +122,8 @@ no_stream_description = "פתחו קישור שמישהו שלח לכם כדי �
 [map]
 title = "מפה"
 heading = "מפה"
-description = "מפת Leaflet ב-gsx מעל OpenStreetMap, עם כפתורים וסיכות של gsxui, סביב המקום שבו Cloudflare ממקמת את הבקשה שלכם. רכיב של gsxkit."
-intro = "רכיב המפה של gsxkit: מפת Leaflet מעל OpenStreetMap, עם סיכות, חלונות קופצים וכפתורים מ-gsx ומ-gsxui. היא נפתחת במקום שבו Cloudflare ממקמת את הבקשה הזו, וכפתור המיקום מוסיף את המקום שבו הדפדפן אומר שאתם נמצאים."
+description = "מפת Leaflet ב-gsx מעל OpenStreetMap, עם כפתורים וסיכות של gsxui, סביב המקום שבו Cloudflare ממקמת את הבקשה שלכם."
+intro = "רכיב מפה: מפת Leaflet מעל OpenStreetMap, עם סיכות, חלונות קופצים וכפתורים מ-gsx ומ-gsxui. היא נפתחת במקום שבו Cloudflare ממקמת את הבקשה הזו, וכפתור המיקום מוסיף את המקום שבו הדפדפן אומר שאתם נמצאים."
 where_title = "איפה אתם"
 where_found = "לפי כתובת ה-IP של הבקשה הזו, Cloudflare ממקמת אותה ליד {place}."
 where_unknown = "לא נשלח מיקום מ-Cloudflare עם הבקשה הזו (בהרצה מקומית הוא לא נשלח). כפתור המיקום שואל את הדפדפן במקום זאת."
@@ -416,7 +416,7 @@ hour_cycle_auto = "ברירת המחדל של השפה ({example})"
 save = "שמירה"
 close = "סגירה"
 
-[gsxkit.map]
+[blocks.map]
 zoom_in = "התקרבות"
 zoom_out = "התרחקות"
 locate = "הצגת המיקום שלי"
@@ -425,7 +425,7 @@ unavailable = "המיקום שלכם אינו זמין."
 you = "אתם כאן"
 attribution = "© התורמים של OpenStreetMap"
 
-[gsxkit.moq]
+[blocks.moq]
 watch_title = "צפייה"
 watch_description = "השידור שהקישור שפתחתם מצביע עליו."
 broadcast_title = "שידור"
@@ -460,7 +460,7 @@ share_link = "שיתוף"
 keep_open = "השאירו את הדף הזה פתוח כל עוד אתם בשידור: בטלפון, מעבר לאפליקציה אחרת או נעילת המסך משהים את השידור עד שתחזרו."
 details = "פרטי החיבור"
 
-[gsxkit.places]
+[blocks.places]
 country = "מדינה"
 region = "אזור או מחוז"
 city = "עיר או יישוב"

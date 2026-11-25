@@ -8,7 +8,7 @@ import (
 	"sync"
 
 	"github.com/jackielii/structpages"
-	"github.com/joeblew999/go-htmx4/views/gsxkit"
+	"github.com/joeblew999/go-htmx4/views/blocks"
 	"github.com/joeblew999/mise-intl/intl"
 )
 
@@ -85,7 +85,7 @@ func (l Live) Query() string {
 // Noindex: a stream's page is one person's broadcast for as long as it lasts.
 func (l Live) Noindex() bool { return l.Stream != "" }
 
-// Map is gsxkit's map component (#164): where Cloudflare places the request, and the reader's own location on request.
+// Map is the blocks' map component (#164): where Cloudflare places the request, and the reader's own location on request.
 type Map struct{}
 
 // About is the stack.
@@ -111,9 +111,9 @@ type App interface {
 type MapProps struct {
 	// Found is whether Cloudflare sent a place with the request (a local run doesn't); At is it.
 	Found bool
-	At    gsxkit.LatLng
+	At    blocks.LatLng
 	// Center and Zoom are where the map opens: around At, else the whole world.
-	Center gsxkit.LatLng
+	Center blocks.LatLng
 	Zoom   int
 	// Place is the place's name (its town, else its region, else its country's code); Country its country (ISO
 	// 3166-1, "DE"); Colo the Cloudflare data center the request came through ("MUC"), "" when unknown.

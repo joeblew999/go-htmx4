@@ -75,7 +75,7 @@ func (s *server) routes() http.Handler {
 		panic(err) // the page tree is code: every test catches a mistake in it
 	}
 	// The static files (dist/site): Workers' Static Assets answer them before the Worker runs; these are for off it.
-	for _, prefix := range []string{"/static/", "/gsxui/", "/gsxkit/", "/assets/"} {
+	for _, prefix := range []string{"/static/", "/gsxui/", "/blocks/", "/assets/"} {
 		mux.Handle(prefix, staticFiles())
 	}
 	mux.HandleFunc("/healthz", func(w http.ResponseWriter, r *http.Request) {

@@ -44,7 +44,7 @@ func TestGsxuiFiles(t *testing.T) {
 		t.Fatal(err)
 	}
 	// Leaflet's own stylesheet, which the map's bundle step writes (mise run js:bundle).
-	bundled := map[string]bool{"web/gsxkit/map.css": true}
+	bundled := map[string]bool{"web/blocks/map.css": true}
 	for _, path := range strings.Fields(string(out)) {
 		if _, ok := cfg.Managed[path]; !ok && !bundled[path] {
 			t.Errorf("%s: the only CSS is gsxui's (gsxui.json's managed files)", path)

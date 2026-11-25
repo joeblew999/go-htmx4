@@ -124,7 +124,7 @@ no_stream_description = "Ouvrez un lien qu’on vous a envoyé pour regarder sa 
 title = "Carte"
 heading = "Carte"
 description = "Une carte Leaflet en gsx sur OpenStreetMap, avec les boutons et repères de gsxui, autour de l’endroit où Cloudflare situe votre requête."
-intro = "Le composant carte de gsxkit : Leaflet sur OpenStreetMap, avec des repères, des fenêtres et des boutons faits de gsx et gsxui. Elle s’ouvre là où Cloudflare situe cette requête ; le bouton de position ajoute l’endroit où votre navigateur dit que vous êtes."
+intro = "Un composant carte : Leaflet sur OpenStreetMap, avec des repères, des fenêtres et des boutons faits de gsx et gsxui. Elle s’ouvre là où Cloudflare situe cette requête ; le bouton de position ajoute l’endroit où votre navigateur dit que vous êtes."
 where_title = "Où vous êtes"
 where_found = "Cloudflare situe cette requête près de {place}, d’après son adresse IP."
 where_unknown = "Cloudflare n’a envoyé aucun lieu avec cette requête (une exécution locale n’en envoie pas). Le bouton de position interroge plutôt votre navigateur."
@@ -417,7 +417,7 @@ hour_cycle_auto = "Selon la langue ({example})"
 save = "Enregistrer"
 close = "Fermer"
 
-[gsxkit.map]
+[blocks.map]
 zoom_in = "Zoom avant"
 zoom_out = "Zoom arrière"
 locate = "Afficher ma position"
@@ -426,7 +426,7 @@ unavailable = "Votre position n’est pas disponible."
 you = "Vous êtes ici"
 attribution = "© les contributeurs d’OpenStreetMap"
 
-[gsxkit.moq]
+[blocks.moq]
 watch_title = "Regarder"
 watch_description = "La diffusion que nomme le lien que vous avez ouvert."
 broadcast_title = "Diffuser"
@@ -461,7 +461,7 @@ share_link = "Partager"
 keep_open = "Gardez cette page ouverte pendant votre direct : sur un téléphone, changer d’application ou verrouiller l’écran met la diffusion en pause jusqu’à votre retour."
 details = "Détails de la connexion"
 
-[gsxkit.places]
+[blocks.places]
 country = "Pays"
 region = "Région ou État"
 city = "Ville ou commune"

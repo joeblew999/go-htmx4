@@ -4,7 +4,7 @@
 // API) does the bundling. What was resolved is kept in a lock file next to the entry, so a bundle is rebuilt from the
 // same packages until the lock is updated on purpose:
 //
-//	go run ./internal/jsbundle -entry gsxkit/js/moq/moq.mjs -out gsxkit/ui/assets/moq.js -lock gsxkit/js/moq/npm-lock.json [-update @moq/watch@0.6.6 @moq/publish@0.5.3]
+//	go run ./internal/jsbundle -entry blocks/js/moq/moq.mjs -out blocks/ui/assets/moq.js -lock blocks/js/moq/npm-lock.json [-update @moq/watch@0.6.6 @moq/publish@0.5.3]
 //
 // Without -update it installs exactly what the lock names. With -update it resolves the named packages and their
 // dependencies afresh (the highest published version each range allows) and rewrites the lock.

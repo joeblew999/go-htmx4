@@ -64,7 +64,7 @@ func appRoot() (string, error) {
 	return filepath.Dir(mod), nil
 }
 
-// skillModules are the projects whose own agent skills gsxkit copies, each from its repository's skills/: gsx's (gsx,
+// skillModules are the projects whose own agent skills blocks copies, each from its repository's skills/: gsx's (gsx,
 // templ-to-gsx-migration), structpages' and gsxui's (gsxui, since gsxhq/gsxui#58).
 var skillModules = []string{"github.com/gsxhq/gsx", "github.com/jackielii/structpages", "github.com/gsxhq/gsxui"}
 

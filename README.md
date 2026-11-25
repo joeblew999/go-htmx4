@@ -30,7 +30,7 @@ your own ([Start your own app](#start-your-own-app)):
 - **A live shared board** (`/board`): Go writes to D1, a Durable Object per topic pushes every change to every open
   tab over WebSockets, with presence.
 - **Live video** (`/live`) from a browser camera over Media over QUIC through Cloudflare's relays, and **a map**
-  (`/map`) on Leaflet and OpenStreetMap: [gsxkit](gsxkit/README.md#components)'s components, which any gsx app adds
+  (`/map`) on Leaflet and OpenStreetMap: [blocks](blocks/README.md#components)'s components, which any gsx app adds
   with one command.
 - **Search-ready:** canonical URLs, `hreflang`, a sitemap and Open Graph on every page, audited live as Googlebot.
 
@@ -115,13 +115,13 @@ mkdir my-app && cd my-app && git init -q && go mod init github.com/you/my-app
 mise use github:joeblew999/charter  # the charter command, pinned in mise.toml
 go get github.com/joeblew999/charter@latest   # its library, at the same version
 go get -tool github.com/gsxhq/gsx/cmd/gsx github.com/joeblew999/go-htmx4/intl/cmd/intl \
-  github.com/joeblew999/go-htmx4/gsxkit/cmd/gsxkit
+  github.com/joeblew999/go-htmx4/blocks/cmd/blocks
 gsxui init                        # gsxui's theme and components, npm-free (https://ui.gsxhq.dev)
-go tool gsxkit tasks && go tool gsxkit skill   # gsx's, gsxui's and structpages' tasks, and the skills they ship
+go tool blocks tasks && go tool blocks skill   # gsx's, gsxui's and structpages' tasks, and the skills they ship
 charter init                      # charter.toml: the Worker on Cloudflare, local workerd, deploys; charter's files
 go tool intl init -locales en,de  # intl.toml, the catalogs, intl's tasks and skill
 go tool intl add language-list language-offer preferences   # intl's screens, already translated
-go tool gsxkit add map moq        # gsxkit's components: a map, live video (when the app wants them)
+go tool blocks add map moq        # the blocks' components: a map, live video (when the app wants them)
 mise exec "github:joeblew999/mise-seo[minimum_release_age=0s]@latest" -- mise-seo init --site https://my-app.example.com   # seo.toml, mise-seo's tasks and skill
 ```
 
@@ -137,16 +137,16 @@ charter:deploy production`. This repo's own previews, staging and releases: [doc
 | --- | --- |
 | `main.go` | the entry point: `transport.Run(app.Handler())` |
 | `app/` | the server (`server.go`: routes), the board (`board.go`, its stores), the app on the web (`site.go`: its languages, `intl.Site`, and search engines, `seo.Site`, with the sitemap's pages), what it takes from Cloudflare (`platform.go`, through charter's bindings, the same off Workers); each file's tests beside it |
-| `views/` | pages and fragments in gsx; the page tree (`pages.go`, [structpages](https://github.com/jackielii/structpages)); a page's data in a `.go` file beside it; `views/intl/`, intl's screens, written by `go tool intl add`; `views/gsxkit/`, gsxkit's components (the map, live video), written by `go tool gsxkit add` |
+| `views/` | pages and fragments in gsx; the page tree (`pages.go`, [structpages](https://github.com/jackielii/structpages)); a page's data in a `.go` file beside it; `views/intl/`, intl's screens, written by `go tool intl add`; `views/blocks/`, the blocks' components (the map, live video), written by `go tool blocks add` |
 | `ui/`, `web/gsxui/` | gsxui components and their behaviours, vendored by `gsxui add`: never edited by hand |
-| `web/gsxkit/` | gsxkit's components' browser files (Leaflet, @moq's elements, each with its glue), written by `go tool gsxkit add` |
+| `web/blocks/` | the blocks' components' browser files (Leaflet, @moq's elements, each with its glue), written by `go tool blocks add` |
 | `web/htmx/` | htmx 4, hx-ws and hx-live, vendored by `mise run vendor` |
 | `locales/` | the messages: one catalog per language (`en.toml` is the source) and `intl.sum` |
 | `intl/`, `intl.toml` | Intl for gsx apps, its own Go module ([intl/README.md](intl/README.md)); this app's languages |
 | `seo.toml`, `docs/seo/` | search engines, with [mise-seo](https://github.com/joeblew999/mise-seo) (`mise-seo init` writes its tasks, skill, workflow and [docs/seo/README.md](docs/seo/README.md)): the middleware, the audit, Lighthouse, Search Console; this app's settings |
-| `gsxkit/` | gsx's, gsxui's and structpages' mise tasks and the skills they ship, and our registry of components gsxui doesn't have (a map, live video), for any app, its own Go module ([gsxkit/README.md](gsxkit/README.md)) |
+| `blocks/` | gsx's, gsxui's and structpages' mise tasks and the skills they ship, and our registry of components gsxui doesn't have (a map, live video), for any app, its own Go module ([blocks/README.md](blocks/README.md)) |
 | `badge/` | the README badges intl draws (SVG, no service), a tiny module of its own |
-| `internal/` | live (the board's message to the Room, topic and locale rules), classmerge (gsx's class merger, cached), jsbundle (npm packages bundled with esbuild's Go API, no Node: gsxkit's components' browser files) |
+| `internal/` | live (the board's message to the Room, topic and locale rules), classmerge (gsx's class merger, cached), jsbundle (npm packages bundled with esbuild's Go API, no Node: the blocks' components' browser files) |
 | `worker/`, `charter.toml` | the deployed JavaScript (the Worker's entry and the board's Durable Object), and everything about the Worker on Cloudflare, from which the `charter` command deploys it and runs it on local workerd |
 | `migrations/` | D1's schema |
 | `e2e/` | the checks against a running server, its own Go module: `smoke/` over HTTP (`mise run smoke`), browser tests (`mise run e2e`), `load/` with 1,000 WebSockets (`mise run load`) |

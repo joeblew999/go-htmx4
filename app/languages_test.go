@@ -130,7 +130,7 @@ var urlAttr = regexp.MustCompile(`\s(href|hx-get|hx-post|hx-put|hx-patch|hx-dele
 // language list to carry that locale's prefix.
 func TestLocalizedURLs(t *testing.T) {
 	h := newServer().routes()
-	shared := []string{"/static/", "/assets/", "/gsxui/", "/gsxkit/", "/live/"}
+	shared := []string{"/static/", "/assets/", "/gsxui/", "/blocks/", "/live/"}
 	for _, ld := range locales.Shipped[1:] {
 		prefix := intl.Prefix(ld)
 		for _, page := range []string{"/", "/about", "/formats", "/board", "/live", "/map"} {

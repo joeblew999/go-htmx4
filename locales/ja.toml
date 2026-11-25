@@ -124,7 +124,7 @@ no_stream_description = "送られてきたリンクを開いて配信を視聴�
 title = "地図"
 heading = "地図"
 description = "gsx で作った OpenStreetMap 上の Leaflet 地図です。gsxui のボタンとピンを使い、Cloudflare が推定したリクエストの場所を表示します。"
-intro = "gsxkit の地図コンポーネントです。OpenStreetMap 上の Leaflet に、gsx と gsxui で作ったピン、ポップアップ、ボタンを載せています。Cloudflare が推定したこのリクエストの場所で開き、現在地ボタンでブラウザーが示すあなたの位置を追加します。"
+intro = "地図コンポーネントです。OpenStreetMap 上の Leaflet に、gsx と gsxui で作ったピン、ポップアップ、ボタンを載せています。Cloudflare が推定したこのリクエストの場所で開き、現在地ボタンでブラウザーが示すあなたの位置を追加します。"
 where_title = "あなたの場所"
 where_found = "Cloudflare は IP アドレスから、このリクエストを {place} 付近からのものと推定しています。"
 where_unknown = "Cloudflare はこのリクエストに場所を付けていません（ローカル実行では付きません）。代わりに現在地ボタンでブラウザーに尋ねます。"
@@ -417,7 +417,7 @@ hour_cycle_auto = "言語の既定（{example}）"
 save = "保存"
 close = "閉じる"
 
-[gsxkit.map]
+[blocks.map]
 zoom_in = "拡大"
 zoom_out = "縮小"
 locate = "現在地を表示"
@@ -426,7 +426,7 @@ unavailable = "現在地を取得できません。"
 you = "現在地"
 attribution = "© OpenStreetMap 貢献者"
 
-[gsxkit.moq]
+[blocks.moq]
 watch_title = "視聴"
 watch_description = "開いたリンクが示す配信です。"
 broadcast_title = "配信"
@@ -461,7 +461,7 @@ share_link = "共有"
 keep_open = "配信中はこのページを開いたままにしてください。スマートフォンでは、ほかのアプリに切り替えたり画面をロックしたりすると、戻るまで配信が一時停止します。"
 details = "接続の詳細"
 
-[gsxkit.places]
+[blocks.places]
 country = "国"
 region = "地域または都道府県"
 city = "市区町村"

@@ -267,11 +267,11 @@ func chrome(root string, holds deps.Holds, update bool) (deps.Change, bool) {
 	return c, true
 }
 
-// npmLocks are the npm packages each component bundles (views/gsxkit/js/<component>/npm-lock.json's roots) that npm
+// npmLocks are the npm packages each component bundles (views/blocks/js/<component>/npm-lock.json's roots) that npm
 // has a newer release of; update re-resolves the component's lock with them (mise run js:update).
 func npmLocks(root string, holds deps.Holds, update bool) []deps.Change {
 	var out []deps.Change
-	locks, _ := filepath.Glob(filepath.Join(root, "views", "gsxkit", "js", "*", "npm-lock.json"))
+	locks, _ := filepath.Glob(filepath.Join(root, "views", "blocks", "js", "*", "npm-lock.json"))
 	for _, lock := range locks {
 		var l struct{ Roots []string }
 		b, err := os.ReadFile(lock)

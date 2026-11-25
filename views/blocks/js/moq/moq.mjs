@@ -1,6 +1,6 @@
-// /gsxkit/moq.js: @moq's <moq-watch> and <moq-publish> elements (bundled by internal/jsbundle from npm-lock.json, with
-// npm-patches.json applied: mise run gsxkit:bundle), and the glue between them and the markup of gsxkit's moq
-// component (gsxkit/ui/moq.gsx.tmpl), which go tool gsxkit add copies into an app (#156, #164).
+// /blocks/moq.js: @moq's <moq-watch> and <moq-publish> elements (bundled by internal/jsbundle from npm-lock.json, with
+// npm-patches.json applied: mise run blocks:bundle), and the glue between them and the markup of the blocks' moq
+// component (blocks/ui/moq.gsx.tmpl), which go tool blocks add copies into an app (#156, #164).
 //
 // The glue only reads the elements' signals and writes data-* attributes on the components' sections; every label is
 // already in the page, translated, and Tailwind's group-data variants show the one that applies. It decides no text,

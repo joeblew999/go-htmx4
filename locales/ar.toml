@@ -122,8 +122,8 @@ no_stream_description = "افتح رابطًا أرسله إليك أحدهم ل
 [map]
 title = "خريطة"
 heading = "خريطة"
-description = "خريطة Leaflet في gsx فوق OpenStreetMap، بأزرار ودبابيس gsxui، حول المكان الذي تحدده Cloudflare لطلبك. أحد مكونات gsxkit."
-intro = "مكون الخريطة في gsxkit: Leaflet فوق OpenStreetMap، بدبابيس ونوافذ منبثقة وأزرار مصنوعة من gsx وgsxui. تُفتح حيث تحدد Cloudflare موقع هذا الطلب، ويضيف زر الموقع المكان الذي يقول متصفحك إنك فيه."
+description = "خريطة Leaflet في gsx فوق OpenStreetMap، بأزرار ودبابيس gsxui، حول المكان الذي تحدده Cloudflare لطلبك."
+intro = "مكون خريطة: Leaflet فوق OpenStreetMap، بدبابيس ونوافذ منبثقة وأزرار مصنوعة من gsx وgsxui. تُفتح حيث تحدد Cloudflare موقع هذا الطلب، ويضيف زر الموقع المكان الذي يقول متصفحك إنك فيه."
 where_title = "أين أنت"
 where_found = "تحدد Cloudflare موقع هذا الطلب بالقرب من {place}، اعتمادًا على عنوان IP الخاص به."
 where_unknown = "لم ترسل Cloudflare أي موقع مع هذا الطلب (التشغيل المحلي لا يرسله). يسأل زر الموقع متصفحك بدلًا من ذلك."
@@ -416,7 +416,7 @@ hour_cycle_auto = "الافتراضي للغة ({example})"
 save = "حفظ"
 close = "إغلاق"
 
-[gsxkit.map]
+[blocks.map]
 zoom_in = "تكبير"
 zoom_out = "تصغير"
 locate = "إظهار موقعي"
@@ -425,7 +425,7 @@ unavailable = "موقعك غير متاح."
 you = "أنت هنا"
 attribution = "© مساهمو OpenStreetMap"
 
-[gsxkit.moq]
+[blocks.moq]
 watch_title = "المشاهدة"
 watch_description = "البث الذي يشير إليه الرابط الذي فتحته."
 broadcast_title = "البث"
@@ -460,7 +460,7 @@ share_link = "مشاركة"
 keep_open = "أبقِ هذه الصفحة مفتوحة ما دمت على الهواء: على الهاتف، يؤدي الانتقال إلى تطبيق آخر أو قفل الشاشة إلى إيقاف البث مؤقتًا حتى تعود."
 details = "تفاصيل الاتصال"
 
-[gsxkit.places]
+[blocks.places]
 country = "البلد"
 region = "المنطقة أو الولاية"
 city = "المدينة أو البلدة"
