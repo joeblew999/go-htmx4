@@ -1,50 +1,19 @@
-# Binaries
-*.exe
-*.test
-*.out
-
+# Generated: charter build writes them
+*.x.go
+intl_gen.go
+intl-messages.mjs
+intl-workerd/
+/web/intl/
+/build/
+/dist/
+/xliff/
+# Installed, and local state
+node_modules/
+/.wrangler/
+/.wrangler.*
+.dev.vars
 # Editor / OS
 .idea/
 .DS_Store
-
-# gsx generated code (gsx Getting started: do not edit or commit)
-*.x.go
-# go tool intl gen output (mise run intl)
-intl_gen.go
-intl_messages_gen.go
-intl-messages.mjs
-# The Worker's build (mise run build: charter build)
-/build/
-# held while charter build writes build/
-/.build.lock
-# charter's own binary, built by CI (charter ci run) to publish and release
-/bin/
-# Tailwind output + assembled Static Assets (mise run assets)
-/dist/
-# Last deployed URL (mise run deploy)
-/.deploy-url
-/.preview-url
-/.staging-url
-# a Workers Build that a newer commit superseded (charter's launcher, .mise/tasks/charter-builds)
-/.superseded
-
-# intl is a library other modules import: its renderer package is committed generated (gsx Package renderers)
-!/intl/*.x.go
-# go tool intl export: XLIFF for human translators (mise run intl:export / intl:import)
-/xliff/
-# This app on local upstream checkouts (mise run upstream:use; never committed): the workspace, the CLI built from a
-# gsxui checkout, and which projects are in use.
-/go.work
-/go.work.sum
-/.upstream/
-/.upstream-use
-# mise's override for one machine, never committed
-.mise/config.local.toml
-# Installed packages
-node_modules/
-intl-workerd/
-# intl's browser module (npm run generate)
-/web/intl/
-# wrangler's local state
-/.wrangler/
-/.wrangler.*
+*.test
+*.out

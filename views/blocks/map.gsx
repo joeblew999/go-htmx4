@@ -6,7 +6,7 @@ import (
 	"github.com/joeblew999/go-htmx4/ui"
 	"github.com/joeblew999/go-htmx4/views/assets"
 	"github.com/joeblew999/go-htmx4/ui/icon"
-	"github.com/joeblew999/mise-intl/intl"
+	"github.com/joeblew999/charter/site/intl"
 )
 
 // A map: Leaflet (https://leafletjs.com) over OpenStreetMap's tiles, with markers whose pins and popups are gsx, and

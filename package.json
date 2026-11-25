@@ -4,11 +4,12 @@
   "type": "module",
   "scripts": {
     "postinstall": "patch-package",
-    "dev": "go tool gsx dev",
-    "generate": "go tool mise-intl gen && go tool mise-intl assets -browser web/intl && go tool gsx generate",
-    "build": "npm run generate && vite build && go tool charter build -compiler=go && go tool mise-intl assets -worker build",
-    "preview": "wrangler d1 migrations apply DB --local && wrangler dev",
-    "deploy": "wrangler deploy --env production"
+    "dev": "go tool charter dev",
+    "build": "go tool charter build",
+    "preview": "go tool charter preview",
+    "check": "go tool charter check",
+    "e2e": "go tool charter test e2e",
+    "deploy": "go tool charter deploy production"
   },
   "dependencies": {
     "@moq/publish": "0.5.3",

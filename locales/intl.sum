@@ -1,4 +1,4 @@
-# intl.sum: the source text each translation was made from (mise-intl gen writes it: commit it, don't edit it).
+# intl.sum: the source text each translation was made from (charter intl gen writes it: commit it, don't edit it).
 de about.description 060f0b961364 03c2290ff13e
 de about.heading 9e55eb165728 c04217502490
 de about.roles.d1 e0ef2900b712 6b411bf26a37

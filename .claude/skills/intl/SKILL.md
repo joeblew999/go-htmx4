@@ -1,6 +1,6 @@
 ---
 name: intl
-description: Use when writing or translating what a reader of a Go app sees (gsx or not), with github.com/joeblew999/mise-intl/intl — adding or changing text (messages in the source catalog), writing them, dates, numbers and other formats in markup, after `gsxui add`, when `mise-intl status` or `check` reports missing or stale translations, when adding a language, or when asked to translate or review translations.
+description: Use when writing or translating what a reader of a Go app sees (gsx or not), with github.com/joeblew999/charter/site/intl — adding or changing text (messages in the source catalog), writing them, dates, numbers and other formats in markup, after `gsxui add`, when `mise-intl status` or `check` reports missing or stale translations, when adding a language, or when asked to translate or review translations.
 ---
 
 # Text, formats and translations with intl
@@ -39,7 +39,7 @@ The app's languages are in `intl.toml` (the source locale first); each has a cat
 ICU MessageFormat. Run every command from the app's root. With mise, each is a task too, named for it
 (`mise run intl:gen` runs `mise-intl gen`; `mise run intl:show-help` lists them), and the repo's
 `docs/intl/README.md` has everything else. In a gsx app, the components, the renderer and the filters are
-`github.com/joeblew999/mise-intl/gsxintl`.
+`github.com/joeblew999/charter/site/gsxintl`.
 
 ### 1. See what to translate
 

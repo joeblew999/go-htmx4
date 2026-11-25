@@ -11,12 +11,12 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/joeblew999/charter/bindings"
-	"github.com/joeblew999/charter/d1"
+	"github.com/joeblew999/charter/cf/bindings"
+	"github.com/joeblew999/charter/cf/d1"
+	"github.com/joeblew999/charter/site/intl"
 	"github.com/joeblew999/go-htmx4/internal/places"
 	"github.com/joeblew999/go-htmx4/views"
 	"github.com/joeblew999/go-htmx4/views/blocks"
-	"github.com/joeblew999/mise-intl/intl"
 )
 
 const defaultNominatimURL = "https://nominatim.openstreetmap.org"

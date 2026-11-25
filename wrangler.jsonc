@@ -6,7 +6,7 @@
   "main": "worker/index.mjs",
   // Not newer than the workerd wrangler brings (package-lock.json).
   "compatibility_date": "2026-09-11",
-  "build": { "command": "npm run build" },
+  "build": { "command": "go tool charter build" },
   // Vite's output, served before the Worker runs.
   "assets": { "directory": "dist" },
   "dev": { "port": 8913 },

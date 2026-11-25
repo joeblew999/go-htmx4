@@ -16,10 +16,10 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/joeblew999/charter/site/intl"
+	"github.com/joeblew999/charter/site/seo"
 	"github.com/joeblew999/go-htmx4/locales"
 	"github.com/joeblew999/go-htmx4/views"
-	"github.com/joeblew999/mise-intl/intl"
-	"github.com/joeblew999/mise-seo/seo"
 	nethtml "golang.org/x/net/html"
 )
 

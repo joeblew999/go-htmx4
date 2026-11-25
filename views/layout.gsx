@@ -7,9 +7,9 @@ import (
 	"github.com/joeblew999/go-htmx4/views/assets"
 	"github.com/joeblew999/go-htmx4/ui/icon"
 	intlui "github.com/joeblew999/go-htmx4/views/intl"
-	"github.com/joeblew999/mise-intl/gsxintl"
-	"github.com/joeblew999/mise-intl/intl"
-	"github.com/joeblew999/mise-seo/gsxseo"
+	"github.com/joeblew999/charter/site/gsxintl"
+	"github.com/joeblew999/charter/site/intl"
+	"github.com/joeblew999/charter/site/gsxseo"
 )
 
 // Layout is the document shell, following gsxui's site layout: gsxui theme CSS, the theme toggle, a header of

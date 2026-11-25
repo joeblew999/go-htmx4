@@ -3,10 +3,10 @@ package app
 import (
 	"context"
 
+	"github.com/joeblew999/charter/site/intl"
+	"github.com/joeblew999/charter/site/seo"
 	"github.com/joeblew999/go-htmx4/locales"
 	"github.com/joeblew999/go-htmx4/views"
-	"github.com/joeblew999/mise-intl/intl"
-	"github.com/joeblew999/mise-seo/seo"
 )
 
 // repo is the app's repository on GitHub (charter.toml's repo, TestCharterToml): where llms.txt's docs are.
@@ -36,11 +36,9 @@ func llms(origin string) string {
 	raw := "https://raw.githubusercontent.com/" + repo + "/main/"
 	docs := []seo.LLMsLink{
 		{Title: "README", URL: raw + "README.md", Note: "what this is, what it is built on, and where things are"},
-		{Title: "intl", URL: "https://raw.githubusercontent.com/joeblew999/mise-intl/main/templates/docs/intl/README.md", Note: "every language of an app through the runtime's Intl (mise-intl)"},
-		{Title: "seo", URL: "https://raw.githubusercontent.com/joeblew999/mise-seo/main/templates/docs/seo/README.md", Note: "what Google and agents read, and the audit that checks it (mise-seo)"},
+		{Title: "charter", URL: "https://raw.githubusercontent.com/joeblew999/charter/main/README.md", Note: "Go on Cloudflare Workers with gsx, Vite and wrangler: languages, search engines, APIs from a contract"},
 		{Title: "Architecture", URL: raw + "docs/architecture.md", Note: "how the app works"},
 		{Title: "Deploy", URL: raw + "docs/deploy.md", Note: "how it ships to Cloudflare Workers"},
-		{Title: "Commands", URL: raw + "docs/commands.md", Note: "every mise task"},
 		{Title: "AGENTS.md", URL: raw + "AGENTS.md", Note: "the rules for agents working in the repository"},
 	}
 	return seo.LLMsTxt("go-htmx4", text(locales.HomeDescription), "",

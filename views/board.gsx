@@ -4,7 +4,7 @@ import (
 	"github.com/joeblew999/go-htmx4/locales"
 	"github.com/joeblew999/go-htmx4/ui"
 	"github.com/joeblew999/go-htmx4/ui/icon"
-	"github.com/joeblew999/mise-intl/intl"
+	"github.com/joeblew999/charter/site/intl"
 )
 
 // BoardPage is the shared board page, composed from gsxui components. With live (on Workers) it connects to

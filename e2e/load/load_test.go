@@ -21,13 +21,13 @@ var (
 	hold    = flag.Duration("hold", 0, "after the checks, keep the sockets open this long and report drops")
 )
 
-// TestLoad: the shared board at its design size on the server at LOAD_BASE (mise run load starts local workerd):
+// TestLoad: the shared board at its design size on the server at BASE (go tool charter test load runs it on wrangler dev):
 // 1,000 sockets spread over every shipped locale, each getting only its own locale's fragments; a burst of 50
 // concurrent writes, coalesced; and the Room refusing socket 1,001.
 func TestLoad(t *testing.T) {
-	base := os.Getenv("LOAD_BASE")
+	base := os.Getenv("BASE")
 	if base == "" {
-		t.Skip("LOAD_BASE is not set: mise run load")
+		t.Skip("BASE is not set: go tool charter test load")
 	}
 	locales := shippedLocales(t, base)
 	run := func(t *testing.T, o load.Options) load.Result {

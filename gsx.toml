@@ -3,16 +3,16 @@ class_merger = "github.com/joeblew999/go-htmx4/internal/classmerge.Merge"
 # gsx config for the app (gsx Configuration guide).
 # gsx's htmx preset knows hx-action; add htmx 4's hx-ws:connect, which also carries a URL.
 url_presets = ["htmx"]
-# intl as gsx filters (https://github.com/joeblew999/mise-intl/blob/main/templates/docs/intl/README.md): { t |> date(opts) }, { n |> number }, { t |> since }, title={ m |> text }.
-filter_packages = ["github.com/joeblew999/mise-intl/gsxintl/filters"]
+# intl as gsx filters: { t |> date(opts) }, { n |> number }, { t |> since }, title={ m |> text }.
+filter_packages = ["github.com/joeblew999/charter/site/gsxintl/filters"]
 
 # gsxui components write their own text ("Close", "Notifications") as ui/i18n.T; translate it from the catalogs.
 [renderers]
 "github.com/joeblew999/go-htmx4/ui/i18n.T" = "github.com/joeblew999/go-htmx4/ui/i18n.Translate"
-# intl (https://github.com/joeblew999/mise-intl/blob/main/templates/docs/intl/README.md): an Intl call or a translated message written in markup renders in the request's language.
-"github.com/joeblew999/mise-intl/intl.Value" = "github.com/joeblew999/mise-intl/gsxintl.Render"
-"github.com/joeblew999/mise-intl/intl.Msg" = "github.com/joeblew999/mise-intl/intl.Translate"
-"github.com/joeblew999/mise-intl/intl.Plain" = "github.com/joeblew999/mise-intl/intl.PlainText"
+# intl: an Intl call or a translated message written in markup renders in the request's language.
+"github.com/joeblew999/charter/site/intl.Value" = "github.com/joeblew999/charter/site/gsxintl.Render"
+"github.com/joeblew999/charter/site/intl.Msg" = "github.com/joeblew999/charter/site/intl.Translate"
+"github.com/joeblew999/charter/site/intl.Plain" = "github.com/joeblew999/charter/site/intl.PlainText"
 
 # A page's link is its route in structpages' tree (views.Pages), in the request's language: { About{} |> url }.
 # Named filters win over filter_packages (intl's url takes a page with a Path; ours read the tree). id and target are
@@ -24,16 +24,6 @@ target = "github.com/jackielii/structpages.IDTarget"
 
 [url_attrs]
 names = ["hx-ws:connect"]
-
-# gsx dev (gsx Configuration guide, [dev]): a .gsx/.go save regenerates, rebuilds, restarts the backend and probes
-# /healthz. mise run dev: build (seconds) → workerd on :8913 (Intl, Durable Objects, D1 shim, pushes);
-# the backend port comes from APP_DEV_PORT (gsx then leaves ports to us).
-[dev]
-no_web = true
-build = ["mise", "run", "build"]
-run = ["go", "tool", "charter", "serve"]
-upstream = "http://127.0.0.1:${APP_DEV_PORT}"
-health = "/healthz"
 
 # gsx's lints (gsx's Configuration guide, "Lints"), as errors: gsx generate, which every build, test and CI run calls,
 # fails on one instead of printing a warning nobody reads. go tool gsx info lists them and their levels.

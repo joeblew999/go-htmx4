@@ -1,10 +1,10 @@
 // Package smoke checks a running Worker over plain HTTP: every route, the TinyGo build, the server's Intl, locales,
 // SEO, the board through D1 and the Room, and live pushes. One list of checks for both places it runs:
 //
-//	mise run smoke          local workerd serving the production build (SMOKE_LOCAL=1: local-only checks too)
-//	SMOKE_BASE=$(cat .deploy-url) mise run smoke   the deployed Worker
+//	go tool charter check        wrangler dev serving the build (local-only checks too)
+//	go tool charter live-test    the deployed Worker
 //
-// SMOKE_BASE is the URL. go test runs the handlers on standard Go, which hides TinyGo runtime gaps; this runs the
+// BASE is the URL. go test runs the handlers on standard Go, which hides TinyGo runtime gaps; this runs the
 // real wasm.
 package smoke
 
@@ -20,15 +20,17 @@ import (
 	"testing"
 	"time"
 
+	"github.com/joeblew999/charter/site/seo/audit"
 	"github.com/joeblew999/go-htmx4/e2e/load"
-	"github.com/joeblew999/mise-seo/seo/audit"
 )
 
 var (
-	base  = strings.TrimSuffix(os.Getenv("SMOKE_BASE"), "/")
-	local = os.Getenv("SMOKE_LOCAL") == "1"
-	// compiler is the Go compiler the Worker was built with (mise.toml WORKER_COMPILER: go → "gc", the default, or tinygo).
-	compiler = map[string]string{"": "gc", "go": "gc", "tinygo": "tinygo"}[os.Getenv("WORKER_COMPILER")]
+	// BASE is the Worker's URL: charter check sets it (wrangler dev), and charter live-test (the deployed one).
+	base = strings.TrimSuffix(os.Getenv("BASE"), "/")
+	// local: wrangler dev on this machine, where the checks that write freely or read local values run too.
+	local = strings.Contains(base, "://127.0.0.1") || strings.Contains(base, "://localhost")
+	// compiler is the Go compiler the Worker is built with.
+	compiler = "gc"
 	// No redirects followed: some checks are about the redirect itself.
 	client = &http.Client{Timeout: 20 * time.Second, CheckRedirect: func(*http.Request, []*http.Request) error { return http.ErrUseLastResponse }}
 )
@@ -83,7 +85,7 @@ func has(t *testing.T, name, got, want string) {
 
 func TestMain(m *testing.M) {
 	if base == "" {
-		os.Stderr.WriteString("SMOKE_BASE is required (mise run smoke sets it)\n")
+		os.Stderr.WriteString("BASE is required: go tool charter check sets it\n")
 		os.Exit(2)
 	}
 	// A brand-new workers.dev hostname can take a little while to answer.
@@ -105,7 +107,7 @@ func TestPages(t *testing.T) {
 	// runtime.Compiler of the build being checked: "tinygo", or "gc" for WORKER_COMPILER=go.
 	has(t, "page runs on "+compiler+" wasm", page, `<span id="target" translate="no">`+compiler+` js/wasm</span>`)
 	if local {
-		has(t, "text binding APP_ENV", page, `<span id="env" translate="no">workerd (local)</span>`)
+		has(t, "text binding APP_ENV", page, `<span id="env" translate="no">wrangler dev (local)</span>`)
 	}
 	has(t, "home: boost + morph", page, `hx-boost:inherited="true"`)
 	has(t, "home: hx-live counter", page, `hx-on:click="data.count++"`)

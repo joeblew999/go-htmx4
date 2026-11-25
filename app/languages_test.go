@@ -15,10 +15,10 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/joeblew999/charter/transport"
+	"github.com/joeblew999/charter/cf/transport"
+	"github.com/joeblew999/charter/site/intl"
+	"github.com/joeblew999/charter/site/intl/config"
 	"github.com/joeblew999/go-htmx4/locales"
-	"github.com/joeblew999/mise-intl/intl"
-	"github.com/joeblew999/mise-intl/intl/config"
 	nethtml "golang.org/x/net/html"
 )
 
@@ -130,7 +130,7 @@ var urlAttr = regexp.MustCompile(`\s(href|hx-get|hx-post|hx-put|hx-patch|hx-dele
 // language list to carry that locale's prefix.
 func TestLocalizedURLs(t *testing.T) {
 	h := newServer().routes()
-	shared := []string{"/static/", "/assets/", "/gsxui/", "/blocks/", "/live/"}
+	shared := []string{"/assets/", "/__vite/", "/favicon.svg", "/live/"}
 	for _, ld := range locales.Shipped[1:] {
 		prefix := intl.Prefix(ld)
 		for _, page := range []string{"/", "/about", "/formats", "/board", "/live", "/map"} {
@@ -251,8 +251,9 @@ func TestNoteRelativeTime(t *testing.T) {
 	if m == nil || strings.HasSuffix(m[1], "UTC") {
 		t.Errorf("board page lacks the note's <time data-intl=since> worded by Intl: %q", m)
 	}
-	if !strings.Contains(page, `src="/static/intl-browser.mjs"`) {
-		t.Errorf("layout lacks intl-browser.mjs")
+	// The browser's Intl (web/intl/intl-browser.mjs) is part of web/main.js, which the layout loads.
+	if !strings.Contains(page, `src="/__vite/web/main.js"`) {
+		t.Errorf("layout lacks web/main.js")
 	}
 }
 

@@ -5,7 +5,7 @@ description: Use when a Go web app changes what Google reads (a new page, a titl
 
 # How Google sees the site
 
-`seo.Site`, middleware around the app (package `github.com/joeblew999/mise-seo/seo`), answers robots.txt, the sitemap
+`seo.Site`, middleware around the app (package `github.com/joeblew999/charter/site/seo`), answers robots.txt, the sitemap
 and llms.txt, marks what isn't a page noindex, and moves other hosts and plain http to the one https address; the app
 says which paths are pages. The rest of what Google reads is the app's own: canonical URLs and hreflang (with
 mise-intl, `gsxintl.Head` and `intl.Sitemap`), `<html lang>`, titles and descriptions (`gsxseo.Head` in a gsx app, the
@@ -25,7 +25,7 @@ mise run seo:audit --json --site http://localhost:8080   # a local build (mise r
 
 It fetches robots.txt, the sitemap and every URL in it as Googlebot, and needs no Google account. `ok: false` comes
 with `problems`, one line each, naming the URL. In a Go test, `audit.Audit(ctx, client, base)`
-(`github.com/joeblew999/mise-seo/seo/audit`) returns the same problems: the template's app audits itself in its test.
+(`github.com/joeblew999/charter/site/seo/audit`) returns the same problems: the template's app audits itself in its test.
 
 | Problem | Where the fix is |
 |---|---|

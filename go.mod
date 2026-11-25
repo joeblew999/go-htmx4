@@ -5,48 +5,39 @@ go 1.27.1
 toolchain go1.27.3
 
 require (
-	github.com/BurntSushi/toml v1.6.0
-	github.com/Masterminds/semver/v3 v3.5.0
-	github.com/evanw/esbuild v0.28.2
 	github.com/gsxhq/gsx v0.5.0
+	github.com/gsxhq/vite v0.3.2
 	github.com/jackielii/structpages v0.12.0
 	github.com/jackielii/tailwind-merge-go v0.0.0-20260726184505-8a911ed0cf9a
-	github.com/joeblew999/charter v0.24.0
-	github.com/joeblew999/mise-intl v0.1.16
-	github.com/joeblew999/mise-seo v0.0.2
-	golang.org/x/mod v0.43.0
+	github.com/joeblew999/charter v0.25.2
 	golang.org/x/net v0.63.0
 )
 
 require (
+	github.com/BurntSushi/toml v1.6.0 // indirect
 	github.com/a-h/parse v0.0.0-20250122154542-74294addb73e // indirect
 	github.com/a-h/templ v0.3.1020 // indirect
 	github.com/coder/websocket v1.8.15 // indirect
-	github.com/djherbis/atime v1.1.0 // indirect
 	github.com/dustin/go-humanize v1.1.0 // indirect
 	github.com/editorconfig/editorconfig-core-go/v2 v2.6.4 // indirect
 	github.com/fsnotify/fsnotify v1.10.1 // indirect
 	github.com/google/uuid v1.6.0 // indirect
-	github.com/gsxhq/vite v0.3.2 // indirect
 	github.com/jackielii/ctxkey v1.0.1 // indirect
 	github.com/jackielii/structpages/tools/lint v0.1.21 // indirect
-	github.com/jmoiron/sqlx v1.4.0 // indirect
-	github.com/joeblew999/mise-check v0.4.35 // indirect
 	github.com/mattn/go-isatty v0.0.24 // indirect
 	github.com/ncruces/go-strftime v1.1.0 // indirect
-	github.com/pelletier/go-toml v1.9.5 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
 	github.com/syumai/workers-go v0.36.0 // indirect
-	github.com/tdewolff/argp v0.0.0-20260913163208-9b59948ed567 // indirect
+	github.com/tailscale/hujson v0.0.0-20260727124030-b80ff77dac4f // indirect
 	github.com/tdewolff/minify/v2 v2.25.0 // indirect
 	github.com/tdewolff/parse/v2 v2.25.0 // indirect
 	golang.org/x/exp/typeparams v0.0.0-20260611194520-c48552f49976 // indirect
+	golang.org/x/mod v0.43.0 // indirect
 	golang.org/x/sync v0.24.0 // indirect
 	golang.org/x/sys v0.50.0 // indirect
 	golang.org/x/term v0.48.0 // indirect
 	golang.org/x/tools v0.52.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
-	gopkg.in/yaml.v3 v3.0.1 // indirect
 	modernc.org/libc v1.80.1 // indirect
 	modernc.org/mathutil v1.7.1 // indirect
 	modernc.org/memory v1.12.1 // indirect
@@ -57,7 +48,4 @@ tool (
 	github.com/gsxhq/gsx/cmd/gsx
 	github.com/jackielii/structpages/tools/lint/cmd/structpages-lint
 	github.com/joeblew999/charter/cmd/charter
-	github.com/joeblew999/mise-intl/cmd/mise-intl
-	github.com/joeblew999/mise-seo/cmd/mise-seo
-	github.com/tdewolff/minify/v2/cmd/minify
 )

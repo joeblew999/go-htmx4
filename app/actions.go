@@ -9,10 +9,10 @@ import (
 	"time"
 
 	"github.com/gsxhq/gsx"
-	"github.com/joeblew999/charter/web"
+	"github.com/joeblew999/charter/site/intl"
+	"github.com/joeblew999/charter/site/web"
 	"github.com/joeblew999/go-htmx4/locales"
 	"github.com/joeblew999/go-htmx4/views"
-	"github.com/joeblew999/mise-intl/intl"
 )
 
 // The routes the pages call (views/routes.go: in the page tree, so structpages routes each by its method and every

@@ -23,11 +23,12 @@ import (
 	"github.com/chromedp/chromedp"
 )
 
-var base = strings.TrimRight(os.Getenv("E2E_BASE"), "/")
+// BASE is the Worker's URL: go tool charter test e2e sets it (wrangler dev, or -base https://… for a deployed one).
+var base = strings.TrimRight(os.Getenv("BASE"), "/")
 
 func TestMain(m *testing.M) {
 	if base == "" {
-		fmt.Println("e2e: set E2E_BASE to the app's URL (mise run e2e does)")
+		fmt.Println("e2e: no BASE, the app's URL: go tool charter test e2e")
 		os.Exit(0)
 	}
 	os.Exit(m.Run())
@@ -65,9 +66,8 @@ func newTabWith(t *testing.T, name string, extra ...chromedp.ExecAllocatorOption
 	if os.Getenv("CI") != "" {
 		opts = append(opts, chromedp.NoSandbox)
 	}
-	// E2E_CHROME: the Chrome pinned in mise.toml (`mise run e2e` sets it), so every machine tests the same browser.
-	// Unset (plain `go test`), chromedp finds an installed Chrome.
-	if exe := os.Getenv("E2E_CHROME"); exe != "" {
+	// chromedp finds the machine's Chrome; CHROME names another.
+	if exe := os.Getenv("CHROME"); exe != "" {
 		opts = append(opts, chromedp.ExecPath(exe))
 	}
 	alloc, cancelAlloc := chromedp.NewExecAllocator(context.Background(), opts...)

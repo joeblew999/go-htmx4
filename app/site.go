@@ -3,11 +3,11 @@ package app
 import (
 	"net/http"
 
-	"github.com/joeblew999/charter/bindings"
-	"github.com/joeblew999/charter/web"
+	"github.com/joeblew999/charter/cf/bindings"
+	"github.com/joeblew999/charter/site/intl"
+	"github.com/joeblew999/charter/site/seo"
+	"github.com/joeblew999/charter/site/web"
 	"github.com/joeblew999/go-htmx4/views"
-	"github.com/joeblew999/mise-intl/intl"
-	"github.com/joeblew999/mise-seo/seo"
 )
 
 // The app on the web: its languages (intl.Site) and how it answers search engines (seo.Site), around every route.

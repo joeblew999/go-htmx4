@@ -11,7 +11,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/joeblew999/charter/transport"
+	"github.com/joeblew999/charter/cf/transport"
 	blockscomponent "github.com/joeblew999/go-htmx4/views/blocks"
 )
 
@@ -33,8 +33,7 @@ func TestMap(t *testing.T) {
 		"Through Cloudflare&#39;s \u2068MUC\u2069 data center",
 		"Germany",
 		`data-map-you`,
-		`<link rel="stylesheet" href="/blocks/map.css"`,
-		`src="/blocks/map.js"`,
+		`src="/__vite/web/map.js"`,
 		`data-blocks-places`,
 		`id="map-places-country-term"`,
 		`name="country"`,

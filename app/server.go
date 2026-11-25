@@ -23,12 +23,12 @@ import (
 	"github.com/gsxhq/gsx"
 	"github.com/gsxhq/vite"
 	"github.com/jackielii/structpages"
-	"github.com/joeblew999/charter/bindings"
-	"github.com/joeblew999/charter/web"
+	"github.com/joeblew999/charter/cf/bindings"
+	"github.com/joeblew999/charter/site/intl"
+	"github.com/joeblew999/charter/site/web"
 	"github.com/joeblew999/go-htmx4/locales"
 	"github.com/joeblew999/go-htmx4/views"
 	intlui "github.com/joeblew999/go-htmx4/views/intl"
-	"github.com/joeblew999/mise-intl/intl"
 )
 
 var (
@@ -52,13 +52,15 @@ var (
 
 // Handler is the app: every route, behind the locale, host and crawl rules.
 func Handler(dist fs.FS) http.Handler {
-	// VITE_DEV_URL is set by gsx dev (npm run dev): assets come from Vite's dev server. Without it, from dist's
-	// manifest, as built.
+	// VITE_DEV_URL is set by gsx dev (go tool charter dev): assets come from Vite's dev server. Without it, from
+	// dist's manifest, as built.
 	v, err := vite.New(vite.Config{DevURL: os.Getenv("VITE_DEV_URL"), DevBase: "/__vite/", Dist: dist, DistDir: "dist", StaticURL: "/"})
 	if err != nil {
-		panic(err) // no dist/.vite/manifest.json: npm run build writes it
+		panic(err) // no dist/.vite/manifest.json: go tool charter build writes it
 	}
-	return v.Middleware(newServer().routes())
+	s := newServer()
+	s.vite = v
+	return s.routes()
 }
 
 // server holds per-process state for the server-info and stats fragments. On Workers it is that of the
@@ -70,15 +72,19 @@ type server struct {
 
 	mu    sync.Mutex
 	stats map[string]int
+
+	// vite names the browser's files for the pages (views/assets). Handler sets the built ones; a server made
+	// without them (a test) names Vite's dev server, which needs no build.
+	vite *vite.Vite
 }
 
 func newServer() *server {
-	return &server{started: time.Now(), stats: map[string]int{}}
+	dev, _ := vite.New(vite.Config{DevURL: "http://localhost:5173", DevBase: "/__vite/"})
+	return &server{started: time.Now(), stats: map[string]int{}, vite: dev}
 }
 
 func (s *server) routes() http.Handler {
-	// charter's mux: Go 1.22 patterns under TinyGo too, which the pages' routes use.
-	mux := web.NewServeMux()
+	mux := http.NewServeMux()
 	// The pages (views.Pages): structpages renders each with what its Props returns, from the app (views.App).
 	// htmx 4 requests for part of a page get that part (HX-Target); a boosted navigation (HX-Request-Type: full) the page.
 	if _, err := structpages.Mount(mux, views.Pages{}, "/", "go-htmx4", structpages.WithArgs(s),
@@ -107,7 +113,7 @@ func (s *server) routes() http.Handler {
 			languages.Preferences(w, r)
 		}
 	})
-	return withCSP(withSite(mux))
+	return s.vite.Middleware(withCSP(withSite(mux)))
 }
 
 // render counts the request, then writes n with charter's web.Render (buffered, Content-Length: chunked

@@ -1,79 +1,44 @@
-# charter.toml: go-htmx4 on Cloudflare, every fact about the Worker once (github.com/joeblew999/charter: go doc
-# github.com/joeblew999/charter/project). charter reads it: deploy production|staging|preview, and
-# local, serve and with (.charter/, workerd's config and stand-ins, generated from it). TestCharterToml checks the copies
-# kept elsewhere against it (mise.toml's APP_NAME and APP_DOMAIN, the dev port).
-name = "go-htmx4"
-# Must not be newer than the workerd binary's date (mise.toml): workerd runs the Worker with it locally, Cloudflare in
-# production.
-compatibility_date = "2026-09-11"
-main = "worker/index.mjs"
-modules = ["worker/room.mjs"]
-assets = "dist/site"
+# What charter adds to wrangler.jsonc (https://github.com/joeblew999/charter). The Worker itself, its bindings,
+# variables and environments, is wrangler.jsonc.
 health = "/healthz"
-port = 8913
-# Where CI publishes each commit's build for Workers Builds (charter ci publish, builds), and the account's
-# workers.dev subdomain: a branch's preview is https://<branch>-go-htmx4.gedw99.workers.dev.
-repo = "joeblew999/go-htmx4"
-subdomain = "gedw99"
+# Production: the live site search engines read, and what charter live-test tries.
+url = "https://go-htmx4.ubuntusoftware.net"
 
-# The board: D1 is the source of truth. A new migration is a new idempotent file here.
-# No .mise/tasks/charter.toml: the app calls charter from its own tasks (tasks/app.toml), so charter's 24, each
-# charter <command> under another name, would only crowd mise tasks.
-tasks = false
-
-[[d1]]
-binding = "DB"
-migrations = "migrations"
-
-# One Room per topic fans the board out over hibernated WebSockets (worker/room.mjs). A new class takes a new migration.
-[[durable_objects]]
-binding = "ROOM"
-class = "Room"
-migration = "v1"
-
-# Every write handler calls s.limited first: 60 writes per 10 s per IP.
-[[rate_limits]]
-binding = "WRITES"
-namespace_id = 1001
-limit = 60
-period = 10
-
-# Public Nominatim can be replaced without a code change. Searches are submit-driven, globally spaced through D1, and cached.
-
-[production]
-domain = "go-htmx4.ubuntusoftware.net"
-vars = { APP_ENV = "cloudflare", APP_DOMAIN = "go-htmx4.ubuntusoftware.net", NOMINATIM_URL = "https://nominatim.openstreetmap.org" }
-
-# Exactly what's on main: its own Worker and D1, no custom domain, noindex (APP_PREVIEW).
-[staging]
-vars = { APP_ENV = "staging", APP_PREVIEW = "1", NOMINATIM_URL = "https://nominatim.openstreetmap.org" }
-
-# A Worker Preview per branch: the shared preview D1, noindex.
-[preview]
-vars = { APP_ENV = "preview {preview}", APP_PREVIEW = "1", NOMINATIM_URL = "https://nominatim.openstreetmap.org" }
-note = "Own Durable Object storage, shared preview D1, not indexed."
-
-[local]
-vars = { APP_ENV = "workerd (local)", NOMINATIM_URL = "https://nominatim.openstreetmap.org" }
-
-# The build: the Worker (standard Go: mise.toml's WORKER_COMPILER), intl's Worker modules, the Static Assets (tasks/app.toml).
 [build]
-command = "mise run build"
+# Workers Paid takes 10 MB of Wasm, gzipped.
+limit = 10000000
 
-# CI (.github/workflows/charter.yml → charter ci run): only the tools it runs; the build beside the Go tests and
-# then published for the commit's preview; then workerd, Chrome and the CPU table.
-[ci]
-# The weekly job (charter.yml's update): this repo pins more than charter update can see (gsxui's commit, htmx, the npm
-# locks), so its own command moves them all, checks them, and what changed becomes a pull request (#172).
-update = "mise run update"
-tools = ["go", "github:joeblew999/mise-intl", "github:joeblew999/mise-seo", "github:tailwindlabs/tailwindcss", "workerd", "http:chrome-headless-shell", "jq"]
-build = "mise run build ::: test:go"
-test = "mise run --skip-deps smoke && mise run --skip-deps e2e && mise run --skip-deps ci:bench"
+# Tests against the Worker: BASE is its URL. run is part of charter check; the suites are charter test <name>.
+[test]
+run = ["go test -C e2e -count=1 ./smoke"]
+[test.suites]
+e2e = ["go test -C e2e -count=1 -v ."]
+load = ["go test -C e2e -count=1 -v -timeout 10m ./load"]
 
-# The repo, as charter init keeps it. No charter-ci.yml or charter-repo.yml: they run JavaScript actions
-# (actions/checkout, jdx/mise-action), and this repo's CI is shell steps only (AGENTS.md); .github/workflows/charter.yml
-# is. No renovate.json: it would merge minor and patch updates on its own, and some pins here are exact on purpose
-# (workers-go, workerd with the compatibility date, Chrome).
-[github]
-workflows = false
-renovate = false
+# The app's languages (charter intl).
+[intl]
+locales = ["en", "en-IN", "de", "fr", "es", "pt-BR", "pt-PT", "ar", "he", "ja", "zh-Hans", "zh-Hant", "hi", "ru"]
+catalogs = "locales"
+ui = "views/intl"
+gsxui = "ui"
+badge = "docs/badges/intl.svg"
+[intl.inherit]
+en-IN = "en"
+[intl.notes]
+"*" = "A demo site for developers. Keep product and technical names in English as the source writes them: gsx, gsxui, htmx, hx-live, hx-ws, Go, TinyGo, Cloudflare Workers, Durable Objects, D1, Intl, Node. Short UI labels stay short."
+de = "Address the reader as Sie."
+fr = "Address the reader as vous. Use French typography: a no-break space before : ; ? !"
+es = "Address the reader as tú."
+pt-BR = "Brazilian Portuguese; address the reader as você."
+pt-PT = "European Portuguese (separador, ecrã, utilizador); address the reader as você, impersonally where natural."
+ru = "Address the reader as вы (lowercase)."
+ja = "Polite form (です/ます). Keep half-width spaces around Latin product names as the source catalog does."
+hi = "Address the reader as आप. Common English technical words (टैब, सर्वर) may be written in Devanagari as the catalog does."
+he = "Address the reader in the plural or impersonally, as the catalog does."
+ar = "Modern Standard Arabic, addressing the reader formally."
+zh-Hans = "Simplified Chinese for mainland China; half-width spaces around Latin product names as the catalog does."
+zh-Hant = "Traditional Chinese for Taiwan; half-width spaces around Latin product names as the catalog does."
+
+# How it answers search engines (charter seo). The live site is url, above.
+[seo]
+[seo.lighthouse]
