@@ -1,71 +1,38 @@
 # Rules for agents
 
-Binding. How the app works is in [docs/architecture.md](docs/architecture.md), how it ships in
-[docs/deploy.md](docs/deploy.md), every command in [docs/commands.md](docs/commands.md) (generated). People start
-with [CONTRIBUTING.md](CONTRIBUTING.md). Steps marked **(maintainer)** are the repository owner's: an outside
-contributor's pull request stops before them.
+Binding. How the app works: [docs/architecture.md](docs/architecture.md). How it ships:
+[docs/deploy.md](docs/deploy.md). Every command: [docs/commands.md](docs/commands.md) (generated). People start with
+[CONTRIBUTING.md](CONTRIBUTING.md). Steps marked **(maintainer)** are the repository owner's.
+
+The repo is only the app. Don't add modules, registries, copy steps or another tool's installed files to it.
 
 ## Work
 
-- Plans, open work and follow-ups are GitHub issues on joeblew999/go-htmx4. No plan files in the repo. Before
-  non-trivial work, find the issue and update it rather than opening a duplicate; reference it as `#N` in commits, PRs
-  and code comments. Close it when its PR merges (`Closes #N`) or say why it's not planned.
-- Changes land by branch and PR, squash-merged as soon as the local checks pass: `mise run check`, and `mise run e2e`
-  after UI, board or JS changes. **(maintainer)** Merge with `gh pr merge --admin --squash`: nobody waits for CI, which runs the same
-  `check` on GitHub as a record (`main` requires it, but not of admins). `git status` must be clean first: the checks
-  ran on the working tree, so it has to be exactly what merges. When they couldn't run (the port is busy), use
-  `gh pr merge --auto --squash` and let CI's `check` decide.
-- End every report of finished work with a **Follow-ups** list, even a short one: what's next, what needs the user's
-  OK and why, bugs or risks found but not fixed, checks skipped, leftovers (processes, resources, stale docs). Put the
-  same list in the issue.
-- **(maintainer)** **What needs the user's OK** is what ships or can't be taken back: a production deploy or a release (a release tag
-  deploys), a Cloudflare write, a write to Google, repository settings, and anything on another owner's repository.
-  Everyday GitHub work on this repo doesn't: branches, PRs and auto-merge, issue comments and edits, and deleting a
-  tag or branch whose commits are on `main`.
+- Plans, open work and follow-ups are GitHub issues here, never files. Find the issue before non-trivial work; name it
+  (`#N`) in commits and PRs; close it when its PR merges.
+- Changes land by branch and PR, squash-merged once the local checks pass: `mise run check`, and `mise run e2e` after
+  UI, board or JS changes. `git status` must be clean first. **(maintainer)** `gh pr merge --admin --squash`: nobody
+  waits for CI.
+- End every report with a **Follow-ups** list: what's next, what needs the user's OK, what was found and not fixed,
+  checks skipped, leftovers. Put it in the issue too.
+- **What needs the user's OK** is what ships or can't be taken back: a production deploy or release, a Cloudflare
+  write, a write to Google, repository settings, anything on another owner's repository. Branch previews, PRs and
+  issue edits here don't.
 
-## Toolchain and commands
+## Tools and commands
 
-- Every tool is pinned: `mise.toml` (charter itself, `github:joeblew999/charter`, at the version of the library in
-  `go.mod`: move both together), TinyGo and wasm-opt in charter's `.config/mise/conf.d/charter.toml`, and Go in
-  `go.mod`'s `toolchain` line (mise installs it). `mise install` first; run `mise run <task>`, not ad-hoc commands.
-  No browser installed by hand: e2e uses the pinned `chrome-headless-shell`.
-- **No Node anywhere:** no `node`, `npm`, `npx`, Vite or wrangler. CI is shell `run:` steps only: no `actions/checkout`,
-  `jdx/mise-action` or any JavaScript action. A new tool goes in `mise.toml`.
-- Commands are mise tasks. Don't hand-list them in docs: change the task's description, `docs/commands.md` is
-  generated from it (`test:go` fails when it's stale).
-- Before pushing: `mise run check`, then `mise run e2e` after UI, board or JS changes. CI is charter's
-  (`.github/workflows/charter.yml` → `charter ci run`, from `charter.toml`'s `[ci]`): the same build and checks.
-  A task with `sources`/`outputs` is skipped when nothing it reads changed: a new input to the wasm goes in `sources`.
-- A task's own script is inline in its task. `ci/` holds the scripts several tasks share
-  (`wasm-build.sh`, `with-intl.sh`, `bench.sh`, `upstream.sh`, `workers-builds.sh`). CI and Workers Builds are charter's, written by
-  `charter init` with the rest of charter's files (`charter check` in `test:go`): never edit them. After moving
-  charter's pin, run `charter init` again; `charter.toml`'s `[github]` says why there's no `charter-ci.yml`,
-  `charter-repo.yml` or `renovate.json`. Checks are Go tests (`e2e/smoke`, `e2e`, `e2e/load`), never curl or a grep
-  of a command's output.
-- **The Worker on Cloudflare is `charter.toml`** (the `charter` command): its name, modules, D1, Durable Objects,
-  rate limit, vars and domain per environment. Deploys (`charter deploy production|staging|preview`) and local
-  workerd (`.charter/`, generated by `charter local`, `serve` and `with`; never edit or commit it) come from
-  it. `TestCharterToml` checks the copies kept elsewhere. Stopping `gsx dev` can leave workerd on :8913: stop it by
-  PID (`charter with` takes a free port, so tests still run).
-- macOS runs bash 3.2: an empty array is `${args[@]+"${args[@]}"}` under `set -u`.
-
-## Upstream work: gsx, gsxui, structpages
-
-- Work on the projects this app builds on from here, with `mise run upstream:*` (`tasks/upstream.toml`): checkouts in
-  `$(go env GOPATH)/src/github.com/<owner>/<repo>` (remote `upstream` the original, `origin` the user's fork),
-  `upstream:check` with the project's own pinned Go, `upstream:tinygo` for what Workers builds would hit, and
-  `upstream:use` to build and test this app on a checkout (`mise run check` fails until `upstream:unuse`).
-- **The relationships with these projects matter more than any one change.** Nothing goes to another owner's
-  repository (an issue, a PR, a comment) until the user has read it: the change, where the checkout is, and the exact
-  text. The user's OK is for that text: change it, and they read it again.
-- A report is short: a repro checked on their `main` (name the commit), the cause with links to their code, and an
-  easy fix when there is one (gsxhq/gsx#255, gsxhq/gsxui#50).
-- A big change (structpages under TinyGo, #132) is never a question or a PR first: make it work fully in the user's
-  fork, for them and for us, prove it with their checks and ours, and only then show the user what would be sent.
-- Check every claim, run `upstream:check` (their pinned Go, their own checks, no npm), and read the rendered result
-  (gsx drops whitespace at a line break, so a missing `{ " " }` hides in the source). Follow the project's own
-  conventions: commit titles, wording, docs that link only to their own projects. Links to our code go in the PR's
-  description, not in their docs. Never imply in their docs that what they wrote is wrong: tell the user.
+- Every tool is pinned: `mise.toml`, and Go in `go.mod`'s `toolchain` line. `mise install` first; run
+  `mise run <task>`, not ad-hoc commands. A new tool goes in `mise.toml`.
+- **No Node anywhere:** no `node`, `npm`, `npx`, Vite or wrangler, and no JavaScript actions in CI.
+- Commands are mise tasks in `tasks/`, each with its script inline. `docs/commands.md` is generated from their
+  descriptions (`mise run docs:commands`).
+- charter, mise-intl and mise-seo each have a library in `go.mod` and a command in `mise.toml`, at the same version:
+  `mise run update` moves both. Of what their `init` commands write, the repo has only charter's (`charter init`:
+  its tasks, `charter.yml`, `docs/charter/`, its skill). Never edit those.
+- **The Worker on Cloudflare is `charter.toml`:** its name, D1, Durable Objects, rate limit, vars and domains. Deploys
+  and local workerd (`.charter/`, never committed) come from it.
+- Checks are Go tests (`e2e/smoke`, `e2e`, `e2e/load`), never curl or a grep of a command's output.
+- Stop a process by its PID, never by name: other sessions run workerd too.
 
 ## Generated files: never edit
 
@@ -77,136 +44,85 @@ contributor's pull request stops before them.
 | `web/blocks/*.js`, `web/blocks/map.css` | `mise run js:bundle` | yes |
 | `web/htmx/` | `mise run vendor` | yes |
 | `.claude/skills/gsx`, `gsxui`, `structpages`, `templ-to-gsx-migration` | `mise run gsx:skill` | yes |
-| `.mise/tasks/charter*`, `.github/workflows/charter.yml`, `docs/charter/`, `.claude/skills/charter` | `charter init` | yes |
 | `docs/commands.md` | `mise run docs:commands` | yes |
-| `docs/badges/`, the README's `<!-- seo:scores -->` table | `mise run seo:badges`, after a release | yes |
+| `docs/badges/`, the README's scores table | `mise run seo:badges`, after a release | yes |
 | What `gsxui.json` lists (`ui/`, `web/gsxui/`) | `gsxui add`, `gsxui init` | yes |
-| `views/intl/*.gsx` (intl's screens) | `mise-intl add -overwrite <screen>` | yes |
+| `views/intl/*.gsx` | `mise-intl add -overwrite <screen>` | yes |
 
 ## UI: gsx, gsxui, htmx 4
 
-- **Nothing hand-written in the GUI.** Every visual piece is a gsxui component (`gsxui add <name>` at the repo root,
-  never copied by hand), the gsxui theme/preset, or a pattern from gsxui's own site (https://ui.gsxhq.dev; cite it).
-  No custom CSS files (a library's own stylesheet that a blocks component bundles from npm, Leaflet's for the map,
-  isn't a look of ours: `TestGsxuiFiles` allows exactly those). The look is gsxui's standard nova theme (gsxui's default), so everyone runs and tests the same
-  base; change it only with `mise run gsxui:theme <style|share code>` (gsxui's theme editor gives codes). After moving gsxui's pin, `gsxui init --overwrite --preset gsxui.preset.json` refreshes its CSS, and
-  `gsxui add --overwrite` its components. `TestGsxuiFiles` fails on a hand edit to anything gsxui wrote.
-- **htmx 4 syntax only:** explicit `:inherited`, `hx-ignore` (not `hx-disable`), `htmx:after:swap`-style event names,
-  no `hx-ext` / `hx-vars` / `hx-params`. gsx's completions still offer htmx 2 attributes: ignore them.
-- JS-valued attributes (`hx-on:*`, `hx-live`, `:text`, …) are gsx `` js`…` `` literals. Format `.gsx` with
-  `mise run gsx:fmt`.
-- Handlers render with `s.render(w, r, name, node)` (charter's `web.Render`): never string-built HTML or `html/template`.
-- A full page must not render `hx-swap-oob` elements it wants kept: boosted navigation drops them. Only pushes and
-  POST responses carry `BoardFragment` (OOB).
-- Everything every page needs loads in `Layout` (`views/layout.gsx`): a boosted navigation doesn't run a page's own
-  head scripts. `<meta name="htmx-config">` stays before htmx's script.
+- **Nothing hand-written in the GUI.** Every visual piece is a gsxui component (`gsxui add <name>`), its theme, or a
+  pattern from https://ui.gsxhq.dev. No CSS files of our own. The look is gsxui's nova theme; change it only with
+  `mise run gsxui:theme`.
+- `views/blocks/` holds the components gsxui doesn't have (a map, a places picker, live video), made of gsxui
+  components. They are the app's own: change them where they are.
+- **htmx 4 syntax only:** explicit `:inherited`, `hx-ignore`, `htmx:after:swap`-style event names; no `hx-ext`,
+  `hx-vars` or `hx-params`.
+- Write gsx as the `gsx` skill says. JS-valued attributes are `` js`…` `` literals. Format with `mise run gsx:fmt`.
+- Handlers render with `s.render(w, r, name, node)`: never string-built HTML or `html/template`.
+- A full page must not render `hx-swap-oob` elements it wants kept. Everything every page needs loads in `Layout`.
 
-## Languages and search
+## Languages
 
-- **Intl is the one source of language**, through mise-intl (`github.com/joeblew999/mise-intl`: its packages in
-  `go.mod`, its binary in `mise.toml`, the same release; its guide is in its repository, `templates/docs/intl/README.md`). Messages, plural forms,
-  numbers, dates, locale names and direction all come from the runtime's Intl; Go never decides them. Outside the
-  Worker the only Intl is workerd's: a test package that renders or formats anything has
-  `func TestMain(m *testing.M) { os.Exit(intltest.Main(m)) }`, and `test:go` runs the tests through
-  `ci/with-intl.sh`, which starts that service. The app has none of the task files, workflows or hooks mise-intl's
-  `init` writes: only the few `intl:*` tasks in `tasks/app.toml`.
-- No literal user-facing text in `views/` or handlers: a message from `locales/*.toml` (ICU MessageFormat; `en.toml`
-  is the source), written in markup as a value, `{ locales.NavHome }`, or with arguments, `{ locales.BoardNotes(n) }`.
-  Our components take `intl.Msg`, not strings. A gsxui input typed `string` takes `{ locales.Key |> text }`; Go code
-  (an HTTP error) takes `intl.Text(ctx, m)`. Messages use only `{n, number}` and `{n, number, integer}`. Brand
-  names, code and machine values get `translate="no"`. `TestNoHardcodedText` checks.
-- **Every message change is translated in the same PR** (an outside contributor's may leave it: CI reports what's
-  missing on a fork's pull request without failing, `INTL_MISSING=warn`, and **(maintainer)** translates after
-  merging; a push, `main` and a release stay strict). A new or changed source message: `mise run intl:translate`
-  (Claude Code with the `intl` skill), or translate what `mise run intl:todo` lists by that skill's rules.
-  A stale translation that is still right: `mise run intl:confirm <locale>:<key>`. `mise-intl status` (in
-  `test:go`) fails while a language has anything missing or stale. How each language reads is `intl.toml`'s
-  `[notes]`: change them there, not per message.
-- Text arguments are bidi-isolated by the renderer (another message given as an argument isn't: it is in the page's
-  language); user text in its own element gets `dir="auto"`. A message written in another language is `.In(id)`.
-- The server renders in the reader's zone and offers their language until they choose one: `intl.Site` (the `browser_tz`
-  cookie, Cloudflare's guess; `Accept-Language` or their choice for `intl.Suggested`, `intl.Decline` to turn it down).
-  Never redirect on `Accept-Language`.
-- gsxui components' own text (`i18n.T`) is the catalogs' `[gsxui]` table: after `gsxui add`, `mise run intl:gen` names
-  every string that needs a message.
-- Write gsx as the `gsx` skill says, not as older code does. `gsx generate` fails on gsx's lints (`gsx.toml`'s
-  `[lint]`), and `mise run gsx:fmt --check` is in `test:go`.
-- Every in-app `href`/`hx-*`/`src` URL comes from the page tree through the `url` filter, in the reader's language:
-  a page's, `href={ pages.About{} |> url }`, and a route's, `hx-post={ GreetAction{} |> url }`. Never a path as a
-  string: `structpages-lint` (`mise run structpages:lint`, in `test:go`) fails on one. Its exceptions carry a
-  `structpages:lint:ignore url-attr` directive with their reason above it: static files (`/static/`, `/assets/`,
-  `/gsxui/`, `/blocks/`) and intl's preferences routes, which intl's screens name for any gsx app. Locale URLs, cookies and preferences are `intl.Site`, search engines `seo.Site`, both in `app/site.go`.
-  Logical Tailwind classes only (`ms-`, `pe-`, `start-`, `text-end`, …) so RTL mirrors (`TestLogicalClasses`).
-- Dates and numbers for readers go through Intl, never `time.Format` or `strconv`: intl's gsx filters in markup,
-  `{ t |> date(opts) }`, `{ t |> since }`, `{ n |> number(opts) }`, `{ d |> duration }`, `{ v |> intl(api, method,
-  opts) }` (several arguments: `{ intl.Args{a, b} |> intl(…) }`), and `{ v |> plain }` in an attribute. Every Intl
-  API is reachable that way: add no Go formatting of our own. Options are always pairs, as Intl names them:
-  `date("dateStyle", "long")` in markup, `intl.Options("dateStyle", "long")` in Go; never a JSON string.
-- **Pages are the page tree, `views/pages.go`** (structpages, #132): each page a type in `views.Pages`, its route in
-  the field's tag, with a `Page` method (`views/pages.gsx`) and, for the app's data, `Props` (through `views.App`).
-  Links to it (`href={ Board{Topic: t} |> url }`, `views/link`), the sitemap, intl's and seo's `IsPage` and the
-  canonical page (`views.Key`) all come from the tree: never a page's path as a string. A new page: a type with a
-  `Page` method, a field in `Pages`, an entry in `All`, and a translated title and its own translated `description`
-  key to `Layout`. A query parameter that makes a different page is part of its type (`Board.Topic`, `Query`); one
-  that makes endless pages (a board topic) is `Noindex`. Titles ≤ 60 and descriptions ≤ 160 wide (`TestSnippetWidths`).
-- `/robots.txt` keeps one `*` group with no `Disallow` (`TestRobotsTxt`); absolute URLs come from `web.Origin(r)`,
-  never a hard-coded host. No page routes under `/fragments/` (noindex) and no robots `Disallow` for them.
-- How Google sees the site is mise-seo (`github.com/joeblew999/mise-seo`: packages in `go.mod`, binary in
-  `mise.toml`, the same release; its guide is in its repository, `templates/docs/seo/README.md`) and the `seo` skill: what Google reads is this app's own code
-  (`app/site.go`, the layout, intl), and `mise run check` audits every page of the local build. `mise run seo:audit`
-  audits the live site, `mise run seo:lighthouse` scores a page: fix what is ours, and report a gsxui component's own
-  failures upstream. They talk through exit codes (0 ok, 1 problems) and `--json`: never scrape their text. Writes
-  to Google (`mise-seo submit`, `mise-seo setup`) are run by hand, only with the user's OK.
+- **Intl is the one source of language** (mise-intl). Messages, plurals, numbers, dates and direction come from the
+  runtime's Intl; Go never decides them. A test package that renders or formats has
+  `func TestMain(m *testing.M) { os.Exit(intltest.Main(m)) }`.
+- No literal reader-facing text in `views/` or handlers: a message in `locales/en.toml`, written `{ locales.Key }` or
+  `{ locales.Key(n) }`. Components take `intl.Msg`; Go code takes `intl.Text(ctx, m)`. Brand names, code and machine
+  values get `translate="no"`.
+- **Every message change is translated in the same PR:** `mise run intl:translate`, or `mise run intl:confirm` for a
+  stale one that is still right. The check fails while a language is incomplete. How a language reads is
+  `intl.toml`'s `[notes]`.
+- Dates and numbers go through Intl's gsx filters (`{ t |> date("dateStyle", "long") }`, `{ n |> number }`), never
+  `time.Format` or `strconv`. Options are always pairs.
+- User text in its own element gets `dir="auto"`. Logical Tailwind classes only (`ms-`, `pe-`, `start-`), so
+  right-to-left mirrors.
+- Never redirect on `Accept-Language`: the server offers the reader's language (`intl.Site`).
+
+## Pages and search
+
+- **Pages are the page tree, `views/pages.go`** (structpages, as released): a type in `views.Pages` with its route in
+  the field's tag, a `Page` method, `Props` for data, an entry in `All`, a translated title and description.
+- Every in-app URL comes from the tree through the `url` filter (`href={ About{} |> url }`), never a path as a
+  string. `structpages-lint` fails on one.
+- Titles are at most 60 wide and descriptions 160. `/robots.txt` keeps one `*` group with no `Disallow`. Absolute
+  URLs come from `web.Origin(r)`.
+- How Google sees the site is mise-seo and this app's own code (`app/site.go`). `mise run check` audits every page of
+  the local build; `mise run seo:lighthouse` scores the live one. Writes to Google are run by hand with the user's OK.
 
 ## Workers
 
-- **workers-go `v0.36.0` exactly** (`github.com/syumai/workers-go`). What ships is built by
-  `charter build -compiler=go` (standard Go, `WORKER_COMPILER` in `mise.toml`, which says why; `tinygo` still builds).
-- **Routes:** every page and every route the pages call is in structpages' tree (`views/pages.go`, `views/routes.go`:
-  a type with its method in its route tag and a `ServeHTTP` that answers through `views.App`), mounted with htmx 4's
-  target selector (`structpages.HTMXv4RenderTarget`). structpages is Jackie Li's, as released: no fork (#188). Only
-  static files, `/healthz` and intl's preferences routes stay plain paths, checking their method with `allow`
-  (charter's `web.Allow`); the mux is still charter's `web.NewServeMux()`. Run `mise run check` after changing
-  handlers: `go test` runs them on this machine, the smoke test on workerd.
-- **Memory between requests is a cache, never state:** any request may start a new runtime. Package variables hold
-  only what is the same for every request; shared state needs a Cloudflare binding.
-- **Cloudflare's bindings come through charter, never workers-go directly:** `bindings.Var`, `bindings.Allow`,
-  `bindings.StaticAssets`, `bindings.HTTPClient` (a request the app makes: the Worker's fetch), `d1.Open`,
-  `hub.DurableObject`, `transport.CFOf(r)` (`app/platform.go`). Each has its stand-in off Workers built in, following
-  `charter.toml` (D1 is SQLite in memory with the migrations; the write limit counts), so there is no file per
-  platform and `go test` runs the real SQL. A test sets `request.cf` with `transport.WithCF`. workers-go's
-  `fetch.NewIncomingProperties` panics under charter's runtime.
-- JS only in `worker/index.mjs` (entry), `worker/room.mjs` (Durable Object), and `views/blocks/js/<component>/`
-  (a component's glue to the npm library it wraps: the map's to Leaflet, the
-  live video's to @moq's elements, #156, #164; what the browser does can't be Go). The glue only sets `data-*` state,
-  wires the component's buttons and hands Leaflet or @moq what the markup rendered (pins, popups) or the connection
-  details' machine values; every label stays in the gsx. Patches to the bundled npm packages are that folder's
-  `npm-patches.json`, each with its reason. Keep it logic-free; logic stays in Go. The topic and locale rules are
-  `internal/live`'s (`TestWorkerJSMatchesLive`).
-- **`views/blocks/` is the components gsxui doesn't have** (a map, a places picker, live video): gsx made of gsxui
-  components, their text in the catalogs (`[blocks.<component>]`), their browser files in `web/blocks/`
-  (`mise run js:bundle`, from `views/blocks/js/`). They are the app's own: change them where they are.
+- What ships is built with the standard Go compiler (`WORKER_COMPILER` in `mise.toml` says why).
+- **Memory between requests is a cache, never state:** any request may start a new runtime. Shared state needs a
+  Cloudflare binding.
+- **Bindings come through charter, never workers-go directly:** `bindings.Var`, `bindings.Allow`,
+  `bindings.StaticAssets`, `bindings.HTTPClient`, `d1.Open`, `hub.DurableObject`, `transport.CFOf(r)`. Each has its
+  stand-in off Workers, so there is no file per platform and `go test` runs the real SQL.
+- JavaScript only in `worker/` (the entry, the Durable Object) and `views/blocks/js/` (a component's glue to the npm
+  library it wraps). Keep it logic-free: logic stays in Go, labels in the gsx.
 
-## Cloudflare: outward-facing
+## Cloudflare
 
-- **Credentials only via fnox** (`fnox exec -- …`; single-quote `sh -c '…$CLOUDFLARE_API_TOKEN…'` so it expands after
-  fnox). Never print tokens or add `.env` files.
-- **Get an explicit OK before a production deploy, a release, or any Cloudflare write.** Branch previews are
+- **Credentials only through fnox** (`fnox exec -- …`). Never print a token or add a `.env` file.
+- **An explicit OK before a production deploy, a release, or any Cloudflare write.** Branch previews are
   pre-approved. Never push to `production` by hand: CI moves it on a release.
-- Deploy bindings for every kind (production, staging, preview) live in `charter.toml` only.
 - The zone hosts other projects: only ever add `go-htmx4.*` records.
 
 ## The shared board
 
-- D1 is the source of truth; the Room only fans out. Every write goes through a Go handler that writes D1 **then**
+- D1 is the source of truth; the Room only fans out. Every write goes through a Go handler that writes D1, then
   publishes the whole `#board` fragment with its `data-version`.
-- **`board.version` never goes backwards:** never delete `board` rows or reset versions; to clear a topic, delete
-  notes, zero `value` and bump `version`.
-- D1 has no interactive transactions: single statements with `RETURNING`.
-- `BoardFragment` is the wire format the Room and the version guard rely on: `TestBoardFragmentWireFormat` keeps it.
-- Limits stay in sync: the `WRITES` rate limit (60 / 10 s per IP) is `charter.toml`'s, deployed and local alike;
-  every write handler calls `s.limited` first; `keepNotes` (50); `MAX_SOCKETS` (1,000) in `worker/room.mjs`.
-  New browser checks go into `TestE2E`'s parallel list: the write-limit check runs alone after it.
-- Schema changes: a new idempotent `migrations/NNNN_name.sql` (deploys and local workerd both apply it). A new Durable
-  Object class is a new `[[durable_objects]]` in `charter.toml` with a new `migration`.
-- After a board change: `mise run check`; `mise run load` for the 1,000-socket check.
+- **`board.version` never goes backwards:** never delete `board` rows or reset versions.
+- D1 has no interactive transactions: single statements with `RETURNING`, or `d1.Batch`.
+- Limits stay in sync: the `WRITES` rate limit in `charter.toml`, `keepNotes`, `MAX_SOCKETS` in `worker/room.mjs`.
+  Every write handler calls `s.limited` first.
+- A schema change is a new idempotent `migrations/NNNN_name.sql`. After a board change: `mise run check`, and
+  `mise run load`.
+
+## Other owners' projects: gsx, gsxui, structpages
+
+- **The relationships matter more than any one change.** Nothing goes to another owner's repository until the user
+  has read the exact text.
+- A report is short: a repro checked on their `main` (name the commit), the cause with links to their code, an easy
+  fix when there is one. Check every claim. Follow their conventions.
+- `mise run upstream:*` works on their checkouts from here.

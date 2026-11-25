@@ -50,7 +50,7 @@ macos-arm64 = { url = "https://storage.googleapis.com/chrome-for-testing-public/
 macos-x64 = { url = "https://storage.googleapis.com/chrome-for-testing-public/{{ version }}/mac-x64/chrome-headless-shell-mac-x64.zip", strip_components = 1, bin_path = "." }
 
 [env]
-# The production wasm's compiler (ci/wasm-build.sh): "go", the standard compiler. It builds in seconds and takes any
+# The Worker's compiler (the build task): "go", the standard compiler. It builds in seconds and takes any
 # Go library as it is, and since charter 0.22 keeps its Go runtimes between requests, as TinyGo's build does (on a
 # local workerd, 2026-11-25: / 2.3 ms against TinyGo's 1.8, /board 2.4 against 2.5; a runtime per request was 15).
 # "tinygo" (a ~3x smaller wasm) was the default until then: it needs a patched runtime, a fork of structpages and an

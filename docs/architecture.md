@@ -7,9 +7,9 @@
   Cloudflare it is a Worker: [charter](https://github.com/joeblew999/charter)'s runtime (`transport.Run`) over
   workers-go keeps Go runtimes alive between requests and warms two while the Worker loads (`worker/index.mjs`,
   `build/go.mjs`).
-- **The build** is `charter build -compiler=go` (`ci/wasm-build.sh`): the standard Go compiler, in seconds.
+- **The build** is `charter build -compiler=go` (the `build` task): the standard Go compiler, in seconds.
   `WORKER_COMPILER=tinygo` builds with TinyGo instead (patched and tuned for Workers: a smaller wasm, faster per
-  request, minutes to build, #188); `build:dev` is always standard Go, for `mise run dev`.
+  request, minutes to build, #188).
 - **Static files** (`dist/site`: htmx, gsxui CSS and behaviours, fonts) are Workers Static Assets, served before the
   Worker runs. Locally `charter` stands in for them and for D1 (`.charter/`, generated from `charter.toml`: D1
   over Durable Object SQLite), so the same `database/sql` code runs on workerd.
@@ -43,7 +43,7 @@ Views write messages as typed values (`{ locales.NavHome }`, `{ locales.BoardNot
 filters (`{ t |> date(opts) }`, `{ n |> number }`), rendered by the renderers in `gsx.toml`. Every message (ICU
 MessageFormat, plural forms by `Intl.PluralRules`), every value and every locale fact is formatted by the runtime's V8
 Intl: on the Worker, where Go calls it, and in the browser, which redoes the viewer's own time zone and relative times
-as they age. Go routes and passes values; `go test` uses workerd's Intl (`intltest`), which `ci/with-intl.sh` starts.
+as they age. Go routes and passes values; `go test` uses workerd's Intl (`intltest`), which `test:go` starts.
 
 `intl.toml` lists the languages and the translators' notes; `locales/*.toml` holds their text. The app's own tasks
 (`tasks/app.toml`) call mise-intl's binary:
@@ -87,5 +87,5 @@ served `noindex`.
 ├── migrations/                                  D1 schema
 ├── e2e/                                         smoke/ (HTTP), browser tests, load/ (1,000 WebSockets): its own module
 ├── ci/  tasks/  mise.toml                       shared scripts, mise tasks, pinned tools
-└── docs/                                        this page, deploy.md, commands.md (generated), benchmarks.md
+└── docs/                                        this page, deploy.md, commands.md (generated)
 ```

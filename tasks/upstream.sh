@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
 # Upstream work from this repo (#64): checkouts of the projects go-htmx4 builds on, worked on with this repo's tools.
 #
-#   ci/upstream.sh status                 every checkout: where it is, its branch, local changes, the fork's main
-#   ci/upstream.sh sync [repo]            clone or fetch (every repo without one); never pushes
-#   ci/upstream.sh fork <repo>            create the user's fork on GitHub and add it as origin
-#   ci/upstream.sh branch <repo> <name>   a new branch from upstream's main
-#   ci/upstream.sh check <repo>           the repo's Go checks with its own pinned Go; failures re-run on upstream's main
-#   ci/upstream.sh tinygo <repo> [pkg]    the package's own tests compiled by this repo's TinyGo
-#   ci/upstream.sh use <repo>             this app on the local checkout: go.work for a Go module, gsxui re-vendored
-#   ci/upstream.sh unuse <repo>           back to the pinned version
-#   ci/upstream.sh review <repo>          the commits and diff against upstream's main, to read before anything is sent
+#   tasks/upstream.sh status                 every checkout: where it is, its branch, local changes, the fork's main
+#   tasks/upstream.sh sync [repo]            clone or fetch (every repo without one); never pushes
+#   tasks/upstream.sh fork <repo>            create the user's fork on GitHub and add it as origin
+#   tasks/upstream.sh branch <repo> <name>   a new branch from upstream's main
+#   tasks/upstream.sh check <repo>           the repo's Go checks with its own pinned Go; failures re-run on upstream's main
+#   tasks/upstream.sh tinygo <repo> [pkg]    the package's own tests compiled by this repo's TinyGo
+#   tasks/upstream.sh use <repo>             this app on the local checkout: go.work for a Go module, gsxui re-vendored
+#   tasks/upstream.sh unuse <repo>           back to the pinned version
+#   tasks/upstream.sh review <repo>          the commits and diff against upstream's main, to read before anything is sent
 #
 # A checkout is $(go env GOPATH)/src/github.com/<owner>/<repo>, where Go has always put them: remote upstream is the
 # original, origin the user's fork when there is one. Nothing here sends anything to GitHub except fork, which creates
@@ -234,8 +234,8 @@ c=${1:-status}
 case $c in
   status) cmd_status ;;
   sync) cmd_sync "${1:-}" ;;
-  fork | check | use | unuse | review) [ $# -ge 1 ] || { echo "usage: ci/upstream.sh $c <repo>" >&2; exit 2; }; "cmd_$c" "$1" ;;
-  branch) [ $# -ge 2 ] || { echo "usage: ci/upstream.sh branch <repo> <name>" >&2; exit 2; }; cmd_branch "$1" "$2" ;;
-  tinygo) [ $# -ge 1 ] || { echo "usage: ci/upstream.sh tinygo <repo> [package]" >&2; exit 2; }; cmd_tinygo "$1" "${2:-}" ;;
+  fork | check | use | unuse | review) [ $# -ge 1 ] || { echo "usage: tasks/upstream.sh $c <repo>" >&2; exit 2; }; "cmd_$c" "$1" ;;
+  branch) [ $# -ge 2 ] || { echo "usage: tasks/upstream.sh branch <repo> <name>" >&2; exit 2; }; cmd_branch "$1" "$2" ;;
+  tinygo) [ $# -ge 1 ] || { echo "usage: tasks/upstream.sh tinygo <repo> [package]" >&2; exit 2; }; cmd_tinygo "$1" "${2:-}" ;;
   *) sed -n '2,13p' "$0" | sed 's/^# \{0,1\}//'; exit 2 ;;
 esac

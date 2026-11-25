@@ -156,32 +156,36 @@ echo "✓ dist/site: $(find dist/site -type f | wc -l | tr -d ' ') files, gsxui.
 
 ["build"]
 depends = ["generate", "assets"]
-description = "Production build → build/ with WORKER_COMPILER (mise.toml: go, or tinygo), size-checked (deploy, staging, CI and the tests use it)"
+description = "The Worker → build/: standard Go to wasm (WORKER_COMPILER=tinygo for TinyGo), intl's Worker modules beside it, size-checked; what dev, the tests and a deploy all run"
 dir = "{{config_root}}"
-# Skipped when no input changed since the last production build, so `check` then `e2e` (CI: charter ci run) builds once.
-# Inputs: every Go file (the generated *.x.go included), the module files, mise.toml (a Go/TinyGo/workers-go pin
-# change must rebuild), and ci/wasm-build.sh (its build flags, such as the heap). Nothing else feeds the wasm: Static
-# Assets are dist/site, served beside it. build/.prod marks a production build; build:dev removes it, so a debug wasm is
-# never skipped into a deploy.
-sources = ["**/*.go", "go.mod", "go.sum", "intl/go.mod", "mise.toml", "ci/wasm-build.sh", "intl/js/*.mjs", "locales/intl-messages.mjs"]
-outputs = ["build/app.wasm", "build/go.mjs", "build/worker.mjs", "build/runtime.mjs", "build/wasm_exec.js", "build/hub.mjs", "build/websocket.mjs", "build/tinygo-clock.mjs", "build/intl.mjs", "build/intl-worker.mjs", "build/intl-messages.mjs", "build/.prod"]
-env = { WASM_PROFILE = "prod" }
-run = "ci/wasm-build.sh"
+# Skipped when no input changed since the last build, so check then e2e (CI: charter ci run) builds once. Inputs: every
+# Go file (the generated *.x.go included), the module files, mise.toml (a pin change must rebuild) and the catalogs'
+# messages. Static Assets are dist/site, served beside it.
+sources = ["**/*.go", "go.mod", "go.sum", "mise.toml", "tasks/app.toml", "locales/intl-messages.mjs"]
+outputs = ["build/app.wasm", "build/go.mjs", "build/worker.mjs", "build/runtime.mjs", "build/wasm_exec.js", "build/hub.mjs", "build/websocket.mjs", "build/intl.mjs", "build/intl-worker.mjs", "build/intl-messages.mjs"]
+run = '''
+#!/usr/bin/env bash
+set -euo pipefail
+# WORKER_COMPILER (mise.toml says why go): go, the standard compiler, seconds, Go runtimes kept between requests; or
+# tinygo, a third of the size, minutes when nothing is cached (WORKERBUILD_FLAGS: more of charter build's flags).
+case ${WORKER_COMPILER:-go} in
+  go) charter build -compiler=go ;;
+  tinygo) charter build -heap=12 ${WORKERBUILD_FLAGS:-} ;;
+  *) echo "✗ WORKER_COMPILER=$WORKER_COMPILER: go or tinygo"; exit 1 ;;
+esac
+# intl's Worker modules beside the build: intl.mjs, intl-worker.mjs and the catalogs.
+mise-intl assets -worker build
+gz=$(gzip -9 -c build/app.wasm | wc -c | tr -d ' ')
+limit=10000000 # Workers Paid: 10 MB compressed (the free plan's is 3 MB)
+[ "$gz" -le "$limit" ] || { echo "✗ app.wasm gzip ${gz}B exceeds ${limit}B"; exit 1; }
+echo "✓ build/app.wasm (${WORKER_COMPILER:-go}) gzip=${gz}B (limit ${limit}B)"
+'''
 
-["build:dev"]
-depends = ["generate", "assets"]
-description = "Dev build → build/: standard Go to wasm, seconds after an edit (mise run dev uses it; never deployed)"
-dir = "{{config_root}}"
-sources = ["**/*.go", "go.mod", "go.sum", "intl/go.mod", "mise.toml", "intl/js/*.mjs", "locales/intl-messages.mjs"]
-outputs = ["build/app.wasm", "build/go.mjs", "build/worker.mjs", "build/runtime.mjs", "build/wasm_exec.js", "build/hub.mjs", "build/websocket.mjs", "build/tinygo-clock.mjs", "build/intl.mjs", "build/intl-worker.mjs", "build/intl-messages.mjs", "build/.dev"]
-env = { WASM_PROFILE = "dev" }
-run = "ci/wasm-build.sh"
-
-# The dev loop (gsx CLI, gsx.toml [dev]): the real runtime (Intl, Durable Objects, D1, the board), build:dev
-# (standard Go, seconds per save) + workerd.
+# The dev loop (gsx CLI, gsx.toml [dev]): the real runtime (Intl, Durable Objects, D1, the board), the build (seconds
+# per save) + workerd.
 # JS and CSS edits (web/htmx/, intl/js, web/gsxui) need no Go build: mise run assets, then reload.
 ["dev"]
-description = "gsx dev → build:dev (standard Go, seconds) + CSS → workerd restart on every .gsx/.go save → http://localhost:8913 (PORT: another port)"
+description = "gsx dev → build + CSS → workerd restart on every .gsx/.go save → http://localhost:8913 (PORT: another port)"
 # charter serve (gsx.toml's [dev] run) listens on PORT, gsx dev proxies APP_DEV_PORT: the same port, charter.toml's
 # 8913 by default (TestCharterToml).
 run = 'export PORT=${PORT:-8913} && export APP_DEV_PORT=$PORT && exec go tool gsx dev'
@@ -230,13 +234,22 @@ if [ -n "${E2E_BASE:-}" ]; then echo "→ $E2E_BASE"; e2e "$E2E_BASE"; else expo
 # CPU per request on local workerd (charter bench): what Cloudflare bills a Worker for, measured
 # without Cloudflare. CI runs `bench` and puts the table in its summary.
 ["bench"]
-description = "CPU per request of the production build on local workerd, per page, repeated runs (charter bench)"
+description = "CPU per request of the build on local workerd, per page, repeated runs (charter bench); BENCH_N requests a kind, BENCH_RUNS runs"
 depends = ["build"]
 dir = "{{config_root}}"
-run = "ci/bench.sh"
+run = '''
+#!/usr/bin/env bash
+set -euo pipefail
+n=${BENCH_N:-60} runs=${BENCH_RUNS:-3}
+# Reads go flat out; writes are paced (-every) to stay under the app's write limit (60 per 10 s). Waiting costs no
+# CPU, so pacing changes how long a run takes, never what it measures.
+charter with bash -c "
+  charter bench -n $n -runs $runs -label 'this build' 'GET /healthz' 'GET /de/' 'GET /board?topic=bench' 'GET /de/formats'
+  charter bench -n $n -runs $runs -label 'this build' -every 170ms 'POST /board/add?topic=bench delta=1'"
+'''
 
 # CI's CPU table (charter.toml's [ci] test): one short run into the run's summary, so a slower page shows on every PR.
-# CI's machines vary: for spotting a jump, not for the numbers in docs/benchmarks.md.
+# CI's machines vary: for spotting a jump, not for the numbers.
 ["ci:bench"]
 description = "CI: one short CPU-per-request run of the build on workerd, into the GitHub run's summary (charter.toml [ci] test)"
 depends = ["build"]
@@ -244,17 +257,11 @@ dir = "{{config_root}}"
 run = '''
 #!/usr/bin/env bash
 set -euo pipefail
-BENCH_N=30 BENCH_RUNS=1 ci/bench.sh | tee build/bench.txt
+BENCH_N=30 BENCH_RUNS=1 mise run --skip-deps bench | tee build/bench.txt
 if [ -n "${GITHUB_STEP_SUMMARY:-}" ]; then
   { echo; echo "CPU per request on workerd (ms, mise run bench):"; echo; echo '```'; grep -E "median|CPU per request" build/bench.txt; echo '```'; } >>"$GITHUB_STEP_SUMMARY"
 fi
 '''
-
-["bench:variants"]
-description = "Build the current code with each of charter's optimisations off in turn, measure each, write docs/benchmarks.md"
-depends = ["generate", "assets"]
-dir = "{{config_root}}"
-run = "ci/bench.sh variants"
 
 # Design size: 1,000 WebSockets on one topic, then a burst of 50 concurrent writes (coalescing), then socket 1,001
 # refused (e2e/load). Starts its own workerd (charter with) unless LOAD_BASE points somewhere else (e.g. the
@@ -299,9 +306,27 @@ test -z "$unformatted" || { echo "$unformatted"; echo "✗ gofmt: files need for
 go vet ./...
 # structpages' linter: links, ids and partials from the page tree, and htmx 4's target selector.
 mise run -q structpages:lint
-# With Intl as a Worker has it (ci/with-intl.sh): the tests render and format through it, and mise-intl says whether
-# every language is complete.
-ci/with-intl.sh sh -c 'go test ./... && mise-intl status'
+# With Intl as a Worker has it: the tests render and format through workerd's Intl, a small service outside a
+# Worker. This starts it on a free port (mise-intl daemon) and names it (INTL_WORKERD_URL); mise-intl would start it
+# through pitchfork otherwise, whose supervisor on a Mac may have no mise on its PATH (joeblew999/mise-intl#4). Then
+# mise-intl says whether every language is complete.
+log=$(mktemp); pid=""
+for _ in 1 2 3 4 5; do
+  port=$((20000 + RANDOM % 20000))
+  PORT=$port mise-intl daemon >"$log" 2>&1 &
+  pid=$!
+  for _ in $(seq 1 150); do
+    grep -q "workerd answers" "$log" && break 2
+    kill -0 "$pid" 2>/dev/null || break # the port was taken: another
+    sleep 0.2
+  done
+  kill "$pid" 2>/dev/null || true; pid=""
+done
+[ -n "$pid" ] || { cat "$log"; echo "✗ mise-intl daemon didn't start"; exit 1; }
+trap 'pkill -P "$pid" 2>/dev/null; kill "$pid" 2>/dev/null; rm -f "$log"' EXIT
+export INTL_WORKERD_URL="http://127.0.0.1:$port"
+go test ./...
+mise-intl status
 # charter.toml and charter's files here (its tasks, Workers Builds' launcher, its skill, the CI workflow).
 charter check
 # The skills gsx, gsxui and structpages ship are installed at the versions the app pins, and committed.
