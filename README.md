@@ -4,15 +4,15 @@
 [![release](https://img.shields.io/github/v/release/joeblew999/go-htmx4)](https://github.com/joeblew999/go-htmx4/releases)
 [![Go](https://img.shields.io/github/go-mod/go-version/joeblew999/go-htmx4)](go.mod)
 [![license](https://img.shields.io/github/license/joeblew999/go-htmx4)](LICENSE)
-[![intl: Go Reference](https://pkg.go.dev/badge/github.com/joeblew999/go-htmx4/intl.svg)](https://pkg.go.dev/github.com/joeblew999/go-htmx4/intl)
+[![intl: Go Reference](https://pkg.go.dev/badge/github.com/joeblew999/mise-intl.svg)](https://pkg.go.dev/github.com/joeblew999/mise-intl)
 [![seo: Go Reference](https://pkg.go.dev/badge/github.com/joeblew999/mise-seo.svg)](https://pkg.go.dev/github.com/joeblew999/mise-seo)
 
 [![performance](docs/badges/lighthouse-performance.svg)](#lighthouse)
 [![accessibility](docs/badges/lighthouse-accessibility.svg)](#lighthouse)
 [![best practices](docs/badges/lighthouse-best-practices.svg)](#lighthouse)
 [![seo](docs/badges/lighthouse-seo.svg)](#lighthouse)
-[![seo audit](docs/badges/seo-audit.svg)](docs/seo/README.md)
-[![languages](docs/badges/intl.svg)](intl/README.md)
+[![seo audit](docs/badges/seo-audit.svg)](https://github.com/joeblew999/mise-seo/blob/main/templates/docs/seo/README.md)
+[![languages](docs/badges/intl.svg)](https://github.com/joeblew999/mise-intl/blob/main/templates/docs/intl/README.md)
 
 **The problem.** A server-rendered Go web app on Cloudflare Workers takes many pieces, each found and fitted by hand:
 Go built small and fast enough for Workers, type-checked templates and real UI components, htmx for what's
@@ -21,17 +21,15 @@ runtime Workers has, previews and deploys. Each is a project of its own, the usu
 toolchain with it, and keeping them working together as each one moves is most of the work.
 
 **What go-htmx4 does.** It is such an app, with [Go](https://go.dev), [htmx 4](https://four.htmx.org) and
-[gsxui](https://ui.gsxhq.dev) on Cloudflare Workers, compiled with TinyGo, and no Node anywhere: no npm, no Vite, no
-wrangler. Every piece works together, live, checked on every change, and each one is a command away for an app of
-your own ([Start your own app](#start-your-own-app)):
+[gsxui](https://ui.gsxhq.dev) on Cloudflare Workers, and no Node anywhere: no npm, no Vite, no wrangler. Every piece works together, live, and
+checked on every change:
 
 - **Pages** in gsx from gsxui components: forms with out-of-band toasts, a dialog, tabs, client state with hx-live,
   boosted navigation, light/dark theme, 14 languages including right-to-left.
 - **A live shared board** (`/board`): Go writes to D1, a Durable Object per topic pushes every change to every open
   tab over WebSockets, with presence.
 - **Live video** (`/live`) from a browser camera over Media over QUIC through Cloudflare's relays, and **a map**
-  (`/map`) on Leaflet and OpenStreetMap: [blocks](blocks/README.md#components)'s components, which any gsx app adds
-  with one command.
+  (`/map`) on Leaflet and OpenStreetMap, as gsx components of the app's own (`views/blocks/`).
 - **Search-ready:** canonical URLs, `hreflang`, a sitemap and Open Graph on every page, audited live as Googlebot.
 
 **Live:** https://go-htmx4.ubuntusoftware.net (the board: [/board](https://go-htmx4.ubuntusoftware.net/board)).
@@ -56,37 +54,16 @@ Lighthouse mobile on Google's servers (PageSpeed Insights), 2026-11-25: `mise ru
 
 <!-- /seo scores -->
 
-## Two tools that come with it
+## What it is built on
 
-The app is built on two tools any gsx app can use as well, on Cloudflare Workers or an ordinary Go server: intl, a Go
-module from this repository, and [mise-seo](https://github.com/joeblew999/mise-seo), a mise tool of its own:
+The app is only the app. What it stands on are projects of their own, each pinned in `go.mod` and `mise.toml`:
 
-- **[intl](intl/README.md): every language, done properly.** Text lives in ICU message catalogs; dates, numbers,
-  plurals, lists and names come from V8's Intl (a Worker's own, or workerd's beside an ordinary Go server), on the
-  server and again in the reader's browser, in their time zone, right-to-left included. `mise run intl:translate` has Claude translate every new message into
-  every language, in parallel, in about two minutes; `mise run intl:check` keeps every catalog complete. Each language
-  gets its own URLs, `hreflang` links and sitemap entries, so Google indexes every language version and shows it to
-  the people who read that language. Its screens (a language list, the offer of a page in the reader's language, a
-  time zone and clock dialog) come with it, already translated: `go tool intl add`.
-- **[seo](docs/seo/README.md): what Google sees, checked.** One middleware answers robots.txt and the sitemap, keeps
-  what isn't a page out of the index, and gives every page one https address. Every `mise run check` then fetches
-  every page as Googlebot does and fails on anything that would keep a page out or look wrong in a result. After a
-  deploy, `mise run seo:lighthouse` scores every page on Google's servers (performance, accessibility, best
-  practices, SEO, with the failing elements named), and `mise run seo:todo` reports what Google has indexed.
-
-Each is set up by one command (`go tool intl init`, `mise-seo init`), which writes a config file into the project
-(`intl.toml`, `seo.toml`). Their mise tasks read it, so every task runs with no arguments, from a terminal or the VS
-Code mise panel, and an argument still overrides it for one run. Each also installs an agent skill, so Claude Code
-knows how to use it. Both use gsx's own mechanisms (renderers, filters, `gsx fmt` and its checks); issues and pull
-requests that make them, or gsx, better are welcome. [CONTRIBUTING.md](CONTRIBUTING.md) says how; you can leave the 13 translations
-of any text you add to us.
-
-On Cloudflare Workers, [charter](https://github.com/joeblew999/charter) is the platform, the same way:
-- **Setup:** `charter init` writes `charter.toml`, the Worker's every fact, and charter's tasks, skill and CI workflow.
-- **Running and shipping:** the `charter` command, pinned by mise, builds it with TinyGo, runs it on local workerd, deploys it, and serves CI and Workers Builds.
-- **Bindings:** they come through its packages (`d1`, `bindings`, `hub`), which stand in for themselves off Workers, so `go test` runs the real SQL.
-
-`e2e/fresh`'s `TestFreshWorker` makes such an app from nothing.
+| | What it gives | Where |
+|---|---|---|
+| **Languages** | Messages in ICU catalogs; dates, numbers, plurals and names from V8's Intl, on the server and in the reader's browser; Claude translating what's new | [mise-intl](https://github.com/joeblew999/mise-intl) ([mise-intl's guide](https://github.com/joeblew999/mise-intl/blob/main/templates/docs/intl/README.md)) |
+| **Search engines** | robots.txt, the sitemap, canonical addresses; an audit of every page as Googlebot reads it; Lighthouse | [mise-seo](https://github.com/joeblew999/mise-seo) ([mise-seo's guide](https://github.com/joeblew999/mise-seo/blob/main/templates/docs/seo/README.md)) |
+| **Cloudflare** | The build, local workerd, deploys, previews, CI, and the bindings (D1, Durable Objects, the rate limit) with stand-ins off Workers, so `go test` runs the real SQL | [charter](https://github.com/joeblew999/charter) |
+| **Pages and components** | Type-checked templates, UI components, routes as a tree of Go types | [gsx](https://gsxhq.github.io), [gsxui](https://ui.gsxhq.dev), [structpages](https://github.com/jackielii/structpages) |
 
 ## Quick start
 
@@ -95,8 +72,7 @@ git clone https://github.com/joeblew999/go-htmx4.git && cd go-htmx4
 mise install        # every pinned tool, and gsx for the editor
 mise run dev        # rebuild on every save → http://localhost:8913
 mise run check      # the production build under workerd, and go test
-mise run outdated   # every pin that's behind, go.mod's too (mise upgrade sees only mise's tools)
-mise run update     # move them all, then check and e2e
+mise run e2e        # the browser tests
 ```
 
 **Every command, and which to use when:** [docs/commands.md](docs/commands.md).
@@ -105,70 +81,36 @@ mise run update     # move them all, then check and e2e
 `mise install` puts go.mod's gsx where its language server looks; then run **gsx: Restart Language Server**. Don't
 use the extension's *Install gsx* prompt: it installs `@latest`, not the pinned version.
 
-## Start your own app
-
-Don't copy this repo: start from nothing and add the pieces, each with one command. It is what the fresh-app tests
-(`e2e/fresh`) do on every check, so it keeps working.
-
-```sh
-mkdir my-app && cd my-app && git init -q && go mod init github.com/you/my-app
-mise use github:joeblew999/charter  # the charter command, pinned in mise.toml
-go get github.com/joeblew999/charter@latest   # its library, at the same version
-go get -tool github.com/gsxhq/gsx/cmd/gsx github.com/joeblew999/go-htmx4/intl/cmd/intl \
-  github.com/joeblew999/go-htmx4/blocks/cmd/blocks
-gsxui init                        # gsxui's theme and components, npm-free (https://ui.gsxhq.dev)
-go tool blocks tasks && go tool blocks skill   # gsx's, gsxui's and structpages' tasks, and the skills they ship
-charter init                      # charter.toml: the Worker on Cloudflare, local workerd, deploys; charter's files
-go tool intl init -locales en,de  # intl.toml, the catalogs, intl's tasks and skill
-go tool intl add language-list language-offer preferences   # intl's screens, already translated
-go tool blocks add map moq        # the blocks' components: a map, live video (when the app wants them)
-mise exec "github:joeblew999/mise-seo[minimum_release_age=0s]@latest" -- mise-seo init --site https://my-app.example.com   # seo.toml, mise-seo's tasks and skill
-```
-
-Then [intl/README.md](intl/README.md), mise-seo's [docs/seo/README.md](docs/seo/README.md) and charter's
-[libraries page](https://github.com/joeblew999/charter/blob/main/docs/self/libraries.md) take it from there. To deploy,
-put a Cloudflare API token (Workers Scripts, D1 and Workers Tail edit) and your account id in the environment or in
-[fnox](https://github.com/jdx/fnox) as `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`, then `mise run
-charter:deploy production`. This repo's own previews, staging and releases: [docs/deploy.md](docs/deploy.md).
-
 ## Where things are
 
 | Path | What it is |
 | --- | --- |
 | `main.go` | the entry point: `transport.Run(app.Handler())` |
-| `app/` | the server (`server.go`: routes), the board (`board.go`, its stores), the app on the web (`site.go`: its languages, `intl.Site`, and search engines, `seo.Site`, with the sitemap's pages), what it takes from Cloudflare (`platform.go`, through charter's bindings, the same off Workers); each file's tests beside it |
-| `views/` | pages and fragments in gsx; the page tree (`pages.go`, [structpages](https://github.com/jackielii/structpages)); a page's data in a `.go` file beside it; `views/intl/`, intl's screens, written by `go tool intl add`; `views/blocks/`, the blocks' components (the map, live video), written by `go tool blocks add` |
-| `ui/`, `web/gsxui/` | gsxui components and their behaviours, vendored by `gsxui add`: never edited by hand |
-| `web/blocks/` | the blocks' components' browser files (Leaflet, @moq's elements, each with its glue), written by `go tool blocks add` |
-| `web/htmx/` | htmx 4, hx-ws and hx-live, vendored by `mise run vendor` |
-| `locales/` | the messages: one catalog per language (`en.toml` is the source) and `intl.sum` |
-| `intl/`, `intl.toml` | Intl for gsx apps, its own Go module ([intl/README.md](intl/README.md)); this app's languages |
-| `seo.toml`, `docs/seo/` | search engines, with [mise-seo](https://github.com/joeblew999/mise-seo) (`mise-seo init` writes its tasks, skill, workflow and [docs/seo/README.md](docs/seo/README.md)): the middleware, the audit, Lighthouse, Search Console; this app's settings |
-| `blocks/` | gsx's, gsxui's and structpages' mise tasks and the skills they ship, and our registry of components gsxui doesn't have (a map, live video), for any app, its own Go module ([blocks/README.md](blocks/README.md)) |
-| `badge/` | the README badges intl draws (SVG, no service), a tiny module of its own |
-| `internal/` | live (the board's message to the Room, topic and locale rules), classmerge (gsx's class merger, cached), jsbundle (npm packages bundled with esbuild's Go API, no Node: the blocks' components' browser files) |
-| `worker/`, `charter.toml` | the deployed JavaScript (the Worker's entry and the board's Durable Object), and everything about the Worker on Cloudflare, from which the `charter` command deploys it and runs it on local workerd |
+| `app/` | the server: routes, the board and its stores, the site's languages and search engines (`site.go`), what it takes from Cloudflare (`platform.go`) |
+| `views/` | pages and fragments in gsx, and the page tree (`pages.go`); `views/intl/`, mise-intl's screens; `views/blocks/`, the map, the places picker and live video |
+| `ui/`, `web/gsxui/` | gsxui's components and their behaviours, written by `gsxui add`: never edited by hand |
+| `web/` | what the browser loads: htmx (`mise run vendor`), the map's and the video's bundles (`mise run js:bundle`) |
+| `locales/`, `intl.toml` | the messages, one catalog per language (`en.toml` is the source), and the languages |
 | `migrations/` | D1's schema |
-| `e2e/` | the checks against a running server, its own Go module: `smoke/` over HTTP (`mise run smoke`), browser tests (`mise run e2e`), `load/` with 1,000 WebSockets (`mise run load`) |
-| `ci/`, `tasks/`, `mise.toml` | the scripts CI runs or several tasks share, the mise tasks, the pinned tools |
+| `worker/`, `charter.toml` | the two JavaScript files Cloudflare needs (the entry, the board's Durable Object), and everything about the Worker on Cloudflare |
+| `e2e/` | the checks against a running server: `smoke/` over HTTP, the browser tests, `load/` with 1,000 WebSockets |
+| `internal/` | the board's message rules (`live`), Nominatim (`places`), and the repo's own tools: `deps` (pins), `jsbundle` (npm packages bundled without Node) |
+| `tasks/`, `ci/`, `mise.toml` | the commands, the scripts several of them share, the pinned tools |
 | `docs/` | how it works, how it ships, every command |
 
 `build/` and `dist/` are build output, never committed.
 
 **Adding something, one way each:**
 
-- **A page:** a type in structpages' page tree (`views/pages.go`: a field in `Pages` with its route, an entry in
-  `All`, its data through `Props`), its `Page` method (`views/pages.gsx`), and a component in `views/<page>.gsx`
-  inside `Layout` with its own translated title and description. Links to it are `{ About{} |> url }`; the sitemap
-  and the noindex rules follow from the tree.
-- **Text:** a key in `locales/en.toml`, written `{ locales.Key }`, then `mise run intl:translate` and
-  `mise run intl:check`.
+- **A page:** a type in the page tree (`views/pages.go`: a field in `Pages` with its route, an entry in `All`, its
+  data through `Props`), its `Page` method (`views/pages.gsx`), and a component in `views/<page>.gsx` inside `Layout`
+  with its own translated title and description. Links to it are `{ About{} |> url }`.
+- **Text:** a key in `locales/en.toml`, written `{ locales.Key }`, then `mise run intl:translate`.
 - **A date, a number, any Intl call:** a filter in markup, `{ t |> date("dateStyle", "long") }`, its options in pairs.
-- **A language:** its id in `intl.toml`'s `locales`, then `mise run intl` and `mise run intl:translate`.
-- **A UI component:** `gsxui add <name>` at the repo root; `mise run intl` then names any text it writes that needs a
-  message.
-- **A command:** a mise task in `tasks/` with a description (it lands in [docs/commands.md](docs/commands.md)); its
-  shell in `ci/`.
+- **A language:** its id in `intl.toml`'s `locales`, then `mise run intl:gen` and `mise run intl:translate`.
+- **A UI component:** `gsxui add <name>` at the repo root; `mise run intl:gen` then names any text it writes that
+  needs a message.
+- **A command:** a mise task in `tasks/` with a description (it lands in [docs/commands.md](docs/commands.md)).
 
 ## Stack
 
@@ -176,7 +118,7 @@ Versions are pinned in [`mise.toml`](mise.toml) and [`go.mod`](go.mod).
 
 | Layer | Technology |
 | --- | --- |
-| Language | [Go](https://go.dev); [TinyGo](https://tinygo.org) for what ships to Workers, with [binaryen](https://github.com/WebAssembly/binaryen)'s `wasm-opt` |
+| Language | [Go](https://go.dev), compiled to WebAssembly by the standard compiler |
 | Templates and UI | [gsx](https://gsxhq.github.io) (type-checked Go templates), [gsxui](https://ui.gsxhq.dev) components, the [Tailwind](https://tailwindcss.com/docs/installation/tailwind-cli) standalone CLI |
 | Interactivity | [htmx 4](https://four.htmx.org) with hx-live and hx-ws, vendored in `web/htmx/` |
 | Hosting | [Cloudflare Workers](https://workers.cloudflare.com): [charter](https://github.com/joeblew999/charter)'s Go runtime and tools over [workers-go](https://github.com/syumai/workers-go); [workerd](https://github.com/cloudflare/workerd) locally |

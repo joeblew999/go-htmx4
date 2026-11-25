@@ -35,9 +35,9 @@ func llms(origin string) string {
 	}
 	raw := "https://raw.githubusercontent.com/" + repo + "/main/"
 	docs := []seo.LLMsLink{
-		{Title: "README", URL: raw + "README.md", Note: "what this is, and how to start an app of your own from its pieces"},
-		{Title: "intl", URL: raw + "docs/intl/README.md", Note: "every language of an app through the runtime's Intl (mise-intl)"},
-		{Title: "seo", URL: raw + "docs/seo/README.md", Note: "what Google and agents read, and the audit that checks it (mise-seo)"},
+		{Title: "README", URL: raw + "README.md", Note: "what this is, what it is built on, and where things are"},
+		{Title: "intl", URL: "https://raw.githubusercontent.com/joeblew999/mise-intl/main/templates/docs/intl/README.md", Note: "every language of an app through the runtime's Intl (mise-intl)"},
+		{Title: "seo", URL: "https://raw.githubusercontent.com/joeblew999/mise-seo/main/templates/docs/seo/README.md", Note: "what Google and agents read, and the audit that checks it (mise-seo)"},
 		{Title: "Architecture", URL: raw + "docs/architecture.md", Note: "how the app works"},
 		{Title: "Deploy", URL: raw + "docs/deploy.md", Note: "how it ships to Cloudflare Workers"},
 		{Title: "Commands", URL: raw + "docs/commands.md", Note: "every mise task"},

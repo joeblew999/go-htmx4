@@ -37,22 +37,23 @@ browser ─ hx-post /board/add|note ─────▶ worker/index.mjs ─▶ G
 
 ## Languages
 
-Intl is the one source of language, through `intl/`: its own Go module, which any gsx app can use
-([intl/README.md](../intl/README.md)). Views write messages as typed values (`{ locales.NavHome }`,
-`{ locales.BoardNotes(n) }`) and Intl calls as gsx filters (`{ t |> date(opts) }`, `{ n |> number }`), rendered by the
-renderers in `gsx.toml`. `intl/js/intl.mjs` formats every message (ICU MessageFormat, plural forms by
-`Intl.PluralRules`), every value and every locale fact with the runtime's V8 Intl: on the Worker, where Go calls it,
-and in the browser, which redoes the viewer's own time zone and relative times as they age. Go routes and passes
-values; `go test` uses workerd's Intl (`intl/intltest`).
+Intl is the one source of language, through [mise-intl](https://github.com/joeblew999/mise-intl)
+([mise-intl's guide](https://github.com/joeblew999/mise-intl/blob/main/templates/docs/intl/README.md)): its Go packages in `go.mod`, its binary in `mise.toml`, the same release.
+Views write messages as typed values (`{ locales.NavHome }`, `{ locales.BoardNotes(n) }`) and Intl calls as gsx
+filters (`{ t |> date(opts) }`, `{ n |> number }`), rendered by the renderers in `gsx.toml`. Every message (ICU
+MessageFormat, plural forms by `Intl.PluralRules`), every value and every locale fact is formatted by the runtime's V8
+Intl: on the Worker, where Go calls it, and in the browser, which redoes the viewer's own time zone and relative times
+as they age. Go routes and passes values; `go test` uses workerd's Intl (`intltest`), which `ci/with-intl.sh` starts.
 
-`intl.toml` lists the languages and the translators' notes; `locales/*.toml` holds their text. intl's own mise
-tasks (`.mise/tasks/intl.toml`, written by `go tool intl tasks` as in any app) are the workflow:
-- `intl` compiles the catalogs.
+`intl.toml` lists the languages and the translators' notes; `locales/*.toml` holds their text. The app's own tasks
+(`tasks/app.toml`) call mise-intl's binary:
+- `intl:gen` compiles the catalogs.
 - `intl:translate` translates what is missing or stale with Claude Code.
-- `intl:todo`, `intl:export` and `intl:import` serve people translating.
-- `intl:check` (in `test:go`) fails on anything missing, stale, unused or short of a plural case.
-- `intl:add` copies intl's screens into `views/intl/`: the language list, the language offer and the time zone and
-  clock dialog, with their text (`[intl]`) already translated. The layout uses them as they are (`TestIntlScreens`).
+- `intl:todo` says what is left; `intl:confirm` keeps a stale translation that is still right.
+- `intl:status` (as `mise-intl status`, in `test:go`) fails while a language is incomplete.
+
+`views/intl/` has mise-intl's screens (the language list, the language offer, the time zone and clock dialog), their
+text already translated: `mise-intl add -overwrite <screen>` writes them again.
 
 URLs: the default locale is unprefixed, every other is `/<lowercase id>/…`, `/en/…` and mixed-case prefixes redirect;
 no Accept-Language redirects, and only `/` follows the `locale` cookie. A locale whose catalog isn't complete is
@@ -66,9 +67,8 @@ served `noindex`.
   Graph tags. Fragments, `/healthz`, form posts and previews send `X-Robots-Tag: noindex`.
 - Every page has one address: the Worker's `*.workers.dev` URL and plain http redirect to `https://` the custom domain
   (`seo.Site` in `app/site.go`), so one host is indexed.
-- `mise run deploy` then audits robots.txt and every sitemap URL live as Googlebot (`seo:audit`);
-  `seo:todo` gives Google's verdict per URL. Both come from [mise-seo](https://github.com/joeblew999/mise-seo),
-  pinned in `.mise/config.toml` (`docs/seo/README.md`).
+- `mise run deploy` then audits robots.txt and every sitemap URL live as Googlebot (`seo:audit`). It is
+  [mise-seo](https://github.com/joeblew999/mise-seo)'s, pinned in `mise.toml` and `go.mod` ([its guide](https://github.com/joeblew999/mise-seo/blob/main/templates/docs/seo/README.md)).
 
 ## Layout
 
@@ -79,12 +79,10 @@ served `noindex`.
 │                                                seo.Site), platform.go (Cloudflare through charter's bindings)
 ├── views/  ui/  web/gsxui/  web/htmx/           pages (structpages' tree: pages.go; gsx; views/intl: intl's screens), gsxui components and
 │                                                behaviours, vendored htmx
-├── views/blocks/  web/blocks/                   the blocks' components (the map, live video) and their bundles, from go tool blocks add
-├── intl/  intl.toml                             Intl for gsx (its own module); the app's languages
-├── seo.toml  docs/seo/                         search engines: mise-seo's settings and its docs (mise-seo init)
-├── blocks/                                      gsx's and gsxui's tasks and skills, and our component registry (its own module)
+├── views/blocks/  web/blocks/                   the map, the places picker and live video, and their browser bundles
+├── intl.toml  seo.toml                          the languages' and search engines' settings (mise-intl, mise-seo)
 ├── locales/                                     UI messages (*.toml) and their generated package
-├── internal/                                    live (the Room's message, topic and locale rules), classmerge, jsbundle (npm, no Node)
+├── internal/                                    live (the Room's message rules), places, classmerge, deps and jsbundle (the repo's tools)
 ├── worker/  charter.toml                        the deployed JS (entry, Room); the Worker on Cloudflare (charter)
 ├── migrations/                                  D1 schema
 ├── e2e/                                         smoke/ (HTTP), browser tests, load/ (1,000 WebSockets): its own module

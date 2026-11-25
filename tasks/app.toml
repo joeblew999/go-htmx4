@@ -77,7 +77,7 @@ description = "The messages package from the catalogs (intl:gen), then gsx:gener
 depends = ["intl:gen"]
 run = "mise run gsx:generate"
 
-# The languages (mise-intl, docs/intl/README.md) and what search engines read (mise-seo, docs/seo/README.md): the few
+# The languages (mise-intl) and what search engines read (mise-seo); their guides are in their repositories. The few
 # of their commands this app uses, each the tool's own binary (mise.toml pins it).
 ["intl:gen"]
 description = "The catalogs (locales/*.toml) compiled into the app's messages package, locales/intl_gen.go, and intl.sum"
@@ -337,7 +337,7 @@ run = "fnox exec -- charter token"
 ["deploy"]
 description = "Test, then deploy production → https://$APP_DOMAIN (or $APP_NAME.<subdomain>.workers.dev), then seo:audit live"
 depends = ["test", "token-check"]
-# Google must be able to crawl what was just deployed (seo/README.md).
+# Google must be able to crawl what was just deployed (https://github.com/joeblew999/mise-seo/blob/main/templates/docs/seo/README.md).
 depends_post = ["seo:audit"]
 dir = "{{config_root}}"
 run = '''

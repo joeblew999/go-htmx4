@@ -3,13 +3,13 @@ class_merger = "github.com/joeblew999/go-htmx4/internal/classmerge.Merge"
 # gsx config for the app (gsx Configuration guide).
 # gsx's htmx preset knows hx-action; add htmx 4's hx-ws:connect, which also carries a URL.
 url_presets = ["htmx"]
-# intl as gsx filters (intl/README.md): { t |> date(opts) }, { n |> number }, { t |> since }, title={ m |> text }.
+# intl as gsx filters (https://github.com/joeblew999/mise-intl/blob/main/templates/docs/intl/README.md): { t |> date(opts) }, { n |> number }, { t |> since }, title={ m |> text }.
 filter_packages = ["github.com/joeblew999/mise-intl/gsxintl/filters"]
 
 # gsxui components write their own text ("Close", "Notifications") as ui/i18n.T; translate it from the catalogs.
 [renderers]
 "github.com/joeblew999/go-htmx4/ui/i18n.T" = "github.com/joeblew999/go-htmx4/ui/i18n.Translate"
-# intl (intl/README.md): an Intl call or a translated message written in markup renders in the request's language.
+# intl (https://github.com/joeblew999/mise-intl/blob/main/templates/docs/intl/README.md): an Intl call or a translated message written in markup renders in the request's language.
 "github.com/joeblew999/mise-intl/intl.Value" = "github.com/joeblew999/mise-intl/gsxintl.Render"
 "github.com/joeblew999/mise-intl/intl.Msg" = "github.com/joeblew999/mise-intl/intl.Translate"
 "github.com/joeblew999/mise-intl/intl.Plain" = "github.com/joeblew999/mise-intl/intl.PlainText"
