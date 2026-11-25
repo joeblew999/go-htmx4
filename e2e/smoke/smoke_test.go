@@ -1,10 +1,10 @@
-// Package smoke checks a running Worker over plain HTTP: every route, the TinyGo build, the server's Intl, locales,
+// Package smoke checks a running Worker over plain HTTP: every route, the Wasm build, the server's Intl, locales,
 // SEO, the board through D1 and the Room, and live pushes. One list of checks for both places it runs:
 //
 //	go tool charter check        wrangler dev serving the build (local-only checks too)
 //	go tool charter live-test    the deployed Worker
 //
-// BASE is the URL. go test runs the handlers on standard Go, which hides TinyGo runtime gaps; this runs the
+// BASE is the URL. go test runs the handlers natively; this runs the
 // real wasm.
 package smoke
 
@@ -104,7 +104,7 @@ func TestMain(m *testing.M) {
 
 func TestPages(t *testing.T) {
 	page := get(t, "/").body
-	// runtime.Compiler of the build being checked: "tinygo", or "gc" for WORKER_COMPILER=go.
+	// runtime.Compiler of the build being checked.
 	has(t, "page runs on "+compiler+" wasm", page, `<span id="target" translate="no">`+compiler+` js/wasm</span>`)
 	if local {
 		has(t, "text binding APP_ENV", page, `<span id="env" translate="no">wrangler dev (local)</span>`)
@@ -208,7 +208,7 @@ func TestSEO(t *testing.T) {
 	has(t, "fragment noindex", get(t, "/fragments/stats").header.Get("X-Robots-Tag"), "noindex")
 }
 
-// TestAudit: the whole site as Googlebot reads it (mise-seo's audit.Audit, what seo:audit runs after a deploy):
+// TestAudit: the whole site as Googlebot reads it (charter's audit.Audit, what charter seo audit runs):
 // robots.txt, the sitemap, and every page in it 200, indexable, self-canonical, with lang, a title, a description, one
 // h1 and reciprocal hreflang. Here, before it ships. A preview or staging is noindex throughout (APP_PREVIEW), so
 // there is nothing for Google to read: skipped.
@@ -228,7 +228,7 @@ func TestAudit(t *testing.T) {
 	}
 }
 
-// TestBoard: Go (TinyGo) → database/sql d1 driver → D1 → publish → Room Durable Object → hx-ws, and live pushes to
+// TestBoard: Go → database/sql d1 driver → D1 → publish → Room Durable Object → hx-ws, and live pushes to
 // WebSockets in three locales (e2e/load).
 func TestBoard(t *testing.T) {
 	has(t, "board page with hx-ws", get(t, "/board?topic=smoke").body, `hx-ws:connect="/live/smoke?locale=en"`)

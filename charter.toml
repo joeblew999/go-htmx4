@@ -25,7 +25,7 @@ badge = "docs/badges/intl.svg"
 [intl.inherit]
 en-IN = "en"
 [intl.notes]
-"*" = "A demo site for developers. Keep product and technical names in English as the source writes them: gsx, gsxui, htmx, hx-live, hx-ws, Go, TinyGo, Cloudflare Workers, Durable Objects, D1, Intl, Node. Short UI labels stay short."
+"*" = "A demo site for developers. Keep product and technical names in English as the source writes them: gsx, gsxui, htmx, hx-live, hx-ws, Go, Vite, wrangler, Cloudflare Workers, Durable Objects, D1, Intl, Node. Short UI labels stay short."
 de = "Address the reader as Sie."
 fr = "Address the reader as vous. Use French typography: a no-break space before : ; ? !"
 es = "Address the reader as tú."

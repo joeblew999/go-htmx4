@@ -1,10 +1,9 @@
 // Package app is the go-htmx4 app: its routes, handlers, stores and Cloudflare calls (the root main.go runs it).
 // Pages and fragments are gsx components in views/, built from gsxui; their text and formats come from intl.
 //
-// The pages are views.Pages, structpages' tree, mounted on charter's web.NewServeMux, which has Go 1.22 patterns under
-// TinyGo too. The other routes are plain paths with method checks (allow). No html/template: under TinyGo 0.43 it
-// compiles but panics at execute time. What the app
-// takes from Cloudflare is platform.go, through charter, which stands in for it off Workers (go test).
+// The pages are views.Pages, structpages' tree, mounted on net/http's mux. The other routes are plain paths with
+// method checks (allow). What the app takes from Cloudflare is platform.go, through charter, which stands in for it
+// off Workers (go test, the dev loop).
 package app
 
 import (
@@ -166,11 +165,10 @@ func (s *server) Connection(r *http.Request) views.Connection { return connectio
 
 func (s *server) Stack() []views.StackItem { return stack }
 
-// allow is charter's web.Allow: plain-path routes check their method in the handler (TinyGo's ServeMux has no
-// method patterns).
+// allow is charter's web.Allow: plain-path routes check their method in the handler.
 var allow = web.Allow
 
-// target reports which compiler and platform served the request, e.g. "tinygo js/wasm"
+// target reports which compiler and platform served the request, e.g. "gc js/wasm"
 // on Workers or "gc darwin/arm64" under go test.
 func target() string {
 	return runtime.Compiler + " " + runtime.GOOS + "/" + runtime.GOARCH

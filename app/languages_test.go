@@ -392,7 +392,7 @@ func TestTimeZonePreferences(t *testing.T) {
 	}
 }
 
-// TestLocalesMatchConfig: locales.Shipped is intl.toml's locales, in that order (mise run intl regenerates it).
+// TestLocalesMatchConfig: locales.Shipped is charter.toml's [intl] locales, in that order (go tool charter build regenerates it).
 func TestLocalesMatchConfig(t *testing.T) {
 	c, err := config.Find(".")
 	if err != nil {
@@ -403,7 +403,7 @@ func TestLocalesMatchConfig(t *testing.T) {
 		ids = append(ids, l.ID())
 	}
 	if !slices.Equal(ids, c.Locales) {
-		t.Errorf("intl.toml locales = %v, locales.Shipped has %v: mise run intl", c.Locales, ids)
+		t.Errorf("charter.toml [intl] locales = %v, locales.Shipped has %v: go tool charter build", c.Locales, ids)
 	}
 }
 

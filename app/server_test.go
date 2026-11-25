@@ -18,7 +18,7 @@ import (
 
 // TestMain runs the tests with the Worker's Intl, on workerd (intl/intltest).
 func TestMain(m *testing.M) {
-	// mise.toml's APP_DOMAIN reaches go test too: tests ask for example.com, which would move to the domain
+	// An APP_DOMAIN in the environment would reach go test: tests ask for example.com, which would move to the domain
 	// (seo.Site). A test about that sets it (TestOneAddress).
 	os.Unsetenv("APP_DOMAIN")
 	os.Exit(intltest.Main(m))
@@ -147,7 +147,7 @@ func TestHeadOrder(t *testing.T) {
 }
 
 // BenchmarkPages renders each page as a request would, with standard Go: time and, above all, memory per
-// page. Memory is what costs on Workers, where TinyGo's allocator and collector are far slower:
+// page. Memory is what costs on Workers:
 //
 //	go test -run '^$' -bench Pages -benchmem
 func BenchmarkPages(b *testing.B) {

@@ -1,6 +1,5 @@
-// /blocks/map.js and /blocks/map.css: Leaflet (bundled by internal/jsbundle from npm-lock.json, its stylesheet beside
-// it: mise run blocks:bundle), and the glue between it and the markup of the blocks' map component
-// (blocks/ui/map.gsx.tmpl), which go tool blocks add copies into an app (#164).
+// The map's entry (vite.config.ts): Leaflet from npm with its stylesheet, and the glue between it and the markup of
+// the map component (views/blocks/map.gsx), which loads this with <assets.Entry name="web/map.js"/>.
 //
 // Everything a reader sees is in the markup, translated and made of gsxui components: the zoom and location buttons,
 // each marker's pin and popup (a <template> the component renders), the attribution. The glue only hands them to

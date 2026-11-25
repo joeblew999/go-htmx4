@@ -39,7 +39,7 @@ func TestLLMs(t *testing.T) {
 	for _, m := range link.FindAllStringSubmatch(docs, -1) {
 		file, ours := strings.CutPrefix(m[2], "https://raw.githubusercontent.com/"+repo+"/main/")
 		if !ours {
-			continue // another repository's page (mise-intl's and mise-seo's guides)
+			continue // another repository's page (charter's)
 		}
 		if _, err := os.Stat(filepath.Join("..", file)); err != nil {
 			t.Errorf("llms.txt links %s: %v", m[2], err)

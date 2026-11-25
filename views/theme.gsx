@@ -9,7 +9,7 @@ import (
 // ThemeScript goes in <head>. Both scripts are gsxui's showcase site, copied: the paint-blocking
 // theme init from site/pages/document.gsx and the toggle click handler from web/site.js, with its sync of
 // same-origin frames marked data-site-isolated-preview (the /components sidebar), on a toggle and when one loads;
-// gsxui e23aef1, the pin in mise.toml. The handler is delegated from <head>, so it registers once even when htmx
+// gsxui, at the version go.mod pins. The handler is delegated from <head>, so it registers once even when htmx
 // swaps the body.
 component ThemeScript() {
 	<script>

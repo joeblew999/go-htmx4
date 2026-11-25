@@ -67,7 +67,7 @@ type Message struct {
 }
 
 // JSON is what the Room's publish reads: {"version":7,"default":"en","fragments":{"de":"…","en":"…"}}, keys sorted,
-// HTML not escaped (written by hand: encoding/json is reflection-heavy under TinyGo, and escapes every <).
+// HTML not escaped (written by hand: encoding/json escapes every <).
 func (l Message) JSON() json.RawMessage {
 	keys := make([]string, 0, len(l.Fragments))
 	for k := range l.Fragments {
@@ -90,7 +90,7 @@ func (l Message) JSON() json.RawMessage {
 	return json.RawMessage(b.String())
 }
 
-// writeJSONString writes s as a JSON string (encoding/json is reflection-heavy under TinyGo).
+// writeJSONString writes s as a JSON string (by hand, as the fragment's HTML must not be escaped).
 func writeJSONString(b *strings.Builder, s string) {
 	const hex = "0123456789abcdef"
 	b.WriteByte('"')
@@ -118,7 +118,7 @@ func writeJSONString(b *strings.Builder, s string) {
 	b.WriteByte('"')
 }
 
-// ValidTopic reports whether t matches [TopicPattern]. It avoids regexp, which is heavy under TinyGo.
+// ValidTopic reports whether t matches [TopicPattern].
 func ValidTopic(t string) bool {
 	if len(t) == 0 || len(t) > 32 {
 		return false

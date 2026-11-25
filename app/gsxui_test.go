@@ -17,7 +17,7 @@ import (
 // fonts, the components and their scripts) is still what gsxui wrote, and every CSS file in the repository is one of
 // them, or the stylesheet of a library a component bundles from npm (Leaflet's, for the map: its own panes and tiles,
 // not a look of ours). Change the
-// look with mise run gsxui:theme, a component with gsxui add --overwrite.
+// look with go tool gsxui apply, a component with gsxui add --overwrite.
 func TestGsxuiFiles(t *testing.T) {
 	b, err := os.ReadFile("../gsxui.json")
 	if err != nil {
@@ -36,17 +36,15 @@ func TestGsxuiFiles(t *testing.T) {
 			continue
 		}
 		if sum := sha256.Sum256(b); hex.EncodeToString(sum[:]) != want {
-			t.Errorf("%s isn't what gsxui wrote: change the look with mise run gsxui:theme, a component with gsxui add --overwrite", path)
+			t.Errorf("%s isn't what gsxui wrote: change the look with go tool gsxui apply, a component with gsxui add --overwrite", path)
 		}
 	}
 	out, err := exec.Command("git", "-C", "..", "ls-files", "*.css").Output()
 	if err != nil {
 		t.Fatal(err)
 	}
-	// Leaflet's own stylesheet, which the map's bundle step writes (mise run js:bundle).
-	bundled := map[string]bool{"web/blocks/map.css": true}
 	for _, path := range strings.Fields(string(out)) {
-		if _, ok := cfg.Managed[path]; !ok && !bundled[path] {
+		if _, ok := cfg.Managed[path]; !ok {
 			t.Errorf("%s: the only CSS is gsxui's (gsxui.json's managed files)", path)
 		}
 	}

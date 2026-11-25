@@ -109,7 +109,7 @@ Every page of the live site, scored by Lighthouse; each badge above is the lowes
 | [/map](https://go-htmx4.ubuntusoftware.net/map) | 90 | 100 | 96 | 100 |
 | [/about](https://go-htmx4.ubuntusoftware.net/about) | 99 | 100 | 100 | 100 |
 
-Lighthouse mobile on Google's servers (PageSpeed Insights), 2026-11-25: `mise run seo:badges` writes this table and the badges.
+Lighthouse mobile on Google's servers (PageSpeed Insights), 2026-11-25: `go tool charter seo badges` writes this table and the badges.
 
 <!-- /seo scores -->
 

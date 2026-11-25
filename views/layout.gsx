@@ -36,7 +36,7 @@ import (
 // <html lang dir> come from the request's locale (intl.HTML), and every UI string from locales/*.toml (intl.Msg).
 // <html data-tz data-hc> are the viewer's chosen time zone and clock ("" = the browser's own and the language's), for
 // intl-browser.mjs, which redoes dates, times and rich numbers in the browser. The head carries what search engines
-// and link previews read (mise-seo's gsxseo.Head: the translated title and description, Open Graph, the site's icon,
+// and link previews read (charter's gsxseo.Head: the translated title and description, Open Graph, the site's icon,
 // and on the home page the site's name for Google) and the page's language versions (intl.Head, with the page table's
 // Key). intl's screens (go tool intl add, in views/intl) offer the page in the reader's language above the content,
 // list it in every language in the footer, outside the boosted nav (switching locale must be a full page load, since a
