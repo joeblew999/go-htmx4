@@ -66,7 +66,10 @@ func Handler(dist fs.FS) http.Handler {
 // Go runtime that answered (charter's go.mjs keeps runtimes between requests, and starts new ones);
 // under go test it keeps counting.
 type server struct {
+	// started is when this Go runtime served its first request. Not when it was made: on Workers a runtime may
+	// start while the Worker's module loads, where the clock still reads 1970.
 	started  time.Time
+	first    sync.Once
 	requests atomic.Int64
 
 	mu    sync.Mutex
@@ -126,6 +129,7 @@ func (s *server) render(w http.ResponseWriter, r *http.Request, name string, n g
 
 // count counts a request, by what it rendered: the server-info and stats fragments show them.
 func (s *server) count(name string) {
+	s.first.Do(func() { s.started = time.Now() })
 	s.requests.Add(1)
 	s.mu.Lock()
 	s.stats[name]++

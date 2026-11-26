@@ -251,23 +251,31 @@ func TestWriteLimit(t *testing.T) {
 	}
 	var mu sync.Mutex
 	codes := map[int]int{}
+	refused := "" // what a write over the limit was answered with
 	var wg sync.WaitGroup
 	sem := make(chan struct{}, 10)
-	for i := 0; i < 70; i++ {
-		wg.Add(1)
-		sem <- struct{}{}
-		go func() {
-			defer wg.Done()
-			defer func() { <-sem }()
-			r := post(t, "/board/add?topic=smoke-limit", "delta=1")
-			mu.Lock()
-			codes[r.status]++
-			mu.Unlock()
-		}()
+	// The limit counts in fixed windows of its period, so one burst that straddles the end of a window can pass
+	// whole (half in each). A second burst right after cannot: the two fit in two windows, and one of them is full.
+	for burst := 0; burst < 2 && codes[429] == 0; burst++ {
+		for i := 0; i < 70; i++ {
+			wg.Add(1)
+			sem <- struct{}{}
+			go func() {
+				defer wg.Done()
+				defer func() { <-sem }()
+				r := post(t, "/board/add?topic=smoke-limit", "delta=1")
+				mu.Lock()
+				codes[r.status]++
+				if r.status == 429 {
+					refused = r.body
+				}
+				mu.Unlock()
+			}()
+		}
+		wg.Wait()
 	}
-	wg.Wait()
 	if codes[429] == 0 {
 		t.Errorf("✗ write limit → 429: got %v", codes)
 	}
-	has(t, "429 carries a toast", post(t, "/board/add?topic=smoke-limit", "delta=1").body, "Slow down")
+	has(t, "429 carries a toast", refused, "Slow down")
 }
