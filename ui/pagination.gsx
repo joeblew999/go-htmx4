@@ -79,7 +79,7 @@ component PaginationPrevious(href string, attrs gsx.Attrs) {
 		href={href}
 		size="default"
 		aria-label={i18n.T("Go to previous page")}
-		class={ "pl-1.5 has-[>svg]:pl-1.5" }
+		class={ "ps-1.5 has-[>svg]:ps-1.5" }
 		{ attrs... }
 		data-gsxui-slot-pagination-previous
 	>
@@ -93,7 +93,7 @@ component PaginationNext(href string, attrs gsx.Attrs) {
 		href={href}
 		size="default"
 		aria-label={i18n.T("Go to next page")}
-		class={ "pr-1.5 has-[>svg]:pr-1.5" }
+		class={ "pe-1.5 has-[>svg]:pe-1.5" }
 		{ attrs... }
 		data-gsxui-slot-pagination-next
 	>

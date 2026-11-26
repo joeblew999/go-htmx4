@@ -246,7 +246,7 @@ component MenubarTrigger(children gsx.Node, attrs gsx.Attrs) {
 component MenubarContent(children gsx.Node, attrs gsx.Attrs) {
 	<div
 		class={
-			"max-h-96 origin-top-left overflow-x-hidden overflow-y-auto outline-none",
+			"max-h-96 origin-top-start overflow-x-hidden overflow-y-auto outline-none",
 			"transition-none bg-popover text-popover-foreground data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 ring-foreground/10 min-w-36 rounded-lg p-1 shadow-md ring-1 duration-100"
 		}
 		popover="auto"
@@ -271,7 +271,7 @@ component MenubarItem(variant string, children gsx.Node, attrs gsx.Attrs) {
 	<div
 		class={
 			"group/menubar-item relative cursor-default items-center outline-hidden select-none [&_svg]:pointer-events-none [&_svg]:shrink-0",
-			"focus:bg-accent focus:text-accent-foreground dark:data-[variant=destructive]:focus:bg-destructive/20 not-data-[variant=destructive]:focus:**:text-accent-foreground gap-1.5 rounded-md px-1.5 py-1 text-sm data-inset:pl-7 [&_svg:not([class*='size-'])]:size-4 flex data-disabled:pointer-events-none",
+			"focus:bg-accent focus:text-accent-foreground dark:data-[variant=destructive]:focus:bg-destructive/20 not-data-[variant=destructive]:focus:**:text-accent-foreground gap-1.5 rounded-md px-1.5 py-1 text-sm data-inset:ps-7 [&_svg:not([class*='size-'])]:size-4 flex data-disabled:pointer-events-none",
 			switch variant {
 			case "destructive":
 				"text-destructive focus:bg-destructive/10 focus:text-destructive *:[svg]:text-destructive"
@@ -321,7 +321,7 @@ component MenubarCheckboxItem(checked bool, value string, children gsx.Node, att
 	<div
 		class={
 			"relative cursor-default items-center outline-hidden select-none [&_svg]:pointer-events-none [&_svg]:shrink-0",
-			"data-disabled:pointer-events-none [&_svg:not([class*='text-'])]:text-muted-foreground focus:bg-accent focus:text-accent-foreground focus:**:text-accent-foreground gap-1.5 rounded-md py-1 pr-1.5 pl-7 text-sm data-inset:pl-7 flex"
+			"data-disabled:pointer-events-none [&_svg:not([class*='text-'])]:text-muted-foreground focus:bg-accent focus:text-accent-foreground focus:**:text-accent-foreground gap-1.5 rounded-md py-1 pe-1.5 ps-7 text-sm data-inset:ps-7 flex"
 		}
 		role="menuitemcheckbox"
 		data-value={value}
@@ -338,7 +338,7 @@ component MenubarCheckboxItem(checked bool, value string, children gsx.Node, att
 	>
 		<span
 			class={
-				"pointer-events-none absolute hidden left-1.5 size-4 items-center justify-center [[data-state=checked]_&]:flex [&_svg:not([class*='size-'])]:size-4"
+				"pointer-events-none absolute hidden start-1.5 size-4 items-center justify-center [[data-state=checked]_&]:flex [&_svg:not([class*='size-'])]:size-4"
 			}
 			data-gsxui-slot-menubar-checkbox-item-indicator
 		>
@@ -372,7 +372,7 @@ component MenubarRadioItem(checked bool, value string, children gsx.Node, attrs 
 	<div
 		class={
 			"relative cursor-default items-center outline-hidden select-none [&_svg]:pointer-events-none [&_svg]:shrink-0",
-			"data-disabled:pointer-events-none [&_svg:not([class*='text-'])]:text-muted-foreground focus:bg-accent focus:text-accent-foreground focus:**:text-accent-foreground gap-1.5 rounded-md py-1 pr-1.5 pl-7 text-sm data-inset:pl-7 [&_svg:not([class*='size-'])]:size-4 flex"
+			"data-disabled:pointer-events-none [&_svg:not([class*='text-'])]:text-muted-foreground focus:bg-accent focus:text-accent-foreground focus:**:text-accent-foreground gap-1.5 rounded-md py-1 pe-1.5 ps-7 text-sm data-inset:ps-7 [&_svg:not([class*='size-'])]:size-4 flex"
 		}
 		role="menuitemradio"
 		data-value={value}
@@ -389,7 +389,7 @@ component MenubarRadioItem(checked bool, value string, children gsx.Node, attrs 
 	>
 		<span
 			class={
-				"pointer-events-none absolute hidden left-1.5 size-4 items-center justify-center [[data-state=checked]_&]:flex [&>svg]:size-2 [&>svg]:fill-current"
+				"pointer-events-none absolute hidden start-1.5 size-4 items-center justify-center [[data-state=checked]_&]:flex [&>svg]:size-2 [&>svg]:fill-current"
 			}
 			data-gsxui-slot-menubar-radio-item-indicator
 		>
@@ -405,7 +405,7 @@ component MenubarRadioItem(checked bool, value string, children gsx.Node, attrs 
 // .cn-menubar-label rule is genuinely text-sm, a real per-component nova
 // value, not a copy of dropdown's own (already-shipped) Label metrics.
 component MenubarLabel(children gsx.Node, attrs gsx.Attrs) {
-	<div class={ "px-1.5 py-1 text-sm font-medium data-inset:pl-7" } { attrs... } data-gsxui-slot-menubar-label>
+	<div class={ "px-1.5 py-1 text-sm font-medium data-inset:ps-7" } { attrs... } data-gsxui-slot-menubar-label>
 		{ children }
 	</div>
 }
@@ -426,7 +426,7 @@ component MenubarSeparator(attrs gsx.Attrs) {
 // dropdown/context-menu Shortcut in this codebase.
 component MenubarShortcut(children gsx.Node, attrs gsx.Attrs) {
 	<span
-		class={ "text-muted-foreground group-focus/menubar-item:text-accent-foreground text-xs tracking-widest ml-auto" }
+		class={ "text-muted-foreground group-focus/menubar-item:text-accent-foreground text-xs tracking-widest ms-auto" }
 		{ attrs... }
 		data-gsxui-slot-menubar-shortcut
 	>
@@ -481,7 +481,7 @@ component MenubarSubTrigger(children gsx.Node, attrs gsx.Attrs) {
 	<div
 		class={
 			"cursor-default items-center outline-hidden select-none [&_svg]:pointer-events-none [&_svg]:shrink-0",
-			"focus:bg-accent focus:text-accent-foreground data-[state=open]:bg-accent data-[state=open]:text-accent-foreground gap-1.5 rounded-md px-1.5 py-1 text-sm data-inset:pl-7 [&_svg:not([class*='size-'])]:size-4 flex"
+			"focus:bg-accent focus:text-accent-foreground data-[state=open]:bg-accent data-[state=open]:text-accent-foreground gap-1.5 rounded-md px-1.5 py-1 text-sm data-inset:ps-7 [&_svg:not([class*='size-'])]:size-4 flex"
 		}
 		role="menuitem"
 		aria-haspopup="menu"
@@ -492,7 +492,7 @@ component MenubarSubTrigger(children gsx.Node, attrs gsx.Attrs) {
 		data-gsxui-slot-menubar-sub-trigger
 	>
 		{ children }
-		<icon.ChevronRight class={ "ml-auto" }/>
+		<icon.ChevronRight class={ "ms-auto" }/>
 	</div>
 }
 
@@ -512,7 +512,7 @@ component MenubarSubTrigger(children gsx.Node, attrs gsx.Attrs) {
 component MenubarSubContent(children gsx.Node, attrs gsx.Attrs) {
 	<div
 		class={
-			"max-h-96 origin-top-left overflow-x-hidden overflow-y-auto outline-none",
+			"max-h-96 origin-top-start overflow-x-hidden overflow-y-auto outline-none",
 			"transition-none bg-popover text-popover-foreground data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 ring-foreground/10 min-w-32 rounded-lg p-1 shadow-lg ring-1 duration-100"
 		}
 		popover="auto"

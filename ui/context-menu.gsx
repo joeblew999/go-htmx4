@@ -87,7 +87,7 @@ component ContextMenuTrigger(children gsx.Node, attrs gsx.Attrs) {
 component ContextMenuContent(children gsx.Node, attrs gsx.Attrs) {
 	<div
 		class={
-			"max-h-96 origin-top-left overflow-x-hidden overflow-y-auto outline-none",
+			"max-h-96 origin-top-start overflow-x-hidden overflow-y-auto outline-none",
 			"transition-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 ring-foreground/10 bg-popover text-popover-foreground min-w-36 rounded-lg p-1 shadow-md ring-1 duration-100"
 		}
 		popover="auto"
@@ -110,7 +110,7 @@ component ContextMenuItem(variant string, children gsx.Node, attrs gsx.Attrs) {
 	<div
 		class={
 			"group/context-menu-item relative cursor-default items-center outline-hidden select-none [&_svg]:pointer-events-none [&_svg]:shrink-0",
-			"focus:bg-accent focus:text-accent-foreground dark:data-[variant=destructive]:focus:bg-destructive/20 focus:*:[svg]:text-accent-foreground gap-1.5 rounded-md px-1.5 py-1 text-sm data-inset:pl-7 [&_svg:not([class*='size-'])]:size-4 flex data-disabled:pointer-events-none",
+			"focus:bg-accent focus:text-accent-foreground dark:data-[variant=destructive]:focus:bg-destructive/20 focus:*:[svg]:text-accent-foreground gap-1.5 rounded-md px-1.5 py-1 text-sm data-inset:ps-7 [&_svg:not([class*='size-'])]:size-4 flex data-disabled:pointer-events-none",
 			switch variant {
 			case "destructive":
 				"text-destructive focus:bg-destructive/10 focus:text-destructive *:[svg]:text-destructive"
@@ -156,7 +156,7 @@ component ContextMenuCheckboxItem(checked bool, value string, children gsx.Node,
 	<div
 		class={
 			"relative cursor-default items-center outline-hidden select-none [&_svg]:pointer-events-none [&_svg]:shrink-0",
-			"data-disabled:pointer-events-none [&_svg:not([class*='text-'])]:text-muted-foreground focus:bg-accent focus:text-accent-foreground gap-1.5 rounded-md py-1 pr-8 pl-1.5 text-sm data-inset:pl-7 [&_svg:not([class*='size-'])]:size-4 flex"
+			"data-disabled:pointer-events-none [&_svg:not([class*='text-'])]:text-muted-foreground focus:bg-accent focus:text-accent-foreground gap-1.5 rounded-md py-1 pe-8 ps-1.5 text-sm data-inset:ps-7 [&_svg:not([class*='size-'])]:size-4 flex"
 		}
 		role="menuitemcheckbox"
 		data-value={value}
@@ -213,7 +213,7 @@ component ContextMenuRadioItem(checked bool, value string, children gsx.Node, at
 	<div
 		class={
 			"relative cursor-default items-center outline-hidden select-none [&_svg]:pointer-events-none [&_svg]:shrink-0",
-			"data-disabled:pointer-events-none [&_svg:not([class*='text-'])]:text-muted-foreground focus:bg-accent focus:text-accent-foreground gap-1.5 rounded-md py-1 pr-8 pl-1.5 text-sm data-inset:pl-7 [&_svg:not([class*='size-'])]:size-4 flex"
+			"data-disabled:pointer-events-none [&_svg:not([class*='text-'])]:text-muted-foreground focus:bg-accent focus:text-accent-foreground gap-1.5 rounded-md py-1 pe-8 ps-1.5 text-sm data-inset:ps-7 [&_svg:not([class*='size-'])]:size-4 flex"
 		}
 		role="menuitemradio"
 		data-value={value}
@@ -248,7 +248,7 @@ component ContextMenuRadioItem(checked bool, value string, children gsx.Node, at
 // context-menu).
 component ContextMenuLabel(children gsx.Node, attrs gsx.Attrs) {
 	<div
-		class={ "text-muted-foreground px-1.5 py-1 text-xs font-medium data-inset:pl-7" }
+		class={ "text-muted-foreground px-1.5 py-1 text-xs font-medium data-inset:ps-7" }
 		{ attrs... }
 		data-gsxui-slot-context-menu-label
 	>
@@ -263,7 +263,7 @@ component ContextMenuSeparator(attrs gsx.Attrs) {
 component ContextMenuShortcut(children gsx.Node, attrs gsx.Attrs) {
 	<span
 		class={
-			"text-muted-foreground group-focus/context-menu-item:text-accent-foreground ml-auto text-xs tracking-widest"
+			"text-muted-foreground group-focus/context-menu-item:text-accent-foreground ms-auto text-xs tracking-widest"
 		}
 		{ attrs... }
 		data-gsxui-slot-context-menu-shortcut
@@ -299,7 +299,7 @@ component ContextMenuSubTrigger(children gsx.Node, attrs gsx.Attrs) {
 	<div
 		class={
 			"cursor-default items-center outline-hidden select-none [&_svg]:pointer-events-none [&_svg]:shrink-0",
-			"focus:bg-accent focus:text-accent-foreground data-[state=open]:bg-accent data-[state=open]:text-accent-foreground gap-1.5 rounded-md px-1.5 py-1 text-sm data-inset:pl-7 [&_svg:not([class*='size-'])]:size-4 flex"
+			"focus:bg-accent focus:text-accent-foreground data-[state=open]:bg-accent data-[state=open]:text-accent-foreground gap-1.5 rounded-md px-1.5 py-1 text-sm data-inset:ps-7 [&_svg:not([class*='size-'])]:size-4 flex"
 		}
 		role="menuitem"
 		aria-haspopup="menu"
@@ -331,7 +331,7 @@ component ContextMenuSubTrigger(children gsx.Node, attrs gsx.Attrs) {
 component ContextMenuSubContent(children gsx.Node, attrs gsx.Attrs) {
 	<div
 		class={
-			"max-h-96 origin-top-left overflow-x-hidden overflow-y-auto outline-none",
+			"max-h-96 origin-top-start overflow-x-hidden overflow-y-auto outline-none",
 			"transition-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 bg-popover text-popover-foreground min-w-32 rounded-lg border p-1 shadow-lg duration-100"
 		}
 		popover="auto"

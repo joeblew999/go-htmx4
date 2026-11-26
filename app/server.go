@@ -24,7 +24,7 @@ import (
 	"github.com/jackielii/structpages"
 	"github.com/joeblew999/charter/bindings"
 	"github.com/joeblew999/charter/intl"
-	"github.com/joeblew999/charter/web"
+	"github.com/joeblew999/charter/transport"
 	"github.com/joeblew999/go-htmx4/locales"
 	"github.com/joeblew999/go-htmx4/views"
 	intlui "github.com/joeblew999/go-htmx4/views/intl"
@@ -115,11 +115,11 @@ func (s *server) routes() http.Handler {
 	return s.vite.Middleware(withCSP(withSite(mux)))
 }
 
-// render counts the request, then writes n with charter's web.Render (buffered, Content-Length: chunked
+// render counts the request, then writes n with charter's transport.Render (buffered, Content-Length: chunked
 // responses broke htmx history restore under workerd).
 func (s *server) render(w http.ResponseWriter, r *http.Request, name string, n gsx.Node) {
 	s.count(name)
-	if err := web.Render(w, r, n); err != nil {
+	if err := transport.Render(w, r, n); err != nil {
 		log.Printf("render %s: %v", name, err)
 	}
 }
@@ -133,7 +133,7 @@ func (s *server) count(name string) {
 }
 
 // pageMiddleware is structpages' middleware for every page: it counts the view under the page's name, and sends the
-// page as web.Render does, buffered with a Content-Length (chunked responses broke htmx history restore under workerd).
+// page as transport.Render does, buffered with a Content-Length (chunked responses broke htmx history restore under workerd).
 func (s *server) pageMiddleware(next http.Handler, pn *structpages.PageNode) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		s.count(pn.Name)
@@ -165,8 +165,8 @@ func (s *server) Connection(r *http.Request) views.Connection { return connectio
 
 func (s *server) Stack() []views.StackItem { return stack }
 
-// allow is charter's web.Allow: plain-path routes check their method in the handler.
-var allow = web.Allow
+// allow is charter's transport.Allow: plain-path routes check their method in the handler.
+var allow = transport.Allow
 
 // target reports which compiler and platform served the request, e.g. "gc js/wasm"
 // on Workers or "gc darwin/arm64" under go test.

@@ -44,7 +44,7 @@ component TableRow(children gsx.Node, attrs gsx.Attrs) {
 component TableHead(children gsx.Node, attrs gsx.Attrs) {
 	<th
 		class={
-			"text-foreground h-10 px-2 text-left align-middle font-medium whitespace-nowrap [&:has([role=checkbox])]:pr-0"
+			"text-foreground h-10 px-2 text-start align-middle font-medium whitespace-nowrap [&:has([role=checkbox])]:pe-0"
 		}
 		{ attrs... }
 		data-gsxui-slot-table-head
@@ -55,7 +55,7 @@ component TableHead(children gsx.Node, attrs gsx.Attrs) {
 
 component TableCell(children gsx.Node, attrs gsx.Attrs) {
 	<td
-		class={ "p-2 align-middle whitespace-nowrap [&:has([role=checkbox])]:pr-0" }
+		class={ "p-2 align-middle whitespace-nowrap [&:has([role=checkbox])]:pe-0" }
 		{ attrs... }
 		data-gsxui-slot-table-cell
 	>

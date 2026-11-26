@@ -6,7 +6,7 @@ import (
 	"github.com/joeblew999/charter/bindings"
 	"github.com/joeblew999/charter/intl"
 	"github.com/joeblew999/charter/seo"
-	"github.com/joeblew999/charter/web"
+	"github.com/joeblew999/charter/transport"
 	"github.com/joeblew999/go-htmx4/views"
 )
 
@@ -23,7 +23,7 @@ func withSite(mux http.Handler) http.Handler {
 
 // languages is intl.Site: locale URLs (/about, /de/about), the locale cookie, the viewer's time zone and clock,
 // Content-Language, and noindex for a locale whose catalog is incomplete.
-var languages = intl.Site{IsPage: views.IsPage, ConnectionTimeZone: connectionTimeZone, Origin: web.Origin}
+var languages = intl.Site{IsPage: views.IsPage, ConnectionTimeZone: connectionTimeZone, Origin: transport.Origin}
 
 // search is seo.Site, read per request from the Worker's bindings: robots.txt; llms.txt (llms.go); the sitemap, every page search engines
 // may index in every locale with its alternates; noindex on whatever isn't such a page, and on everything in a
@@ -36,6 +36,6 @@ func search() seo.Site {
 		IsPage:        views.Indexable,
 		Preview:       bindings.Var("APP_PREVIEW") != "",
 		ContentSignal: "search=yes, ai-input=yes, ai-train=yes",
-		Origin:        web.Origin,
+		Origin:        transport.Origin,
 	}
 }

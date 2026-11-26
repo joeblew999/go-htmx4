@@ -21,7 +21,7 @@ component AccordionItem(name string, open bool, children gsx.Node, attrs gsx.Att
 component AccordionTrigger(children gsx.Node, attrs gsx.Attrs) {
 	<summary
 		class={
-			"focus-visible:ring-ring/50 focus-visible:border-ring focus-visible:after:border-ring rounded-lg py-2.5 text-left text-sm font-medium hover:underline focus-visible:ring-3 flex items-start outline-none transition-all border border-transparent"
+			"focus-visible:ring-ring/50 focus-visible:border-ring focus-visible:after:border-ring rounded-lg py-2.5 text-start text-sm font-medium hover:underline focus-visible:ring-3 flex items-start outline-none transition-all border border-transparent"
 		}
 		{ attrs... }
 		data-gsxui-slot-accordion-trigger
@@ -29,7 +29,7 @@ component AccordionTrigger(children gsx.Node, attrs gsx.Attrs) {
 		{ children }
 		<icon.ChevronDown
 			class={
-				"text-muted-foreground ml-auto size-4 shrink-0 transition-transform duration-200 [[data-gsxui-slot-accordion-item][open]_&]:rotate-180"
+				"text-muted-foreground ms-auto size-4 shrink-0 transition-transform duration-200 [[data-gsxui-slot-accordion-item][open]_&]:rotate-180"
 			}
 			data-gsxui-slot-accordion-trigger-icon
 		/>

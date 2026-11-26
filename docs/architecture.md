@@ -49,12 +49,12 @@ program starts itself.
 
 `charter.toml`'s `[intl]` lists the languages and the translators' notes; `locales/*.toml` holds their text:
 - `go tool charter build` compiles the catalogs.
-- `go tool charter intl translate` translates what is missing or stale with Claude Code.
-- `go tool charter intl todo` says what is left; `intl confirm` keeps a stale translation that is still right.
+- `go tool charter run translate` translates what is missing or stale with Claude Code.
+- `go tool charter run todo` says what is left; `go tool charter run confirm` keeps a stale translation that is still right.
 - `go tool charter check` fails while a language is incomplete.
 
 `views/intl/` has the language screens (the language list, the language offer, the time zone and clock dialog), their
-text already translated: `go tool charter intl add --overwrite <screen>` writes them again.
+text already translated: `go tool charter add screen:<screen> -overwrite` writes them again.
 
 URLs: the default locale is unprefixed, every other is `/<lowercase id>/…`, `/en/…` and mixed-case prefixes redirect;
 no Accept-Language redirects, and only `/` follows the `locale` cookie. A locale whose catalog isn't complete is
@@ -69,7 +69,7 @@ served `noindex`.
 - Every page has one address: the Worker's `*.workers.dev` URL and plain http redirect to `https://` the custom domain
   (`seo.Site` in `app/site.go`), so one host is indexed.
 - `go tool charter check` audits robots.txt and every sitemap URL as Googlebot reads them, on wrangler dev;
-  `go tool charter seo audit` does the same on the live site.
+  `go tool charter run audit` does the same on the live site.
 
 ## Layout
 

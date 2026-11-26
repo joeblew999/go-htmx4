@@ -160,7 +160,7 @@ component ItemTitle(children gsx.Node, attrs gsx.Attrs) {
 component ItemDescription(children gsx.Node, attrs gsx.Attrs) {
 	<p
 		class={
-			"text-muted-foreground text-left text-sm leading-normal group-data-[size=xs]/item:text-xs line-clamp-2 font-normal [&>a]:underline [&>a]:underline-offset-4 [&>a:hover]:text-primary"
+			"text-muted-foreground text-start text-sm leading-normal group-data-[size=xs]/item:text-xs line-clamp-2 font-normal [&>a]:underline [&>a]:underline-offset-4 [&>a:hover]:text-primary"
 		}
 		{ attrs... }
 		data-gsxui-slot-item-description

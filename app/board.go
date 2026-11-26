@@ -20,7 +20,7 @@ import (
 
 	"github.com/joeblew999/charter/bindings"
 	"github.com/joeblew999/charter/intl"
-	"github.com/joeblew999/charter/web"
+	"github.com/joeblew999/charter/transport"
 	"github.com/joeblew999/go-htmx4/internal/live"
 	"github.com/joeblew999/go-htmx4/locales"
 	"github.com/joeblew999/go-htmx4/views"
@@ -120,7 +120,7 @@ func change(w http.ResponseWriter, r *http.Request, topic string, write func(sto
 	if err := publish(r.Context(), topic, m); err != nil {
 		log.Printf("publish %s v%d: %v", topic, b.Version, err)
 	}
-	web.WriteHTML(w, []byte(m.Fragments[intl.Key(intl.Current(r.Context()))]))
+	transport.WriteHTML(w, []byte(m.Fragments[intl.Key(intl.Current(r.Context()))]))
 }
 
 // topicOf reads ?topic= (default "lobby") and checks it with live.ValidTopic, the rule worker/index.mjs

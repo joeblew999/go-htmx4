@@ -35,7 +35,8 @@ every tool, on macOS, Linux and Windows.
 git clone https://github.com/joeblew999/go-htmx4.git && cd go-htmx4
 npm install
 go tool charter dev        # work on it: a save rebuilds and reloads
-go tool charter check      # before a push: format, vet, go test, languages, the Worker on wrangler dev, the audit
+go tool charter check      # before a push: format, vet, lint, languages
+go tool charter test       # go test, then the Worker on wrangler dev and the search-engine audit
 go tool charter test e2e   # the browser tests (Chrome)
 ```
 
@@ -43,12 +44,13 @@ go tool charter test e2e   # the browser tests (Chrome)
 |---|---|
 | `go tool charter dev` | gsx's dev loop on a Go server, with Vite: a save regenerates, rebuilds and reloads the browser |
 | `go tool charter preview` | The Worker as Cloudflare runs it, on wrangler dev → http://localhost:8913 |
-| `go tool charter check` | Everything before a push, in about 15 seconds |
-| `go tool charter test e2e` | The browser tests against wrangler dev; `-base https://…` against a deployed site |
+| `go tool charter check` | What can be seen without running it: format, vet, lint, languages |
+| `go tool charter test` | `go test`, the Worker on wrangler dev, the search-engine audit; `--env staging` asks the deployed one |
+| `go tool charter test e2e` | The browser tests against wrangler dev; `--base https://…` against a deployed site |
 | `go tool charter test load` | 1,000 WebSockets on one topic |
 | `go tool charter deploy staging` | The D1 migrations, then wrangler deploy. `production` likewise |
-| `go tool charter intl` | The languages: what is translated, what is left. `go tool charter intl translate` translates it |
-| `go tool charter seo lighthouse` | Lighthouse on the live site |
+| `go tool charter run languages` | The languages: what is translated, what is left. `go tool charter run translate` translates it |
+| `go tool charter run lighthouse` | Lighthouse on the live site |
 
 `go tool charter` lists the rest. **VS Code:** install the recommended
 [gsx extension](https://marketplace.visualstudio.com/items?itemName=gsxhq.gsx).
@@ -86,9 +88,9 @@ The settings, one file per tool:
 - **A page:** a type in the page tree (`views/pages.go`: a field in `Pages` with its route, an entry in `All`, its
   data through `Props`), its `Page` method (`views/pages.gsx`), and a component in `views/<page>.gsx` inside `Layout`
   with its own translated title and description. Links to it are `{ About{} |> url }`.
-- **Text:** a key in `locales/en.toml`, written `{ locales.Key }`, then `go tool charter intl translate`.
+- **Text:** a key in `locales/en.toml`, written `{ locales.Key }`, then `go tool charter run translate`.
 - **A date, a number, any Intl call:** a filter in markup, `{ t |> date("dateStyle", "long") }`, its options in pairs.
-- **A language:** `go tool charter intl add-locale de`, then translate.
+- **A language:** `go tool charter add locale:de`, then translate.
 - **A UI component:** `go tool gsxui add <name>`; the build then names any text it writes that needs a message.
 - **Browser code:** in `web/`, imported from `web/main.js`; an npm package is `npm install <name>`.
 - **A binding or a variable:** `wrangler.jsonc`.
@@ -109,7 +111,7 @@ Every page of the live site, scored by Lighthouse; each badge above is the lowes
 | [/map](https://go-htmx4.ubuntusoftware.net/map) | 90 | 100 | 96 | 100 |
 | [/about](https://go-htmx4.ubuntusoftware.net/about) | 99 | 100 | 100 | 100 |
 
-Lighthouse mobile on Google's servers (PageSpeed Insights), 2026-11-25: `go tool charter seo badges` writes this table and the badges.
+Lighthouse mobile on Google's servers (PageSpeed Insights), 2026-11-25: `go tool charter run badges` writes this table and the badges.
 
 <!-- /seo scores -->
 

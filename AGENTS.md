@@ -8,8 +8,8 @@ The repo is only the app. Its tools are upstream's: gsx, gsxui, Vite, wrangler, 
 ## Work
 
 - Plans, open work and follow-ups are GitHub issues here, never files. Name the issue (`#N`) in commits.
-- Work is on `main`. Before a push: `go tool charter check`, and `go tool charter test e2e` after a change to pages,
-  the board or browser code. `git status` must be clean first.
+- Work is on `main`. Before a push: `go tool charter check && go tool charter test`, and `go tool charter test e2e`
+  after a change to pages, the board or browser code. `git status` must be clean first.
 - End every report with a **Follow-ups** list: what's next, what was found and not fixed, checks skipped, leftovers.
 
 ## Tools
@@ -29,8 +29,8 @@ The repo is only the app. Its tools are upstream's: gsx, gsxui, Vite, wrangler, 
 `web/intl/`, `build/`, `dist/`: `go tool charter build` writes them.
 
 Committed, and written by a tool: what `gsxui.json` lists (`ui/`, `web/gsxui/`: `go tool gsxui add`),
-`views/intl/*.gsx` (`go tool charter intl add --overwrite <screen>`), `locales/intl.sum`, `docs/badges/` and the
-README's scores table (`go tool charter seo badges`), `patches/` (`npx patch-package <package>`).
+`views/intl/*.gsx` (`go tool charter add screen:<screen> -overwrite`), `locales/intl.sum`, `docs/badges/` and the
+README's scores table (`go tool charter run badges`), `patches/` (`npx patch-package <package>`).
 
 ## UI: gsx, gsxui, htmx 4
 
@@ -55,8 +55,8 @@ README's scores table (`go tool charter seo badges`), `patches/` (`npx patch-pac
 - No literal reader-facing text in `views/` or handlers: a message in `locales/en.toml`, written `{ locales.Key }` or
   `{ locales.Key(n) }`. Components take `intl.Msg`; Go code takes `intl.Text(ctx, m)`. Brand names, code and machine
   values get `translate="no"`.
-- **Every message change is translated in the same commit:** `go tool charter intl translate`, or
-  `go tool charter intl confirm` for a stale one that is still right. The check fails while a language is incomplete.
+- **Every message change is translated in the same commit:** `go tool charter run translate`, or
+  `go tool charter run confirm` for a stale one that is still right. The check fails while a language is incomplete.
 - Dates and numbers go through Intl's gsx filters (`{ t |> date("dateStyle", "long") }`, `{ n |> number }`), never
   `time.Format` or `strconv`. Options are always pairs.
 - User text in its own element gets `dir="auto"`. Logical Tailwind classes only (`ms-`, `pe-`, `start-`).
@@ -75,9 +75,10 @@ README's scores table (`go tool charter seo badges`), `patches/` (`npx patch-pac
 
 - **Memory between requests is a cache, never state:** any request may start a new Go runtime. Shared state needs a
   Cloudflare binding.
-- **Bindings come through charter, never workers-go directly:** `bindings.Var`, `bindings.Allow`,
-  `bindings.StaticAssets`, `bindings.HTTPClient`, `d1.Open`, `hub.DurableObject`, `transport.CFOf(r)`. Each has its
-  stand-in off Workers, so there is no file per platform and `go test` runs the real SQL.
+- **Bindings come through charter where it has a stand-in for `go test`:** `bindings.Var`, `bindings.Allow`,
+  `bindings.StaticAssets`, `bindings.HTTPClient`, `d1.Open`, `live.DurableObject`, `transport.CFOf(r)`. So there is no
+  file per platform and `go test` runs the real SQL. Anything else Cloudflare has is workers-go's own package, in a
+  file that builds only for a Worker.
 - JavaScript only in `worker/` (the entry, the Durable Object) and `web/`.
 
 ## Cloudflare

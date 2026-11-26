@@ -6,7 +6,7 @@ import (
 	"net/http"
 
 	"github.com/joeblew999/charter/bindings"
-	"github.com/joeblew999/charter/hub"
+	charterlive "github.com/joeblew999/charter/live"
 	"github.com/joeblew999/charter/transport"
 	"github.com/joeblew999/go-htmx4/internal/live"
 	"github.com/joeblew999/go-htmx4/views"
@@ -42,7 +42,7 @@ func staticFiles() http.Handler { return bindings.StaticAssets("dist") }
 // bound as ROOM) with Workers RPC, which pushes each connected browser its locale's fragment. Off Workers it goes to
 // charter's in-memory hub: no Room, so only the poster's response carries the new fragment.
 func publish(ctx context.Context, topic string, m live.Message) error {
-	room, err := hub.DurableObject[json.RawMessage]("ROOM", topic)
+	room, err := charterlive.DurableObject[json.RawMessage]("ROOM", topic)
 	if err != nil {
 		return err
 	}

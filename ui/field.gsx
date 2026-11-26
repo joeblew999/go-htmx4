@@ -126,7 +126,7 @@ component FieldTitle(children gsx.Node, attrs gsx.Attrs) {
 component FieldDescription(children gsx.Node, attrs gsx.Attrs) {
 	<p
 		class={
-			"text-muted-foreground text-left text-sm [[data-variant=legend]+&]:-mt-1.5 leading-normal font-normal [&>a]:underline [&>a]:underline-offset-4 [&>a:hover]:text-primary"
+			"text-muted-foreground text-start text-sm [[data-variant=legend]+&]:-mt-1.5 leading-normal font-normal [&>a]:underline [&>a]:underline-offset-4 [&>a:hover]:text-primary"
 		}
 		{ attrs... }
 		data-gsxui-slot-field-description

@@ -9,7 +9,7 @@ import (
 	"strings"
 
 	"github.com/joeblew999/charter/bindings"
-	"github.com/joeblew999/charter/web"
+	"github.com/joeblew999/charter/transport"
 	"github.com/joeblew999/go-htmx4/views"
 )
 
@@ -50,7 +50,7 @@ func (s *server) Live(r *http.Request) views.LiveProps {
 		PublishURL: relayURL(base, bindings.Var("MOQ_PUBLISH_TOKEN")),
 		Own:        own,
 		OwnName:    streamName(own),
-		Origin:     web.Origin(r),
+		Origin:     transport.Origin(r),
 	}
 	if watch := r.URL.Query().Get("stream"); validStream.MatchString(watch) {
 		p.Watch, p.WatchName = watch, streamName(watch)

@@ -11,7 +11,7 @@ wrangler deploys the Worker; `go tool charter deploy <environment>` applies the 
 
 ## Before a deploy
 
-`go tool charter check`, and `go tool charter test e2e` after a change to pages, the board or browser code.
+`go tool charter check && go tool charter test`, and `go tool charter test e2e` after a change to pages, the board or browser code.
 
 ## Credentials
 
@@ -25,9 +25,9 @@ fnox exec -- go tool charter deploy staging
 ## After a deploy
 
 ```sh
-BASE=https://go-htmx4-staging.gedw99.workers.dev go test -C e2e -count=1 ./smoke
-go tool charter test e2e -base https://go-htmx4-staging.gedw99.workers.dev
-go tool charter seo audit      # production, as Googlebot reads it
+go tool charter test --env staging        # the smoke tests against the deployed Worker
+go tool charter test e2e --env staging    # the browser tests
+go tool charter run audit      # production, as Googlebot reads it
 ```
 
 ## The database

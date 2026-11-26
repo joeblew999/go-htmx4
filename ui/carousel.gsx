@@ -148,7 +148,7 @@ component CarouselPrevious(orientation string, attrs gsx.Attrs) {
 			"absolute size-8 rounded-full touch-manipulation",
 			switch orientation {
 			case "vertical":
-				"-top-12 left-1/2 -translate-x-1/2 rotate-90"
+				"-top-12 start-1/2 -translate-x-1/2 rtl:translate-x-1/2 rotate-90"
 			default:
 				"top-1/2 -start-12 -translate-y-1/2 active:not-aria-[haspopup]:translate-y-[calc(1px_-_50%)]"
 			}
@@ -172,7 +172,7 @@ component CarouselNext(orientation string, attrs gsx.Attrs) {
 			"absolute size-8 rounded-full touch-manipulation",
 			switch orientation {
 			case "vertical":
-				"-bottom-12 left-1/2 -translate-x-1/2 rotate-90"
+				"-bottom-12 start-1/2 -translate-x-1/2 rtl:translate-x-1/2 rotate-90"
 			default:
 				"top-1/2 -end-12 -translate-y-1/2 active:not-aria-[haspopup]:translate-y-[calc(1px_-_50%)]"
 			}

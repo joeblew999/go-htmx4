@@ -337,14 +337,14 @@ component ComboboxItem(value string, selected bool, children gsx.Node, attrs gsx
 		aria-selected={selected}
 		class={
 			"relative w-full items-center cursor-default items-center outline-hidden select-none [&_svg]:pointer-events-none [&_svg]:shrink-0",
-			"data-highlighted:bg-accent data-highlighted:text-accent-foreground not-data-[variant=destructive]:data-highlighted:**:text-accent-foreground gap-2 rounded-md py-1 pr-8 pl-1.5 text-sm [&_svg:not([class*='size-'])]:size-4 flex data-[state=checked]:[&>[data-gsxui-slot-combobox-item-indicator]]:flex"
+			"data-highlighted:bg-accent data-highlighted:text-accent-foreground not-data-[variant=destructive]:data-highlighted:**:text-accent-foreground gap-2 rounded-md py-1 pe-8 ps-1.5 text-sm [&_svg:not([class*='size-'])]:size-4 flex data-[state=checked]:[&>[data-gsxui-slot-combobox-item-indicator]]:flex"
 		}
 		{ attrs... }
 		data-gsxui-slot-combobox-item
 	>
 		{ children }
 		<span
-			class={ "pointer-events-none absolute right-2 hidden size-4 items-center justify-center" }
+			class={ "pointer-events-none absolute end-2 hidden size-4 items-center justify-center" }
 			data-gsxui-slot-combobox-item-indicator
 		>
 			<icon.Check/>

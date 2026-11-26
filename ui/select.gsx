@@ -81,7 +81,7 @@ component SelectTrigger(size string, children gsx.Node, attrs gsx.Attrs) {
 		data-placeholder
 		class={
 			"w-fit items-center whitespace-nowrap outline-none disabled:cursor-not-allowed disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
-			"border-input data-placeholder:text-muted-foreground dark:bg-input/30 dark:hover:bg-input/50 focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:aria-invalid:border-destructive/50 gap-1.5 rounded-lg border bg-transparent py-2 pr-2 pl-2.5 text-sm transition-colors select-none focus-visible:ring-3 aria-invalid:ring-3 [&_svg:not([class*='size-'])]:size-4 flex",
+			"border-input data-placeholder:text-muted-foreground dark:bg-input/30 dark:hover:bg-input/50 focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:aria-invalid:border-destructive/50 gap-1.5 rounded-lg border bg-transparent py-2 pe-2 ps-2.5 text-sm transition-colors select-none focus-visible:ring-3 aria-invalid:ring-3 [&_svg:not([class*='size-'])]:size-4 flex",
 			switch size { case "sm": "h-7 rounded-[min(var(--radius-md),10px)]" default: "h-8" }
 		}
 		{ attrs... }
@@ -96,7 +96,7 @@ component SelectTrigger(size string, children gsx.Node, attrs gsx.Attrs) {
 // selected. select.js overwrites its text content on selection. The default
 // stylesheet applies pointer-events:none.
 component SelectValue(placeholder string, attrs gsx.Attrs) {
-	<span class={ "items-center line-clamp-1", "flex gap-1.5 flex-1 text-left" } { attrs... } data-gsxui-slot-select-value>{ placeholder }</span>
+	<span class={ "items-center line-clamp-1", "flex gap-1.5 flex-1 text-start" } { attrs... } data-gsxui-slot-select-value>{ placeholder }</span>
 }
 
 // SelectContent is the popover listbox. It rides the exact dropdown-menu.js
@@ -169,13 +169,13 @@ component SelectItem(value string, selected bool, disabled bool, children gsx.No
 		} }
 		class={
 			"relative w-full items-center cursor-default outline-hidden select-none data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
-			"focus:bg-accent focus:text-accent-foreground not-data-[variant=destructive]:focus:**:text-accent-foreground gap-1.5 rounded-md py-1 pr-8 pl-1.5 text-sm [&_svg:not([class*='size-'])]:size-4 *:[span]:last:flex *:[span]:last:items-center *:[span]:last:gap-2 flex data-[state=checked]:[&>[data-gsxui-slot-select-item-indicator]]:flex"
+			"focus:bg-accent focus:text-accent-foreground not-data-[variant=destructive]:focus:**:text-accent-foreground gap-1.5 rounded-md py-1 pe-8 ps-1.5 text-sm [&_svg:not([class*='size-'])]:size-4 *:[span]:last:flex *:[span]:last:items-center *:[span]:last:gap-2 flex data-[state=checked]:[&>[data-gsxui-slot-select-item-indicator]]:flex"
 		}
 		{ attrs... }
 		data-gsxui-slot-select-item
 	>
 		<span
-			class={ "pointer-events-none absolute right-2 hidden size-4 items-center justify-center" }
+			class={ "pointer-events-none absolute end-2 hidden size-4 items-center justify-center" }
 			data-gsxui-slot-select-item-indicator
 		>
 			<icon.Check/>

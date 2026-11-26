@@ -11,7 +11,7 @@ component Alert(variant string, children gsx.Node, attrs gsx.Attrs) {
 		data-variant={variant |> default("default")}
 		class={
 			"group/alert",
-			"grid gap-0.5 rounded-lg border px-2.5 py-2 text-left text-sm has-[>svg]:grid-cols-[auto_1fr] has-[>svg]:gap-x-2 *:[svg]:row-span-2 *:[svg]:translate-y-0.5 *:[svg]:text-current *:[svg:not([class*='size-'])]:size-4 w-full",
+			"grid gap-0.5 rounded-lg border px-2.5 py-2 text-start text-sm has-[>svg]:grid-cols-[auto_1fr] has-[>svg]:gap-x-2 *:[svg]:row-span-2 *:[svg]:translate-y-0.5 *:[svg]:text-current *:[svg:not([class*='size-'])]:size-4 w-full",
 			switch variant {
 			case "destructive":
 				"text-destructive bg-card [&>[data-gsxui-slot-alert-description]]:text-destructive/90 *:[svg]:text-current"

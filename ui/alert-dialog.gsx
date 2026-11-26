@@ -37,7 +37,7 @@ component AlertDialogContent(children gsx.Node, attrs gsx.Attrs) {
 	<DialogContent
 		class={
 			"group/alert-dialog-content",
-			"transition-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 bg-popover text-popover-foreground ring-foreground/10 gap-4 rounded-xl p-4 ring-1 duration-100 max-w-xs sm:max-w-sm fixed z-50 top-1/2 left-1/2 w-full -translate-x-1/2 -translate-y-1/2"
+			"transition-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 bg-popover text-popover-foreground ring-foreground/10 gap-4 rounded-xl p-4 ring-1 duration-100 max-w-xs sm:max-w-sm fixed z-50 top-1/2 start-1/2 w-full -translate-x-1/2 rtl:translate-x-1/2 -translate-y-1/2"
 		}
 		hideCloseButton={true}
 		role="alertdialog"
@@ -53,7 +53,7 @@ component AlertDialogContent(children gsx.Node, attrs gsx.Attrs) {
 component AlertDialogHeader(children gsx.Node, attrs gsx.Attrs) {
 	<div
 		class={
-			"grid grid-rows-[auto_1fr] place-items-center gap-1.5 text-center sm:group-data-[size=default]/alert-dialog-content:place-items-start sm:group-data-[size=default]/alert-dialog-content:text-left"
+			"grid grid-rows-[auto_1fr] place-items-center gap-1.5 text-center sm:group-data-[size=default]/alert-dialog-content:place-items-start sm:group-data-[size=default]/alert-dialog-content:text-start"
 		}
 		{ attrs... }
 		data-gsxui-slot-alert-dialog-header

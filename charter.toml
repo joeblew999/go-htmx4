@@ -1,21 +1,27 @@
 # What charter adds to wrangler.jsonc (https://github.com/joeblew999/charter). The Worker itself, its bindings,
 # variables and environments, is wrangler.jsonc.
 health = "/healthz"
-# Production: the live site search engines read, and what charter live-test tries.
+# Production: the live site search engines read, and what charter test --base tries.
 url = "https://go-htmx4.ubuntusoftware.net"
 
 [build]
 # Workers Paid takes 10 MB of Wasm, gzipped.
 limit = 10000000
 
-# Tests against the Worker: BASE is its URL. run is part of charter check; the suites are charter test <name>.
+# Tests against the Worker: BASE is its URL, TARGET local (wrangler dev) or deployed. run is part of charter test;
+# the suites are charter test <name>. A deployed Worker is asked the same with --env staging.
 [test]
 run = ["go test -C e2e -count=1 ./smoke"]
 [test.suites]
 e2e = ["go test -C e2e -count=1 -v ."]
 load = ["go test -C e2e -count=1 -v -timeout 10m ./load"]
 
-# The app's languages (charter intl).
+# Where wrangler.jsonc's environments are deployed: charter test --env <name>.
+[urls]
+staging = "https://go-htmx4-staging.gedw99.workers.dev"
+production = "https://go-htmx4.ubuntusoftware.net"
+
+# The app's languages (charter run languages).
 [intl]
 locales = ["en", "en-IN", "de", "fr", "es", "pt-BR", "pt-PT", "ar", "he", "ja", "zh-Hans", "zh-Hant", "hi", "ru"]
 catalogs = "locales"
@@ -39,6 +45,6 @@ ar = "Modern Standard Arabic, addressing the reader formally."
 zh-Hans = "Simplified Chinese for mainland China; half-width spaces around Latin product names as the catalog does."
 zh-Hant = "Traditional Chinese for Taiwan; half-width spaces around Latin product names as the catalog does."
 
-# How it answers search engines (charter seo). The live site is url, above.
+# How it answers search engines (charter run audit). The live site is url, above.
 [seo]
 [seo.lighthouse]

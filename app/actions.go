@@ -10,7 +10,7 @@ import (
 
 	"github.com/gsxhq/gsx"
 	"github.com/joeblew999/charter/intl"
-	"github.com/joeblew999/charter/web"
+	"github.com/joeblew999/charter/transport"
 	"github.com/joeblew999/go-htmx4/locales"
 	"github.com/joeblew999/go-htmx4/views"
 )
@@ -21,7 +21,7 @@ import (
 
 // respond writes a route's answer.
 func respond(w http.ResponseWriter, r *http.Request, n gsx.Node) {
-	if err := web.Render(w, r, n); err != nil {
+	if err := transport.Render(w, r, n); err != nil {
 		log.Printf("render %s %s: %v", r.Method, r.URL.Path, err)
 	}
 }

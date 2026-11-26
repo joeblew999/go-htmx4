@@ -64,7 +64,7 @@ component DrawerContent(direction string, children gsx.Node, attrs gsx.Attrs) {
 }
 
 component DrawerHeader(children gsx.Node, attrs gsx.Attrs) {
-	<div class={ "gap-0.5 p-4 md:gap-0.5 md:text-left flex flex-col" } { attrs... } data-gsxui-slot-drawer-header>
+	<div class={ "gap-0.5 p-4 md:gap-0.5 md:text-start flex flex-col" } { attrs... } data-gsxui-slot-drawer-header>
 		{ children }
 	</div>
 }

@@ -178,7 +178,7 @@ component SidebarRail(attrs gsx.Attrs) {
 component SidebarInset(children gsx.Node, attrs gsx.Attrs) {
 	<main
 		class={
-			"bg-background md:[[data-gsxui-slot-sidebar-desktop][data-variant=inset]~&]:m-2 md:[[data-gsxui-slot-sidebar-desktop][data-variant=inset]~&]:ml-0 md:[[data-gsxui-slot-sidebar-desktop][data-variant=inset]~&]:rounded-xl md:[[data-gsxui-slot-sidebar-desktop][data-variant=inset]~&]:shadow-sm md:[[data-gsxui-slot-sidebar-desktop][data-variant=inset][data-state=collapsed]~&]:ml-2"
+			"bg-background md:[[data-gsxui-slot-sidebar-desktop][data-variant=inset]~&]:m-2 md:[[data-gsxui-slot-sidebar-desktop][data-variant=inset]~&]:ms-0 md:[[data-gsxui-slot-sidebar-desktop][data-variant=inset]~&]:rounded-xl md:[[data-gsxui-slot-sidebar-desktop][data-variant=inset]~&]:shadow-sm md:[[data-gsxui-slot-sidebar-desktop][data-variant=inset][data-state=collapsed]~&]:ms-2"
 		}
 		{ attrs... }
 		data-gsxui-slot-sidebar-inset
@@ -314,7 +314,7 @@ component sidebarMenuButtonRoot(isActive bool, variant string, size string, href
 	{ if link {
 		<a
 			class={
-				"w-full items-center overflow-hidden ring-sidebar-ring hover:bg-sidebar-accent hover:text-sidebar-accent-foreground active:bg-sidebar-accent active:text-sidebar-accent-foreground [&[data-active]]:bg-sidebar-accent [&[data-active]]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground gap-2 rounded-md p-2 text-left text-sm transition-[width,height,padding] [[data-gsxui-slot-sidebar-menu-item]:has(>[data-gsxui-slot-sidebar-menu-action])>&]:pe-8 [[data-gsxui-slot-sidebar-desktop][data-gsxui-slot-sidebar-desktop][data-collapsible=icon]_&]:size-8 [[data-gsxui-slot-sidebar-desktop][data-gsxui-slot-sidebar-desktop][data-collapsible=icon]_&]:p-2 [[data-gsxui-slot-sidebar-desktop][data-gsxui-slot-sidebar-desktop][data-collapsible=icon]_&[data-size=lg]]:p-0 focus-visible:ring-2 [&[data-active]]:font-medium flex h-8 data-[size=sm]:h-7 data-[size=sm]:text-xs data-[size=lg]:h-12 data-[variant=outline]:bg-background data-[variant=outline]:shadow-[0_0_0_1px_var(--sidebar-border)] data-[variant=outline]:hover:shadow-[0_0_0_1px_var(--sidebar-accent)] [&>span:last-child]:truncate disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&_svg]:size-4 [&_svg]:shrink-0 outline-hidden"
+				"w-full items-center overflow-hidden ring-sidebar-ring hover:bg-sidebar-accent hover:text-sidebar-accent-foreground active:bg-sidebar-accent active:text-sidebar-accent-foreground [&[data-active]]:bg-sidebar-accent [&[data-active]]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground gap-2 rounded-md p-2 text-start text-sm transition-[width,height,padding] [[data-gsxui-slot-sidebar-menu-item]:has(>[data-gsxui-slot-sidebar-menu-action])>&]:pe-8 [[data-gsxui-slot-sidebar-desktop][data-gsxui-slot-sidebar-desktop][data-collapsible=icon]_&]:size-8 [[data-gsxui-slot-sidebar-desktop][data-gsxui-slot-sidebar-desktop][data-collapsible=icon]_&]:p-2 [[data-gsxui-slot-sidebar-desktop][data-gsxui-slot-sidebar-desktop][data-collapsible=icon]_&[data-size=lg]]:p-0 focus-visible:ring-2 [&[data-active]]:font-medium flex h-8 data-[size=sm]:h-7 data-[size=sm]:text-xs data-[size=lg]:h-12 data-[variant=outline]:bg-background data-[variant=outline]:shadow-[0_0_0_1px_var(--sidebar-border)] data-[variant=outline]:hover:shadow-[0_0_0_1px_var(--sidebar-accent)] [&>span:last-child]:truncate disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&_svg]:size-4 [&_svg]:shrink-0 outline-hidden"
 			}
 			href={href}
 			{ if isActive {
@@ -332,7 +332,7 @@ component sidebarMenuButtonRoot(isActive bool, variant string, size string, href
 	} else {
 		<button
 			class={
-				"w-full items-center overflow-hidden ring-sidebar-ring hover:bg-sidebar-accent hover:text-sidebar-accent-foreground active:bg-sidebar-accent active:text-sidebar-accent-foreground [&[data-active]]:bg-sidebar-accent [&[data-active]]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground gap-2 rounded-md p-2 text-left text-sm transition-[width,height,padding] [[data-gsxui-slot-sidebar-menu-item]:has(>[data-gsxui-slot-sidebar-menu-action])>&]:pe-8 [[data-gsxui-slot-sidebar-desktop][data-gsxui-slot-sidebar-desktop][data-collapsible=icon]_&]:size-8 [[data-gsxui-slot-sidebar-desktop][data-gsxui-slot-sidebar-desktop][data-collapsible=icon]_&]:p-2 [[data-gsxui-slot-sidebar-desktop][data-gsxui-slot-sidebar-desktop][data-collapsible=icon]_&[data-size=lg]]:p-0 focus-visible:ring-2 [&[data-active]]:font-medium flex h-8 data-[size=sm]:h-7 data-[size=sm]:text-xs data-[size=lg]:h-12 data-[variant=outline]:bg-background data-[variant=outline]:shadow-[0_0_0_1px_var(--sidebar-border)] data-[variant=outline]:hover:shadow-[0_0_0_1px_var(--sidebar-accent)] [&>span:last-child]:truncate disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&_svg]:size-4 [&_svg]:shrink-0 outline-hidden"
+				"w-full items-center overflow-hidden ring-sidebar-ring hover:bg-sidebar-accent hover:text-sidebar-accent-foreground active:bg-sidebar-accent active:text-sidebar-accent-foreground [&[data-active]]:bg-sidebar-accent [&[data-active]]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground gap-2 rounded-md p-2 text-start text-sm transition-[width,height,padding] [[data-gsxui-slot-sidebar-menu-item]:has(>[data-gsxui-slot-sidebar-menu-action])>&]:pe-8 [[data-gsxui-slot-sidebar-desktop][data-gsxui-slot-sidebar-desktop][data-collapsible=icon]_&]:size-8 [[data-gsxui-slot-sidebar-desktop][data-gsxui-slot-sidebar-desktop][data-collapsible=icon]_&]:p-2 [[data-gsxui-slot-sidebar-desktop][data-gsxui-slot-sidebar-desktop][data-collapsible=icon]_&[data-size=lg]]:p-0 focus-visible:ring-2 [&[data-active]]:font-medium flex h-8 data-[size=sm]:h-7 data-[size=sm]:text-xs data-[size=lg]:h-12 data-[variant=outline]:bg-background data-[variant=outline]:shadow-[0_0_0_1px_var(--sidebar-border)] data-[variant=outline]:hover:shadow-[0_0_0_1px_var(--sidebar-accent)] [&>span:last-child]:truncate disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&_svg]:size-4 [&_svg]:shrink-0 outline-hidden"
 			}
 			type="button"
 			disabled={disabled}
@@ -393,7 +393,7 @@ component SidebarMenuSkeleton(showIcon bool, attrs gsx.Attrs) {
 component SidebarMenuSub(children gsx.Node, attrs gsx.Attrs) {
 	<ul
 		class={
-			"border-sidebar-border mx-3.5 translate-x-px gap-1 border-l px-2.5 py-0.5 [[data-gsxui-slot-sidebar-desktop][data-collapsible=icon]_&]:hidden flex flex-col"
+			"border-sidebar-border mx-3.5 translate-x-px rtl:-translate-x-px gap-1 border-s px-2.5 py-0.5 [[data-gsxui-slot-sidebar-desktop][data-collapsible=icon]_&]:hidden flex flex-col"
 		}
 		{ attrs... }
 		data-gsxui-slot-sidebar-menu-sub
@@ -409,7 +409,7 @@ component SidebarMenuSubItem(children gsx.Node, attrs gsx.Attrs) {
 component SidebarMenuSubButton(size string, isActive bool, children gsx.Node, attrs gsx.Attrs) {
 	<a
 		class={
-			"text-sidebar-foreground ring-sidebar-ring hover:bg-sidebar-accent hover:text-sidebar-accent-foreground active:bg-sidebar-accent active:text-sidebar-accent-foreground [&>svg]:text-sidebar-accent-foreground [&[data-active]]:bg-sidebar-accent [&[data-active]]:text-sidebar-accent-foreground h-7 gap-2 rounded-md px-2 focus-visible:ring-2 data-[size=md]:text-sm data-[size=sm]:text-xs [&>svg]:size-4 flex items-center overflow-hidden [&>span:last-child]:truncate -translate-x-px min-w-0 outline-hidden disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&>svg]:shrink-0"
+			"text-sidebar-foreground ring-sidebar-ring hover:bg-sidebar-accent hover:text-sidebar-accent-foreground active:bg-sidebar-accent active:text-sidebar-accent-foreground [&>svg]:text-sidebar-accent-foreground [&[data-active]]:bg-sidebar-accent [&[data-active]]:text-sidebar-accent-foreground h-7 gap-2 rounded-md px-2 focus-visible:ring-2 data-[size=md]:text-sm data-[size=sm]:text-xs [&>svg]:size-4 flex items-center overflow-hidden [&>span:last-child]:truncate -translate-x-px rtl:translate-x-px min-w-0 outline-hidden disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&>svg]:shrink-0"
 		}
 		data-size={size |> default("md")}
 		data-active={isActive}

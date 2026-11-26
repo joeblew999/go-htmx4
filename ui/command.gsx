@@ -76,7 +76,7 @@ component CommandDialog(title string, description string, trigger gsx.Node, chil
 component CommandInput(placeholder string, attrs gsx.Attrs) {
 	<div
 		class={
-			"mx-1 mt-1 pl-2 bg-input/30 border-input/30 border h-8 rounded-lg shadow-none [&>[data-gsxui-slot-input-group-addon]]:pl-2 [&>svg]:size-4 [&>svg]:shrink-0 [&>svg]:opacity-50 flex items-center gap-2"
+			"mx-1 mt-1 ps-2 bg-input/30 border-input/30 border h-8 rounded-lg shadow-none [&>[data-gsxui-slot-input-group-addon]]:ps-2 [&>svg]:size-4 [&>svg]:shrink-0 [&>svg]:opacity-50 flex items-center gap-2"
 		}
 		data-gsxui-slot-command-input-wrapper
 	>
@@ -175,7 +175,7 @@ component CommandItem(value string, children gsx.Node, attrs gsx.Attrs) {
 
 component CommandShortcut(children gsx.Node, attrs gsx.Attrs) {
 	<span
-		class={ "text-muted-foreground group-data-selected/command-item:text-foreground ml-auto text-xs tracking-widest" }
+		class={ "text-muted-foreground group-data-selected/command-item:text-foreground ms-auto text-xs tracking-widest" }
 		{ attrs... }
 		data-gsxui-slot-command-shortcut
 	>
