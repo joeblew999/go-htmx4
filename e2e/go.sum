@@ -4,7 +4,7 @@ github.com/chromedp/chromedp v0.24.0 h1:bARawUSS5gshTOsNbFz2YFJyjaQCt7IHcW6E2mqD
 github.com/chromedp/chromedp v0.24.0/go.mod h1:cz9BPo2oR1YBCu7e+KTdO+7uMvTTuEYh11fErlxdCuQ=
 github.com/go-json-experiment/json v0.0.0-20260623181947-01eb4420fa68 h1:KZaTBSyshWX3MP5jukJcNSuXDQTO+rNpt0J564dX/eg=
 github.com/go-json-experiment/json v0.0.0-20260623181947-01eb4420fa68/go.mod h1:tphK2c80bpPhMOI4v6bIc2xWywPfbqi1Z06+RcrMkDg=
-github.com/joeblew999/charter v0.29.1 h1:UgSzcHT4uVd//2UnxhctSSUy97v0phf6Bb1k4dOAZiU=
-github.com/joeblew999/charter v0.29.1/go.mod h1:HBHvirvM5whSYmxaDI8OGmHp6+bPNrVPogjIOXzMl38=
+github.com/joeblew999/charter v0.29.2 h1:FI1u7EnyJIR7ysIVdd/aOciD+iasFjteyunLD7rdq6M=
+github.com/joeblew999/charter v0.29.2/go.mod h1:HBHvirvM5whSYmxaDI8OGmHp6+bPNrVPogjIOXzMl38=
 golang.org/x/net v0.63.0 h1:HCoTmNh9EpD1PpK8gBNFY4gcTY4N+KQEO8ylfIKqFJ0=
 golang.org/x/net v0.63.0/go.mod h1:15JLg3IX1bLjHK264EZQEbIpTiR/KVLuo9CTRWd0pig=

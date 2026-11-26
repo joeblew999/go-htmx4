@@ -36,8 +36,8 @@ github.com/jackielii/structpages/tools/lint v0.1.21 h1:64iKrqGP1hxcLNLWgmytzDkD6
 github.com/jackielii/structpages/tools/lint v0.1.21/go.mod h1:oarSWon7XjTCjxf4VjlStOJ7mAZWPOB2zlnTNMs/kpw=
 github.com/jackielii/tailwind-merge-go v0.0.0-20260726184505-8a911ed0cf9a h1:sQ0IKLvvmncbGl+iajFA01/M6bLcrJLYAXHwhHOTh+s=
 github.com/jackielii/tailwind-merge-go v0.0.0-20260726184505-8a911ed0cf9a/go.mod h1:voVtdB9w9rAqShh8L7IMzv5ipGAeDCP9G3O0PqrKwnc=
-github.com/joeblew999/charter v0.29.1 h1:UgSzcHT4uVd//2UnxhctSSUy97v0phf6Bb1k4dOAZiU=
-github.com/joeblew999/charter v0.29.1/go.mod h1:HBHvirvM5whSYmxaDI8OGmHp6+bPNrVPogjIOXzMl38=
+github.com/joeblew999/charter v0.29.2 h1:FI1u7EnyJIR7ysIVdd/aOciD+iasFjteyunLD7rdq6M=
+github.com/joeblew999/charter v0.29.2/go.mod h1:HBHvirvM5whSYmxaDI8OGmHp6+bPNrVPogjIOXzMl38=
 github.com/mattn/go-isatty v0.0.24 h1:tGZZoVgT/KiqK1c8ocVLeDS8BSWMRd47J3Lbz7vsReI=
 github.com/mattn/go-isatty v0.0.24/go.mod h1:nMCL3Zebbrt45jsMDgnfIwz6ydEQApk5oEI3HqDio6A=
 github.com/mazznoer/csscolorparser v0.1.8 h1:i7w3wHW99d0q0KZv1ONkU/efXFAKcw1mgEgW6gj8KUA=
